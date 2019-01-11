@@ -210,7 +210,7 @@ namespace HitachiEIP {
       private void cbClassCode_SelectedIndexChanged(object sender, EventArgs e) {
          cbFunction.Items.Clear();
          Attributes = null;
-         if (cbClassCode.SelectedIndex >= 0) {
+         if (cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0) {
             int n = 0;
             switch (ClassCodes[cbClassCode.SelectedIndex]) {
                case eipClassCode.Index_function:

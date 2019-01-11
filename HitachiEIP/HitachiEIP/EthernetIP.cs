@@ -9,6 +9,8 @@ using System.Windows.Forms;
 
 namespace HitachiEIP {
 
+   #region Public Enums
+
    public enum mem {
       BigEndian,
       LittleEndian
@@ -43,11 +45,7 @@ namespace HitachiEIP {
       Attribute = 0x30,
    }
 
-   public enum HitachiCommands {
-      Set = 0x32,
-      Get = 0x33,
-      Service = 0x34,
-   }
+   #endregion
 
    #region EtherNetIP Definitions
 
@@ -90,17 +88,17 @@ namespace HitachiEIP {
 
    // Attributes within Print Format class 0x67
    public enum eipPrint_format_function {
-      Message_Name = 0x14010364,
-      Print_Item = 0x19010365,
-      Number_Of_Columns = 0x15010366,
-      Format_Type = 0x0E010367,
-      Insert_Column = 0x0F010369,
-      Delete_Column = 0x0801036A,
-      Add_Column = 0x0101036B,
-      Number_Of_Print_Line_And_Print_Format = 0x1601036C,
-      Format_Setup = 0x0D01036D,
-      Adding_Print_Items = 0x0301036E,
-      Deleting_Print_Items = 0x0901036F,
+      Message_Name = 0x14010264,
+      Print_Item = 0x19010265,
+      Number_Of_Columns = 0x15010266,
+      Format_Type = 0x0E010267,
+      Insert_Column = 0x0F010469,
+      Delete_Column = 0x0801046A,
+      Add_Column = 0x0101046B,
+      Number_Of_Print_Line_And_Print_Format = 0x1601016C,
+      Format_Setup = 0x0D01016D,
+      Adding_Print_Items = 0x0301046E,
+      Deleting_Print_Items = 0x0901046F,
       Print_Character_String = 0x18010371,
       Line_Count = 0x12010372,
       Line_Spacing = 0x13010373,
@@ -112,7 +110,7 @@ namespace HitachiEIP {
       Prefix_Code = 0x17010379,
       X_and_Y_Coordinate = 0x1C01037A,
       InterCharacter_SpaceII = 0x1101037B,
-      Add_To_End_Of_String = 0x0201038A,
+      Add_To_End_Of_String = 0x0201018A,
       Calendar_Offset = 0x0601038D,
       DIN_Print = 0x0A01038E,
       EAN_Prefix = 0x0C01038F,
@@ -189,16 +187,16 @@ namespace HitachiEIP {
 
    // Attributes within Substitution Rules class 0x6C
    public enum eipSubstitution_rules_function { // 0x6C
-      Substitution_Rule_Number = 0x03000364,
-      Substitution_Rule_Name = 0x02000365,
+      Number = 0x03000364,
+      Name = 0x02000365,
       Start_Year = 0x01000366,
-      Substitution_Rule_Value_Year = 0x0A000367,
-      Substitution_Rule_Value_Month = 0x08000368,
-      Substitution_Rule_Value_Day = 0x04000369,
-      Substitution_Rule_Value_Hour = 0x0600036A,
-      Substitution_Rule_Value_Minute = 0x0700036B,
-      Substitution_Rule_Value_Week = 0x0900036C,
-      Substitution_Rule_Value_Day_Of_Week = 0x0500036D,
+      Year = 0x0A000367,
+      Month = 0x08000368,
+      Day = 0x04000369,
+      Hour = 0x0600036A,
+      Minute = 0x0700036B,
+      Week = 0x0900036C,
+      Day_Of_Week = 0x0500036D,
    }
 
    // Attributes within Enviroment Setting class 0x71
@@ -209,8 +207,8 @@ namespace HitachiEIP {
       Clock_System = 0x04000368,
       User_Environment_Information = 0x08000269,
       Cirulation_Control_Setting_Value = 0x0300026A,
-      Usage_Time_Of_Circulation_Control = 0x0700036B,
-      Reset_Usage_Time_Of_Citculation_Control = 0x0600036C,
+      Usage_Time_Of_Circulation_Control = 0x0700016B,
+      Reset_Usage_Time_Of_Citculation_Control = 0x0600016C,
    }
 
    // Attributes within Unit Information class 0x73
@@ -271,7 +269,7 @@ namespace HitachiEIP {
 
    // Attributes within Count class 0x79
    public enum eipCount_function {
-      Number_Of_Count_Block = 0x0C000366,
+      Number_Of_Count_Block = 0x0C000266,
       Initial_Value = 0x09000367,
       Count_Range_1 = 0x04000368,
       Count_Range_2 = 0x05000369,
@@ -291,28 +289,26 @@ namespace HitachiEIP {
 
    // Attributes within Index class 0x7A
    public enum eipIndex_function {
-      Number_Of_Count_Block = 0x0C000366,
-      Initial_Value = 0x09000367,
-      Count_Range_1 = 0x04000368,
-      Count_Range_2 = 0x05000369,
-      Update_Unit_Halfway = 0x0F00036A,
-      Update_Unit_Unit = 0x1000036B,
-      Increment_Value = 0x0800036C,
-      Direction_Value = 0x0700036D,
-      Jump_From = 0x0A00036E,
-      Jump_To = 0x0B00036F,
-      Reset_Value = 0x0D000370,
-      Type_Of_Reset_Signal = 0x0E000371,
-      Availibility_Of_External_Count = 0x01000372,
-      Availibility_Of_Zero_Suppression = 0x02000373,
-      Count_Multiplier = 0x03000374,
-      Count_Skip = 0x06000375,
+      Start_Stop_Management_Flag = 0x0A000364,
+      Automatic_reflection = 0x01000365,
+      Item_Count = 0x06000366,
+      Column = 0x04000367,
+      Line = 0x07000368,
+      Character_position = 0x03000369,
+      Print_Data_Message_Number = 0x0900036A,
+      Print_Data_Group_Data = 0x0800036B,
+      Substitution_Rules_Setting = 0x0B00036C,
+      User_Pattern_Size = 0x0C00036D,
+      Count_Block = 0x0500036E,
+      Calendar_Block = 0x0200036F,
    }
 
    #endregion
 
 
    public class EIP {
+
+      #region Declarations/Properties
 
       public Int32 port;
       public string IPAddress;
@@ -342,6 +338,10 @@ namespace HitachiEIP {
       public bool ForwardIsOpen {
          get { return O_T_ConnectionID > 0; }
       }
+
+      #endregion
+
+      #region Methods
 
       // Connect to printer
       public bool Connect(string IPAddress, Int32 port) {
@@ -558,8 +558,6 @@ namespace HitachiEIP {
          return packet.ToArray<byte>();
       }
 
-      #region Service Routines
-
       public int GetDropDowns(eipAccessCode code, Type EnumType, ComboBox cb, out byte[] values) {
 
          // Get all names associated with the enumeration
@@ -593,12 +591,18 @@ namespace HitachiEIP {
             }
          }
 
-         // Return the used ones
-         values = value.ToArray<byte>();
+         // Fix up the Attributes combo box
+         string savedText = cb.Text;
+         cb.Text = string.Empty;
          cb.Items.Clear();
          cb.Items.AddRange(name.ToArray<string>());
+         if (cb.FindStringExact(savedText) >= 0) {
+            cb.Text = savedText;
+         }
 
-         return cb.Items.Count;
+         // Return the used ones
+         values = value.ToArray<byte>();
+         return values.Length;
       }
 
       #endregion
