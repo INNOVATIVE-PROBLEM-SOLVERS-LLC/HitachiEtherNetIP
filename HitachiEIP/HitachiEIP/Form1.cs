@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
@@ -14,7 +17,14 @@ namespace HitachiEIP {
 
       eipAccessCode[] AccessCodes;
       eipClassCode[] ClassCodes;
-      byte[] Attributes;
+      uint[] Attributes;
+
+      // Traffic/Log files
+      string TrafficFilename;
+      StreamWriter TrafficFileStream = null;
+
+      string LogFilename;
+      StreamWriter LogFileStream = null;
 
       #endregion
 
@@ -23,7 +33,12 @@ namespace HitachiEIP {
       public Form1() {
          InitializeComponent();
          EIP = new EIP();
+         EIP.Log += EIP_Log;
          SetButtonEnables();
+      }
+
+      private void EIP_Log(EIP sender, string msg) {
+         LogFileStream.WriteLine(msg);
       }
 
       #endregion
@@ -39,6 +54,17 @@ namespace HitachiEIP {
          cbClassCode.Items.AddRange(Enum.GetNames(typeof(eipClassCode)));
          ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
 
+         BuildTrafficFile();
+         BuildLogFile();
+
+      }
+
+      private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
+
+         EIP.Log -= EIP_Log;
+
+         CloseTrafficFile(false);
+         CloseLogFile(false);
       }
 
       #endregion
@@ -65,62 +91,31 @@ namespace HitachiEIP {
 
       private void btnStartSession_Click(object sender, EventArgs e) {
 
-         byte[] ed = EIP.EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
-         EIP.Write(ed, 0, ed.Length);
+         EIP.StartSession();
+         txtSessionID.Text = EIP.SessionID.ToString();
 
-         byte[] data;
-         Int32 bytes;
-         if (EIP.Read(out data, out bytes) && bytes >= 8) {
-            EIP.SessionID = Utils.Get(data, 4, 4, mem.LittleEndian);
-            txtSessionID.Text = EIP.SessionID.ToString();
-         } else {
-            EIP.SessionID = 0;
-            txtSessionID.Text = "0";
-         }
          SetButtonEnables();
       }
 
       private void btnEndSession_Click(object sender, EventArgs e) {
 
-         byte[] ed = EIP.EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
-         EIP.Write(ed, 0, ed.Length);
-
-         byte[] data;
-         Int32 bytes;
-         if (EIP.Read(out data, out bytes)) {
-
-         }
-         EIP.SessionID = 0;
+         EIP.EndSession();
          txtSessionID.Text = string.Empty;
+
          SetButtonEnables();
       }
 
       private void btnForwardOpen_Click(object sender, EventArgs e) {
-         byte[] ed = EIP.EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
-         EIP.Write(ed, 0, ed.Length);
 
-         byte[] data;
-         Int32 bytes;
-         if (EIP.Read(out data, out bytes) && bytes >= 52) {
-            EIP.O_T_ConnectionID = Utils.Get(data, 44, 4, mem.LittleEndian);
-            EIP.T_O_ConnectionID = Utils.Get(data, 48, 4, mem.LittleEndian);
-         } else {
+         EIP.ForwardOpen();
 
-         }
          SetButtonEnables();
       }
 
       private void btnForwardClose_Click(object sender, EventArgs e) {
-         byte[] ed = EIP.EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
-         EIP.Write(ed, 0, ed.Length);
 
-         byte[] data;
-         Int32 bytes;
-         if (!EIP.Read(out data, out bytes)) {
+         EIP.ForwardClose();
 
-         }
-         EIP.O_T_ConnectionID = 0;
-         EIP.T_O_ConnectionID = 0;
          SetButtonEnables();
       }
 
@@ -145,8 +140,16 @@ namespace HitachiEIP {
             EIP.Class = ClassCodes[cbClassCode.SelectedIndex];
             EIP.Instance = 0x01;
             EIP.Attribute = (byte)Attributes[cbFunction.SelectedIndex];
-            EIP.Data = 1;
-            EIP.DataLength = 1;
+            if(EIP.Access == eipAccessCode.Get) {
+               EIP.Data = 0;
+               EIP.DataLength = 0;
+            } else {
+               // Got some work to do here
+               EIP.Data = 1;
+               EIP.DataLength = 1;
+            }
+            string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
+            trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, Attributes[cbFunction.SelectedIndex])}\t";
             try {
                byte[] ed = EIP.EIP_Hitachi(EIP_Type.SendUnitData, AccessCodes[cbAccessCode.SelectedIndex]);
                EIP.Write(ed, 0, ed.Length);
@@ -164,6 +167,7 @@ namespace HitachiEIP {
                         text = "Attribute Not Supported!";
                         break;
                   }
+                  trafficText += text + "\t";
                   txtStatus.Text = $"{status:X2} -- {text} -- {(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute:X2}";
                   switch (EIP.Access) {
                      case eipAccessCode.Set:
@@ -190,15 +194,17 @@ namespace HitachiEIP {
                                     s += $"<{data[i]:X2}>";
                                  }
                               }
-                              txtDataDec.Text = s;
+                              //txtDataDec.Text = s;
                            }
                         }
+                        trafficText += $"{txtDataDec.Text}\t{txtData.Text}";
                         break;
                   }
                }
             } catch (Exception e2) {
 
             }
+            TrafficFileStream.WriteLine(trafficText);
          }
       }
 
@@ -261,6 +267,47 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      private void btnViewTraffic_Click(object sender, EventArgs e) {
+         CloseTrafficFile(true);
+      }
+
+      private void btnViewLog_Click(object sender, EventArgs e) {
+         CloseLogFile(true);
+      }
+
+      private void btnReadAll_Click(object sender, EventArgs e) {
+         // Establish the connection
+         btnConnect_Click(null, null);
+         Thread.Sleep(1000);
+         btnStartSession_Click(null, null);
+         Thread.Sleep(1000);
+         btnForwardOpen_Click(null, null);
+         Thread.Sleep(1000);
+
+         // Read add attributes from the printer
+         cbAccessCode.Text = eipAccessCode.Get.ToString();
+
+         for (int i = 0; i < cbClassCode.Items.Count; i++) {
+            cbClassCode.SelectedIndex = i;
+            this.Refresh();
+            for (int j = 0; j < cbFunction.Items.Count; j++) {
+               cbFunction.SelectedIndex = j;
+               this.Refresh();
+               btnIssueRequest_Click(null, null);
+               this.Refresh();
+            }
+         }
+
+         // Close out the connection
+         Thread.Sleep(1000);
+         btnForwardClose_Click(null, null);
+         Thread.Sleep(1000);
+         btnEndSession_Click(null, null);
+         Thread.Sleep(1000);
+         btnDisconnect_Click(null, null);
+
+      }
+
       #endregion
 
       #region Service Routines
@@ -274,6 +321,34 @@ namespace HitachiEIP {
          btnForwardClose.Enabled = EIP.IsConnected && EIP.SessionIsOpen && EIP.ForwardIsOpen;
          btnIssueRequest.Enabled = EIP.IsConnected && EIP.SessionIsOpen && EIP.ForwardIsOpen && EIP.ForwardIsOpen
             && cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
+      }
+
+      private void BuildTrafficFile() {
+         TrafficFilename = Utils.CreateTimestampLogFileName(txtSaveFolder.Text, "Traffic");
+         TrafficFileStream = new StreamWriter(TrafficFilename, false);
+      }
+
+      private void BuildLogFile() {
+         LogFilename = Utils.CreateTimestampLogFileName(txtSaveFolder.Text, "Log");
+         LogFileStream = new StreamWriter(LogFilename, false);
+      }
+
+      private void CloseTrafficFile(bool view) {
+         TrafficFileStream.Flush();
+         TrafficFileStream.Close();
+         if (view) {
+            Process.Start("notepad.exe", TrafficFilename);
+            BuildTrafficFile();
+         }
+      }
+
+      private void CloseLogFile(bool view) {
+         LogFileStream.Flush();
+         LogFileStream.Close();
+         if (view) {
+            Process.Start("notepad.exe", LogFilename);
+            BuildLogFile();
+         }
       }
 
       #endregion

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace HitachiEIP {
    public static class Utils {
@@ -50,6 +48,10 @@ namespace HitachiEIP {
                break;
          }
          return result;
+      }
+
+      internal static string CreateTimestampLogFileName(string directory, string s) {
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.log");
       }
 
    }

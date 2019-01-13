@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
@@ -56,6 +54,14 @@ namespace HitachiEIP {
       Service = 0x34,
    }
 
+   // Class Code enum values
+   //   The value of the class code enum is
+   //     -- 0x = the values that follow are in Hexadecimal 
+   //     -- aa = enums are listed in ascending numerical order.  These two Hex
+   //             digits cause the sort order to also be in alphabetical order
+   //     -- 0000 = Reserved but not currently used
+   //     -- vv = The Hex value assigned in the Hitachi EtherNet/IP document
+
    // Class codes
    public enum eipClassCode {
       Print_data_management_function = 0x07000066,
@@ -71,6 +77,18 @@ namespace HitachiEIP {
       Count_function = 0x02000079,
       Index_function = 0x0500007A,
    }
+
+   // Attribute enum values
+   //   The value of the class code enum is
+   //     -- 0x = the values that follow are in Hexadecimal 
+   //     -- aa = enums are listed in ascending numerical order.  These two Hex
+   //             digits cause the sort order to also be in alphabetical order
+   //     -- ll = Length of the data to be sent to the printer
+   //     -- cc = 00000abc - Right 3 Bit indicate which access codes are valid for this service
+   //             a = Allow Set if a = 1
+   //             b = Allow Get if b = 1
+   //             c = Allow Service if c = 1
+   //     -- vv = The Hex value assigned in the Hitachi EtherNet/IP document
 
    // Attributes within Print Data Management class 0x66
    public enum eipPrint_Data_Management_function {
@@ -304,9 +322,16 @@ namespace HitachiEIP {
    }
 
    #endregion
-
-
+   
    public class EIP {
+
+      #region Events
+
+      // Event Logging
+      internal event LogHandler Log;
+      internal delegate void LogHandler(EIP sender, string msg);
+
+      #endregion
 
       #region Declarations/Properties
 
@@ -343,19 +368,21 @@ namespace HitachiEIP {
 
       #region Methods
 
-      // Connect to printer
+      // Connect to Hitachi printer
       public bool Connect(string IPAddress, Int32 port) {
          bool result = false;
          try {
             client = new TcpClient(IPAddress, port);
             stream = client.GetStream();
             result = true;
+            LogIt("Connect Complete!");
          } catch (Exception e) {
-
+            LogIt(e.Message);
          }
          return result;
       }
 
+      // Disconnect from Hitachi printer
       public bool Disconnect() {
          bool result = false;
          try {
@@ -364,18 +391,81 @@ namespace HitachiEIP {
             client.Close();
             client = null;
             result = true;
+            LogIt("Disconnect Complete!");
          } catch (Exception e) {
-
+            LogIt(e.Message);
          }
          return result;
       }
 
+      // Start EtherNet/IP Session
+      public void StartSession() {
+         byte[] ed = EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
+         Write(ed, 0, ed.Length);
+
+         byte[] data;
+         Int32 bytes;
+         if (Read(out data, out bytes) && bytes >= 8) {
+            SessionID = Utils.Get(data, 4, 4, mem.LittleEndian);
+         } else {
+            SessionID = 0;
+         }
+         LogIt("Session Started!");
+      }
+
+      // End EtherNet/IP Session
+      internal void EndSession() {
+         byte[] ed = EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
+         Write(ed, 0, ed.Length);
+
+         byte[] data;
+         Int32 bytes;
+         if (Read(out data, out bytes)) {
+
+         }
+         SessionID = 0;
+         LogIt("Session Ended!");
+     }
+
+      // Start EtherNet/IP Forward Open
+      public void ForwardOpen() {
+         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
+         Write(ed, 0, ed.Length);
+
+         byte[] data;
+         Int32 bytes;
+         if (Read(out data, out bytes) && bytes >= 52) {
+            O_T_ConnectionID = Utils.Get(data, 44, 4, mem.LittleEndian);
+            T_O_ConnectionID = Utils.Get(data, 48, 4, mem.LittleEndian);
+         } else {
+            O_T_ConnectionID = 0;
+            T_O_ConnectionID = 0;
+         }
+         LogIt("Forward Open!");
+      }
+
+      // End EtherNet/IP Forward Open
+      public void ForwardClose() {
+         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
+         Write(ed, 0, ed.Length);
+
+         byte[] data;
+         Int32 bytes;
+         if (!Read(out data, out bytes)) {
+
+         }
+         O_T_ConnectionID = 0;
+         T_O_ConnectionID = 0;
+         LogIt("Forward Close!");
+      }
+
+      // Read response to EtherNet/IP request
       public bool Read(out byte[] data, out int bytes) {
          bool result = false;
          data = new byte[256];
          bytes = -1;
          try {
-            for (int t = 0; t < 5; t++) {
+            for (int t = 0; t < 20; t++) {
                if (stream.DataAvailable) {
                   bytes = stream.Read(data, 0, data.Length);
                   break;
@@ -384,18 +474,19 @@ namespace HitachiEIP {
             }
             result = bytes > 0;
          } catch (Exception e) {
-
+            LogIt(e.Message);
          }
          return result;
       }
 
+      // Issue EtherNet/IP request
       public bool Write(byte[] data, int start, int length) {
          bool result = false;
          try {
             stream.Write(data, start, length);
             result = true;
          } catch (Exception e) {
-
+            LogIt(e.Message);
          }
          return result;
       }
@@ -558,7 +649,8 @@ namespace HitachiEIP {
          return packet.ToArray<byte>();
       }
 
-      public int GetDropDowns(eipAccessCode code, Type EnumType, ComboBox cb, out byte[] values) {
+      // Get only the Functions(Attributes) that Apply to this Access Code
+      public int GetDropDowns(eipAccessCode code, Type EnumType, ComboBox cb, out uint[] values) {
 
          // Get all names associated with the enumeration
          string[] allNames = EnumType.GetEnumNames();
@@ -582,12 +674,12 @@ namespace HitachiEIP {
 
          // Weed out the unused ones
          List<string> name = new List<string>();
-         List<byte> value = new List<byte>();
+         List<uint> value = new List<uint>();
          for (int i = 0; i < allValues.Length; i++) {
             int x = allValues[i];
             if ((x & mask) > 0) {
                name.Add(allNames[i].Replace('_', ' '));
-               value.Add((byte)(allValues[i] & 0xFF));
+               value.Add((uint)allValues[i]);
             }
          }
 
@@ -595,14 +687,57 @@ namespace HitachiEIP {
          string savedText = cb.Text;
          cb.Text = string.Empty;
          cb.Items.Clear();
-         cb.Items.AddRange(name.ToArray<string>());
+         cb.Items.AddRange(name.ToArray());
          if (cb.FindStringExact(savedText) >= 0) {
             cb.Text = savedText;
          }
 
          // Return the used ones
-         values = value.ToArray<byte>();
+         values = value.ToArray();
          return values.Length;
+      }
+
+      // Get attribute Human readable name
+      public string GetAttributeName(eipClassCode c, uint v) {
+         switch (c) {
+            case eipClassCode.Print_data_management_function:
+               return ((eipPrint_Data_Management_function)v).ToString();
+            case eipClassCode.Print_format_function:
+               return ((eipPrint_format_function)v).ToString();
+            case eipClassCode.Print_specification_function:
+               return ((eipPrint_specification_function)v).ToString();
+            case eipClassCode.Calendar_function:
+               return ((eipCalendar_function)v).ToString();
+            case eipClassCode.User_pattern_function:
+               return ((eipUser_pattern_function)v).ToString();
+            case eipClassCode.Substitution_rules_function:
+               return ((eipSubstitution_rules_function)v).ToString();
+            case eipClassCode.Enviroment_setting_function:
+               return ((eipEnviroment_setting_function)v).ToString();
+            case eipClassCode.Unit_Information_function:
+               return ((eipUnit_Information_function)v).ToString();
+            case eipClassCode.Operation_management_function:
+               return ((eipOperation_management_function)v).ToString();
+            case eipClassCode.IJP_operation_function:
+               return ((eipIJP_operation_function)v).ToString();
+            case eipClassCode.Count_function:
+               return ((eipCount_function)v).ToString();
+            case eipClassCode.Index_function:
+               return ((eipIndex_function)v).ToString();
+            default:
+               break;
+         }
+         return "Unknown";
+      }
+
+      #endregion
+
+      #region Service Routines
+
+      private void LogIt(string msg) {
+         if (Log != null) {
+            Log(this, msg);
+         }
       }
 
       #endregion
