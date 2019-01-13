@@ -157,7 +157,7 @@ namespace HitachiEIP {
                byte[] data;
                Int32 bytes;
                if (EIP.Read(out data, out bytes)) {
-                  int status = (int)Utils.Get(data, 48, 2, mem.LittleEndian);
+                  int status = (int)EIP.Get(data, 48, 2, mem.LittleEndian);
                   string text = "Unknown!";
                   switch (status) {
                      case 0:
@@ -175,15 +175,13 @@ namespace HitachiEIP {
 
                         break;
                      case eipAccessCode.Get:
-                        string s = string.Empty;
-                        for (int i = 50; i < bytes; i++) {
-                           s += $"{data[i]:X2} ";
-                        }
+                        int length = bytes - 50;
+                        string s = EIP.GetBytes(data, 50, length);
                         txtData.Text = s;
-                        txtDataDec.Text = "?";
+                        txtDataDec.Text = "N/A";
                         if (bytes > 50) {
-                           if (bytes < 55) {
-                              int x = (int)Utils.Get(data, 50, bytes - 50, mem.BigEndian);
+                           if (length < 5) {
+                              int x = (int)EIP.Get(data, 50, length, mem.BigEndian);
                               txtDataDec.Text = x.ToString();
                            } else {
                               s = string.Empty;
@@ -197,7 +195,7 @@ namespace HitachiEIP {
                               //txtDataDec.Text = s;
                            }
                         }
-                        trafficText += $"{txtDataDec.Text}\t{txtData.Text}";
+                        trafficText += $"{length}\t{txtDataDec.Text}\t{txtData.Text}";
                         break;
                   }
                }
@@ -219,41 +217,41 @@ namespace HitachiEIP {
          if (cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0) {
             int n = 0;
             switch (ClassCodes[cbClassCode.SelectedIndex]) {
-               case eipClassCode.Index_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIndex_function), cbFunction, out Attributes);
+               case eipClassCode.Index:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIndex), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Print_data_management_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_Data_Management_function), cbFunction, out Attributes);
+               case eipClassCode.Print_data_management:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_Data_Management), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Print_format_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_format_function), cbFunction, out Attributes);
+               case eipClassCode.Print_format:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_format), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Print_specification_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_specification_function), cbFunction, out Attributes);
+               case eipClassCode.Print_specification:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_specification), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Calendar_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCalendar_function), cbFunction, out Attributes);
+               case eipClassCode.Calendar:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCalendar), cbFunction, out Attributes);
                   break;
-               case eipClassCode.User_pattern_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUser_pattern_function), cbFunction, out Attributes);
+               case eipClassCode.User_pattern:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUser_pattern), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Substitution_rules_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipSubstitution_rules_function), cbFunction, out Attributes);
+               case eipClassCode.Substitution_rules:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipSubstitution_rules), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Enviroment_setting_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipEnviroment_setting_function), cbFunction, out Attributes);
+               case eipClassCode.Enviroment_setting:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipEnviroment_setting), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Unit_Information_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUnit_Information_function), cbFunction, out Attributes);
+               case eipClassCode.Unit_Information:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUnit_Information), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Operation_management_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipOperation_management_function), cbFunction, out Attributes);
+               case eipClassCode.Operation_management:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipOperation_management), cbFunction, out Attributes);
                   break;
-               case eipClassCode.IJP_operation_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIJP_operation_function), cbFunction, out Attributes);
+               case eipClassCode.IJP_operation:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIJP_operation), cbFunction, out Attributes);
                   break;
-               case eipClassCode.Count_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCount_function), cbFunction, out Attributes);
+               case eipClassCode.Count:
+                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCount), cbFunction, out Attributes);
                   break;
                default:
                   break;
@@ -278,11 +276,8 @@ namespace HitachiEIP {
       private void btnReadAll_Click(object sender, EventArgs e) {
          // Establish the connection
          btnConnect_Click(null, null);
-         Thread.Sleep(1000);
          btnStartSession_Click(null, null);
-         Thread.Sleep(1000);
          btnForwardOpen_Click(null, null);
-         Thread.Sleep(1000);
 
          // Read add attributes from the printer
          cbAccessCode.Text = eipAccessCode.Get.ToString();
@@ -294,16 +289,12 @@ namespace HitachiEIP {
                cbFunction.SelectedIndex = j;
                this.Refresh();
                btnIssueRequest_Click(null, null);
-               this.Refresh();
             }
          }
 
          // Close out the connection
-         Thread.Sleep(1000);
          btnForwardClose_Click(null, null);
-         Thread.Sleep(1000);
          btnEndSession_Click(null, null);
-         Thread.Sleep(1000);
          btnDisconnect_Click(null, null);
 
       }
@@ -324,12 +315,12 @@ namespace HitachiEIP {
       }
 
       private void BuildTrafficFile() {
-         TrafficFilename = Utils.CreateTimestampLogFileName(txtSaveFolder.Text, "Traffic");
+         TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false);
       }
 
       private void BuildLogFile() {
-         LogFilename = Utils.CreateTimestampLogFileName(txtSaveFolder.Text, "Log");
+         LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
          LogFileStream = new StreamWriter(LogFilename, false);
       }
 
@@ -349,6 +340,10 @@ namespace HitachiEIP {
             Process.Start("notepad.exe", LogFilename);
             BuildLogFile();
          }
+      }
+
+      private string CreateFileName(string directory, string s) {
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.txt");
       }
 
       #endregion

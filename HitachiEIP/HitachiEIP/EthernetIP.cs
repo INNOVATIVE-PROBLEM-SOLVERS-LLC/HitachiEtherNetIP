@@ -64,18 +64,18 @@ namespace HitachiEIP {
 
    // Class codes
    public enum eipClassCode {
-      Print_data_management_function = 0x07000066,
-      Print_format_function = 0x08000067,
-      Print_specification_function = 0x09000068,
-      Calendar_function = 0x01000069,
-      User_pattern_function = 0x0C00006B,
-      Substitution_rules_function = 0x0A00006C,
-      Enviroment_setting_function = 0x03000071,
-      Unit_Information_function = 0x0B000073,
-      Operation_management_function = 0x06000074,
-      IJP_operation_function = 0x04000075,
-      Count_function = 0x02000079,
-      Index_function = 0x0500007A,
+      Print_data_management = 0x07000066,
+      Print_format = 0x08000067,
+      Print_specification = 0x09000068,
+      Calendar = 0x01000069,
+      User_pattern = 0x0C00006B,
+      Substitution_rules = 0x0A00006C,
+      Enviroment_setting = 0x03000071,
+      Unit_Information = 0x0B000073,
+      Operation_management = 0x06000074,
+      IJP_operation = 0x04000075,
+      Count = 0x02000079,
+      Index = 0x0500007A,
    }
 
    // Attribute enum values
@@ -91,7 +91,7 @@ namespace HitachiEIP {
    //     -- vv = The Hex value assigned in the Hitachi EtherNet/IP document
 
    // Attributes within Print Data Management class 0x66
-   public enum eipPrint_Data_Management_function {
+   public enum eipPrint_Data_Management {
       Select_Message = 0x09000464,
       Store_Print_Data = 0x0A000165,
       Delete_Print_Data = 0x03000167,
@@ -105,7 +105,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Print Format class 0x67
-   public enum eipPrint_format_function {
+   public enum eipPrint_format {
       Message_Name = 0x14010264,
       Print_Item = 0x19010265,
       Number_Of_Columns = 0x15010266,
@@ -137,7 +137,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Print Specification class 0x68
-   public enum eipPrint_specification_function {
+   public enum eipPrint_specification {
       Character_Height = 0x02010364,
       Ink_Drop_Use = 0x08010365,
       High_Speed_Print = 0x06010366,
@@ -162,7 +162,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Calendar class 0x69
-   public enum eipCalendar_function {
+   public enum eipCalendar {
       Shift_Count_Condition = 0x0A010265,
       First_Calendar_Block_Number = 0x03010266,
       Calendar_Block_Number_In_Item = 0x01010267,
@@ -198,13 +198,13 @@ namespace HitachiEIP {
    }
 
    // Attributes within User Pattern class 0x6B
-   public enum eipUser_pattern_function { // 0x6B
+   public enum eipUser_pattern { // 0x6B
       User_Pattern_Fixed = 0x01000364,
       User_Pattern_Free = 0x02000365,
    }
 
    // Attributes within Substitution Rules class 0x6C
-   public enum eipSubstitution_rules_function { // 0x6C
+   public enum eipSubstitution_rules { // 0x6C
       Number = 0x03000364,
       Name = 0x02000365,
       Start_Year = 0x01000366,
@@ -218,7 +218,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Enviroment Setting class 0x71
-   public enum eipEnviroment_setting_function {
+   public enum eipEnviroment_setting {
       Current_Time = 0x05000365,
       Calendar_Date_Time = 0x01000366,
       Calendar_Date_Time_Availibility = 0x02000367,
@@ -230,7 +230,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Unit Information class 0x73
-   public enum eipUnit_Information_function {
+   public enum eipUnit_Information {
       Unit_Information = 0x14000264,
       Model_Name = 0x0F00026B,
       Serial_Number = 0x1100026C,
@@ -255,7 +255,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Operation Management class 0x74
-   public enum eipOperation_management_function {
+   public enum eipOperation_management {
       Operating_Management = 0x0C000264,
       Ink_Operating_Time = 0x09020365,
       Alarm_Time = 0x01020366,
@@ -272,7 +272,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within IJP Operation class 0x75
-   public enum eipIJP_operation_function {
+   public enum eipIJP_operation {
       Remote_operation_information = 0x07000264,
       Fault_and_warning_history = 0x04000266,
       Operating_condition = 0x06000267,
@@ -286,7 +286,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Count class 0x79
-   public enum eipCount_function {
+   public enum eipCount {
       Number_Of_Count_Block = 0x0C000266,
       Initial_Value = 0x09000367,
       Count_Range_1 = 0x04000368,
@@ -306,7 +306,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Index class 0x7A
-   public enum eipIndex_function {
+   public enum eipIndex {
       Start_Stop_Management_Flag = 0x0A000364,
       Automatic_reflection = 0x01000365,
       Item_Count = 0x06000366,
@@ -406,7 +406,7 @@ namespace HitachiEIP {
          byte[] data;
          Int32 bytes;
          if (Read(out data, out bytes) && bytes >= 8) {
-            SessionID = Utils.Get(data, 4, 4, mem.LittleEndian);
+            SessionID = Get(data, 4, 4, mem.LittleEndian);
          } else {
             SessionID = 0;
          }
@@ -435,8 +435,8 @@ namespace HitachiEIP {
          byte[] data;
          Int32 bytes;
          if (Read(out data, out bytes) && bytes >= 52) {
-            O_T_ConnectionID = Utils.Get(data, 44, 4, mem.LittleEndian);
-            T_O_ConnectionID = Utils.Get(data, 48, 4, mem.LittleEndian);
+            O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
+            T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
          } else {
             O_T_ConnectionID = 0;
             T_O_ConnectionID = 0;
@@ -496,56 +496,56 @@ namespace HitachiEIP {
          List<byte> packet = new List<byte>();
          switch (c) {
             case eipAccessCode.Get:
-               Utils.Add(packet, (ulong)t, 2);                                 // Command
-               Utils.Add(packet, (ulong)30, 2);                                // Length of added data at end
-               Utils.Add(packet, (ulong)SessionID, 4);                         // Session ID
-               Utils.Add(packet, (ulong)0, 4);                                 // Success
-               Utils.Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
-               Utils.Add(packet, (ulong)0, 4);                                 // option flags
-               Utils.Add(packet, (ulong)0, 4);                                 // option interface handle
-               Utils.Add(packet, (ulong)30, 2);                                // Timeout
-               Utils.Add(packet, (ulong)2, 2);                                 // Item count
+               Add(packet, (ulong)t, 2);                                 // Command
+               Add(packet, (ulong)30, 2);                                // Length of added data at end
+               Add(packet, (ulong)SessionID, 4);                         // Session ID
+               Add(packet, (ulong)0, 4);                                 // Success
+               Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
+               Add(packet, (ulong)0, 4);                                 // option flags
+               Add(packet, (ulong)0, 4);                                 // option interface handle
+               Add(packet, (ulong)30, 2);                                // Timeout
+               Add(packet, (ulong)2, 2);                                 // Item count
 
                // Item #1
-               Utils.Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
-               Utils.Add(packet, (ulong)4, 2);                              // length of 4
-               Utils.Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
+               Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
+               Add(packet, (ulong)4, 2);                              // length of 4
+               Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
 
                // Item #2
-               Utils.Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
-               Utils.Add(packet, (ulong)10, 2);                             // length of 10
-               Utils.Add(packet, (ulong)2, 2);                              // Count Sequence
-               Utils.Add(packet, (byte)c, 3);                               // Hitachi command and count
-               Utils.Add(packet, (byte)Segment.Class, (byte)Class);         // Class
-               Utils.Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
-               Utils.Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
+               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
+               Add(packet, (ulong)10, 2);                             // length of 10
+               Add(packet, (ulong)2, 2);                              // Count Sequence
+               Add(packet, (byte)c, 3);                               // Hitachi command and count
+               Add(packet, (byte)Segment.Class, (byte)Class);         // Class
+               Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
+               Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
                break;
             case eipAccessCode.Set:
             case eipAccessCode.Service:
-               Utils.Add(packet, (ulong)t, 2);                                 // Command
-               Utils.Add(packet, (ulong)(30 + DataLength), 2);                 // Length of added data at end
-               Utils.Add(packet, (ulong)SessionID, 4);                         // Session ID
-               Utils.Add(packet, (ulong)0, 4);                                 // Success
-               Utils.Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
-               Utils.Add(packet, (ulong)0, 4);                                 // option flags
-               Utils.Add(packet, (ulong)0, 4);                                 // option interface handle
-               Utils.Add(packet, (ulong)30, 2);                                // Timeout
-               Utils.Add(packet, (ulong)2, 2);                                 // Item count
+               Add(packet, (ulong)t, 2);                                 // Command
+               Add(packet, (ulong)(30 + DataLength), 2);                 // Length of added data at end
+               Add(packet, (ulong)SessionID, 4);                         // Session ID
+               Add(packet, (ulong)0, 4);                                 // Success
+               Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
+               Add(packet, (ulong)0, 4);                                 // option flags
+               Add(packet, (ulong)0, 4);                                 // option interface handle
+               Add(packet, (ulong)30, 2);                                // Timeout
+               Add(packet, (ulong)2, 2);                                 // Item count
 
                // Item #1
-               Utils.Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
-               Utils.Add(packet, (ulong)4, 2);                              // length of 4
-               Utils.Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
+               Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
+               Add(packet, (ulong)4, 2);                              // length of 4
+               Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
 
                // Item #2
-               Utils.Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
-               Utils.Add(packet, (ulong)(10 + DataLength), 2);              // length of 10 + data length
-               Utils.Add(packet, (ulong)2, 2);                              // Count Sequence
-               Utils.Add(packet, (byte)c, 3);                               // Hitachi command and count
-               Utils.Add(packet, (byte)Segment.Class, (byte)Class);         // Class
-               Utils.Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
-               Utils.Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               Utils.Add(packet, Data, DataLength);                         // Data
+               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
+               Add(packet, (ulong)(10 + DataLength), 2);              // length of 10 + data length
+               Add(packet, (ulong)2, 2);                              // Count Sequence
+               Add(packet, (byte)c, 3);                               // Hitachi command and count
+               Add(packet, (byte)Segment.Class, (byte)Class);         // Class
+               Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
+               Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
+               Add(packet, Data, DataLength);                         // Data
 
                break;
          }
@@ -557,91 +557,91 @@ namespace HitachiEIP {
          List<byte> packet = new List<byte>();
          switch (t) {
             case EIP_Type.RegisterSession:
-               Utils.Add(packet, (ulong)t, 2); // Command
-               Utils.Add(packet, (ulong)4, 2); // Length of added data at end
-               Utils.Add(packet, (ulong)0, 4); // Session ID (Not set yet)
-               Utils.Add(packet, (ulong)0, 4); // Status to be returned
-               Utils.Add(packet, (ulong)0, 8); // Sender Context (Do not understand yet)
-               Utils.Add(packet, (ulong)0, 4); // Options
-               Utils.Add(packet, (ulong)1, 2); // Protocol Version
-               Utils.Add(packet, (ulong)0, 2); // Flags
+               Add(packet, (ulong)t, 2); // Command
+               Add(packet, (ulong)4, 2); // Length of added data at end
+               Add(packet, (ulong)0, 4); // Session ID (Not set yet)
+               Add(packet, (ulong)0, 4); // Status to be returned
+               Add(packet, (ulong)0, 8); // Sender Context
+               Add(packet, (ulong)0, 4); // Options
+               Add(packet, (ulong)1, 2); // Protocol Version
+               Add(packet, (ulong)0, 2); // Flags
                break;
             case EIP_Type.UnRegisterSession:
-               Utils.Add(packet, (ulong)t, 2);         // Command
-               Utils.Add(packet, (ulong)0, 2);         // Length of added data at end
-               Utils.Add(packet, (ulong)SessionID, 4); // Session ID (Not set yet)
-               Utils.Add(packet, (ulong)0, 4);         // Status to be returned
-               Utils.Add(packet, (ulong)0, 8);         // Sender Context (Do not understand yet)
-               Utils.Add(packet, (ulong)0, 4);         // Options
+               Add(packet, (ulong)t, 2);         // Command
+               Add(packet, (ulong)0, 2);         // Length of added data at end
+               Add(packet, (ulong)SessionID, 4); // Session ID (Not set yet)
+               Add(packet, (ulong)0, 4);         // Status to be returned
+               Add(packet, (ulong)0, 8);         // Sender Context
+               Add(packet, (ulong)0, 4);         // Options
                break;
             case EIP_Type.SendRRData:
                switch (c) {
                   case EIP_Command.ForwardOpen:
-                     Utils.Add(packet, (ulong)t, 2);         // Command
-                     Utils.Add(packet, (ulong)62, 2);        // Length of added data at end
-                     Utils.Add(packet, (ulong)SessionID, 4); // Session ID
-                     Utils.Add(packet, (ulong)0, 4);         // Success
-                     Utils.Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Pertinant to sender(Unknown for now)
-                     Utils.Add(packet, (ulong)0, 4);         // option flags
-                     Utils.Add(packet, (ulong)0, 4);         // option interface handle
-                     Utils.Add(packet, (ulong)30, 2);        // Timeout
-                     Utils.Add(packet, (ulong)2, 2);         // Item count
-                     Utils.Add(packet, (ulong)0, 2);         // Null type
-                     Utils.Add(packet, (ulong)0, 2);         // length of 0
-                     Utils.Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
-                     Utils.Add(packet, (ulong)46, 2);        // length of 46
+                     Add(packet, (ulong)t, 2);         // Command
+                     Add(packet, (ulong)62, 2);        // Length of added data at end
+                     Add(packet, (ulong)SessionID, 4); // Session ID
+                     Add(packet, (ulong)0, 4);         // Success
+                     Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Pertinent to sender
+                     Add(packet, (ulong)0, 4);         // option flags
+                     Add(packet, (ulong)0, 4);         // option interface handle
+                     Add(packet, (ulong)30, 2);        // Timeout
+                     Add(packet, (ulong)2, 2);         // Item count
+                     Add(packet, (ulong)0, 2);         // Null type
+                     Add(packet, (ulong)0, 2);         // length of 0
+                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
+                     Add(packet, (ulong)46, 2);        // length of 46
 
                      // Common Packet
-                     Utils.Add(packet, (ulong)c, 1);         // Forward open
-                     Utils.Add(packet, (ulong)02, 1);        // Requested path size
-                     Utils.Add(packet, (byte)Segment.Class, 6);           // Class
-                     Utils.Add(packet, (byte)Segment.Instance, Instance); // Instance
-                     Utils.Add(packet, (ulong)7, 1);         // Priority/Time
-                     Utils.Add(packet, (ulong)0xea, 1);      // Timeout Ticks
-                     Utils.Add(packet, (ulong)0, 4);         // O->T Connection ID Random Number
-                     Utils.Add(packet, 0x98000340, 4, mem.BigEndian);  // T->O Connection ID Random number
-                     Utils.Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
-                     Utils.Add(packet, (ulong)0, 2);         // vendor ID
-                     Utils.Add(packet, (ulong)0, 4);         // Originator Serial number
-                     Utils.Add(packet, (ulong)0, 1);         // Connection Timeout Multiplier
-                     Utils.Add(packet, (ulong)0, 3);         // Reserved
+                     Add(packet, (ulong)c, 1);         // Forward open
+                     Add(packet, (ulong)02, 1);        // Requested path size
+                     Add(packet, (byte)Segment.Class, 6);           // Class
+                     Add(packet, (byte)Segment.Instance, Instance); // Instance
+                     Add(packet, (ulong)7, 1);         // Priority/Time
+                     Add(packet, (ulong)0xea, 1);      // Timeout Ticks
+                     Add(packet, (ulong)0, 4);         // O->T Connection ID Random Number
+                     Add(packet, 0x98000340, 4, mem.BigEndian);  // T->O Connection ID Random number
+                     Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
+                     Add(packet, (ulong)0, 2);         // vendor ID
+                     Add(packet, (ulong)0, 4);         // Originator Serial number
+                     Add(packet, (ulong)0, 1);         // Connection Timeout Multiplier
+                     Add(packet, (ulong)0, 3);         // Reserved
 
-                     Utils.Add(packet, 10000000, 4);         // O->T RPI
-                     Utils.Add(packet, 0xff, 0x43);          // O->T Network Connection Parameters
-                     Utils.Add(packet, 10000000, 4);         // T->O RPI
-                     Utils.Add(packet, 0xff, 0x43);          // T->O Network Connection Parameters
-                     Utils.Add(packet, (ulong)0xa3, 1);      // Transport type/trigger
-                     Utils.Add(packet, (ulong)2, 1);         // Connection Path Size in 16-bit words
-                     Utils.Add(packet, (byte)Segment.Class, 2);           // Class
-                     Utils.Add(packet, (byte)Segment.Instance, Instance); // Instance
+                     Add(packet, 10000000, 4);         // O->T RPI
+                     Add(packet, 0xff, 0x43);          // O->T Network Connection Parameters
+                     Add(packet, 10000000, 4);         // T->O RPI
+                     Add(packet, 0xff, 0x43);          // T->O Network Connection Parameters
+                     Add(packet, (ulong)0xa3, 1);      // Transport type/trigger
+                     Add(packet, (ulong)2, 1);         // Connection Path Size in 16-bit words
+                     Add(packet, (byte)Segment.Class, 2);           // Class
+                     Add(packet, (byte)Segment.Instance, Instance); // Instance
                      break;
                   case EIP_Command.ForwardClose:
-                     Utils.Add(packet, (ulong)t, 2);         // Command
-                     Utils.Add(packet, (ulong)34, 2);        // Length of added data at end
-                     Utils.Add(packet, (ulong)SessionID, 4); // Session ID
-                     Utils.Add(packet, (ulong)0, 4);         // Success
-                     Utils.Add(packet, (ulong)0x0100030000008601, 8, mem.BigEndian); // Pertinant to sender(Unknown for now)
-                     Utils.Add(packet, (ulong)0, 4);         // option flags
-                     Utils.Add(packet, (ulong)0, 4);         // option interface handle
-                     Utils.Add(packet, (ulong)30, 2);        // Timeout
-                     Utils.Add(packet, (ulong)2, 2);         // Item count
-                     Utils.Add(packet, (ulong)0, 2);         // Null type
-                     Utils.Add(packet, (ulong)0, 2);         // length of 0
-                     Utils.Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
-                     Utils.Add(packet, (ulong)18, 2);        // length of 46
+                     Add(packet, (ulong)t, 2);         // Command
+                     Add(packet, (ulong)34, 2);        // Length of added data at end
+                     Add(packet, (ulong)SessionID, 4); // Session ID
+                     Add(packet, (ulong)0, 4);         // Success
+                     Add(packet, (ulong)0x0100030000008601, 8, mem.BigEndian); // Pertinant to sender(Unknown for now)
+                     Add(packet, (ulong)0, 4);         // option flags
+                     Add(packet, (ulong)0, 4);         // option interface handle
+                     Add(packet, (ulong)30, 2);        // Timeout
+                     Add(packet, (ulong)2, 2);         // Item count
+                     Add(packet, (ulong)0, 2);         // Null type
+                     Add(packet, (ulong)0, 2);         // length of 0
+                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
+                     Add(packet, (ulong)18, 2);        // length of 46
 
                      // Common Packet
-                     Utils.Add(packet, (ulong)c, 1);         // Forward open
-                     Utils.Add(packet, (ulong)02, 1);        // Requested path size
-                     Utils.Add(packet, (byte)Segment.Class, 6);           // Class
-                     Utils.Add(packet, (byte)Segment.Instance, Instance); // Instance
-                     Utils.Add(packet, (ulong)7, 1);         // Priority/Time
-                     Utils.Add(packet, (ulong)0xea, 1);      // Timeout Ticks
-                     Utils.Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
-                     Utils.Add(packet, (ulong)0, 2);         // vendor ID
-                     Utils.Add(packet, (ulong)0, 4);         // Originator Serial number
-                     Utils.Add(packet, (ulong)0, 1);         // Connection Path Size
-                     Utils.Add(packet, (ulong)0, 1);         // Reserved
+                     Add(packet, (ulong)c, 1);         // Forward open
+                     Add(packet, (ulong)02, 1);        // Requested path size
+                     Add(packet, (byte)Segment.Class, 6);           // Class
+                     Add(packet, (byte)Segment.Instance, Instance); // Instance
+                     Add(packet, (ulong)7, 1);         // Priority/Time
+                     Add(packet, (ulong)0xea, 1);      // Timeout Ticks
+                     Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
+                     Add(packet, (ulong)0, 2);         // vendor ID
+                     Add(packet, (ulong)0, 4);         // Originator Serial number
+                     Add(packet, (ulong)0, 1);         // Connection Path Size
+                     Add(packet, (ulong)0, 1);         // Reserved
                      break;
                }
                break;
@@ -700,39 +700,96 @@ namespace HitachiEIP {
       // Get attribute Human readable name
       public string GetAttributeName(eipClassCode c, uint v) {
          switch (c) {
-            case eipClassCode.Print_data_management_function:
-               return ((eipPrint_Data_Management_function)v).ToString();
-            case eipClassCode.Print_format_function:
-               return ((eipPrint_format_function)v).ToString();
-            case eipClassCode.Print_specification_function:
-               return ((eipPrint_specification_function)v).ToString();
-            case eipClassCode.Calendar_function:
-               return ((eipCalendar_function)v).ToString();
-            case eipClassCode.User_pattern_function:
-               return ((eipUser_pattern_function)v).ToString();
-            case eipClassCode.Substitution_rules_function:
-               return ((eipSubstitution_rules_function)v).ToString();
-            case eipClassCode.Enviroment_setting_function:
-               return ((eipEnviroment_setting_function)v).ToString();
-            case eipClassCode.Unit_Information_function:
-               return ((eipUnit_Information_function)v).ToString();
-            case eipClassCode.Operation_management_function:
-               return ((eipOperation_management_function)v).ToString();
-            case eipClassCode.IJP_operation_function:
-               return ((eipIJP_operation_function)v).ToString();
-            case eipClassCode.Count_function:
-               return ((eipCount_function)v).ToString();
-            case eipClassCode.Index_function:
-               return ((eipIndex_function)v).ToString();
+            case eipClassCode.Print_data_management:
+               return ((eipPrint_Data_Management)v).ToString();
+            case eipClassCode.Print_format:
+               return ((eipPrint_format)v).ToString();
+            case eipClassCode.Print_specification:
+               return ((eipPrint_specification)v).ToString();
+            case eipClassCode.Calendar:
+               return ((eipCalendar)v).ToString();
+            case eipClassCode.User_pattern:
+               return ((eipUser_pattern)v).ToString();
+            case eipClassCode.Substitution_rules:
+               return ((eipSubstitution_rules)v).ToString();
+            case eipClassCode.Enviroment_setting:
+               return ((eipEnviroment_setting)v).ToString();
+            case eipClassCode.Unit_Information:
+               return ((eipUnit_Information)v).ToString();
+            case eipClassCode.Operation_management:
+               return ((eipOperation_management)v).ToString();
+            case eipClassCode.IJP_operation:
+               return ((eipIJP_operation)v).ToString();
+            case eipClassCode.Count:
+               return ((eipCount)v).ToString();
+            case eipClassCode.Index:
+               return ((eipIndex)v).ToString();
             default:
                break;
          }
          return "Unknown";
       }
 
+      // Get an unsigned int from up to 4 consecutive bytes
+      public uint Get(byte[] b, int start, int length, mem m) {
+         uint result = 0;
+         switch (m) {
+            case mem.BigEndian:
+               for (int i = 0; i < length; i++) {
+                  result <<= 8;
+                  result += b[start + i];
+               }
+               break;
+            case mem.LittleEndian:
+               for (int i = 0; i < length; i++) {
+                  result += (uint)b[start + i] << (8 * i);
+               }
+               break;
+            default:
+               break;
+         }
+         return result;
+      }
+
+      internal string GetBytes(byte[] data, int start, int length) {
+         string s = string.Empty;
+         for (int i = 0; i < Math.Min(length, 50); i++) {
+            s += $"{data[start + i]:X2} ";
+         }
+         if (length > 50) {
+            s += "...";
+         }
+         return s;
+      }
+
       #endregion
 
       #region Service Routines
+
+      private void Add(List<byte> packet, ulong value, int count, mem m = mem.LittleEndian) {
+
+         switch (m) {
+            case mem.BigEndian:
+               for (int i = (count - 1) * 8; i >= 0; i -= 8) {
+                  packet.Add((byte)(value >> i));
+               }
+               break;
+            case mem.LittleEndian:
+               for (int i = 0; i < count; i++) {
+                  packet.Add((byte)value);
+                  value >>= 8;
+               }
+               break;
+            default:
+               break;
+         }
+
+      }
+
+      private void Add(List<byte> packet, byte v1, byte v2) {
+         packet.Add(v1);
+         packet.Add(v2);
+      }
 
       private void LogIt(string msg) {
          if (Log != null) {
