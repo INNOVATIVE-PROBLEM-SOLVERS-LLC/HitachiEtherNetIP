@@ -48,11 +48,17 @@
          this.txtStatus = new System.Windows.Forms.TextBox();
          this.lblStatus = new System.Windows.Forms.Label();
          this.txtDataDec = new System.Windows.Forms.TextBox();
+         this.lblSaveFolder = new System.Windows.Forms.Label();
+         this.txtSaveFolder = new System.Windows.Forms.TextBox();
+         this.btnBrowse = new System.Windows.Forms.Button();
+         this.btnViewTraffic = new System.Windows.Forms.Button();
+         this.btnViewLog = new System.Windows.Forms.Button();
+         this.btnReadAll = new System.Windows.Forms.Button();
          this.SuspendLayout();
          // 
          // btnConnect
          // 
-         this.btnConnect.Location = new System.Drawing.Point(240, 12);
+         this.btnConnect.Location = new System.Drawing.Point(344, 12);
          this.btnConnect.Name = "btnConnect";
          this.btnConnect.Size = new System.Drawing.Size(112, 31);
          this.btnConnect.TabIndex = 0;
@@ -62,7 +68,7 @@
          // 
          // btnDisconnect
          // 
-         this.btnDisconnect.Location = new System.Drawing.Point(378, 12);
+         this.btnDisconnect.Location = new System.Drawing.Point(482, 12);
          this.btnDisconnect.Name = "btnDisconnect";
          this.btnDisconnect.Size = new System.Drawing.Size(112, 31);
          this.btnDisconnect.TabIndex = 1;
@@ -77,18 +83,20 @@
          this.lblIPAddress.Size = new System.Drawing.Size(95, 29);
          this.lblIPAddress.TabIndex = 2;
          this.lblIPAddress.Text = "IP Address";
+         this.lblIPAddress.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // lblPort
          // 
-         this.lblPort.Location = new System.Drawing.Point(124, 24);
+         this.lblPort.Location = new System.Drawing.Point(23, 56);
          this.lblPort.Name = "lblPort";
          this.lblPort.Size = new System.Drawing.Size(95, 29);
          this.lblPort.TabIndex = 3;
          this.lblPort.Text = "Port";
+         this.lblPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // txtIPAddress
          // 
-         this.txtIPAddress.Location = new System.Drawing.Point(26, 56);
+         this.txtIPAddress.Location = new System.Drawing.Point(141, 24);
          this.txtIPAddress.Name = "txtIPAddress";
          this.txtIPAddress.Size = new System.Drawing.Size(78, 22);
          this.txtIPAddress.TabIndex = 4;
@@ -96,7 +104,7 @@
          // 
          // txtPort
          // 
-         this.txtPort.Location = new System.Drawing.Point(127, 56);
+         this.txtPort.Location = new System.Drawing.Point(141, 56);
          this.txtPort.Name = "txtPort";
          this.txtPort.Size = new System.Drawing.Size(78, 22);
          this.txtPort.TabIndex = 5;
@@ -104,7 +112,7 @@
          // 
          // btnEndSession
          // 
-         this.btnEndSession.Location = new System.Drawing.Point(378, 56);
+         this.btnEndSession.Location = new System.Drawing.Point(482, 56);
          this.btnEndSession.Name = "btnEndSession";
          this.btnEndSession.Size = new System.Drawing.Size(112, 31);
          this.btnEndSession.TabIndex = 7;
@@ -114,7 +122,7 @@
          // 
          // btnStartSession
          // 
-         this.btnStartSession.Location = new System.Drawing.Point(240, 56);
+         this.btnStartSession.Location = new System.Drawing.Point(344, 56);
          this.btnStartSession.Name = "btnStartSession";
          this.btnStartSession.Size = new System.Drawing.Size(112, 31);
          this.btnStartSession.TabIndex = 6;
@@ -124,22 +132,23 @@
          // 
          // txtSessionID
          // 
-         this.txtSessionID.Location = new System.Drawing.Point(26, 129);
+         this.txtSessionID.Location = new System.Drawing.Point(141, 94);
          this.txtSessionID.Name = "txtSessionID";
          this.txtSessionID.Size = new System.Drawing.Size(78, 22);
          this.txtSessionID.TabIndex = 9;
          // 
          // lblSessionID
          // 
-         this.lblSessionID.Location = new System.Drawing.Point(23, 97);
+         this.lblSessionID.Location = new System.Drawing.Point(23, 94);
          this.lblSessionID.Name = "lblSessionID";
          this.lblSessionID.Size = new System.Drawing.Size(95, 29);
          this.lblSessionID.TabIndex = 8;
          this.lblSessionID.Text = "Session ID";
+         this.lblSessionID.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // btnExit
          // 
-         this.btnExit.Location = new System.Drawing.Point(12, 386);
+         this.btnExit.Location = new System.Drawing.Point(12, 457);
          this.btnExit.Name = "btnExit";
          this.btnExit.Size = new System.Drawing.Size(125, 52);
          this.btnExit.TabIndex = 10;
@@ -149,7 +158,7 @@
          // 
          // btnForwardClose
          // 
-         this.btnForwardClose.Location = new System.Drawing.Point(378, 97);
+         this.btnForwardClose.Location = new System.Drawing.Point(482, 97);
          this.btnForwardClose.Name = "btnForwardClose";
          this.btnForwardClose.Size = new System.Drawing.Size(112, 31);
          this.btnForwardClose.TabIndex = 12;
@@ -159,7 +168,7 @@
          // 
          // btnForwardOpen
          // 
-         this.btnForwardOpen.Location = new System.Drawing.Point(240, 97);
+         this.btnForwardOpen.Location = new System.Drawing.Point(344, 97);
          this.btnForwardOpen.Name = "btnForwardOpen";
          this.btnForwardOpen.Size = new System.Drawing.Size(112, 31);
          this.btnForwardOpen.TabIndex = 11;
@@ -169,7 +178,7 @@
          // 
          // btnIssueRequest
          // 
-         this.btnIssueRequest.Location = new System.Drawing.Point(237, 327);
+         this.btnIssueRequest.Location = new System.Drawing.Point(341, 327);
          this.btnIssueRequest.Name = "btnIssueRequest";
          this.btnIssueRequest.Size = new System.Drawing.Size(253, 31);
          this.btnIssueRequest.TabIndex = 14;
@@ -180,7 +189,7 @@
          // cbAccessCode
          // 
          this.cbAccessCode.FormattingEnabled = true;
-         this.cbAccessCode.Location = new System.Drawing.Point(240, 168);
+         this.cbAccessCode.Location = new System.Drawing.Point(344, 168);
          this.cbAccessCode.Name = "cbAccessCode";
          this.cbAccessCode.Size = new System.Drawing.Size(253, 24);
          this.cbAccessCode.TabIndex = 16;
@@ -188,7 +197,7 @@
          // 
          // lblAccessCode
          // 
-         this.lblAccessCode.Location = new System.Drawing.Point(240, 136);
+         this.lblAccessCode.Location = new System.Drawing.Point(344, 136);
          this.lblAccessCode.Name = "lblAccessCode";
          this.lblAccessCode.Size = new System.Drawing.Size(253, 29);
          this.lblAccessCode.TabIndex = 17;
@@ -197,7 +206,7 @@
          // 
          // lblClassCode
          // 
-         this.lblClassCode.Location = new System.Drawing.Point(240, 196);
+         this.lblClassCode.Location = new System.Drawing.Point(344, 196);
          this.lblClassCode.Name = "lblClassCode";
          this.lblClassCode.Size = new System.Drawing.Size(253, 29);
          this.lblClassCode.TabIndex = 19;
@@ -207,7 +216,7 @@
          // cbClassCode
          // 
          this.cbClassCode.FormattingEnabled = true;
-         this.cbClassCode.Location = new System.Drawing.Point(240, 228);
+         this.cbClassCode.Location = new System.Drawing.Point(344, 228);
          this.cbClassCode.Name = "cbClassCode";
          this.cbClassCode.Size = new System.Drawing.Size(253, 24);
          this.cbClassCode.TabIndex = 18;
@@ -215,7 +224,7 @@
          // 
          // lblFunction
          // 
-         this.lblFunction.Location = new System.Drawing.Point(237, 254);
+         this.lblFunction.Location = new System.Drawing.Point(341, 254);
          this.lblFunction.Name = "lblFunction";
          this.lblFunction.Size = new System.Drawing.Size(256, 29);
          this.lblFunction.TabIndex = 21;
@@ -225,7 +234,7 @@
          // cbFunction
          // 
          this.cbFunction.FormattingEnabled = true;
-         this.cbFunction.Location = new System.Drawing.Point(237, 286);
+         this.cbFunction.Location = new System.Drawing.Point(341, 286);
          this.cbFunction.Name = "cbFunction";
          this.cbFunction.Size = new System.Drawing.Size(256, 24);
          this.cbFunction.TabIndex = 20;
@@ -233,7 +242,7 @@
          // 
          // lbldata
          // 
-         this.lbldata.Location = new System.Drawing.Point(240, 425);
+         this.lbldata.Location = new System.Drawing.Point(344, 425);
          this.lbldata.Name = "lbldata";
          this.lbldata.Size = new System.Drawing.Size(256, 29);
          this.lbldata.TabIndex = 22;
@@ -242,7 +251,7 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(240, 457);
+         this.txtData.Location = new System.Drawing.Point(344, 457);
          this.txtData.Name = "txtData";
          this.txtData.ReadOnly = true;
          this.txtData.Size = new System.Drawing.Size(253, 22);
@@ -250,7 +259,7 @@
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(240, 403);
+         this.txtStatus.Location = new System.Drawing.Point(344, 403);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
          this.txtStatus.Size = new System.Drawing.Size(253, 22);
@@ -258,7 +267,7 @@
          // 
          // lblStatus
          // 
-         this.lblStatus.Location = new System.Drawing.Point(240, 371);
+         this.lblStatus.Location = new System.Drawing.Point(344, 371);
          this.lblStatus.Name = "lblStatus";
          this.lblStatus.Size = new System.Drawing.Size(256, 29);
          this.lblStatus.TabIndex = 24;
@@ -267,17 +276,80 @@
          // 
          // txtDataDec
          // 
-         this.txtDataDec.Location = new System.Drawing.Point(240, 485);
+         this.txtDataDec.Location = new System.Drawing.Point(344, 485);
          this.txtDataDec.Name = "txtDataDec";
          this.txtDataDec.ReadOnly = true;
          this.txtDataDec.Size = new System.Drawing.Size(253, 22);
          this.txtDataDec.TabIndex = 26;
          // 
+         // lblSaveFolder
+         // 
+         this.lblSaveFolder.Location = new System.Drawing.Point(12, 136);
+         this.lblSaveFolder.Name = "lblSaveFolder";
+         this.lblSaveFolder.Size = new System.Drawing.Size(145, 29);
+         this.lblSaveFolder.TabIndex = 27;
+         this.lblSaveFolder.Text = "Traffic/Log Save Folder";
+         this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         // 
+         // txtSaveFolder
+         // 
+         this.txtSaveFolder.Location = new System.Drawing.Point(15, 168);
+         this.txtSaveFolder.Name = "txtSaveFolder";
+         this.txtSaveFolder.ReadOnly = true;
+         this.txtSaveFolder.Size = new System.Drawing.Size(255, 22);
+         this.txtSaveFolder.TabIndex = 28;
+         this.txtSaveFolder.Text = "c:\\Temp";
+         // 
+         // btnBrowse
+         // 
+         this.btnBrowse.Location = new System.Drawing.Point(151, 194);
+         this.btnBrowse.Name = "btnBrowse";
+         this.btnBrowse.Size = new System.Drawing.Size(119, 31);
+         this.btnBrowse.TabIndex = 29;
+         this.btnBrowse.Text = "Browse";
+         this.btnBrowse.UseVisualStyleBackColor = true;
+         // 
+         // btnViewTraffic
+         // 
+         this.btnViewTraffic.Location = new System.Drawing.Point(15, 237);
+         this.btnViewTraffic.Name = "btnViewTraffic";
+         this.btnViewTraffic.Size = new System.Drawing.Size(119, 31);
+         this.btnViewTraffic.TabIndex = 30;
+         this.btnViewTraffic.Text = "View Traffic";
+         this.btnViewTraffic.UseVisualStyleBackColor = true;
+         this.btnViewTraffic.Click += new System.EventHandler(this.btnViewTraffic_Click);
+         // 
+         // btnViewLog
+         // 
+         this.btnViewLog.Location = new System.Drawing.Point(151, 237);
+         this.btnViewLog.Name = "btnViewLog";
+         this.btnViewLog.Size = new System.Drawing.Size(119, 31);
+         this.btnViewLog.TabIndex = 31;
+         this.btnViewLog.Text = "View Log";
+         this.btnViewLog.UseVisualStyleBackColor = true;
+         this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
+         // 
+         // btnReadAll
+         // 
+         this.btnReadAll.Location = new System.Drawing.Point(18, 194);
+         this.btnReadAll.Name = "btnReadAll";
+         this.btnReadAll.Size = new System.Drawing.Size(119, 31);
+         this.btnReadAll.TabIndex = 32;
+         this.btnReadAll.Text = "Read All";
+         this.btnReadAll.UseVisualStyleBackColor = true;
+         this.btnReadAll.Click += new System.EventHandler(this.btnReadAll_Click);
+         // 
          // Form1
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(518, 538);
+         this.ClientSize = new System.Drawing.Size(609, 538);
+         this.Controls.Add(this.btnReadAll);
+         this.Controls.Add(this.btnViewLog);
+         this.Controls.Add(this.btnViewTraffic);
+         this.Controls.Add(this.btnBrowse);
+         this.Controls.Add(this.txtSaveFolder);
+         this.Controls.Add(this.lblSaveFolder);
          this.Controls.Add(this.txtDataDec);
          this.Controls.Add(this.txtStatus);
          this.Controls.Add(this.lblStatus);
@@ -305,6 +377,7 @@
          this.Controls.Add(this.btnConnect);
          this.Name = "Form1";
          this.Text = "Form1";
+         this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
          this.Load += new System.EventHandler(this.Form1_Load);
          this.ResumeLayout(false);
          this.PerformLayout();
@@ -338,6 +411,12 @@
       private System.Windows.Forms.TextBox txtStatus;
       private System.Windows.Forms.Label lblStatus;
       private System.Windows.Forms.TextBox txtDataDec;
+      private System.Windows.Forms.Label lblSaveFolder;
+      private System.Windows.Forms.TextBox txtSaveFolder;
+      private System.Windows.Forms.Button btnBrowse;
+      private System.Windows.Forms.Button btnViewTraffic;
+      private System.Windows.Forms.Button btnViewLog;
+      private System.Windows.Forms.Button btnReadAll;
    }
 }
 
