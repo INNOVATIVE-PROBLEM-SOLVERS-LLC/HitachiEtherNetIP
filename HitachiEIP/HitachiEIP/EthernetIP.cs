@@ -307,22 +307,22 @@ namespace HitachiEIP {
 
    // Attributes within Index class 0x7A
    public enum eipIndex {
-      Start_Stop_Management_Flag = 0x0A000364,
-      Automatic_reflection = 0x01000365,
-      Item_Count = 0x06000366,
-      Column = 0x04000367,
-      Line = 0x07000368,
-      Character_position = 0x03000369,
-      Print_Data_Message_Number = 0x0900036A,
-      Print_Data_Group_Data = 0x0800036B,
-      Substitution_Rules_Setting = 0x0B00036C,
-      User_Pattern_Size = 0x0C00036D,
-      Count_Block = 0x0500036E,
-      Calendar_Block = 0x0200036F,
+      Start_Stop_Management_Flag = 0x0A010364,
+      Automatic_reflection = 0x01010365,
+      Item_Count = 0x06020366,
+      Column = 0x04020367,
+      Line = 0x07010368,
+      Character_position = 0x03020369,
+      Print_Data_Message_Number = 0x0902036A,
+      Print_Data_Group_Data = 0x0801036B,
+      Substitution_Rules_Setting = 0x0B01036C,
+      User_Pattern_Size = 0x0C01036D,
+      Count_Block = 0x0501036E,
+      Calendar_Block = 0x0201036F,
    }
 
    #endregion
-   
+
    public class EIP {
 
       #region Events
@@ -545,7 +545,7 @@ namespace HitachiEIP {
                Add(packet, (byte)Segment.Class, (byte)Class);         // Class
                Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
                Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               Add(packet, Data, DataLength);                         // Data
+               Add(packet, Data, DataLength, mem.BigEndian);          // Data
 
                break;
          }
