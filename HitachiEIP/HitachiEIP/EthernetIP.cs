@@ -14,6 +14,11 @@ namespace HitachiEIP {
       LittleEndian
    }
 
+   public enum DataFormats {
+      Decimal,
+      Bytes,
+   }
+
    public enum Protocol {
       TCP = 6
    }
@@ -348,7 +353,7 @@ namespace HitachiEIP {
       public byte Instance { get; set; } = 1;
       public byte Attribute { get; set; } = 1;
       public byte DataLength { get; set; } = 1;
-      public ulong Data { get; set; } = 1;
+      public byte[] Data { get; set; } = { 0x31 };
       public uint O_T_ConnectionID { get; set; } = 0;
       public uint T_O_ConnectionID { get; set; } = 0;
 
@@ -364,12 +369,24 @@ namespace HitachiEIP {
          get { return O_T_ConnectionID > 0; }
       }
 
+      public byte[] ReadData;
+      public Int32 ReadDataLength;
+
+      #endregion
+
+      #region Constructors and Destructors
+
+      public EIP(string IPAddress, Int32 port) {
+         this.IPAddress = IPAddress;
+         this.port = port;
+      }
+
       #endregion
 
       #region Methods
 
       // Connect to Hitachi printer
-      public bool Connect(string IPAddress, Int32 port) {
+      public bool Connect() {
          bool result = false;
          try {
             client = new TcpClient(IPAddress, port);
@@ -491,6 +508,105 @@ namespace HitachiEIP {
          return result;
       }
 
+      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, out string val, DataFormats fmt) {
+         bool result = false;
+
+         bool OpenCloseConnection = !IsConnected;
+         bool OpenCloseSession = !SessionIsOpen;
+         bool OpenCloseForward = !ForwardIsOpen;
+
+         if (OpenCloseConnection)
+            Connect();
+         if (OpenCloseSession)
+            StartSession();
+         if (OpenCloseForward)
+            ForwardOpen();
+
+         val = string.Empty;
+
+         Access = eipAccessCode.Get;
+         this.Class = Class;
+         Instance = 0x01;
+         this.Attribute = Attribute;
+         Data = new byte[] { };
+         DataLength = 0;
+         try {
+
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
+            Write(ed, 0, ed.Length);
+
+            if (Read(out ReadData, out ReadDataLength)) {
+               int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+               if (status == 0) {
+                  switch (fmt) {
+                     case DataFormats.Decimal:
+                        val = Get(ReadData, 50, ReadDataLength - 50, mem.BigEndian).ToString();
+                        break;
+                     case DataFormats.Bytes:
+                        val = GetBytes(ReadData, 50, ReadDataLength - 50);
+                        break;
+                     default:
+                        break;
+                  }
+                  result = true;
+               } else {
+                  val = "#Error";
+               }
+            }
+         } catch (Exception e) {
+            LogIt(e.Message);
+         }
+
+         if (OpenCloseForward)
+            ForwardClose();
+         if (OpenCloseSession)
+            EndSession();
+         if (OpenCloseConnection)
+            Disconnect();
+
+         return result;
+      }
+
+      public bool WriteOneAttribute(eipClassCode Class, byte Attribute, byte[] val) {
+         bool result = false;
+         bool OpenCloseConnection = !IsConnected;
+         bool OpenCloseSession = !SessionIsOpen;
+         bool OpenCloseForward = !ForwardIsOpen;
+
+         if (OpenCloseConnection)
+            Connect();
+         if (OpenCloseSession)
+            StartSession();
+         if (OpenCloseForward)
+            ForwardOpen();
+
+         Access = eipAccessCode.Set;
+         this.Class = Class;
+         Instance = 0x01;
+         this.Attribute = Attribute;
+         Data = val;
+         DataLength = (byte)val.Length;
+         try {
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
+            Write(ed, 0, ed.Length);
+
+            if (Read(out ReadData, out ReadDataLength)) {
+               result = true;
+            }
+         } catch (Exception e2) {
+
+         }
+
+         if (OpenCloseForward)
+            ForwardClose();
+         if (OpenCloseSession)
+            EndSession();
+         if (OpenCloseConnection)
+            Disconnect();
+
+         return result;
+      }
+
       // Handles Hitachi Get, Set, and Service
       public byte[] EIP_Hitachi(EIP_Type t, eipAccessCode c) {
          List<byte> packet = new List<byte>();
@@ -545,7 +661,7 @@ namespace HitachiEIP {
                Add(packet, (byte)Segment.Class, (byte)Class);         // Class
                Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
                Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               Add(packet, Data, DataLength, mem.BigEndian);          // Data
+               Add(packet, Data);                                     // Data
 
                break;
          }
@@ -789,6 +905,13 @@ namespace HitachiEIP {
       private void Add(List<byte> packet, byte v1, byte v2) {
          packet.Add(v1);
          packet.Add(v2);
+      }
+
+      private void Add(List<byte> packet, byte[] v) {
+         for (int i = 0; i < v.Length; i++) {
+            packet.Add(v[i]);
+         }
+
       }
 
       private void LogIt(string msg) {
