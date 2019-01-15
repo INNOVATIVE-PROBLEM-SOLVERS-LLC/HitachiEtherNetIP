@@ -140,6 +140,12 @@
          this.btnIJPOpGet64 = new System.Windows.Forms.Button();
          this.txtIJPOp64 = new System.Windows.Forms.TextBox();
          this.lblIJPOp64 = new System.Windows.Forms.Label();
+         this.tabPrintSpec = new System.Windows.Forms.TabPage();
+         this.tabPrintFormat = new System.Windows.Forms.TabPage();
+         this.tabPrintManagement = new System.Windows.Forms.TabPage();
+         this.tabCalendar = new System.Windows.Forms.TabPage();
+         this.tabSubstitution = new System.Windows.Forms.TabPage();
+         this.tabCount = new System.Windows.Forms.TabPage();
          this.tclClasses.SuspendLayout();
          this.tabIndex.SuspendLayout();
          this.tabIJPOperation.SuspendLayout();
@@ -147,9 +153,9 @@
          // 
          // btnConnect
          // 
-         this.btnConnect.Location = new System.Drawing.Point(344, 12);
+         this.btnConnect.Location = new System.Drawing.Point(26, 118);
          this.btnConnect.Name = "btnConnect";
-         this.btnConnect.Size = new System.Drawing.Size(112, 31);
+         this.btnConnect.Size = new System.Drawing.Size(137, 31);
          this.btnConnect.TabIndex = 0;
          this.btnConnect.Text = "Connect";
          this.btnConnect.UseVisualStyleBackColor = true;
@@ -157,9 +163,9 @@
          // 
          // btnDisconnect
          // 
-         this.btnDisconnect.Location = new System.Drawing.Point(482, 12);
+         this.btnDisconnect.Location = new System.Drawing.Point(179, 118);
          this.btnDisconnect.Name = "btnDisconnect";
-         this.btnDisconnect.Size = new System.Drawing.Size(112, 31);
+         this.btnDisconnect.Size = new System.Drawing.Size(137, 31);
          this.btnDisconnect.TabIndex = 1;
          this.btnDisconnect.Text = "Disconnect";
          this.btnDisconnect.UseVisualStyleBackColor = true;
@@ -203,9 +209,9 @@
          // 
          // btnEndSession
          // 
-         this.btnEndSession.Location = new System.Drawing.Point(482, 56);
+         this.btnEndSession.Location = new System.Drawing.Point(179, 162);
          this.btnEndSession.Name = "btnEndSession";
-         this.btnEndSession.Size = new System.Drawing.Size(112, 31);
+         this.btnEndSession.Size = new System.Drawing.Size(137, 31);
          this.btnEndSession.TabIndex = 7;
          this.btnEndSession.Text = "End Session";
          this.btnEndSession.UseVisualStyleBackColor = true;
@@ -213,9 +219,9 @@
          // 
          // btnStartSession
          // 
-         this.btnStartSession.Location = new System.Drawing.Point(344, 56);
+         this.btnStartSession.Location = new System.Drawing.Point(26, 162);
          this.btnStartSession.Name = "btnStartSession";
-         this.btnStartSession.Size = new System.Drawing.Size(112, 31);
+         this.btnStartSession.Size = new System.Drawing.Size(137, 31);
          this.btnStartSession.TabIndex = 6;
          this.btnStartSession.Text = "Start session";
          this.btnStartSession.UseVisualStyleBackColor = true;
@@ -223,7 +229,7 @@
          // 
          // txtSessionID
          // 
-         this.txtSessionID.Location = new System.Drawing.Point(141, 94);
+         this.txtSessionID.Location = new System.Drawing.Point(141, 90);
          this.txtSessionID.Name = "txtSessionID";
          this.txtSessionID.Size = new System.Drawing.Size(175, 22);
          this.txtSessionID.TabIndex = 9;
@@ -231,7 +237,7 @@
          // 
          // lblSessionID
          // 
-         this.lblSessionID.Location = new System.Drawing.Point(23, 94);
+         this.lblSessionID.Location = new System.Drawing.Point(23, 90);
          this.lblSessionID.Name = "lblSessionID";
          this.lblSessionID.Size = new System.Drawing.Size(95, 29);
          this.lblSessionID.TabIndex = 8;
@@ -240,7 +246,7 @@
          // 
          // btnExit
          // 
-         this.btnExit.Location = new System.Drawing.Point(12, 457);
+         this.btnExit.Location = new System.Drawing.Point(1145, 655);
          this.btnExit.Name = "btnExit";
          this.btnExit.Size = new System.Drawing.Size(125, 52);
          this.btnExit.TabIndex = 10;
@@ -250,9 +256,9 @@
          // 
          // btnForwardClose
          // 
-         this.btnForwardClose.Location = new System.Drawing.Point(482, 97);
+         this.btnForwardClose.Location = new System.Drawing.Point(179, 203);
          this.btnForwardClose.Name = "btnForwardClose";
-         this.btnForwardClose.Size = new System.Drawing.Size(112, 31);
+         this.btnForwardClose.Size = new System.Drawing.Size(137, 31);
          this.btnForwardClose.TabIndex = 12;
          this.btnForwardClose.Text = "Forward Close";
          this.btnForwardClose.UseVisualStyleBackColor = true;
@@ -260,9 +266,9 @@
          // 
          // btnForwardOpen
          // 
-         this.btnForwardOpen.Location = new System.Drawing.Point(344, 97);
+         this.btnForwardOpen.Location = new System.Drawing.Point(26, 203);
          this.btnForwardOpen.Name = "btnForwardOpen";
-         this.btnForwardOpen.Size = new System.Drawing.Size(112, 31);
+         this.btnForwardOpen.Size = new System.Drawing.Size(137, 31);
          this.btnForwardOpen.TabIndex = 11;
          this.btnForwardOpen.Text = "Forward Open";
          this.btnForwardOpen.UseVisualStyleBackColor = true;
@@ -270,9 +276,9 @@
          // 
          // btnIssueRequest
          // 
-         this.btnIssueRequest.Location = new System.Drawing.Point(341, 327);
+         this.btnIssueRequest.Location = new System.Drawing.Point(23, 421);
          this.btnIssueRequest.Name = "btnIssueRequest";
-         this.btnIssueRequest.Size = new System.Drawing.Size(253, 31);
+         this.btnIssueRequest.Size = new System.Drawing.Size(293, 22);
          this.btnIssueRequest.TabIndex = 14;
          this.btnIssueRequest.Text = "Issue Request";
          this.btnIssueRequest.UseVisualStyleBackColor = true;
@@ -281,26 +287,26 @@
          // cbAccessCode
          // 
          this.cbAccessCode.FormattingEnabled = true;
-         this.cbAccessCode.Location = new System.Drawing.Point(344, 168);
+         this.cbAccessCode.Location = new System.Drawing.Point(26, 267);
          this.cbAccessCode.Name = "cbAccessCode";
-         this.cbAccessCode.Size = new System.Drawing.Size(253, 24);
+         this.cbAccessCode.Size = new System.Drawing.Size(293, 24);
          this.cbAccessCode.TabIndex = 16;
          this.cbAccessCode.SelectedIndexChanged += new System.EventHandler(this.cbAccessCode_SelectedIndexChanged);
          // 
          // lblAccessCode
          // 
-         this.lblAccessCode.Location = new System.Drawing.Point(344, 136);
+         this.lblAccessCode.Location = new System.Drawing.Point(23, 241);
          this.lblAccessCode.Name = "lblAccessCode";
-         this.lblAccessCode.Size = new System.Drawing.Size(253, 29);
+         this.lblAccessCode.Size = new System.Drawing.Size(293, 22);
          this.lblAccessCode.TabIndex = 17;
          this.lblAccessCode.Text = "Access Code";
          this.lblAccessCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // lblClassCode
          // 
-         this.lblClassCode.Location = new System.Drawing.Point(344, 196);
+         this.lblClassCode.Location = new System.Drawing.Point(20, 297);
          this.lblClassCode.Name = "lblClassCode";
-         this.lblClassCode.Size = new System.Drawing.Size(253, 29);
+         this.lblClassCode.Size = new System.Drawing.Size(293, 22);
          this.lblClassCode.TabIndex = 19;
          this.lblClassCode.Text = "Class Code";
          this.lblClassCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -308,17 +314,17 @@
          // cbClassCode
          // 
          this.cbClassCode.FormattingEnabled = true;
-         this.cbClassCode.Location = new System.Drawing.Point(344, 228);
+         this.cbClassCode.Location = new System.Drawing.Point(23, 323);
          this.cbClassCode.Name = "cbClassCode";
-         this.cbClassCode.Size = new System.Drawing.Size(253, 24);
+         this.cbClassCode.Size = new System.Drawing.Size(293, 24);
          this.cbClassCode.TabIndex = 18;
          this.cbClassCode.SelectedIndexChanged += new System.EventHandler(this.cbClassCode_SelectedIndexChanged);
          // 
          // lblFunction
          // 
-         this.lblFunction.Location = new System.Drawing.Point(341, 254);
+         this.lblFunction.Location = new System.Drawing.Point(20, 353);
          this.lblFunction.Name = "lblFunction";
-         this.lblFunction.Size = new System.Drawing.Size(256, 29);
+         this.lblFunction.Size = new System.Drawing.Size(293, 22);
          this.lblFunction.TabIndex = 21;
          this.lblFunction.Text = "Function Code";
          this.lblFunction.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -326,66 +332,66 @@
          // cbFunction
          // 
          this.cbFunction.FormattingEnabled = true;
-         this.cbFunction.Location = new System.Drawing.Point(341, 286);
+         this.cbFunction.Location = new System.Drawing.Point(23, 381);
          this.cbFunction.Name = "cbFunction";
-         this.cbFunction.Size = new System.Drawing.Size(256, 24);
+         this.cbFunction.Size = new System.Drawing.Size(293, 24);
          this.cbFunction.TabIndex = 20;
          this.cbFunction.SelectedIndexChanged += new System.EventHandler(this.cbFunction_SelectedIndexChanged);
          // 
          // lbldata
          // 
-         this.lbldata.Location = new System.Drawing.Point(344, 425);
+         this.lbldata.Location = new System.Drawing.Point(23, 502);
          this.lbldata.Name = "lbldata";
-         this.lbldata.Size = new System.Drawing.Size(256, 29);
+         this.lbldata.Size = new System.Drawing.Size(293, 22);
          this.lbldata.TabIndex = 22;
          this.lbldata.Text = "Data";
          this.lbldata.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(344, 457);
+         this.txtData.Location = new System.Drawing.Point(23, 534);
          this.txtData.Name = "txtData";
          this.txtData.ReadOnly = true;
-         this.txtData.Size = new System.Drawing.Size(253, 22);
+         this.txtData.Size = new System.Drawing.Size(293, 22);
          this.txtData.TabIndex = 23;
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(344, 403);
+         this.txtStatus.Location = new System.Drawing.Point(23, 477);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
-         this.txtStatus.Size = new System.Drawing.Size(253, 22);
+         this.txtStatus.Size = new System.Drawing.Size(293, 22);
          this.txtStatus.TabIndex = 25;
          // 
          // lblStatus
          // 
-         this.lblStatus.Location = new System.Drawing.Point(344, 371);
+         this.lblStatus.Location = new System.Drawing.Point(23, 446);
          this.lblStatus.Name = "lblStatus";
-         this.lblStatus.Size = new System.Drawing.Size(256, 29);
+         this.lblStatus.Size = new System.Drawing.Size(293, 22);
          this.lblStatus.TabIndex = 24;
          this.lblStatus.Text = "Status";
          this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // txtDataDec
          // 
-         this.txtDataDec.Location = new System.Drawing.Point(344, 485);
+         this.txtDataDec.Location = new System.Drawing.Point(23, 562);
          this.txtDataDec.Name = "txtDataDec";
          this.txtDataDec.ReadOnly = true;
-         this.txtDataDec.Size = new System.Drawing.Size(253, 22);
+         this.txtDataDec.Size = new System.Drawing.Size(293, 22);
          this.txtDataDec.TabIndex = 26;
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(12, 136);
+         this.lblSaveFolder.Location = new System.Drawing.Point(80, 587);
          this.lblSaveFolder.Name = "lblSaveFolder";
-         this.lblSaveFolder.Size = new System.Drawing.Size(145, 29);
+         this.lblSaveFolder.Size = new System.Drawing.Size(145, 19);
          this.lblSaveFolder.TabIndex = 27;
          this.lblSaveFolder.Text = "Traffic/Log Save Folder";
          this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(15, 168);
+         this.txtSaveFolder.Location = new System.Drawing.Point(26, 609);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
          this.txtSaveFolder.Size = new System.Drawing.Size(301, 22);
@@ -394,7 +400,7 @@
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(175, 200);
+         this.btnBrowse.Location = new System.Drawing.Point(186, 639);
          this.btnBrowse.Name = "btnBrowse";
          this.btnBrowse.Size = new System.Drawing.Size(141, 31);
          this.btnBrowse.TabIndex = 29;
@@ -403,9 +409,9 @@
          // 
          // btnViewTraffic
          // 
-         this.btnViewTraffic.Location = new System.Drawing.Point(15, 237);
+         this.btnViewTraffic.Location = new System.Drawing.Point(708, 655);
          this.btnViewTraffic.Name = "btnViewTraffic";
-         this.btnViewTraffic.Size = new System.Drawing.Size(141, 31);
+         this.btnViewTraffic.Size = new System.Drawing.Size(125, 52);
          this.btnViewTraffic.TabIndex = 30;
          this.btnViewTraffic.Text = "View Traffic";
          this.btnViewTraffic.UseVisualStyleBackColor = true;
@@ -413,9 +419,9 @@
          // 
          // btnViewLog
          // 
-         this.btnViewLog.Location = new System.Drawing.Point(175, 237);
+         this.btnViewLog.Location = new System.Drawing.Point(857, 655);
          this.btnViewLog.Name = "btnViewLog";
-         this.btnViewLog.Size = new System.Drawing.Size(141, 31);
+         this.btnViewLog.Size = new System.Drawing.Size(125, 52);
          this.btnViewLog.TabIndex = 31;
          this.btnViewLog.Text = "View Log";
          this.btnViewLog.UseVisualStyleBackColor = true;
@@ -423,9 +429,9 @@
          // 
          // btnReadAll
          // 
-         this.btnReadAll.Location = new System.Drawing.Point(15, 200);
+         this.btnReadAll.Location = new System.Drawing.Point(1005, 655);
          this.btnReadAll.Name = "btnReadAll";
-         this.btnReadAll.Size = new System.Drawing.Size(141, 31);
+         this.btnReadAll.Size = new System.Drawing.Size(125, 52);
          this.btnReadAll.TabIndex = 32;
          this.btnReadAll.Text = "Read All";
          this.btnReadAll.UseVisualStyleBackColor = true;
@@ -435,10 +441,17 @@
          // 
          this.tclClasses.Controls.Add(this.tabIndex);
          this.tclClasses.Controls.Add(this.tabIJPOperation);
-         this.tclClasses.Location = new System.Drawing.Point(639, 26);
+         this.tclClasses.Controls.Add(this.tabPrintManagement);
+         this.tclClasses.Controls.Add(this.tabPrintSpec);
+         this.tclClasses.Controls.Add(this.tabPrintFormat);
+         this.tclClasses.Controls.Add(this.tabCalendar);
+         this.tclClasses.Controls.Add(this.tabSubstitution);
+         this.tclClasses.Controls.Add(this.tabCount);
+         this.tclClasses.Location = new System.Drawing.Point(371, 26);
+         this.tclClasses.Multiline = true;
          this.tclClasses.Name = "tclClasses";
          this.tclClasses.SelectedIndex = 0;
-         this.tclClasses.Size = new System.Drawing.Size(635, 482);
+         this.tclClasses.Size = new System.Drawing.Size(903, 605);
          this.tclClasses.TabIndex = 33;
          // 
          // tabIndex
@@ -493,35 +506,35 @@
          this.tabIndex.Controls.Add(this.btnIndexGet64);
          this.tabIndex.Controls.Add(this.txtIndex64);
          this.tabIndex.Controls.Add(this.lblIndex64);
-         this.tabIndex.Location = new System.Drawing.Point(4, 25);
+         this.tabIndex.Location = new System.Drawing.Point(4, 46);
          this.tabIndex.Name = "tabIndex";
          this.tabIndex.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIndex.Size = new System.Drawing.Size(627, 453);
+         this.tabIndex.Size = new System.Drawing.Size(895, 555);
          this.tabIndex.TabIndex = 0;
-         this.tabIndex.Text = "Index";
+         this.tabIndex.Text = "Index (0x7A)";
          this.tabIndex.UseVisualStyleBackColor = true;
          // 
          // btnSetAll
          // 
-         this.btnSetAll.Location = new System.Drawing.Point(469, 420);
+         this.btnSetAll.Location = new System.Drawing.Point(731, 515);
          this.btnSetAll.Name = "btnSetAll";
          this.btnSetAll.Size = new System.Drawing.Size(138, 25);
          this.btnSetAll.TabIndex = 49;
          this.btnSetAll.Tag = "11";
          this.btnSetAll.Text = "Set All";
          this.btnSetAll.UseVisualStyleBackColor = true;
-         this.btnSetAll.Click += new System.EventHandler(this.btnSetAll_Click);
+         this.btnSetAll.Click += new System.EventHandler(this.btnIndexSetAll_Click);
          // 
          // btnGetAll
          // 
-         this.btnGetAll.Location = new System.Drawing.Point(320, 420);
+         this.btnGetAll.Location = new System.Drawing.Point(570, 515);
          this.btnGetAll.Name = "btnGetAll";
          this.btnGetAll.Size = new System.Drawing.Size(138, 25);
          this.btnGetAll.TabIndex = 48;
          this.btnGetAll.Tag = "11";
          this.btnGetAll.Text = "Get All";
          this.btnGetAll.UseVisualStyleBackColor = true;
-         this.btnGetAll.Click += new System.EventHandler(this.btnGetAll_Click);
+         this.btnGetAll.Click += new System.EventHandler(this.btnIndexGetAll_Click);
          // 
          // btnIndexSet6F
          // 
@@ -709,9 +722,9 @@
          // 
          // lblIndex6C
          // 
-         this.lblIndex6C.Location = new System.Drawing.Point(16, 262);
+         this.lblIndex6C.Location = new System.Drawing.Point(19, 262);
          this.lblIndex6C.Name = "lblIndex6C";
-         this.lblIndex6C.Size = new System.Drawing.Size(281, 25);
+         this.lblIndex6C.Size = new System.Drawing.Size(278, 25);
          this.lblIndex6C.TabIndex = 30;
          this.lblIndex6C.Tag = "8";
          this.lblIndex6C.Text = "label1";
@@ -1074,12 +1087,12 @@
          this.tabIJPOperation.Controls.Add(this.btnIJPOpGet64);
          this.tabIJPOperation.Controls.Add(this.txtIJPOp64);
          this.tabIJPOperation.Controls.Add(this.lblIJPOp64);
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(627, 453);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 555);
          this.tabIJPOperation.TabIndex = 1;
-         this.tabIJPOperation.Text = "IJP Operation";
+         this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // button1
@@ -1421,11 +1434,65 @@
          this.lblIJPOp64.Text = "label1";
          this.lblIJPOp64.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
          // 
+         // tabPrintSpec
+         // 
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Name = "tabPrintSpec";
+         this.tabPrintSpec.Size = new System.Drawing.Size(627, 453);
+         this.tabPrintSpec.TabIndex = 2;
+         this.tabPrintSpec.Text = "Print Spec (0x68)";
+         this.tabPrintSpec.UseVisualStyleBackColor = true;
+         // 
+         // tabPrintFormat
+         // 
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Name = "tabPrintFormat";
+         this.tabPrintFormat.Size = new System.Drawing.Size(627, 453);
+         this.tabPrintFormat.TabIndex = 3;
+         this.tabPrintFormat.Text = "Print Format (0x67)";
+         this.tabPrintFormat.UseVisualStyleBackColor = true;
+         // 
+         // tabPrintManagement
+         // 
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintManagement.Name = "tabPrintManagement";
+         this.tabPrintManagement.Size = new System.Drawing.Size(627, 453);
+         this.tabPrintManagement.TabIndex = 4;
+         this.tabPrintManagement.Text = "Print Management (066)";
+         this.tabPrintManagement.UseVisualStyleBackColor = true;
+         // 
+         // tabCalendar
+         // 
+         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
+         this.tabCalendar.Name = "tabCalendar";
+         this.tabCalendar.Size = new System.Drawing.Size(627, 432);
+         this.tabCalendar.TabIndex = 5;
+         this.tabCalendar.Text = "Calendar (0x69)";
+         this.tabCalendar.UseVisualStyleBackColor = true;
+         // 
+         // tabSubstitution
+         // 
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
+         this.tabSubstitution.Name = "tabSubstitution";
+         this.tabSubstitution.Size = new System.Drawing.Size(627, 432);
+         this.tabSubstitution.TabIndex = 6;
+         this.tabSubstitution.Text = "Substitution (0x6C)";
+         this.tabSubstitution.UseVisualStyleBackColor = true;
+         // 
+         // tabCount
+         // 
+         this.tabCount.Location = new System.Drawing.Point(4, 46);
+         this.tabCount.Name = "tabCount";
+         this.tabCount.Size = new System.Drawing.Size(627, 432);
+         this.tabCount.TabIndex = 7;
+         this.tabCount.Text = "Count (0x79)";
+         this.tabCount.UseVisualStyleBackColor = true;
+         // 
          // Form1
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(1288, 538);
+         this.ClientSize = new System.Drawing.Size(1288, 713);
          this.Controls.Add(this.tclClasses);
          this.Controls.Add(this.btnReadAll);
          this.Controls.Add(this.btnViewLog);
@@ -1591,6 +1658,12 @@
       private System.Windows.Forms.Label lblIJPOp64;
       private System.Windows.Forms.Button button1;
       private System.Windows.Forms.Button btnIJPOpGetAll;
+      private System.Windows.Forms.TabPage tabPrintManagement;
+      private System.Windows.Forms.TabPage tabPrintSpec;
+      private System.Windows.Forms.TabPage tabPrintFormat;
+      private System.Windows.Forms.TabPage tabCalendar;
+      private System.Windows.Forms.TabPage tabSubstitution;
+      private System.Windows.Forms.TabPage tabCount;
    }
 }
 

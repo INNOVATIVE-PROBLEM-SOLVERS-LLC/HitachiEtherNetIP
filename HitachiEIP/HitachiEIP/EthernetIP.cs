@@ -399,6 +399,12 @@ namespace HitachiEIP {
          return result;
       }
 
+      public bool Connect(string IPAddress, int port) {
+         this.IPAddress = IPAddress;
+         this.port = port;
+         return (Connect());
+      }
+
       // Disconnect from Hitachi printer
       public bool Disconnect() {
          bool result = false;
