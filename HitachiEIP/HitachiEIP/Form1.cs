@@ -78,9 +78,7 @@ namespace HitachiEIP {
 
       private void btnConnect_Click(object sender, EventArgs e) {
          VerifyAddressAndPort();
-         EIP.IPAddress = txtIPAddress.Text;
-         EIP.port = port;
-         EIP.Connect();
+         EIP.Connect(IPAddress, port);
          SetButtonEnables();
       }
 
@@ -353,12 +351,10 @@ namespace HitachiEIP {
       }
 
       private void btnIndexGet_Click(object sender, EventArgs e) {
-         Button b = (Button)sender;
-         int tag = Convert.ToInt32(b.Tag);
-         string val;
+         int tag = Convert.ToInt32(((Button)sender).Tag);
 
          indexText[tag].Text = "Loading";
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], out val, DataFormats.Decimal)) {
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], out string val, DataFormats.Decimal)) {
             indexText[tag].Text = val;
          } else {
             indexText[tag].Text = "#Error";
@@ -368,49 +364,22 @@ namespace HitachiEIP {
       }
 
       private void btnIndexSet_Click(object sender, EventArgs e) {
-
-         Button b = (Button)sender;
-         int tag = Convert.ToInt32(b.Tag);
-
-         byte[] data;
-         Int32 bytes;
-
-         int val;
-         if (!int.TryParse(indexText[tag].Text, out val)) {
+         int tag = Convert.ToInt32(((Button)sender).Tag);
+         if (!int.TryParse(indexText[tag].Text, out int val)) {
             val = validIndexData[tag, 0];
          }
          int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
-
-         EIP.ForwardOpen();
-
-         EIP.Access = eipAccessCode.Set;
-         EIP.Class = eipClassCode.Index;
-         EIP.Instance = 0x01;
-         EIP.Attribute = (byte)indexAttributes[tag];
-         EIP.Data = ToBytes((uint)val, len);
-         EIP.DataLength = (byte)len;
-         try {
-            byte[] ed = EIP.EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
-            EIP.Write(ed, 0, ed.Length);
-
-            if (EIP.Read(out data, out bytes)) {
-
-            }
-         } catch (Exception e2) {
-
-         }
-         btnForwardClose_Click(null, null);
-
+         bool Success = EIP.WriteOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], ToBytes((uint)val, len));
       }
 
-      private void btnGetAll_Click(object sender, EventArgs e) {
+      private void btnIndexGetAll_Click(object sender, EventArgs e) {
          for (int i = 0; i < indexGet.Length; i++) {
             btnIndexGet_Click(indexGet[i], null);
             this.Refresh();
          }
       }
 
-      private void btnSetAll_Click(object sender, EventArgs e) {
+      private void btnIndexSetAll_Click(object sender, EventArgs e) {
          for (int i = 0; i < indexSet.Length; i++) {
             btnIndexSet_Click(indexSet[i], null);
          }
@@ -461,16 +430,16 @@ namespace HitachiEIP {
       #region IJP Operation Tab Controls
 
       eipIJP_operation[] ijpOpAttributes = new eipIJP_operation[] {
-      eipIJP_operation.Remote_operation_information,
-      eipIJP_operation.Fault_and_warning_history,
-      eipIJP_operation.Operating_condition,
-      eipIJP_operation.Warning_condition,
-      eipIJP_operation.Date_and_time_information,
-      eipIJP_operation.Error_code,
-      eipIJP_operation.Start_Remote_Operation,
-      eipIJP_operation.Stop_Remote_Operation,
-      eipIJP_operation.Deflection_voltage_control,
-      eipIJP_operation.Online_Offline,
+         eipIJP_operation.Remote_operation_information,
+         eipIJP_operation.Fault_and_warning_history,
+         eipIJP_operation.Operating_condition,
+         eipIJP_operation.Warning_condition,
+         eipIJP_operation.Date_and_time_information,
+         eipIJP_operation.Error_code,
+         eipIJP_operation.Start_Remote_Operation,
+         eipIJP_operation.Stop_Remote_Operation,
+         eipIJP_operation.Deflection_voltage_control,
+         eipIJP_operation.Online_Offline,
       };
 
       Label[] ijpOpLabel;
@@ -534,6 +503,18 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      private void btnIJPOpSet_Click(object sender, EventArgs e) {
+         Button b = (Button)sender;
+         int tag = Convert.ToInt32(b.Tag);
+
+         if (!int.TryParse(indexText[tag].Text, out int val)) {
+            val = validIndexData[tag, 0];
+         }
+         int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
+
+         bool Success = EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], ToBytes((uint)val, len));
+      }
+
       private void btnIJPOpGetAll_Click(object sender, EventArgs e) {
          for (int i = 0; i < ijpOpxGet.Length; i++) {
             if (ijpOpxGet[i] != null) {
@@ -542,6 +523,7 @@ namespace HitachiEIP {
             }
          }
       }
+
       private void txtIJPOp6F_Leave(object sender, EventArgs e) {
          TextBox t = (TextBox)sender;
          int tag = Convert.ToInt32(t.Tag);
