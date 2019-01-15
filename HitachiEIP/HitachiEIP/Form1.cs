@@ -10,7 +10,7 @@ namespace HitachiEIP {
 
       #region Data declarations
 
-      IPAddress IPAddress;
+      string IPAddress;
       int port;
 
       EIP EIP;
@@ -26,18 +26,14 @@ namespace HitachiEIP {
       string LogFilename;
       StreamWriter LogFileStream = null;
 
-      enum DataFormats {
-         Decimal,
-         Bytes,
-      }
-
       #endregion
 
       #region Constructors and Destructors
 
       public Form1() {
          InitializeComponent();
-         EIP = new EIP();
+         VerifyAddressAndPort();
+         EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
       }
 
@@ -81,15 +77,10 @@ namespace HitachiEIP {
       #region Form control events
 
       private void btnConnect_Click(object sender, EventArgs e) {
-         if (!Int32.TryParse(txtPort.Text, out port)) {
-            port = 44818;
-            txtPort.Text = port.ToString();
-         }
-         if (!System.Net.IPAddress.TryParse(txtIPAddress.Text, out IPAddress)) {
-            txtIPAddress.Text = "192.168.0.1";
-            IPAddress = IPAddress.Parse(txtIPAddress.Text);
-         }
-         EIP.Connect(txtIPAddress.Text, port);
+         VerifyAddressAndPort();
+         EIP.IPAddress = txtIPAddress.Text;
+         EIP.port = port;
+         EIP.Connect();
          SetButtonEnables();
       }
 
@@ -142,32 +133,28 @@ namespace HitachiEIP {
       }
 
       private void btnIssueRequest_Click(object sender, EventArgs e) {
+         bool Success = false;
          if (cbAccessCode.SelectedIndex >= 0
             && cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
-            EIP.Access = AccessCodes[cbAccessCode.SelectedIndex];
-            EIP.Class = ClassCodes[cbClassCode.SelectedIndex];
-            EIP.Instance = 0x01;
-            EIP.Attribute = (byte)Attributes[cbFunction.SelectedIndex];
-            if (EIP.Access == eipAccessCode.Get) {
-               EIP.Data = 0;
-               EIP.DataLength = 0;
-            } else {
-               // Got some work to do here
-               EIP.Data = 1;
-               EIP.DataLength = 1;
-            }
-            string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
-            trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, Attributes[cbFunction.SelectedIndex])}\t";
             try {
-               byte[] ed = EIP.EIP_Hitachi(EIP_Type.SendUnitData, AccessCodes[cbAccessCode.SelectedIndex]);
-               EIP.Write(ed, 0, ed.Length);
-
-               byte[] data;
-               Int32 bytes;
-               if (EIP.Read(out data, out bytes)) {
-                  string hdr = EIP.GetBytes(data, 46, 4);
-                  int status = (int)EIP.Get(data, 48, 2, mem.LittleEndian);
+               switch (AccessCodes[cbAccessCode.SelectedIndex]) {
+                  case eipAccessCode.Set:
+                     // Got some work to do here
+                     byte[] Data = new byte[] { 1 };
+                     Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)Attributes[cbFunction.SelectedIndex], Data);
+                     break;
+                  case eipAccessCode.Get:
+                     Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)Attributes[cbFunction.SelectedIndex], out string val, DataFormats.Bytes);
+                     break;
+                  case eipAccessCode.Service:
+                     break;
+               }
+               string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
+               trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, Attributes[cbFunction.SelectedIndex])}\t";
+               if (Success) {
+                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
+                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
                   string text = "Unknown!";
                   switch (status) {
                      case 0:
@@ -185,21 +172,21 @@ namespace HitachiEIP {
 
                         break;
                      case eipAccessCode.Get:
-                        int length = bytes - 50;
-                        string s = EIP.GetBytes(data, 50, length);
+                        int length = EIP.ReadDataLength - 50;
+                        string s = EIP.GetBytes(EIP.ReadData, 50, length);
                         txtData.Text = s;
                         txtDataDec.Text = "N/A";
-                        if (bytes > 50) {
+                        if (EIP.ReadDataLength > 50) {
                            if (length < 5) {
-                              int x = (int)EIP.Get(data, 50, length, mem.BigEndian);
+                              int x = (int)EIP.Get(EIP.ReadData, 50, length, mem.BigEndian);
                               txtDataDec.Text = x.ToString();
                            } else {
                               s = string.Empty;
-                              for (int i = 50; i < bytes; i++) {
-                                 if (data[i] > 0x1f && data[i] < 0x80) {
-                                    s += (char)data[i];
+                              for (int i = 50; i < EIP.ReadDataLength; i++) {
+                                 if (EIP.ReadData[i] > 0x1f && EIP.ReadData[i] < 0x80) {
+                                    s += (char)EIP.ReadData[i];
                                  } else {
-                                    s += $"<{data[i]:X2}>";
+                                    s += $"<{EIP.ReadData[i]:X2}>";
                                  }
                               }
                               //txtDataDec.Text = s;
@@ -209,10 +196,10 @@ namespace HitachiEIP {
                         break;
                   }
                }
+               TrafficFileStream.WriteLine(trafficText);
             } catch (Exception e2) {
 
             }
-            TrafficFileStream.WriteLine(trafficText);
          }
       }
 
@@ -371,7 +358,7 @@ namespace HitachiEIP {
          string val;
 
          indexText[tag].Text = "Loading";
-         if (ReadOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], out val, DataFormats.Decimal)) {
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], out val, DataFormats.Decimal)) {
             indexText[tag].Text = val;
          } else {
             indexText[tag].Text = "#Error";
@@ -400,7 +387,7 @@ namespace HitachiEIP {
          EIP.Class = eipClassCode.Index;
          EIP.Instance = 0x01;
          EIP.Attribute = (byte)indexAttributes[tag];
-         EIP.Data = (ulong)val;
+         EIP.Data = ToBytes((uint)val, len);
          EIP.DataLength = (byte)len;
          try {
             byte[] ed = EIP.EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
@@ -538,7 +525,7 @@ namespace HitachiEIP {
          if (ijpOpAttributes[tag] == eipIJP_operation.Online_Offline) {
             fmt = DataFormats.Decimal;
          }
-         if (ReadOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], out val, fmt)) {
+         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], out val, fmt)) {
             ijpOpText[tag].Text = val;
          } else {
             ijpOpText[tag].Text = "#Error";
@@ -577,49 +564,16 @@ namespace HitachiEIP {
 
       #region Service Routines
 
-      private bool ReadOneAttribute(eipClassCode Class, byte Attribute, out string val, DataFormats fmt) {
-         bool result = false;
-         byte[] data;
-         Int32 bytes;
-
-         val = string.Empty;
-         EIP.ForwardOpen();
-
-         EIP.Access = eipAccessCode.Get;
-         EIP.Class = Class;
-         EIP.Instance = 0x01;
-         EIP.Attribute = Attribute;
-         EIP.Data = 0;
-         EIP.DataLength = 0;
-         try {
-
-            byte[] ed = EIP.EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
-            EIP.Write(ed, 0, ed.Length);
-
-            if (EIP.Read(out data, out bytes)) {
-               int status = (int)EIP.Get(data, 48, 2, mem.LittleEndian);
-               if (status == 0) {
-                  switch (fmt) {
-                     case DataFormats.Decimal:
-                        val = EIP.Get(data, 50, bytes - 50, mem.BigEndian).ToString();
-                        break;
-                     case DataFormats.Bytes:
-                        val = EIP.GetBytes(data, 50, bytes - 50);
-                        break;
-                     default:
-                        break;
-                  }
-                  result = true;
-               } else {
-                  val = "#Error";
-               }
-            }
-         } catch (Exception e2) {
-
+      private void VerifyAddressAndPort() {
+         if (!Int32.TryParse(txtPort.Text, out port)) {
+            port = 44818;
+            txtPort.Text = port.ToString();
          }
-
-         btnForwardClose_Click(null, null);
-         return result;
+         if (!System.Net.IPAddress.TryParse(txtIPAddress.Text, out System.Net.IPAddress IPAddress)) {
+            txtIPAddress.Text = "192.168.0.1";
+            IPAddress = IPAddress.Parse(txtIPAddress.Text);
+         }
+         this.IPAddress = IPAddress.ToString();
       }
 
       private void BuildTrafficFile() {
@@ -652,6 +606,15 @@ namespace HitachiEIP {
 
       private string CreateFileName(string directory, string s) {
          return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.txt");
+      }
+
+      private byte[] ToBytes(uint v, int length) {
+         byte[] result = new byte[length];
+         for (int i = length - 1; i >= 0; i--) {
+            result[i] = (byte)(v & 0xFF);
+            v >>= 8;
+         }
+         return result;
       }
 
       void SetButtonEnables() {
