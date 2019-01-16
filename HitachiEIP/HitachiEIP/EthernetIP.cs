@@ -873,7 +873,7 @@ namespace HitachiEIP {
          return result;
       }
 
-      internal string GetBytes(byte[] data, int start, int length) {
+      public string GetBytes(byte[] data, int start, int length) {
          string s = string.Empty;
          for (int i = 0; i < Math.Min(length, 50); i++) {
             s += $"{data[start + i]:X2} ";
@@ -882,6 +882,15 @@ namespace HitachiEIP {
             s += "...";
          }
          return s;
+      }
+
+      public byte[] ToBytes(uint v, int length) {
+         byte[] result = new byte[length];
+         for (int i = length - 1; i >= 0; i--) {
+            result[i] = (byte)(v & 0xFF);
+            v >>= 8;
+         }
+         return result;
       }
 
       #endregion
