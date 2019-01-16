@@ -56,8 +56,8 @@
          this.btnReadAll = new System.Windows.Forms.Button();
          this.tclClasses = new System.Windows.Forms.TabControl();
          this.tabIndex = new System.Windows.Forms.TabPage();
-         this.btnSetAll = new System.Windows.Forms.Button();
-         this.btnGetAll = new System.Windows.Forms.Button();
+         this.btnIndexSetAll = new System.Windows.Forms.Button();
+         this.btnIndexGetAll = new System.Windows.Forms.Button();
          this.btnIndexSet6F = new System.Windows.Forms.Button();
          this.btnIndexSet6E = new System.Windows.Forms.Button();
          this.btnIndexSet6D = new System.Windows.Forms.Button();
@@ -107,7 +107,7 @@
          this.txtIndex64 = new System.Windows.Forms.TextBox();
          this.lblIndex64 = new System.Windows.Forms.Label();
          this.tabIJPOperation = new System.Windows.Forms.TabPage();
-         this.button1 = new System.Windows.Forms.Button();
+         this.btnIJPOpSetAll = new System.Windows.Forms.Button();
          this.btnIJPOpGetAll = new System.Windows.Forms.Button();
          this.btnIJPOpSet6F = new System.Windows.Forms.Button();
          this.btnIJPOpGet6F = new System.Windows.Forms.Button();
@@ -140,9 +140,9 @@
          this.btnIJPOpGet64 = new System.Windows.Forms.Button();
          this.txtIJPOp64 = new System.Windows.Forms.TextBox();
          this.lblIJPOp64 = new System.Windows.Forms.Label();
+         this.tabPrintManagement = new System.Windows.Forms.TabPage();
          this.tabPrintSpec = new System.Windows.Forms.TabPage();
          this.tabPrintFormat = new System.Windows.Forms.TabPage();
-         this.tabPrintManagement = new System.Windows.Forms.TabPage();
          this.tabCalendar = new System.Windows.Forms.TabPage();
          this.tabSubstitution = new System.Windows.Forms.TabPage();
          this.tabCount = new System.Windows.Forms.TabPage();
@@ -300,7 +300,7 @@
          this.lblAccessCode.Size = new System.Drawing.Size(293, 22);
          this.lblAccessCode.TabIndex = 17;
          this.lblAccessCode.Text = "Access Code";
-         this.lblAccessCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblAccessCode.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
          // lblClassCode
          // 
@@ -309,7 +309,7 @@
          this.lblClassCode.Size = new System.Drawing.Size(293, 22);
          this.lblClassCode.TabIndex = 19;
          this.lblClassCode.Text = "Class Code";
-         this.lblClassCode.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblClassCode.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
          // cbClassCode
          // 
@@ -327,7 +327,7 @@
          this.lblFunction.Size = new System.Drawing.Size(293, 22);
          this.lblFunction.TabIndex = 21;
          this.lblFunction.Text = "Function Code";
-         this.lblFunction.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblFunction.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
          // cbFunction
          // 
@@ -382,16 +382,16 @@
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(80, 587);
+         this.lblSaveFolder.Location = new System.Drawing.Point(23, 597);
          this.lblSaveFolder.Name = "lblSaveFolder";
-         this.lblSaveFolder.Size = new System.Drawing.Size(145, 19);
+         this.lblSaveFolder.Size = new System.Drawing.Size(202, 19);
          this.lblSaveFolder.TabIndex = 27;
          this.lblSaveFolder.Text = "Traffic/Log Save Folder";
          this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(26, 609);
+         this.txtSaveFolder.Location = new System.Drawing.Point(26, 628);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
          this.txtSaveFolder.Size = new System.Drawing.Size(301, 22);
@@ -400,9 +400,9 @@
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(186, 639);
+         this.btnBrowse.Location = new System.Drawing.Point(231, 590);
          this.btnBrowse.Name = "btnBrowse";
-         this.btnBrowse.Size = new System.Drawing.Size(141, 31);
+         this.btnBrowse.Size = new System.Drawing.Size(81, 32);
          this.btnBrowse.TabIndex = 29;
          this.btnBrowse.Text = "Browse";
          this.btnBrowse.UseVisualStyleBackColor = true;
@@ -453,11 +453,12 @@
          this.tclClasses.SelectedIndex = 0;
          this.tclClasses.Size = new System.Drawing.Size(903, 605);
          this.tclClasses.TabIndex = 33;
+         this.tclClasses.SelectedIndexChanged += new System.EventHandler(this.tclClasses_SelectedIndexChanged);
          // 
          // tabIndex
          // 
-         this.tabIndex.Controls.Add(this.btnSetAll);
-         this.tabIndex.Controls.Add(this.btnGetAll);
+         this.tabIndex.Controls.Add(this.btnIndexSetAll);
+         this.tabIndex.Controls.Add(this.btnIndexGetAll);
          this.tabIndex.Controls.Add(this.btnIndexSet6F);
          this.tabIndex.Controls.Add(this.btnIndexSet6E);
          this.tabIndex.Controls.Add(this.btnIndexSet6D);
@@ -514,27 +515,27 @@
          this.tabIndex.Text = "Index (0x7A)";
          this.tabIndex.UseVisualStyleBackColor = true;
          // 
-         // btnSetAll
+         // btnIndexSetAll
          // 
-         this.btnSetAll.Location = new System.Drawing.Point(731, 515);
-         this.btnSetAll.Name = "btnSetAll";
-         this.btnSetAll.Size = new System.Drawing.Size(138, 25);
-         this.btnSetAll.TabIndex = 49;
-         this.btnSetAll.Tag = "11";
-         this.btnSetAll.Text = "Set All";
-         this.btnSetAll.UseVisualStyleBackColor = true;
-         this.btnSetAll.Click += new System.EventHandler(this.btnIndexSetAll_Click);
+         this.btnIndexSetAll.Location = new System.Drawing.Point(731, 515);
+         this.btnIndexSetAll.Name = "btnIndexSetAll";
+         this.btnIndexSetAll.Size = new System.Drawing.Size(138, 25);
+         this.btnIndexSetAll.TabIndex = 49;
+         this.btnIndexSetAll.Tag = "11";
+         this.btnIndexSetAll.Text = "Set All";
+         this.btnIndexSetAll.UseVisualStyleBackColor = true;
+         this.btnIndexSetAll.Click += new System.EventHandler(this.btnIndexSetAll_Click);
          // 
-         // btnGetAll
+         // btnIndexGetAll
          // 
-         this.btnGetAll.Location = new System.Drawing.Point(570, 515);
-         this.btnGetAll.Name = "btnGetAll";
-         this.btnGetAll.Size = new System.Drawing.Size(138, 25);
-         this.btnGetAll.TabIndex = 48;
-         this.btnGetAll.Tag = "11";
-         this.btnGetAll.Text = "Get All";
-         this.btnGetAll.UseVisualStyleBackColor = true;
-         this.btnGetAll.Click += new System.EventHandler(this.btnIndexGetAll_Click);
+         this.btnIndexGetAll.Location = new System.Drawing.Point(570, 515);
+         this.btnIndexGetAll.Name = "btnIndexGetAll";
+         this.btnIndexGetAll.Size = new System.Drawing.Size(138, 25);
+         this.btnIndexGetAll.TabIndex = 48;
+         this.btnIndexGetAll.Tag = "11";
+         this.btnIndexGetAll.Text = "Get All";
+         this.btnIndexGetAll.UseVisualStyleBackColor = true;
+         this.btnIndexGetAll.Click += new System.EventHandler(this.btnIndexGetAll_Click);
          // 
          // btnIndexSet6F
          // 
@@ -1054,7 +1055,7 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Controls.Add(this.button1);
+         this.tabIJPOperation.Controls.Add(this.btnIJPOpSetAll);
          this.tabIJPOperation.Controls.Add(this.btnIJPOpGetAll);
          this.tabIJPOperation.Controls.Add(this.btnIJPOpSet6F);
          this.tabIJPOperation.Controls.Add(this.btnIJPOpGet6F);
@@ -1095,15 +1096,15 @@
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
-         // button1
+         // btnIJPOpSetAll
          // 
-         this.button1.Location = new System.Drawing.Point(472, 406);
-         this.button1.Name = "button1";
-         this.button1.Size = new System.Drawing.Size(138, 25);
-         this.button1.TabIndex = 87;
-         this.button1.Tag = "11";
-         this.button1.Text = "Set All";
-         this.button1.UseVisualStyleBackColor = true;
+         this.btnIJPOpSetAll.Location = new System.Drawing.Point(472, 406);
+         this.btnIJPOpSetAll.Name = "btnIJPOpSetAll";
+         this.btnIJPOpSetAll.Size = new System.Drawing.Size(138, 25);
+         this.btnIJPOpSetAll.TabIndex = 87;
+         this.btnIJPOpSetAll.Tag = "11";
+         this.btnIJPOpSetAll.Text = "Set All";
+         this.btnIJPOpSetAll.UseVisualStyleBackColor = true;
          // 
          // btnIJPOpGetAll
          // 
@@ -1434,38 +1435,38 @@
          this.lblIJPOp64.Text = "label1";
          this.lblIJPOp64.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
          // 
+         // tabPrintManagement
+         // 
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
+         this.tabPrintManagement.Name = "tabPrintManagement";
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 555);
+         this.tabPrintManagement.TabIndex = 4;
+         this.tabPrintManagement.Text = "Print Management (066)";
+         this.tabPrintManagement.UseVisualStyleBackColor = true;
+         // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(627, 453);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 555);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(627, 453);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 555);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
-         // 
-         // tabPrintManagement
-         // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
-         this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(627, 453);
-         this.tabPrintManagement.TabIndex = 4;
-         this.tabPrintManagement.Text = "Print Management (066)";
-         this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
          this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(627, 432);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 555);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
@@ -1474,7 +1475,7 @@
          // 
          this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(627, 432);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 555);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -1483,7 +1484,7 @@
          // 
          this.tabCount.Location = new System.Drawing.Point(4, 46);
          this.tabCount.Name = "tabCount";
-         this.tabCount.Size = new System.Drawing.Size(627, 432);
+         this.tabCount.Size = new System.Drawing.Size(895, 555);
          this.tabCount.TabIndex = 7;
          this.tabCount.Text = "Count (0x79)";
          this.tabCount.UseVisualStyleBackColor = true;
@@ -1529,6 +1530,7 @@
          this.Text = "Form1";
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
          this.Load += new System.EventHandler(this.Form1_Load);
+         this.Resize += new System.EventHandler(this.Form1_Resize);
          this.tclClasses.ResumeLayout(false);
          this.tabIndex.ResumeLayout(false);
          this.tabIndex.PerformLayout();
@@ -1623,8 +1625,8 @@
       private System.Windows.Forms.TextBox txtIndex64;
       private System.Windows.Forms.Label lblIndex64;
       private System.Windows.Forms.TabPage tabIJPOperation;
-      private System.Windows.Forms.Button btnSetAll;
-      private System.Windows.Forms.Button btnGetAll;
+      private System.Windows.Forms.Button btnIndexSetAll;
+      private System.Windows.Forms.Button btnIndexGetAll;
       private System.Windows.Forms.Button btnIJPOpSet6F;
       private System.Windows.Forms.Button btnIJPOpGet6F;
       private System.Windows.Forms.TextBox txtIJPOp6F;
@@ -1656,7 +1658,7 @@
       private System.Windows.Forms.Button btnIJPOpGet64;
       private System.Windows.Forms.TextBox txtIJPOp64;
       private System.Windows.Forms.Label lblIJPOp64;
-      private System.Windows.Forms.Button button1;
+      private System.Windows.Forms.Button btnIJPOpSetAll;
       private System.Windows.Forms.Button btnIJPOpGetAll;
       private System.Windows.Forms.TabPage tabPrintManagement;
       private System.Windows.Forms.TabPage tabPrintSpec;

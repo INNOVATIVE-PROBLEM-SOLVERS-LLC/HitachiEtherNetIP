@@ -26,6 +26,11 @@ namespace HitachiEIP {
       string LogFilename;
       StreamWriter LogFileStream = null;
 
+      ResizeInfo R;
+      bool initComplete = false;
+
+      CountAttributes count;
+
       #endregion
 
       #region Constructors and Destructors
@@ -35,6 +40,7 @@ namespace HitachiEIP {
          VerifyAddressAndPort();
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
+         initComplete = true;
       }
 
       private void EIP_Log(EIP sender, string msg) {
@@ -46,6 +52,7 @@ namespace HitachiEIP {
       #region Form Level events
 
       private void Form1_Load(object sender, EventArgs e) {
+         Utils.PositionForm(this, 0.75f, 0.9f);
          cbAccessCode.Items.Clear();
          cbAccessCode.Items.AddRange(Enum.GetNames(typeof(eipAccessCode)));
          AccessCodes = (eipAccessCode[])Enum.GetValues(typeof(eipAccessCode));
@@ -60,8 +67,11 @@ namespace HitachiEIP {
          // Load all the tabbed control data
          indexLoad();
          ijpOpLoad();
+         count = new CountAttributes(this, EIP, tabCount);
 
          SetButtonEnables();
+
+         Form1_Resize(null, null);
       }
 
       private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
@@ -70,6 +80,115 @@ namespace HitachiEIP {
 
          CloseTrafficFile(false);
          CloseLogFile(false);
+      }
+
+      private void Form1_Resize(object sender, EventArgs e) {
+         //
+         // Avoid resize on screen minimize
+         if (initComplete && ClientRectangle.Height > 0) {
+            //
+            this.SuspendLayout();
+            // Build local parameters
+            R = Utils.InitializeResize(this, 47, 35, true);
+
+            #region Left Column
+
+            Utils.ResizeObject(ref R, lblIPAddress, 1, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtIPAddress, 1, 4, 2, 3);
+            Utils.ResizeObject(ref R, lblPort, 3, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtPort, 3, 4, 2, 3);
+            Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtSessionID, 5, 4, 2, 3);
+
+            Utils.ResizeObject(ref R, btnConnect, 8, 0.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnDisconnect, 8, 4, 2, 3);
+            Utils.ResizeObject(ref R, btnStartSession, 10.5f, 0.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnEndSession, 10.5f, 4, 2, 3);
+            Utils.ResizeObject(ref R, btnForwardOpen, 13, 0.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnForwardClose, 13, 4, 2, 3);
+
+            Utils.ResizeObject(ref R, lblAccessCode, 16, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, cbAccessCode, 18, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lblClassCode, 20, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, cbClassCode, 22, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lblFunction, 24, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, cbFunction, 26, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, btnIssueRequest, 28, 0.5f, 2, 6.5f);
+
+            Utils.ResizeObject(ref R, lblStatus, 30, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, txtStatus, 32, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lbldata, 34, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, txtData, 36, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, txtDataDec, 38, 0.5f, 2, 6.5f);
+
+            Utils.ResizeObject(ref R, lblSaveFolder, 40, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, txtSaveFolder, 42, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, btnBrowse, 44, 0.5f, 2, 6.5f);
+
+            #endregion
+
+            #region  Classes
+
+            Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 26);
+
+            int tclHeight = (int)(tclClasses.TabPages[tclClasses.SelectedIndex].ClientSize.Height / R.H);
+
+            #region Index Attributes
+
+            if (indexLabel != null) {
+               for (int i = 0; i < indexLabel.Length; i++) {
+                  Utils.ResizeObject(ref R, indexLabel[i], 2 + i * 2, 13, 1.5f, 5);
+                  Utils.ResizeObject(ref R, indexText[i], 2 + i * 2, 18.5f, 1.5f, 2);
+                  Utils.ResizeObject(ref R, indexGet[i], 2 + i * 2, 21, 1.5f, 2);
+                  Utils.ResizeObject(ref R, indexSet[i], 2 + i * 2, 23.5f, 1.5f, 2);
+               }
+               Utils.ResizeObject(ref R, btnIndexGetAll, tclHeight - 3, 17, 2.5f, 4);
+               Utils.ResizeObject(ref R, btnIndexSetAll, tclHeight - 3, 21.5f, 2.5f, 4);
+            }
+
+            #endregion
+
+            #region IJP Operation Attributes
+
+            if (ijpOpLabel != null) {
+               for (int i = 0; i < ijpOpLabel.Length; i++) {
+                  Utils.ResizeObject(ref R, ijpOpLabel[i], 2 + i * 2, 13, 1.5f, 5);
+                  Utils.ResizeObject(ref R, ijpOpText[i], 2 + i * 2, 18.5f, 1.5f, 2);
+                  if (ijpOpxGet[i] != null) {
+                     Utils.ResizeObject(ref R, ijpOpxGet[i], 2 + i * 2, 21, 1.5f, 2);
+                  }
+                  if (ijpOpxSet[i] != null) {
+                     Utils.ResizeObject(ref R, ijpOpxSet[i], 2 + i * 2, 23.5f, 1.5f, 2);
+                  }
+                  if (ijpOpxSvc[i] != null) {
+                     Utils.ResizeObject(ref R, ijpOpxSvc[i], 2 + i * 2, 21, 1.5f, 4.5f);
+                  }
+               }
+               Utils.ResizeObject(ref R, btnIJPOpGetAll, tclHeight - 3, 17, 2.5f, 4);
+               Utils.ResizeObject(ref R, btnIJPOpSetAll, tclHeight - 3, 21.5f, 2.5f, 4);
+            }
+
+
+            #endregion
+
+            if (count != null) {
+               count.ResizeControls(ref R);
+            }
+
+            #endregion
+
+            #region Bottom Row
+
+            Utils.ResizeObject(ref R, btnViewTraffic, 44, 15, 2, 4);
+            Utils.ResizeObject(ref R, btnViewLog, 44, 20, 2, 4);
+            Utils.ResizeObject(ref R, btnReadAll, 44, 25, 2, 4);
+            Utils.ResizeObject(ref R, btnExit, 44, 30, 2, 4);
+
+            #endregion
+
+            this.Refresh();
+            this.ResumeLayout();
+         }
       }
 
       #endregion
@@ -88,32 +207,24 @@ namespace HitachiEIP {
       }
 
       private void btnStartSession_Click(object sender, EventArgs e) {
-
          EIP.StartSession();
          txtSessionID.Text = EIP.SessionID.ToString();
-
          SetButtonEnables();
       }
 
       private void btnEndSession_Click(object sender, EventArgs e) {
-
          EIP.EndSession();
          txtSessionID.Text = string.Empty;
-
          SetButtonEnables();
       }
 
       private void btnForwardOpen_Click(object sender, EventArgs e) {
-
          EIP.ForwardOpen();
-
          SetButtonEnables();
       }
 
       private void btnForwardClose_Click(object sender, EventArgs e) {
-
          EIP.ForwardClose();
-
          SetButtonEnables();
       }
 
@@ -294,6 +405,10 @@ namespace HitachiEIP {
 
       }
 
+      private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
+         Form1_Resize(null, null);
+      }
+
       #endregion
 
       #region Index Tab Controls
@@ -369,7 +484,7 @@ namespace HitachiEIP {
             val = validIndexData[tag, 0];
          }
          int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
-         bool Success = EIP.WriteOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], ToBytes((uint)val, len));
+         bool Success = EIP.WriteOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], EIP.ToBytes((uint)val, len));
       }
 
       private void btnIndexGetAll_Click(object sender, EventArgs e) {
@@ -421,8 +536,8 @@ namespace HitachiEIP {
             indexSet[i].Enabled = enable && dataValid;
             allValid &= dataValid;
          }
-         btnGetAll.Enabled = enable;
-         btnSetAll.Enabled = enable && allValid;
+         btnIndexGetAll.Enabled = enable;
+         btnIndexSetAll.Enabled = enable && allValid;
       }
 
       #endregion
@@ -512,7 +627,7 @@ namespace HitachiEIP {
          }
          int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
 
-         bool Success = EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], ToBytes((uint)val, len));
+         bool Success = EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], EIP.ToBytes((uint)val, len));
       }
 
       private void btnIJPOpGetAll_Click(object sender, EventArgs e) {
@@ -588,15 +703,6 @@ namespace HitachiEIP {
 
       private string CreateFileName(string directory, string s) {
          return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.txt");
-      }
-
-      private byte[] ToBytes(uint v, int length) {
-         byte[] result = new byte[length];
-         for (int i = length - 1; i >= 0; i--) {
-            result[i] = (byte)(v & 0xFF);
-            v >>= 8;
-         }
-         return result;
       }
 
       void SetButtonEnables() {
