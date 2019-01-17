@@ -30,16 +30,18 @@ namespace HitachiEIP {
       bool initComplete = false;
 
       // Attribute Screens
-      Attributes<eipIndex> indexAttr;
-
-      CountAttributes count;
-      PrintDataMgmtAttributes printDataMgmt;
-      PrintFormatAttributes printFmt;
-      PrintSpecAttributes printSpec;
-      SubstitutionAttributes subRules;
-      UnitInformationAttributes unitInfo;
-      EnviromentAttributes envir;
-      OperationMgmtAttributes opMgmt;
+      Attributes<eipIndex> indexAttr;               // 0x7A
+      Attributes<eipIJP_operation> oprAttr;         // 0x75
+      Attributes<eipPrint_Data_Management> pdmAttr; // 0x66
+      Attributes<eipPrint_specification> psAttr;    // 0x68
+      Attributes<eipPrint_format> pFmtAttr;         // 0x67
+      Attributes<eipCalendar> calAttr;              // 0x69
+      Attributes<eipSubstitution_rules> sRulesAttr; // 0x6C
+      Attributes<eipCount> countAttr;               // 0x79
+      Attributes<eipUnit_Information> unitInfoAttr; // 0x73
+      Attributes<eipEnviroment_setting> envirAttr;  // 0x71
+      Attributes<eipOperation_management> mgmtAttr; // 0x74
+      //Attributes<eipUser_pattern> userPatAttr;      // 0x6B
 
       #endregion
 
@@ -50,7 +52,6 @@ namespace HitachiEIP {
          VerifyAddressAndPort();
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
-         initComplete = true;
       }
 
       private void EIP_Log(EIP sender, string msg) {
@@ -75,20 +76,22 @@ namespace HitachiEIP {
          BuildLogFile();
 
          // Load all the tabbed control data
-
-         count = new CountAttributes(this, EIP, tabCount);
-         printDataMgmt = new PrintDataMgmtAttributes(this, EIP, tabPrintManagement);
-         printFmt = new PrintFormatAttributes(this, EIP, tabPrintFormat);
-         printSpec = new PrintSpecAttributes(this, EIP, tabPrintSpec);
-         subRules = new SubstitutionAttributes(this, EIP, tabSubstitution);
-         unitInfo = new UnitInformationAttributes(this, EIP, tabUnitInformation);
-         envir = new EnviromentAttributes(this, EIP, tabEnviroment);
-         opMgmt = new OperationMgmtAttributes(this, EIP, tabOpMgmt);
-
-         indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, indexAttributes, eipClassCode.Index);
+         indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, eipClassCode.Index);
+         oprAttr = new Attributes<eipIJP_operation>(this, EIP, tabIJPOperation, eipClassCode.IJP_operation);
+         pdmAttr = new Attributes<eipPrint_Data_Management>(this, EIP, tabPrintManagement, eipClassCode.Print_data_management);
+         psAttr = new Attributes<eipPrint_specification>(this, EIP, tabPrintSpec, eipClassCode.Print_specification);
+         pFmtAttr = new Attributes<eipPrint_format>(this, EIP, tabPrintFormat, eipClassCode.Print_format);
+         calAttr = new Attributes<eipCalendar>(this, EIP, tabPrintFormat, eipClassCode.Calendar);
+         sRulesAttr = new Attributes<eipSubstitution_rules>(this, EIP, tabSubstitution, eipClassCode.Substitution_rules);
+         countAttr = new Attributes<eipCount>(this, EIP, tabCount, eipClassCode.Count);
+         unitInfoAttr = new Attributes<eipUnit_Information>(this, EIP, tabUnitInformation, eipClassCode.Unit_Information);
+         envirAttr = new Attributes<eipEnviroment_setting>(this, EIP, tabEnviroment, eipClassCode.Enviroment_setting);
+         mgmtAttr = new Attributes<eipOperation_management>(this, EIP, tabOpMgmt, eipClassCode.Operation_management);
+         //userPatAttr = new Attributes<eipUser_pattern>(this, EIP, tabUserPattern, eipClassCode.User_pattern);
 
          SetButtonEnables();
 
+         initComplete = true;
          Form1_Resize(null, null);
       }
 
@@ -151,32 +154,19 @@ namespace HitachiEIP {
 
             #endregion
 
-            if (count != null) {
-               count.ResizeControls(ref R);
-            }
-            if (printDataMgmt != null) {
-               printDataMgmt.ResizeControls(ref R);
-            }
-            if (printFmt != null) {
-               printFmt.ResizeControls(ref R);
-            }
-            if (printSpec != null) {
-               printSpec.ResizeControls(ref R);
-            }
-            if (subRules != null) {
-               subRules.ResizeControls(ref R);
-            }
-            if (unitInfo != null) {
-               unitInfo.ResizeControls(ref R);
-            }
-            if (envir != null) {
-               envir.ResizeControls(ref R);
-            }
-            if (opMgmt != null) {
-               opMgmt.ResizeControls(ref R);
-            }
-            if(testAttr != null) {
-               testAttr.ResizeControls(ref R);
+            if (initComplete) {
+               indexAttr.ResizeControls(ref R); // 0x7A
+               oprAttr.ResizeControls(ref R);
+               pdmAttr.ResizeControls(ref R);
+               psAttr.ResizeControls(ref R);
+               pFmtAttr.ResizeControls(ref R);
+               calAttr.ResizeControls(ref R);
+               sRulesAttr.ResizeControls(ref R);
+               countAttr.ResizeControls(ref R);
+               unitInfoAttr.ResizeControls(ref R);
+               envirAttr.ResizeControls(ref R);
+               mgmtAttr.ResizeControls(ref R);
+               //userPatAttr.ResizeControls(ref R);
             }
 
             #endregion
@@ -410,42 +400,6 @@ namespace HitachiEIP {
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          Form1_Resize(null, null);
       }
-
-      #endregion
-
-      #region Index Tab Controls
-
-      eipIndex[] indexAttributes = new eipIndex[] {
-         eipIndex.Start_Stop_Management_Flag,
-         eipIndex.Automatic_reflection,
-         eipIndex.Item_Count,
-         eipIndex.Column,
-         eipIndex.Line,
-         eipIndex.Character_position,
-         eipIndex.Print_Data_Message_Number,
-         eipIndex.Print_Data_Group_Data,
-         eipIndex.Substitution_Rules_Setting,
-         eipIndex.User_Pattern_Size,
-         eipIndex.Count_Block,
-         eipIndex.Calendar_Block,
-      };
-
-      #endregion
-
-      #region IJP Operation Tab Controls
-
-      eipIJP_operation[] ijpOpAttributes = new eipIJP_operation[] {
-         eipIJP_operation.Remote_operation_information,
-         eipIJP_operation.Fault_and_warning_history,
-         eipIJP_operation.Operating_condition,
-         eipIJP_operation.Warning_condition,
-         eipIJP_operation.Date_and_time_information,
-         eipIJP_operation.Error_code,
-         eipIJP_operation.Start_Remote_Operation,
-         eipIJP_operation.Stop_Remote_Operation,
-         eipIJP_operation.Deflection_voltage_control,
-         eipIJP_operation.Online_Offline,
-      };
 
       #endregion
 

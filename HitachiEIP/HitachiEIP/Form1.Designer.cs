@@ -66,7 +66,7 @@
          this.tabUnitInformation = new System.Windows.Forms.TabPage();
          this.tabEnviroment = new System.Windows.Forms.TabPage();
          this.tabOpMgmt = new System.Windows.Forms.TabPage();
-         this.tabTest = new System.Windows.Forms.TabPage();
+         this.tabUserPattern = new System.Windows.Forms.TabPage();
          this.tclClasses.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -369,7 +369,7 @@
          this.tclClasses.Controls.Add(this.tabUnitInformation);
          this.tclClasses.Controls.Add(this.tabEnviroment);
          this.tclClasses.Controls.Add(this.tabOpMgmt);
-         this.tclClasses.Controls.Add(this.tabTest);
+         this.tclClasses.Controls.Add(this.tabUserPattern);
          this.tclClasses.Location = new System.Drawing.Point(371, 26);
          this.tclClasses.Multiline = true;
          this.tclClasses.Name = "tclClasses";
@@ -390,10 +390,10 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 555);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 576);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
@@ -479,14 +479,14 @@
          this.tabOpMgmt.Text = "Operation Management (0x74)";
          this.tabOpMgmt.UseVisualStyleBackColor = true;
          // 
-         // tabTest
+         // tabUserPattern
          // 
-         this.tabTest.Location = new System.Drawing.Point(4, 46);
-         this.tabTest.Name = "tabTest";
-         this.tabTest.Size = new System.Drawing.Size(895, 555);
-         this.tabTest.TabIndex = 11;
-         this.tabTest.Text = "Testing";
-         this.tabTest.UseVisualStyleBackColor = true;
+         this.tabUserPattern.Location = new System.Drawing.Point(4, 46);
+         this.tabUserPattern.Name = "tabUserPattern";
+         this.tabUserPattern.Size = new System.Drawing.Size(895, 555);
+         this.tabUserPattern.TabIndex = 11;
+         this.tabUserPattern.Text = "User Pattern (0x6B)";
+         this.tabUserPattern.UseVisualStyleBackColor = true;
          // 
          // Form1
          // 
@@ -581,7 +581,7 @@
       private System.Windows.Forms.TabPage tabUnitInformation;
       private System.Windows.Forms.TabPage tabEnviroment;
       private System.Windows.Forms.TabPage tabOpMgmt;
-      private System.Windows.Forms.TabPage tabTest;
+      private System.Windows.Forms.TabPage tabUserPattern;
    }
 }
 

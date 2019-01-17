@@ -31,11 +31,11 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Attributes(Form1 parent, EIP EIP, TabPage tab, t1[] attributes, eipClassCode cc) {
+      public Attributes(Form1 parent, EIP EIP, TabPage tab, eipClassCode cc) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         this.attributes = attributes;
+         this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
          BuildControls();
       }
