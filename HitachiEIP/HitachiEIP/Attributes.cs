@@ -10,7 +10,7 @@ namespace HitachiEIP {
 
       #region Data Declarations
 
-      Form1 parent;
+      HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
 
@@ -31,7 +31,7 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Attributes(Form1 parent, EIP EIP, TabPage tab, eipClassCode cc) {
+      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
@@ -133,8 +133,25 @@ namespace HitachiEIP {
          Utils.ResizeControls(ref R, tab, labels, texts, gets, sets, services, getAll, setAll);
       }
 
-      private void SetButtonEnables() {
-
+      public void SetButtonEnables() {
+         bool enable = parent.ComIsOn & EIP.SessionIsOpen;
+         bool anySets = false;
+         bool anyGets = false;
+         for (int i = 0; i < attributes.Length; i++) {
+            if (sets[i] != null) {
+               sets[i].Enabled = enable;
+               anySets |= enable;
+            }
+            if (gets[i] != null) {
+               gets[i].Enabled = enable;
+               anyGets |= enable;
+            }
+            if (services[i] != null) {
+               services[i].Enabled = enable;
+            }
+         }
+         setAll.Enabled = anySets;
+         getAll.Enabled = anyGets;
       }
 
       #endregion
