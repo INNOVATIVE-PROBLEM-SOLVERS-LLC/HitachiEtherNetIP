@@ -18,7 +18,21 @@ namespace HitachiEIP {
 
       eipAccessCode[] AccessCodes;
       eipClassCode[] ClassCodes;
-      uint[] ClassAttr;
+      Type[] ClassCodeAttributes = new Type[] {
+            typeof(eipCalendar),                // 0x69
+            typeof(eipCount),                   // 0x79
+            typeof(eipEnviroment_setting),      // 0x71
+            typeof(eipIJP_operation),           // 0x75
+            typeof(eipIndex),                   // 0x7A
+            typeof(eipOperation_management),    // 0x74
+            typeof(eipPrint_Data_Management),   // 0x66
+            typeof(eipPrint_format),            // 0x67
+            typeof(eipPrint_specification),     // 0x68
+            typeof(eipSubstitution_rules),      // 0x6C
+            typeof(eipUnit_Information),        // 0x73
+            typeof(eipUser_pattern),            // 0x6B
+         };
+      ulong[] ClassAttr;
 
       // Traffic/Log files
       string TrafficFilename;
@@ -340,47 +354,7 @@ namespace HitachiEIP {
          cbFunction.Items.Clear();
          ClassAttr = null;
          if (cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0) {
-            int n = 0;
-            switch (ClassCodes[cbClassCode.SelectedIndex]) {
-               case eipClassCode.Index:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIndex), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Print_data_management:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_Data_Management), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Print_format:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_format), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Print_specification:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_specification), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Calendar:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCalendar), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.User_pattern:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUser_pattern), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Substitution_rules:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipSubstitution_rules), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Enviroment_setting:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipEnviroment_setting), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Unit_Information:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUnit_Information), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Operation_management:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipOperation_management), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.IJP_operation:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIJP_operation), cbFunction, out ClassAttr);
-                  break;
-               case eipClassCode.Count:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCount), cbFunction, out ClassAttr);
-                  break;
-               default:
-                  break;
-            }
+            int n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], cbFunction, ClassCodeAttributes[cbClassCode.SelectedIndex], out ClassAttr);
             lblFunction.Text = $"Function Code -- {n} found]";
          }
          SetButtonEnables();
@@ -427,7 +401,7 @@ namespace HitachiEIP {
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
             int val = ComIsOn ? 0 : 1;
-            if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((uint)eipIJP_operation.Online_Offline), EIP.ToBytes((uint)val, 1))) {
+            if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((ulong)eipIJP_operation.Online_Offline), EIP.ToBytes((uint)val, 1))) {
                GetComSetting();
             }
          }
@@ -488,7 +462,7 @@ namespace HitachiEIP {
 
       private bool GetComSetting() {
          bool result;
-         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((uint)eipIJP_operation.Online_Offline), out string val, DataFormats.Decimal)) {
+         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((ulong)eipIJP_operation.Online_Offline), out string val, DataFormats.Decimal)) {
             if (val == "1") {
                btnCom.Text = "COM = 1";
                btnCom.BackColor = Color.Green;
