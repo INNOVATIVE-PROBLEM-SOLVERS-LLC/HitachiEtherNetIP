@@ -212,46 +212,48 @@ namespace HitachiEIP {
          Attributes = null;
          if (cbClassCode.SelectedIndex >= 0) {
             int n = 0;
-            switch (ClassCodes[cbClassCode.SelectedIndex]) {
-               case eipClassCode.Index_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIndex_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Print_data_management_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_Data_Management_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Print_format_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_format_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Print_specification_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_specification_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Calendar_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCalendar_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.User_pattern_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUser_pattern_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Substitution_rules_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipSubstitution_rules_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Enviroment_setting_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipEnviroment_setting_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Unit_Information_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUnit_Information_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Operation_management_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipOperation_management_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.IJP_operation_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIJP_operation_function), cbFunction, out Attributes);
-                  break;
-               case eipClassCode.Count_function:
-                  n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCount_function), cbFunction, out Attributes);
-                  break;
-               default:
-                  break;
-            }
+            Type tt = EIP.getType(ClassCodes[cbClassCode.SelectedIndex]);
+            n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], tt, cbFunction, out Attributes);
+            //switch (ClassCodes[cbClassCode.SelectedIndex]) {
+            //   case eipClassCode.Index_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIndex_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Print_data_management_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_Data_Management_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Print_format_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_format_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Print_specification_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipPrint_specification_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Calendar_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCalendar_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.User_pattern_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUser_pattern_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Substitution_rules_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipSubstitution_rules_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Enviroment_setting_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipEnviroment_setting_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Unit_Information_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipUnit_Information_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Operation_management_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipOperation_management_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.IJP_operation_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipIJP_operation_function), cbFunction, out Attributes);
+            //      break;
+            //   case eipClassCode.Count_function:
+            //      n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], typeof(eipCount_function), cbFunction, out Attributes);
+            //      break;
+            //   default:
+            //      break;
+            //}
             lblFunction.Text = $"Function Code -- {n} found]";
          }
          SetButtonEnables();

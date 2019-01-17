@@ -74,6 +74,14 @@ namespace HitachiEIP {
       Index_function = 0x0500007A,
    }
 
+  
+
+   //public Type[] eipClassCodeTypes = new Type[] {
+   //   eipPrint_Data_Management_function,
+   //   eipPrint_format_function,
+   //   eipPrint_specification_function,
+   //}
+
    // Attributes within Print Data Management class 0x66
    public enum eipPrint_Data_Management_function {
       Select_Message = 0x09000464,
@@ -330,6 +338,8 @@ namespace HitachiEIP {
       public ulong Data { get; set; } = 1;
       public uint O_T_ConnectionID { get; set; } = 0;
       public uint T_O_ConnectionID { get; set; } = 0;
+
+      public IDictionary<eipClassCode, Type> MarvDict = new Dictionary<eipClassCode, Type>();
 
       public bool IsConnected {
          get { return client != null && stream != null && client.Connected; }
@@ -600,7 +610,19 @@ namespace HitachiEIP {
 
          return cb.Items.Count;
       }
+      
+      internal void initDictionary() {
+         MarvDict.Add(eipClassCode.Print_data_management_function, typeof(eipPrint_Data_Management_function));
+         MarvDict.Add(eipClassCode.Print_format_function, typeof(eipPrint_format_function));
+         MarvDict.Add(eipClassCode.Print_specification_function, typeof(eipPrint_specification_function));
+         // . MORE.... . . 
+      }
 
+      internal Type getType(eipClassCode key) {
+         Type t = null;
+         MarvDict.TryGetValue(key, out t);
+         return t;
+      }
       #endregion
 
    }
