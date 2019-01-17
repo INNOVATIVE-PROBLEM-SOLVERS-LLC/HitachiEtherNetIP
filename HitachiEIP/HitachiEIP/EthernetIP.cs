@@ -336,6 +336,10 @@ namespace HitachiEIP {
       internal event LogHandler Log;
       internal delegate void LogHandler(EIP sender, string msg);
 
+      // In case of fatal error
+      internal event ErrorHandler Error;
+      internal delegate void ErrorHandler(EIP sender, string msg);
+
       #endregion
 
       #region Declarations/Properties
@@ -357,7 +361,7 @@ namespace HitachiEIP {
       public uint O_T_ConnectionID { get; set; } = 0;
       public uint T_O_ConnectionID { get; set; } = 0;
 
-      public bool IsConnected {
+      private bool IsConnected {
          get { return client != null && stream != null && client.Connected; }
       }
 
@@ -386,7 +390,7 @@ namespace HitachiEIP {
       #region Methods
 
       // Connect to Hitachi printer
-      public bool Connect() {
+      private bool Connect() {
          bool result = false;
          try {
             client = new TcpClient(IPAddress, port);
@@ -399,14 +403,14 @@ namespace HitachiEIP {
          return result;
       }
 
-      public bool Connect(string IPAddress, int port) {
+      private bool Connect(string IPAddress, int port) {
          this.IPAddress = IPAddress;
          this.port = port;
          return (Connect());
       }
 
       // Disconnect from Hitachi printer
-      public bool Disconnect() {
+      private bool Disconnect() {
          bool result = false;
          try {
             stream.Close();
@@ -423,17 +427,19 @@ namespace HitachiEIP {
 
       // Start EtherNet/IP Session
       public void StartSession() {
-         byte[] ed = EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
-         Write(ed, 0, ed.Length);
+         if (Connect()) {
+            byte[] ed = EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
+            Write(ed, 0, ed.Length);
 
-         byte[] data;
-         Int32 bytes;
-         if (Read(out data, out bytes) && bytes >= 8) {
-            SessionID = Get(data, 4, 4, mem.LittleEndian);
-         } else {
-            SessionID = 0;
+            byte[] data;
+            Int32 bytes;
+            if (Read(out data, out bytes) && bytes >= 8) {
+               SessionID = Get(data, 4, 4, mem.LittleEndian);
+            } else {
+               SessionID = 0;
+            }
+            LogIt("Session Started!");
          }
-         LogIt("Session Started!");
       }
 
       // End EtherNet/IP Session
@@ -448,6 +454,7 @@ namespace HitachiEIP {
          }
          SessionID = 0;
          LogIt("Session Ended!");
+         Disconnect();
      }
 
       // Start EtherNet/IP Forward Open
@@ -893,6 +900,11 @@ namespace HitachiEIP {
          return result;
       }
 
+      public byte GetAttribute(uint v) {
+         return (byte)(v & 0xFF);
+
+      }
+
       #endregion
 
       #region Service Routines
@@ -930,9 +942,11 @@ namespace HitachiEIP {
       }
 
       private void LogIt(string msg) {
-         if (Log != null) {
-            Log(this, msg);
-         }
+         Log?.Invoke(this, msg);
+      }
+
+      private void ErrorOut() {
+         Error?.Invoke(this, "Ouch");
       }
 
       #endregion

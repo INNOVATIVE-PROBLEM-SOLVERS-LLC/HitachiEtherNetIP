@@ -1,5 +1,5 @@
 ﻿namespace HitachiEIP {
-   partial class Form1 {
+   partial class HitachiBrowser {
       /// <summary>
       /// Required designer variable.
       /// </summary>
@@ -23,8 +23,6 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
-         this.btnConnect = new System.Windows.Forms.Button();
-         this.btnDisconnect = new System.Windows.Forms.Button();
          this.lblIPAddress = new System.Windows.Forms.Label();
          this.lblPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
@@ -67,28 +65,10 @@
          this.tabEnviroment = new System.Windows.Forms.TabPage();
          this.tabOpMgmt = new System.Windows.Forms.TabPage();
          this.tabUserPattern = new System.Windows.Forms.TabPage();
+         this.btnCom = new System.Windows.Forms.Button();
+         this.lstErrors = new System.Windows.Forms.ListBox();
          this.tclClasses.SuspendLayout();
          this.SuspendLayout();
-         // 
-         // btnConnect
-         // 
-         this.btnConnect.Location = new System.Drawing.Point(26, 118);
-         this.btnConnect.Name = "btnConnect";
-         this.btnConnect.Size = new System.Drawing.Size(137, 31);
-         this.btnConnect.TabIndex = 0;
-         this.btnConnect.Text = "Connect";
-         this.btnConnect.UseVisualStyleBackColor = true;
-         this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
-         // 
-         // btnDisconnect
-         // 
-         this.btnDisconnect.Location = new System.Drawing.Point(179, 118);
-         this.btnDisconnect.Name = "btnDisconnect";
-         this.btnDisconnect.Size = new System.Drawing.Size(137, 31);
-         this.btnDisconnect.TabIndex = 1;
-         this.btnDisconnect.Text = "Disconnect";
-         this.btnDisconnect.UseVisualStyleBackColor = true;
-         this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
          // 
          // lblIPAddress
          // 
@@ -128,7 +108,7 @@
          // 
          // btnEndSession
          // 
-         this.btnEndSession.Location = new System.Drawing.Point(179, 162);
+         this.btnEndSession.Location = new System.Drawing.Point(179, 118);
          this.btnEndSession.Name = "btnEndSession";
          this.btnEndSession.Size = new System.Drawing.Size(137, 31);
          this.btnEndSession.TabIndex = 7;
@@ -138,7 +118,7 @@
          // 
          // btnStartSession
          // 
-         this.btnStartSession.Location = new System.Drawing.Point(26, 162);
+         this.btnStartSession.Location = new System.Drawing.Point(26, 118);
          this.btnStartSession.Name = "btnStartSession";
          this.btnStartSession.Size = new System.Drawing.Size(137, 31);
          this.btnStartSession.TabIndex = 6;
@@ -165,9 +145,9 @@
          // 
          // btnExit
          // 
-         this.btnExit.Location = new System.Drawing.Point(1145, 655);
+         this.btnExit.Location = new System.Drawing.Point(1181, 655);
          this.btnExit.Name = "btnExit";
-         this.btnExit.Size = new System.Drawing.Size(125, 52);
+         this.btnExit.Size = new System.Drawing.Size(89, 52);
          this.btnExit.TabIndex = 10;
          this.btnExit.Text = "Exit";
          this.btnExit.UseVisualStyleBackColor = true;
@@ -175,7 +155,7 @@
          // 
          // btnForwardClose
          // 
-         this.btnForwardClose.Location = new System.Drawing.Point(179, 203);
+         this.btnForwardClose.Location = new System.Drawing.Point(179, 159);
          this.btnForwardClose.Name = "btnForwardClose";
          this.btnForwardClose.Size = new System.Drawing.Size(137, 31);
          this.btnForwardClose.TabIndex = 12;
@@ -185,7 +165,7 @@
          // 
          // btnForwardOpen
          // 
-         this.btnForwardOpen.Location = new System.Drawing.Point(26, 203);
+         this.btnForwardOpen.Location = new System.Drawing.Point(26, 159);
          this.btnForwardOpen.Name = "btnForwardOpen";
          this.btnForwardOpen.Size = new System.Drawing.Size(137, 31);
          this.btnForwardOpen.TabIndex = 11;
@@ -195,7 +175,7 @@
          // 
          // btnIssueRequest
          // 
-         this.btnIssueRequest.Location = new System.Drawing.Point(23, 421);
+         this.btnIssueRequest.Location = new System.Drawing.Point(23, 377);
          this.btnIssueRequest.Name = "btnIssueRequest";
          this.btnIssueRequest.Size = new System.Drawing.Size(293, 22);
          this.btnIssueRequest.TabIndex = 14;
@@ -206,7 +186,7 @@
          // cbAccessCode
          // 
          this.cbAccessCode.FormattingEnabled = true;
-         this.cbAccessCode.Location = new System.Drawing.Point(26, 267);
+         this.cbAccessCode.Location = new System.Drawing.Point(26, 223);
          this.cbAccessCode.Name = "cbAccessCode";
          this.cbAccessCode.Size = new System.Drawing.Size(293, 24);
          this.cbAccessCode.TabIndex = 16;
@@ -214,7 +194,7 @@
          // 
          // lblAccessCode
          // 
-         this.lblAccessCode.Location = new System.Drawing.Point(23, 241);
+         this.lblAccessCode.Location = new System.Drawing.Point(23, 197);
          this.lblAccessCode.Name = "lblAccessCode";
          this.lblAccessCode.Size = new System.Drawing.Size(293, 22);
          this.lblAccessCode.TabIndex = 17;
@@ -223,7 +203,7 @@
          // 
          // lblClassCode
          // 
-         this.lblClassCode.Location = new System.Drawing.Point(20, 297);
+         this.lblClassCode.Location = new System.Drawing.Point(20, 253);
          this.lblClassCode.Name = "lblClassCode";
          this.lblClassCode.Size = new System.Drawing.Size(293, 22);
          this.lblClassCode.TabIndex = 19;
@@ -233,7 +213,7 @@
          // cbClassCode
          // 
          this.cbClassCode.FormattingEnabled = true;
-         this.cbClassCode.Location = new System.Drawing.Point(23, 323);
+         this.cbClassCode.Location = new System.Drawing.Point(23, 279);
          this.cbClassCode.Name = "cbClassCode";
          this.cbClassCode.Size = new System.Drawing.Size(293, 24);
          this.cbClassCode.TabIndex = 18;
@@ -241,7 +221,7 @@
          // 
          // lblFunction
          // 
-         this.lblFunction.Location = new System.Drawing.Point(20, 353);
+         this.lblFunction.Location = new System.Drawing.Point(20, 309);
          this.lblFunction.Name = "lblFunction";
          this.lblFunction.Size = new System.Drawing.Size(293, 22);
          this.lblFunction.TabIndex = 21;
@@ -251,7 +231,7 @@
          // cbFunction
          // 
          this.cbFunction.FormattingEnabled = true;
-         this.cbFunction.Location = new System.Drawing.Point(23, 381);
+         this.cbFunction.Location = new System.Drawing.Point(23, 337);
          this.cbFunction.Name = "cbFunction";
          this.cbFunction.Size = new System.Drawing.Size(293, 24);
          this.cbFunction.TabIndex = 20;
@@ -259,7 +239,7 @@
          // 
          // lbldata
          // 
-         this.lbldata.Location = new System.Drawing.Point(23, 502);
+         this.lbldata.Location = new System.Drawing.Point(23, 458);
          this.lbldata.Name = "lbldata";
          this.lbldata.Size = new System.Drawing.Size(293, 22);
          this.lbldata.TabIndex = 22;
@@ -268,7 +248,7 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(23, 534);
+         this.txtData.Location = new System.Drawing.Point(23, 490);
          this.txtData.Name = "txtData";
          this.txtData.ReadOnly = true;
          this.txtData.Size = new System.Drawing.Size(293, 22);
@@ -276,7 +256,7 @@
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(23, 477);
+         this.txtStatus.Location = new System.Drawing.Point(23, 433);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
          this.txtStatus.Size = new System.Drawing.Size(293, 22);
@@ -284,7 +264,7 @@
          // 
          // lblStatus
          // 
-         this.lblStatus.Location = new System.Drawing.Point(23, 446);
+         this.lblStatus.Location = new System.Drawing.Point(23, 402);
          this.lblStatus.Name = "lblStatus";
          this.lblStatus.Size = new System.Drawing.Size(293, 22);
          this.lblStatus.TabIndex = 24;
@@ -293,7 +273,7 @@
          // 
          // txtDataDec
          // 
-         this.txtDataDec.Location = new System.Drawing.Point(23, 562);
+         this.txtDataDec.Location = new System.Drawing.Point(23, 518);
          this.txtDataDec.Name = "txtDataDec";
          this.txtDataDec.ReadOnly = true;
          this.txtDataDec.Size = new System.Drawing.Size(293, 22);
@@ -301,7 +281,7 @@
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(23, 597);
+         this.lblSaveFolder.Location = new System.Drawing.Point(23, 553);
          this.lblSaveFolder.Name = "lblSaveFolder";
          this.lblSaveFolder.Size = new System.Drawing.Size(202, 19);
          this.lblSaveFolder.TabIndex = 27;
@@ -310,16 +290,16 @@
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(26, 628);
+         this.txtSaveFolder.Location = new System.Drawing.Point(26, 584);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
-         this.txtSaveFolder.Size = new System.Drawing.Size(301, 22);
+         this.txtSaveFolder.Size = new System.Drawing.Size(290, 22);
          this.txtSaveFolder.TabIndex = 28;
          this.txtSaveFolder.Text = "c:\\Temp";
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(231, 590);
+         this.btnBrowse.Location = new System.Drawing.Point(231, 546);
          this.btnBrowse.Name = "btnBrowse";
          this.btnBrowse.Size = new System.Drawing.Size(81, 32);
          this.btnBrowse.TabIndex = 29;
@@ -328,9 +308,9 @@
          // 
          // btnViewTraffic
          // 
-         this.btnViewTraffic.Location = new System.Drawing.Point(708, 655);
+         this.btnViewTraffic.Location = new System.Drawing.Point(862, 655);
          this.btnViewTraffic.Name = "btnViewTraffic";
-         this.btnViewTraffic.Size = new System.Drawing.Size(125, 52);
+         this.btnViewTraffic.Size = new System.Drawing.Size(89, 52);
          this.btnViewTraffic.TabIndex = 30;
          this.btnViewTraffic.Text = "View Traffic";
          this.btnViewTraffic.UseVisualStyleBackColor = true;
@@ -338,9 +318,9 @@
          // 
          // btnViewLog
          // 
-         this.btnViewLog.Location = new System.Drawing.Point(857, 655);
+         this.btnViewLog.Location = new System.Drawing.Point(971, 655);
          this.btnViewLog.Name = "btnViewLog";
-         this.btnViewLog.Size = new System.Drawing.Size(125, 52);
+         this.btnViewLog.Size = new System.Drawing.Size(89, 52);
          this.btnViewLog.TabIndex = 31;
          this.btnViewLog.Text = "View Log";
          this.btnViewLog.UseVisualStyleBackColor = true;
@@ -348,9 +328,9 @@
          // 
          // btnReadAll
          // 
-         this.btnReadAll.Location = new System.Drawing.Point(1005, 655);
+         this.btnReadAll.Location = new System.Drawing.Point(1077, 655);
          this.btnReadAll.Name = "btnReadAll";
-         this.btnReadAll.Size = new System.Drawing.Size(125, 52);
+         this.btnReadAll.Size = new System.Drawing.Size(89, 52);
          this.btnReadAll.TabIndex = 32;
          this.btnReadAll.Text = "Read All";
          this.btnReadAll.UseVisualStyleBackColor = true;
@@ -390,55 +370,55 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 576);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 555);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // tabPrintManagement
          // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 576);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 555);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 576);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 555);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 576);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 555);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
-         this.tabCalendar.Location = new System.Drawing.Point(4, 25);
+         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 576);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 555);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
          // 
          // tabSubstitution
          // 
-         this.tabSubstitution.Location = new System.Drawing.Point(4, 25);
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 576);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 555);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -488,11 +468,33 @@
          this.tabUserPattern.Text = "User Pattern (0x6B)";
          this.tabUserPattern.UseVisualStyleBackColor = true;
          // 
-         // Form1
+         // btnCom
+         // 
+         this.btnCom.BackColor = System.Drawing.Color.Red;
+         this.btnCom.Location = new System.Drawing.Point(375, 649);
+         this.btnCom.Name = "btnCom";
+         this.btnCom.Size = new System.Drawing.Size(89, 52);
+         this.btnCom.TabIndex = 34;
+         this.btnCom.Text = "COM = 0";
+         this.btnCom.UseVisualStyleBackColor = false;
+         this.btnCom.Click += new System.EventHandler(this.btnCom_Click);
+         // 
+         // lstErrors
+         // 
+         this.lstErrors.FormattingEnabled = true;
+         this.lstErrors.ItemHeight = 16;
+         this.lstErrors.Location = new System.Drawing.Point(26, 612);
+         this.lstErrors.Name = "lstErrors";
+         this.lstErrors.Size = new System.Drawing.Size(290, 84);
+         this.lstErrors.TabIndex = 35;
+         // 
+         // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 713);
+         this.Controls.Add(this.lstErrors);
+         this.Controls.Add(this.btnCom);
          this.Controls.Add(this.tclClasses);
          this.Controls.Add(this.btnReadAll);
          this.Controls.Add(this.btnViewLog);
@@ -523,13 +525,11 @@
          this.Controls.Add(this.txtIPAddress);
          this.Controls.Add(this.lblPort);
          this.Controls.Add(this.lblIPAddress);
-         this.Controls.Add(this.btnDisconnect);
-         this.Controls.Add(this.btnConnect);
-         this.Name = "Form1";
-         this.Text = "Form1";
-         this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-         this.Load += new System.EventHandler(this.Form1_Load);
-         this.Resize += new System.EventHandler(this.Form1_Resize);
+         this.Name = "HitachiBrowser";
+         this.Text = "Browse thru the Hitachi Printer";
+         this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HitachiBrowser_FormClosing);
+         this.Load += new System.EventHandler(this.HitachiBrowser_Load);
+         this.Resize += new System.EventHandler(this.HitachiBrowser_Resize);
          this.tclClasses.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
@@ -537,9 +537,6 @@
       }
 
       #endregion
-
-      private System.Windows.Forms.Button btnConnect;
-      private System.Windows.Forms.Button btnDisconnect;
       private System.Windows.Forms.Label lblIPAddress;
       private System.Windows.Forms.Label lblPort;
       private System.Windows.Forms.TextBox txtIPAddress;
@@ -582,6 +579,8 @@
       private System.Windows.Forms.TabPage tabEnviroment;
       private System.Windows.Forms.TabPage tabOpMgmt;
       private System.Windows.Forms.TabPage tabUserPattern;
+      private System.Windows.Forms.Button btnCom;
+      private System.Windows.Forms.ListBox lstErrors;
    }
 }
 
