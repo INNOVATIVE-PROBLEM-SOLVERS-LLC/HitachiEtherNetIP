@@ -47,7 +47,8 @@ namespace HitachiEIP {
       private void Get_Click(object sender, EventArgs e) {
          int tag = Convert.ToInt32(((Button)sender).Tag);
          texts[tag].Text = "Loading";
-         if (EIP.ReadOneAttribute(cc, (byte)Convert.ToUInt32(attributes[tag]), out string val, DataFormats.Decimal)) {
+         ulong attr = Convert.ToUInt64(attributes[tag]);
+         if (EIP.ReadOneAttribute(cc, (byte)attr, out string val, EIP.GetFmt(attr))) {
             texts[tag].Text = val;
          } else {
             texts[tag].Text = "#Error";
@@ -56,12 +57,22 @@ namespace HitachiEIP {
       }
 
       private void Set_Click(object sender, EventArgs e) {
+         byte[] data;
          int tag = Convert.ToInt32(((Button)sender).Tag);
-         if (!int.TryParse(texts[tag].Text, out int val)) {
-            val = validData[tag, 0];
+         ulong attr = Convert.ToUInt64(attributes[tag]);
+         DataFormats fmt = EIP.GetFmt(attr);
+         if (fmt == DataFormats.Decimal) {
+            int len = EIP.GetDataLength(attr);
+            if (!int.TryParse(texts[tag].Text, out int val)) {
+               val = EIP.GetMin(attr);
+            }
+            data = EIP.ToBytes((uint)val, len);
+         } else if(fmt == DataFormats.ASCII) {
+            data = EIP.ToBytes(texts[tag].Text);
+         } else {
+            data = new byte[] { };
          }
-         int len = (Convert.ToInt32(attributes[tag]) & 0xFF0000) >> 16;
-         bool Success = EIP.WriteOneAttribute(cc, (byte)Convert.ToUInt32(attributes[tag]), EIP.ToBytes((uint)val, len));
+         bool Success = EIP.WriteOneAttribute(cc, (byte)attr, data);
          SetButtonEnables();
       }
 
@@ -84,6 +95,11 @@ namespace HitachiEIP {
          }
       }
 
+      private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
+         TextBox t = (TextBox)sender;
+         e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+      }
+
       #endregion
 
       #region Service Routines
@@ -98,23 +114,27 @@ namespace HitachiEIP {
          services = new Button[attributes.Length];
 
          for (int i = 0; i < attributes.Length; i++) {
-            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight, Text = EIP.GetAttributeName(cc, Convert.ToUInt32(attributes[i])) };
+            ulong attr = Convert.ToUInt64(attributes[i]);
+            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight, Text = EIP.GetAttributeName(cc, Convert.ToUInt64(attributes[i])) };
             tab.Controls.Add(labels[i]);
-            texts[i] = new TextBox() { Tag = i };
+            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             tab.Controls.Add(texts[i]);
-            uint attr = Convert.ToUInt32(attributes[i]);
-            if ((attr & 0x200) > 0) {
+            if (EIP.HasGet(attr)) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
                gets[i].Click += Get_Click;
                tab.Controls.Add(gets[i]);
             }
-            if ((attr & 0x100) > 0) {
+            if (EIP.HasSet(attr)) {
                sets[i] = new Button() { Tag = i, Text = "Set" };
+               sets[i].Click += Set_Click;
                tab.Controls.Add(sets[i]);
+               if (EIP.GetFmt(attr) == DataFormats.Decimal) {
+                  texts[i].KeyPress += NumbersOnly_KeyPress;
+               }
             } else {
                texts[i].ReadOnly = true;
             }
-            if ((attr & 0x400) > 0) {
+            if (EIP.HasService(attr)) {
                services[i] = new Button() { Tag = i, Text = "Service" };
                tab.Controls.Add(services[i]);
             }
@@ -130,7 +150,33 @@ namespace HitachiEIP {
       }
 
       public void ResizeControls(ref ResizeInfo R) {
-         Utils.ResizeControls(ref R, tab, labels, texts, gets, sets, services, getAll, setAll);
+         int tclHeight = (int)(tab.ClientSize.Height / R.H);
+         int half = 17;
+         for (int i = 0; i < labels.Length; i++) {
+            int r;
+            int c;
+            float cw = 12.5f;
+            if (i < half) {
+               r = 2 + i * 2;
+               c = 0;
+            } else {
+               r = 2 + (i - half) * 2;
+               c = 1;
+            }
+            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 5.75f);
+            Utils.ResizeObject(ref R, texts[i], r, 6.5f + c * cw, 1.5f, 2);
+            if (gets[i] != null) {
+               Utils.ResizeObject(ref R, gets[i], r, 9 + c * cw, 1.5f, 1.5f);
+            }
+            if (sets[i] != null) {
+               Utils.ResizeObject(ref R, sets[i], r, 11 + c * cw, 1.5f, 1.5f);
+            }
+            if (services[i] != null) {
+               Utils.ResizeObject(ref R, services[i], r, 9 + c * cw, 1.5f, 3.5f);
+            }
+         }
+         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 17, 2.5f, 4);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 21.5f, 2.5f, 4);
       }
 
       public void SetButtonEnables() {
@@ -138,15 +184,27 @@ namespace HitachiEIP {
          bool anySets = false;
          bool anyGets = false;
          for (int i = 0; i < attributes.Length; i++) {
-            if (sets[i] != null) {
-               sets[i].Enabled = enable;
+            ulong attr = Convert.ToUInt64(attributes[i]);
+            if (EIP.HasSet(attr)) {
+               DataFormats fmt = EIP.GetFmt(attr);
+               int min = EIP.GetMin(attr);
+               int max = EIP.GetMax(attr);
+               bool validData = true;
+               if(fmt == DataFormats.Decimal && max > 0) {
+                  if (int.TryParse(texts[i].Text, out int val)) {
+                     validData = val >= min && val <= max;
+                  } else {
+                     validData = false;
+                  }
+               }
+               sets[i].Enabled = enable && validData;
                anySets |= enable;
             }
-            if (gets[i] != null) {
+            if (EIP.HasGet(attr)) {
                gets[i].Enabled = enable;
                anyGets |= enable;
             }
-            if (services[i] != null) {
+            if (EIP.HasService(attr)) {
                services[i].Enabled = enable;
             }
          }

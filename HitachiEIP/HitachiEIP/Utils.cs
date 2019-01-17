@@ -189,36 +189,6 @@ namespace HitachiEIP {
          f.Location = new Point((int)((screenWidth - f.Width) / 2f), (int)((screenHeight - f.Height) / 2f));
       }
 
-      public static void ResizeControls(ref ResizeInfo R, TabPage tab, Label[] labels,TextBox[] texts, Button[] gets, Button[] sets, Button[] services, Button getAll, Button setAll) {
-         int tclHeight = (int)(tab.ClientSize.Height / R.H);
-         int half = 17;
-         for (int i = 0; i < labels.Length; i++) {
-            int r;
-            int c;
-            float cw = 12.5f;
-            if (i < half) {
-               r = 2 + i * 2;
-               c = 0;
-            } else {
-               r = 2 + (i - half) * 2;
-               c = 1;
-            }
-            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 5.75f);
-            Utils.ResizeObject(ref R, texts[i], r, 6.5f + c * cw, 1.5f, 2);
-            if (gets[i] != null) {
-               Utils.ResizeObject(ref R, gets[i], r, 9 + c * cw, 1.5f, 1.5f);
-            }
-            if (sets[i] != null) {
-               Utils.ResizeObject(ref R, sets[i], r, 11 + c * cw, 1.5f, 1.5f);
-            }
-            if (services[i] != null) {
-               Utils.ResizeObject(ref R, services[i], r, 9 + c * cw, 1.5f, 3.5f);
-            }
-         }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 17, 2.5f, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 21.5f, 2.5f, 4);
-      }
-
       #endregion
 
    }
