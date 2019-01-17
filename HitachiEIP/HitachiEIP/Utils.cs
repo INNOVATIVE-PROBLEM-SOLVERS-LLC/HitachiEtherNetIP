@@ -6,13 +6,13 @@ namespace HitachiEIP {
 
    #region Global Declarations
 
-   internal struct ResizeInfo {
-      internal float W;
-      internal float H;
-      internal float FS;
-      internal bool setTabIndex;
-      internal int tabIndex;
-      internal float offset;
+   public struct ResizeInfo {
+      public float W;
+      public float H;
+      public float FS;
+      public bool setTabIndex;
+      public int tabIndex;
+      public float offset;
    }
    #endregion
 
@@ -22,7 +22,7 @@ namespace HitachiEIP {
 
       #region Resize Routines
 
-      static internal ResizeInfo InitializeResize(Form F, float nRows, float nCols, bool setTabIndex = true, int offset = 0) {
+      static public ResizeInfo InitializeResize(Form F, float nRows, float nCols, bool setTabIndex = true, int offset = 0) {
          ResizeInfo R;
          R.H = (F.ClientRectangle.Height - offset) / nRows;
          R.W = F.ClientRectangle.Width / nCols;
@@ -43,21 +43,21 @@ namespace HitachiEIP {
          return result;
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, DateTimePicker dt, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, DateTimePicker dt, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          dt.Location = getLocation(R, dt, sngRow, sngCol);
          dt.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          dt.Font = ChangeFontSize(dt.Font, R.FS * adjustFont);
          dt.TabIndex = ++R.tabIndex;
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, ProgressBar pb, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, ProgressBar pb, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          pb.Location = getLocation(R, pb, sngRow, sngCol);
          pb.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          pb.Font = ChangeFontSize(pb.Font, R.FS * adjustFont);
          pb.TabIndex = ++R.tabIndex;
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, Button b, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, Button b, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          b.Location = getLocation(R, b, sngRow, sngCol);
          b.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          b.Font = ChangeFontSize(b.Font, R.FS * adjustFont);
@@ -66,25 +66,25 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, Panel p, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, Panel p, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          p.Location = getLocation(R, p, sngRow, sngCol);
          p.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          p.Font = ChangeFontSize(p.Font, R.FS * adjustFont);
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, TabControl t, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, TabControl t, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          t.Location = getLocation(R, t, sngRow, sngCol);
          t.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          t.Font = ChangeFontSize(t.Font, R.FS * adjustFont);
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, Label l, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, Label l, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          l.Location = getLocation(R, l, sngRow, sngCol);
          l.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          l.Font = ChangeFontSize(l.Font, R.FS * adjustFont);
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, CheckBox c, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, CheckBox c, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          c.Location = getLocation(R, c, sngRow, sngCol);
          c.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          c.Font = ChangeFontSize(c.Font, R.FS * adjustFont);
@@ -93,7 +93,7 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, TextBox t, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, TextBox t, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          t.Location = getLocation(R, t, sngRow, sngCol);
          t.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          t.Font = ChangeFontSize(t.Font, R.FS * adjustFont);
@@ -106,7 +106,7 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, GroupBox g, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, GroupBox g, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          g.Location = getLocation(R, g, sngRow, sngCol);
          g.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          g.Font = ChangeFontSize(g.Font, R.FS * adjustFont);
@@ -115,7 +115,7 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, ListBox l, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 0.8f) {
+      static public void ResizeObject(ref ResizeInfo R, ListBox l, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 0.8f) {
          l.Location = getLocation(R, l, sngRow, sngCol);
          l.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          l.Font = ChangeFontSize(l.Font, R.FS * adjustFont);
@@ -125,7 +125,7 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, RadioButton r, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, RadioButton r, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          r.Location = getLocation(R, r, sngRow, sngCol);
          r.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          r.Font = ChangeFontSize(r.Font, R.FS * adjustFont);
@@ -134,7 +134,7 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, ComboBox c, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, ComboBox c, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          c.Location = getLocation(R, c, sngRow, sngCol);
          c.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          c.Font = ChangeFontSize(c.Font, R.FS * adjustFont);
@@ -143,28 +143,28 @@ namespace HitachiEIP {
          }
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, PictureBox p, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, PictureBox p, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          p.Location = getLocation(R, p, sngRow, sngCol);
          p.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, HScrollBar h, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, HScrollBar h, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          h.Location = getLocation(R, h, sngRow, sngCol);
          h.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, DataGridView dg, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, DataGridView dg, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          dg.Location = getLocation(R, dg, sngRow, sngCol);
          dg.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
          dg.Font = ChangeFontSize(dg.Font, R.FS * adjustFont);
       }
 
-      static internal void ResizeObject(ref ResizeInfo R, ToolStrip ts, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+      static public void ResizeObject(ref ResizeInfo R, ToolStrip ts, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          ts.Location = getLocation(R, ts, sngRow, sngCol);
          ts.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
       }
 
-      internal static Font ChangeFontSize(Font font, float fontSize) {
+      public static Font ChangeFontSize(Font font, float fontSize) {
          if (font != null) {
             float currentSize = font.Size;
             if (currentSize != fontSize) {
@@ -176,17 +176,47 @@ namespace HitachiEIP {
          return font;
       }
 
-      internal static void PositionForm(Form f, float width, float height) {
+      public static void PositionForm(Form f, float width, float height) {
          int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
          int screenWidth = Screen.PrimaryScreen.WorkingArea.Width;
          f.Location = new Point((int)((screenWidth - screenWidth * width) / 2f), (int)((screenHeight - screenHeight * height) / 2));
          f.Size = new Size((int)(screenWidth * width), (int)(screenHeight * height));
       }
 
-      internal static void PositionForm(Form f) {
+      public static void PositionForm(Form f) {
          int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
          int screenWidth = Screen.PrimaryScreen.WorkingArea.Width;
          f.Location = new Point((int)((screenWidth - f.Width) / 2f), (int)((screenHeight - f.Height) / 2f));
+      }
+
+      public static void ResizeControls(ref ResizeInfo R, TabPage tab, Label[] labels,TextBox[] texts, Button[] gets, Button[] sets, Button[] services, Button getAll, Button setAll) {
+         int tclHeight = (int)(tab.ClientSize.Height / R.H);
+         int half = 17;
+         for (int i = 0; i < labels.Length; i++) {
+            int r;
+            int c;
+            float cw = 12.5f;
+            if (i < half) {
+               r = 2 + i * 2;
+               c = 0;
+            } else {
+               r = 2 + (i - half) * 2;
+               c = 1;
+            }
+            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 5.75f);
+            Utils.ResizeObject(ref R, texts[i], r, 6.5f + c * cw, 1.5f, 2);
+            if (gets[i] != null) {
+               Utils.ResizeObject(ref R, gets[i], r, 9 + c * cw, 1.5f, 1.5f);
+            }
+            if (sets[i] != null) {
+               Utils.ResizeObject(ref R, sets[i], r, 11 + c * cw, 1.5f, 1.5f);
+            }
+            if (services[i] != null) {
+               Utils.ResizeObject(ref R, services[i], r, 9 + c * cw, 1.5f, 3.5f);
+            }
+         }
+         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 17, 2.5f, 4);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 21.5f, 2.5f, 4);
       }
 
       #endregion

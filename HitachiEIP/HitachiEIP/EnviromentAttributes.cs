@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
-   class CountAttributes {
+   class EnviromentAttributes {
 
       #region Data Declarations
 
@@ -14,24 +13,16 @@ namespace HitachiEIP {
       EIP EIP;
       TabPage tab;
 
-      eipCount[] attributes = new eipCount[] {
-         eipCount.Number_Of_Count_Block,
-         eipCount.Initial_Value,
-         eipCount.Count_Range_1,
-         eipCount.Count_Range_2,
-         eipCount.Update_Unit_Halfway,
-         eipCount.Update_Unit_Unit,
-         eipCount.Increment_Value,
-         eipCount.Direction_Value,
-         eipCount.Jump_From,
-         eipCount.Jump_To,
-         eipCount.Reset_Value,
-         eipCount.Type_Of_Reset_Signal,
-         eipCount.Availibility_Of_External_Count,
-         eipCount.Availibility_Of_Zero_Suppression,
-         eipCount.Count_Multiplier,
-         eipCount.Count_Skip,
-      };
+      eipEnviroment_setting[] attributes = new eipEnviroment_setting[] {
+         eipEnviroment_setting.Current_Time,
+         eipEnviroment_setting.Calendar_Date_Time,
+         eipEnviroment_setting.Calendar_Date_Time_Availibility,
+         eipEnviroment_setting.Clock_System,
+         eipEnviroment_setting.User_Environment_Information,
+         eipEnviroment_setting.Cirulation_Control_Setting_Value,
+         eipEnviroment_setting.Usage_Time_Of_Circulation_Control,
+         eipEnviroment_setting.Reset_Usage_Time_Of_Citculation_Control,
+     };
 
       int[,] validData;
 
@@ -47,7 +38,7 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public CountAttributes(Form1 parent, EIP EIP, TabPage tab) {
+      public EnviromentAttributes(Form1 parent, EIP EIP, TabPage tab) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
@@ -61,7 +52,7 @@ namespace HitachiEIP {
       private void Get_Click(object sender, EventArgs e) {
          int tag = Convert.ToInt32(((Button)sender).Tag);
          texts[tag].Text = "Loading";
-         if (EIP.ReadOneAttribute(eipClassCode.Count, (byte)attributes[tag], out string val, DataFormats.Decimal)) {
+         if (EIP.ReadOneAttribute(eipClassCode.Enviroment_setting, (byte)attributes[tag], out string val, DataFormats.Decimal)) {
             texts[tag].Text = val;
          } else {
             texts[tag].Text = "#Error";
@@ -75,7 +66,7 @@ namespace HitachiEIP {
             val = validData[tag, 0];
          }
          int len = ((int)attributes[tag] & 0xFF0000) >> 16;
-         bool Success = EIP.WriteOneAttribute(eipClassCode.Index, (byte)attributes[tag], EIP.ToBytes((uint)val, len));
+         bool Success = EIP.WriteOneAttribute(eipClassCode.Enviroment_setting, (byte)attributes[tag], EIP.ToBytes((uint)val, len));
          SetButtonEnables();
       }
 
@@ -112,17 +103,17 @@ namespace HitachiEIP {
          services = new Button[attributes.Length];
 
          for (int i = 0; i < attributes.Length; i++) {
-            labels[i] = new Label() { Tag = i , TextAlign = System.Drawing.ContentAlignment.TopRight, Text = EIP.GetAttributeName(eipClassCode.Count, (uint)attributes[i]) };
+            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight, Text = EIP.GetAttributeName(eipClassCode.Enviroment_setting, (uint)attributes[i]) };
             tab.Controls.Add(labels[i]);
-            texts[i] = new TextBox() { Tag = i , TextAlign = HorizontalAlignment.Center};
+            texts[i] = new TextBox() { Tag = i };
             tab.Controls.Add(texts[i]);
             if (((uint)attributes[i] & 0x200) > 0) {
-               gets[i] = new Button() { Tag = i , Text = "Get"};
+               gets[i] = new Button() { Tag = i, Text = "Get" };
                gets[i].Click += Get_Click;
                tab.Controls.Add(gets[i]);
             }
             if (((uint)attributes[i] & 0x100) > 0) {
-               sets[i] = new Button() { Tag = i , Text = "Set"};
+               sets[i] = new Button() { Tag = i, Text = "Set" };
                tab.Controls.Add(sets[i]);
             } else {
                texts[i].ReadOnly = true;
@@ -143,23 +134,7 @@ namespace HitachiEIP {
       }
 
       public void ResizeControls(ref ResizeInfo R) {
-         int tclHeight = (int)(tab.ClientSize.Height / R.H);
-
-         for (int i = 0; i < labels.Length; i++) {
-            Utils.ResizeObject(ref R, labels[i], 2 + i * 2, 13, 1.5f, 5);
-            Utils.ResizeObject(ref R, texts[i], 2 + i * 2, 18.5f, 1.5f, 2);
-            if (gets[i] != null) {
-               Utils.ResizeObject(ref R, gets[i], 2 + i * 2, 21, 1.5f, 2);
-            }
-            if (sets[i] != null) {
-               Utils.ResizeObject(ref R, sets[i], 2 + i * 2, 23.5f, 1.5f, 2);
-            }
-            if (services[i] != null) {
-               Utils.ResizeObject(ref R, services[i], 2 + i * 2, 21, 1.5f, 4.5f);
-            }
-         }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 17, 2.5f, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 21.5f, 2.5f, 4);
+         Utils.ResizeControls(ref R, tab, labels, texts, gets, sets, services, getAll, setAll);
       }
 
       private void SetButtonEnables() {
@@ -167,7 +142,6 @@ namespace HitachiEIP {
       }
 
       #endregion
-
 
    }
 }

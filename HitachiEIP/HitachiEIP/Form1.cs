@@ -29,7 +29,17 @@ namespace HitachiEIP {
       ResizeInfo R;
       bool initComplete = false;
 
+      // Attribute Screens
+      Attributes<eipIndex> indexAttr;
+
       CountAttributes count;
+      PrintDataMgmtAttributes printDataMgmt;
+      PrintFormatAttributes printFmt;
+      PrintSpecAttributes printSpec;
+      SubstitutionAttributes subRules;
+      UnitInformationAttributes unitInfo;
+      EnviromentAttributes envir;
+      OperationMgmtAttributes opMgmt;
 
       #endregion
 
@@ -65,9 +75,17 @@ namespace HitachiEIP {
          BuildLogFile();
 
          // Load all the tabbed control data
-         indexLoad();
-         ijpOpLoad();
+
          count = new CountAttributes(this, EIP, tabCount);
+         printDataMgmt = new PrintDataMgmtAttributes(this, EIP, tabPrintManagement);
+         printFmt = new PrintFormatAttributes(this, EIP, tabPrintFormat);
+         printSpec = new PrintSpecAttributes(this, EIP, tabPrintSpec);
+         subRules = new SubstitutionAttributes(this, EIP, tabSubstitution);
+         unitInfo = new UnitInformationAttributes(this, EIP, tabUnitInformation);
+         envir = new EnviromentAttributes(this, EIP, tabEnviroment);
+         opMgmt = new OperationMgmtAttributes(this, EIP, tabOpMgmt);
+
+         indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, indexAttributes, eipClassCode.Index);
 
          SetButtonEnables();
 
@@ -131,48 +149,34 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 26);
 
-            int tclHeight = (int)(tclClasses.TabPages[tclClasses.SelectedIndex].ClientSize.Height / R.H);
-
-            #region Index Attributes
-
-            if (indexLabel != null) {
-               for (int i = 0; i < indexLabel.Length; i++) {
-                  Utils.ResizeObject(ref R, indexLabel[i], 2 + i * 2, 13, 1.5f, 5);
-                  Utils.ResizeObject(ref R, indexText[i], 2 + i * 2, 18.5f, 1.5f, 2);
-                  Utils.ResizeObject(ref R, indexGet[i], 2 + i * 2, 21, 1.5f, 2);
-                  Utils.ResizeObject(ref R, indexSet[i], 2 + i * 2, 23.5f, 1.5f, 2);
-               }
-               Utils.ResizeObject(ref R, btnIndexGetAll, tclHeight - 3, 17, 2.5f, 4);
-               Utils.ResizeObject(ref R, btnIndexSetAll, tclHeight - 3, 21.5f, 2.5f, 4);
-            }
-
-            #endregion
-
-            #region IJP Operation Attributes
-
-            if (ijpOpLabel != null) {
-               for (int i = 0; i < ijpOpLabel.Length; i++) {
-                  Utils.ResizeObject(ref R, ijpOpLabel[i], 2 + i * 2, 13, 1.5f, 5);
-                  Utils.ResizeObject(ref R, ijpOpText[i], 2 + i * 2, 18.5f, 1.5f, 2);
-                  if (ijpOpxGet[i] != null) {
-                     Utils.ResizeObject(ref R, ijpOpxGet[i], 2 + i * 2, 21, 1.5f, 2);
-                  }
-                  if (ijpOpxSet[i] != null) {
-                     Utils.ResizeObject(ref R, ijpOpxSet[i], 2 + i * 2, 23.5f, 1.5f, 2);
-                  }
-                  if (ijpOpxSvc[i] != null) {
-                     Utils.ResizeObject(ref R, ijpOpxSvc[i], 2 + i * 2, 21, 1.5f, 4.5f);
-                  }
-               }
-               Utils.ResizeObject(ref R, btnIJPOpGetAll, tclHeight - 3, 17, 2.5f, 4);
-               Utils.ResizeObject(ref R, btnIJPOpSetAll, tclHeight - 3, 21.5f, 2.5f, 4);
-            }
-
-
             #endregion
 
             if (count != null) {
                count.ResizeControls(ref R);
+            }
+            if (printDataMgmt != null) {
+               printDataMgmt.ResizeControls(ref R);
+            }
+            if (printFmt != null) {
+               printFmt.ResizeControls(ref R);
+            }
+            if (printSpec != null) {
+               printSpec.ResizeControls(ref R);
+            }
+            if (subRules != null) {
+               subRules.ResizeControls(ref R);
+            }
+            if (unitInfo != null) {
+               unitInfo.ResizeControls(ref R);
+            }
+            if (envir != null) {
+               envir.ResizeControls(ref R);
+            }
+            if (opMgmt != null) {
+               opMgmt.ResizeControls(ref R);
+            }
+            if(testAttr != null) {
+               testAttr.ResizeControls(ref R);
             }
 
             #endregion
@@ -190,8 +194,6 @@ namespace HitachiEIP {
             this.ResumeLayout();
          }
       }
-
-      #endregion
 
       #region Form control events
 
@@ -428,118 +430,6 @@ namespace HitachiEIP {
          eipIndex.Calendar_Block,
       };
 
-      Label[] indexLabel;
-      TextBox[] indexText;
-      Button[] indexGet;
-      Button[] indexSet;
-
-      private int[,] validIndexData = new int[,] {
-         {0, 1 }, {0, 1 }, {1, 100 }, {1, 100 }, {1, 6 }, {1, 1000 }, {1, 2000 },
-         {1, 99 }, {1, 99 }, {1, 19 }, {1, 8 }, {1, 8 }
-      };
-
-      private void indexLoad() {
-
-         indexLabel = new Label[] {
-            lblIndex64, lblIndex65, lblIndex66, lblIndex67, lblIndex68, lblIndex69,
-            lblIndex6A, lblIndex6B, lblIndex6C, lblIndex6D, lblIndex6E, lblIndex6F
-         };
-
-         indexText = new TextBox[] {
-            txtIndex64, txtIndex65, txtIndex66, txtIndex67, txtIndex68, txtIndex69,
-            txtIndex6A, txtIndex6B, txtIndex6C, txtIndex6D, txtIndex6E, txtIndex6F
-         };
-
-         indexGet = new Button[] {
-            btnIndexGet64, btnIndexGet65, btnIndexGet66, btnIndexGet67, btnIndexGet68, btnIndexGet69,
-            btnIndexGet6A, btnIndexGet6B, btnIndexGet6C, btnIndexGet6D, btnIndexGet6E, btnIndexGet6F
-         };
-
-         indexSet = new Button[] {
-            btnIndexSet64, btnIndexSet65, btnIndexSet66, btnIndexSet67, btnIndexSet68, btnIndexSet69,
-            btnIndexSet6A, btnIndexSet6B, btnIndexSet6C, btnIndexSet6D, btnIndexSet6E, btnIndexSet6F
-         };
-
-         for (int i = 0; i < indexLabel.Length; i++) {
-            indexLabel[i].Text = EIP.GetAttributeName(eipClassCode.Index, (uint)indexAttributes[i]);
-         }
-      }
-
-      private void btnIndexGet_Click(object sender, EventArgs e) {
-         int tag = Convert.ToInt32(((Button)sender).Tag);
-
-         indexText[tag].Text = "Loading";
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], out string val, DataFormats.Decimal)) {
-            indexText[tag].Text = val;
-         } else {
-            indexText[tag].Text = "#Error";
-         }
-
-         SetButtonEnables();
-      }
-
-      private void btnIndexSet_Click(object sender, EventArgs e) {
-         int tag = Convert.ToInt32(((Button)sender).Tag);
-         if (!int.TryParse(indexText[tag].Text, out int val)) {
-            val = validIndexData[tag, 0];
-         }
-         int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
-         bool Success = EIP.WriteOneAttribute(eipClassCode.Index, (byte)indexAttributes[tag], EIP.ToBytes((uint)val, len));
-      }
-
-      private void btnIndexGetAll_Click(object sender, EventArgs e) {
-         for (int i = 0; i < indexGet.Length; i++) {
-            btnIndexGet_Click(indexGet[i], null);
-            this.Refresh();
-         }
-      }
-
-      private void btnIndexSetAll_Click(object sender, EventArgs e) {
-         for (int i = 0; i < indexSet.Length; i++) {
-            btnIndexSet_Click(indexSet[i], null);
-         }
-      }
-
-      private void NumbersOnly(object sender, KeyPressEventArgs e) {
-         TextBox t = (TextBox)sender;
-         e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
-      }
-
-      private void txtIndex_Leave(object sender, EventArgs e) {
-         TextBox t = (TextBox)sender;
-         int tag = Convert.ToInt32(t.Tag);
-         int val;
-         if (!string.IsNullOrEmpty(t.Text)) {
-            if (!int.TryParse(t.Text, out val)) {
-               MessageBox.Show($"Invalid Text =>{t.Text}<=");
-               t.Text = validIndexData[tag, 0].ToString();
-            } else {
-               if (val < validIndexData[tag, 0] || val > validIndexData[tag, 1]) {
-                  MessageBox.Show($"Invalid Value =>{t.Text}<=", $"Index Data == {indexLabel[tag].Text}", MessageBoxButtons.OK);
-                  t.Text = validIndexData[tag, 0].ToString();
-               }
-            }
-         }
-         SetIndexButtonEnables();
-      }
-
-      private void SetIndexButtonEnables() {
-         bool enable = EIP.IsConnected && EIP.SessionIsOpen;
-         bool allValid = true;
-         for (int i = 0; i < indexGet.Length; i++) {
-            bool dataValid = false;
-            int val = 0;
-            if (int.TryParse(indexText[i].Text, out val)) {
-               dataValid = val >= validIndexData[i, 0] && val <= validIndexData[i, 1];
-            }
-            indexGet[i].Enabled = enable;
-            indexSet[i].Enabled = enable && dataValid;
-            allValid &= dataValid;
-         }
-         btnIndexGetAll.Enabled = enable;
-         btnIndexSetAll.Enabled = enable && allValid;
-      }
-
       #endregion
 
       #region IJP Operation Tab Controls
@@ -556,106 +446,6 @@ namespace HitachiEIP {
          eipIJP_operation.Deflection_voltage_control,
          eipIJP_operation.Online_Offline,
       };
-
-      Label[] ijpOpLabel;
-      TextBox[] ijpOpText;
-      Button[] ijpOpxGet;
-      Button[] ijpOpxSet;
-      Button[] ijpOpxSvc;
-
-      private int[,] validIjpOpData = new int[,] {
-         {0, 0 }, {0, 0 }, {0, 0 }, {0, 0 }, {0, 0 },
-         {0, 0 }, {0, 0 }, {0, 0 }, {0, 0 }, {0, 1 }
-      };
-      private void ijpOpLoad() {
-
-         ijpOpLabel = new Label[] {
-            lblIJPOp64, lblIJPOp66, lblIJPOp67, lblIJPOp68, lblIJPOp6A,
-            lblIJPOp6B, lblIJPOp6C, lblIJPOp6D, lblIJPOp6E, lblIJPOp6F,
-         };
-
-         ijpOpText = new TextBox[] {
-            txtIJPOp64, txtIJPOp66, txtIJPOp67, txtIJPOp68, txtIJPOp6A,
-            txtIJPOp6B, txtIJPOp6C, txtIJPOp6D, txtIJPOp6E, txtIJPOp6F,
-         };
-
-         ijpOpxGet = new Button[] {
-            btnIJPOpGet64, btnIJPOpGet66, btnIJPOpGet67, btnIJPOpGet68, btnIJPOpGet6A,
-            btnIJPOpGet6B, null, null, null, btnIJPOpGet6F,
-         };
-
-         ijpOpxSet = new Button[] {
-            null, null, null, null, null,
-            null, null, null, null, btnIJPOpSet6F,
-         };
-
-         ijpOpxSvc = new Button[] {
-            null, null, null, null, null,
-            null, btnIJPOpSvc6C, btnIJPOpSvc6D, btnIJPOpSvc6E, null,
-         };
-
-         for (int i = 0; i < ijpOpLabel.Length; i++) {
-            ijpOpLabel[i].Text = EIP.GetAttributeName(eipClassCode.IJP_operation, (uint)ijpOpAttributes[i]);
-         }
-      }
-
-      private void btnIJPOpGet_Click(object sender, EventArgs e) {
-         Button b = (Button)sender;
-         int tag = Convert.ToInt32(b.Tag);
-         string val;
-
-         ijpOpText[tag].Text = "Loading";
-         DataFormats fmt = DataFormats.Bytes;
-         if (ijpOpAttributes[tag] == eipIJP_operation.Online_Offline) {
-            fmt = DataFormats.Decimal;
-         }
-         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], out val, fmt)) {
-            ijpOpText[tag].Text = val;
-         } else {
-            ijpOpText[tag].Text = "#Error";
-         }
-
-         SetButtonEnables();
-      }
-
-      private void btnIJPOpSet_Click(object sender, EventArgs e) {
-         Button b = (Button)sender;
-         int tag = Convert.ToInt32(b.Tag);
-
-         if (!int.TryParse(indexText[tag].Text, out int val)) {
-            val = validIndexData[tag, 0];
-         }
-         int len = ((int)indexAttributes[tag] & 0xFF0000) >> 16;
-
-         bool Success = EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)ijpOpAttributes[tag], EIP.ToBytes((uint)val, len));
-      }
-
-      private void btnIJPOpGetAll_Click(object sender, EventArgs e) {
-         for (int i = 0; i < ijpOpxGet.Length; i++) {
-            if (ijpOpxGet[i] != null) {
-               btnIJPOpGet_Click(ijpOpxGet[i], null);
-               this.Refresh();
-            }
-         }
-      }
-
-      private void txtIJPOp6F_Leave(object sender, EventArgs e) {
-         TextBox t = (TextBox)sender;
-         int tag = Convert.ToInt32(t.Tag);
-         int val;
-         if (!string.IsNullOrEmpty(t.Text)) {
-            if (!int.TryParse(t.Text, out val)) {
-               MessageBox.Show($"Invalid Text =>{t.Text}<=");
-               t.Text = validIjpOpData[tag, 0].ToString();
-            } else {
-               if (val < validIjpOpData[tag, 0] || val > validIjpOpData[tag, 1]) {
-                  MessageBox.Show($"Invalid Value =>{t.Text}<=", $"IJP Operation Data == {ijpOpLabel[tag].Text}", MessageBoxButtons.OK);
-                  t.Text = validIjpOpData[tag, 0].ToString();
-               }
-            }
-         }
-         SetIndexButtonEnables();
-      }
 
       #endregion
 
@@ -714,7 +504,6 @@ namespace HitachiEIP {
          btnForwardClose.Enabled = EIP.IsConnected && EIP.SessionIsOpen && EIP.ForwardIsOpen;
          btnIssueRequest.Enabled = EIP.IsConnected && EIP.SessionIsOpen && EIP.ForwardIsOpen && EIP.ForwardIsOpen
             && cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
-         SetIndexButtonEnables();
       }
 
       #endregion
