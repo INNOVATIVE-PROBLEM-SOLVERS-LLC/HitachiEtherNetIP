@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,10 +18,13 @@ namespace HitachiEIP {
       t1[] attributes;
       eipClassCode cc;
 
-      int[,] validData;
+      // Headers
+      Label[] hdrs;
+
 
       Label[] labels;
       TextBox[] texts;
+      TextBox[] counts;
       Button[] gets;
       Button[] sets;
       Button[] services;
@@ -52,7 +56,8 @@ namespace HitachiEIP {
             texts[tag].Text = val;
          } else {
             texts[tag].Text = "#Error";
-         }
+            parent.AllGood = false;
+         }counts[tag].Text = (EIP.ReadDataLength - 50).ToString();
          SetButtonEnables();
       }
 
@@ -77,21 +82,37 @@ namespace HitachiEIP {
       }
 
       private void GetAll_Click(object sender, EventArgs e) {
+         parent.AllGood = true;
          for (int i = 0; i < gets.Length; i++) {
+            if (gets[i] != null) {
+               texts[i].Text = "Loading";
+            }
+         }
+         parent.Refresh();
+         for (int i = 0; i < gets.Length && parent.AllGood; i++) {
             if (gets[i] != null) {
                Get_Click(gets[i], null);
                parent.Refresh();
+               Application.DoEvents();
             }
+         }
+         if (!parent.AllGood) {
+            parent.EIP_Log(null, "GetAll completed abnormally");
          }
          SetButtonEnables();
       }
 
       private void SetAll_Click(object sender, EventArgs e) {
-         for (int i = 0; i < sets.Length; i++) {
+         parent.AllGood = true;
+         for (int i = 0; i < sets.Length && parent.AllGood; i++) {
             if (gets[i] != null) {
                Set_Click(sets[i], null);
                parent.Refresh();
+               Application.DoEvents();
             }
+         }
+         if (!parent.AllGood) {
+            parent.EIP_Log(null, "SetAll completed abnormally");
          }
       }
 
@@ -106,19 +127,47 @@ namespace HitachiEIP {
 
       public void BuildControls() {
 
-         validData = new int[attributes.Length, 2];
+         // build headers
+         if (attributes.Length > 17) {
+            hdrs = new Label[8];
+         } else {
+            hdrs = new Label[4];
+         }
+         hdrs[0] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight};
+         hdrs[1] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+         hdrs[2] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+         hdrs[3] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+         if (attributes.Length > 17) {
+            hdrs[4] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight };
+            hdrs[5] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+            hdrs[6] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+            hdrs[7] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
+         }
+         for (int i = 0; i < hdrs.Length; i++) {
+            hdrs[i].Font = new Font(hdrs[i].Font, FontStyle.Underline | FontStyle.Bold);
+         }
+         tab.Controls.AddRange(hdrs);
+
+         //validData = new int[attributes.Length, 2];
          labels = new Label[attributes.Length];
          texts = new TextBox[attributes.Length];
+         counts = new TextBox[attributes.Length];
          gets = new Button[attributes.Length];
          sets = new Button[attributes.Length];
          services = new Button[attributes.Length];
 
          for (int i = 0; i < attributes.Length; i++) {
             ulong attr = Convert.ToUInt64(attributes[i]);
-            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight, Text = EIP.GetAttributeName(cc, Convert.ToUInt64(attributes[i])) };
+            string s = $"{EIP.GetAttributeName(cc, attr).Replace('_', ' ')} (0x{EIP.GetAttribute(attr):X2})";
+            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight,
+                                      Text = s };
             tab.Controls.Add(labels[i]);
             texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             tab.Controls.Add(texts[i]);
+
+            counts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
+            tab.Controls.Add(counts[i]);
+
             if (EIP.HasGet(attr)) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
                gets[i].Click += Get_Click;
@@ -136,6 +185,7 @@ namespace HitachiEIP {
             }
             if (EIP.HasService(attr)) {
                services[i] = new Button() { Tag = i, Text = "Service" };
+               services[i].Click += Set_Click;
                tab.Controls.Add(services[i]);
             }
          }
@@ -152,10 +202,22 @@ namespace HitachiEIP {
       public void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int half = 17;
+         float cw = 17.5f;
+
+         Utils.ResizeObject(ref R, hdrs[0], 0.5f, 0.25f, 1.5f, 8);
+         Utils.ResizeObject(ref R, hdrs[1], 0.5f, 8.25f, 1.5f, 1f);
+         Utils.ResizeObject(ref R, hdrs[2], 0.5f, 9.25f, 1.5f, 5);
+         Utils.ResizeObject(ref R, hdrs[3], 0.5f, 14.25f, 1.5f, 3);
+         if (labels.Length > half) {
+            Utils.ResizeObject(ref R, hdrs[4], 0.5f, 0.25f + cw, 1.5f, 8);
+            Utils.ResizeObject(ref R, hdrs[5], 0.5f, 8.25f + cw, 1.5f, 1f);
+            Utils.ResizeObject(ref R, hdrs[6], 0.5f, 9.25f + cw, 1.5f, 5);
+            Utils.ResizeObject(ref R, hdrs[7], 0.5f, 14.25f + cw, 1.5f, 3);
+         }
+
          for (int i = 0; i < labels.Length; i++) {
             int r;
             int c;
-            float cw = 12.5f;
             if (i < half) {
                r = 2 + i * 2;
                c = 0;
@@ -163,20 +225,21 @@ namespace HitachiEIP {
                r = 2 + (i - half) * 2;
                c = 1;
             }
-            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 5.75f);
-            Utils.ResizeObject(ref R, texts[i], r, 6.5f + c * cw, 1.5f, 2);
+            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 2, 8);
+            Utils.ResizeObject(ref R, counts[i], r, 8.5f + c * cw, 1.5f, 0.75f);
+            Utils.ResizeObject(ref R, texts[i], r, 9.5f + c * cw, 1.5f, 4.75f);
             if (gets[i] != null) {
-               Utils.ResizeObject(ref R, gets[i], r, 9 + c * cw, 1.5f, 1.5f);
+               Utils.ResizeObject(ref R, gets[i], r, 14.5f + c * cw, 1.5f, 1.25f);
             }
             if (sets[i] != null) {
-               Utils.ResizeObject(ref R, sets[i], r, 11 + c * cw, 1.5f, 1.5f);
+               Utils.ResizeObject(ref R, sets[i], r, 16 + c * cw, 1.5f, 1.25f);
             }
             if (services[i] != null) {
-               Utils.ResizeObject(ref R, services[i], r, 9 + c * cw, 1.5f, 3.5f);
+               Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 2.75f);
             }
          }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 17, 2.5f, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 21.5f, 2.5f, 4);
+         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.5f, 4);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.5f, 4);
       }
 
       public void SetButtonEnables() {
