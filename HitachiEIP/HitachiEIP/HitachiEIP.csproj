@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
+    <Compile Include="Data.cs" />
     <Compile Include="EthernetIP.cs" />
     <Compile Include="HitachiBrowser.cs">
       <SubType>Form</SubType>

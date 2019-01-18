@@ -44,7 +44,7 @@ namespace HitachiEIP {
       ResizeInfo R;
       bool initComplete = false;
 
-      bool AllGood = true;
+      public bool AllGood { get; set; } = true;
 
       // Attribute Screens
       Attributes<eipIndex> indexAttr;               // 0x7A
@@ -80,9 +80,10 @@ namespace HitachiEIP {
          lstErrors.Items.Add(msg);
       }
 
-      private void EIP_Log(EIP sender, string msg) {
+      public void EIP_Log(EIP sender, string msg) {
          LogFileStream.WriteLine(msg);
          lstErrors.Items.Add(msg);
+         lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 
       #endregion
@@ -163,7 +164,7 @@ namespace HitachiEIP {
             //
             this.SuspendLayout();
             // Build local parameters
-            R = Utils.InitializeResize(this, 47, 35, true);
+            R = Utils.InitializeResize(this, 47, 45, true);
 
             #region Left Column
 
@@ -203,7 +204,7 @@ namespace HitachiEIP {
 
             #region  Classes
 
-            Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 26);
+            Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 36);
 
             indexAttr.ResizeControls(ref R);
             oprAttr.ResizeControls(ref R);
@@ -223,10 +224,11 @@ namespace HitachiEIP {
             #region Bottom Row
 
             Utils.ResizeObject(ref R, btnCom, 43.5f, 8, 3, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 44, 21, 2, 3);
-            Utils.ResizeObject(ref R, btnViewLog, 44, 24.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnReadAll, 44, 28, 2, 3);
-            Utils.ResizeObject(ref R, btnExit, 44, 31.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnStop, 44, 27.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 44, 31, 2, 3);
+            Utils.ResizeObject(ref R, btnViewLog, 44, 34.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnReadAll, 44, 38, 2, 3);
+            Utils.ResizeObject(ref R, btnExit, 44, 41.5f, 2, 3);
 
             #endregion
 
@@ -410,6 +412,29 @@ namespace HitachiEIP {
 
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          HitachiBrowser_Resize(null, null);
+      }
+
+      private void cmLogClear_Click(object sender, EventArgs e) {
+         lstErrors.Items.Clear();
+      }
+
+      private void cmLogView_Click(object sender, EventArgs e) {
+         string ViewFilename = CreateFileName(txtSaveFolder.Text, "View");
+         StreamWriter ViewStream = new StreamWriter(ViewFilename, false);
+         for (int i = 0; i < lstErrors.Items.Count; i++) {
+            ViewStream.WriteLine(lstErrors.Items[i].ToString());
+         }
+         ViewStream.Flush();
+         ViewStream.Close();
+         Process.Start("notepad.exe", ViewFilename);
+      }
+
+      private void lstErrors_MouseDoubleClick(object sender, MouseEventArgs e) {
+         cmLogView_Click(null, null);
+      }
+
+      private void btnStop_Click(object sender, EventArgs e) {
+         AllGood = false;
       }
 
       #endregion

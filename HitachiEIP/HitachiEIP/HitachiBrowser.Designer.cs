@@ -23,6 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
+         this.components = new System.ComponentModel.Container();
          this.lblIPAddress = new System.Windows.Forms.Label();
          this.lblPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
@@ -67,7 +68,12 @@
          this.tabUserPattern = new System.Windows.Forms.TabPage();
          this.btnCom = new System.Windows.Forms.Button();
          this.lstErrors = new System.Windows.Forms.ListBox();
+         this.cmLog = new System.Windows.Forms.ContextMenuStrip(this.components);
+         this.cmLogClear = new System.Windows.Forms.ToolStripMenuItem();
+         this.cmLogView = new System.Windows.Forms.ToolStripMenuItem();
+         this.btnStop = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
+         this.cmLog.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -481,18 +487,54 @@
          // 
          // lstErrors
          // 
+         this.lstErrors.ContextMenuStrip = this.cmLog;
          this.lstErrors.FormattingEnabled = true;
          this.lstErrors.ItemHeight = 16;
          this.lstErrors.Location = new System.Drawing.Point(26, 612);
          this.lstErrors.Name = "lstErrors";
          this.lstErrors.Size = new System.Drawing.Size(290, 84);
          this.lstErrors.TabIndex = 35;
+         this.lstErrors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstErrors_MouseDoubleClick);
+         // 
+         // cmLog
+         // 
+         this.cmLog.ImageScalingSize = new System.Drawing.Size(20, 20);
+         this.cmLog.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmLogClear,
+            this.cmLogView});
+         this.cmLog.Name = "cmLog";
+         this.cmLog.Size = new System.Drawing.Size(190, 52);
+         // 
+         // cmLogClear
+         // 
+         this.cmLogClear.Name = "cmLogClear";
+         this.cmLogClear.Size = new System.Drawing.Size(189, 24);
+         this.cmLogClear.Text = "Clear";
+         this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
+         // 
+         // cmLogView
+         // 
+         this.cmLogView.Name = "cmLogView";
+         this.cmLogView.Size = new System.Drawing.Size(189, 24);
+         this.cmLogView.Text = "View in Notepad";
+         this.cmLogView.Click += new System.EventHandler(this.cmLogView_Click);
+         // 
+         // btnStop
+         // 
+         this.btnStop.Location = new System.Drawing.Point(740, 655);
+         this.btnStop.Name = "btnStop";
+         this.btnStop.Size = new System.Drawing.Size(89, 52);
+         this.btnStop.TabIndex = 37;
+         this.btnStop.Text = "Stop";
+         this.btnStop.UseVisualStyleBackColor = true;
+         this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
          // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 713);
+         this.Controls.Add(this.btnStop);
          this.Controls.Add(this.lstErrors);
          this.Controls.Add(this.btnCom);
          this.Controls.Add(this.tclClasses);
@@ -531,6 +573,7 @@
          this.Load += new System.EventHandler(this.HitachiBrowser_Load);
          this.Resize += new System.EventHandler(this.HitachiBrowser_Resize);
          this.tclClasses.ResumeLayout(false);
+         this.cmLog.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -581,6 +624,10 @@
       private System.Windows.Forms.TabPage tabUserPattern;
       private System.Windows.Forms.Button btnCom;
       private System.Windows.Forms.ListBox lstErrors;
+      private System.Windows.Forms.ContextMenuStrip cmLog;
+      private System.Windows.Forms.ToolStripMenuItem cmLogClear;
+      private System.Windows.Forms.ToolStripMenuItem cmLogView;
+      private System.Windows.Forms.Button btnStop;
    }
 }
 

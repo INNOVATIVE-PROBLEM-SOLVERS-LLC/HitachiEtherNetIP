@@ -61,14 +61,6 @@ namespace HitachiEIP {
       Service = 0x34,
    }
 
-   // Class Code enum values
-   //   The value of the class code enum is
-   //     -- 0x = the values that follow are in Hexadecimal 
-   //     -- aa = enums are listed in ascending numerical order.  These two Hex
-   //             digits cause the sort order to also be in alphabetical order
-   //     -- 0000 = Reserved but not currently used
-   //     -- vv = The Hex value assigned in the Hitachi EtherNet/IP document
-
    // Class codes
    public enum eipClassCode {
       Print_data_management = 0x07000066,
@@ -85,30 +77,18 @@ namespace HitachiEIP {
       Index = 0x0500007A,
    }
 
-   // Attribute enum values
-   //   The value of the class code enum is
-   //     -- 0x = the values that follow are in Hexadecimal 
-   //     -- aa = enums are listed in ascending numerical order.  These two Hex
-   //             digits cause the sort order to also be in alphabetical order
-   //     -- ll = Length of the data to be sent to the printer
-   //     -- cc = 00000abc - Right 3 Bit indicate which access codes are valid for this service
-   //             a = Allow Set if a = 1
-   //             b = Allow Get if b = 1
-   //             c = Allow Service if c = 1
-   //     -- vv = The Hex value assigned in the Hitachi EtherNet/IP document
-
    // Attributes within Print Data Management class 0x66
    public enum eipPrint_Data_Management : ulong {
-      Select_Message = 0x090000000064,
-      Store_Print_Data = 0x0A0000000165,
-      Delete_Print_Data = 0x030000020167,
-      Print_Data_Name = 0x070000000169,
-      List_of_Messages = 0x06000002026A,
-      Print_Data_Number = 0x08000004016B,
-      Change_Create_Group_Name = 0x01000000016C,
-      Group_Deletion = 0x04000001016D,
-      List_of_Groups = 0x05000001026F,
-      Change_Group_Number = 0x020000020170,
+      Select_Message = 0x09000000003064,
+      Store_Print_Data = 0x0A000000003165,
+      Delete_Print_Data = 0x03000000023167,
+      Print_Data_Name = 0x07000000003169,
+      List_of_Messages = 0x0600000002326A,
+      Print_Data_Number = 0x0800000004316B,
+      Change_Create_Group_Name = 0x0100000000316C,
+      Group_Deletion = 0x0400000001316D,
+      List_of_Groups = 0x0500000001326F,
+      Change_Group_Number = 0x02000000023170,
    }
 
    // Attributes within Print Format class 0x67
@@ -145,137 +125,137 @@ namespace HitachiEIP {
 
    // Attributes within Print Specification class 0x68
    public enum eipPrint_specification : ulong {
-      Character_Height = 0x020000010364,
-      Ink_Drop_Use = 0x080000010365,
-      High_Speed_Print = 0x060000010366,
-      Character_Width = 0x040000020367,
-      Character_Orientation = 0x030000010368,
-      Print_Start_Delay_Forward = 0x0B0000020369,
-      Print_Start_Delat_Reverse = 0x0A000002036A,
-      Product_Speed_Matching = 0x0E000001036B,
-      Pulse_Rate_Division_Factor = 0x0F000002036C,
-      Speed_Compensation = 0x12000001036D,
-      Line_Speed = 0x09000002036E,
-      Distance_Between_Print_Head_And_Object = 0x05000001036F,
-      Print_Target_Width = 0x0D0000010370,
-      Actual_Print_Width = 0x010000010371,
-      Repeat_Count = 0x100000020372,
-      Repeat_Interval = 0x110000030373,
-      Target_Sensor_Timer = 0x150000020374,
-      Target_Sensor_Filter = 0x140000010375,
-      Targer_Sensor_Filter_Value = 0x130000020376,
-      Ink_Drop_Charge_Rule = 0x070000010377,
-      Print_Start_Position_Adjustment_Value = 0x0C0000020378,
+      Character_Height = 0x02000000010364,
+      Ink_Drop_Use = 0x08000000010365,
+      High_Speed_Print = 0x06000000010366,
+      Character_Width = 0x04000000020367,
+      Character_Orientation = 0x03000000010368,
+      Print_Start_Delay_Forward = 0x0B000000020369,
+      Print_Start_Delay_Reverse = 0x0A00000002036A,
+      Product_Speed_Matching = 0x0E00000001036B,
+      Pulse_Rate_Division_Factor = 0x0F00000002036C,
+      Speed_Compensation = 0x1200000001036D,
+      Line_Speed = 0x0900000002036E,
+      Distance_Between_Print_Head_And_Object = 0x0500000001036F,
+      Print_Target_Width = 0x0D000000020370,
+      Actual_Print_Width = 0x01000000020371,
+      Repeat_Count = 0x10000000020372,
+      Repeat_Interval = 0x11000000030373,
+      Target_Sensor_Timer = 0x15000000020374,
+      Target_Sensor_Filter = 0x14000000010375,
+      Targer_Sensor_Filter_Value = 0x13000000010376,
+      Ink_Drop_Charge_Rule = 0x07000000010377,
+      Print_Start_Position_Adjustment_Value = 0x0C000000020378,
    }
 
    // Attributes within Calendar class 0x69
    public enum eipCalendar : ulong {
-      Shift_Count_Condition = 0x0A0000010265,
-      First_Calendar_Block_Number = 0x030000010266,
-      Calendar_Block_Number_In_Item = 0x010000010267,
-      Offset_Year = 0x080000010368,
-      Offset_Month = 0x070000010369,
-      Offset_Day = 0x04000002036A,
-      Offset_Hour = 0x05000002036B,
-      Offset_Minute = 0x06000002036C,
-      Zero_Suppress_Year = 0x20000001036D,
-      Zero_Suppress_Month = 0x1E000001036E,
-      Zero_Suppress_Day = 0x1A000001036F,
-      Zero_Suppress_Hour = 0x1C0000010370,
-      Zero_Suppress_Minute = 0x1D0000010371,
-      Zero_Suppress_Weeks = 0x1F0000010372,
-      Zero_Suppress_Day_Of_Week = 0x1B0000010373,
-      Substitute_Rule_Year = 0x150000010374,
-      Substitute_Rule_Month = 0x130000010375,
-      Substitute_Rule_Day = 0x0F0000010376,
-      Substitute_Rule_Hour = 0x110000010377,
-      Substitute_Rule_Minute = 0x120000010378,
-      Substitute_Rule_Weeks = 0x140000010379,
-      Substitute_Rule_Day_Of_Week = 0x10000001037A,
-      Time_Count_Start_Value = 0x18000003037B,
-      Time_Count_End_Value = 0x16000003037C,
-      Time_Count_Reset_Value = 0x17000003037D,
-      Reset_Time_Value = 0x09000001037E,
-      Update_Interval_Value = 0x19000001037F,
-      Shift_Start_Hour = 0x0D0000010380,
-      Shift_Start_Minute = 0x0E0000010381,
-      Shift_End_Hour = 0x0B0000010382,
-      Shift_Ene_Minute = 0x0C0000010383,
-      Count_String_Value = 0x020000010384,
+      Shift_Count_Condition = 0x0A000000010265,
+      First_Calendar_Block_Number = 0x03000000010266,
+      Calendar_Block_Number_In_Item = 0x01000000010267,
+      Offset_Year = 0x08000000010368,
+      Offset_Month = 0x07000000010369,
+      Offset_Day = 0x0400000002036A,
+      Offset_Hour = 0x0500000002036B,
+      Offset_Minute = 0x0600000002036C,
+      Zero_Suppress_Year = 0x2000000001036D,
+      Zero_Suppress_Month = 0x1E00000001036E,
+      Zero_Suppress_Day = 0x1A00000001036F,
+      Zero_Suppress_Hour = 0x1C000000010370,
+      Zero_Suppress_Minute = 0x1D000000010371,
+      Zero_Suppress_Weeks = 0x1F000000010372,
+      Zero_Suppress_Day_Of_Week = 0x1B000000010373,
+      Substitute_Rule_Year = 0x15000000010374,
+      Substitute_Rule_Month = 0x13000000010375,
+      Substitute_Rule_Day = 0x0F000000010376,
+      Substitute_Rule_Hour = 0x11000000010377,
+      Substitute_Rule_Minute = 0x12000000010378,
+      Substitute_Rule_Weeks = 0x14000000010379,
+      Substitute_Rule_Day_Of_Week = 0x1000000001037A,
+      Time_Count_Start_Value = 0x1800000003037B,
+      Time_Count_End_Value = 0x1600000003037C,
+      Time_Count_Reset_Value = 0x1700000003037D,
+      Reset_Time_Value = 0x0900000001037E,
+      Update_Interval_Value = 0x1900000001037F,
+      Shift_Start_Hour = 0x0D000000010380,
+      Shift_Start_Minute = 0x0E000000010381,
+      Shift_End_Hour = 0x0B000000010382,
+      Shift_Ene_Minute = 0x0C000000010383,
+      Count_String_Value = 0x02000000010384,
    }
 
    // Attributes within User Pattern class 0x6B
    public enum eipUser_pattern : ulong { // 0x6B
-      User_Pattern_Fixed = 0x010000000364,
-      User_Pattern_Free = 0x020000000365,
+      User_Pattern_Fixed = 0x01000000000364,
+      User_Pattern_Free = 0x02000000000365,
    }
 
    // Attributes within Substitution Rules class 0x6C
    public enum eipSubstitution_rules : ulong { // 0x6C
-      Number = 0x030000000364,
-      Name = 0x020000000365,
-      Start_Year = 0x010000000366,
-      Year = 0x0A0000000367,
-      Month = 0x080000000368,
-      Day = 0x040000000369,
-      Hour = 0x06000000036A,
-      Minute = 0x07000000036B,
-      Week = 0x09000000036C,
-      Day_Of_Week = 0x05000000036D,
+      Number = 0x03000000000364,
+      Name = 0x02000000000365,
+      Start_Year = 0x01000000000366,
+      Year = 0x0A000000000367,
+      Month = 0x08000000000368,
+      Day = 0x04000000000369,
+      Hour = 0x0600000000036A,
+      Minute = 0x0700000000036B,
+      Week = 0x0900000000036C,
+      Day_Of_Week = 0x0500000000036D,
    }
 
    // Attributes within Enviroment Setting class 0x71
    public enum eipEnviroment_setting : ulong {
-      Current_Time = 0x050000000365,
-      Calendar_Date_Time = 0x010000000366,
-      Calendar_Date_Time_Availibility = 0x020000000367,
-      Clock_System = 0x040000000368,
-      User_Environment_Information = 0x080000000269,
-      Cirulation_Control_Setting_Value = 0x03000000026A,
-      Usage_Time_Of_Circulation_Control = 0x07000000016B,
-      Reset_Usage_Time_Of_Citculation_Control = 0x06000000016C,
+      Current_Time = 0x05000000000365,
+      Calendar_Date_Time = 0x01000000000366,
+      Calendar_Date_Time_Availibility = 0x02000000000367,
+      Clock_System = 0x04000000000368,
+      User_Environment_Information = 0x08000000000269,
+      Cirulation_Control_Setting_Value = 0x0300000000026A,
+      Usage_Time_Of_Circulation_Control = 0x0700000000016B,
+      Reset_Usage_Time_Of_Citculation_Control = 0x0600000000016C,
    }
 
    // Attributes within Unit Information class 0x73
    public enum eipUnit_Information : ulong {
-      Unit_Information = 0x140000000264,
-      Model_Name = 0x0F000000026B,
-      Serial_Number = 0x11000000026C,
-      Ink_Name = 0x08000000026D,
-      Input_Mode = 0x09000000026E,
-      Maximum_Character_Count = 0x0B000000026F,
-      Maximum_Registered_Message_Count = 0x0D0000000270,
-      Barcode_Information = 0x010000000271,
-      Usable_Character_Size = 0x150000000272,
-      Maximum_Calendar_And_Count = 0x0A0000000273,
-      Maximum_Substitution_Rule = 0x0E0000000274,
-      Shift_Code_And_Time_Count = 0x120000000275,
-      Chimney_And_DIN_Print = 0x030000000276,
-      Maximum_Line_Count = 0x0C0000000277,
-      Basic_Software_Version = 0x020000000278,
-      Controller_Software_Version = 0x040000000279,
-      Engine_M_Software_Version = 0x05000000027A,
-      Engine_S_Software_Version = 0x06000000027B,
-      First_Language_Version = 0x07000000027C,
-      Second_Language_Version = 0x10000000027D,
-      Software_Option_Version = 0x13000000027E,
+      Unit_Information = 0x14000000000264,
+      Model_Name = 0x0F00000000126B,
+      Serial_Number = 0x1100000000026C,
+      Ink_Name = 0x0800000000126D,
+      Input_Mode = 0x0900000000026E,
+      Maximum_Character_Count = 0x0B00000000026F,
+      Maximum_Registered_Message_Count = 0x0D000000000270,
+      Barcode_Information = 0x01000000000271,
+      Usable_Character_Size = 0x15000000000272,
+      Maximum_Calendar_And_Count = 0x0A000000000273,
+      Maximum_Substitution_Rule = 0x0E000000000274,
+      Shift_Code_And_Time_Count = 0x12000000000275,
+      Chimney_And_DIN_Print = 0x03000000000276,
+      Maximum_Line_Count = 0x0C000000000277,
+      Basic_Software_Version = 0x02000000001278,
+      Controller_Software_Version = 0x04000000001279,
+      Engine_M_Software_Version = 0x0500000000127A,
+      Engine_S_Software_Version = 0x0600000000127B,
+      First_Language_Version = 0x0700000000127C,
+      Second_Language_Version = 0x1000000000127D,
+      Software_Option_Version = 0x1300000000127E,
    }
 
    // Attributes within Operation Management class 0x74
    public enum eipOperation_management : ulong {
-      Operating_Management = 0x0C0000000264,
-      Ink_Operating_Time = 0x090000020365,
-      Alarm_Time = 0x010000020366,
-      Print_Count = 0x0D0000020367,
-      Communications_Environment = 0x030000000268,
-      Cumulative_Operation_Time = 0x040000000269,
-      Ink_And_Makeup_Name = 0x08000000026A,
-      Ink_Viscosity = 0x0B000000026B,
-      Ink_Pressure = 0x0A000000026C,
-      Ambient_Temperature = 0x02000000026D,
-      Deflection_Voltage = 0x05000000026E,
-      Excitation_VRef_Setup_Value = 0x07000000026F,
-      Excitation_Frequency = 0x060000000270,
+      Operating_Management = 0x0C000000000264,
+      Ink_Operating_Time = 0x09000000020365,
+      Alarm_Time = 0x01000000020366,
+      Print_Count = 0x0D000000020367,
+      Communications_Environment = 0x03000000000268,
+      Cumulative_Operation_Time = 0x04000000000269,
+      Ink_And_Makeup_Name = 0x0800000000026A,
+      Ink_Viscosity = 0x0B00000000026B,
+      Ink_Pressure = 0x0A00000000026C,
+      Ambient_Temperature = 0x0200000000026D,
+      Deflection_Voltage = 0x0500000000026E,
+      Excitation_VRef_Setup_Value = 0x0700000000026F,
+      Excitation_Frequency = 0x06000000000270,
    }
 
    // Attributes within IJP Operation class 0x75
@@ -294,22 +274,22 @@ namespace HitachiEIP {
 
    // Attributes within Count class 0x79
    public enum eipCount : ulong {
-      Number_Of_Count_Block = 0x0C0000000266,
-      Initial_Value = 0x090000000367,
-      Count_Range_1 = 0x040000000368,
-      Count_Range_2 = 0x050000000369,
-      Update_Unit_Halfway = 0x0F000000036A,
-      Update_Unit_Unit = 0x10000000036B,
-      Increment_Value = 0x08000000036C,
-      Direction_Value = 0x07000000036D,
-      Jump_From = 0x0A000000036E,
-      Jump_To = 0x0B000000036F,
-      Reset_Value = 0x0D0000000370,
-      Type_Of_Reset_Signal = 0x0E0000000371,
-      Availibility_Of_External_Count = 0x010000000372,
-      Availibility_Of_Zero_Suppression = 0x020000000373,
-      Count_Multiplier = 0x030000000374,
-      Count_Skip = 0x060000000375,
+      Number_Of_Count_Block = 0x0C000000000266,
+      Initial_Value = 0x09000000000367,
+      Count_Range_1 = 0x04000000000368,
+      Count_Range_2 = 0x05000000000369,
+      Update_Unit_Halfway = 0x0F00000000036A,
+      Update_Unit_Unit = 0x1000000000036B,
+      Increment_Value = 0x0800000000036C,
+      Direction_Value = 0x0700000000036D,
+      Jump_From = 0x0A00000000036E,
+      Jump_To = 0x0B00000000036F,
+      Reset_Value = 0x0D000000000370,
+      Type_Of_Reset_Signal = 0x0E000000000371,
+      Availibility_Of_External_Count = 0x01000000000372,
+      Availibility_Of_Zero_Suppression = 0x02000000000373,
+      Count_Multiplier = 0x03000000000374,
+      Count_Skip = 0x06000000000375,
    }
 
    // Attributes within Index class 0x7A
@@ -502,7 +482,7 @@ namespace HitachiEIP {
          data = new byte[256];
          bytes = -1;
          try {
-            for (int t = 0; t < 20; t++) {
+            for (int t = 0; t < 10; t++) {
                if (stream.DataAvailable) {
                   bytes = stream.Read(data, 0, data.Length);
                   break;
@@ -555,15 +535,20 @@ namespace HitachiEIP {
             if (Read(out ReadData, out ReadDataLength)) {
                int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
                if (status == 0) {
+                  int len = ReadDataLength - 50;
                   switch (fmt) {
                      case DataFormats.Decimal:
-                        val = Get(ReadData, 50, ReadDataLength - 50, mem.BigEndian).ToString();
+                        if (len > 4) {
+                           val = GetBytes(ReadData, 50, len);
+                        } else {
+                           val = Get(ReadData, 50, len, mem.BigEndian).ToString();
+                        }
                         break;
                      case DataFormats.Bytes:
-                        val = GetBytes(ReadData, 50, ReadDataLength - 50);
+                        val = GetBytes(ReadData, 50, len);
                         break;
                      case DataFormats.ASCII:
-                        val = GetAscii(ReadData, 50, ReadDataLength - 50);
+                        val = GetAscii(ReadData, 50, len);
                         break;
                      default:
                         break;
@@ -641,7 +626,7 @@ namespace HitachiEIP {
                Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
 
                // Item #2
-               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
+               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
                Add(packet, (ulong)10, 2);                             // length of 10
                Add(packet, (ulong)2, 2);                              // Count Sequence
                Add(packet, (byte)c, 3);                               // Hitachi command and count
@@ -667,7 +652,7 @@ namespace HitachiEIP {
                Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
 
                // Item #2
-               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data tyoe
+               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
                Add(packet, (ulong)(10 + DataLength), 2);              // length of 10 + data length
                Add(packet, (ulong)2, 2);                              // Count Sequence
                Add(packet, (byte)c, 3);                               // Hitachi command and count
