@@ -14,6 +14,7 @@ namespace HitachiEIP {
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
+      Attr[] attrs;
 
       t1[] attributes;
       eipClassCode cc;
@@ -35,12 +36,16 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc) {
+      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc, int[][] data) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
+         attrs = new Attr[data.Length];
+         for (int i = 0; i < data.Length; i++) {
+            attrs[i] = new Attr(data[i]);
+         }
          BuildControls();
       }
 
@@ -50,34 +55,57 @@ namespace HitachiEIP {
 
       private void Get_Click(object sender, EventArgs e) {
          int tag = Convert.ToInt32(((Button)sender).Tag);
-         texts[tag].Text = "Loading";
-         ulong attr = Convert.ToUInt64(attributes[tag]);
-         if (EIP.ReadOneAttribute(cc, (byte)attr, out string val, EIP.GetFmt(attr))) {
-            texts[tag].Text = val;
+         Attr attr = attrs[tag];
+         if (attr.Ignore) {
+            texts[tag].Text = "Ignored!";
          } else {
-            texts[tag].Text = "#Error";
-            parent.AllGood = false;
-         }counts[tag].Text = (EIP.ReadDataLength - 50).ToString();
+            texts[tag].Text = "Loading";
+            if (EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt)) {
+               texts[tag].Text = val;
+            } else {
+               texts[tag].Text = "#Error";
+               parent.AllGood = false;
+            }
+            counts[tag].Text = EIP.GetDataLength.ToString();
+            if (attr.Fmt == DataFormats.Decimal) {
+               if (attr.Len == EIP.GetDataLength) {
+                  counts[tag].BackColor = Color.LightGreen;
+               } else {
+                  counts[tag].BackColor = Color.Pink;
+               }
+               if (EIP.GetDataLength <= 8) {
+                  ulong dec = EIP.Get(EIP.GetData, 0, EIP.GetDataLength, mem.BigEndian);
+                  if (attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max) {
+                     texts[tag].BackColor = Color.LightGreen;
+                  } else {
+                     texts[tag].BackColor = Color.Pink;
+                  }
+               }
+            }
+         }
          SetButtonEnables();
       }
 
       private void Set_Click(object sender, EventArgs e) {
          byte[] data;
          int tag = Convert.ToInt32(((Button)sender).Tag);
-         ulong attr = Convert.ToUInt64(attributes[tag]);
-         DataFormats fmt = EIP.GetFmt(attr);
-         if (fmt == DataFormats.Decimal) {
-            int len = EIP.GetDataLength(attr);
-            if (!int.TryParse(texts[tag].Text, out int val)) {
-               val = EIP.GetMin(attr);
-            }
-            data = EIP.ToBytes((uint)val, len);
-         } else if(fmt == DataFormats.ASCII) {
-            data = EIP.ToBytes(texts[tag].Text);
+         Attr attr = attrs[tag];
+         if (attr.Ignore) {
+            texts[tag].Text = "Ignored!";
          } else {
-            data = new byte[] { };
+            if (attr.Fmt == DataFormats.Decimal) {
+               int len = attr.Len;
+               if (!int.TryParse(texts[tag].Text, out int val)) {
+                  val = attr.Min;
+               }
+               data = EIP.ToBytes((uint)val, len);
+            } else if (attr.Fmt == DataFormats.ASCII) {
+               data = EIP.ToBytes(texts[tag].Text);
+            } else {
+               data = new byte[] { };
+            }
+            bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
          }
-         bool Success = EIP.WriteOneAttribute(cc, (byte)attr, data);
          SetButtonEnables();
       }
 
@@ -157,33 +185,33 @@ namespace HitachiEIP {
          services = new Button[attributes.Length];
 
          for (int i = 0; i < attributes.Length; i++) {
-            ulong attr = Convert.ToUInt64(attributes[i]);
-            string s = $"{EIP.GetAttributeName(cc, attr).Replace('_', ' ')} (0x{EIP.GetAttribute(attr):X2})";
+            Attr attr = attrs[i];
+            string s = $"{attributes[i].ToString().Replace('_', ' ')} (0x{attr.Val:X2})";
             labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight,
                                       Text = s };
             tab.Controls.Add(labels[i]);
             texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             tab.Controls.Add(texts[i]);
 
-            counts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
+            counts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center, Text = attr.Len.ToString() };
             tab.Controls.Add(counts[i]);
 
-            if (EIP.HasGet(attr)) {
+            if (attr.HasGet) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
                gets[i].Click += Get_Click;
                tab.Controls.Add(gets[i]);
             }
-            if (EIP.HasSet(attr)) {
+            if (attr.HasSet) {
                sets[i] = new Button() { Tag = i, Text = "Set" };
                sets[i].Click += Set_Click;
                tab.Controls.Add(sets[i]);
-               if (EIP.GetFmt(attr) == DataFormats.Decimal) {
+               if (attr.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
                }
             } else {
                texts[i].ReadOnly = true;
             }
-            if (EIP.HasService(attr)) {
+            if (attr.HasService) {
                services[i] = new Button() { Tag = i, Text = "Service" };
                services[i].Click += Set_Click;
                tab.Controls.Add(services[i]);
@@ -200,6 +228,10 @@ namespace HitachiEIP {
       }
 
       public void ResizeControls(ref ResizeInfo R) {
+         if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
+            return;
+         }
+         parent.tclClasses.Visible = false;
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int half = 17;
          float cw = 17.5f;
@@ -240,20 +272,23 @@ namespace HitachiEIP {
          }
          Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.5f, 4);
          Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.5f, 4);
+         parent.tclClasses.Visible = true;;
       }
 
       public void SetButtonEnables() {
+         if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
+            return;
+         }
          bool enable = parent.ComIsOn & EIP.SessionIsOpen;
          bool anySets = false;
          bool anyGets = false;
          for (int i = 0; i < attributes.Length; i++) {
-            ulong attr = Convert.ToUInt64(attributes[i]);
-            if (EIP.HasSet(attr)) {
-               DataFormats fmt = EIP.GetFmt(attr);
-               int min = EIP.GetMin(attr);
-               int max = EIP.GetMax(attr);
+            Attr attr = attrs[i];
+            if (attr.HasSet) {
+               int min = attr.Min;
+               int max = attr.Max;
                bool validData = true;
-               if(fmt == DataFormats.Decimal && max > 0) {
+               if(attr.Fmt == DataFormats.Decimal && max > 0) {
                   if (int.TryParse(texts[i].Text, out int val)) {
                      validData = val >= min && val <= max;
                   } else {
@@ -263,11 +298,11 @@ namespace HitachiEIP {
                sets[i].Enabled = enable && validData;
                anySets |= enable;
             }
-            if (EIP.HasGet(attr)) {
+            if (attr.HasGet) {
                gets[i].Enabled = enable;
                anyGets |= enable;
             }
-            if (EIP.HasService(attr)) {
+            if (attr.HasService) {
                services[i].Enabled = enable;
             }
          }

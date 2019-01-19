@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -15,10 +16,11 @@ namespace HitachiEIP {
    }
 
    public enum DataFormats {
-      Decimal,
-      ASCII,
-      Date,
-      Bytes,
+      Decimal = 0,
+      ASCII = 1,
+      Date = 2,
+      Bytes = 3,
+      XY = 4,
    }
 
    public enum Protocol {
@@ -338,8 +340,10 @@ namespace HitachiEIP {
       public eipClassCode Class { get; set; }
       public byte Instance { get; set; } = 1;
       public byte Attribute { get; set; } = 1;
-      public byte DataLength { get; set; } = 1;
-      public byte[] Data { get; set; } = { 0x31 };
+      public int GetDataLength { get; set; }
+      public byte[] GetData { get; set; }
+      public byte SetDataLength { get; set; } = 0;
+      public byte[] SetData { get; set; } = { };
       public uint O_T_ConnectionID { get; set; } = 0;
       public uint T_O_ConnectionID { get; set; } = 0;
 
@@ -357,11 +361,6 @@ namespace HitachiEIP {
 
       public byte[] ReadData;
       public Int32 ReadDataLength;
-
-      private const uint setMask = 0x0100;     // not 0 implies true
-      private const uint getMask = 0x0200;     // not 0 implies true
-      private const uint serviceMask = 0x0300; // 0 implies true
-
 
       #endregion
 
@@ -525,8 +524,8 @@ namespace HitachiEIP {
          this.Class = Class;
          Instance = 0x01;
          this.Attribute = Attribute;
-         Data = new byte[] { };
-         DataLength = 0;
+         SetData = new byte[] { };
+         SetDataLength = 0;
          try {
 
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
@@ -535,20 +534,43 @@ namespace HitachiEIP {
             if (Read(out ReadData, out ReadDataLength)) {
                int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
                if (status == 0) {
-                  int len = ReadDataLength - 50;
+                  GetDataLength = ReadDataLength - 50;
+                  if (GetDataLength > 0) {
+                     GetData = new byte[GetDataLength];
+                     for (int i = 0; i < GetDataLength; i++) {
+                        GetData[i] = ReadData[50 + i];
+                     }
+                  } else {
+                     GetData = new byte[0];
+                  }
                   switch (fmt) {
                      case DataFormats.Decimal:
-                        if (len > 4) {
-                           val = GetBytes(ReadData, 50, len);
+                        if (GetDataLength > 8) {
+                           val = GetBytes(GetData, 0, GetDataLength);
                         } else {
-                           val = Get(ReadData, 50, len, mem.BigEndian).ToString();
+                           val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
                         }
                         break;
                      case DataFormats.Bytes:
-                        val = GetBytes(ReadData, 50, len);
+                        val = GetBytes(GetData, 0, GetDataLength);
                         break;
                      case DataFormats.ASCII:
-                        val = GetAscii(ReadData, 50, len);
+                        val = GetAscii(GetData, 0, GetDataLength);
+                        break;
+                     case DataFormats.XY:
+                        if (GetDataLength == 3) {
+                           val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
+                        } else {
+                           val = GetBytes(GetData, 0, GetDataLength);
+                        }
+                        break;
+                     case DataFormats.Date:
+                        if (GetDataLength == 12) {
+                           val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
+                           val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
+                        } else {
+                           val = GetBytes(GetData, 0, GetDataLength);
+                        }
                         break;
                      default:
                         break;
@@ -584,8 +606,8 @@ namespace HitachiEIP {
          this.Class = Class;
          Instance = 0x01;
          this.Attribute = Attribute;
-         Data = val;
-         DataLength = (byte)val.Length;
+         SetData = val;
+         SetDataLength = (byte)val.Length;
          try {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
             Write(ed, 0, ed.Length);
@@ -637,7 +659,7 @@ namespace HitachiEIP {
             case eipAccessCode.Set:
             case eipAccessCode.Service:
                Add(packet, (ulong)t, 2);                                 // Command
-               Add(packet, (ulong)(30 + DataLength), 2);                 // Length of added data at end
+               Add(packet, (ulong)(30 + SetDataLength), 2);                 // Length of added data at end
                Add(packet, (ulong)SessionID, 4);                         // Session ID
                Add(packet, (ulong)0, 4);                                 // Success
                Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
@@ -653,13 +675,13 @@ namespace HitachiEIP {
 
                // Item #2
                Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
-               Add(packet, (ulong)(10 + DataLength), 2);              // length of 10 + data length
+               Add(packet, (ulong)(10 + SetDataLength), 2);              // length of 10 + data length
                Add(packet, (ulong)2, 2);                              // Count Sequence
                Add(packet, (byte)c, 3);                               // Hitachi command and count
                Add(packet, (byte)Segment.Class, (byte)Class);         // Class
                Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
                Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               Add(packet, Data);                                     // Data
+               Add(packet, SetData);                                     // Data
 
                break;
          }
@@ -764,7 +786,7 @@ namespace HitachiEIP {
       }
 
       // Get only the Functions(Attributes) that Apply to this Access Code
-      public int GetDropDowns(eipAccessCode code, ComboBox cb, Type EnumType, int[,] data, out ulong[] values) {
+      public int GetDropDowns(eipAccessCode code, ComboBox cb, Type EnumType, int[][] data, out ulong[] values) {
 
          // Get all names associated with the enumeration
          string[] allNames = EnumType.GetEnumNames();
@@ -775,9 +797,10 @@ namespace HitachiEIP {
          List<ulong> value = new List<ulong>();
          for (int i = 0; i < allValues.Length; i++) {
             int x = allValues[i];
-            if (code == eipAccessCode.Get && HasGet(x)
-               || code == eipAccessCode.Set && HasSet(x)
-               || code == eipAccessCode.Service && HasService(x)) {
+            Attr attr = new Attr(data[i]);
+            if (code == eipAccessCode.Get && attr.HasGet
+               || code == eipAccessCode.Set && attr.HasSet
+               || code == eipAccessCode.Service && attr.HasService) {
                name.Add(allNames[i].Replace('_', ' '));
                value.Add((uint)allValues[i]);
             }
@@ -888,42 +911,6 @@ namespace HitachiEIP {
             result[i] = (byte)v[i];
          }
          return result;
-      }
-
-      #endregion
-
-      #region Attribute Decode Routines
-
-      public byte GetAttribute(ulong v) {
-         return (byte)(v & 0xFF);
-      }
-
-      public DataFormats GetFmt(ulong v) {
-         return (DataFormats)((v & 0xf000) >> 12);
-      }
-
-      public int GetMin(ulong v) {
-         return (int)((v & 0xff0000000000) >> 40);
-      }
-
-      public int GetMax(ulong v) {
-         return (int)((v & 0xffff000000) >> 24);
-      }
-
-      public int GetDataLength(ulong v) {
-         return (int)((v & 0xff0000) >> 24);
-      }
-
-      public bool HasGet(ulong v) {
-         return (v & getMask) > 0;
-      }
-
-      public bool HasSet(ulong v) {
-         return (v & setMask) > 0;
-      }
-
-      public bool HasService(ulong v) {
-         return (v & serviceMask) == 0;
       }
 
       #endregion

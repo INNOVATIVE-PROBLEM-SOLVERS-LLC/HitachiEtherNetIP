@@ -24,7 +24,7 @@ namespace HitachiEIP {
       Type[] ClassCodeAttributes;
       ulong[] ClassAttr;
 
-      int[][,] ClassCodeData;
+      int[][][] ClassCodeData;
 
       // Traffic/Log files
       string TrafficFilename;
@@ -80,7 +80,7 @@ namespace HitachiEIP {
             typeof(eipUnit_Information),        // 0x73
             typeof(eipUser_pattern),            // 0x6B
          };
-         ClassCodeData = new int[][,] {
+         ClassCodeData = new int[][][] {
             Data.Calendar,                      // 0x69
             Data.Count,                         // 0x79
             Data.EnviromentSetting,             // 0x71
@@ -125,7 +125,7 @@ namespace HitachiEIP {
          ClassNames = new string[tempNames.Length];
          ClassCodes = new eipClassCode[tempNames.Length];
          for (int i = 0; i < tempNames.Length; i++) {
-            int n = Data.ClassCodes[i, 1] - 1;
+            int n = Data.ClassCodes[i, 1]- 1;
             ClassNames[n] = tempNames[i];
             ClassCodes[n] = tempValues[i];
          }
@@ -135,17 +135,18 @@ namespace HitachiEIP {
          BuildLogFile();
 
          // Load all the tabbed control data
-         //indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, eipClassCode.Index);
-         //oprAttr = new Attributes<eipIJP_operation>(this, EIP, tabIJPOperation, eipClassCode.IJP_operation);
-         //pdmAttr = new Attributes<eipPrint_Data_Management>(this, EIP, tabPrintManagement, eipClassCode.Print_data_management);
-         //psAttr = new Attributes<eipPrint_specification>(this, EIP, tabPrintSpec, eipClassCode.Print_specification);
-         //pFmtAttr = new Attributes<eipPrint_format>(this, EIP, tabPrintFormat, eipClassCode.Print_format);
-         //calAttr = new Attributes<eipCalendar>(this, EIP, tabCalendar, eipClassCode.Calendar);
-         //sRulesAttr = new Attributes<eipSubstitution_rules>(this, EIP, tabSubstitution, eipClassCode.Substitution_rules);
-         //countAttr = new Attributes<eipCount>(this, EIP, tabCount, eipClassCode.Count);
-         //unitInfoAttr = new Attributes<eipUnit_Information>(this, EIP, tabUnitInformation, eipClassCode.Unit_Information);
-         //envirAttr = new Attributes<eipEnviroment_setting>(this, EIP, tabEnviroment, eipClassCode.Enviroment_setting);
-         //mgmtAttr = new Attributes<eipOperation_management>(this, EIP, tabOpMgmt, eipClassCode.Operation_management);
+         indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, eipClassCode.Index, Data.Index);
+         oprAttr = new Attributes<eipIJP_operation>(this, EIP, tabIJPOperation, eipClassCode.IJP_operation, Data.IJPOperation);
+         pdmAttr = new Attributes<eipPrint_Data_Management>(this, EIP, tabPrintManagement, eipClassCode.Print_data_management, Data.PrintDataManagement);
+         psAttr = new Attributes<eipPrint_specification>(this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
+         pFmtAttr = new Attributes<eipPrint_format>(this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat);
+         calAttr = new Attributes<eipCalendar>(this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar);
+         sRulesAttr = new Attributes<eipSubstitution_rules>(this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules);
+         countAttr = new Attributes<eipCount>(this, EIP, tabCount, eipClassCode.Count, Data.Count);
+         unitInfoAttr = new Attributes<eipUnit_Information>(this, EIP, tabUnitInformation, eipClassCode.Unit_Information, Data.UnitInformation);
+         envirAttr = new Attributes<eipEnviroment_setting>(this, EIP, tabEnviroment, eipClassCode.Enviroment_setting, Data.EnviromentSetting);
+         mgmtAttr = new Attributes<eipOperation_management>(this, EIP, tabOpMgmt, eipClassCode.Operation_management, Data.OperationManagement);
+
          //userPatAttr = new Attributes<eipUser_pattern>(this, EIP, tabUserPattern, eipClassCode.User_pattern);
 
          // Force a resize
@@ -237,18 +238,17 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 36);
 
-            //indexAttr.ResizeControls(ref R);
-            //oprAttr.ResizeControls(ref R);
-            //pdmAttr.ResizeControls(ref R);
-            //psAttr.ResizeControls(ref R);
-            //pFmtAttr.ResizeControls(ref R);
-            //calAttr.ResizeControls(ref R);
-            //sRulesAttr.ResizeControls(ref R);
-            //countAttr.ResizeControls(ref R);
-            //unitInfoAttr.ResizeControls(ref R);
-            //envirAttr.ResizeControls(ref R);
-            //mgmtAttr.ResizeControls(ref R);
-            //userPatAttr.ResizeControls(ref R);
+            indexAttr.ResizeControls(ref R);
+            oprAttr.ResizeControls(ref R);
+            pdmAttr.ResizeControls(ref R);
+            psAttr.ResizeControls(ref R);
+            pFmtAttr.ResizeControls(ref R);
+            calAttr.ResizeControls(ref R);
+            sRulesAttr.ResizeControls(ref R);
+            countAttr.ResizeControls(ref R);
+            unitInfoAttr.ResizeControls(ref R);
+            envirAttr.ResizeControls(ref R);
+            mgmtAttr.ResizeControls(ref R);
 
             #endregion
 
@@ -435,7 +435,7 @@ namespace HitachiEIP {
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
             int val = ComIsOn ? 0 : 1;
-            if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((ulong)eipIJP_operation.Online_Offline), EIP.ToBytes((uint)val, 1))) {
+            if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, EIP.ToBytes((uint)val, 1))) {
                GetComSetting();
             }
          }
@@ -519,7 +519,7 @@ namespace HitachiEIP {
 
       private bool GetComSetting() {
          bool result;
-         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, EIP.GetAttribute((ulong)eipIJP_operation.Online_Offline), out string val, DataFormats.Decimal)) {
+         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, out string val, DataFormats.Decimal)) {
             if (val == "1") {
                btnCom.Text = "COM = 1";
                btnCom.BackColor = Color.Green;
@@ -549,7 +549,7 @@ namespace HitachiEIP {
             && cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
 
          if (initComplete) {
-            //indexAttr.SetButtonEnables();
+            indexAttr.SetButtonEnables();
             //oprAttr.SetButtonEnables();
             //pdmAttr.SetButtonEnables();
             //psAttr.SetButtonEnables();
