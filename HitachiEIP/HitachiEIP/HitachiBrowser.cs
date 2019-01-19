@@ -522,11 +522,11 @@ namespace HitachiEIP {
          if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, out string val, DataFormats.Decimal)) {
             if (val == "1") {
                btnCom.Text = "COM = 1";
-               btnCom.BackColor = Color.Green;
+               btnCom.BackColor = Color.LightGreen;
                ComIsOn = true;
             } else {
                btnCom.Text = "COM = 0";
-               btnCom.BackColor = Color.Red;
+               btnCom.BackColor = Color.Pink;
                ComIsOn = false;
             }
             result = true;

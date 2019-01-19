@@ -58,6 +58,8 @@ namespace HitachiEIP {
          Attr attr = attrs[tag];
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
+            texts[tag].BackColor = Color.Pink;
+            counts[tag].BackColor = Color.LightGreen;
          } else {
             texts[tag].Text = "Loading";
             if (EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt)) {
@@ -80,6 +82,55 @@ namespace HitachiEIP {
                   } else {
                      texts[tag].BackColor = Color.Pink;
                   }
+               }
+            } else if (attr.Fmt == DataFormats.Bytes) {
+               if (attr.Len == EIP.GetDataLength) {
+                  counts[tag].BackColor = Color.LightGreen;
+                  texts[tag].BackColor = Color.LightGreen;
+               } else {
+                  counts[tag].BackColor = Color.Pink;
+                  texts[tag].BackColor = Color.Pink;
+               }
+
+            } else if (attr.Fmt == DataFormats.ASCII) {
+               if (attr.Len >= EIP.GetDataLength) {
+                  counts[tag].BackColor = Color.LightGreen;
+               } else {
+                  counts[tag].BackColor = Color.Pink;
+               }
+               if (AllAscii(EIP.GetData)) {
+                  texts[tag].BackColor = Color.LightGreen;
+               } else {
+                  texts[tag].BackColor = Color.Pink;
+               }
+            } else if (attr.Fmt == DataFormats.XY) {
+               if (attr.Len == EIP.GetDataLength) {
+                  counts[tag].BackColor = Color.LightGreen;
+                  uint x = EIP.Get(EIP.GetData, 0, 2, mem.BigEndian);
+                  uint y = EIP.Get(EIP.GetData, 2, 1, mem.BigEndian);
+                  if (x <= 65535 && y <= 47) {
+                     texts[tag].BackColor = Color.LightGreen;
+                  } else {
+                     texts[tag].BackColor = Color.Pink;
+                  }
+               } else {
+                  counts[tag].BackColor = Color.Pink;
+                  texts[tag].BackColor = Color.Pink;
+               }
+            } else if (attr.Fmt == DataFormats.Date) {
+               if(attr.Len == EIP.GetDataLength) {
+                  counts[tag].BackColor = Color.LightGreen;
+               } else {
+                  counts[tag].BackColor = Color.Pink;
+               }
+               if (EIP.GetDataLength == 12) {
+                  if (DateTime.TryParse(texts[tag].Text, out DateTime d)) {
+                     texts[tag].BackColor = Color.LightGreen;
+                  } else {
+                     texts[tag].BackColor = Color.Pink;
+                  }
+               } else {
+                  texts[tag].BackColor = Color.Pink;
                }
             }
          }
@@ -112,8 +163,10 @@ namespace HitachiEIP {
       private void GetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
          for (int i = 0; i < gets.Length; i++) {
+            counts[i].BackColor = SystemColors.Control;
             if (gets[i] != null) {
                texts[i].Text = "Loading";
+               texts[i].BackColor = SystemColors.Control;
             }
          }
          parent.Refresh();
@@ -153,7 +206,15 @@ namespace HitachiEIP {
 
       #region Service Routines
 
-      public void BuildControls() {
+      private bool AllAscii(byte[] s) {
+         bool result = true;
+         for (int i = 0; i < s.Length; i++) {
+            result &= s[i] >= 0x20 && s[i] < 0x80;
+         }
+         return result;
+      }
+
+      private void BuildControls() {
 
          // build headers
          if (attributes.Length > 17) {
@@ -258,16 +319,16 @@ namespace HitachiEIP {
                c = 1;
             }
             Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 2, 8);
-            Utils.ResizeObject(ref R, counts[i], r, 8.5f + c * cw, 1.5f, 0.75f);
+            Utils.ResizeObject(ref R, counts[i], r, 8.25f + c * cw, 1.5f, 1);
             Utils.ResizeObject(ref R, texts[i], r, 9.5f + c * cw, 1.5f, 4.75f);
             if (gets[i] != null) {
-               Utils.ResizeObject(ref R, gets[i], r, 14.5f + c * cw, 1.5f, 1.25f);
+               Utils.ResizeObject(ref R, gets[i], r, 14.5f + c * cw, 1.5f, 1.5f);
             }
             if (sets[i] != null) {
-               Utils.ResizeObject(ref R, sets[i], r, 16 + c * cw, 1.5f, 1.25f);
+               Utils.ResizeObject(ref R, sets[i], r, 16.25f + c * cw, 1.5f, 1.5f);
             }
             if (services[i] != null) {
-               Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 2.75f);
+               Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 3.25f);
             }
          }
          Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.5f, 4);

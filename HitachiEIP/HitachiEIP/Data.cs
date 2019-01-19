@@ -194,13 +194,13 @@ namespace HitachiEIP {
 
       // Operation Management (Class Code 0x74)
       public static int[][] OperationManagement = new int[][] {
-         new int[] { 0X64, 0, 1, 0, 2, 0, 0, 0, 12, 0}, // Operating Management
+         new int[] { 0X64, 0, 1, 0, 2, 1, 0, 0, 12, 0}, // Operating Management
          new int[] { 0X65, 1, 1, 0, 2, 0, 0, 0, 9, 0}, // Ink Operating Time
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0}, // Alarm Time
          new int[] { 0X67, 1, 1, 0, 2, 0, 0, 0, 13, 0}, // Print Count
          new int[] { 0X68, 0, 1, 0, 2, 0, 0, 0, 3, 0}, // Communications Environment
          new int[] { 0X69, 0, 1, 0, 2, 0, 0, 0, 4, 0}, // Cumulative Operation Time
-         new int[] { 0X6A, 0, 1, 0, 2, 0, 0, 0, 8, 0}, // Ink And Makeup Name
+         new int[] { 0X6A, 0, 1, 0, 2, 1, 0, 0, 8, 0}, // Ink And Makeup Name
          new int[] { 0X6B, 0, 1, 0, 2, 0, 0, 0, 11, 0}, // Ink Viscosity
          new int[] { 0X6C, 0, 1, 0, 2, 0, 0, 0, 10, 0}, // Ink Pressure
          new int[] { 0X6D, 0, 1, 0, 2, 0, 0, 0, 2, 0}, // Ambient Temperature
