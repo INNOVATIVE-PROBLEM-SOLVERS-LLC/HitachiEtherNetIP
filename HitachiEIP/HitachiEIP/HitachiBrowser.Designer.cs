@@ -165,7 +165,7 @@
          this.btnForwardClose.Name = "btnForwardClose";
          this.btnForwardClose.Size = new System.Drawing.Size(137, 31);
          this.btnForwardClose.TabIndex = 12;
-         this.btnForwardClose.Text = "Forward Close";
+         this.btnForwardClose.Text = "Fwd Close";
          this.btnForwardClose.UseVisualStyleBackColor = true;
          this.btnForwardClose.Click += new System.EventHandler(this.btnForwardClose_Click);
          // 
@@ -175,7 +175,7 @@
          this.btnForwardOpen.Name = "btnForwardOpen";
          this.btnForwardOpen.Size = new System.Drawing.Size(137, 31);
          this.btnForwardOpen.TabIndex = 11;
-         this.btnForwardOpen.Text = "Forward Open";
+         this.btnForwardOpen.Text = "Fwd Open";
          this.btnForwardOpen.UseVisualStyleBackColor = true;
          this.btnForwardOpen.Click += new System.EventHandler(this.btnForwardOpen_Click);
          // 

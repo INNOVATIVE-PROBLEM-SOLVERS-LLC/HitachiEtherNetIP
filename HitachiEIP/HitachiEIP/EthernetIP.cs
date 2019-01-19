@@ -720,7 +720,7 @@ namespace HitachiEIP {
                      Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Pertinent to sender
                      Add(packet, (ulong)0, 4);         // option flags
                      Add(packet, (ulong)0, 4);         // option interface handle
-                     Add(packet, (ulong)30, 2);        // Timeout
+                     Add(packet, (ulong)255, 2);       // Timeout
                      Add(packet, (ulong)2, 2);         // Item count
                      Add(packet, (ulong)0, 2);         // Null type
                      Add(packet, (ulong)0, 2);         // length of 0
