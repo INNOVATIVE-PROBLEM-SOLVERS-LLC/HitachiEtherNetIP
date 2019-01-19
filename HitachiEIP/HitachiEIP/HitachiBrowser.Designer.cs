@@ -609,7 +609,6 @@
       private System.Windows.Forms.Button btnViewTraffic;
       private System.Windows.Forms.Button btnViewLog;
       private System.Windows.Forms.Button btnReadAll;
-      private System.Windows.Forms.TabControl tclClasses;
       private System.Windows.Forms.TabPage tabIndex;
       private System.Windows.Forms.TabPage tabIJPOperation;
       private System.Windows.Forms.TabPage tabPrintManagement;
@@ -628,6 +627,7 @@
       private System.Windows.Forms.ToolStripMenuItem cmLogClear;
       private System.Windows.Forms.ToolStripMenuItem cmLogView;
       private System.Windows.Forms.Button btnStop;
+      public System.Windows.Forms.TabControl tclClasses;
    }
 }
 
