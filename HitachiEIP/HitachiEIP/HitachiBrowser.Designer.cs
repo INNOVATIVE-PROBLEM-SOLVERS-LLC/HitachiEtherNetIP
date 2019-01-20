@@ -35,9 +35,7 @@
          this.btnExit = new System.Windows.Forms.Button();
          this.btnForwardClose = new System.Windows.Forms.Button();
          this.btnForwardOpen = new System.Windows.Forms.Button();
-         this.btnIssueRequest = new System.Windows.Forms.Button();
-         this.cbAccessCode = new System.Windows.Forms.ComboBox();
-         this.lblAccessCode = new System.Windows.Forms.Label();
+         this.btnIssueGet = new System.Windows.Forms.Button();
          this.lblClassCode = new System.Windows.Forms.Label();
          this.cbClassCode = new System.Windows.Forms.ComboBox();
          this.lblFunction = new System.Windows.Forms.Label();
@@ -72,6 +70,10 @@
          this.cmLogClear = new System.Windows.Forms.ToolStripMenuItem();
          this.cmLogView = new System.Windows.Forms.ToolStripMenuItem();
          this.btnStop = new System.Windows.Forms.Button();
+         this.btnIssueSet = new System.Windows.Forms.Button();
+         this.btnIssueService = new System.Windows.Forms.Button();
+         this.btnManagementFlag = new System.Windows.Forms.Button();
+         this.btnAutoReflection = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -179,37 +181,20 @@
          this.btnForwardOpen.UseVisualStyleBackColor = true;
          this.btnForwardOpen.Click += new System.EventHandler(this.btnForwardOpen_Click);
          // 
-         // btnIssueRequest
+         // btnIssueGet
          // 
-         this.btnIssueRequest.Location = new System.Drawing.Point(23, 377);
-         this.btnIssueRequest.Name = "btnIssueRequest";
-         this.btnIssueRequest.Size = new System.Drawing.Size(293, 22);
-         this.btnIssueRequest.TabIndex = 14;
-         this.btnIssueRequest.Text = "Issue Request";
-         this.btnIssueRequest.UseVisualStyleBackColor = true;
-         this.btnIssueRequest.Click += new System.EventHandler(this.btnIssueRequest_Click);
-         // 
-         // cbAccessCode
-         // 
-         this.cbAccessCode.FormattingEnabled = true;
-         this.cbAccessCode.Location = new System.Drawing.Point(26, 223);
-         this.cbAccessCode.Name = "cbAccessCode";
-         this.cbAccessCode.Size = new System.Drawing.Size(293, 24);
-         this.cbAccessCode.TabIndex = 16;
-         this.cbAccessCode.SelectedIndexChanged += new System.EventHandler(this.cbAccessCode_SelectedIndexChanged);
-         // 
-         // lblAccessCode
-         // 
-         this.lblAccessCode.Location = new System.Drawing.Point(23, 197);
-         this.lblAccessCode.Name = "lblAccessCode";
-         this.lblAccessCode.Size = new System.Drawing.Size(293, 22);
-         this.lblAccessCode.TabIndex = 17;
-         this.lblAccessCode.Text = "Access Code";
-         this.lblAccessCode.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         this.btnIssueGet.Location = new System.Drawing.Point(26, 310);
+         this.btnIssueGet.Name = "btnIssueGet";
+         this.btnIssueGet.Size = new System.Drawing.Size(55, 22);
+         this.btnIssueGet.TabIndex = 14;
+         this.btnIssueGet.Text = "Get";
+         this.btnIssueGet.UseVisualStyleBackColor = true;
+         this.btnIssueGet.Visible = false;
+         this.btnIssueGet.Click += new System.EventHandler(this.btnIssueGet_Click);
          // 
          // lblClassCode
          // 
-         this.lblClassCode.Location = new System.Drawing.Point(20, 253);
+         this.lblClassCode.Location = new System.Drawing.Point(23, 196);
          this.lblClassCode.Name = "lblClassCode";
          this.lblClassCode.Size = new System.Drawing.Size(293, 22);
          this.lblClassCode.TabIndex = 19;
@@ -218,8 +203,9 @@
          // 
          // cbClassCode
          // 
+         this.cbClassCode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cbClassCode.FormattingEnabled = true;
-         this.cbClassCode.Location = new System.Drawing.Point(23, 279);
+         this.cbClassCode.Location = new System.Drawing.Point(26, 222);
          this.cbClassCode.Name = "cbClassCode";
          this.cbClassCode.Size = new System.Drawing.Size(293, 24);
          this.cbClassCode.TabIndex = 18;
@@ -227,7 +213,7 @@
          // 
          // lblFunction
          // 
-         this.lblFunction.Location = new System.Drawing.Point(20, 309);
+         this.lblFunction.Location = new System.Drawing.Point(23, 252);
          this.lblFunction.Name = "lblFunction";
          this.lblFunction.Size = new System.Drawing.Size(293, 22);
          this.lblFunction.TabIndex = 21;
@@ -236,8 +222,9 @@
          // 
          // cbFunction
          // 
+         this.cbFunction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cbFunction.FormattingEnabled = true;
-         this.cbFunction.Location = new System.Drawing.Point(23, 337);
+         this.cbFunction.Location = new System.Drawing.Point(26, 280);
          this.cbFunction.Name = "cbFunction";
          this.cbFunction.Size = new System.Drawing.Size(293, 24);
          this.cbFunction.TabIndex = 20;
@@ -245,7 +232,7 @@
          // 
          // lbldata
          // 
-         this.lbldata.Location = new System.Drawing.Point(23, 458);
+         this.lbldata.Location = new System.Drawing.Point(23, 395);
          this.lbldata.Name = "lbldata";
          this.lbldata.Size = new System.Drawing.Size(293, 22);
          this.lbldata.TabIndex = 22;
@@ -254,15 +241,16 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(23, 490);
+         this.txtData.Location = new System.Drawing.Point(23, 427);
          this.txtData.Name = "txtData";
          this.txtData.ReadOnly = true;
          this.txtData.Size = new System.Drawing.Size(293, 22);
          this.txtData.TabIndex = 23;
+         this.txtData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(23, 433);
+         this.txtStatus.Location = new System.Drawing.Point(23, 370);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
          this.txtStatus.Size = new System.Drawing.Size(293, 22);
@@ -270,7 +258,7 @@
          // 
          // lblStatus
          // 
-         this.lblStatus.Location = new System.Drawing.Point(23, 402);
+         this.lblStatus.Location = new System.Drawing.Point(23, 339);
          this.lblStatus.Name = "lblStatus";
          this.lblStatus.Size = new System.Drawing.Size(293, 22);
          this.lblStatus.TabIndex = 24;
@@ -279,15 +267,16 @@
          // 
          // txtDataDec
          // 
-         this.txtDataDec.Location = new System.Drawing.Point(23, 518);
+         this.txtDataDec.Location = new System.Drawing.Point(23, 455);
          this.txtDataDec.Name = "txtDataDec";
          this.txtDataDec.ReadOnly = true;
          this.txtDataDec.Size = new System.Drawing.Size(293, 22);
          this.txtDataDec.TabIndex = 26;
+         this.txtDataDec.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(23, 553);
+         this.lblSaveFolder.Location = new System.Drawing.Point(23, 490);
          this.lblSaveFolder.Name = "lblSaveFolder";
          this.lblSaveFolder.Size = new System.Drawing.Size(202, 19);
          this.lblSaveFolder.TabIndex = 27;
@@ -296,7 +285,7 @@
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(26, 584);
+         this.txtSaveFolder.Location = new System.Drawing.Point(26, 521);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
          this.txtSaveFolder.Size = new System.Drawing.Size(290, 22);
@@ -305,7 +294,7 @@
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(231, 546);
+         this.btnBrowse.Location = new System.Drawing.Point(231, 483);
          this.btnBrowse.Name = "btnBrowse";
          this.btnBrowse.Size = new System.Drawing.Size(81, 32);
          this.btnBrowse.TabIndex = 29;
@@ -314,7 +303,7 @@
          // 
          // btnViewTraffic
          // 
-         this.btnViewTraffic.Location = new System.Drawing.Point(862, 655);
+         this.btnViewTraffic.Location = new System.Drawing.Point(896, 655);
          this.btnViewTraffic.Name = "btnViewTraffic";
          this.btnViewTraffic.Size = new System.Drawing.Size(89, 52);
          this.btnViewTraffic.TabIndex = 30;
@@ -324,7 +313,7 @@
          // 
          // btnViewLog
          // 
-         this.btnViewLog.Location = new System.Drawing.Point(971, 655);
+         this.btnViewLog.Location = new System.Drawing.Point(991, 655);
          this.btnViewLog.Name = "btnViewLog";
          this.btnViewLog.Size = new System.Drawing.Size(89, 52);
          this.btnViewLog.TabIndex = 31;
@@ -334,7 +323,7 @@
          // 
          // btnReadAll
          // 
-         this.btnReadAll.Location = new System.Drawing.Point(1077, 655);
+         this.btnReadAll.Location = new System.Drawing.Point(1086, 655);
          this.btnReadAll.Name = "btnReadAll";
          this.btnReadAll.Size = new System.Drawing.Size(89, 52);
          this.btnReadAll.TabIndex = 32;
@@ -477,11 +466,11 @@
          // btnCom
          // 
          this.btnCom.BackColor = System.Drawing.Color.Red;
-         this.btnCom.Location = new System.Drawing.Point(375, 649);
+         this.btnCom.Location = new System.Drawing.Point(375, 655);
          this.btnCom.Name = "btnCom";
          this.btnCom.Size = new System.Drawing.Size(89, 52);
          this.btnCom.TabIndex = 34;
-         this.btnCom.Text = "COM = 0";
+         this.btnCom.Text = "COM";
          this.btnCom.UseVisualStyleBackColor = false;
          this.btnCom.Click += new System.EventHandler(this.btnCom_Click);
          // 
@@ -490,9 +479,9 @@
          this.lstErrors.ContextMenuStrip = this.cmLog;
          this.lstErrors.FormattingEnabled = true;
          this.lstErrors.ItemHeight = 16;
-         this.lstErrors.Location = new System.Drawing.Point(26, 612);
+         this.lstErrors.Location = new System.Drawing.Point(26, 549);
          this.lstErrors.Name = "lstErrors";
-         this.lstErrors.Size = new System.Drawing.Size(290, 84);
+         this.lstErrors.Size = new System.Drawing.Size(290, 148);
          this.lstErrors.TabIndex = 35;
          this.lstErrors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstErrors_MouseDoubleClick);
          // 
@@ -521,7 +510,7 @@
          // 
          // btnStop
          // 
-         this.btnStop.Location = new System.Drawing.Point(740, 655);
+         this.btnStop.Location = new System.Drawing.Point(801, 655);
          this.btnStop.Name = "btnStop";
          this.btnStop.Size = new System.Drawing.Size(89, 52);
          this.btnStop.TabIndex = 37;
@@ -529,11 +518,59 @@
          this.btnStop.UseVisualStyleBackColor = true;
          this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
          // 
+         // btnIssueSet
+         // 
+         this.btnIssueSet.Location = new System.Drawing.Point(87, 310);
+         this.btnIssueSet.Name = "btnIssueSet";
+         this.btnIssueSet.Size = new System.Drawing.Size(76, 22);
+         this.btnIssueSet.TabIndex = 38;
+         this.btnIssueSet.Text = "Set";
+         this.btnIssueSet.UseVisualStyleBackColor = true;
+         this.btnIssueSet.Visible = false;
+         this.btnIssueSet.Click += new System.EventHandler(this.btnIssueSet_Click);
+         // 
+         // btnIssueService
+         // 
+         this.btnIssueService.Location = new System.Drawing.Point(179, 310);
+         this.btnIssueService.Name = "btnIssueService";
+         this.btnIssueService.Size = new System.Drawing.Size(137, 22);
+         this.btnIssueService.TabIndex = 39;
+         this.btnIssueService.Text = "Service";
+         this.btnIssueService.UseVisualStyleBackColor = true;
+         this.btnIssueService.Visible = false;
+         this.btnIssueService.Click += new System.EventHandler(this.btnIssueService_Click);
+         // 
+         // btnManagementFlag
+         // 
+         this.btnManagementFlag.BackColor = System.Drawing.Color.Red;
+         this.btnManagementFlag.Location = new System.Drawing.Point(470, 655);
+         this.btnManagementFlag.Name = "btnManagementFlag";
+         this.btnManagementFlag.Size = new System.Drawing.Size(113, 52);
+         this.btnManagementFlag.TabIndex = 40;
+         this.btnManagementFlag.Text = "S/S Management";
+         this.btnManagementFlag.UseVisualStyleBackColor = false;
+         this.btnManagementFlag.Click += new System.EventHandler(this.btnManagementFlag_Click);
+         // 
+         // btnAutoReflection
+         // 
+         this.btnAutoReflection.BackColor = System.Drawing.Color.Red;
+         this.btnAutoReflection.Location = new System.Drawing.Point(589, 655);
+         this.btnAutoReflection.Name = "btnAutoReflection";
+         this.btnAutoReflection.Size = new System.Drawing.Size(119, 52);
+         this.btnAutoReflection.TabIndex = 35;
+         this.btnAutoReflection.Text = "Auto Reflection";
+         this.btnAutoReflection.UseVisualStyleBackColor = false;
+         this.btnAutoReflection.Click += new System.EventHandler(this.btnAutoReflection_Click);
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 713);
+         this.Controls.Add(this.btnAutoReflection);
+         this.Controls.Add(this.btnManagementFlag);
+         this.Controls.Add(this.btnIssueService);
+         this.Controls.Add(this.btnIssueSet);
          this.Controls.Add(this.btnStop);
          this.Controls.Add(this.lstErrors);
          this.Controls.Add(this.btnCom);
@@ -553,9 +590,7 @@
          this.Controls.Add(this.cbFunction);
          this.Controls.Add(this.lblClassCode);
          this.Controls.Add(this.cbClassCode);
-         this.Controls.Add(this.lblAccessCode);
-         this.Controls.Add(this.cbAccessCode);
-         this.Controls.Add(this.btnIssueRequest);
+         this.Controls.Add(this.btnIssueGet);
          this.Controls.Add(this.btnForwardClose);
          this.Controls.Add(this.btnForwardOpen);
          this.Controls.Add(this.btnExit);
@@ -591,9 +626,7 @@
       private System.Windows.Forms.Button btnExit;
       private System.Windows.Forms.Button btnForwardClose;
       private System.Windows.Forms.Button btnForwardOpen;
-      private System.Windows.Forms.Button btnIssueRequest;
-      private System.Windows.Forms.ComboBox cbAccessCode;
-      private System.Windows.Forms.Label lblAccessCode;
+      private System.Windows.Forms.Button btnIssueGet;
       private System.Windows.Forms.Label lblClassCode;
       private System.Windows.Forms.ComboBox cbClassCode;
       private System.Windows.Forms.Label lblFunction;
@@ -628,6 +661,10 @@
       private System.Windows.Forms.ToolStripMenuItem cmLogView;
       private System.Windows.Forms.Button btnStop;
       public System.Windows.Forms.TabControl tclClasses;
+      private System.Windows.Forms.Button btnIssueSet;
+      private System.Windows.Forms.Button btnIssueService;
+      private System.Windows.Forms.Button btnManagementFlag;
+      private System.Windows.Forms.Button btnAutoReflection;
    }
 }
 

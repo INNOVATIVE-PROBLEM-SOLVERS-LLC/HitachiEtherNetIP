@@ -23,35 +23,6 @@ namespace HitachiEIP {
       XY = 4,
    }
 
-   public enum Protocol {
-      TCP = 6
-   }
-
-   public enum EIP_Type {
-      RegisterSession = 0x0065,
-      UnRegisterSession = 0x0066,
-      SendRRData = 0x006F,
-      SendUnitData = 0x0070,
-   }
-
-   public enum Data_Type {
-      ConnectedAddressItem = 0xa1,
-      ConnectedDataItem = 0xb1,
-      UnconnectedDataItem = 0xb2,
-   }
-
-   public enum EIP_Command {
-      Null = 0,
-      ForwardOpen = 0x54,
-      ForwardClose = 0x4e,
-   }
-
-   public enum Segment {
-      Class = 0x20,
-      Instance = 0x24,
-      Attribute = 0x30,
-   }
-
    #endregion
 
    #region EtherNetIP Definitions
@@ -328,8 +299,37 @@ namespace HitachiEIP {
 
       #region Declarations/Properties
 
-      public Int32 port;
-      public string IPAddress;
+      enum Protocol {
+         TCP = 6
+      }
+
+      public enum EIP_Type {
+         RegisterSession = 0x0065,
+         UnRegisterSession = 0x0066,
+         SendRRData = 0x006F,
+         SendUnitData = 0x0070,
+      }
+
+      enum Data_Type {
+         ConnectedAddressItem = 0xa1,
+         ConnectedDataItem = 0xb1,
+         UnconnectedDataItem = 0xb2,
+      }
+
+      public enum EIP_Command {
+         Null = 0,
+         ForwardOpen = 0x54,
+         ForwardClose = 0x4e,
+      }
+
+      enum Segment {
+         Class = 0x20,
+         Instance = 0x24,
+         Attribute = 0x30,
+      }
+
+      public Int32 port { get; set; }
+      public string IPAddress { get; set; }
 
       TcpClient client = null;
       NetworkStream stream = null;
@@ -797,7 +797,7 @@ namespace HitachiEIP {
          List<ulong> value = new List<ulong>();
          for (int i = 0; i < allValues.Length; i++) {
             int x = allValues[i];
-            Attr attr = new Attr(data[i]);
+            AttrData attr = new AttrData(data[i]);
             if (code == eipAccessCode.Get && attr.HasGet
                || code == eipAccessCode.Set && attr.HasSet
                || code == eipAccessCode.Service && attr.HasService) {
@@ -821,7 +821,7 @@ namespace HitachiEIP {
       }
 
       // Get attribute Human readable name
-      public string GetAttributeName(eipClassCode c, ulong v) {
+      public string GetAttributeName(eipClassCode c, int v) {
          switch (c) {
             case eipClassCode.Print_data_management:
                return ((eipPrint_Data_Management)v).ToString();
