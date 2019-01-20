@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
+
    public partial class HitachiBrowser : Form {
 
       #region Data declarations
@@ -21,10 +22,7 @@ namespace HitachiEIP {
       eipClassCode[] ClassCodes;
       string[] ClassNames;
 
-      Type[] ClassCodeAttributes;
-      ulong[] ClassAttr;
-
-      int[][][] ClassCodeData;
+      int[] ClassAttr;
 
       // Traffic/Log files
       string TrafficFilename;
@@ -53,7 +51,18 @@ namespace HitachiEIP {
 
       //Attributes<eipUser_pattern> userPatAttr;    // 0x6B Not implemented here
 
+
+
       public bool ComIsOn = false;
+      public bool MgmtIsOn = false;
+      public bool AutoReflIsOn = false;
+
+      public const int AddItem = 1;
+      public const int AddColumn = 2;
+      public const int AddLine = 4;
+      public const int AddPosition = 8;
+      public const int AddCalendar = 16;
+      public const int AddCount = 32;
 
       #endregion
 
@@ -65,35 +74,6 @@ namespace HitachiEIP {
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
-
-         ClassCodeAttributes = new Type[] {
-            typeof(eipCalendar),                // 0x69
-            typeof(eipCount),                   // 0x79
-            typeof(eipEnviroment_setting),      // 0x71
-            typeof(eipIJP_operation),           // 0x75
-            typeof(eipIndex),                   // 0x7A
-            typeof(eipOperation_management),    // 0x74
-            typeof(eipPrint_Data_Management),   // 0x66
-            typeof(eipPrint_format),            // 0x67
-            typeof(eipPrint_specification),     // 0x68
-            typeof(eipSubstitution_rules),      // 0x6C
-            typeof(eipUnit_Information),        // 0x73
-            typeof(eipUser_pattern),            // 0x6B
-         };
-         ClassCodeData = new int[][][] {
-            Data.Calendar,                      // 0x69
-            Data.Count,                         // 0x79
-            Data.EnviromentSetting,             // 0x71
-            Data.IJPOperation,                  // 0x75
-            Data.Index,                         // 0x7A
-            Data.OperationManagement,           // 0x74
-            Data.PrintDataManagement,           // 0x66
-            Data.PrintFormat,                   // 0x67
-            Data.PrintSpecification,            // 0x68
-            Data.SubstitutionRules,             // 0x6C
-            Data.UnitInformation,               // 0x73
-            Data.UserPattern,                   // 0x6B
-         };
 
       }
 
@@ -114,38 +94,44 @@ namespace HitachiEIP {
 
       private void HitachiBrowser_Load(object sender, EventArgs e) {
          Utils.PositionForm(this, 0.75f, 0.9f);
-         cbAccessCode.Items.Clear();
-         cbAccessCode.Items.AddRange(Enum.GetNames(typeof(eipAccessCode)));
          AccessCodes = (eipAccessCode[])Enum.GetValues(typeof(eipAccessCode));
 
-         string[] tempNames = Enum.GetNames(typeof(eipClassCode));
-         eipClassCode[] tempValues = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
+         ClassNames = Enum.GetNames(typeof(eipClassCode));
+         ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
 
          cbClassCode.Items.Clear();
-         ClassNames = new string[tempNames.Length];
-         ClassCodes = new eipClassCode[tempNames.Length];
-         for (int i = 0; i < tempNames.Length; i++) {
-            int n = Data.ClassCodes[i, 1]- 1;
-            ClassNames[n] = tempNames[i];
-            ClassCodes[n] = tempValues[i];
+         for (int i = 0; i < ClassNames.Length; i++) {
+            cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)ClassCodes[i]:X2})");
          }
-         cbClassCode.Items.AddRange(ClassNames);
 
          BuildTrafficFile();
          BuildLogFile();
 
          // Load all the tabbed control data
-         indexAttr = new Attributes<eipIndex>(this, EIP, tabIndex, eipClassCode.Index, Data.Index);
-         oprAttr = new Attributes<eipIJP_operation>(this, EIP, tabIJPOperation, eipClassCode.IJP_operation, Data.IJPOperation);
-         pdmAttr = new Attributes<eipPrint_Data_Management>(this, EIP, tabPrintManagement, eipClassCode.Print_data_management, Data.PrintDataManagement);
-         psAttr = new Attributes<eipPrint_specification>(this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
-         pFmtAttr = new Attributes<eipPrint_format>(this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat);
-         calAttr = new Attributes<eipCalendar>(this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar);
-         sRulesAttr = new Attributes<eipSubstitution_rules>(this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules);
-         countAttr = new Attributes<eipCount>(this, EIP, tabCount, eipClassCode.Count, Data.Count);
-         unitInfoAttr = new Attributes<eipUnit_Information>(this, EIP, tabUnitInformation, eipClassCode.Unit_Information, Data.UnitInformation);
-         envirAttr = new Attributes<eipEnviroment_setting>(this, EIP, tabEnviroment, eipClassCode.Enviroment_setting, Data.EnviromentSetting);
-         mgmtAttr = new Attributes<eipOperation_management>(this, EIP, tabOpMgmt, eipClassCode.Operation_management, Data.OperationManagement);
+         indexAttr = new Attributes<eipIndex>
+            (this, EIP, tabIndex, eipClassCode.Index, Data.Index);
+         oprAttr = new Attributes<eipIJP_operation>
+            (this, EIP, tabIJPOperation, eipClassCode.IJP_operation, Data.IJPOperation);
+         pdmAttr = new Attributes<eipPrint_Data_Management>
+            (this, EIP, tabPrintManagement, eipClassCode.Print_data_management, Data.PrintDataManagement);
+         psAttr = new Attributes<eipPrint_specification>
+            (this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
+         pFmtAttr = new Attributes<eipPrint_format>
+            (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat, 
+            AddCalendar | AddColumn | AddCount | AddItem | AddLine | AddPosition);
+         calAttr = new Attributes<eipCalendar>
+            (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar, 
+            AddCalendar | AddItem);
+         sRulesAttr = new Attributes<eipSubstitution_rules>
+            (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules);
+         countAttr = new Attributes<eipCount>
+            (this, EIP, tabCount, eipClassCode.Count, Data.Count);
+         unitInfoAttr = new Attributes<eipUnit_Information>
+            (this, EIP, tabUnitInformation, eipClassCode.Unit_Information, Data.UnitInformation);
+         envirAttr = new Attributes<eipEnviroment_setting>
+            (this, EIP, tabEnviroment, eipClassCode.Enviroment_setting, Data.EnviromentSetting);
+         mgmtAttr = new Attributes<eipOperation_management>
+            (this, EIP, tabOpMgmt, eipClassCode.Operation_management, Data.OperationManagement);
 
          //userPatAttr = new Attributes<eipUser_pattern>(this, EIP, tabUserPattern, eipClassCode.User_pattern);
 
@@ -159,6 +145,8 @@ namespace HitachiEIP {
          if (EIP.SessionIsOpen) {
             // COM on is important.  Go get it
             GetComSetting();
+            GetMgmtSetting();
+            GetAutoReflectionSetting();
          } else {
 
          }
@@ -196,47 +184,47 @@ namespace HitachiEIP {
             //
             this.SuspendLayout();
             // Build local parameters
-            R = Utils.InitializeResize(this, 47, 45, true);
+            R = Utils.InitializeResize(this, 47, 47, true);
 
             #region Left Column
 
-            Utils.ResizeObject(ref R, lblIPAddress, 1, 1, 2, 3);
-            Utils.ResizeObject(ref R, txtIPAddress, 1, 4, 2, 3);
-            Utils.ResizeObject(ref R, lblPort, 3, 1, 2, 3);
-            Utils.ResizeObject(ref R, txtPort, 3, 4, 2, 3);
-            Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 3);
-            Utils.ResizeObject(ref R, txtSessionID, 5, 4, 2, 3);
+            Utils.ResizeObject(ref R, lblIPAddress, 1, 1, 2, 4);
+            Utils.ResizeObject(ref R, txtIPAddress, 1, 5, 2, 4);
+            Utils.ResizeObject(ref R, lblPort, 3, 1, 2, 4);
+            Utils.ResizeObject(ref R, txtPort, 3, 5, 2, 4);
+            Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 4);
+            Utils.ResizeObject(ref R, txtSessionID, 5, 5, 2, 4);
 
-            Utils.ResizeObject(ref R, btnStartSession, 7.5f, 0.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnEndSession, 7.5f, 4, 2, 3);
-            Utils.ResizeObject(ref R, btnForwardOpen, 10, 0.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnForwardClose, 10, 4, 2, 3);
+            Utils.ResizeObject(ref R, btnStartSession, 7.5f, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnEndSession, 7.5f, 5, 2, 4);
+            Utils.ResizeObject(ref R, btnForwardOpen, 10, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnForwardClose, 10, 5, 2, 4);
 
-            Utils.ResizeObject(ref R, lblAccessCode, 13, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, cbAccessCode, 14, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, lblClassCode, 16, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, cbClassCode, 17, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, lblFunction, 19, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, cbFunction, 20, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, btnIssueRequest, 23, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lblClassCode, 13, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, cbClassCode, 14, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblFunction, 16, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, cbFunction, 17, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnIssueGet, 19, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnIssueSet, 19, 5, 2, 4);
+            Utils.ResizeObject(ref R, btnIssueService, 19, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblStatus, 25, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, txtStatus, 26, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, lbldata, 28, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, txtData, 29, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, txtDataDec, 31, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lblStatus, 22, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, txtStatus, 23, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lbldata, 25, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, txtDataDec, 26, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, txtData, 28, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblSaveFolder, 33, 0.5f, 1, 6.5f);
-            Utils.ResizeObject(ref R, txtSaveFolder, 34, 0.5f, 2, 6.5f);
-            Utils.ResizeObject(ref R, btnBrowse, 36, 0.5f, 2, 6.5f);
+            Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, txtSaveFolder, 31, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnBrowse, 33, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lstErrors, 39, 0.5f, 7, 6.5f);
+            Utils.ResizeObject(ref R, lstErrors, 36, 0.5f, 10, 8.5f);
 
             #endregion
 
             #region  Classes
 
-            Utils.ResizeObject(ref R, tclClasses, 1, 8, 42, 36);
+            Utils.ResizeObject(ref R, tclClasses, 1, 10, 42, 36);
 
             indexAttr.ResizeControls(ref R);
             oprAttr.ResizeControls(ref R);
@@ -254,12 +242,15 @@ namespace HitachiEIP {
 
             #region Bottom Row
 
-            Utils.ResizeObject(ref R, btnCom, 43.5f, 8, 3, 3);
-            Utils.ResizeObject(ref R, btnStop, 44, 27.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 44, 31, 2, 3);
-            Utils.ResizeObject(ref R, btnViewLog, 44, 34.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnReadAll, 44, 38, 2, 3);
-            Utils.ResizeObject(ref R, btnExit, 44, 41.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnCom, 43.5f, 10, 3, 5);
+            Utils.ResizeObject(ref R, btnManagementFlag, 43.5f, 15.5f, 3, 5);
+            Utils.ResizeObject(ref R, btnAutoReflection, 43.5f, 21, 3, 5);
+
+            Utils.ResizeObject(ref R, btnStop, 44, 29.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 44, 33, 2, 3);
+            Utils.ResizeObject(ref R, btnViewLog, 44, 36.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnReadAll, 44, 40, 2, 3);
+            Utils.ResizeObject(ref R, btnExit, 44, 43.5f, 2, 3);
 
             #endregion
 
@@ -307,24 +298,12 @@ namespace HitachiEIP {
          this.Close();
       }
 
-      private void btnIssueRequest_Click(object sender, EventArgs e) {
+      private void btnIssueGet_Click(object sender, EventArgs e) {
          bool Success = false;
-         if (cbAccessCode.SelectedIndex >= 0
-            && cbClassCode.SelectedIndex >= 0
+         if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               switch (AccessCodes[cbAccessCode.SelectedIndex]) {
-                  case eipAccessCode.Set:
-                     // Got some work to do here
-                     byte[] Data = new byte[] { 1 };
-                     Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
-                     break;
-                  case eipAccessCode.Get:
-                     Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, DataFormats.Bytes);
-                     break;
-                  case eipAccessCode.Service:
-                     break;
-               }
+               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, DataFormats.Bytes);
                string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
                trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
@@ -378,23 +357,91 @@ namespace HitachiEIP {
          }
       }
 
-      private void cbAccessCode_SelectedIndexChanged(object sender, EventArgs e) {
-         cbClassCode_SelectedIndexChanged(null, null);
-         SetButtonEnables();
+      private void btnIssueSet_Click(object sender, EventArgs e) {
+         bool Success = false;
+         if (cbClassCode.SelectedIndex >= 0
+            && cbFunction.SelectedIndex >= 0) {
+            try {
+               byte[] Data = new byte[] { 1 };
+               Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
+               if (Success) {
+                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
+                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
+                  string text = "Unknown!";
+                  switch (status) {
+                     case 0:
+                        text = "O.K.";
+                        break;
+                     case 0x14:
+                        text = "Attribute Not Supported!";
+                        break;
+                  }
+                  txtStatus.Text = $"{status:X2} -- {text} -- {EIP.Access:X2} {EIP.Class:X2} {EIP.Instance:X2} {EIP.Attribute:X2}";
+               }
+            } catch (Exception e2) {
+               AllGood = false;
+            }
+         }
+      }
+
+      private void btnIssueService_Click(object sender, EventArgs e) {
+         bool Success = false;
+         if (cbClassCode.SelectedIndex >= 0
+            && cbFunction.SelectedIndex >= 0) {
+            try {
+               // To be done
+               if (Success) {
+                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
+                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
+                  string text = "Unknown!";
+                  switch (status) {
+                     case 0:
+                        text = "O.K.";
+                        break;
+                     case 0x14:
+                        text = "Attribute Not Supported!";
+                        break;
+                  }
+                  txtStatus.Text = $"{status:X2} -- {text} -- {EIP.Access:X2} {EIP.Class:X2} {EIP.Instance:X2} {EIP.Attribute:X2}";
+               }
+            } catch (Exception e2) {
+               AllGood = false;
+            }
+         }
       }
 
       private void cbClassCode_SelectedIndexChanged(object sender, EventArgs e) {
          cbFunction.Items.Clear();
          ClassAttr = null;
-         if (cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0) {
-            int n = EIP.GetDropDowns(AccessCodes[cbAccessCode.SelectedIndex], cbFunction, 
-               ClassCodeAttributes[cbClassCode.SelectedIndex], ClassCodeData[cbClassCode.SelectedIndex], out ClassAttr);
-            lblFunction.Text = $"Function Code -- {n} found]";
+
+         btnIssueGet.Visible = false;
+         btnIssueSet.Visible = false;
+         btnIssueService.Visible = false;
+
+         if (cbClassCode.SelectedIndex >= 0) {
+            // Get all names associated with the enumeration
+            string[] names = Data.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumNames();
+            ClassAttr = (int[])Data.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumValues();
+            for (int i = 0; i < names.Length; i++) {
+               cbFunction.Items.Add($"{names[i].Replace('_', ' ')}  (0x{ClassAttr[i]:X2})");
+            }
+
          }
+
          SetButtonEnables();
       }
 
       private void cbFunction_SelectedIndexChanged(object sender, EventArgs e) {
+         btnIssueGet.Visible = false;
+         btnIssueSet.Visible = false;
+         btnIssueService.Visible = false;
+         if(cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0) {
+            AttrData attr = new AttrData(Data.ClassCodeData[cbClassCode.SelectedIndex][cbFunction.SelectedIndex]);
+            btnIssueGet.Visible = attr.HasGet;
+            btnIssueSet.Visible = attr.HasSet;
+            btnIssueService.Visible = attr.HasService;
+         }
+
          SetButtonEnables();
       }
 
@@ -407,9 +454,7 @@ namespace HitachiEIP {
       }
 
       private void btnReadAll_Click(object sender, EventArgs e) {
-         // Read add attributes from the printer
-         cbAccessCode.Text = eipAccessCode.Get.ToString();
-
+         // Get is assumed for read all request
          for (int i = 0; i < cbClassCode.Items.Count; i++) {
             // Set AllGood for this class
             AllGood = true;
@@ -422,7 +467,7 @@ namespace HitachiEIP {
             for (int j = 0; j < cbFunction.Items.Count && AllGood; j++) {
                cbFunction.SelectedIndex = j;
                this.Refresh();
-               btnIssueRequest_Click(null, null);
+               btnIssueGet_Click(null, null);
             }
             // Close out the connection
             btnForwardClose_Click(null, null);
@@ -442,8 +487,41 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      private void btnManagementFlag_Click(object sender, EventArgs e) {
+         if (EIP.SessionIsOpen) {
+            int val = MgmtIsOn ? 0 : 2;
+            if (EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, EIP.ToBytes((uint)val, 1))) {
+               GetMgmtSetting();
+            }
+         }
+         SetButtonEnables();
+      }
+
+      private void btnAutoReflection_Click(object sender, EventArgs e) {
+         if (EIP.SessionIsOpen) {
+            int val = AutoReflIsOn ? 0 : 1;
+            if (EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, EIP.ToBytes((uint)val, 1))) {
+               GetAutoReflectionSetting();
+            }
+         }
+         SetButtonEnables();
+      }
+
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          HitachiBrowser_Resize(null, null);
+         indexAttr.RefreshExtras();
+         oprAttr.RefreshExtras();
+         pdmAttr.RefreshExtras();
+         psAttr.RefreshExtras();
+         pFmtAttr.RefreshExtras();
+         calAttr.RefreshExtras();
+         sRulesAttr.RefreshExtras();
+         countAttr.RefreshExtras();
+         unitInfoAttr.RefreshExtras();
+         envirAttr.RefreshExtras();
+         mgmtAttr.RefreshExtras();
+         //userPatAttr.RefreshExtras();
+
       }
 
       private void cmLogClear_Click(object sender, EventArgs e) {
@@ -521,19 +599,65 @@ namespace HitachiEIP {
          bool result;
          if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, out string val, DataFormats.Decimal)) {
             if (val == "1") {
-               btnCom.Text = "COM = 1";
+               btnCom.Text = "COM\n1";
                btnCom.BackColor = Color.LightGreen;
                ComIsOn = true;
             } else {
-               btnCom.Text = "COM = 0";
+               btnCom.Text = "COM\n0";
                btnCom.BackColor = Color.Pink;
                ComIsOn = false;
             }
             result = true;
          } else {
-            btnCom.Text = "COM = ?";
+            btnCom.Text = "COM\n?";
             btnCom.BackColor = SystemColors.Control;
             ComIsOn = false;
+            result = false;
+         }
+         SetButtonEnables();
+         return result;
+      }
+
+      private bool GetMgmtSetting() {
+         bool result;
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, out string val, DataFormats.Decimal)) {
+            if (val != "0") {
+               btnManagementFlag.Text = $"S/S Management\n{val}";
+               btnManagementFlag.BackColor = Color.Pink;
+               MgmtIsOn = true;
+            } else {
+               btnManagementFlag.Text = "S/S Management\n0";
+               btnManagementFlag.BackColor = Color.LightGreen;
+               MgmtIsOn = false;
+            }
+            result = true;
+         } else {
+            btnManagementFlag.Text = "S/S Management\n?";
+            btnManagementFlag.BackColor = SystemColors.Control;
+            MgmtIsOn = false;
+            result = false;
+         }
+         SetButtonEnables();
+         return result;
+      }
+
+      private bool GetAutoReflectionSetting() {
+         bool result;
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, out string val, DataFormats.Decimal)) {
+            if (val == "1") {
+               btnAutoReflection.Text = "Auto Reflection\n1";
+               btnAutoReflection.BackColor = Color.Pink;
+               AutoReflIsOn = true;
+            } else {
+               btnAutoReflection.Text = "Auto Reflection\n0";
+               btnAutoReflection.BackColor = Color.LightGreen;
+               AutoReflIsOn = false;
+            }
+            result = true;
+         } else {
+            btnAutoReflection.Text = "Auto Reflection\n?";
+            btnAutoReflection.BackColor = SystemColors.Control;
+            AutoReflIsOn = false;
             result = false;
          }
          SetButtonEnables();
@@ -545,21 +669,21 @@ namespace HitachiEIP {
          btnEndSession.Enabled = EIP.SessionIsOpen;
          btnForwardOpen.Enabled = EIP.SessionIsOpen && !EIP.ForwardIsOpen;
          btnForwardClose.Enabled = EIP.SessionIsOpen && EIP.ForwardIsOpen;
-         btnIssueRequest.Enabled = EIP.SessionIsOpen && EIP.ForwardIsOpen
-            && cbAccessCode.SelectedIndex >= 0 && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
+         btnIssueGet.Enabled = btnIssueSet.Enabled = btnIssueService.Enabled = 
+            EIP.SessionIsOpen && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
 
          if (initComplete) {
             indexAttr.SetButtonEnables();
-            //oprAttr.SetButtonEnables();
-            //pdmAttr.SetButtonEnables();
-            //psAttr.SetButtonEnables();
-            //pFmtAttr.SetButtonEnables();
-            //calAttr.SetButtonEnables();
-            //sRulesAttr.SetButtonEnables();
-            //countAttr.SetButtonEnables();
-            //unitInfoAttr.SetButtonEnables();
-            //envirAttr.SetButtonEnables();
-            //mgmtAttr.SetButtonEnables();
+            oprAttr.SetButtonEnables();
+            pdmAttr.SetButtonEnables();
+            psAttr.SetButtonEnables();
+            pFmtAttr.SetButtonEnables();
+            calAttr.SetButtonEnables();
+            sRulesAttr.SetButtonEnables();
+            countAttr.SetButtonEnables();
+            unitInfoAttr.SetButtonEnables();
+            envirAttr.SetButtonEnables();
+            mgmtAttr.SetButtonEnables();
             //userPatAttr.SetButtonEnables();
          }
 

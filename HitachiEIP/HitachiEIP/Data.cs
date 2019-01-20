@@ -6,13 +6,25 @@ using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
-   // Class Codes = { 
-   //   [0] = value, 
-   //   [1] = AlphaSortOrder }
-
    static class Data {
 
-      // Class Codes = { 
+      // Class Codes to Attributes
+      public static Type[] ClassCodeAttributes = new Type[] {
+            typeof(eipPrint_Data_Management),   // 0x66
+            typeof(eipPrint_format),            // 0x67
+            typeof(eipPrint_specification),     // 0x68
+            typeof(eipCalendar),                // 0x69
+            typeof(eipUser_pattern),            // 0x6B
+            typeof(eipSubstitution_rules),      // 0x6C
+            typeof(eipEnviroment_setting),      // 0x71
+            typeof(eipUnit_Information),        // 0x73
+            typeof(eipOperation_management),    // 0x74
+            typeof(eipIJP_operation),           // 0x75
+            typeof(eipCount),                   // 0x79
+            typeof(eipIndex),                   // 0x7A
+         };
+
+      // Class Codes
       public static int[,] ClassCodes = new int[,] {
          { 0X66, 7}, // Print data management function
          { 0X67, 8}, // Print format function
@@ -102,37 +114,37 @@ namespace HitachiEIP {
       // Calendar (Class Code = 0x69)
       public static int[][] Calendar = new int[][] {
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 0, 10, 0}, // Shift Count Condition
-         new int[] { 0X66, 0, 1, 0, 1, 0, 0, 0, 3, 0}, // First Calendar Block Number
-         new int[] { 0X67, 0, 1, 0, 1, 0, 0, 0, 1, 0}, // Calendar Block Number In Item
-         new int[] { 0X68, 1, 1, 0, 1, 0, 0, 0, 8, 0}, // Offset Year
-         new int[] { 0X69, 1, 1, 0, 1, 0, 0, 0, 7, 0}, // Offset Month
-         new int[] { 0X6A, 1, 1, 0, 2, 0, 0, 0, 4, 0}, // Offset Day
-         new int[] { 0X6B, 1, 1, 0, 2, 0, 0, 0, 5, 0}, // Offset Hour
-         new int[] { 0X6C, 1, 1, 0, 2, 0, 0, 0, 6, 0}, // Offset Minute
-         new int[] { 0X6D, 1, 1, 0, 1, 0, 0, 0, 32, 0}, // Zero Suppress Year
-         new int[] { 0X6E, 1, 1, 0, 1, 0, 0, 0, 30, 0}, // Zero Suppress Month
-         new int[] { 0X6F, 1, 1, 0, 1, 0, 0, 0, 26, 0}, // Zero Suppress Day
-         new int[] { 0X70, 1, 1, 0, 1, 0, 0, 0, 28, 0}, // Zero Suppress Hour
-         new int[] { 0X71, 1, 1, 0, 1, 0, 0, 0, 29, 0}, // Zero Suppress Minute
-         new int[] { 0X72, 1, 1, 0, 1, 0, 0, 0, 31, 0}, // Zero Suppress Weeks
-         new int[] { 0X73, 1, 1, 0, 1, 0, 0, 0, 27, 0}, // Zero Suppress Day Of Week
-         new int[] { 0X74, 1, 1, 0, 1, 0, 0, 0, 21, 0}, // Substitute Rule Year
-         new int[] { 0X75, 1, 1, 0, 1, 0, 0, 0, 19, 0}, // Substitute Rule Month
-         new int[] { 0X76, 1, 1, 0, 1, 0, 0, 0, 15, 0}, // Substitute Rule Day
-         new int[] { 0X77, 1, 1, 0, 1, 0, 0, 0, 17, 0}, // Substitute Rule Hour
-         new int[] { 0X78, 1, 1, 0, 1, 0, 0, 0, 18, 0}, // Substitute Rule Minute
-         new int[] { 0X79, 1, 1, 0, 1, 0, 0, 0, 20, 0}, // Substitute Rule Weeks
-         new int[] { 0X7A, 1, 1, 0, 1, 0, 0, 0, 16, 0}, // Substitute Rule Day Of Week
-         new int[] { 0X7B, 1, 1, 0, 3, 0, 0, 0, 24, 0}, // Time Count Start Value
-         new int[] { 0X7C, 1, 1, 0, 3, 0, 0, 0, 22, 0}, // Time Count End Value
-         new int[] { 0X7D, 1, 1, 0, 3, 0, 0, 0, 23, 0}, // Time Count Reset Value
-         new int[] { 0X7E, 1, 1, 0, 1, 0, 0, 0, 9, 0}, // Reset Time Value
-         new int[] { 0X7F, 1, 1, 0, 1, 0, 0, 0, 25, 0}, // Update Interval Value
-         new int[] { 0X80, 1, 1, 0, 1, 0, 0, 0, 13, 0}, // Shift Start Hour
-         new int[] { 0X81, 1, 1, 0, 1, 0, 0, 0, 14, 0}, // Shift Start Minute
-         new int[] { 0X82, 1, 1, 0, 1, 0, 0, 0, 11, 0}, // Shift End Hour
-         new int[] { 0X83, 1, 1, 0, 1, 0, 0, 0, 12, 0}, // Shift Ene Minute
-         new int[] { 0X84, 1, 1, 0, 1, 0, 0, 0, 2, 0}, // Count String Value
+         new int[] { 0X66, 0, 1, 0, 1, 0, 0, 8, 3, 0}, // First Calendar Block Number
+         new int[] { 0X67, 0, 1, 0, 1, 0, 0, 8, 1, 0}, // Calendar Block Number In Item
+         new int[] { 0X68, 1, 1, 0, 1, 0, 0, 99, 8, 0}, // Offset Year
+         new int[] { 0X69, 1, 1, 0, 1, 0, 0, 99, 7, 0}, // Offset Month
+         new int[] { 0X6A, 1, 1, 0, 2, 0, 0, 1999, 4, 0}, // Offset Day
+         new int[] { 0X6B, 1, 1, 0, 2, 0, -23, 99, 5, 0}, // Offset Hour
+         new int[] { 0X6C, 1, 1, 0, 2, 0, -59, 99, 6, 0}, // Offset Minute
+         new int[] { 0X6D, 1, 1, 0, 1, 0, 0, 2, 32, 0}, // Zero Suppress Year
+         new int[] { 0X6E, 1, 1, 0, 1, 0, 0, 2, 30, 0}, // Zero Suppress Month
+         new int[] { 0X6F, 1, 1, 0, 1, 0, 0, 2, 26, 0}, // Zero Suppress Day
+         new int[] { 0X70, 1, 1, 0, 1, 0, 0, 2, 28, 0}, // Zero Suppress Hour
+         new int[] { 0X71, 1, 1, 0, 1, 0, 0, 2, 29, 0}, // Zero Suppress Minute
+         new int[] { 0X72, 1, 1, 0, 1, 0, 0, 2, 31, 0}, // Zero Suppress Weeks
+         new int[] { 0X73, 1, 1, 0, 1, 0, 0, 2, 27, 0}, // Zero Suppress Day Of Week
+         new int[] { 0X74, 1, 1, 0, 1, 0, 0, 1, 21, 0}, // Substitute Rule Year
+         new int[] { 0X75, 1, 1, 0, 1, 0, 0, 1, 19, 0}, // Substitute Rule Month
+         new int[] { 0X76, 1, 1, 0, 1, 0, 0, 1, 15, 0}, // Substitute Rule Day
+         new int[] { 0X77, 1, 1, 0, 1, 0, 0, 1, 17, 0}, // Substitute Rule Hour
+         new int[] { 0X78, 1, 1, 0, 1, 0, 0, 1, 18, 0}, // Substitute Rule Minute
+         new int[] { 0X79, 1, 1, 0, 1, 0, 0, 1, 20, 0}, // Substitute Rule Weeks
+         new int[] { 0X7A, 1, 1, 0, 1, 0, 0, 1, 16, 0}, // Substitute Rule Day Of Week
+         new int[] { 0X7B, 1, 1, 0, 3, 1, 0, 0, 24, 0}, // Time Count Start Value
+         new int[] { 0X7C, 1, 1, 0, 3, 1, 0, 0, 22, 0}, // Time Count End Value
+         new int[] { 0X7D, 1, 1, 0, 3, 1, 0, 0, 23, 0}, // Time Count Reset Value
+         new int[] { 0X7E, 1, 1, 0, 1, 0, 0, 23, 9, 0}, // Reset Time Value
+         new int[] { 0X7F, 1, 1, 0, 1, 0, 1, 6, 25, 0}, // Update Interval Value
+         new int[] { 0X80, 1, 1, 0, 1, 0, 0, 23, 13, 0}, // Shift Start Hour
+         new int[] { 0X81, 1, 1, 0, 1, 0, 0, 59, 14, 0}, // Shift Start Minute
+         new int[] { 0X82, 1, 1, 0, 1, 0, 0, 23, 11, 0}, // Shift End Hour
+         new int[] { 0X83, 1, 1, 0, 1, 0, 0, 59, 12, 0}, // Shift Ene Minute
+         new int[] { 0X84, 1, 1, 0, 10, 1, 0, 0, 2, 0}, // Count String Value
       };
 
       // User Pattern (Class Code 0x6B)
@@ -259,9 +271,55 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0}, // Calendar Block
       };
 
+      // Class Codes to Data Tables
+      public static int[][][] ClassCodeData = new int[][][] {
+            PrintDataManagement,           // 0x66
+            PrintFormat,                   // 0x67
+            PrintSpecification,            // 0x68
+            Calendar,                      // 0x69
+            UserPattern,                   // 0x6B
+            SubstitutionRules,             // 0x6C
+            EnviromentSetting,             // 0x71
+            UnitInformation,               // 0x73
+            OperationManagement,           // 0x74
+            IJPOperation,                  // 0x75
+            Count,                         // 0x79
+            Index,                         // 0x7A
+         };
+
+      public static AttrData GetAttrData(byte Class, byte attr ) {
+         for (int i = 0; i < ClassCodes.Length; i++) {
+            if ((byte)ClassCodes[i,0] == Class) {
+               int[][] tab = ClassCodeData[i];
+               for (int j = 0; j < tab.Length; j++) {
+                  if ((byte)tab[j][0] == attr) {
+                     return new AttrData(tab[j]);
+                  }
+               }
+            }
+         }
+         return null;
+      }
    }
 
-   class Attr {
+   class ClassCodeData {
+
+      // Class Codes = { 
+      //   [0] = value, 
+      //   [1] = AlphaSortOrder }
+
+      int[] values;
+
+      public byte Val { get { return (byte)values[0]; } }
+      public int Order { get { return values[1] - 1; } }
+
+      public ClassCodeData(int[] values) {
+         this.values = values;
+      }
+
+   }
+
+   class AttrData {
 
       #region Attributes
 
@@ -290,7 +348,7 @@ namespace HitachiEIP {
       public int Order { get { return values[8] - 1; } }
       public bool Ignore { get { return values[9] > 0; } }
 
-      public Attr(int[] values) {
+      public AttrData(int[] values) {
          this.values = values;
       }
 
