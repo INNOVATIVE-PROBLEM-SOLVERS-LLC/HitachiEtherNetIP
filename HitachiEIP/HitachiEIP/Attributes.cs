@@ -242,6 +242,27 @@ namespace HitachiEIP {
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
       }
 
+      private void Text_Leave(object sender, EventArgs e) {
+         Button b = (Button)sender;
+         int tag = Convert.ToInt32(((Button)sender).Tag);
+         AttrData attr = attrs[tag];
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+               break;
+            case DataFormats.ASCII:
+               break;
+            case DataFormats.Date:
+               break;
+            case DataFormats.Bytes:
+               break;
+            case DataFormats.XY:
+               break;
+            default:
+               break;
+         }
+
+      }
+
       #endregion
 
       #region Service Routines
@@ -305,6 +326,7 @@ namespace HitachiEIP {
             if (attr.HasSet) {
                sets[i] = new Button() { Tag = i, Text = "Set" };
                sets[i].Click += Set_Click;
+               sets[i].Leave += SetExtraButtonEnables;
                tab.Controls.Add(sets[i]);
                if (attr.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
@@ -337,9 +359,10 @@ namespace HitachiEIP {
 
          if ((Extras & HitachiBrowser.AddItem) > 0) {
             ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = eipIndex.Item_Count.ToString().Replace('_', ' ') };
-            ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
+            ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Item_Count } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Item_Count } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -349,6 +372,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Column } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Column } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -358,6 +382,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Line } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Line } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -367,6 +392,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Character_position } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Character_position } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -376,6 +402,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Calendar_Block } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Calendar_Block } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -385,6 +412,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Count_Block } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Count_Block } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -471,6 +499,7 @@ namespace HitachiEIP {
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
+         SetExtraButtonEnables(null, null);
       }
 
       public void SetButtonEnables() {
@@ -507,9 +536,27 @@ namespace HitachiEIP {
          setAll.Enabled = anySets;
          getAll.Enabled = anyGets;
 
-         for (int i = 0; i < extrasUsed; i++) {
-            ExtraGet[i].Enabled = enable;
-            ExtraSet[i].Enabled = enable;
+         SetExtraButtonEnables(null, null);
+
+      }
+
+      public void SetExtraButtonEnables(object sender, EventArgs e) {
+         bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         int start;
+         int end;
+         if (sender == null) {
+            start = 0;
+            end = extrasUsed;
+         } else {
+            start = (int)((TextBox)sender).Tag;
+            end = start + 1;
+         }
+         for (int i = start; i < end; i++) {
+            byte at = ((byte[])ExtraSet[i].Tag)[1];
+            AttrData attr = Data.GetAttrData((byte)eipClassCode.Index, at);
+            ExtraGet[i].Enabled = enabled;
+            ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
+               val >= attr.Min && val <= attr.Max;
          }
       }
 
