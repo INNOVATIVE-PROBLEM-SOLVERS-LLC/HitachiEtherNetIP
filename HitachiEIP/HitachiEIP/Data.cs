@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
-   static class Data {
+   public static class Data {
 
       // Class Codes to Attributes
       public static Type[] ClassCodeAttributes = new Type[] {
@@ -257,7 +257,7 @@ namespace HitachiEIP {
 
       // Index (Class Code 0x7A) Complete!
       public static int[][] Index = new int[][] {
-         new int[] { 0X64, 1, 1, 0, 1, 0, 0, 1, 10, 0}, // Start Stop Management Flag
+         new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0}, // Start Stop Management Flag
          new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0}, // Automatic reflection
          new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0}, // Item Count
          new int[] { 0X67, 1, 1, 0, 2, 0, 1, 100, 4, 0}, // Column
@@ -302,7 +302,7 @@ namespace HitachiEIP {
       }
    }
 
-   class ClassCodeData {
+   public class ClassCodeData {
 
       // Class Codes = { 
       //   [0] = value, 
@@ -319,7 +319,7 @@ namespace HitachiEIP {
 
    }
 
-   class AttrData {
+   public class AttrData {
 
       #region Attributes
 
@@ -355,4 +355,5 @@ namespace HitachiEIP {
       #endregion
 
    }
+
 }

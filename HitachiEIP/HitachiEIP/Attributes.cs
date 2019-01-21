@@ -11,14 +11,10 @@ namespace HitachiEIP {
 
       #region Data Declarations
 
-      const int MaxExtras = 6;
-      int extrasUsed = 0;
-
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
       AttrData[] attrs;
-      int Extras = 0;
 
       t1[] attributes;
       eipClassCode cc;
@@ -35,6 +31,12 @@ namespace HitachiEIP {
       Button[] services;
       Button getAll;
       Button setAll;
+
+      // Data associated with extra Get/Set buttons
+      int Extras = 0;
+      const int MaxExtras = 6;
+      int extrasUsed = 0;
+      bool extrasLoaded = false;
 
       Label[] ExtraLabel;
       TextBox[] ExtraText;
@@ -75,77 +77,8 @@ namespace HitachiEIP {
             counts[tag].BackColor = Color.LightGreen;
          } else {
             texts[tag].Text = "Loading";
-            if (EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt)) {
-               texts[tag].Text = val;
-            } else {
-               texts[tag].Text = "#Error";
-               parent.AllGood = false;
-            }
-            counts[tag].Text = EIP.GetDataLength.ToString();
-            if (attr.Fmt == DataFormats.Decimal) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (EIP.GetDataLength <= 8) {
-                  ulong dec = EIP.Get(EIP.GetData, 0, EIP.GetDataLength, mem.BigEndian);
-                  if (attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               }
-            } else if (attr.Fmt == DataFormats.Bytes) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-                  texts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-                  texts[tag].BackColor = Color.Pink;
-               }
-
-            } else if (attr.Fmt == DataFormats.ASCII) {
-               if (attr.Len >= EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (AllAscii(EIP.GetData)) {
-                  texts[tag].BackColor = Color.LightGreen;
-               } else {
-                  texts[tag].BackColor = Color.Pink;
-               }
-            } else if (attr.Fmt == DataFormats.XY) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-                  uint x = EIP.Get(EIP.GetData, 0, 2, mem.BigEndian);
-                  uint y = EIP.Get(EIP.GetData, 2, 1, mem.BigEndian);
-                  if (x <= 65535 && y <= 47) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-                  texts[tag].BackColor = Color.Pink;
-               }
-            } else if (attr.Fmt == DataFormats.Date) {
-               if(attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (EIP.GetDataLength == 12) {
-                  if (DateTime.TryParse(texts[tag].Text, out DateTime d)) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               } else {
-                  texts[tag].BackColor = Color.Pink;
-               }
-            }
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt);
+            EIP.FormatInput(attr, counts[tag], texts[tag]);
          }
          SetButtonEnables();
       }
@@ -242,17 +175,30 @@ namespace HitachiEIP {
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
       }
 
+      private void Text_Leave(object sender, EventArgs e) {
+         Button b = (Button)sender;
+         int tag = Convert.ToInt32(((Button)sender).Tag);
+         AttrData attr = attrs[tag];
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+               break;
+            case DataFormats.ASCII:
+               break;
+            case DataFormats.Date:
+               break;
+            case DataFormats.Bytes:
+               break;
+            case DataFormats.XY:
+               break;
+            default:
+               break;
+         }
+
+      }
+
       #endregion
 
       #region Service Routines
-
-      private bool AllAscii(byte[] s) {
-         bool result = true;
-         for (int i = 0; i < s.Length; i++) {
-            result &= s[i] >= 0x20 && s[i] < 0x80;
-         }
-         return result;
-      }
 
       private void BuildControls() {
 
@@ -305,6 +251,7 @@ namespace HitachiEIP {
             if (attr.HasSet) {
                sets[i] = new Button() { Tag = i, Text = "Set" };
                sets[i].Click += Set_Click;
+               sets[i].Leave += SetExtraButtonEnables;
                tab.Controls.Add(sets[i]);
                if (attr.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
@@ -337,9 +284,10 @@ namespace HitachiEIP {
 
          if ((Extras & HitachiBrowser.AddItem) > 0) {
             ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = eipIndex.Item_Count.ToString().Replace('_', ' ') };
-            ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
+            ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Item_Count } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Item_Count } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -349,6 +297,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Column } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Column } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -358,6 +307,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Line } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Line } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -367,6 +317,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Character_position } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Character_position } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -376,6 +327,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Calendar_Block } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Calendar_Block } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -385,6 +337,7 @@ namespace HitachiEIP {
             ExtraText[n] = new TextBox() { TextAlign = HorizontalAlignment.Center };
             ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)eipIndex.Count_Block } };
             ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)eipIndex.Count_Block } };
+            ExtraText[n].Leave += SetExtraButtonEnables;
             ExtraGet[n].Click += GetExtras_Click;
             ExtraSet[n].Click += SetExtras_Click;
             n++;
@@ -465,12 +418,14 @@ namespace HitachiEIP {
 
       public void RefreshExtras() {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         if (!enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
+         if (extrasLoaded || !enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
+         extrasLoaded = true;
+         SetExtraButtonEnables(null, null);
       }
 
       public void SetButtonEnables() {
@@ -507,9 +462,27 @@ namespace HitachiEIP {
          setAll.Enabled = anySets;
          getAll.Enabled = anyGets;
 
-         for (int i = 0; i < extrasUsed; i++) {
-            ExtraGet[i].Enabled = enable;
-            ExtraSet[i].Enabled = enable;
+         SetExtraButtonEnables(null, null);
+
+      }
+
+      public void SetExtraButtonEnables(object sender, EventArgs e) {
+         bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         int start;
+         int end;
+         if (sender == null) {
+            start = 0;
+            end = extrasUsed;
+         } else {
+            start = (int)((TextBox)sender).Tag;
+            end = start + 1;
+         }
+         for (int i = start; i < end; i++) {
+            byte at = ((byte[])ExtraSet[i].Tag)[1];
+            AttrData attr = Data.GetAttrData((byte)eipClassCode.Index, at);
+            ExtraGet[i].Enabled = enabled;
+            ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
+               val >= attr.Min && val <= attr.Max;
          }
       }
 

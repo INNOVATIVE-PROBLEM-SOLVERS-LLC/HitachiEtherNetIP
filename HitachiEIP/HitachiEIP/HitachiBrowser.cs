@@ -23,6 +23,7 @@ namespace HitachiEIP {
       string[] ClassNames;
 
       int[] ClassAttr;
+      AttrData attr;
 
       // Traffic/Log files
       string TrafficFilename;
@@ -51,18 +52,18 @@ namespace HitachiEIP {
 
       //Attributes<eipUser_pattern> userPatAttr;    // 0x6B Not implemented here
 
-
-
       public bool ComIsOn = false;
       public bool MgmtIsOn = false;
       public bool AutoReflIsOn = false;
 
-      public const int AddItem = 1;
-      public const int AddColumn = 2;
-      public const int AddLine = 4;
-      public const int AddPosition = 8;
-      public const int AddCalendar = 16;
-      public const int AddCount = 32;
+      public const int AddNone = 0;
+      public const int AddItem = 0x01;
+      public const int AddColumn = 0x02;
+      public const int AddLine = 0x04;
+      public const int AddPosition = 0x08;
+      public const int AddCalendar = 0x10;
+      public const int AddCount = 0x20;
+      public const int AddAll = 0x3F;
 
       #endregion
 
@@ -210,9 +211,11 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, lblStatus, 22, 0.5f, 1, 8.5f);
             Utils.ResizeObject(ref R, txtStatus, 23, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, lbldata, 25, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, txtDataDec, 26, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, txtData, 28, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblCount, 25, 0.5f, 1, 1);
+            Utils.ResizeObject(ref R, lbldata, 25, 2, 1, 7);
+            Utils.ResizeObject(ref R, txtCount, 26, 0.5f, 2, 1);
+            Utils.ResizeObject(ref R, txtData, 26, 2, 2, 7);
+            Utils.ResizeObject(ref R, txtDataBytes, 28, 0.5f, 2, 8.5f);
 
             Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 1, 8.5f);
             Utils.ResizeObject(ref R, txtSaveFolder, 31, 0.5f, 2, 8.5f);
@@ -303,7 +306,7 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, DataFormats.Bytes);
+               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, attr.Fmt);
                string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
                trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
@@ -320,35 +323,10 @@ namespace HitachiEIP {
                   }
                   trafficText += $"{hdr}\t{text}\t";
                   txtStatus.Text = $"{status:X2} -- {text} -- {(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute:X2}";
-                  switch (EIP.Access) {
-                     case eipAccessCode.Set:
-                     case eipAccessCode.Service:
-
-                        break;
-                     case eipAccessCode.Get:
-                        int length = EIP.ReadDataLength - 50;
-                        string s = EIP.GetBytes(EIP.ReadData, 50, length);
-                        txtData.Text = s;
-                        txtDataDec.Text = "N/A";
-                        if (EIP.ReadDataLength > 50) {
-                           if (length < 5) {
-                              int x = (int)EIP.Get(EIP.ReadData, 50, length, mem.BigEndian);
-                              txtDataDec.Text = x.ToString();
-                           } else {
-                              s = string.Empty;
-                              for (int i = 50; i < EIP.ReadDataLength; i++) {
-                                 if (EIP.ReadData[i] > 0x1f && EIP.ReadData[i] < 0x80) {
-                                    s += (char)EIP.ReadData[i];
-                                 } else {
-                                    s += $"<{EIP.ReadData[i]:X2}>";
-                                 }
-                              }
-                              //txtDataDec.Text = s;
-                           }
-                        }
-                        trafficText += $"{length}\t{txtDataDec.Text}\t{txtData.Text}";
-                        break;
-                  }
+                  EIP.FormatInput(attr, txtCount, txtData);
+                  string s = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
+                  txtDataBytes.Text = s;
+                  trafficText += $"{txtCount.Text}\t{txtData.Text}\t{txtDataBytes.Text}";
                }
                TrafficFileStream.WriteLine(trafficText);
             } catch (Exception e2) {
@@ -436,7 +414,7 @@ namespace HitachiEIP {
          btnIssueSet.Visible = false;
          btnIssueService.Visible = false;
          if(cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0) {
-            AttrData attr = new AttrData(Data.ClassCodeData[cbClassCode.SelectedIndex][cbFunction.SelectedIndex]);
+            attr = new AttrData(Data.ClassCodeData[cbClassCode.SelectedIndex][cbFunction.SelectedIndex]);
             btnIssueGet.Visible = attr.HasGet;
             btnIssueSet.Visible = attr.HasSet;
             btnIssueService.Visible = attr.HasService;
