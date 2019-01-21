@@ -352,7 +352,8 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               // To be done
+               byte[] data = EIP.FormatOutput(txtData.Text, attr);
+               Success = EIP.ServiceAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
                   int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
