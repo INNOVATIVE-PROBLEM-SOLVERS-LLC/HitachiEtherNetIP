@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -340,10 +341,6 @@ namespace HitachiEIP {
       public eipClassCode Class { get; set; }
       public byte Instance { get; set; } = 1;
       public byte Attribute { get; set; } = 1;
-      public int GetDataLength { get; set; }
-      public byte[] GetData { get; set; }
-      public byte SetDataLength { get; set; } = 0;
-      public byte[] SetData { get; set; } = { };
       public uint O_T_ConnectionID { get; set; } = 0;
       public uint T_O_ConnectionID { get; set; } = 0;
 
@@ -359,8 +356,16 @@ namespace HitachiEIP {
          get { return O_T_ConnectionID > 0; }
       }
 
+      // Full Read Packet
       public byte[] ReadData;
       public Int32 ReadDataLength;
+
+      // User data portion of the packet
+      public int GetDataLength { get; set; }
+      public byte[] GetData { get; set; }
+      public string GetDataValue { get; set; }
+      public byte SetDataLength { get; set; } = 0;
+      public byte[] SetData { get; set; } = { };
 
       #endregion
 
@@ -507,6 +512,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Read one attribute
       public bool ReadOneAttribute(eipClassCode Class, byte Attribute, out string val, DataFormats fmt) {
          bool result = false;
 
@@ -518,7 +524,7 @@ namespace HitachiEIP {
          if (OpenCloseForward)
             ForwardOpen();
 
-         val = string.Empty;
+         val = "#Error";
 
          Access = eipAccessCode.Get;
          this.Class = Class;
@@ -576,9 +582,8 @@ namespace HitachiEIP {
                         break;
                   }
                   result = true;
-               } else {
-                  val = "#Error";
                }
+               GetDataValue = val;
             }
          } catch (Exception e) {
             LogIt(e.Message);
@@ -592,6 +597,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Write one attribute
       public bool WriteOneAttribute(eipClassCode Class, byte Attribute, byte[] val) {
          bool result = false;
          bool OpenCloseSession = !SessionIsOpen;
@@ -874,6 +880,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Get data array as xx xx xx xx ...
       public string GetBytes(byte[] data, int start, int length) {
          string s = string.Empty;
          for (int i = 0; i < Math.Min(length, 50); i++) {
@@ -885,6 +892,7 @@ namespace HitachiEIP {
          return s;
       }
 
+      // Get data as ascii characters (Need work here)
       public string GetAscii(byte[] data, int start, int length) {
          string s = string.Empty;
          for (int i = 0; i < Math.Min(length, 50); i++) {
@@ -896,6 +904,7 @@ namespace HitachiEIP {
          return s;
       }
 
+      // Convert unsigned integer to byte arrat (Need work here)
       public byte[] ToBytes(uint v, int length) {
          byte[] result = new byte[length];
          for (int i = length - 1; i >= 0; i--) {
@@ -905,12 +914,84 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Convert ascii string to bytes
       public byte[] ToBytes(string v) {
          byte[] result = new byte[v.Length + 1];
          for (int i = 0; i < v.Length; i++) {
             result[i] = (byte)v[i];
          }
          return result;
+      }
+
+      // Format input byte array to readable characters
+      public void FormatInput(AttrData attr, TextBox count, TextBox text) {
+         count.Text = GetDataLength.ToString();
+         text.Text = GetDataValue;
+         if (attr.Fmt == DataFormats.Decimal) {
+            if (attr.Len == GetDataLength) {
+               count.BackColor = Color.LightGreen;
+            } else {
+               count.BackColor = Color.Pink;
+            }
+            if (GetDataLength <= 8) {
+               ulong dec = Get(GetData, 0, GetDataLength, mem.BigEndian);
+               if (attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max) {
+                  text.BackColor = Color.LightGreen;
+               } else {
+                  text.BackColor = Color.Pink;
+               }
+            }
+         } else if (attr.Fmt == DataFormats.Bytes) {
+            if (attr.Len == GetDataLength) {
+               count.BackColor = Color.LightGreen;
+               text.BackColor = Color.LightGreen;
+            } else {
+               count.BackColor = Color.Pink;
+               text.BackColor = Color.Pink;
+            }
+
+         } else if (attr.Fmt == DataFormats.ASCII) {
+            if (attr.Len >= GetDataLength) {
+               count.BackColor = Color.LightGreen;
+            } else {
+               count.BackColor = Color.Pink;
+            }
+            if (AllAscii(GetData)) {
+               text.BackColor = Color.LightGreen;
+            } else {
+               text.BackColor = Color.Pink;
+            }
+         } else if (attr.Fmt == DataFormats.XY) {
+            if (attr.Len == GetDataLength) {
+               count.BackColor = Color.LightGreen;
+               uint x = Get(GetData, 0, 2, mem.BigEndian);
+               uint y = Get(GetData, 2, 1, mem.BigEndian);
+               if (x <= 65535 && y <= 47) {
+                  text.BackColor = Color.LightGreen;
+               } else {
+                  text.BackColor = Color.Pink;
+               }
+            } else {
+               count.BackColor = Color.Pink;
+               text.BackColor = Color.Pink;
+            }
+         } else if (attr.Fmt == DataFormats.Date) {
+            if (attr.Len == GetDataLength) {
+               count.BackColor = Color.LightGreen;
+            } else {
+               count.BackColor = Color.Pink;
+            }
+            if (GetDataLength == 12) {
+               if (DateTime.TryParse(text.Text, out DateTime d)) {
+                  text.BackColor = Color.LightGreen;
+               } else {
+                  text.BackColor = Color.Pink;
+               }
+            } else {
+               text.BackColor = Color.Pink;
+            }
+         }
+
       }
 
       #endregion
@@ -951,6 +1032,14 @@ namespace HitachiEIP {
 
       private void LogIt(string msg) {
          Log?.Invoke(this, msg);
+      }
+
+      private bool AllAscii(byte[] s) {
+         bool result = true;
+         for (int i = 0; i < s.Length; i++) {
+            result &= s[i] >= 0x20 && s[i] < 0x80;
+         }
+         return result;
       }
 
       private void ErrorOut() {

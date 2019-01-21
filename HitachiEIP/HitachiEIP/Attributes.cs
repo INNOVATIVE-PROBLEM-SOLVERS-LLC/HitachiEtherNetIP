@@ -11,14 +11,10 @@ namespace HitachiEIP {
 
       #region Data Declarations
 
-      const int MaxExtras = 6;
-      int extrasUsed = 0;
-
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
       AttrData[] attrs;
-      int Extras = 0;
 
       t1[] attributes;
       eipClassCode cc;
@@ -35,6 +31,12 @@ namespace HitachiEIP {
       Button[] services;
       Button getAll;
       Button setAll;
+
+      // Data associated with extra Get/Set buttons
+      int Extras = 0;
+      const int MaxExtras = 6;
+      int extrasUsed = 0;
+      bool extrasLoaded = false;
 
       Label[] ExtraLabel;
       TextBox[] ExtraText;
@@ -75,77 +77,8 @@ namespace HitachiEIP {
             counts[tag].BackColor = Color.LightGreen;
          } else {
             texts[tag].Text = "Loading";
-            if (EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt)) {
-               texts[tag].Text = val;
-            } else {
-               texts[tag].Text = "#Error";
-               parent.AllGood = false;
-            }
-            counts[tag].Text = EIP.GetDataLength.ToString();
-            if (attr.Fmt == DataFormats.Decimal) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (EIP.GetDataLength <= 8) {
-                  ulong dec = EIP.Get(EIP.GetData, 0, EIP.GetDataLength, mem.BigEndian);
-                  if (attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               }
-            } else if (attr.Fmt == DataFormats.Bytes) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-                  texts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-                  texts[tag].BackColor = Color.Pink;
-               }
-
-            } else if (attr.Fmt == DataFormats.ASCII) {
-               if (attr.Len >= EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (AllAscii(EIP.GetData)) {
-                  texts[tag].BackColor = Color.LightGreen;
-               } else {
-                  texts[tag].BackColor = Color.Pink;
-               }
-            } else if (attr.Fmt == DataFormats.XY) {
-               if (attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-                  uint x = EIP.Get(EIP.GetData, 0, 2, mem.BigEndian);
-                  uint y = EIP.Get(EIP.GetData, 2, 1, mem.BigEndian);
-                  if (x <= 65535 && y <= 47) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-                  texts[tag].BackColor = Color.Pink;
-               }
-            } else if (attr.Fmt == DataFormats.Date) {
-               if(attr.Len == EIP.GetDataLength) {
-                  counts[tag].BackColor = Color.LightGreen;
-               } else {
-                  counts[tag].BackColor = Color.Pink;
-               }
-               if (EIP.GetDataLength == 12) {
-                  if (DateTime.TryParse(texts[tag].Text, out DateTime d)) {
-                     texts[tag].BackColor = Color.LightGreen;
-                  } else {
-                     texts[tag].BackColor = Color.Pink;
-                  }
-               } else {
-                  texts[tag].BackColor = Color.Pink;
-               }
-            }
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt);
+            EIP.FormatInput(attr, counts[tag], texts[tag]);
          }
          SetButtonEnables();
       }
@@ -266,14 +199,6 @@ namespace HitachiEIP {
       #endregion
 
       #region Service Routines
-
-      private bool AllAscii(byte[] s) {
-         bool result = true;
-         for (int i = 0; i < s.Length; i++) {
-            result &= s[i] >= 0x20 && s[i] < 0x80;
-         }
-         return result;
-      }
 
       private void BuildControls() {
 
@@ -493,12 +418,13 @@ namespace HitachiEIP {
 
       public void RefreshExtras() {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         if (!enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
+         if (extrasLoaded || !enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
+         extrasLoaded = true;
          SetExtraButtonEnables(null, null);
       }
 
