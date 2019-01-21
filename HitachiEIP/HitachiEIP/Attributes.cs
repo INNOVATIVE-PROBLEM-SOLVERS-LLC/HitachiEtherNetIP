@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -60,6 +60,7 @@ namespace HitachiEIP {
             attrs[i] = new AttrData(data[i]);
          }
          this.Extras = Extras;
+
          extrasUsed = AddExtraControls();
          half = extrasUsed >= 3 ? 16 : 15;
          BuildControls();
@@ -92,6 +93,18 @@ namespace HitachiEIP {
          } else {
             byte[] data = EIP.FormatOutput(texts[tag].Text, attr);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
+         }
+         SetButtonEnables();
+      }
+
+      private void Service_Click(object sender, EventArgs e) {
+         int tag = Convert.ToInt32(((Button)sender).Tag);
+         AttrData attr = attrs[tag];
+         if (attr.Ignore) {
+            texts[tag].Text = "Ignored!";
+         } else {
+            byte[] data = EIP.FormatOutput(texts[tag].Text, attr);
+            bool Success = EIP.ServiceAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
       }
@@ -165,6 +178,11 @@ namespace HitachiEIP {
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
       }
 
+      private void Text_Enter(object sender, EventArgs e) {
+         TextBox tb = (TextBox)sender;
+         parent.BeginInvoke((Action)delegate { tb.SelectAll(); });
+      }
+
       private void Text_Leave(object sender, EventArgs e) {
          TextBox b = (TextBox)sender;
          int tag = Convert.ToInt32(((TextBox)sender).Tag);
@@ -183,7 +201,6 @@ namespace HitachiEIP {
             default:
                break;
          }
-
       }
 
       #endregion
@@ -227,11 +244,13 @@ namespace HitachiEIP {
             labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight,
                                       Text = s };
             tab.Controls.Add(labels[i]);
-            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
-            tab.Controls.Add(texts[i]);
 
-            counts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center, Text = attr.Len.ToString() };
+            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center, Text = attr.Len.ToString() };
             tab.Controls.Add(counts[i]);
+
+            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
+            texts[i].Enter += Text_Enter;
+            tab.Controls.Add(texts[i]);
 
             if (attr.HasGet) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
@@ -251,7 +270,7 @@ namespace HitachiEIP {
             }
             if (attr.HasService) {
                services[i] = new Button() { Tag = i, Text = "Service" };
-               services[i].Click += Set_Click;
+               services[i].Click += Service_Click;
                tab.Controls.Add(services[i]);
             }
          }
@@ -308,6 +327,7 @@ namespace HitachiEIP {
          ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
          ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
          ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)function } };
+         ExtraText[n].Enter += Text_Enter;
          ExtraText[n].Leave += SetExtraButtonEnables;
          ExtraGet[n].Click += GetExtras_Click;
          ExtraSet[n].Click += SetExtras_Click;
@@ -383,8 +403,15 @@ namespace HitachiEIP {
          if (extrasLoaded || !enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
+         bool OpenCloseForward = !EIP.ForwardIsOpen;
+         if (OpenCloseForward) {
+            EIP.ForwardOpen();
+         }
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
+         }
+         if (OpenCloseForward) {
+            EIP.ForwardClose();
          }
          extrasLoaded = true;
          SetExtraButtonEnables(null, null);

@@ -546,7 +546,7 @@
          // btnManagementFlag
          // 
          this.btnManagementFlag.BackColor = System.Drawing.Color.Red;
-         this.btnManagementFlag.Location = new System.Drawing.Point(470, 655);
+         this.btnManagementFlag.Location = new System.Drawing.Point(620, 655);
          this.btnManagementFlag.Name = "btnManagementFlag";
          this.btnManagementFlag.Size = new System.Drawing.Size(113, 52);
          this.btnManagementFlag.TabIndex = 40;
@@ -557,7 +557,7 @@
          // btnAutoReflection
          // 
          this.btnAutoReflection.BackColor = System.Drawing.Color.Red;
-         this.btnAutoReflection.Location = new System.Drawing.Point(589, 655);
+         this.btnAutoReflection.Location = new System.Drawing.Point(486, 655);
          this.btnAutoReflection.Name = "btnAutoReflection";
          this.btnAutoReflection.Size = new System.Drawing.Size(119, 52);
          this.btnAutoReflection.TabIndex = 35;
@@ -655,10 +655,7 @@
       private System.Windows.Forms.Label lblFunction;
       private System.Windows.Forms.ComboBox cbFunction;
       private System.Windows.Forms.Label lbldata;
-      private System.Windows.Forms.TextBox txtDataBytes;
-      private System.Windows.Forms.TextBox txtStatus;
       private System.Windows.Forms.Label lblStatus;
-      private System.Windows.Forms.TextBox txtData;
       private System.Windows.Forms.Label lblSaveFolder;
       private System.Windows.Forms.TextBox txtSaveFolder;
       private System.Windows.Forms.Button btnBrowse;
@@ -688,8 +685,11 @@
       private System.Windows.Forms.Button btnIssueService;
       private System.Windows.Forms.Button btnManagementFlag;
       private System.Windows.Forms.Button btnAutoReflection;
-      private System.Windows.Forms.TextBox txtCount;
       private System.Windows.Forms.Label lblCount;
+      public System.Windows.Forms.TextBox txtDataBytes;
+      public System.Windows.Forms.TextBox txtStatus;
+      public System.Windows.Forms.TextBox txtData;
+      public System.Windows.Forms.TextBox txtCount;
    }
 }
 

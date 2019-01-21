@@ -297,6 +297,10 @@ namespace HitachiEIP {
       internal event ErrorHandler Error;
       internal delegate void ErrorHandler(EIP sender, string msg);
 
+      // Read completion
+      internal event ReadCompleteHandler ReadComplete;
+      internal delegate void ReadCompleteHandler(EIP sender, string msg);
+
       #endregion
 
       #region Declarations/Properties
@@ -365,9 +369,10 @@ namespace HitachiEIP {
       public int GetDataLength { get; set; }
       public byte[] GetData { get; set; }
       public string GetDataValue { get; set; }
+      public string GetStatus { get; set; }
+
       public byte SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
-
       Encoding encode = System.Text.Encoding.GetEncoding("ISO-8859-1");
 
       #endregion
@@ -542,6 +547,16 @@ namespace HitachiEIP {
 
             if (Read(out ReadData, out ReadDataLength)) {
                int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+               string text = "Unknown!";
+               switch (status) {
+                  case 0:
+                     text = "O.K.";
+                     break;
+                  case 0x14:
+                     text = "Attribute Not Supported!";
+                     break;
+               }
+               GetStatus = $"{status:X2} -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
                if (status == 0) {
                   GetDataLength = ReadDataLength - 50;
                   if (GetDataLength > 0) {
@@ -587,6 +602,9 @@ namespace HitachiEIP {
                   result = true;
                }
                GetDataValue = val;
+               if(ReadComplete != null) {
+                  ReadComplete(this, "Read Complete");
+               }
             }
          } catch (Exception e) {
             LogIt(e.Message);
@@ -621,6 +639,44 @@ namespace HitachiEIP {
          SetDataLength = (byte)val.Length;
          try {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
+            Write(ed, 0, ed.Length);
+
+            if (Read(out ReadData, out ReadDataLength)) {
+               result = true;
+            }
+         } catch (Exception e2) {
+
+         }
+
+         if (OpenCloseForward)
+            ForwardClose();
+         if (OpenCloseSession)
+            EndSession();
+
+         return result;
+      }
+
+      // Write one attribute
+      public bool ServiceAttribute(eipClassCode Class, byte Attribute, byte[] val) {
+         bool result = false;
+         bool OpenCloseSession = !SessionIsOpen;
+         bool OpenCloseForward = !ForwardIsOpen;
+
+         if (OpenCloseSession)
+            StartSession();
+         if (OpenCloseForward)
+            ForwardOpen();
+
+         Access = eipAccessCode.Service;
+         this.Class = Class;
+         Instance = 0x01;
+         this.Attribute = Attribute;
+
+         SetData = val;
+
+         SetDataLength = (byte)val.Length;
+         try {
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
             Write(ed, 0, ed.Length);
 
             if (Read(out ReadData, out ReadDataLength)) {
@@ -794,41 +850,6 @@ namespace HitachiEIP {
                break;
          }
          return packet.ToArray<byte>();
-      }
-
-      // Get only the Functions(Attributes) that Apply to this Access Code
-      public int GetDropDowns(eipAccessCode code, ComboBox cb, Type EnumType, int[][] data, out ulong[] values) {
-
-         // Get all names associated with the enumeration
-         string[] allNames = EnumType.GetEnumNames();
-         int[] allValues = (int[])EnumType.GetEnumValues();
-
-         // Weed out the unused ones
-         List<string> name = new List<string>();
-         List<ulong> value = new List<ulong>();
-         for (int i = 0; i < allValues.Length; i++) {
-            int x = allValues[i];
-            AttrData attr = new AttrData(data[i]);
-            if (code == eipAccessCode.Get && attr.HasGet
-               || code == eipAccessCode.Set && attr.HasSet
-               || code == eipAccessCode.Service && attr.HasService) {
-               name.Add(allNames[i].Replace('_', ' '));
-               value.Add((uint)allValues[i]);
-            }
-         }
-
-         // Fix up the Attributes combo box
-         string savedText = cb.Text;
-         cb.Text = string.Empty;
-         cb.Items.Clear();
-         cb.Items.AddRange(name.ToArray());
-         if (cb.FindStringExact(savedText) >= 0) {
-            cb.Text = savedText;
-         }
-
-         // Return the used ones
-         values = value.ToArray();
-         return values.Length;
       }
 
       // Get attribute Human readable name
