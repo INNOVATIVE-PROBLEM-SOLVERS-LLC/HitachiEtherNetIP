@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -366,6 +367,8 @@ namespace HitachiEIP {
       public string GetDataValue { get; set; }
       public byte SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
+
+      Encoding encode = System.Text.Encoding.GetEncoding("ISO-8859-1");
 
       #endregion
 
@@ -892,35 +895,38 @@ namespace HitachiEIP {
          return s;
       }
 
-      // Get data as ascii characters (Need work here)
+      // Get data as ascii characters
       public string GetAscii(byte[] data, int start, int length) {
-         string s = string.Empty;
-         for (int i = 0; i < Math.Min(length, 50); i++) {
-            s += $"{(char)data[start + i]}";
-         }
+         string s = encode.GetString(data, 0, Math.Min(length, 50));
          if (length > 50) {
             s += "...";
          }
          return s;
       }
 
-      // Convert unsigned integer to byte arrat (Need work here)
-      public byte[] ToBytes(uint v, int length) {
+      // Convert unsigned integer to byte array
+      public byte[] ToBytes(uint v, int length, mem order = mem.BigEndian) {
          byte[] result = new byte[length];
-         for (int i = length - 1; i >= 0; i--) {
-            result[i] = (byte)(v & 0xFF);
-            v >>= 8;
+         switch (order) {
+            case mem.BigEndian:
+               for (int i = length - 1; i >= 0; i--) {
+                  result[i] = (byte)(v & 0xFF);
+                  v >>= 8;
+               }
+               break;
+            case mem.LittleEndian:
+               for (int i = 0; i < length; i++) {
+                  result[i] = (byte)(v & 0xFF);
+                  v >>= 8;
+               }
+               break;
          }
          return result;
       }
 
       // Convert ascii string to bytes
       public byte[] ToBytes(string v) {
-         byte[] result = new byte[v.Length + 1];
-         for (int i = 0; i < v.Length; i++) {
-            result[i] = (byte)v[i];
-         }
-         return result;
+         return encode.GetBytes(v);
       }
 
       // Format input byte array to readable characters
@@ -992,6 +998,59 @@ namespace HitachiEIP {
             }
          }
 
+      }
+
+      // Format output
+      public byte[] FormatOutput(string s, AttrData attr) {
+         byte[] result = null;
+         string[] sa;
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+               if (uint.TryParse(s, out uint val)) {
+                  result = ToBytes(val, attr.Len);
+               }
+               break;
+            case DataFormats.ASCII:
+               result = encode.GetBytes(s);
+               break;
+            case DataFormats.Date:
+               if (DateTime.TryParse(s, out DateTime d)) {
+                  byte[] year = ToBytes((uint)d.Year, 4, mem.LittleEndian);
+                  byte[] month = ToBytes((uint)d.Month, 2, mem.LittleEndian);
+                  byte[] day = ToBytes((uint)d.Day, 2, mem.LittleEndian);
+                  byte[] hour = ToBytes((uint)d.Hour, 2, mem.LittleEndian);
+                  byte[] minute = ToBytes((uint)d.Minute, 2, mem.LittleEndian);
+                  result = new byte[12];
+                  for (int i = 0; i < 4; i++) {
+                     result[i] = year[i];
+                     if (i < 2) {
+                        result[i + 4] = month[i];
+                        result[i + 6] = day[i];
+                        result[i + 7] = hour[i];
+                        result[i + 10] = minute[i];
+                     }
+                  }
+               }
+               break;
+            case DataFormats.Bytes:
+               sa = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+               result = new byte[attr.Len];
+               for (int i = 0; i < Math.Min(sa.Length, attr.Len); i++) {
+                  if (int.TryParse(sa[i], System.Globalization.NumberStyles.HexNumber, null, out int n)) {
+                     result[i] = (byte)n;
+                  }
+               }
+               break;
+            case DataFormats.XY:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint x) && uint.TryParse(sa[1].Trim(), out uint y)) {
+                     result = ToBytes((x << 8) + y, 3);
+                  }
+               }
+               break;
+         }
+         return result;
       }
 
       #endregion

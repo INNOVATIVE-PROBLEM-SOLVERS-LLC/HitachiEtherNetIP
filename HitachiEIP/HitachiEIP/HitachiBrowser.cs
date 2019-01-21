@@ -63,7 +63,8 @@ namespace HitachiEIP {
       public const int AddPosition = 0x08;
       public const int AddCalendar = 0x10;
       public const int AddCount = 0x20;
-      public const int AddAll = 0x3F;
+      public const int AddSubstitution = 0x40;
+      public const int AddAll = 0x7F;
 
       #endregion
 
@@ -119,14 +120,15 @@ namespace HitachiEIP {
             (this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
          pFmtAttr = new Attributes<eipPrint_format>
             (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat, 
-            AddCalendar | AddColumn | AddCount | AddItem | AddLine | AddPosition);
+            AddItem | AddPosition);
          calAttr = new Attributes<eipCalendar>
             (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar, 
             AddCalendar | AddItem);
          sRulesAttr = new Attributes<eipSubstitution_rules>
             (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules);
          countAttr = new Attributes<eipCount>
-            (this, EIP, tabCount, eipClassCode.Count, Data.Count);
+            (this, EIP, tabCount, eipClassCode.Count, Data.Count,
+            AddItem | AddCount);
          unitInfoAttr = new Attributes<eipUnit_Information>
             (this, EIP, tabUnitInformation, eipClassCode.Unit_Information, Data.UnitInformation);
          envirAttr = new Attributes<eipEnviroment_setting>
@@ -340,7 +342,7 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] Data = new byte[] { 1 };
+               byte[] Data = EIP.FormatOutput(txtData.Text, attr);
                Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
