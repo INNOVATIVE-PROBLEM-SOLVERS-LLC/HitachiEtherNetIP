@@ -28,7 +28,6 @@ namespace HitachiEIP {
       // Traffic/Log files
       string TrafficFilename;
       StreamWriter TrafficFileStream = null;
-
       string LogFilename;
       StreamWriter LogFileStream = null;
 
@@ -56,6 +55,7 @@ namespace HitachiEIP {
       public bool MgmtIsOn = false;
       public bool AutoReflIsOn = false;
 
+      // Flags for adding extra controls to set Index functions
       public const int AddNone = 0;
       public const int AddItem = 0x01;
       public const int AddColumn = 0x02;
@@ -76,18 +76,15 @@ namespace HitachiEIP {
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
+         EIP.ReadComplete += EIP_ReadComplete;
 
       }
 
-      private void EIP_Error(EIP sender, string msg) {
-         AllGood = false;
-         lstErrors.Items.Add(msg);
-      }
-
-      public void EIP_Log(EIP sender, string msg) {
-         LogFileStream.WriteLine(msg);
-         lstErrors.Items.Add(msg);
-         lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
+      private void EIP_ReadComplete(EIP sender, string msg) {
+         txtStatus.Text = EIP.GetStatus;
+         txtCount.Text = EIP.GetDataLength.ToString();
+         txtData.Text = EIP.GetDataValue;
+         txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
       }
 
       #endregion
@@ -125,7 +122,8 @@ namespace HitachiEIP {
             (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar, 
             AddCalendar | AddItem);
          sRulesAttr = new Attributes<eipSubstitution_rules>
-            (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules);
+            (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules,
+            AddSubstitution);
          countAttr = new Attributes<eipCount>
             (this, EIP, tabCount, eipClassCode.Count, Data.Count,
             AddItem | AddCount);
@@ -146,12 +144,10 @@ namespace HitachiEIP {
          btnStartSession_Click(null, null);
 
          if (EIP.SessionIsOpen) {
-            // COM on is important.  Go get it
+            // These three flags control all traffic to/from the printer
             GetComSetting();
-            GetMgmtSetting();
             GetAutoReflectionSetting();
-         } else {
-
+            GetMgmtSetting();
          }
          SetButtonEnables();
       }
@@ -174,6 +170,7 @@ namespace HitachiEIP {
 
          // Stop logging
          EIP.Log -= EIP_Log;
+         EIP.Error -= EIP_Error;
 
          // Close log/traffic files
          CloseTrafficFile(false);
@@ -248,8 +245,8 @@ namespace HitachiEIP {
             #region Bottom Row
 
             Utils.ResizeObject(ref R, btnCom, 43.5f, 10, 3, 5);
-            Utils.ResizeObject(ref R, btnManagementFlag, 43.5f, 15.5f, 3, 5);
-            Utils.ResizeObject(ref R, btnAutoReflection, 43.5f, 21, 3, 5);
+            Utils.ResizeObject(ref R, btnAutoReflection, 43.5f, 15.5f, 3, 5);
+            Utils.ResizeObject(ref R, btnManagementFlag, 43.5f, 21, 3, 5);
 
             Utils.ResizeObject(ref R, btnStop, 44, 29.5f, 2, 3);
             Utils.ResizeObject(ref R, btnViewTraffic, 44, 33, 2, 3);
@@ -270,7 +267,6 @@ namespace HitachiEIP {
 
       private void btnStartSession_Click(object sender, EventArgs e) {
          VerifyAddressAndPort();
-         //EIP.Connect(IPAddress, port);
          EIP.StartSession();
          txtSessionID.Text = EIP.SessionID.ToString();
          SetButtonEnables();
@@ -313,21 +309,8 @@ namespace HitachiEIP {
                trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
-                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
-                  string text = "Unknown!";
-                  switch (status) {
-                     case 0:
-                        text = "O.K.";
-                        break;
-                     case 0x14:
-                        text = "Attribute Not Supported!";
-                        break;
-                  }
-                  trafficText += $"{hdr}\t{text}\t";
-                  txtStatus.Text = $"{status:X2} -- {text} -- {(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute:X2}";
-                  EIP.FormatInput(attr, txtCount, txtData);
+                  trafficText += $"{hdr}\t{EIP.GetStatus}\t";
                   string s = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
-                  txtDataBytes.Text = s;
                   trafficText += $"{txtCount.Text}\t{txtData.Text}\t{txtDataBytes.Text}";
                }
                TrafficFileStream.WriteLine(trafficText);
@@ -525,6 +508,17 @@ namespace HitachiEIP {
 
       private void btnStop_Click(object sender, EventArgs e) {
          AllGood = false;
+      }
+
+      private void EIP_Error(EIP sender, string msg) {
+         AllGood = false;
+         lstErrors.Items.Add(msg);
+      }
+
+      public void EIP_Log(EIP sender, string msg) {
+         LogFileStream.WriteLine(msg);
+         lstErrors.Items.Add(msg);
+         lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 
       #endregion
