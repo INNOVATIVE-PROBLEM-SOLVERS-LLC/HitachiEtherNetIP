@@ -43,6 +43,8 @@ namespace HitachiEIP {
       Button[] ExtraGet;
       Button[] ExtraSet;
 
+      int half = 16;
+
       #endregion
 
       #region Constructors and destructors
@@ -58,10 +60,9 @@ namespace HitachiEIP {
             attrs[i] = new AttrData(data[i]);
          }
          this.Extras = Extras;
+         extrasUsed = AddExtraControls();
+         half = extrasUsed >= 3 ? 16 : 15;
          BuildControls();
-         if (Extras > 0) {
-            extrasUsed = AddExtraControls();
-         }
       }
 
       #endregion
@@ -192,7 +193,7 @@ namespace HitachiEIP {
       private void BuildControls() {
 
          // build headers
-         if (attributes.Length > 17) {
+         if (attributes.Length > half) {
             hdrs = new Label[8];
          } else {
             hdrs = new Label[4];
@@ -201,7 +202,7 @@ namespace HitachiEIP {
          hdrs[1] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
          hdrs[2] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
          hdrs[3] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-         if (attributes.Length > 17) {
+         if (attributes.Length > half) {
             hdrs[4] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight };
             hdrs[5] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
             hdrs[6] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
@@ -319,7 +320,6 @@ namespace HitachiEIP {
          }
          parent.tclClasses.Visible = false;
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
-         int half = 15;
          float cw = 17.5f;
 
          Utils.ResizeObject(ref R, hdrs[0], 0.5f, 0.25f, 1.5f, 8);

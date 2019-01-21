@@ -615,7 +615,9 @@ namespace HitachiEIP {
          this.Class = Class;
          Instance = 0x01;
          this.Attribute = Attribute;
+
          SetData = val;
+
          SetDataLength = (byte)val.Length;
          try {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
@@ -1049,6 +1051,9 @@ namespace HitachiEIP {
                   }
                }
                break;
+         }
+         if (result == null) {
+            result = new byte[0];
          }
          return result;
       }
