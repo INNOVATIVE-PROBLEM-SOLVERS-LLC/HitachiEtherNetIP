@@ -149,8 +149,8 @@ namespace HitachiEIP {
 
       // User Pattern (Class Code 0x6B)
       public static int[][] UserPattern = new int[][] {
-         new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 0}, // User Pattern Fixed
-         new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 0}, // User Pattern Free
+         new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 1}, // User Pattern Fixed
+         new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 1}, // User Pattern Free
      };
 
       // Substitution Rules(Class Code 0x6C)
@@ -287,8 +287,9 @@ namespace HitachiEIP {
             Index,                         // 0x7A
          };
 
+      // Get attribute data for an arbitrary class/attribute
       public static AttrData GetAttrData(byte Class, byte attr ) {
-         for (int i = 0; i < ClassCodes.Length; i++) {
+         for (int i = 0; i < ClassCodes.GetLength(0); i++) {
             if ((byte)ClassCodes[i,0] == Class) {
                int[][] tab = ClassCodeData[i];
                for (int j = 0; j < tab.Length; j++) {
@@ -300,6 +301,7 @@ namespace HitachiEIP {
          }
          return null;
       }
+
    }
 
    public class ClassCodeData {

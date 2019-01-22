@@ -119,6 +119,10 @@ namespace HitachiEIP {
             }
          }
          parent.Refresh();
+         bool OpenCloseForward = !EIP.ForwardIsOpen;
+         if (OpenCloseForward) {
+            EIP.ForwardOpen();
+         }
          for (int i = 0; i < gets.Length && parent.AllGood; i++) {
             if (gets[i] != null) {
                Get_Click(gets[i], null);
@@ -129,13 +133,20 @@ namespace HitachiEIP {
          if (!parent.AllGood) {
             parent.EIP_Log(null, "GetAll completed abnormally");
          }
+         if (OpenCloseForward && EIP.ForwardIsOpen) {
+            EIP.ForwardClose();
+         }
          SetButtonEnables();
       }
 
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
+         bool OpenCloseForward = !EIP.ForwardIsOpen;
+         if (OpenCloseForward) {
+            EIP.ForwardOpen();
+         }
          for (int i = 0; i < sets.Length && parent.AllGood; i++) {
-            if (gets[i] != null) {
+            if (sets[i] != null) {
                Set_Click(sets[i], null);
                parent.Refresh();
                Application.DoEvents();
@@ -143,6 +154,9 @@ namespace HitachiEIP {
          }
          if (!parent.AllGood) {
             parent.EIP_Log(null, "SetAll completed abnormally");
+         }
+         if (OpenCloseForward && EIP.ForwardIsOpen) {
+            EIP.ForwardClose();
          }
       }
 
