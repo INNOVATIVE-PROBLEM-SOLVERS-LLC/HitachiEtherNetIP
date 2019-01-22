@@ -76,7 +76,7 @@ namespace HitachiEIP {
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
-         EIP.ReadComplete += EIP_ReadComplete;
+         EIP.IOComplete += EIP_ReadComplete;
 
       }
 

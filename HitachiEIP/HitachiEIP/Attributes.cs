@@ -80,7 +80,7 @@ namespace HitachiEIP {
          } else {
             texts[tag].Text = "Loading";
             parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt);
-            EIP.FormatInput(attr, counts[tag], texts[tag]);
+            EIP.SetBackColor(attr, counts[tag], texts[tag]);
          }
          SetButtonEnables();
       }
