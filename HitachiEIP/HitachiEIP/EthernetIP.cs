@@ -298,8 +298,8 @@ namespace HitachiEIP {
       internal delegate void ErrorHandler(EIP sender, string msg);
 
       // Read completion
-      internal event ReadCompleteHandler ReadComplete;
-      internal delegate void ReadCompleteHandler(EIP sender, string msg);
+      internal event IOHandler IOComplete;
+      internal delegate void IOHandler(EIP sender, string msg);
 
       #endregion
 
@@ -545,66 +545,44 @@ namespace HitachiEIP {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             Write(ed, 0, ed.Length);
 
-            if (Read(out ReadData, out ReadDataLength)) {
-               int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
-               string text = "Unknown!";
-               switch (status) {
-                  case 0:
-                     text = "O.K.";
-                     break;
-                  case 0x14:
-                     text = "Attribute Not Supported!";
-                     break;
-               }
-               GetStatus = $"{status:X2} -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
-               if (status == 0) {
-                  GetDataLength = ReadDataLength - 50;
-                  if (GetDataLength > 0) {
-                     GetData = new byte[GetDataLength];
-                     for (int i = 0; i < GetDataLength; i++) {
-                        GetData[i] = ReadData[50 + i];
-                     }
-                  } else {
-                     GetData = new byte[0];
-                  }
-                  switch (fmt) {
-                     case DataFormats.Decimal:
-                        if (GetDataLength > 8) {
-                           val = GetBytes(GetData, 0, GetDataLength);
-                        } else {
-                           val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
-                        }
-                        break;
-                     case DataFormats.Bytes:
+            bool Success = Read(out ReadData, out ReadDataLength);
+            InterpretResult(ReadData, ReadDataLength);
+            if (Success) {
+               switch (fmt) {
+                  case DataFormats.Decimal:
+                     if (GetDataLength > 8) {
                         val = GetBytes(GetData, 0, GetDataLength);
-                        break;
-                     case DataFormats.ASCII:
-                        val = GetAscii(GetData, 0, GetDataLength);
-                        break;
-                     case DataFormats.XY:
-                        if (GetDataLength == 3) {
-                           val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
-                        } else {
-                           val = GetBytes(GetData, 0, GetDataLength);
-                        }
-                        break;
-                     case DataFormats.Date:
-                        if (GetDataLength == 12) {
-                           val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
-                           val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
-                        } else {
-                           val = GetBytes(GetData, 0, GetDataLength);
-                        }
-                        break;
-                     default:
-                        break;
-                  }
-                  result = true;
+                     } else {
+                        val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
+                     }
+                     break;
+                  case DataFormats.Bytes:
+                     val = GetBytes(GetData, 0, GetDataLength);
+                     break;
+                  case DataFormats.ASCII:
+                     val = GetAscii(GetData, 0, GetDataLength);
+                     break;
+                  case DataFormats.XY:
+                     if (GetDataLength == 3) {
+                        val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
+                     } else {
+                        val = GetBytes(GetData, 0, GetDataLength);
+                     }
+                     break;
+                  case DataFormats.Date:
+                     if (GetDataLength == 12) {
+                        val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
+                        val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
+                     } else {
+                        val = GetBytes(GetData, 0, GetDataLength);
+                     }
+                     break;
+                  default:
+                     break;
                }
+               result = true;
+
                GetDataValue = val;
-               if(ReadComplete != null) {
-                  ReadComplete(this, "Read Complete");
-               }
             }
          } catch (Exception e) {
             LogIt(e.Message);
@@ -615,12 +593,14 @@ namespace HitachiEIP {
          if (OpenCloseSession)
             EndSession();
 
+         IOComplete?.Invoke(this, "Read Complete");
+
          return result;
       }
 
       // Write one attribute
       public bool WriteOneAttribute(eipClassCode Class, byte Attribute, byte[] val) {
-         bool result = false;
+         bool Success = false;
          bool OpenCloseSession = !SessionIsOpen;
          bool OpenCloseForward = !ForwardIsOpen;
 
@@ -635,15 +615,13 @@ namespace HitachiEIP {
          this.Attribute = Attribute;
 
          SetData = val;
-
          SetDataLength = (byte)val.Length;
+
          try {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
             Write(ed, 0, ed.Length);
-
-            if (Read(out ReadData, out ReadDataLength)) {
-               result = true;
-            }
+            Success = Read(out ReadData, out ReadDataLength);
+            InterpretResult(ReadData, ReadDataLength);
          } catch (Exception e2) {
 
          }
@@ -653,12 +631,14 @@ namespace HitachiEIP {
          if (OpenCloseSession)
             EndSession();
 
-         return result;
+         IOComplete?.Invoke(this, "Write Complete");
+
+         return Success;
       }
 
       // Write one attribute
       public bool ServiceAttribute(eipClassCode Class, byte Attribute, byte[] val) {
-         bool result = false;
+         bool success = false;
          bool OpenCloseSession = !SessionIsOpen;
          bool OpenCloseForward = !ForwardIsOpen;
 
@@ -673,15 +653,15 @@ namespace HitachiEIP {
          this.Attribute = Attribute;
 
          SetData = val;
-
          SetDataLength = (byte)val.Length;
+
          try {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
             Write(ed, 0, ed.Length);
 
-            if (Read(out ReadData, out ReadDataLength)) {
-               result = true;
-            }
+            success = Read(out ReadData, out ReadDataLength);
+            InterpretResult(ReadData, ReadDataLength);
+
          } catch (Exception e2) {
 
          }
@@ -691,7 +671,9 @@ namespace HitachiEIP {
          if (OpenCloseSession)
             EndSession();
 
-         return result;
+         IOComplete?.Invoke(this, "Service Complete");
+
+         return success;
       }
 
       // Handles Hitachi Get, Set, and Service
@@ -953,7 +935,7 @@ namespace HitachiEIP {
       }
 
       // Format input byte array to readable characters
-      public void FormatInput(AttrData attr, TextBox count, TextBox text) {
+      public void SetBackColor(AttrData attr, TextBox count, TextBox text) {
          count.Text = GetDataLength.ToString();
          text.Text = GetDataValue;
          if (attr.Fmt == DataFormats.Decimal) {
@@ -1129,6 +1111,35 @@ namespace HitachiEIP {
 
       private void ErrorOut() {
          Error?.Invoke(this, "Ouch");
+      }
+
+      private void InterpretResult(byte[] readData, int readDataLength) {
+         string text = "Unknown!";
+         int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+         GetDataLength = ReadDataLength - 50;
+         GetDataValue = string.Empty;
+         if (ReadDataLength >= 50) {
+            switch (status) {
+               case 0:
+                  text = "O.K.";
+                  break;
+               case 0x14:
+                  text = "Attribute Not Supported!";
+                  break;
+            }
+            GetStatus = $"{status:X2} -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
+            if (GetDataLength > 0) {
+               GetData = new byte[GetDataLength];
+               for (int i = 0; i < GetDataLength; i++) {
+                  GetData[i] = ReadData[50 + i];
+               }
+            } else {
+               GetData = new byte[0];
+            }
+         } else {
+            GetStatus = $"?? -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
+            GetData = new byte[0];
+         }
       }
 
       #endregion
