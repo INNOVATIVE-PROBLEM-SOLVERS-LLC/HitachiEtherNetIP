@@ -1016,7 +1016,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.ASCII:
-               result = encode.GetBytes(s);
+               result = encode.GetBytes(s + "\x00");
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {

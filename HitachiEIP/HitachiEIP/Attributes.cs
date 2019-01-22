@@ -62,7 +62,7 @@ namespace HitachiEIP {
          this.Extras = Extras;
 
          extrasUsed = AddExtraControls();
-         half = extrasUsed >= 3 ? 16 : 15;
+         half = extrasUsed >= 3 ? 15 : 16;
          BuildControls();
       }
 
