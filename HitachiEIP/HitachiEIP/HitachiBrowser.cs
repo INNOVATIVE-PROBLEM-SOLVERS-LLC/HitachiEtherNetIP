@@ -146,8 +146,10 @@ namespace HitachiEIP {
          if (EIP.SessionIsOpen) {
             // These three flags control all traffic to/from the printer
             GetComSetting();
-            GetAutoReflectionSetting();
-            GetMgmtSetting();
+            if (ComIsOn) {
+               GetAutoReflectionSetting();
+               GetMgmtSetting();
+            }
          }
          SetButtonEnables();
       }
@@ -446,6 +448,10 @@ namespace HitachiEIP {
             int val = ComIsOn ? 0 : 1;
             if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, EIP.ToBytes((uint)val, 1))) {
                GetComSetting();
+               if (ComIsOn) {
+                  GetAutoReflectionSetting();
+                  GetMgmtSetting();
+               }
             }
          }
          SetButtonEnables();
