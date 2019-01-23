@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
@@ -42,12 +38,12 @@ namespace HitachiEIP {
 
       // Print Data Management (Class Code 0x66) Complete!
       public static int[][] PrintDataManagement = new int[][] {
-         new int[] { 0X64, 0, 0, 1, 0, 0, 1, 2000, 9, 0}, // Select Message
+         new int[] { 0X64, 0, 0, 1, 2, 0, 1, 2000, 9, 0}, // Select Message
          new int[] { 0X65, 1, 0, 0, 15, 1, 0, 0, 10, 0}, // Store Print Data
          new int[] { 0X67, 1, 0, 0, 2, 0, 1, 2000, 3, 0}, // Delete Print Data
          new int[] { 0X69, 1, 0, 0, 10, 1, 0, 0, 7, 0}, // Print Data Name
          new int[] { 0X6A, 0, 1, 0, 2, 0, 1, 2000, 6, 1}, // List of Messages
-         new int[] { 0X6B, 1, 0, 0, 4, 0, 1, 2000, 8, 0}, // Print Data Number
+         new int[] { 0X6B, 1, 0, 5, 4, 0, 1, 2000, 8, 0}, // Print Data Number
          new int[] { 0X6C, 1, 0, 0, 14, 1, 0, 14, 1, 0}, // Change Create Group Name
          new int[] { 0X6D, 1, 0, 0, 1, 0, 1, 99, 4, 0}, // Group Deletion
          new int[] { 0X6F, 0, 1, 0, 1, 0, 1, 99, 5, 1}, // List of Groups
