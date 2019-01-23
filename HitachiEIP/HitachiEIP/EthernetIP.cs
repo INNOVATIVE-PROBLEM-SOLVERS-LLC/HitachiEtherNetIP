@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -301,6 +302,10 @@ namespace HitachiEIP {
       internal event IOHandler IOComplete;
       internal delegate void IOHandler(EIP sender, string msg);
 
+      // Read completion
+      internal event ConnectionStateChangedHandler StateChanged;
+      internal delegate void ConnectionStateChangedHandler(EIP sender, string msg);
+
       #endregion
 
       #region Declarations/Properties
@@ -361,6 +366,8 @@ namespace HitachiEIP {
          get { return O_T_ConnectionID > 0; }
       }
 
+      public string LastIO { get; set; }
+
       // Full Read Packet
       public byte[] ReadData;
       public Int32 ReadDataLength;
@@ -399,6 +406,7 @@ namespace HitachiEIP {
          } catch (Exception e) {
             LogIt(e.Message);
          }
+         StateChanged?.Invoke(this, "Connection Changed");
          return result;
       }
 
@@ -411,269 +419,226 @@ namespace HitachiEIP {
       // Disconnect from Hitachi printer
       private bool Disconnect() {
          bool result = false;
+         SessionID = 0;
+         O_T_ConnectionID = 0;
+         T_O_ConnectionID = 0;
          try {
-            stream.Close();
-            stream = null;
-            client.Close();
-            client = null;
+            if (stream != null) {
+               stream.Close();
+               stream = null;
+            }
+            if (client != null) {
+               client.Close();
+               client = null;
+            }
             result = true;
             LogIt("Disconnect Complete!");
          } catch (Exception e) {
             LogIt(e.Message);
          }
+         StateChanged?.Invoke(this, "Connection Changed");
          return result;
       }
 
       // Start EtherNet/IP Session
-      public void StartSession() {
+      public bool StartSession() {
+         bool successful = false;
+         byte[] data;
+         Int32 bytes;
+         SessionID = 0;
          if (Connect()) {
             byte[] ed = EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
-            Write(ed, 0, ed.Length);
-
-            byte[] data;
-            Int32 bytes;
-            if (Read(out data, out bytes) && bytes >= 8) {
+            if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 8) {
                SessionID = Get(data, 4, 4, mem.LittleEndian);
-            } else {
-               SessionID = 0;
+               LogIt("Session Started!");
+               successful = true;
             }
-            LogIt("Session Started!");
          }
+         if (!successful) {
+            LogIt("Session Start Failed!");
+            Disconnect();
+         }
+         StateChanged?.Invoke(this, "Session Changed");
+         return successful;
       }
 
       // End EtherNet/IP Session
-      internal void EndSession() {
-         byte[] ed = EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
-         Write(ed, 0, ed.Length);
-
-         byte[] data;
-         Int32 bytes;
-         if (Read(out data, out bytes)) {
-
-         }
+      internal bool EndSession() {
          SessionID = 0;
+         if (client.Connected) {
+            byte[] ed = EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
+            Write(ed, 0, ed.Length);
+         }
          LogIt("Session Ended!");
          Disconnect();
-     }
+         StateChanged?.Invoke(this, "Session Changed");
+         return true;
+      }
 
       // Start EtherNet/IP Forward Open
-      public void ForwardOpen() {
-         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
-         Write(ed, 0, ed.Length);
-
+      public bool ForwardOpen() {
+         bool successful = false;
          byte[] data;
          Int32 bytes;
-         if (Read(out data, out bytes) && bytes >= 52) {
+         O_T_ConnectionID = 0;
+         T_O_ConnectionID = 0;
+         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
+         if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 52) {
             O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
             T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
+            successful = true;
+            LogIt("Forward Open!");
          } else {
-            O_T_ConnectionID = 0;
-            T_O_ConnectionID = 0;
+            LogIt("Forward Open Failed!");
          }
-         LogIt("Forward Open!");
+         StateChanged?.Invoke(this, "Forward Changed");
+         return successful;
       }
 
       // End EtherNet/IP Forward Open
-      public void ForwardClose() {
-         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
-         Write(ed, 0, ed.Length);
-
+      public bool ForwardClose() {
          byte[] data;
          Int32 bytes;
-         if (!Read(out data, out bytes)) {
-
-         }
          O_T_ConnectionID = 0;
          T_O_ConnectionID = 0;
-         LogIt("Forward Close!");
+         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
+         if (Write(ed, 0, ed.Length) && Read(out data, out bytes)) {
+            LogIt("Forward Close!");
+         } else {
+            LogIt("Forward Close Failed!");
+         }
+         StateChanged?.Invoke(this, "Forward Changed");
+         return true;
       }
 
       // Read response to EtherNet/IP request
       public bool Read(out byte[] data, out int bytes) {
-         bool result = false;
+         bool successful = false;
          data = new byte[256];
          bytes = -1;
-         try {
-            for (int t = 0; t < 10; t++) {
-               if (stream.DataAvailable) {
-                  bytes = stream.Read(data, 0, data.Length);
-                  break;
+         if (stream != null) {
+            try {
+               for (int t = 0; t < 10; t++) {
+                  if (stream.DataAvailable) {
+                     bytes = stream.Read(data, 0, data.Length);
+                     successful = true;
+                     break;
+                  }
+                  Thread.Sleep(50);
                }
-               Thread.Sleep(50);
+            } catch (IOException e) {
+               LogIt(e.Message);
             }
-            result = bytes > 0;
-         } catch (Exception e) {
-            LogIt(e.Message);
          }
-         return result;
+         if (!successful) {
+            LogIt("Read Failed. Connection Closed!");
+            Disconnect();
+         }
+         return successful;
       }
 
       // Issue EtherNet/IP request
       public bool Write(byte[] data, int start, int length) {
-         bool result = false;
-         try {
-            stream.Write(data, start, length);
-            result = true;
-         } catch (Exception e) {
-            LogIt(e.Message);
+         bool successful = false;
+         if (stream != null) {
+            try {
+               stream.Write(data, start, length);
+               successful = true;
+            } catch (IOException e) {
+               LogIt(e.Message);
+            }
          }
-         return result;
+         if (!successful) {
+            LogIt("Write Failed. Connection Closed!");
+            Disconnect();
+         }
+         return successful;
       }
 
       // Read one attribute
       public bool ReadOneAttribute(eipClassCode Class, byte Attribute, out string val, DataFormats fmt) {
-         bool result = false;
-
-         bool OpenCloseSession = !SessionIsOpen;
+         bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
-
-         if (OpenCloseSession)
-            StartSession();
-         if (OpenCloseForward)
+         if (OpenCloseForward) {
             ForwardOpen();
-
-         val = "#Error";
-
-         Access = eipAccessCode.Get;
-         this.Class = Class;
-         Instance = 0x01;
-         this.Attribute = Attribute;
-         SetData = new byte[] { };
-         SetDataLength = 0;
-         try {
-
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
-            Write(ed, 0, ed.Length);
-
-            bool Success = Read(out ReadData, out ReadDataLength);
-            InterpretResult(ReadData, ReadDataLength);
-            if (Success) {
-               switch (fmt) {
-                  case DataFormats.Decimal:
-                     if (GetDataLength > 8) {
-                        val = GetBytes(GetData, 0, GetDataLength);
-                     } else {
-                        val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
-                     }
-                     break;
-                  case DataFormats.Bytes:
-                     val = GetBytes(GetData, 0, GetDataLength);
-                     break;
-                  case DataFormats.ASCII:
-                     val = GetAscii(GetData, 0, GetDataLength);
-                     break;
-                  case DataFormats.XY:
-                     if (GetDataLength == 3) {
-                        val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
-                     } else {
-                        val = GetBytes(GetData, 0, GetDataLength);
-                     }
-                     break;
-                  case DataFormats.Date:
-                     if (GetDataLength == 12) {
-                        val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
-                        val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
-                     } else {
-                        val = GetBytes(GetData, 0, GetDataLength);
-                     }
-                     break;
-                  default:
-                     break;
-               }
-               result = true;
-
-               GetDataValue = val;
-            }
-         } catch (Exception e) {
-            LogIt(e.Message);
          }
-
-         if (OpenCloseForward)
+         SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
+         val = "#Error";
+         if (ForwardIsOpen) {
+            SetData = new byte[] { };
+            SetDataLength = 0;
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
+            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+               InterpretResult(ReadData, ReadDataLength);
+               GetDataValue = val = FormatResult(fmt);
+               Successful = true;
+            }
+         }
+         if (Successful) {
+            IOComplete?.Invoke(this, "ReadOneAttribute Complete!");
+         } else {
+            IOComplete?.Invoke(this, "ReadOneAttribute Failed!");
+         }
+         if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
-         if (OpenCloseSession)
-            EndSession();
-
-         IOComplete?.Invoke(this, "Read Complete");
-
-         return result;
+         }
+         return Successful;
       }
 
       // Write one attribute
       public bool WriteOneAttribute(eipClassCode Class, byte Attribute, byte[] val) {
-         bool Success = false;
-         bool OpenCloseSession = !SessionIsOpen;
+         bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
-
-         if (OpenCloseSession)
-            StartSession();
-         if (OpenCloseForward)
+         if (OpenCloseForward) {
             ForwardOpen();
-
-         Access = eipAccessCode.Set;
-         this.Class = Class;
-         Instance = 0x01;
-         this.Attribute = Attribute;
-
-         SetData = val;
-         SetDataLength = (byte)val.Length;
-
-         try {
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
-            Write(ed, 0, ed.Length);
-            Success = Read(out ReadData, out ReadDataLength);
-            InterpretResult(ReadData, ReadDataLength);
-         } catch (Exception e2) {
-
          }
-
-         if (OpenCloseForward)
+         SetRequest(eipAccessCode.Set, Class, 0x01, Attribute);
+         if (ForwardIsOpen) {
+            SetData = val;
+            SetDataLength = (byte)val.Length;
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
+            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+               InterpretResult(ReadData, ReadDataLength);
+               Successful = true;
+            }
+         }
+         if (Successful) {
+            IOComplete?.Invoke(this, "WriteOneAttribute Complete!");
+         } else {
+            IOComplete?.Invoke(this, "WriteOneAttribute Failed!");
+         }
+         if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
-         if (OpenCloseSession)
-            EndSession();
-
-         IOComplete?.Invoke(this, "Write Complete");
-
-         return Success;
+         }
+         return Successful;
       }
 
-      // Write one attribute
+      // Service one attribute
       public bool ServiceAttribute(eipClassCode Class, byte Attribute, byte[] val) {
-         bool success = false;
-         bool OpenCloseSession = !SessionIsOpen;
+         bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
-
-         if (OpenCloseSession)
-            StartSession();
-         if (OpenCloseForward)
+         if (OpenCloseForward) {
             ForwardOpen();
-
-         Access = eipAccessCode.Service;
-         this.Class = Class;
-         Instance = 0x01;
-         this.Attribute = Attribute;
-
-         SetData = val;
-         SetDataLength = (byte)val.Length;
-
-         try {
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
-            Write(ed, 0, ed.Length);
-
-            success = Read(out ReadData, out ReadDataLength);
-            InterpretResult(ReadData, ReadDataLength);
-
-         } catch (Exception e2) {
-
          }
-
-         if (OpenCloseForward)
+         SetRequest(eipAccessCode.Service, Class, 0x01, Attribute);
+         if (ForwardIsOpen) {
+            SetData = val;
+            SetDataLength = (byte)val.Length;
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
+            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+               InterpretResult(ReadData, ReadDataLength);
+               Successful = true;
+            }
+         }
+         if (Successful) {
+            IOComplete?.Invoke(this, "ServiceOneAttribute Complete!");
+         } else {
+            IOComplete?.Invoke(this, "ServiceOneAttribute Failed!");
+         }
+         if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
-         if (OpenCloseSession)
-            EndSession();
-
-         IOComplete?.Invoke(this, "Service Complete");
-
-         return success;
+         }
+         return Successful;
       }
 
       // Handles Hitachi Get, Set, and Service
@@ -891,10 +856,10 @@ namespace HitachiEIP {
       // Get data array as xx xx xx xx ...
       public string GetBytes(byte[] data, int start, int length) {
          string s = string.Empty;
-         for (int i = 0; i < Math.Min(length, 50); i++) {
+         for (int i = 0; i < Math.Min(length, 20); i++) {
             s += $"{data[start + i]:X2} ";
          }
-         if (length > 50) {
+         if (length > 20) {
             s += "...";
          }
          return s;
@@ -902,8 +867,8 @@ namespace HitachiEIP {
 
       // Get data as ascii characters
       public string GetAscii(byte[] data, int start, int length) {
-         string s = encode.GetString(data, 0, Math.Min(length, 50));
-         if (length > 50) {
+         string s = encode.GetString(data, 0, Math.Min(length, 20));
+         if (length > 20) {
             s += "...";
          }
          return s;
@@ -1118,7 +1083,7 @@ namespace HitachiEIP {
          int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
          GetDataLength = ReadDataLength - 50;
          GetDataValue = string.Empty;
-         if (ReadDataLength >= 50) {
+         if (GetDataLength > 0) {
             switch (status) {
                case 0:
                   text = "O.K.";
@@ -1127,7 +1092,7 @@ namespace HitachiEIP {
                   text = "Attribute Not Supported!";
                   break;
             }
-            GetStatus = $"{status:X2} -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
+            GetStatus = $"{status:X2} -- {text} -- {LastIO}";
             if (GetDataLength > 0) {
                GetData = new byte[GetDataLength];
                for (int i = 0; i < GetDataLength; i++) {
@@ -1137,9 +1102,54 @@ namespace HitachiEIP {
                GetData = new byte[0];
             }
          } else {
-            GetStatus = $"?? -- {text} -- {(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
+            GetStatus = $"?? -- {text} -- {LastIO}";
             GetData = new byte[0];
          }
+      }
+
+      private string FormatResult(DataFormats fmt) {
+         string val = "N/A";
+         switch (fmt) {
+            case DataFormats.Decimal:
+               if (GetDataLength > 8) {
+                  val = GetBytes(GetData, 0, GetDataLength);
+               } else {
+                  val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
+               }
+               break;
+            case DataFormats.Bytes:
+               val = GetBytes(GetData, 0, GetDataLength);
+               break;
+            case DataFormats.ASCII:
+               val = GetAscii(GetData, 0, GetDataLength);
+               break;
+            case DataFormats.XY:
+               if (GetDataLength == 3) {
+                  val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
+               } else {
+                  val = GetBytes(GetData, 0, GetDataLength);
+               }
+               break;
+            case DataFormats.Date:
+               if (GetDataLength == 12) {
+                  val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
+                  val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
+               } else {
+                  val = GetBytes(GetData, 0, GetDataLength);
+               }
+               break;
+            default:
+               break;
+         }
+         return val;
+      }
+
+      private void SetRequest(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
+         this.Access = Access;
+         this.Class = Class;
+         this.Instance = Instance;
+         this.Attribute = Attribute;
+         LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
       }
 
       #endregion

@@ -77,14 +77,8 @@ namespace HitachiEIP {
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
          EIP.IOComplete += EIP_ReadComplete;
+         EIP.StateChanged += EIP_StateChanged;
 
-      }
-
-      private void EIP_ReadComplete(EIP sender, string msg) {
-         txtStatus.Text = EIP.GetStatus;
-         txtCount.Text = EIP.GetDataLength.ToString();
-         txtData.Text = EIP.GetDataValue;
-         txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
       }
 
       #endregion
@@ -307,8 +301,8 @@ namespace HitachiEIP {
             && cbFunction.SelectedIndex >= 0) {
             try {
                Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, attr.Fmt);
-               string trafficText = $"{(int)EIP.Access:X2} {(int)EIP.Class & 0xFF:X2} {(int)EIP.Instance:X2} {(int)EIP.Attribute & 0xFF:X2}\t";
-               trafficText += $"{EIP.Access }\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
+               string trafficText = $"{EIP.LastIO}\t";
+               trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
                   trafficText += $"{hdr}\t{EIP.GetStatus}\t";
@@ -421,23 +415,22 @@ namespace HitachiEIP {
 
       private void btnReadAll_Click(object sender, EventArgs e) {
          // Get is assumed for read all request
-         for (int i = 0; i < cbClassCode.Items.Count; i++) {
-            // Set AllGood for this class
-            AllGood = true;
+         AllGood = true;
+         for (int i = 0; i < cbClassCode.Items.Count && AllGood; i++) {
             cbClassCode.SelectedIndex = i;
             this.Refresh();
             // Establish the connection
-            btnStartSession_Click(null, null);
             btnForwardOpen_Click(null, null);
             // Issue commands for this group
             for (int j = 0; j < cbFunction.Items.Count && AllGood; j++) {
                cbFunction.SelectedIndex = j;
-               this.Refresh();
-               btnIssueGet_Click(null, null);
+               if (attr.HasGet && !attr.Ignore) {
+                  this.Refresh();
+                  btnIssueGet_Click(null, null);
+               }
             }
             // Close out the connection
             btnForwardClose_Click(null, null);
-            btnEndSession_Click(null, null);
          }
 
 
@@ -528,6 +521,21 @@ namespace HitachiEIP {
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 
+      private void EIP_StateChanged(EIP sender, string msg) {
+         if (!EIP.SessionIsOpen) {
+            AllGood = false;
+         }
+         SetButtonEnables();
+      }
+
+      private void EIP_ReadComplete(EIP sender, string msg) {
+         txtStatus.Text = EIP.GetStatus;
+         txtCount.Text = EIP.GetDataLength.ToString();
+         txtData.Text = EIP.GetDataValue;
+         txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
+         EIP_Log(sender, $"{EIP.LastIO} -- {msg}");
+      }
+
       #endregion
 
       #region Service Routines
@@ -573,7 +581,7 @@ namespace HitachiEIP {
       }
 
       private string CreateFileName(string directory, string s) {
-         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.txt");
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.csv");
       }
 
       private bool GetComSetting() {
@@ -652,6 +660,12 @@ namespace HitachiEIP {
          btnForwardClose.Enabled = EIP.SessionIsOpen && EIP.ForwardIsOpen;
          btnIssueGet.Enabled = btnIssueSet.Enabled = btnIssueService.Enabled = 
             EIP.SessionIsOpen && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
+
+         btnCom.Enabled = EIP.SessionIsOpen;
+         btnAutoReflection.Enabled = EIP.SessionIsOpen && ComIsOn;
+         btnManagementFlag.Enabled = EIP.SessionIsOpen && ComIsOn;
+
+         btnReadAll.Enabled = EIP.SessionIsOpen;
 
          if (initComplete) {
             indexAttr.SetButtonEnables();
