@@ -110,10 +110,10 @@ namespace HitachiEIP {
          psAttr = new Attributes<eipPrint_specification>
             (this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
          pFmtAttr = new Attributes<eipPrint_format>
-            (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat, 
+            (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat,
             AddItem | AddPosition);
          calAttr = new Attributes<eipCalendar>
-            (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar, 
+            (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar,
             AddCalendar | AddItem);
          sRulesAttr = new Attributes<eipSubstitution_rules>
             (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules,
@@ -139,11 +139,14 @@ namespace HitachiEIP {
 
          if (EIP.SessionIsOpen) {
             // These three flags control all traffic to/from the printer
+            EIP.ForwardOpen();
+            EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, new byte[] { 1 });
             GetComSetting();
             if (ComIsOn) {
                GetAutoReflectionSetting();
                GetMgmtSetting();
             }
+            EIP.ForwardClose();
          }
          SetButtonEnables();
       }
@@ -438,6 +441,10 @@ namespace HitachiEIP {
 
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
+            bool OpenCloseForward = !EIP.ForwardIsOpen;
+            if (OpenCloseForward) {
+               EIP.ForwardOpen();
+            }
             int val = ComIsOn ? 0 : 1;
             if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, EIP.ToBytes((uint)val, 1))) {
                GetComSetting();
@@ -445,6 +452,9 @@ namespace HitachiEIP {
                   GetAutoReflectionSetting();
                   GetMgmtSetting();
                }
+            }
+            if (OpenCloseForward) {
+               EIP.ForwardClose();
             }
          }
          SetButtonEnables();
@@ -665,7 +675,7 @@ namespace HitachiEIP {
          btnAutoReflection.Enabled = EIP.SessionIsOpen && ComIsOn;
          btnManagementFlag.Enabled = EIP.SessionIsOpen && ComIsOn;
 
-         btnReadAll.Enabled = EIP.SessionIsOpen;
+         btnReadAll.Enabled = EIP.SessionIsOpen && ComIsOn;
 
          if (initComplete) {
             indexAttr.SetButtonEnables();
