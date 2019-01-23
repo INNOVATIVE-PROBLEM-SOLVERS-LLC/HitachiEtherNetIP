@@ -19,11 +19,13 @@ namespace HitachiEIP {
    }
 
    public enum DataFormats {
-      Decimal = 0,
-      ASCII = 1,
-      Date = 2,
-      Bytes = 3,
-      XY = 4,
+      Decimal = 0,   // Decimal numbers up to 8 digits
+      ASCII = 1,     // ISO-8859-1 characters (Not ASCII or unicode)
+      Date = 2,      // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
+      Bytes = 3,     // Raw data in 2-digit hex notation
+      XY = 4,        // x = 2 bytes, y = 1 byte
+      N2N2 = 5,      // 2 2-byte numbers
+      N2Char = 6     // 2 byte number + Ascii String
    }
 
    #endregion
@@ -380,7 +382,7 @@ namespace HitachiEIP {
 
       public byte SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
-      Encoding encode = System.Text.Encoding.GetEncoding("ISO-8859-1");
+      Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
       #endregion
 
@@ -570,7 +572,7 @@ namespace HitachiEIP {
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
-               GetDataValue = val = FormatResult(fmt);
+               GetDataValue = val = FormatResult(fmt, GetData);
                Successful = true;
             }
          }
@@ -903,71 +905,8 @@ namespace HitachiEIP {
       public void SetBackColor(AttrData attr, TextBox count, TextBox text) {
          count.Text = GetDataLength.ToString();
          text.Text = GetDataValue;
-         if (attr.Fmt == DataFormats.Decimal) {
-            if (attr.Len == GetDataLength) {
-               count.BackColor = Color.LightGreen;
-            } else {
-               count.BackColor = Color.Pink;
-            }
-            if (GetDataLength <= 8) {
-               ulong dec = Get(GetData, 0, GetDataLength, mem.BigEndian);
-               if (attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max) {
-                  text.BackColor = Color.LightGreen;
-               } else {
-                  text.BackColor = Color.Pink;
-               }
-            }
-         } else if (attr.Fmt == DataFormats.Bytes) {
-            if (attr.Len == GetDataLength) {
-               count.BackColor = Color.LightGreen;
-               text.BackColor = Color.LightGreen;
-            } else {
-               count.BackColor = Color.Pink;
-               text.BackColor = Color.Pink;
-            }
-
-         } else if (attr.Fmt == DataFormats.ASCII) {
-            if (attr.Len >= GetDataLength) {
-               count.BackColor = Color.LightGreen;
-            } else {
-               count.BackColor = Color.Pink;
-            }
-            if (AllAscii(GetData)) {
-               text.BackColor = Color.LightGreen;
-            } else {
-               text.BackColor = Color.Pink;
-            }
-         } else if (attr.Fmt == DataFormats.XY) {
-            if (attr.Len == GetDataLength) {
-               count.BackColor = Color.LightGreen;
-               uint x = Get(GetData, 0, 2, mem.BigEndian);
-               uint y = Get(GetData, 2, 1, mem.BigEndian);
-               if (x <= 65535 && y <= 47) {
-                  text.BackColor = Color.LightGreen;
-               } else {
-                  text.BackColor = Color.Pink;
-               }
-            } else {
-               count.BackColor = Color.Pink;
-               text.BackColor = Color.Pink;
-            }
-         } else if (attr.Fmt == DataFormats.Date) {
-            if (attr.Len == GetDataLength) {
-               count.BackColor = Color.LightGreen;
-            } else {
-               count.BackColor = Color.Pink;
-            }
-            if (GetDataLength == 12) {
-               if (DateTime.TryParse(text.Text, out DateTime d)) {
-                  text.BackColor = Color.LightGreen;
-               } else {
-                  text.BackColor = Color.Pink;
-               }
-            } else {
-               text.BackColor = Color.Pink;
-            }
-         }
-
+         count.BackColor = CountIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
+         text.BackColor = TextIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
       }
 
       // Format output
@@ -1019,11 +958,159 @@ namespace HitachiEIP {
                   }
                }
                break;
+            case DataFormats.N2N2:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
+                     result = ToBytes((n1 << 16) + n2, 4);
+                  }
+               }
+               break;
+            case DataFormats.N2Char:
+               sa = s.Split(new char[] { ',' },1 );
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
+                     string gp = new string(new char[] { (char)(n >> 8), (char)(n & 0xFF) });
+                     result = encode.GetBytes(gp + s + "\x00");
+                  }
+               }
+               break;
          }
          if (result == null) {
             result = new byte[0];
          }
          return result;
+      }
+
+      public bool CountIsValid(AttrData attr, byte[] data) {
+         bool IsValid = false;
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+            case DataFormats.Date:
+            case DataFormats.Bytes:
+            case DataFormats.XY:
+            case DataFormats.N2N2:
+               IsValid = attr.Len == data.Length;
+               break;
+            case DataFormats.N2Char:
+            case DataFormats.ASCII:
+               IsValid = attr.Len >= data.Length;
+               break;
+            default:
+               break;
+         }
+         return IsValid;
+      }
+
+      public bool TextIsValid(AttrData attr, byte[] data) {
+         bool IsValid = false;
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+               if (data.Length <= 8) {
+                  ulong dec = Get(data, 0, data.Length, mem.BigEndian);
+                  IsValid = attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max;
+               }
+               break;
+            case DataFormats.ASCII:
+               IsValid = AllAscii(data);
+               break;
+            case DataFormats.Date:
+               if (data.Length == 12) {
+                  IsValid = DateTime.TryParse(FormatResult(attr.Fmt, data), out DateTime d);
+               }
+               break;
+            case DataFormats.Bytes:
+               IsValid = attr.Len == data.Length;
+               break;
+            case DataFormats.XY:
+               if (attr.Len == data.Length) {
+                  uint x = Get(data, 0, 2, mem.BigEndian);
+                  uint y = Get(data, 2, 1, mem.BigEndian);
+                  IsValid = x <= 65535 && y <= 47;
+               }
+               break;
+            case DataFormats.N2N2:
+               if (attr.Len == data.Length) {
+                  uint n1 = Get(data, 0, 2, mem.LittleEndian);
+                  uint n2 = Get(data, 2, 2, mem.LittleEndian);
+                  IsValid = n1 >= attr.Min && n1 <= attr.Max && n2 >= attr.Min && n2 <= attr.Max;
+               }
+               break;
+            case DataFormats.N2Char:
+               if (data.Length > 1) {
+                  uint n = Get(data, 0, 2, mem.LittleEndian);
+                  IsValid = n >= attr.Min && n <= attr.Max;
+               }
+               break;
+            default:
+               break;
+         }
+         return IsValid;
+      }
+
+      public bool TextIsValid(AttrData attr, string s) {
+         bool IsValid = false;
+         switch (attr.Fmt) {
+            case DataFormats.Decimal:
+               if (ulong.TryParse(s, out ulong dec)) {
+                  IsValid = attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max;
+               }
+               break;
+            case DataFormats.ASCII:
+               IsValid = true;
+               break;
+            case DataFormats.Date:
+               IsValid = DateTime.TryParse(s, out DateTime d);
+               break;
+            case DataFormats.Bytes:
+               string[] b = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+               for (int i = 0; i < b.Length; i++) {
+                  if (int.TryParse(b[i], out int n)) {
+                     if (n < 0 || n > 255) {
+                        break;
+                     }
+                  } else {
+                     break;
+                  }
+               }
+               break;
+            case DataFormats.XY:
+               string[] xy = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+               if (xy.Length == 2) {
+                  if (!int.TryParse(xy[0].Trim(), out int x)) {
+                     break;
+                  }
+                  if (!int.TryParse(xy[1].Trim(), out int y)) {
+                     break;
+                  }
+                  IsValid = x <= 65535 && y <= 47;
+               }
+               break;
+            case DataFormats.N2N2:
+               string[] n1n2 = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+               if (n1n2.Length == 2) {
+                  if (!int.TryParse(n1n2[0].Trim(), out int x)) {
+                     break;
+                  }
+                  if (!int.TryParse(n1n2[1].Trim(), out int y)) {
+                     break;
+                  }
+                  IsValid = x <= attr.Max && y <= attr.Max;
+               }
+               break;
+            case DataFormats.N2Char:
+               string[] gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
+               if (gp.Length == 2) {
+                  if (!int.TryParse(gp[0].Trim(), out int x)) {
+                     break;
+                  }
+                  IsValid = x >= attr.Min && x <= attr.Max;
+               }
+               break;
+            default:
+               break;
+         }
+         return IsValid;
       }
 
       #endregion
@@ -1107,35 +1194,49 @@ namespace HitachiEIP {
          }
       }
 
-      private string FormatResult(DataFormats fmt) {
+      private string FormatResult(DataFormats fmt, byte[] data) {
          string val = "N/A";
          switch (fmt) {
             case DataFormats.Decimal:
-               if (GetDataLength > 8) {
-                  val = GetBytes(GetData, 0, GetDataLength);
+               if (data.Length > 8) {
+                  val = GetBytes(data, 0, data.Length);
                } else {
-                  val = Get(GetData, 0, GetDataLength, mem.BigEndian).ToString();
+                  val = Get(data, 0, data.Length, mem.BigEndian).ToString();
                }
                break;
             case DataFormats.Bytes:
-               val = GetBytes(GetData, 0, GetDataLength);
+               val = GetBytes(data, 0, data.Length);
                break;
             case DataFormats.ASCII:
-               val = GetAscii(GetData, 0, GetDataLength);
+               val = GetAscii(data, 0, data.Length);
                break;
             case DataFormats.XY:
-               if (GetDataLength == 3) {
-                  val = $"{Get(GetData, 0, 2, mem.BigEndian)}, {Get(GetData, 2, 1, mem.BigEndian)}";
+               if (data.Length == 3) {
+                  val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 1, mem.BigEndian)}";
                } else {
-                  val = GetBytes(GetData, 0, GetDataLength);
+                  val = GetBytes(data, 0, data.Length);
                }
                break;
             case DataFormats.Date:
-               if (GetDataLength == 12) {
-                  val = $"{Get(GetData, 0, 2, mem.LittleEndian)}/{Get(GetData, 2, 2, mem.LittleEndian)}/{Get(GetData, 4, 2, mem.LittleEndian)}";
-                  val += $" {Get(GetData, 6, 2, mem.LittleEndian)}:{Get(GetData, 8, 2, mem.LittleEndian)}:{Get(GetData, 10, 2, mem.LittleEndian)}";
+               if (data.Length == 12) {
+                  val = $"{Get(data, 0, 2, mem.LittleEndian)}/{Get(data, 2, 2, mem.LittleEndian)}/{Get(data, 4, 2, mem.LittleEndian)}";
+                  val += $" {Get(data, 6, 2, mem.LittleEndian)}:{Get(data, 8, 2, mem.LittleEndian)}:{Get(data, 10, 2, mem.LittleEndian)}";
                } else {
-                  val = GetBytes(GetData, 0, GetDataLength);
+                  val = GetBytes(data, 0, data.Length);
+               }
+               break;
+            case DataFormats.N2N2:
+               if (data.Length == 4) {
+                  val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 2, mem.BigEndian)}";
+               } else {
+                  val = GetBytes(data, 0, data.Length);
+               }
+               break;
+            case DataFormats.N2Char:
+               if (data.Length > 1) {
+                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetAscii(data, 1, data.Length - 1)}";
+               } else {
+                  val = GetBytes(data, 0, data.Length);
                }
                break;
             default:

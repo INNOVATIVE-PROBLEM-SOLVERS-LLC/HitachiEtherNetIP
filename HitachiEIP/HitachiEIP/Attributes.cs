@@ -201,19 +201,12 @@ namespace HitachiEIP {
          TextBox b = (TextBox)sender;
          int tag = Convert.ToInt32(((TextBox)sender).Tag);
          AttrData attr = attrs[tag];
-         switch (attr.Fmt) {
-            case DataFormats.Decimal:
-               break;
-            case DataFormats.ASCII:
-               break;
-            case DataFormats.Date:
-               break;
-            case DataFormats.Bytes:
-               break;
-            case DataFormats.XY:
-               break;
-            default:
-               break;
+         if (EIP.TextIsValid(attr, texts[tag].Text)) {
+            if (attr.HasSet) {
+               sets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+            } else {
+               services[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+            }
          }
       }
 
@@ -265,6 +258,7 @@ namespace HitachiEIP {
             texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
+            texts[i].ReadOnly = !(attr.HasSet || attr.HasService && attr.Len > 0);
 
             if (attr.HasGet) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
@@ -279,12 +273,13 @@ namespace HitachiEIP {
                if (attr.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
                }
-            } else {
-               texts[i].ReadOnly = true;
             }
             if (attr.HasService) {
                services[i] = new Button() { Tag = i, Text = "Service" };
                services[i].Click += Service_Click;
+               if (attr.Len > 0) {
+                  texts[i].Leave += Text_Leave;
+               }
                tab.Controls.Add(services[i]);
             }
          }
@@ -441,17 +436,7 @@ namespace HitachiEIP {
          for (int i = 0; i < attributes.Length; i++) {
             AttrData attr = attrs[i];
             if (attr.HasSet) {
-               int min = attr.Min;
-               int max = attr.Max;
-               bool validData = true;
-               if(attr.Fmt == DataFormats.Decimal && max > 0) {
-                  if (int.TryParse(texts[i].Text, out int val)) {
-                     validData = val >= min && val <= max;
-                  } else {
-                     validData = false;
-                  }
-               }
-               sets[i].Enabled = enable && validData;
+               sets[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
                anySets |= enable;
             }
             if (attr.HasGet) {
@@ -459,7 +444,11 @@ namespace HitachiEIP {
                anyGets |= enable;
             }
             if (attr.HasService) {
-               services[i].Enabled = enable;
+               if (attr.Len > 0) {
+                  services[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
+               } else {
+                  services[i].Enabled = enable;
+               }
             }
          }
          setAll.Enabled = anySets;
