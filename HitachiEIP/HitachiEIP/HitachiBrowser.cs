@@ -72,6 +72,9 @@ namespace HitachiEIP {
 
       public HitachiBrowser() {
          InitializeComponent();
+
+         this.Text += " - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
          VerifyAddressAndPort();
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;

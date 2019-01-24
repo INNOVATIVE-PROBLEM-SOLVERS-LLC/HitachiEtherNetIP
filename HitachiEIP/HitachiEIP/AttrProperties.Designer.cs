@@ -138,6 +138,8 @@
          this.txtLength.Size = new System.Drawing.Size(121, 22);
          this.txtLength.TabIndex = 8;
          this.txtLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtLength.Enter += new System.EventHandler(this.Text_Enter);
+         this.txtLength.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly_KeyPress);
          // 
          // txtMax
          // 
@@ -146,6 +148,8 @@
          this.txtMax.Size = new System.Drawing.Size(121, 22);
          this.txtMax.TabIndex = 10;
          this.txtMax.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtMax.Enter += new System.EventHandler(this.Text_Enter);
+         this.txtMax.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly_KeyPress);
          // 
          // lblMax
          // 
@@ -163,6 +167,8 @@
          this.txtMin.Size = new System.Drawing.Size(121, 22);
          this.txtMin.TabIndex = 12;
          this.txtMin.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtMin.Enter += new System.EventHandler(this.Text_Enter);
+         this.txtMin.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.NumbersOnly_KeyPress);
          // 
          // lblMin
          // 
@@ -210,6 +216,7 @@
          this.btnIssueService.Text = "Service";
          this.btnIssueService.UseVisualStyleBackColor = true;
          this.btnIssueService.Visible = false;
+         this.btnIssueService.Click += new System.EventHandler(this.btnIssueService_Click);
          // 
          // btnIssueSet
          // 
@@ -240,6 +247,7 @@
          this.txtStatus.Size = new System.Drawing.Size(82, 22);
          this.txtStatus.TabIndex = 44;
          this.txtStatus.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtStatus.Enter += new System.EventHandler(this.Text_Enter);
          // 
          // lblStatus
          // 
@@ -257,6 +265,7 @@
          this.txtData.Size = new System.Drawing.Size(121, 22);
          this.txtData.TabIndex = 46;
          this.txtData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtData.Enter += new System.EventHandler(this.Text_Enter);
          // 
          // lblData
          // 
@@ -274,6 +283,7 @@
          this.txtRawData.Size = new System.Drawing.Size(296, 22);
          this.txtRawData.TabIndex = 48;
          this.txtRawData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtRawData.Enter += new System.EventHandler(this.Text_Enter);
          // 
          // lblRawData
          // 

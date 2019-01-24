@@ -333,17 +333,20 @@ namespace HitachiEIP {
       //   [8] = AlphaSortOrder 
       //   [9] = Ignore due to error }
 
-      public byte Val { get; set; }
-      public bool HasSet { get; set; }
-      public bool HasGet { get; set; }
-      public bool HasService { get; set; }
-      public int Len { get; set; }
-      public DataFormats Fmt { get; set; }
-      public int Min { get; set; }
-      public int Max { get; set; }
-      public int Order { get; set; }
-      public bool Ignore { get; set; }
+      public byte Val { get; set; } = 0;
+      public bool HasSet { get; set; } = false;
+      public bool HasGet { get; set; } = false;
+      public bool HasService { get; set; } = false;
+      public int Len { get; set; } = 0;
+      public DataFormats Fmt { get; set; } = DataFormats.Decimal;
+      public int Min { get; set; } = 0;
+      public int Max { get; set; } = 0;
+      public int Order { get; set; } = 0;
+      public bool Ignore { get; set; } = false;
 
+      public AttrData() {
+
+      }
 
       public AttrData(int[] values) {
          Val = (byte)values[0];
