@@ -76,6 +76,7 @@
          this.btnAutoReflection = new System.Windows.Forms.Button();
          this.txtCount = new System.Windows.Forms.TextBox();
          this.lblCount = new System.Windows.Forms.Label();
+         this.btnProperties = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -155,7 +156,7 @@
          // 
          // btnExit
          // 
-         this.btnExit.Location = new System.Drawing.Point(1181, 655);
+         this.btnExit.Location = new System.Drawing.Point(1168, 565);
          this.btnExit.Name = "btnExit";
          this.btnExit.Size = new System.Drawing.Size(89, 52);
          this.btnExit.TabIndex = 10;
@@ -185,7 +186,7 @@
          // 
          // btnIssueGet
          // 
-         this.btnIssueGet.Location = new System.Drawing.Point(26, 310);
+         this.btnIssueGet.Location = new System.Drawing.Point(26, 304);
          this.btnIssueGet.Name = "btnIssueGet";
          this.btnIssueGet.Size = new System.Drawing.Size(55, 22);
          this.btnIssueGet.TabIndex = 14;
@@ -196,7 +197,7 @@
          // 
          // lblClassCode
          // 
-         this.lblClassCode.Location = new System.Drawing.Point(23, 196);
+         this.lblClassCode.Location = new System.Drawing.Point(26, 193);
          this.lblClassCode.Name = "lblClassCode";
          this.lblClassCode.Size = new System.Drawing.Size(293, 22);
          this.lblClassCode.TabIndex = 19;
@@ -215,7 +216,7 @@
          // 
          // lblFunction
          // 
-         this.lblFunction.Location = new System.Drawing.Point(23, 252);
+         this.lblFunction.Location = new System.Drawing.Point(26, 249);
          this.lblFunction.Name = "lblFunction";
          this.lblFunction.Size = new System.Drawing.Size(293, 22);
          this.lblFunction.TabIndex = 21;
@@ -226,7 +227,7 @@
          // 
          this.cbFunction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cbFunction.FormattingEnabled = true;
-         this.cbFunction.Location = new System.Drawing.Point(26, 280);
+         this.cbFunction.Location = new System.Drawing.Point(28, 274);
          this.cbFunction.Name = "cbFunction";
          this.cbFunction.Size = new System.Drawing.Size(293, 24);
          this.cbFunction.TabIndex = 20;
@@ -234,7 +235,7 @@
          // 
          // lbldata
          // 
-         this.lbldata.Location = new System.Drawing.Point(87, 395);
+         this.lbldata.Location = new System.Drawing.Point(90, 402);
          this.lbldata.Name = "lbldata";
          this.lbldata.Size = new System.Drawing.Size(229, 22);
          this.lbldata.TabIndex = 22;
@@ -252,7 +253,7 @@
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(23, 370);
+         this.txtStatus.Location = new System.Drawing.Point(23, 377);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
          this.txtStatus.Size = new System.Drawing.Size(293, 22);
@@ -261,7 +262,7 @@
          // 
          // lblStatus
          // 
-         this.lblStatus.Location = new System.Drawing.Point(23, 339);
+         this.lblStatus.Location = new System.Drawing.Point(28, 352);
          this.lblStatus.Name = "lblStatus";
          this.lblStatus.Size = new System.Drawing.Size(293, 22);
          this.lblStatus.TabIndex = 24;
@@ -303,10 +304,11 @@
          this.btnBrowse.TabIndex = 29;
          this.btnBrowse.Text = "Browse";
          this.btnBrowse.UseVisualStyleBackColor = true;
+         this.btnBrowse.Visible = false;
          // 
          // btnViewTraffic
          // 
-         this.btnViewTraffic.Location = new System.Drawing.Point(896, 655);
+         this.btnViewTraffic.Location = new System.Drawing.Point(883, 565);
          this.btnViewTraffic.Name = "btnViewTraffic";
          this.btnViewTraffic.Size = new System.Drawing.Size(89, 52);
          this.btnViewTraffic.TabIndex = 30;
@@ -316,7 +318,7 @@
          // 
          // btnViewLog
          // 
-         this.btnViewLog.Location = new System.Drawing.Point(991, 655);
+         this.btnViewLog.Location = new System.Drawing.Point(978, 565);
          this.btnViewLog.Name = "btnViewLog";
          this.btnViewLog.Size = new System.Drawing.Size(89, 52);
          this.btnViewLog.TabIndex = 31;
@@ -326,7 +328,7 @@
          // 
          // btnReadAll
          // 
-         this.btnReadAll.Location = new System.Drawing.Point(1086, 655);
+         this.btnReadAll.Location = new System.Drawing.Point(1073, 565);
          this.btnReadAll.Name = "btnReadAll";
          this.btnReadAll.Size = new System.Drawing.Size(89, 52);
          this.btnReadAll.TabIndex = 32;
@@ -352,7 +354,7 @@
          this.tclClasses.Multiline = true;
          this.tclClasses.Name = "tclClasses";
          this.tclClasses.SelectedIndex = 0;
-         this.tclClasses.Size = new System.Drawing.Size(903, 605);
+         this.tclClasses.Size = new System.Drawing.Size(903, 503);
          this.tclClasses.TabIndex = 33;
          this.tclClasses.SelectedIndexChanged += new System.EventHandler(this.tclClasses_SelectedIndexChanged);
          // 
@@ -361,7 +363,7 @@
          this.tabIndex.Location = new System.Drawing.Point(4, 46);
          this.tabIndex.Name = "tabIndex";
          this.tabIndex.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIndex.Size = new System.Drawing.Size(895, 555);
+         this.tabIndex.Size = new System.Drawing.Size(895, 453);
          this.tabIndex.TabIndex = 0;
          this.tabIndex.Text = "Index (0x7A)";
          this.tabIndex.UseVisualStyleBackColor = true;
@@ -469,7 +471,7 @@
          // btnCom
          // 
          this.btnCom.BackColor = System.Drawing.Color.Red;
-         this.btnCom.Location = new System.Drawing.Point(375, 655);
+         this.btnCom.Location = new System.Drawing.Point(362, 565);
          this.btnCom.Name = "btnCom";
          this.btnCom.Size = new System.Drawing.Size(89, 52);
          this.btnCom.TabIndex = 34;
@@ -484,7 +486,7 @@
          this.lstErrors.ItemHeight = 16;
          this.lstErrors.Location = new System.Drawing.Point(26, 549);
          this.lstErrors.Name = "lstErrors";
-         this.lstErrors.Size = new System.Drawing.Size(290, 148);
+         this.lstErrors.Size = new System.Drawing.Size(290, 68);
          this.lstErrors.TabIndex = 35;
          this.lstErrors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstErrors_MouseDoubleClick);
          // 
@@ -513,7 +515,7 @@
          // 
          // btnStop
          // 
-         this.btnStop.Location = new System.Drawing.Point(801, 655);
+         this.btnStop.Location = new System.Drawing.Point(788, 565);
          this.btnStop.Name = "btnStop";
          this.btnStop.Size = new System.Drawing.Size(89, 52);
          this.btnStop.TabIndex = 37;
@@ -523,7 +525,7 @@
          // 
          // btnIssueSet
          // 
-         this.btnIssueSet.Location = new System.Drawing.Point(87, 310);
+         this.btnIssueSet.Location = new System.Drawing.Point(87, 304);
          this.btnIssueSet.Name = "btnIssueSet";
          this.btnIssueSet.Size = new System.Drawing.Size(76, 22);
          this.btnIssueSet.TabIndex = 38;
@@ -534,7 +536,7 @@
          // 
          // btnIssueService
          // 
-         this.btnIssueService.Location = new System.Drawing.Point(179, 310);
+         this.btnIssueService.Location = new System.Drawing.Point(179, 304);
          this.btnIssueService.Name = "btnIssueService";
          this.btnIssueService.Size = new System.Drawing.Size(137, 22);
          this.btnIssueService.TabIndex = 39;
@@ -546,7 +548,7 @@
          // btnManagementFlag
          // 
          this.btnManagementFlag.BackColor = System.Drawing.Color.Red;
-         this.btnManagementFlag.Location = new System.Drawing.Point(620, 655);
+         this.btnManagementFlag.Location = new System.Drawing.Point(607, 565);
          this.btnManagementFlag.Name = "btnManagementFlag";
          this.btnManagementFlag.Size = new System.Drawing.Size(113, 52);
          this.btnManagementFlag.TabIndex = 40;
@@ -557,7 +559,7 @@
          // btnAutoReflection
          // 
          this.btnAutoReflection.BackColor = System.Drawing.Color.Red;
-         this.btnAutoReflection.Location = new System.Drawing.Point(486, 655);
+         this.btnAutoReflection.Location = new System.Drawing.Point(473, 565);
          this.btnAutoReflection.Name = "btnAutoReflection";
          this.btnAutoReflection.Size = new System.Drawing.Size(119, 52);
          this.btnAutoReflection.TabIndex = 35;
@@ -576,18 +578,29 @@
          // 
          // lblCount
          // 
-         this.lblCount.Location = new System.Drawing.Point(25, 395);
+         this.lblCount.Location = new System.Drawing.Point(25, 402);
          this.lblCount.Name = "lblCount";
          this.lblCount.Size = new System.Drawing.Size(66, 22);
          this.lblCount.TabIndex = 23;
          this.lblCount.Text = "#";
          this.lblCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
+         // btnProperties
+         // 
+         this.btnProperties.Location = new System.Drawing.Point(26, 332);
+         this.btnProperties.Name = "btnProperties";
+         this.btnProperties.Size = new System.Drawing.Size(286, 22);
+         this.btnProperties.TabIndex = 42;
+         this.btnProperties.Text = "Properties";
+         this.btnProperties.UseVisualStyleBackColor = true;
+         this.btnProperties.Click += new System.EventHandler(this.btnProperties_Click);
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(1288, 713);
+         this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.btnProperties);
          this.Controls.Add(this.lblCount);
          this.Controls.Add(this.txtDataBytes);
          this.Controls.Add(this.txtCount);
@@ -690,6 +703,7 @@
       public System.Windows.Forms.TextBox txtStatus;
       public System.Windows.Forms.TextBox txtData;
       public System.Windows.Forms.TextBox txtCount;
+      private System.Windows.Forms.Button btnProperties;
    }
 }
 
