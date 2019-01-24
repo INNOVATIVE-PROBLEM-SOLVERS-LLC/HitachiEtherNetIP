@@ -111,7 +111,7 @@ namespace HitachiEIP {
             (this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
          pFmtAttr = new Attributes<eipPrint_format>
             (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat,
-            AddItem | AddPosition);
+            AddItem | AddPosition | AddColumn);
          calAttr = new Attributes<eipCalendar>
             (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar,
             AddCalendar | AddItem);
@@ -183,7 +183,7 @@ namespace HitachiEIP {
             //
             this.SuspendLayout();
             // Build local parameters
-            R = Utils.InitializeResize(this, 47, 47, true);
+            R = Utils.InitializeResize(this, 49, 47, true);
 
             #region Left Column
 
@@ -219,13 +219,13 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, txtSaveFolder, 31, 0.5f, 2, 8.5f);
             Utils.ResizeObject(ref R, btnBrowse, 33, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lstErrors, 36, 0.5f, 10, 8.5f);
+            Utils.ResizeObject(ref R, lstErrors, 36, 0.5f, 12, 8.5f);
 
             #endregion
 
             #region  Classes
 
-            Utils.ResizeObject(ref R, tclClasses, 1, 10, 42, 36);
+            Utils.ResizeObject(ref R, tclClasses, 1, 10, 44, 36);
 
             indexAttr.ResizeControls(ref R);
             oprAttr.ResizeControls(ref R);
@@ -243,15 +243,15 @@ namespace HitachiEIP {
 
             #region Bottom Row
 
-            Utils.ResizeObject(ref R, btnCom, 43.5f, 10, 3, 5);
-            Utils.ResizeObject(ref R, btnAutoReflection, 43.5f, 15.5f, 3, 5);
-            Utils.ResizeObject(ref R, btnManagementFlag, 43.5f, 21, 3, 5);
+            Utils.ResizeObject(ref R, btnCom, 45.5f, 10, 3, 5);
+            Utils.ResizeObject(ref R, btnAutoReflection, 45.5f, 15.5f, 3, 5);
+            Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
 
-            Utils.ResizeObject(ref R, btnStop, 44, 29.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 44, 33, 2, 3);
-            Utils.ResizeObject(ref R, btnViewLog, 44, 36.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnReadAll, 44, 40, 2, 3);
-            Utils.ResizeObject(ref R, btnExit, 44, 43.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnStop, 46, 29.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 46, 33, 2, 3);
+            Utils.ResizeObject(ref R, btnViewLog, 46, 36.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnReadAll, 46, 40, 2, 3);
+            Utils.ResizeObject(ref R, btnExit, 46, 43.5f, 2, 3);
 
             #endregion
 
@@ -266,6 +266,8 @@ namespace HitachiEIP {
 
       private void btnStartSession_Click(object sender, EventArgs e) {
          VerifyAddressAndPort();
+         EIP.IPAddress = txtIPAddress.Text;
+         EIP.port = port;
          EIP.StartSession();
          txtSessionID.Text = EIP.SessionID.ToString();
          SetButtonEnables();

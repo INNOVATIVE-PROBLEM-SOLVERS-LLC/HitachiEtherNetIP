@@ -1170,7 +1170,7 @@ namespace HitachiEIP {
          int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
          GetDataLength = ReadDataLength - 50;
          GetDataValue = string.Empty;
-         if (GetDataLength > 0) {
+         if (GetDataLength >= 0) {
             switch (status) {
                case 0:
                   text = "O.K.";

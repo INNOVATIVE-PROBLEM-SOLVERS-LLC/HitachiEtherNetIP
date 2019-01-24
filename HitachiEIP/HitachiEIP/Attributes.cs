@@ -38,12 +38,13 @@ namespace HitachiEIP {
       int extrasUsed = 0;
       bool extrasLoaded = false;
 
+      GroupBox ExtraControls;
       Label[] ExtraLabel;
       TextBox[] ExtraText;
       Button[] ExtraGet;
       Button[] ExtraSet;
 
-      int half = 16;
+      int half;
 
       #endregion
 
@@ -62,7 +63,7 @@ namespace HitachiEIP {
          this.Extras = Extras;
 
          extrasUsed = AddExtraControls();
-         half = extrasUsed >= 3 ? 15 : 16;
+         half = 16;
          BuildControls();
       }
 
@@ -190,6 +191,9 @@ namespace HitachiEIP {
          }
          byte[] data = EIP.ToBytes((uint)val, len);
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
+         if (Success) {
+            ExtraText[n].BackColor = Color.LightGreen;
+         }
       }
 
       private void Text_Enter(object sender, EventArgs e) {
@@ -207,6 +211,18 @@ namespace HitachiEIP {
             } else {
                services[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
             }
+         }
+      }
+
+      private void ExtraText_KeyPress(object sender, KeyPressEventArgs e) {
+         TextBox t = (TextBox)sender;
+         t.BackColor = Color.LightYellow;
+      }
+
+      private void GroupBorder_Paint(object sender, PaintEventArgs e) {
+         GroupBox gb = (GroupBox)sender;
+         using (Pen p = new Pen(Color.CadetBlue)) {
+            e.Graphics.DrawRectangle(p, 0, 0, gb.Width - 1, gb.Height - 1);
          }
       }
 
@@ -321,17 +337,21 @@ namespace HitachiEIP {
          if ((Extras & HitachiBrowser.AddSubstitution) > 0) {
             AddExtras(ref n, eipIndex.Substitution_Rules_Setting);
          }
-         for (int i = 0; i < n; i++) {
-            tab.Controls.Add(ExtraLabel[i]);
-            tab.Controls.Add(ExtraText[i]);
-            tab.Controls.Add(ExtraGet[i]);
-            tab.Controls.Add(ExtraSet[i]);
+         if (n > 0) {
+            ExtraControls = new GroupBox() { Text = "Index Functions" };
+            ExtraControls.Paint += GroupBorder_Paint;
+            tab.Controls.Add(ExtraControls);
+            for (int i = 0; i < n; i++) {
+               ExtraControls.Controls.Add(ExtraLabel[i]);
+               ExtraControls.Controls.Add(ExtraText[i]);
+               ExtraControls.Controls.Add(ExtraGet[i]);
+               ExtraControls.Controls.Add(ExtraSet[i]);
+            }
          }
          return n; 
       }
 
       private void AddExtras(ref byte n, eipIndex function) {
-         byte f = (byte)function;
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
          ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
          ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
@@ -340,6 +360,7 @@ namespace HitachiEIP {
          ExtraText[n].Leave += SetExtraButtonEnables;
          ExtraGet[n].Click += GetExtras_Click;
          ExtraSet[n].Click += SetExtras_Click;
+         ExtraText[n].KeyPress += ExtraText_KeyPress;
          n++;
       }
 
@@ -349,6 +370,8 @@ namespace HitachiEIP {
          }
          parent.tclClasses.Visible = false;
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
+         int offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
+         R.offset = offset;
          float cw = 17.5f;
 
          Utils.ResizeObject(ref R, hdrs[0], 0.5f, 0.25f, 1.5f, 8);
@@ -389,21 +412,23 @@ namespace HitachiEIP {
          Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.5f, 4);
 
          if (extrasUsed > 0) {
-            int r = tclHeight - 2 *Math.Min( extrasUsed, 3);
+            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 1 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
+            int r = -1;
             int c = 0;
             for (int i = 0; i < extrasUsed; i++) {
+               if((i & 1) == 0) {
+                  c = 0;
+                  r += 2;
+               } else {
+                  c = 12;
+               }
                Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4);
                Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 2);
                Utils.ResizeObject(ref R, ExtraGet[i], r, 7 + c, 1.5f, 2);
                Utils.ResizeObject(ref R, ExtraSet[i], r, 9.5f + c, 1.5f, 2);
-               if (i == 2) {
-                  r = tclHeight - 2 * Math.Min(extrasUsed, 3);
-                  c = 12;
-               } else {
-                  r += 2;
-               }
             }
          }
+         R.offset = 0;
          parent.tclClasses.Visible = true;
       }
 
@@ -444,11 +469,11 @@ namespace HitachiEIP {
                anyGets |= enable;
             }
             if (attr.HasService) {
-               if (attr.Len > 0) {
-                  services[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
-               } else {
-                  services[i].Enabled = enable;
-               }
+               //if (attr.Len > 0) {
+               //   services[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
+               //} else {
+               services[i].Enabled = enable;
+               //}
             }
          }
          setAll.Enabled = anySets;
