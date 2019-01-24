@@ -107,7 +107,7 @@ namespace HitachiEIP {
          new int[] { 0X78, 1, 1, 0, 2, 0, -50, +50, 12, 0}, // Print Start Position Adjustment Value
       };
 
-      // Calendar (Class Code = 0x69)
+      // Calendar (Class Code = 0x69) Complete!
       public static int[][] Calendar = new int[][] {
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 0, 10, 0}, // Shift Count Condition
          new int[] { 0X66, 0, 1, 0, 1, 0, 0, 8, 3, 0}, // First Calendar Block Number
@@ -143,13 +143,13 @@ namespace HitachiEIP {
          new int[] { 0X84, 1, 1, 0, 10, 1, 0, 0, 2, 0}, // Count String Value
       };
 
-      // User Pattern (Class Code 0x6B)
+      // User Pattern (Class Code 0x6B) Complete!
       public static int[][] UserPattern = new int[][] {
          new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 1}, // User Pattern Fixed
          new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 1}, // User Pattern Free
      };
 
-      // Substitution Rules(Class Code 0x6C)
+      // Substitution Rules(Class Code 0x6C) Complete!
       public static int[][] SubstitutionRules = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 3, 0, 0, 3, 0}, // Number
          new int[] { 0X65, 1, 1, 0, 1, 3, 0, 0, 2, 1}, // Name
@@ -163,7 +163,7 @@ namespace HitachiEIP {
          new int[] { 0X6D, 1, 1, 0, 0, 3, 0, 0, 5, 0}, // Day Of Week
       };
 
-      // Enviroment Setting (Class Code 0x71)
+      // Enviroment Setting (Class Code 0x71) Complete!
       public static int[][] EnviromentSetting = new int[][] {
          new int[] { 0X65, 1, 1, 0, 7, 2, 0, 0, 5, 0}, // Current Time
          new int[] { 0X66, 1, 1, 0, 7, 2, 0, 0, 1, 0}, // Calendar Date Time
@@ -175,7 +175,7 @@ namespace HitachiEIP {
          new int[] { 0X6C, 1, 0, 0, 0, 0, 0, 0, 6, 0}, // Reset Usage Time Of Citculation Control
       };
 
-      // Unit Information (Class Code 0x73)
+      // Unit Information (Class Code 0x73) Complete!
       public static int[][] UnitInformation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 64, 1, 0, 0, 20, 0}, // Unit Information
          new int[] { 0X6B, 0, 1, 0, 12, 1, 0, 0, 15, 0}, // Model Name
@@ -200,7 +200,7 @@ namespace HitachiEIP {
          new int[] { 0X7E, 0, 1, 0, 5, 1, 0, 0, 19, 1}, // Software Option Version
       };
 
-      // Operation Management (Class Code 0x74)
+      // Operation Management (Class Code 0x74) Complete!
       public static int[][] OperationManagement = new int[][] {
          new int[] { 0X64, 0, 1, 0, 2, 1, 0, 0, 12, 0}, // Operating Management
          new int[] { 0X65, 1, 1, 0, 2, 0, 0, 0, 9, 0}, // Ink Operating Time
@@ -231,7 +231,7 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 0, 1, 5, 0}, // Online Offline
       };
 
-      // Count (Class Code 0x79)
+      // Count (Class Code 0x79) Complete!
       public static int[][] Count = new int[][] {
          new int[] { 0X66, 0, 1, 0, 0, 0, 0, 0, 12, 0}, // Number Of Count Block
          new int[] { 0X67, 1, 1, 0, 0, 0, 0, 0, 9, 0}, // Initial Value
@@ -253,18 +253,18 @@ namespace HitachiEIP {
 
       // Index (Class Code 0x7A) Complete!
       public static int[][] Index = new int[][] {
-         new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0}, // Start Stop Management Flag
-         new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0}, // Automatic reflection
-         new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0}, // Item Count
-         new int[] { 0X67, 1, 1, 0, 2, 0, 1, 100, 4, 0}, // Column
-         new int[] { 0X68, 1, 1, 0, 1, 0, 1, 6, 7, 0}, // Line
-         new int[] { 0X69, 1, 1, 0, 2, 0, 1, 1000, 3, 0}, // Character position
-         new int[] { 0X6A, 1, 1, 0, 2, 0, 1, 2000, 9, 0}, // Print Data Message Number
-         new int[] { 0X6B, 1, 1, 0, 1, 0, 1, 99, 8, 0}, // Print Data Group Data
-         new int[] { 0X6C, 1, 1, 0, 1, 0, 1, 99, 11, 0}, // Substitution Rules Setting
-         new int[] { 0X6D, 1, 1, 0, 1, 0, 1, 19, 12, 0}, // User Pattern Size
-         new int[] { 0X6E, 1, 1, 0, 1, 0, 1, 8, 5, 0}, // Count Block
-         new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0}, // Calendar Block
+         new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0},     // Start Stop Management Flag
+         new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0},      // Automatic reflection
+         new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0},    // Item Count
+         new int[] { 0X67, 1, 1, 0, 2, 0, 0, 99, 4, 0},     // Column
+         new int[] { 0X68, 1, 1, 0, 1, 0, 1, 6, 7, 0},      // Line
+         new int[] { 0X69, 1, 1, 0, 2, 0, 1, 1000, 3, 0},   // Character position
+         new int[] { 0X6A, 1, 1, 0, 2, 0, 1, 2000, 9, 0},   // Print Data Message Number
+         new int[] { 0X6B, 1, 1, 0, 1, 0, 1, 99, 8, 0},     // Print Data Group Data
+         new int[] { 0X6C, 1, 1, 0, 1, 0, 1, 99, 11, 0},    // Substitution Rules Setting
+         new int[] { 0X6D, 1, 1, 0, 1, 0, 1, 19, 12, 0},    // User Pattern Size
+         new int[] { 0X6E, 1, 1, 0, 1, 0, 1, 8, 5, 0},      // Count Block
+         new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0},      // Calendar Block
       };
 
       // Class Codes to Data Tables
