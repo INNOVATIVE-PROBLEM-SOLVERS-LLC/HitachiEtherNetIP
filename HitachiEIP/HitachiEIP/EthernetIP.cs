@@ -526,7 +526,7 @@ namespace HitachiEIP {
                      successful = true;
                      break;
                   }
-                  Thread.Sleep(50);
+                  Thread.Sleep(10);
                }
             } catch (IOException e) {
                LogIt(e.Message);

@@ -72,6 +72,9 @@ namespace HitachiEIP {
 
       public HitachiBrowser() {
          InitializeComponent();
+
+         this.Text += " - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
          VerifyAddressAndPort();
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
@@ -139,14 +142,15 @@ namespace HitachiEIP {
 
          if (EIP.SessionIsOpen) {
             // These three flags control all traffic to/from the printer
-            EIP.ForwardOpen();
-            EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, new byte[] { 1 });
-            GetComSetting();
-            if (ComIsOn) {
-               GetAutoReflectionSetting();
-               GetMgmtSetting();
+            if (EIP.ForwardOpen()) {
+               EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, new byte[] { 1 });
+               GetComSetting();
+               if (ComIsOn) {
+                  GetAutoReflectionSetting();
+                  GetMgmtSetting();
+               }
+               EIP.ForwardClose();
             }
-            EIP.ForwardClose();
          }
          SetButtonEnables();
       }
@@ -217,7 +221,8 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 1, 8.5f);
             Utils.ResizeObject(ref R, txtSaveFolder, 31, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, btnBrowse, 33, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnProperties, 33, 0.5f, 2, 8.5f);
+            //Utils.ResizeObject(ref R, btnBrowse, 33, 0.5f, 2, 8.5f);
 
             Utils.ResizeObject(ref R, lstErrors, 36, 0.5f, 12, 8.5f);
 
@@ -328,21 +333,8 @@ namespace HitachiEIP {
             try {
                byte[] Data = EIP.FormatOutput(txtData.Text, attr);
                Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
-               if (Success) {
-                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
-                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
-                  string text = "Unknown!";
-                  switch (status) {
-                     case 0:
-                        text = "O.K.";
-                        break;
-                     case 0x14:
-                        text = "Attribute Not Supported!";
-                        break;
-                  }
-                  txtStatus.Text = $"{status:X2} -- {text} -- {EIP.Access:X2} {EIP.Class:X2} {EIP.Instance:X2} {EIP.Attribute:X2}";
-               }
-            } catch (Exception e2) {
+               txtStatus.Text = EIP.GetStatus;
+            } catch {
                AllGood = false;
             }
          }
@@ -698,5 +690,10 @@ namespace HitachiEIP {
 
       #endregion
 
+      private void btnProperties_Click(object sender, EventArgs e) {
+         using (AttrProperties p = new AttrProperties(this, EIP, cbClassCode.SelectedIndex, cbFunction.SelectedIndex)) {
+            p.ShowDialog(this);
+         }
+      }
    }
 }

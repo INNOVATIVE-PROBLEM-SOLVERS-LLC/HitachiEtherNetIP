@@ -221,8 +221,8 @@ namespace HitachiEIP {
 
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
-         using (Pen p = new Pen(Color.CadetBlue)) {
-            e.Graphics.DrawRectangle(p, 0, 0, gb.Width - 1, gb.Height - 1);
+         using (Pen p = new Pen(Color.CadetBlue, 2)) {
+            e.Graphics.DrawRectangle(p, 1, 1, gb.Width - 2, gb.Height - 2);
          }
       }
 

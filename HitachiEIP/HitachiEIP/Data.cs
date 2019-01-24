@@ -333,21 +333,45 @@ namespace HitachiEIP {
       //   [8] = AlphaSortOrder 
       //   [9] = Ignore due to error }
 
-      int[] values;
+      public byte Val { get; set; } = 0;
+      public bool HasSet { get; set; } = false;
+      public bool HasGet { get; set; } = false;
+      public bool HasService { get; set; } = false;
+      public int Len { get; set; } = 0;
+      public DataFormats Fmt { get; set; } = DataFormats.Decimal;
+      public int Min { get; set; } = 0;
+      public int Max { get; set; } = 0;
+      public int Order { get; set; } = 0;
+      public bool Ignore { get; set; } = false;
 
-      public byte Val { get { return (byte)values[0]; } }
-      public bool HasSet { get { return values[1] > 0; } }
-      public bool HasGet { get { return values[2] > 0; } }
-      public bool HasService { get { return values[3] > 0; } }
-      public int Len { get { return values[4]; } }
-      public DataFormats Fmt { get { return (DataFormats)values[5]; } }
-      public int Min { get { return values[6]; } }
-      public int Max { get { return values[7]; } }
-      public int Order { get { return values[8] - 1; } }
-      public bool Ignore { get { return values[9] > 0; } }
+      public AttrData() {
+
+      }
 
       public AttrData(int[] values) {
-         this.values = values;
+         Val = (byte)values[0];
+         HasSet = values[1] > 0;
+         HasGet = values[2] > 0;
+         HasService = values[3] > 0;
+         Len = values[4];
+         Fmt = (DataFormats)values[5];
+         Min = values[6];
+         Max = values[7];
+         Order = values[8] - 1;
+         Ignore = values[9] > 0;
+      }
+
+      public AttrData(AttrData clone) {
+         Val = clone.Val;
+         HasSet = clone.HasSet;
+         HasGet = clone.HasGet;
+         HasService = clone.HasService;
+         Len = clone.Len;
+         Fmt = clone.Fmt;
+         Min = Min;
+         Max = clone.Max;
+         Order = clone.Order;
+         Ignore = clone.Ignore;
       }
 
       #endregion
