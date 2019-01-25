@@ -25,6 +25,7 @@ namespace HitachiEIP {
 
       Label[] labels;
       TextBox[] texts;
+      ComboBox[] dropdowns;
       TextBox[] counts;
       Button[] gets;
       Button[] sets;
@@ -81,7 +82,7 @@ namespace HitachiEIP {
          } else {
             texts[tag].Text = "Loading";
             parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt);
-            EIP.SetBackColor(attr, counts[tag], texts[tag]);
+            EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag]);
          }
          SetButtonEnables();
       }
@@ -92,7 +93,7 @@ namespace HitachiEIP {
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
          } else {
-            byte[] data = EIP.FormatOutput(texts[tag].Text, attr);
+            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
@@ -104,7 +105,7 @@ namespace HitachiEIP {
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
          } else {
-            byte[] data = EIP.FormatOutput(texts[tag].Text, attr);
+            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr);
             bool Success = EIP.ServiceAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
@@ -256,6 +257,7 @@ namespace HitachiEIP {
          //validData = new int[attributes.Length, 2];
          labels = new Label[attributes.Length];
          texts = new TextBox[attributes.Length];
+         dropdowns = new ComboBox[attributes.Length];
          counts = new TextBox[attributes.Length];
          gets = new Button[attributes.Length];
          sets = new Button[attributes.Length];
@@ -275,6 +277,12 @@ namespace HitachiEIP {
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasService && attr.Len > 0);
+
+            if (attr.DropDown >= 0) {
+               dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
+               dropdowns[i].Items.AddRange(GetDropdownNames(attr));
+               tab.Controls.Add(dropdowns[i]);
+            }
 
             if (attr.HasGet) {
                gets[i] = new Button() { Tag = i, Text = "Get" };
@@ -307,6 +315,18 @@ namespace HitachiEIP {
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
 
+      }
+
+      private string[] GetDropdownNames(AttrData attr) {
+         if (attr.DropDown == 0) {
+            string[] names = new string[attr.Max - attr.Min + 1];
+            for (int i = 0; i < names.Length; i++) {
+               names[i] = (i + attr.Min).ToString();
+            }
+            return names;
+         } else {
+            return Data.DropDowns[attr.DropDown].GetEnumNames();
+         }
       }
 
       private int AddExtraControls() {
@@ -398,6 +418,9 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 2, 8);
             Utils.ResizeObject(ref R, counts[i], r, 8.25f + c * cw, 1.5f, 1);
             Utils.ResizeObject(ref R, texts[i], r, 9.5f + c * cw, 1.5f, 4.75f);
+            if (dropdowns[i] != null) {
+               Utils.ResizeObject(ref R, dropdowns[i], r, 9.5f + c * cw, 1.5f, 4.75f);
+            }
             if (gets[i] != null) {
                Utils.ResizeObject(ref R, gets[i], r, 14.5f + c * cw, 1.5f, 1.5f);
             }

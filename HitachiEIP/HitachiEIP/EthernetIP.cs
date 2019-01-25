@@ -32,6 +32,65 @@ namespace HitachiEIP {
 
    #region EtherNetIP Definitions
 
+   // Drop Down lists
+
+   // 0
+   public enum DD_Decimal {
+      DecimalValues = 0,
+   }
+
+   // 1
+   public enum DD_EnableDisable {
+      Disable = 0,
+      Enable = 1,
+   }
+
+   // 2
+   public enum DD_Suppression {
+      Disable = 0,
+      SpaceFill = 1,
+      CharacterFill = 2,
+   }
+
+   // 3
+   public enum DD_ClockSystem {
+      TwentyFourHour = 1,
+      TwelveHour = 2,
+   }
+
+   // 4
+   public enum DD_ClockAvailability {
+      CurrentTime = 1,
+      StopClock = 2,
+   }
+
+   // 5
+   public enum DD_OnlineOffline {
+      OffLine = 0,
+      OnLine = 1,
+   }
+
+   // 6
+   public enum DD_ResetSignal {
+      None = 0,
+      Signal1 = 1,
+      Signal2 = 2,
+   }
+
+   // 7
+   public enum DD_UpDown {
+      Up = 1,
+      Down = 2,
+   }
+
+   // 8
+   public enum DD_ReadableCode {
+      None = 0,
+      Size5X5 = 1,
+      Size5X7 = 2,
+   }
+
+
    // Access codes
    public enum eipAccessCode {
       Set = 0x32,
@@ -902,11 +961,35 @@ namespace HitachiEIP {
       }
 
       // Format input byte array to readable characters
-      public void SetBackColor(AttrData attr, TextBox count, TextBox text) {
+      public void SetBackColor(AttrData attr, TextBox count, TextBox text, ComboBox dropdown) {
          count.Text = GetDataLength.ToString();
-         text.Text = GetDataValue;
          count.BackColor = CountIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
-         text.BackColor = TextIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
+         Color TextValid = TextIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
+         text.Text = GetDataValue;
+         text.BackColor = TextValid;
+         if (attr.DropDown >= 0) {
+            dropdown.Visible = true;
+            int val = Convert.ToInt32(GetDataValue);
+            if (val >= attr.Min && val <= attr.Max) {
+               dropdown.SelectedIndex = val - attr.Min;
+               dropdown.BackColor = Color.LightGreen;
+               dropdown.Visible = true;
+               text.Visible = false;
+            } else {
+               dropdown.Visible = false;
+               text.Visible = true;
+            }
+         }
+      }
+
+      // Format output
+
+      public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr) {
+         if(attr.DropDown >= 0 && c.Visible) {
+            return ToBytes((uint)(c.SelectedIndex + attr.Min), attr.Len);
+         } else {
+            return FormatOutput(t.Text, attr);
+         }
       }
 
       // Format output
