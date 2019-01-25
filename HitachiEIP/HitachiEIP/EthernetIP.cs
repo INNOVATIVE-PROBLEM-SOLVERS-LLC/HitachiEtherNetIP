@@ -504,6 +504,7 @@ namespace HitachiEIP {
       public int GetDataLength { get; set; }
       public byte[] GetData { get; set; }
       public string GetDataValue { get; set; }
+      public int GetDecValue { get; set; }
       public string GetStatus { get; set; }
 
       public byte SetDataLength { get; set; } = 0;
@@ -1320,6 +1321,7 @@ namespace HitachiEIP {
          int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
          GetDataLength = ReadDataLength - 50;
          GetDataValue = string.Empty;
+         GetDecValue = 0;
          if (GetDataLength >= 0) {
             switch (status) {
                case 0:
@@ -1351,7 +1353,8 @@ namespace HitachiEIP {
                if (data.Length > 8) {
                   val = GetBytes(data, 0, data.Length);
                } else {
-                  val = Get(data, 0, data.Length, mem.BigEndian).ToString();
+                  GetDecValue = (int)Get(data, 0, data.Length, mem.BigEndian);
+                  val = GetDecValue.ToString();
                }
                break;
             case DataFormats.Bytes:

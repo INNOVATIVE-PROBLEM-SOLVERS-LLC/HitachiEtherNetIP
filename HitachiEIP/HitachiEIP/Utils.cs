@@ -38,7 +38,7 @@ namespace HitachiEIP {
          if (c.Parent.GetType().BaseType.Equals(typeof(Form))) {
             result = new System.Drawing.Point((int)(nCol * R.W), (int)(nRow * R.H + R.offset));
          } else {
-            result = new System.Drawing.Point((int)(nCol * R.W), (int)(nRow * R.H));
+            result = new System.Drawing.Point((int)(nCol * R.W), (int)(nRow * R.H + R.offset));
          }
          return result;
       }
@@ -162,6 +162,11 @@ namespace HitachiEIP {
       static public void ResizeObject(ref ResizeInfo R, ToolStrip ts, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
          ts.Location = getLocation(R, ts, sngRow, sngCol);
          ts.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
+      }
+
+      static public void ResizeObject(ref ResizeInfo R, TreeView tv, float sngRow, float sngCol, float sngNRows, float sngNCols, float adjustFont = 1) {
+         tv.Location = getLocation(R, tv, sngRow, sngCol);
+         tv.Size = new System.Drawing.Size((int)(sngNCols * R.W), (int)(sngNRows * R.H));
       }
 
       public static Font ChangeFontSize(Font font, float fontSize) {
