@@ -540,6 +540,12 @@ namespace HitachiEIP {
          EIP_Log(sender, $"{EIP.LastIO} -- {msg}");
       }
 
+      private void btnProperties_Click(object sender, EventArgs e) {
+         using (AttrProperties p = new AttrProperties(this, EIP, cbClassCode.SelectedIndex, cbFunction.SelectedIndex)) {
+            p.ShowDialog(this);
+         }
+      }
+
       #endregion
 
       #region Service Routines
@@ -690,10 +696,5 @@ namespace HitachiEIP {
 
       #endregion
 
-      private void btnProperties_Click(object sender, EventArgs e) {
-         using (AttrProperties p = new AttrProperties(this, EIP, cbClassCode.SelectedIndex, cbFunction.SelectedIndex)) {
-            p.ShowDialog(this);
-         }
-      }
    }
 }
