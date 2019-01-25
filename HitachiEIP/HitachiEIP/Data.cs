@@ -14,6 +14,12 @@ namespace HitachiEIP {
          typeof(DD_ResetSignal),                // 6 - None, Signal 1, Signal 2
          typeof(DD_UpDown),                     // 7 - Up/Down
          typeof(DD_ReadableCode),               // 8 - Readable Code 5X5 or 5X7
+         typeof(DD_BarcodeTypes),               // 9 - Barcode Types
+         typeof(DD_NormalReverse),              // 10 - Normal/reverse
+         typeof(DD_QR_Error_Correction),        // 11 - M 15%, Q 25%
+         typeof(DD_EAN_Prefix),                 // 12 - Edit/Print
+         typeof(DD_CalendarOffset),             // 13 - From Yesterday/Today
+         typeof(DD_Font),                       // 14 - Font Types
       };
 
       // Class Codes to Attributes
@@ -78,20 +84,20 @@ namespace HitachiEIP {
          new int[] { 0X71, 1, 1, 0, 750, 1, 0, 0, 24, 0, -1},     // Print Character String
          new int[] { 0X72, 1, 1, 0, 1, 0, 1, 6, 18, 0, -1},       // Line Count
          new int[] { 0X73, 1, 1, 0, 1, 0, 0, 2, 19, 0, -1},       // Line Spacing
-         new int[] { 0X74, 1, 1, 0, 1, 0, 1, 16, 11, 0, -1},      // Dot Matrix
+         new int[] { 0X74, 1, 1, 0, 1, 0, 1, 16, 11, 0, 14},      // Dot Matrix
          new int[] { 0X75, 1, 1, 0, 1, 0, 0, 26, 16, 0, -1},      // InterCharacter Space
-         new int[] { 0X76, 1, 1, 0, 1, 0, 1, 9, 7, 0, -1},        // Character Bold
-         new int[] { 0X77, 1, 1, 0, 1, 0, 0, 27, 5, 0, -1},       // Barcode Type
+         new int[] { 0X76, 1, 1, 0, 1, 0, 1, 9, 7, 0, 0},         // Character Bold
+         new int[] { 0X77, 1, 1, 0, 1, 0, 0, 27, 5, 0, 9},        // Barcode Type
          new int[] { 0X78, 1, 1, 0, 1, 0, 0, 2, 27, 0, 8},        // Readable Code
          new int[] { 0X79, 1, 1, 0, 1, 0, 0, 99, 23, 0, -1},      // Prefix Code
          new int[] { 0X7A, 1, 1, 0, 3, 4, 0, 0, 28, 0, -1},       // X and Y Coordinate
          new int[] { 0X7B, 1, 1, 0, 2, 0, 0, 99, 17, 0, -1},      // InterCharacter SpaceII
          new int[] { 0X8A, 1, 0, 0, 750, 1, 0, 0, 2, 0, -1},      // Add To End Of String
-         new int[] { 0X8D, 1, 1, 0, 1, 0, 0, 1, 6, 0, -1},        // Calendar Offset
-         new int[] { 0X8E, 1, 1, 0, 1, 0, 0, 1, 10, 0, -1},       // DIN Print
-         new int[] { 0X8F, 1, 1, 0, 1, 0, 0, 1, 12, 0, -1},       // EAN Prefix
-         new int[] { 0X90, 1, 1, 0, 1, 0, 0, 1, 4, 0, -1},        // Barcode Printing
-         new int[] { 0X91, 1, 1, 0, 1, 0, 0, 1, 26, 0, -1},       // QR Error Correction Level
+         new int[] { 0X8D, 1, 1, 0, 1, 0, 0, 1, 6, 0, 13},        // Calendar Offset
+         new int[] { 0X8E, 1, 1, 0, 1, 0, 0, 1, 10, 0, 1},        // DIN Print
+         new int[] { 0X8F, 1, 1, 0, 1, 0, 0, 1, 12, 0, 12},       // EAN Prefix
+         new int[] { 0X90, 1, 1, 0, 1, 0, 0, 1, 4, 0, 10},        // Barcode Printing
+         new int[] { 0X91, 1, 1, 0, 1, 0, 0, 1, 26, 0, 11},       // QR Error Correction Level
      };
 
       // Print Specification (Class Code 0x68)

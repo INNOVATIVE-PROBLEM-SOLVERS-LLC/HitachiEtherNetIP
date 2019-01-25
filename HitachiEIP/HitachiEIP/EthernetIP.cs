@@ -90,6 +90,73 @@ namespace HitachiEIP {
       Size5X7 = 2,
    }
 
+   // 9
+   public enum DD_BarcodeTypes {
+      Not_Used = 0,
+      Code_39 = 1,
+      ITF = 2,
+      NW_7 = 3,
+      EAN_13 = 4,
+      DM8x32 = 5,
+      DM16x16 = 6,
+      DM16x36 = 7,
+      DM16x48 = 8,
+      DM18x18 = 9,
+      DM20x20 = 10,
+      DM22x22 = 11,
+      DM24x24 = 12,
+      Code_128_Set_B = 13,
+      Code_128_Set_C = 14,
+      UPC_A = 15,
+      UPC_E = 16,
+      EAN_8 = 17,
+      QR21x21 = 18,
+      QR25x25 = 19,
+      QR29x29 = 20,
+   }
+
+   // 10
+   public enum DD_NormalReverse {
+      Normal = 0,
+      Reverse = 1,
+   }
+
+   // 11
+   public enum DD_QR_Error_Correction {
+      M_15_Pcnt = 0,
+      Q_25_Pcnt = 1,
+
+   }
+
+   // 12
+   public enum DD_EAN_Prefix {
+      EditMessage = 0,
+      PrintFormat = 1,
+   }
+
+   // 13
+   public enum DD_CalendarOffset {
+      FromYesterday = 0,
+      FromToday = 1,
+   }
+
+   // 14
+   public enum DD_Font {
+      F_4x5 = 0,
+      F_5x5 = 1,
+      F_5x8_5x7 = 2,
+      F_9x8_9x7 = 3,
+      F_7x10 = 4,
+      F_10x12 = 5,
+      F_12x16 = 6,
+      F_18x24 = 7,
+      F_24x32 = 8,
+      F_11x11 = 9,
+      F_5x3_Chimney = 10,
+      F_5x5_Chimney = 11,
+      F_7x5_Chimney = 12,
+   }
+
 
    // Access codes
    public enum eipAccessCode {
