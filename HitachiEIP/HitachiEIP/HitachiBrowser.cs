@@ -538,12 +538,22 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      private void EIP_ReadComplete(EIP sender, string msg) {
+      private void EIP_ReadComplete(EIP sender, EIPEventArg e) {
          txtStatus.Text = EIP.GetStatus;
-         txtCount.Text = EIP.GetDataLength.ToString();
-         txtData.Text = EIP.GetDataValue;
-         txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
-         EIP_Log(sender, $"{EIP.LastIO} -- {msg}");
+         switch (e.Access) {
+            case eipAccessCode.Get:
+               txtCount.Text = EIP.GetDataLength.ToString();
+               txtData.Text = EIP.GetDataValue;
+               txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
+               break;
+            case eipAccessCode.Set:
+            case eipAccessCode.Service:
+               txtCount.Text = EIP.SetDataLength.ToString();
+               txtData.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
+               txtDataBytes.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
+               break;
+         }
+         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(EIP.Class, e.Attribute)} Complete");
       }
 
       private void btnProperties_Click(object sender, EventArgs e) {
