@@ -48,6 +48,7 @@ namespace HitachiEIP {
       Attributes<eipUnit_Information> unitInfoAttr; // 0x73
       Attributes<eipEnviroment_setting> envirAttr;  // 0x71
       Attributes<eipOperation_management> mgmtAttr; // 0x74
+      XML processXML;                               // xml processing
 
       //Attributes<eipUser_pattern> userPatAttr;    // 0x6B Not implemented here
 
@@ -130,6 +131,7 @@ namespace HitachiEIP {
             (this, EIP, tabEnviroment, eipClassCode.Enviroment_setting, Data.EnviromentSetting);
          mgmtAttr = new Attributes<eipOperation_management>
             (this, EIP, tabOpMgmt, eipClassCode.Operation_management, Data.OperationManagement);
+         processXML = new XML(this, EIP, tabXML);
 
          //userPatAttr = new Attributes<eipUser_pattern>(this, EIP, tabUserPattern, eipClassCode.User_pattern);
 
@@ -169,6 +171,7 @@ namespace HitachiEIP {
          unitInfoAttr = null;
          envirAttr = null;
          mgmtAttr = null;
+         processXML = null;
          //userPatAttr = null;
 
          // Stop logging
@@ -243,6 +246,7 @@ namespace HitachiEIP {
             unitInfoAttr.ResizeControls(ref R);
             envirAttr.ResizeControls(ref R);
             mgmtAttr.ResizeControls(ref R);
+            processXML.ResizeControls(ref R);
 
             #endregion
 
@@ -689,6 +693,7 @@ namespace HitachiEIP {
             unitInfoAttr.SetButtonEnables();
             envirAttr.SetButtonEnables();
             mgmtAttr.SetButtonEnables();
+            processXML.SetButtonEnables();
             //userPatAttr.SetButtonEnables();
          }
 

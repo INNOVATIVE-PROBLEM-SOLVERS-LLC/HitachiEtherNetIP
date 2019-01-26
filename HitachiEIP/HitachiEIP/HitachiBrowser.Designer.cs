@@ -64,6 +64,7 @@
          this.tabEnviroment = new System.Windows.Forms.TabPage();
          this.tabOpMgmt = new System.Windows.Forms.TabPage();
          this.tabUserPattern = new System.Windows.Forms.TabPage();
+         this.tabXML = new System.Windows.Forms.TabPage();
          this.btnCom = new System.Windows.Forms.Button();
          this.lstErrors = new System.Windows.Forms.ListBox();
          this.cmLog = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -350,6 +351,7 @@
          this.tclClasses.Controls.Add(this.tabEnviroment);
          this.tclClasses.Controls.Add(this.tabOpMgmt);
          this.tclClasses.Controls.Add(this.tabUserPattern);
+         this.tclClasses.Controls.Add(this.tabXML);
          this.tclClasses.Location = new System.Drawing.Point(371, 26);
          this.tclClasses.Multiline = true;
          this.tclClasses.Name = "tclClasses";
@@ -373,7 +375,7 @@
          this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 555);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 453);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
@@ -382,7 +384,7 @@
          // 
          this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 555);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 453);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
@@ -391,7 +393,7 @@
          // 
          this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 555);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 453);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
@@ -400,7 +402,7 @@
          // 
          this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 555);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 453);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
@@ -409,7 +411,7 @@
          // 
          this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 555);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 453);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
@@ -418,7 +420,7 @@
          // 
          this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 555);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 453);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -427,7 +429,7 @@
          // 
          this.tabCount.Location = new System.Drawing.Point(4, 46);
          this.tabCount.Name = "tabCount";
-         this.tabCount.Size = new System.Drawing.Size(895, 555);
+         this.tabCount.Size = new System.Drawing.Size(895, 453);
          this.tabCount.TabIndex = 7;
          this.tabCount.Text = "Count (0x79)";
          this.tabCount.UseVisualStyleBackColor = true;
@@ -436,7 +438,7 @@
          // 
          this.tabUnitInformation.Location = new System.Drawing.Point(4, 46);
          this.tabUnitInformation.Name = "tabUnitInformation";
-         this.tabUnitInformation.Size = new System.Drawing.Size(895, 555);
+         this.tabUnitInformation.Size = new System.Drawing.Size(895, 453);
          this.tabUnitInformation.TabIndex = 8;
          this.tabUnitInformation.Text = "Unit Information (0x73)";
          this.tabUnitInformation.UseVisualStyleBackColor = true;
@@ -445,7 +447,7 @@
          // 
          this.tabEnviroment.Location = new System.Drawing.Point(4, 46);
          this.tabEnviroment.Name = "tabEnviroment";
-         this.tabEnviroment.Size = new System.Drawing.Size(895, 555);
+         this.tabEnviroment.Size = new System.Drawing.Size(895, 453);
          this.tabEnviroment.TabIndex = 9;
          this.tabEnviroment.Text = "Environment Settings (0x71)";
          this.tabEnviroment.UseVisualStyleBackColor = true;
@@ -454,7 +456,7 @@
          // 
          this.tabOpMgmt.Location = new System.Drawing.Point(4, 46);
          this.tabOpMgmt.Name = "tabOpMgmt";
-         this.tabOpMgmt.Size = new System.Drawing.Size(895, 555);
+         this.tabOpMgmt.Size = new System.Drawing.Size(895, 453);
          this.tabOpMgmt.TabIndex = 10;
          this.tabOpMgmt.Text = "Operation Management (0x74)";
          this.tabOpMgmt.UseVisualStyleBackColor = true;
@@ -463,10 +465,19 @@
          // 
          this.tabUserPattern.Location = new System.Drawing.Point(4, 46);
          this.tabUserPattern.Name = "tabUserPattern";
-         this.tabUserPattern.Size = new System.Drawing.Size(895, 555);
+         this.tabUserPattern.Size = new System.Drawing.Size(895, 453);
          this.tabUserPattern.TabIndex = 11;
          this.tabUserPattern.Text = "User Pattern (0x6B)";
          this.tabUserPattern.UseVisualStyleBackColor = true;
+         // 
+         // tabXML
+         // 
+         this.tabXML.Location = new System.Drawing.Point(4, 46);
+         this.tabXML.Name = "tabXML";
+         this.tabXML.Size = new System.Drawing.Size(895, 453);
+         this.tabXML.TabIndex = 12;
+         this.tabXML.Text = "XML Processing";
+         this.tabXML.UseVisualStyleBackColor = true;
          // 
          // btnCom
          // 
@@ -704,6 +715,7 @@
       public System.Windows.Forms.TextBox txtData;
       public System.Windows.Forms.TextBox txtCount;
       private System.Windows.Forms.Button btnProperties;
+      private System.Windows.Forms.TabPage tabXML;
    }
 }
 
