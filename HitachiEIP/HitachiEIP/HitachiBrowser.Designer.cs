@@ -64,6 +64,7 @@
          this.tabEnviroment = new System.Windows.Forms.TabPage();
          this.tabOpMgmt = new System.Windows.Forms.TabPage();
          this.tabUserPattern = new System.Windows.Forms.TabPage();
+         this.tabXML = new System.Windows.Forms.TabPage();
          this.btnCom = new System.Windows.Forms.Button();
          this.lstErrors = new System.Windows.Forms.ListBox();
          this.cmLog = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -77,21 +78,8 @@
          this.txtCount = new System.Windows.Forms.TextBox();
          this.lblCount = new System.Windows.Forms.Label();
          this.btnProperties = new System.Windows.Forms.Button();
-         this.tabXML = new System.Windows.Forms.TabPage();
-         this.tclViewXML = new System.Windows.Forms.TabControl();
-         this.tabTreeView = new System.Windows.Forms.TabPage();
-         this.tvXML = new System.Windows.Forms.TreeView();
-         this.tabIndented = new System.Windows.Forms.TabPage();
-         this.cmdBrowse = new System.Windows.Forms.Button();
-         this.cmdClear = new System.Windows.Forms.Button();
-         this.txtIndentedView = new System.Windows.Forms.TextBox();
-         this.cmdSendToPrinter = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
-         this.tabXML.SuspendLayout();
-         this.tclViewXML.SuspendLayout();
-         this.tabTreeView.SuspendLayout();
-         this.tabIndented.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -384,55 +372,55 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 474);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 453);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // tabPrintManagement
          // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 453);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 453);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 453);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
-         this.tabCalendar.Location = new System.Drawing.Point(4, 25);
+         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 474);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 453);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
          // 
          // tabSubstitution
          // 
-         this.tabSubstitution.Location = new System.Drawing.Point(4, 25);
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 474);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 453);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -481,6 +469,15 @@
          this.tabUserPattern.TabIndex = 11;
          this.tabUserPattern.Text = "User Pattern (0x6B)";
          this.tabUserPattern.UseVisualStyleBackColor = true;
+         // 
+         // tabXML
+         // 
+         this.tabXML.Location = new System.Drawing.Point(4, 46);
+         this.tabXML.Name = "tabXML";
+         this.tabXML.Size = new System.Drawing.Size(895, 453);
+         this.tabXML.TabIndex = 12;
+         this.tabXML.Text = "XML Processing";
+         this.tabXML.UseVisualStyleBackColor = true;
          // 
          // btnCom
          // 
@@ -609,95 +606,6 @@
          this.btnProperties.UseVisualStyleBackColor = true;
          this.btnProperties.Click += new System.EventHandler(this.btnProperties_Click);
          // 
-         // tabXML
-         // 
-         this.tabXML.Controls.Add(this.cmdClear);
-         this.tabXML.Controls.Add(this.cmdSendToPrinter);
-         this.tabXML.Controls.Add(this.cmdBrowse);
-         this.tabXML.Controls.Add(this.tclViewXML);
-         this.tabXML.Location = new System.Drawing.Point(4, 46);
-         this.tabXML.Name = "tabXML";
-         this.tabXML.Size = new System.Drawing.Size(895, 453);
-         this.tabXML.TabIndex = 12;
-         this.tabXML.Text = "XML Processing";
-         this.tabXML.UseVisualStyleBackColor = true;
-         // 
-         // tclViewXML
-         // 
-         this.tclViewXML.Controls.Add(this.tabTreeView);
-         this.tclViewXML.Controls.Add(this.tabIndented);
-         this.tclViewXML.Location = new System.Drawing.Point(216, 18);
-         this.tclViewXML.Name = "tclViewXML";
-         this.tclViewXML.SelectedIndex = 0;
-         this.tclViewXML.Size = new System.Drawing.Size(512, 379);
-         this.tclViewXML.TabIndex = 5;
-         // 
-         // tabTreeView
-         // 
-         this.tabTreeView.Controls.Add(this.tvXML);
-         this.tabTreeView.Location = new System.Drawing.Point(4, 25);
-         this.tabTreeView.Name = "tabTreeView";
-         this.tabTreeView.Padding = new System.Windows.Forms.Padding(3);
-         this.tabTreeView.Size = new System.Drawing.Size(504, 350);
-         this.tabTreeView.TabIndex = 0;
-         this.tabTreeView.Text = "Tree View";
-         this.tabTreeView.UseVisualStyleBackColor = true;
-         // 
-         // tvXML
-         // 
-         this.tvXML.Location = new System.Drawing.Point(6, 49);
-         this.tvXML.Name = "tvXML";
-         this.tvXML.Size = new System.Drawing.Size(476, 241);
-         this.tvXML.TabIndex = 3;
-         // 
-         // tabIndented
-         // 
-         this.tabIndented.Controls.Add(this.txtIndentedView);
-         this.tabIndented.Location = new System.Drawing.Point(4, 25);
-         this.tabIndented.Name = "tabIndented";
-         this.tabIndented.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIndented.Size = new System.Drawing.Size(504, 350);
-         this.tabIndented.TabIndex = 1;
-         this.tabIndented.Text = "Indented View";
-         this.tabIndented.UseVisualStyleBackColor = true;
-         // 
-         // cmdBrowse
-         // 
-         this.cmdBrowse.Location = new System.Drawing.Point(189, 403);
-         this.cmdBrowse.Name = "cmdBrowse";
-         this.cmdBrowse.Size = new System.Drawing.Size(142, 37);
-         this.cmdBrowse.TabIndex = 8;
-         this.cmdBrowse.Text = "Browse";
-         this.cmdBrowse.UseVisualStyleBackColor = true;
-         // 
-         // cmdClear
-         // 
-         this.cmdClear.Location = new System.Drawing.Point(360, 403);
-         this.cmdClear.Name = "cmdClear";
-         this.cmdClear.Size = new System.Drawing.Size(142, 37);
-         this.cmdClear.TabIndex = 6;
-         this.cmdClear.Text = "Clear";
-         this.cmdClear.UseVisualStyleBackColor = true;
-         // 
-         // txtIndentedView
-         // 
-         this.txtIndentedView.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.txtIndentedView.Location = new System.Drawing.Point(6, 6);
-         this.txtIndentedView.Multiline = true;
-         this.txtIndentedView.Name = "txtIndentedView";
-         this.txtIndentedView.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-         this.txtIndentedView.Size = new System.Drawing.Size(476, 147);
-         this.txtIndentedView.TabIndex = 0;
-         // 
-         // cmdSendToPrinter
-         // 
-         this.cmdSendToPrinter.Location = new System.Drawing.Point(521, 403);
-         this.cmdSendToPrinter.Name = "cmdSendToPrinter";
-         this.cmdSendToPrinter.Size = new System.Drawing.Size(142, 37);
-         this.cmdSendToPrinter.TabIndex = 5;
-         this.cmdSendToPrinter.Text = "Send To Printer";
-         this.cmdSendToPrinter.UseVisualStyleBackColor = true;
-         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -748,11 +656,6 @@
          this.Resize += new System.EventHandler(this.HitachiBrowser_Resize);
          this.tclClasses.ResumeLayout(false);
          this.cmLog.ResumeLayout(false);
-         this.tabXML.ResumeLayout(false);
-         this.tclViewXML.ResumeLayout(false);
-         this.tabTreeView.ResumeLayout(false);
-         this.tabIndented.ResumeLayout(false);
-         this.tabIndented.PerformLayout();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -813,14 +716,6 @@
       public System.Windows.Forms.TextBox txtCount;
       private System.Windows.Forms.Button btnProperties;
       private System.Windows.Forms.TabPage tabXML;
-      private System.Windows.Forms.TabPage tabTreeView;
-      private System.Windows.Forms.TabPage tabIndented;
-      public System.Windows.Forms.TextBox txtIndentedView;
-      public System.Windows.Forms.TreeView tvXML;
-      public System.Windows.Forms.Button cmdClear;
-      public System.Windows.Forms.Button cmdSendToPrinter;
-      public System.Windows.Forms.Button cmdBrowse;
-      public System.Windows.Forms.TabControl tclViewXML;
    }
 }
 

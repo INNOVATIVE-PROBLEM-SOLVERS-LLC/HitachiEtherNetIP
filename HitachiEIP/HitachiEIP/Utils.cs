@@ -35,7 +35,7 @@ namespace HitachiEIP {
 
       static Point getLocation(ResizeInfo R, Control c, float nRow, float nCol) {
          Point result;
-         if (c.Parent.GetType().BaseType.Equals(typeof(TabPage))) {
+         if (c.Parent.GetType().Equals(typeof(TabPage))) {
             result = new System.Drawing.Point((int)(nCol * R.W), (int)(nRow * R.H + R.offset));
          } else {
             result = new System.Drawing.Point((int)(nCol * R.W), (int)(nRow * R.H));
