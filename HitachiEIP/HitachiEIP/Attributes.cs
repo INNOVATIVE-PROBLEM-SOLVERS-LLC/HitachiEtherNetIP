@@ -390,7 +390,7 @@ namespace HitachiEIP {
          }
          parent.tclClasses.Visible = false;
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
-         int offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
+         float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
          R.offset = offset;
          float cw = 17.5f;
 
@@ -431,11 +431,11 @@ namespace HitachiEIP {
                Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 3.25f);
             }
          }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.5f, 4);
+         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 3, 4);
          Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.5f, 4);
 
          if (extrasUsed > 0) {
-            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 1 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
+            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
             int r = -1;
             int c = 0;
             for (int i = 0; i < extrasUsed; i++) {
