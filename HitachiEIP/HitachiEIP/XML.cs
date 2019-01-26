@@ -20,7 +20,16 @@ namespace HitachiEIP {
       string LoadedFileName;
 
       // Controls
+      TabControl tclViewXML;
+      TabPage tabTreeView;
+      TabPage tabIndented;
 
+      TreeView tvXML;
+      TextBox txtIndentedView;
+
+      Button cmdBrowse;
+      Button cmdClear;
+      Button cmdSendToPrinter;
 
       #endregion
 
@@ -30,6 +39,28 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
+
+         tclViewXML = new TabControl() { Name = "tclViewXML" };
+         tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
+         tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
+
+         tvXML = new TreeView() { Name = "tvXML" };
+         txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
+
+         cmdBrowse = new Button() { Text = "Browse" };
+         cmdClear = new Button() { Text = "Clear" };
+         cmdSendToPrinter = new Button() { Text = "Send To Printer" };
+
+         tclViewXML.Controls.Add(tabTreeView);
+         tclViewXML.Controls.Add(tabIndented);
+
+         tabTreeView.Controls.Add(tvXML);
+         tabIndented.Controls.Add(txtIndentedView);
+
+         tab.Controls.Add(tclViewXML);
+         tab.Controls.Add(cmdBrowse);
+         tab.Controls.Add(cmdClear);
+         tab.Controls.Add(cmdSendToPrinter);
       }
 
       #endregion
@@ -339,32 +370,31 @@ namespace HitachiEIP {
       public bool ProcessGP(string xml, bool postError = true) {
          bool result = false;
          try {
-            int i = xml.IndexOf("<La");
+            int i = xml.IndexOf("<Label>");
             if (i == -1) {
                xml = File.ReadAllText(xml);
-               i = xml.IndexOf("<La");
+               i = xml.IndexOf("<Label>");
             }
-            i = xml.IndexOf("<La");
-            int j = xml.IndexOf("</Label>", i + 3);
+            i = xml.IndexOf("<Label>");
+            int j = xml.IndexOf("</Label>", i + 7);
             if (j > 0)
-               xml = xml.Substring(i, j - i + 5);
+               xml = xml.Substring(i, j - i + 8);
             XmlDocument dom = new XmlDocument();
             dom.PreserveWhitespace = true;
             dom.LoadXml(xml);
-            //xml = ToIndentedString(dom);
             xml = ToIndentedString(xml);
-            i = xml.IndexOf("<GP");
+            i = xml.IndexOf("<Label");
             if (i > 0) {
                xml = xml.Substring(i);
-               parent.txtIndentedView.Text = xml;
+               txtIndentedView.Text = xml;
 
-               parent.tvXML.Nodes.Clear();
-               parent.tvXML.Nodes.Add(new TreeNode(dom.DocumentElement.Name));
+               tvXML.Nodes.Clear();
+               tvXML.Nodes.Add(new TreeNode(dom.DocumentElement.Name));
                TreeNode tNode = new TreeNode();
-               tNode = parent.tvXML.Nodes[0];
+               tNode = tvXML.Nodes[0];
 
                AddNode(dom.DocumentElement, tNode);
-               parent.tvXML.ExpandAll();
+               tvXML.ExpandAll();
 
                result = true;
             }
@@ -372,7 +402,7 @@ namespace HitachiEIP {
 
          } finally {
             if (postError && !result) {
-               parent.txtIndentedView.Text = "Invalid <GP> structure!";
+               txtIndentedView.Text = "Invalid <Label> structure!";
             }
          }
          return result;
@@ -441,15 +471,15 @@ namespace HitachiEIP {
             return;
          }
          R.offset = offset;
-         Utils.ResizeObject(ref R, parent.tclViewXML, 0, 0, tclHeight - 4, tclWidth);
+         Utils.ResizeObject(ref R, tclViewXML, 0, 0, tclHeight - 4, tclWidth);
          {
-            Utils.ResizeObject(ref R, parent.tvXML, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
+            Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
 
-            Utils.ResizeObject(ref R, parent.txtIndentedView, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
+            Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
 
-            Utils.ResizeObject(ref R, parent.cmdBrowse, tclHeight - 3, 1, 2, 5);
-            Utils.ResizeObject(ref R, parent.cmdClear, tclHeight - 3, 7, 2, 5);
-            Utils.ResizeObject(ref R, parent.cmdSendToPrinter, tclHeight - 3, 13, 2, 6);
+            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 1, 2, 5);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 7, 2, 5);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 13, 2, 6);
          }
          R.offset = 0;
       }

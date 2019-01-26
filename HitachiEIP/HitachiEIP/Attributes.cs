@@ -431,8 +431,8 @@ namespace HitachiEIP {
                Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 3.25f);
             }
          }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 3, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.5f, 4);
+         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.75f, 4);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.75f, 4);
 
          if (extrasUsed > 0) {
             Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
