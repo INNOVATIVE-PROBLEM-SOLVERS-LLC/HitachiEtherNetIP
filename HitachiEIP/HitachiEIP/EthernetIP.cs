@@ -428,7 +428,7 @@ namespace HitachiEIP {
 
       // Read completion
       internal event IOHandler IOComplete;
-      internal delegate void IOHandler(EIP sender, string msg);
+      internal delegate void IOHandler(EIP sender, EIPEventArg e);
 
       // Read completion
       internal event ConnectionStateChangedHandler StateChanged;
@@ -704,9 +704,9 @@ namespace HitachiEIP {
             }
          }
          if (Successful) {
-            IOComplete?.Invoke(this, "ReadOneAttribute Complete!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute));
          } else {
-            IOComplete?.Invoke(this, "ReadOneAttribute Failed!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute));
          }
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
@@ -732,9 +732,9 @@ namespace HitachiEIP {
             }
          }
          if (Successful) {
-            IOComplete?.Invoke(this, "WriteOneAttribute Complete!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute));
          } else {
-            IOComplete?.Invoke(this, "WriteOneAttribute Failed!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute));
          }
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
@@ -760,9 +760,9 @@ namespace HitachiEIP {
             }
          }
          if (Successful) {
-            IOComplete?.Invoke(this, "ServiceOneAttribute Complete!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute));
          } else {
-            IOComplete?.Invoke(this, "ServiceOneAttribute Failed!");
+            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute));
          }
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
@@ -1408,5 +1408,20 @@ namespace HitachiEIP {
 
       #endregion
 
+   }
+
+   public class EIPEventArg {
+
+      public eipAccessCode Access { get; set; }
+      public eipClassCode Class { get; set; }
+      public byte Instance { get; set; }
+      public byte Attribute { get; set; }
+
+      public EIPEventArg(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
+         this.Access = Access;
+         this.Class = Class;
+         this.Instance = Instance;
+         this.Attribute = Attribute;
+      }
    }
 }

@@ -303,9 +303,9 @@ namespace HitachiEIP {
          };
 
       // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(byte Class, byte attr ) {
+      public static AttrData GetAttrData(byte Class, byte attr) {
          for (int i = 0; i < ClassCodes.GetLength(0); i++) {
-            if ((byte)ClassCodes[i,0] == Class) {
+            if ((byte)ClassCodes[i, 0] == Class) {
                int[][] tab = ClassCodeData[i];
                for (int j = 0; j < tab.Length; j++) {
                   if ((byte)tab[j][0] == attr) {
