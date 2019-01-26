@@ -96,6 +96,8 @@ namespace HitachiEIP {
          ClassNames = Enum.GetNames(typeof(eipClassCode));
          ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
 
+         BuildAttributeDictionary(ClassCodes);
+
          cbClassCode.Items.Clear();
          for (int i = 0; i < ClassNames.Length; i++) {
             cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)ClassCodes[i]:X2})");
@@ -553,6 +555,18 @@ namespace HitachiEIP {
       #endregion
 
       #region Service Routines
+
+      private void BuildAttributeDictionary(eipClassCode[] cc) {
+         Data.AttrDict = new Dictionary<byte, byte, AttrData>();
+         for (int i = 0; i < cc.Length; i++) {
+            int[] ClassAttr = (int[])Data.ClassCodeAttributes[i].GetEnumValues();
+            for (int j = 0; j < ClassAttr.Length; j++) {
+               Data.AttrDict.Add((byte)cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
+            }
+
+         }
+
+      }
 
       private void VerifyAddressAndPort() {
          if (!Int32.TryParse(txtPort.Text, out port)) {

@@ -509,7 +509,7 @@ namespace HitachiEIP {
 
       public byte SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
-      Encoding encode = Encoding.GetEncoding("ISO-8859-1");
+      public Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
       #endregion
 
