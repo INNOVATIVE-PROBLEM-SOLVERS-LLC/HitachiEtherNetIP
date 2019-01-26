@@ -27,9 +27,13 @@ namespace HitachiEIP {
       TreeView tvXML;
       TextBox txtIndentedView;
 
-      Button cmdBrowse;
+      Button cmdOpen;
       Button cmdClear;
+      Button cmdGenerate;
+      Button cmdSaveAs;
       Button cmdSendToPrinter;
+
+      string XMLText= string.Empty;
 
       #endregion
 
@@ -47,9 +51,22 @@ namespace HitachiEIP {
          tvXML = new TreeView() { Name = "tvXML" };
          txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
 
-         cmdBrowse = new Button() { Text = "Browse" };
+         cmdOpen = new Button() { Text = "Open" };
+         cmdOpen.Click += Open_Click;
+
          cmdClear = new Button() { Text = "Clear" };
-         cmdSendToPrinter = new Button() { Text = "Send To Printer" };
+         cmdClear.Click += Clear_Click;
+
+         cmdGenerate = new Button() { Text = "Generate" };
+         cmdGenerate.Click += Generate_Click;
+
+         cmdSaveAs = new Button() { Text = "Save As" };
+         cmdSaveAs.Click += SaveAs_Click;
+
+         cmdSendToPrinter = new Button() { Text = "Send To Printer", Enabled = false };
+         cmdSendToPrinter.Click += SendToPrinter_Click;
+
+         tab.Controls.Add(tclViewXML);
 
          tclViewXML.Controls.Add(tabTreeView);
          tclViewXML.Controls.Add(tabIndented);
@@ -57,18 +74,59 @@ namespace HitachiEIP {
          tabTreeView.Controls.Add(tvXML);
          tabIndented.Controls.Add(txtIndentedView);
 
-         tab.Controls.Add(tclViewXML);
-         tab.Controls.Add(cmdBrowse);
+         tab.Controls.Add(cmdOpen);
          tab.Controls.Add(cmdClear);
+         tab.Controls.Add(cmdGenerate);
+         tab.Controls.Add(cmdSaveAs);
          tab.Controls.Add(cmdSendToPrinter);
       }
 
       #endregion
 
-      #region XML Routines
+      #region Form Control Events
 
-      internal bool SaveAsXml() {
-         bool result = false;
+      private void Open_Click(object sender, EventArgs e) {
+         DialogResult dlgResult = DialogResult.Retry;
+         string fileName = String.Empty;
+         using (OpenFileDialog dlg = new OpenFileDialog()) {
+            dlg.AutoUpgradeEnabled = true;
+            dlg.CheckFileExists = true;
+            dlg.CheckPathExists = true;
+            dlg.Multiselect = false;
+            dlg.ValidateNames = true;
+            dlg.InitialDirectory = LoadedFileName;
+            dlg.Title = "Select XML formatted file!";
+            dlg.Filter = "XML (*.xml)|*.xml|All (*.*)|*.*";
+            dlg.DefaultExt = "txt";
+            dlg.FilterIndex = 1;
+            dlgResult = DialogResult.Retry;
+            while (dlgResult == DialogResult.Retry) {
+               dlgResult = dlg.ShowDialog();
+               if (dlgResult == DialogResult.OK) {
+                  try {
+                     ProcessLabel(File.ReadAllText(dlg.FileName));
+                  } catch (Exception ex) {
+                     MessageBox.Show(parent, ex.Message, "Cannot load XML File!");
+                  }
+               }
+            }
+         }
+      }
+
+      private void Clear_Click(object sender, EventArgs e) {
+         txtIndentedView.Text = string.Empty;
+         tvXML.Nodes.Clear();
+         XMLText = string.Empty;
+         SetButtonEnables();
+      }
+
+      private void Generate_Click(object sender, EventArgs e) {
+         XMLText = ConvertLayoutToXML();
+         ProcessLabel(XMLText);
+         SetButtonEnables();
+      }
+
+      internal void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
          string filename = this.LoadedFileName;
 
@@ -83,20 +141,39 @@ namespace HitachiEIP {
             if (dlgResult == DialogResult.OK && !String.IsNullOrEmpty(saveFileDialog1.FileName)) {
                filename = saveFileDialog1.FileName;
                this.SaveLayoutToXML(filename);
-               result = true;
             }
          }
-         return result;
+         SetButtonEnables();
       }
 
-      internal void SaveLayoutToXML(string filename) {
+      private void SaveLayoutToXML(string filename) {
+         Stream outfs = null;
+         outfs = new FileStream(filename, FileMode.Create);
+         outfs.Write(EIP.encode.GetBytes(XMLText),0,XMLText.Length);
+         outfs.Flush();
+         outfs.Close();
+         SetButtonEnables();
+      }
 
-         int ItemNumber = 1;
+      private void SendToPrinter_Click(object sender, EventArgs e) {
+      }
+
+      #endregion
+
+      #region XML Routines
+
+      internal string ConvertLayoutToXML() {
+         bool OpenCloseForward = !EIP.ForwardIsOpen;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
+               OpenCloseForward = !EIP.ForwardIsOpen;
+               if (OpenCloseForward) {
+                  EIP.ForwardOpen();
+               }
                writer.WriteStartElement("Label"); // Start Label
+
                //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
                //writer.WriteAttributeString("Registration", this.Registration.ToString());
                //writer.WriteAttributeString("GroupNumber", this.MessageGroupNumber);
@@ -105,36 +182,47 @@ namespace HitachiEIP {
                //writer.WriteAttributeString("BeRestrictive", this.BeRestrictive.ToString());
                //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
                //writer.WriteAttributeString("Format", MessageStyle.ToString());
+
                writer.WriteAttributeString("Version", "3");
                WritePrinterSettings(writer);
 
                writer.WriteStartElement("Objects"); // Start Objects
+               if (EIP.ForwardIsOpen && OpenCloseForward) {
+                  EIP.ForwardClose();
+               }
 
                int itemCount = GetDecimalAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Item);
                for (int i = 0; i < itemCount; i++) {
+                  OpenCloseForward = !EIP.ForwardIsOpen;
+                  if (OpenCloseForward) {
+                     EIP.ForwardOpen();
+                  }
+
+                  SetAttribute(eipClassCode.Index, (byte)eipIndex.Item_Count, i + 1);
                   writer.WriteStartElement("Object"); // Start Object
 
                   //   writer.WriteAttributeString("Type", Enum.GetName(typeof(TPB.ItemTypes), p.ItemType));
 
                   writer.WriteStartElement("Font"); // Start Font
-                  //writer.WriteAttributeString("HumanReadableFont", p.HumanReadableFont);
-                  //writer.WriteAttributeString("EANPrefix", p.EANPrefix);
-                  //writer.WriteAttributeString("BarCode", p.BarCode);
-                  //writer.WriteAttributeString("IncreasedWidth", p.IncreasedWidth.ToString());
-                  //writer.WriteAttributeString("InterLineSpace", p.InterLineSpace.ToString());
-                  //writer.WriteAttributeString("InterCharacterSpace", p.InterCharacterSpace.ToString());
-                  //writer.WriteString(p.ItemFont);
+                  writer.WriteAttributeString("HumanReadableFont", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Readable_Code));
+                  writer.WriteAttributeString("EANPrefix", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Prefix_Code));
+                  writer.WriteAttributeString("BarCode", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Barcode_Type));
+                  writer.WriteAttributeString("IncreasedWidth", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Character_Bold));
+                  writer.WriteAttributeString("InterLineSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Line_Spacing));
+                  writer.WriteAttributeString("InterCharacterSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.InterCharacter_Space));
+                  writer.WriteString(GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Dot_Matrix));
                   writer.WriteEndElement(); // End Font
 
-                  //   writer.WriteStartElement("Location"); // Start Location
-                  //   writer.WriteAttributeString("ItemNumber", (ItemNumber++).ToString());
+                  writer.WriteStartElement("Location"); // Start Location
+                  writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
                   //   writer.WriteAttributeString("Column", p.Column.ToString());
                   //   writer.WriteAttributeString("Row", p.Row.ToString());
                   //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
                   //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
                   //   writer.WriteAttributeString("Left", p.X.ToString());
                   //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
-                  //   writer.WriteEndElement(); // End Location
+                  writer.WriteEndElement(); // End Location
+                  writer.WriteElementString("Text", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String));
 
                   //   switch (p.ItemType) {
                   //      case TPB.ItemTypes.Counter:
@@ -268,6 +356,9 @@ namespace HitachiEIP {
                   //   }
                   writer.WriteEndElement(); // End Object
 
+                  if (EIP.ForwardIsOpen && OpenCloseForward) {
+                     EIP.ForwardClose();
+                  }
                }
 
                writer.WriteEndElement(); // End Objects
@@ -275,12 +366,8 @@ namespace HitachiEIP {
 
                writer.WriteEndDocument();
                writer.Flush();
-               Stream outfs = null;
-               outfs = new FileStream(filename, FileMode.Create);
-               ms.WriteTo(outfs);
-               outfs.Flush();
-               outfs.Close();
-               //Utils.Log("XML File \"" + filename + "\" Saved successfully", Severity.Normal);
+               ms.Position = 0;
+               return new StreamReader(ms).ReadToEnd();
             }
          }
       }
@@ -339,43 +426,15 @@ namespace HitachiEIP {
          writer.WriteEndElement(); // Printer
       }
 
-      private void cmdBrowse_Click(string Filename) {
-         DialogResult dlgResult = DialogResult.Retry;
-         string fileName = String.Empty;
-         using (OpenFileDialog dlg = new OpenFileDialog()) {
-            dlg.AutoUpgradeEnabled = true;
-            dlg.CheckFileExists = true;
-            dlg.CheckPathExists = true;
-            dlg.Multiselect = false;
-            dlg.ValidateNames = true;
-            dlg.InitialDirectory = Filename;
-            dlg.Title = "Select XML formatted file!";
-            dlg.Filter = "TXML (*.xml)|All (*.*)|*.*";
-            dlg.DefaultExt = "txt";
-            dlg.FilterIndex = 1;
-            dlgResult = DialogResult.Retry;
-            while (dlgResult == DialogResult.Retry) {
-               dlgResult = dlg.ShowDialog();
-               if (dlgResult == DialogResult.OK) {
-                  try {
-                     ProcessGP(File.ReadAllText(dlg.FileName));
-                  } catch (Exception ex) {
-                     MessageBox.Show(parent, ex.Message, "Cannot load XML File!");
-                  }
-               }
-            }
-         }
-      }
-
-      public bool ProcessGP(string xml, bool postError = true) {
+      public bool ProcessLabel(string xml) {
          bool result = false;
          try {
-            int i = xml.IndexOf("<Label>");
+            int i = xml.IndexOf("<Label");
             if (i == -1) {
                xml = File.ReadAllText(xml);
-               i = xml.IndexOf("<Label>");
+               i = xml.IndexOf("<Label");
             }
-            i = xml.IndexOf("<Label>");
+            i = xml.IndexOf("<Label");
             int j = xml.IndexOf("</Label>", i + 7);
             if (j > 0)
                xml = xml.Substring(i, j - i + 8);
@@ -400,10 +459,6 @@ namespace HitachiEIP {
             }
          } catch {
 
-         } finally {
-            if (postError && !result) {
-               txtIndentedView.Text = "Invalid <Label> structure!";
-            }
          }
          return result;
       }
@@ -466,26 +521,28 @@ namespace HitachiEIP {
       public void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int tclWidth = (int)(tab.ClientSize.Width / R.W);
-         int offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
+         float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
          if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
          R.offset = offset;
-         Utils.ResizeObject(ref R, tclViewXML, 0, 0, tclHeight - 4, tclWidth);
+         Utils.ResizeObject(ref R, tclViewXML, 0, 1, tclHeight - 4, tclWidth - 1);
          {
-            Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
+            Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 9, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 9, tclWidth - 2, 0.9f);
+            Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 9, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 1, 2, 5);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 7, 2, 5);
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 13, 2, 6);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2, 6);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 8, 2, 6);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 15, 2, 6);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 3, 22, 2, 6);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 29, 2, 6);
          }
          R.offset = 0;
       }
 
-      private string GetAttribute(eipClassCode Class, byte Attribute, DataFormats fmt) {
-         bool successful = EIP.ReadOneAttribute(Class, Attribute, out string val, fmt);
+      private string GetAttribute(eipClassCode Class, byte Attribute) {
+         bool successful = EIP.ReadOneAttribute(Class, Attribute, out string val, Data.AttrDict[(byte)Class, Attribute].Fmt);
          return val;
       }
 
@@ -494,11 +551,16 @@ namespace HitachiEIP {
          return EIP.GetDecValue;
       }
 
+      private int SetAttribute(eipClassCode Class, byte Attribute, int n) {
+         bool successful = EIP.WriteOneAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[(byte)Class, Attribute].Len));
+         return EIP.GetDecValue;
+      }
+
       public void SetButtonEnables() {
          if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
-
+         cmdSaveAs.Enabled = XMLText.Length > 0;
       }
 
       #endregion

@@ -185,7 +185,7 @@ namespace HitachiEIP {
          Button b = (Button)sender;
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
-         AttrData attr = Data.GetAttrData((byte)eipClassCode.Index, at);
+         AttrData attr = Data.AttrDict[(byte)eipClassCode.Index, at];
          int len = attr.Len;
          if (!int.TryParse(ExtraText[n].Text, out int val)) {
             val = attr.Min;
@@ -519,7 +519,7 @@ namespace HitachiEIP {
          }
          for (int i = start; i < end; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
-            AttrData attr = Data.GetAttrData((byte)eipClassCode.Index, at);
+            AttrData attr = Data.AttrDict[(byte)eipClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
                val >= attr.Min && val <= attr.Max;
