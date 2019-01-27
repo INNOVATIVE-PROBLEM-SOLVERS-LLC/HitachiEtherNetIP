@@ -126,7 +126,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      internal void SaveAs_Click(object sender, EventArgs e) {
+      private void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
          string filename = this.LoadedFileName;
 
@@ -162,7 +162,7 @@ namespace HitachiEIP {
 
       #region XML Routines
 
-      internal string ConvertLayoutToXML() {
+      private string ConvertLayoutToXML() {
          bool OpenCloseForward = !EIP.ForwardIsOpen;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
@@ -426,7 +426,7 @@ namespace HitachiEIP {
          writer.WriteEndElement(); // Printer
       }
 
-      public bool ProcessLabel(string xml) {
+      private bool ProcessLabel(string xml) {
          bool result = false;
          try {
             int i = xml.IndexOf("<Label");
