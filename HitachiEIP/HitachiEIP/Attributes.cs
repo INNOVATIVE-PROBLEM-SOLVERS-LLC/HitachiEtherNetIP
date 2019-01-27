@@ -88,7 +88,8 @@ namespace HitachiEIP {
       }
 
       private void Set_Click(object sender, EventArgs e) {
-         int tag = Convert.ToInt32(((Button)sender).Tag);
+         Button b = (Button)sender;
+         int tag = (int)b.Tag;
          AttrData attr = attrs[tag];
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
@@ -100,7 +101,8 @@ namespace HitachiEIP {
       }
 
       private void Service_Click(object sender, EventArgs e) {
-         int tag = Convert.ToInt32(((Button)sender).Tag);
+         Button b = (Button)sender;
+         int tag = (int)b.Tag;
          AttrData attr = attrs[tag];
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
@@ -116,6 +118,11 @@ namespace HitachiEIP {
          for (int i = 0; i < gets.Length; i++) {
             counts[i].BackColor = SystemColors.Control;
             if (gets[i] != null) {
+               if (dropdowns[i] != null) {
+                  dropdowns[i].Visible = false;
+                  texts[i].Visible = true;
+
+               }
                texts[i].Text = "Loading";
                texts[i].BackColor = SystemColors.Control;
             }

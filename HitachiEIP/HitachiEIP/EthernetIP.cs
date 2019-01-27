@@ -509,6 +509,9 @@ namespace HitachiEIP {
 
       public byte SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
+      public string SetDataValue { get; set; }
+
+
       public Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
       #endregion
@@ -643,18 +646,14 @@ namespace HitachiEIP {
       // Read response to EtherNet/IP request
       public bool Read(out byte[] data, out int bytes) {
          bool successful = false;
-         data = new byte[256];
+         data = new byte[10000];
          bytes = -1;
          if (stream != null) {
             try {
-               for (int t = 0; t < 10; t++) {
-                  if (stream.DataAvailable) {
-                     bytes = stream.Read(data, 0, data.Length);
-                     successful = true;
-                     break;
-                  }
-                  Thread.Sleep(10);
-               }
+               // Allow for up to 1 second for a response
+               stream.ReadTimeout = 1000;
+               bytes = stream.Read(data, 0, data.Length);
+               successful = bytes >= 0;
             } catch (IOException e) {
                LogIt(e.Message);
             }
@@ -694,8 +693,9 @@ namespace HitachiEIP {
          SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
          val = "#Error";
          if (ForwardIsOpen) {
-            SetData = new byte[] { };
             SetDataLength = 0;
+            SetData = new byte[SetDataLength];
+            SetDataValue = string.Empty;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
@@ -703,11 +703,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         if (Successful) {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute));
-         } else {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute));
-         }
+         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -731,11 +727,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         if (Successful) {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute));
-         } else {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute));
-         }
+         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -759,11 +751,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         if (Successful) {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute));
-         } else {
-            IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute));
-         }
+         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -1054,6 +1042,7 @@ namespace HitachiEIP {
 
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr) {
          if(attr.DropDown >= 0 && c.Visible) {
+            SetDataValue = (c.SelectedIndex + attr.Min).ToString();
             return ToBytes((uint)(c.SelectedIndex + attr.Min), attr.Len);
          } else {
             return FormatOutput(t.Text, attr);
@@ -1064,6 +1053,7 @@ namespace HitachiEIP {
       public byte[] FormatOutput(string s, AttrData attr) {
          byte[] result = null;
          string[] sa;
+         SetDataValue = s;
          switch (attr.Fmt) {
             case DataFormats.Decimal:
                if (uint.TryParse(s, out uint val)) {
@@ -1412,16 +1402,23 @@ namespace HitachiEIP {
 
    public class EIPEventArg {
 
+      #region Properties, Constructors and Destructors
+
       public eipAccessCode Access { get; set; }
       public eipClassCode Class { get; set; }
       public byte Instance { get; set; }
       public byte Attribute { get; set; }
+      public bool Successful { get; set; }
 
-      public EIPEventArg(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
+      public EIPEventArg(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute, bool Successful) {
          this.Access = Access;
          this.Class = Class;
          this.Instance = Instance;
          this.Attribute = Attribute;
+         this.Successful = Successful;
       }
+
+      #endregion
+
    }
 }

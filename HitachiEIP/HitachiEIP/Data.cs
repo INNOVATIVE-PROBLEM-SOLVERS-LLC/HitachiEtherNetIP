@@ -5,55 +5,7 @@ namespace HitachiEIP {
 
    public static class Data {
 
-      public static Type[] DropDowns = new Type[] {
-         typeof(DD_Decimal),                    // 0 - Just decimal values
-         typeof(DD_EnableDisable),              // 1 - Enable and disable
-         typeof(DD_Suppression),                // 2 - Disable, space fill, character fill
-         typeof(DD_ClockSystem),                // 3 - 12 & 24 hour
-         typeof(DD_ClockAvailability),          // 4 - Current time or stop clock
-         typeof(DD_OnlineOffline),              // 5 - Offline/Online
-         typeof(DD_ResetSignal),                // 6 - None, Signal 1, Signal 2
-         typeof(DD_UpDown),                     // 7 - Up/Down
-         typeof(DD_ReadableCode),               // 8 - Readable Code 5X5 or 5X7
-         typeof(DD_BarcodeTypes),               // 9 - Barcode Types
-         typeof(DD_NormalReverse),              // 10 - Normal/reverse
-         typeof(DD_QR_Error_Correction),        // 11 - M 15%, Q 25%
-         typeof(DD_EAN_Prefix),                 // 12 - Edit/Print
-         typeof(DD_CalendarOffset),             // 13 - From Yesterday/Today
-         typeof(DD_Font),                       // 14 - Font Types
-      };
-
-      // Class Codes to Attributes
-      public static Type[] ClassCodeAttributes = new Type[] {
-            typeof(eipPrint_Data_Management),   // 0x66 Print data management function
-            typeof(eipPrint_format),            // 0x67 Print format function
-            typeof(eipPrint_specification),     // 0x68 Print specification function
-            typeof(eipCalendar),                // 0x69 Calendar function
-            typeof(eipUser_pattern),            // 0x6B User pattern function
-            typeof(eipSubstitution_rules),      // 0x6C Substitution rules function
-            typeof(eipEnviroment_setting),      // 0x71 Enviroment setting function
-            typeof(eipUnit_Information),        // 0x73 Unit Information function
-            typeof(eipOperation_management),    // 0x74 Operation management function
-            typeof(eipIJP_operation),           // 0x75 IJP operation function
-            typeof(eipCount),                   // 0x79 Count function
-            typeof(eipIndex),                   // 0x7A Index function
-         };
-
-      // Class Codes
-      public static int[,] ClassCodes = new int[,] {
-         { 0X66, 7},   // Print data management function
-         { 0X67, 8},   // Print format function
-         { 0X68, 9},   // Print specification function
-         { 0X69, 1},   // Calendar function
-         { 0X6B, 12},  // User pattern function
-         { 0X6C, 10},  // Substitution rules function
-         { 0X71, 3},   // Enviroment setting function
-         { 0X73, 11},  // Unit Information function
-         { 0X74, 6},   // Operation management function
-         { 0X75, 4},   // IJP operation function
-         { 0X79, 2},   // Count function
-         { 0X7A, 5},   // Index function
-      };
+      #region Attribute raw data tables
 
       // Print Data Management (Class Code 0x66) Complete!
       public static int[][] PrintDataManagement = new int[][] {
@@ -286,7 +238,62 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0, 0},       // Calendar Block
       };
 
-      // Class Codes to Data Tables
+      #endregion
+
+      #region Conversion Tables
+
+      // Attribute DropDown conversion
+      public static Type[] DropDowns = new Type[] {
+         typeof(DD_Decimal),                    // 0 - Just decimal values
+         typeof(DD_EnableDisable),              // 1 - Enable and disable
+         typeof(DD_Suppression),                // 2 - Disable, space fill, character fill
+         typeof(DD_ClockSystem),                // 3 - 12 & 24 hour
+         typeof(DD_ClockAvailability),          // 4 - Current time or stop clock
+         typeof(DD_OnlineOffline),              // 5 - Offline/Online
+         typeof(DD_ResetSignal),                // 6 - None, Signal 1, Signal 2
+         typeof(DD_UpDown),                     // 7 - Up/Down
+         typeof(DD_ReadableCode),               // 8 - Readable Code 5X5 or 5X7
+         typeof(DD_BarcodeTypes),               // 9 - Barcode Types
+         typeof(DD_NormalReverse),              // 10 - Normal/reverse
+         typeof(DD_QR_Error_Correction),        // 11 - M 15%, Q 25%
+         typeof(DD_EAN_Prefix),                 // 12 - Edit/Print
+         typeof(DD_CalendarOffset),             // 13 - From Yesterday/Today
+         typeof(DD_Font),                       // 14 - Font Types
+      };
+
+      // Class Codes to Attributes
+      public static Type[] ClassCodeAttributes = new Type[] {
+            typeof(eipPrint_Data_Management),   // 0x66 Print data management function
+            typeof(eipPrint_format),            // 0x67 Print format function
+            typeof(eipPrint_specification),     // 0x68 Print specification function
+            typeof(eipCalendar),                // 0x69 Calendar function
+            typeof(eipUser_pattern),            // 0x6B User pattern function
+            typeof(eipSubstitution_rules),      // 0x6C Substitution rules function
+            typeof(eipEnviroment_setting),      // 0x71 Enviroment setting function
+            typeof(eipUnit_Information),        // 0x73 Unit Information function
+            typeof(eipOperation_management),    // 0x74 Operation management function
+            typeof(eipIJP_operation),           // 0x75 IJP operation function
+            typeof(eipCount),                   // 0x79 Count function
+            typeof(eipIndex),                   // 0x7A Index function
+         };
+
+      // Class Codes with Sort Order
+      public static int[,] ClassCodes = new int[,] {
+         { 0X66, 7},   // Print data management function
+         { 0X67, 8},   // Print format function
+         { 0X68, 9},   // Print specification function
+         { 0X69, 1},   // Calendar function
+         { 0X6B, 12},  // User pattern function
+         { 0X6C, 10},  // Substitution rules function
+         { 0X71, 3},   // Enviroment setting function
+         { 0X73, 11},  // Unit Information function
+         { 0X74, 6},   // Operation management function
+         { 0X75, 4},   // IJP operation function
+         { 0X79, 2},   // Count function
+         { 0X7A, 5},   // Index function
+      };
+
+      // Class Codes to Data Tables Conversion
       public static int[][][] ClassCodeData = new int[][][] {
             PrintDataManagement,           // 0x66 Print data management function
             PrintFormat,                   // 0x67 Print format function
@@ -301,6 +308,13 @@ namespace HitachiEIP {
             Count,                         // 0x79 Count function
             Index,                         // 0x7A Index function
          };
+
+      #endregion
+
+      #region Service Routines
+
+      // Lookup for getting attributes associated with a Class/Function
+      public static Dictionary<byte, byte, AttrData> AttrDict;
 
       // Get attribute data for an arbitrary class/attribute
       public static AttrData GetAttrData(byte Class, byte attr) {
@@ -318,11 +332,13 @@ namespace HitachiEIP {
          return null;
       }
 
-      public static Dictionary<byte, byte, AttrData> AttrDict;
+      #endregion
 
    }
 
    public class ClassCodeData {
+
+      #region Properties and Constructor
 
       // Class Codes = { 
       //   [0] = value, 
@@ -337,11 +353,13 @@ namespace HitachiEIP {
          this.values = values;
       }
 
+      #endregion
+
    }
 
    public class AttrData {
 
-      #region Attributes
+      #region Properties and Constructor
 
       // Class Code Attributes = {
       //   [0] = Value
@@ -401,11 +419,11 @@ namespace HitachiEIP {
 
       #endregion
 
-
-
    }
 
    public class Dictionary<TKey1, TKey2, TValue> : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
+
+      #region Constructor and methods
 
       public TValue this[TKey1 key1, TKey2 key2] {
          get { return base[Tuple.Create(key1, key2)]; }
@@ -416,10 +434,8 @@ namespace HitachiEIP {
          base.Add(Tuple.Create(key1, key2), value);
       }
 
-      public bool ContainsKey(TKey1 key1, TKey2 key2) {
-         return base.ContainsKey(Tuple.Create(key1, key2));
-      }
-   }
+      #endregion
 
+   }
 
 }
