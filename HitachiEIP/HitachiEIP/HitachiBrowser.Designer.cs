@@ -274,7 +274,6 @@
          // 
          this.txtData.Location = new System.Drawing.Point(87, 427);
          this.txtData.Name = "txtData";
-         this.txtData.ReadOnly = true;
          this.txtData.Size = new System.Drawing.Size(229, 22);
          this.txtData.TabIndex = 26;
          this.txtData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
