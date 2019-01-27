@@ -419,20 +419,20 @@ namespace HitachiEIP {
       #region Events
 
       // Event Logging
-      internal event LogHandler Log;
-      internal delegate void LogHandler(EIP sender, string msg);
+      public event LogHandler Log;
+      public delegate void LogHandler(EIP sender, string msg);
 
       // In case of fatal error
-      internal event ErrorHandler Error;
-      internal delegate void ErrorHandler(EIP sender, string msg);
+      public event ErrorHandler Error;
+      public delegate void ErrorHandler(EIP sender, string msg);
 
       // Read completion
-      internal event IOHandler IOComplete;
-      internal delegate void IOHandler(EIP sender, EIPEventArg e);
+      public event IOHandler IOComplete;
+      public delegate void IOHandler(EIP sender, EIPEventArg e);
 
       // Read completion
-      internal event ConnectionStateChangedHandler StateChanged;
-      internal delegate void ConnectionStateChangedHandler(EIP sender, string msg);
+      public event ConnectionStateChangedHandler StateChanged;
+      public delegate void ConnectionStateChangedHandler(EIP sender, string msg);
 
       #endregion
 
@@ -595,7 +595,7 @@ namespace HitachiEIP {
       }
 
       // End EtherNet/IP Session
-      internal bool EndSession() {
+      public bool EndSession() {
          SessionID = 0;
          if (client.Connected) {
             byte[] ed = EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
@@ -644,7 +644,7 @@ namespace HitachiEIP {
       }
 
       // Read response to EtherNet/IP request
-      public bool Read(out byte[] data, out int bytes) {
+      private bool Read(out byte[] data, out int bytes) {
          bool successful = false;
          data = new byte[10000];
          bytes = -1;
@@ -666,7 +666,7 @@ namespace HitachiEIP {
       }
 
       // Issue EtherNet/IP request
-      public bool Write(byte[] data, int start, int length) {
+      private bool Write(byte[] data, int start, int length) {
          bool successful = false;
          if (stream != null) {
             try {
@@ -759,68 +759,38 @@ namespace HitachiEIP {
       }
 
       // Handles Hitachi Get, Set, and Service
-      public byte[] EIP_Hitachi(EIP_Type t, eipAccessCode c) {
+      private byte[] EIP_Hitachi(EIP_Type t, eipAccessCode c) {
          List<byte> packet = new List<byte>();
-         switch (c) {
-            case eipAccessCode.Get:
-               Add(packet, (ulong)t, 2);                                 // Command
-               Add(packet, (ulong)30, 2);                                // Length of added data at end
-               Add(packet, (ulong)SessionID, 4);                         // Session ID
-               Add(packet, (ulong)0, 4);                                 // Success
-               Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
-               Add(packet, (ulong)0, 4);                                 // option flags
-               Add(packet, (ulong)0, 4);                                 // option interface handle
-               Add(packet, (ulong)30, 2);                                // Timeout
-               Add(packet, (ulong)2, 2);                                 // Item count
+         Add(packet, (ulong)t, 2);                                 // Command
+         Add(packet, (ulong)(30 + SetDataLength), 2);              // Length of added data at end
+         Add(packet, (ulong)SessionID, 4);                         // Session ID
+         Add(packet, (ulong)0, 4);                                 // Success
+         Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
+         Add(packet, (ulong)0, 4);                                 // option flags
+         Add(packet, (ulong)0, 4);                                 // option interface handle
+         Add(packet, (ulong)30, 2);                                // Timeout
+         Add(packet, (ulong)2, 2);                                 // Item count
 
-               // Item #1
-               Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
-               Add(packet, (ulong)4, 2);                              // length of 4
-               Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
+         // Item #1
+         Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
+         Add(packet, (ulong)4, 2);                              // length of 4
+         Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
 
-               // Item #2
-               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
-               Add(packet, (ulong)10, 2);                             // length of 10
-               Add(packet, (ulong)2, 2);                              // Count Sequence
-               Add(packet, (byte)c, 3);                               // Hitachi command and count
-               Add(packet, (byte)Segment.Class, (byte)Class);         // Class
-               Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
-               Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               break;
-            case eipAccessCode.Set:
-            case eipAccessCode.Service:
-               Add(packet, (ulong)t, 2);                                 // Command
-               Add(packet, (ulong)(30 + SetDataLength), 2);                 // Length of added data at end
-               Add(packet, (ulong)SessionID, 4);                         // Session ID
-               Add(packet, (ulong)0, 4);                                 // Success
-               Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
-               Add(packet, (ulong)0, 4);                                 // option flags
-               Add(packet, (ulong)0, 4);                                 // option interface handle
-               Add(packet, (ulong)30, 2);                                // Timeout
-               Add(packet, (ulong)2, 2);                                 // Item count
+         // Item #2
+         Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
+         Add(packet, (ulong)(10 + SetDataLength), 2);           // length of 10 + data length
+         Add(packet, (ulong)2, 2);                              // Count Sequence
+         Add(packet, (byte)c, 3);                               // Hitachi command and count
+         Add(packet, (byte)Segment.Class, (byte)Class);         // Class
+         Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
+         Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
+         Add(packet, SetData);                                  // Data
 
-               // Item #1
-               Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
-               Add(packet, (ulong)4, 2);                              // length of 4
-               Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
-
-               // Item #2
-               Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
-               Add(packet, (ulong)(10 + SetDataLength), 2);              // length of 10 + data length
-               Add(packet, (ulong)2, 2);                              // Count Sequence
-               Add(packet, (byte)c, 3);                               // Hitachi command and count
-               Add(packet, (byte)Segment.Class, (byte)Class);         // Class
-               Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
-               Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-               Add(packet, SetData);                                     // Data
-
-               break;
-         }
          return packet.ToArray<byte>();
       }
 
       // handles Register Session, Unregister Session, Send RR Data(Forward Open, Forward Close)
-      public byte[] EIP_Wrapper(EIP_Type t, EIP_Command c) {
+      private byte[] EIP_Wrapper(EIP_Type t, EIP_Command c) {
          List<byte> packet = new List<byte>();
          switch (t) {
             case EIP_Type.RegisterSession:
@@ -1039,7 +1009,6 @@ namespace HitachiEIP {
       }
 
       // Format output
-
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr) {
          if(attr.DropDown >= 0 && c.Visible) {
             SetDataValue = (c.SelectedIndex + attr.Min).ToString();
@@ -1123,6 +1092,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Does count agree with Hitachi Document?
       public bool CountIsValid(AttrData attr, byte[] data) {
          bool IsValid = false;
          switch (attr.Fmt) {
@@ -1143,6 +1113,7 @@ namespace HitachiEIP {
          return IsValid;
       }
 
+      // Does text agree with Hitachi Document?
       public bool TextIsValid(AttrData attr, byte[] data) {
          bool IsValid = false;
          switch (attr.Fmt) {
@@ -1189,6 +1160,7 @@ namespace HitachiEIP {
          return IsValid;
       }
 
+      // Does text agree with Hitachi Document?
       public bool TextIsValid(AttrData attr, string s) {
          bool IsValid = false;
          switch (attr.Fmt) {

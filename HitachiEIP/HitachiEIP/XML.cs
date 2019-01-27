@@ -33,7 +33,7 @@ namespace HitachiEIP {
       Button cmdSaveAs;
       Button cmdSendToPrinter;
 
-      string XMLText= string.Empty;
+      string XMLText = string.Empty;
 
       #endregion
 
@@ -126,7 +126,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      internal void SaveAs_Click(object sender, EventArgs e) {
+      private void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
          string filename = this.LoadedFileName;
 
@@ -149,7 +149,7 @@ namespace HitachiEIP {
       private void SaveLayoutToXML(string filename) {
          Stream outfs = null;
          outfs = new FileStream(filename, FileMode.Create);
-         outfs.Write(EIP.encode.GetBytes(XMLText),0,XMLText.Length);
+         outfs.Write(EIP.encode.GetBytes(XMLText), 0, XMLText.Length);
          outfs.Flush();
          outfs.Close();
          SetButtonEnables();
@@ -162,7 +162,7 @@ namespace HitachiEIP {
 
       #region XML Routines
 
-      internal string ConvertLayoutToXML() {
+      private string ConvertLayoutToXML() {
          bool OpenCloseForward = !EIP.ForwardIsOpen;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
@@ -204,153 +204,44 @@ namespace HitachiEIP {
                   //   writer.WriteAttributeString("Type", Enum.GetName(typeof(TPB.ItemTypes), p.ItemType));
 
                   writer.WriteStartElement("Font"); // Start Font
-                  writer.WriteAttributeString("HumanReadableFont", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Readable_Code));
-                  writer.WriteAttributeString("EANPrefix", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Prefix_Code));
-                  writer.WriteAttributeString("BarCode", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Barcode_Type));
-                  writer.WriteAttributeString("IncreasedWidth", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Character_Bold));
-                  writer.WriteAttributeString("InterLineSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Line_Spacing));
-                  writer.WriteAttributeString("InterCharacterSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.InterCharacter_Space));
-                  writer.WriteString(GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Dot_Matrix));
+                  {
+                     writer.WriteAttributeString("HumanReadableFont", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Readable_Code));
+                     writer.WriteAttributeString("EANPrefix", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Prefix_Code));
+                     writer.WriteAttributeString("BarCode", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Barcode_Type));
+                     writer.WriteAttributeString("IncreasedWidth", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Character_Bold));
+                     writer.WriteAttributeString("InterLineSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Line_Spacing));
+                     writer.WriteAttributeString("InterCharacterSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.InterCharacter_Space));
+                     writer.WriteString(GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Dot_Matrix));
+                  }
                   writer.WriteEndElement(); // End Font
 
                   writer.WriteStartElement("Location"); // Start Location
-                  writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
-                  //   writer.WriteAttributeString("Column", p.Column.ToString());
-                  //   writer.WriteAttributeString("Row", p.Row.ToString());
-                  //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
-                  //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
-                  //   writer.WriteAttributeString("Left", p.X.ToString());
-                  //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
+                  {
+                     writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
+                     //   writer.WriteAttributeString("Column", p.Column.ToString());
+                     //   writer.WriteAttributeString("Row", p.Row.ToString());
+                     //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
+                     //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
+                     //   writer.WriteAttributeString("Left", p.X.ToString());
+                     //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
+                  }
                   writer.WriteEndElement(); // End Location
                   writer.WriteElementString("Text", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String));
 
                   //   switch (p.ItemType) {
                   //      case TPB.ItemTypes.Counter:
-                  //         writer.WriteStartElement("Counter"); // Start Counter
-                  //         writer.WriteAttributeString("Reset", p.CtReset);
-                  //         writer.WriteAttributeString("ExternalSignal", p.CtExternalSignal);
-                  //         writer.WriteAttributeString("ResetSignal", p.CtResetSignal);
-                  //         writer.WriteAttributeString("Variable", p.WlxVariableName);
-                  //         writer.WriteAttributeString("CountUp", p.CtDirection.ToString());
-                  //         writer.WriteAttributeString("Increment", p.CtIncrement);
-                  //         writer.WriteAttributeString("JumpTo", p.CtJumpTo);
-                  //         writer.WriteAttributeString("JumpFrom", p.CtJumpFrom);
-                  //         writer.WriteAttributeString("UpdateUnit", p.CtUpdateUnit);
-                  //         writer.WriteAttributeString("UpdateIP", p.CtUpdateIP);
-                  //         writer.WriteAttributeString("Range2", p.CtRangeEnd);
-                  //         writer.WriteAttributeString("Range1", p.CtRangeStart);
-                  //         writer.WriteAttributeString("InitialValue", p.CtInitialValue);
-                  //         writer.WriteAttributeString("Format", p.RawText);
-                  //         writer.WriteAttributeString("Multiplier", p.CtMultiplier);
-                  //         writer.WriteAttributeString("ZeroSuppression", p.CtZeroSuppression.ToString());
-                  //         writer.WriteEndElement(); //  End Counter
-
+                  //WriteCounterSettings(writer);
                   //         writer.WriteElementString("Text", p.RawText);
                   //         break;
                   //      case TPB.ItemTypes.Date:
-                  //         writer.WriteStartElement("Date"); // Start Date
-                  //         writer.WriteAttributeString("Variable", p.WlxVariableName);
-                  //         writer.WriteAttributeString("WindowsFormat", (!p.DtWillettFormat).ToString());
-                  //         //writer.WriteAttributeString("Format", p.RawText);
-
-                  //         writer.WriteStartElement("Offset"); // Start Offset
-                  //         writer.WriteAttributeString("Minute", p.DtMinuteOffset);
-                  //         writer.WriteAttributeString("Hour", p.DtHourOffset);
-                  //         writer.WriteAttributeString("Day", p.DtDayOffset);
-                  //         writer.WriteAttributeString("Month", p.DtMonthOffset);
-                  //         writer.WriteAttributeString("Year", p.DtYearOffset);
-                  //         writer.WriteEndElement(); // End Offset
-
-                  //         writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
-                  //         writer.WriteAttributeString("DayOfWeek", p.DtDayOfWeekZS.ToString());
-                  //         writer.WriteAttributeString("Week", p.DtWeekZS.ToString());
-                  //         writer.WriteAttributeString("Minute", p.DtMinuteZS.ToString());
-                  //         writer.WriteAttributeString("Hour", p.DtHourZS.ToString());
-                  //         writer.WriteAttributeString("Day", p.DtDayZS.ToString());
-                  //         writer.WriteAttributeString("Month", p.DtMonthZS.ToString());
-                  //         writer.WriteAttributeString("Year", p.DtYearZS.ToString());
-                  //         writer.WriteEndElement(); // End ZeroSuppress
-
-                  //         writer.WriteStartElement("EnableSubstitution"); // Start ZeroSuppress
-                  //         writer.WriteAttributeString("SubstitutionRule", p.DTSubRule);
-                  //         writer.WriteAttributeString("DayOfWeek", p.DtDayOfWeekSub.ToString());
-                  //         writer.WriteAttributeString("Week", p.DtWeekSub.ToString());
-                  //         writer.WriteAttributeString("Minute", p.DtMinuteSub.ToString());
-                  //         writer.WriteAttributeString("Hour", p.DtHourSub.ToString());
-                  //         writer.WriteAttributeString("Day", p.DtDaySub.ToString());
-                  //         writer.WriteAttributeString("Month", p.DtMonthSub.ToString());
-                  //         writer.WriteAttributeString("Year", p.DtYearSub.ToString());
-                  //         writer.WriteEndElement(); // End EnableSubstitution
-
-                  //         writer.WriteEndElement(); // End Date
-
+                  //WriteCalendarSettings(writer);
                   //         writer.WriteElementString("Text", p.RawText);
                   //         break;
                   //      case TPB.ItemTypes.Logo:
-                  //         writer.WriteStartElement("Logo"); // Start Logo
-                  //         writer.WriteAttributeString("Variable", p.WlxVariableName);
-                  //         writer.WriteAttributeString("HAlignment", Enum.GetName(typeof(Utils.HAlignment), p.LogoHAlignment));
-                  //         writer.WriteAttributeString("VAlignment", Enum.GetName(typeof(Utils.VAlignment), p.LogoVAlignment));
-                  //         writer.WriteAttributeString("Filter", p.LogoFilter.ToString());
-                  //         writer.WriteAttributeString("ReverseVideo", p.LogoReverseVideo.ToString());
-                  //         writer.WriteAttributeString("Source", p.LogoSource);
-                  //         writer.WriteAttributeString("LogoLength", p.LogoLength.ToString());
-                  //         writer.WriteAttributeString("Registration", p.LogoRegistration.ToString());
-
-                  //         using (MemoryStream ms2 = new MemoryStream()) {
-                  //            // bm.Save does not like transparent pixels so make them white
-                  //            Bitmap bm2 = new Bitmap(p.ItemWidth, p.ItemHeight);
-                  //            using (Graphics g = Graphics.FromImage(bm2)) {
-                  //               g.Clear(Color.White);
-                  //               for (int x = 0; x < p.ItemWidth; x++) {
-                  //                  for (int y = 0; y < p.ItemHeight; y++) {
-                  //                     if (p.ScaledImage.GetPixel(x, y).ToArgb() != 0) {
-                  //                        bm2.SetPixel(x, y, Color.Black);
-                  //                     }
-                  //                  }
-                  //               }
-                  //            }
-                  //            Bitmap bm = Utils.BitmapTo1Bpp(bm2);
-                  //            bm.Save(ms2, ImageFormat.Bmp);
-                  //            using (BinaryReader br = new BinaryReader(ms2)) {
-                  //               ms2.Position = 0;
-                  //               byte[] b = br.ReadBytes((int)ms2.Length);
-                  //               int length = Utils.LittleEndian(b, 2, 4);
-                  //               string data = "";
-                  //               writer.WriteAttributeString("size", length.ToString());
-                  //               for (int j = 0; j < length; j++) {
-                  //                  data = data + string.Format("{0:X2} ", b[j]);
-                  //               }
-                  //               writer.WriteStartElement("Data"); // Start Data
-                  //               writer.WriteAttributeString("Length", length.ToString());
-                  //               writer.WriteString(data.TrimEnd());
-                  //               writer.WriteEndElement(); // End Data
-                  //            }
-                  //         }
-                  //         writer.WriteEndElement(); // End Logo
-                  //         string LogoText = "";
-                  //         //for (int j = 0; j < p.ItemText.Length; j++) {
-                  //         //   LogoText += ((short)p.ItemText[j]).ToString("X4");
-                  //         //}
+                  //WriteUserPatternSettings(writer);
                   //         writer.WriteElementString("Text", LogoText);
                   //         break;
                   //      case TPB.ItemTypes.Text:
-                  //         writer.WriteElementString("Text", p.RawText);
-                  //         break;
-                  //      case TPB.ItemTypes.Link:
-                  //         writer.WriteStartElement("Link"); // Start Link
-                  //         writer.WriteAttributeString("Variable", p.WlxVariableName);
-                  //         writer.WriteAttributeString("Location", p.FileLocation);
-                  //         writer.WriteEndElement(); // End Link
-                  //         writer.WriteElementString("Text", p.RawText);
-                  //         break;
-                  //      case TPB.ItemTypes.Prompt:
-                  //         writer.WriteStartElement("Prompt"); // Start Prompt
-                  //         writer.WriteAttributeString("Variable", p.WlxVariableName);
-                  //         writer.WriteAttributeString("Message", p.PromptMessage);
-                  //         writer.WriteAttributeString("Responses", p.PromptResponses);
-                  //         writer.WriteAttributeString("AssumedResponse", p.PromptAssumedResponse);
-                  //         writer.WriteEndElement(); // End Prompt
                   //         writer.WriteElementString("Text", p.RawText);
                   //         break;
                   //   }
@@ -372,61 +263,192 @@ namespace HitachiEIP {
          }
       }
 
+      private void WriteCounterSettings(XmlTextWriter writer) {
+         writer.WriteStartElement("Counter"); // Start Counter
+         writer.WriteAttributeString("Reset", GetAttribute(eipClassCode.Count, (byte)eipCount.Reset_Value));
+         //writer.WriteAttributeString("ExternalSignal", p.CtExternalSignal);
+         //writer.WriteAttributeString("ResetSignal", p.CtResetSignal);
+         writer.WriteAttributeString("CountUp", GetAttribute(eipClassCode.Count, (byte)eipCount.Direction_Value));
+         writer.WriteAttributeString("Increment", GetAttribute(eipClassCode.Count, (byte)eipCount.Increment_Value));
+         writer.WriteAttributeString("JumpTo", GetAttribute(eipClassCode.Count, (byte)eipCount.Jump_To));
+         writer.WriteAttributeString("JumpFrom", GetAttribute(eipClassCode.Count, (byte)eipCount.Jump_From));
+         writer.WriteAttributeString("UpdateUnit", GetAttribute(eipClassCode.Count, (byte)eipCount.Update_Unit_Unit));
+         writer.WriteAttributeString("UpdateIP", GetAttribute(eipClassCode.Count, (byte)eipCount.Update_Unit_Halfway));
+         writer.WriteAttributeString("Range2", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Range_2));
+         writer.WriteAttributeString("Range1", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Range_1));
+         writer.WriteAttributeString("InitialValue", GetAttribute(eipClassCode.Count, (byte)eipCount.Initial_Value));
+         //writer.WriteAttributeString("Format", p.RawText);
+         writer.WriteAttributeString("Multiplier", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Multiplier));
+         writer.WriteAttributeString("ZeroSuppression", GetAttribute(eipClassCode.Count, (byte)eipCount.Availibility_Of_Zero_Suppression));
+         writer.WriteEndElement(); //  End Counter
+      }
+
+      private void WriteCalendarSettings(XmlTextWriter writer) {
+         writer.WriteStartElement("Date"); // Start Date
+         {
+            //writer.WriteAttributeString("Format", p.RawText);
+
+            writer.WriteStartElement("Offset"); // Start Offset
+            {
+               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Hour));
+               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Day));
+               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Month));
+               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Year));
+            }
+            writer.WriteEndElement(); // End Offset
+
+            writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
+            {
+               writer.WriteAttributeString("DayOfWeek", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Day_Of_Week));
+               writer.WriteAttributeString("Week", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Weeks));
+               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Hour));
+               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Day));
+               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Month));
+               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Year));
+            }
+            writer.WriteEndElement(); // End ZeroSuppress
+
+            writer.WriteStartElement("EnableSubstitution"); // Start EnableSubstitution
+            {
+               //writer.WriteAttributeString("SubstitutionRule", p.DTSubRule);
+               writer.WriteAttributeString("DayOfWeek", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Day_Of_Week));
+               writer.WriteAttributeString("Week", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Week));
+               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Hour));
+               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Day));
+               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Month));
+               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Year));
+            }
+            writer.WriteEndElement(); // End EnableSubstitution
+
+            writer.WriteEndElement(); // End Date
+         }
+      }
+
+      private void WriteUserPatternSettings(XmlTextWriter writer) {
+         writer.WriteStartElement("Logo"); // Start Logo
+         {
+            //writer.WriteAttributeString("Variable", p.WlxVariableName);
+            //writer.WriteAttributeString("HAlignment", Enum.GetName(typeof(Utils.HAlignment), p.LogoHAlignment));
+            //writer.WriteAttributeString("VAlignment", Enum.GetName(typeof(Utils.VAlignment), p.LogoVAlignment));
+            //writer.WriteAttributeString("Filter", p.LogoFilter.ToString());
+            //writer.WriteAttributeString("ReverseVideo", p.LogoReverseVideo.ToString());
+            //writer.WriteAttributeString("Source", p.LogoSource);
+            //writer.WriteAttributeString("LogoLength", p.LogoLength.ToString());
+            //writer.WriteAttributeString("Registration", p.LogoRegistration.ToString());
+
+            //using (MemoryStream ms2 = new MemoryStream()) {
+            //   // bm.Save does not like transparent pixels so make them white
+            //   Bitmap bm2 = new Bitmap(p.ItemWidth, p.ItemHeight);
+            //   using (Graphics g = Graphics.FromImage(bm2)) {
+            //      g.Clear(Color.White);
+            //      for (int x = 0; x < p.ItemWidth; x++) {
+            //         for (int y = 0; y < p.ItemHeight; y++) {
+            //            if (p.ScaledImage.GetPixel(x, y).ToArgb() != 0) {
+            //               bm2.SetPixel(x, y, Color.Black);
+            //            }
+            //         }
+            //      }
+            //   }
+            //   Bitmap bm = Utils.BitmapTo1Bpp(bm2);
+            //   bm.Save(ms2, ImageFormat.Bmp);
+            //   using (BinaryReader br = new BinaryReader(ms2)) {
+            //      ms2.Position = 0;
+            //      byte[] b = br.ReadBytes((int)ms2.Length);
+            //      int length = Utils.LittleEndian(b, 2, 4);
+            //      string data = "";
+            //      writer.WriteAttributeString("size", length.ToString());
+            //      for (int j = 0; j < length; j++) {
+            //         data = data + string.Format("{0:X2} ", b[j]);
+            //      }
+            //      writer.WriteStartElement("Data"); // Start Data
+            //      writer.WriteAttributeString("Length", length.ToString());
+            //      writer.WriteString(data.TrimEnd());
+            //      writer.WriteEndElement(); // End Data
+            //   }
+            //}
+         }
+         writer.WriteEndElement(); // End Logo
+         //string LogoText = "";
+         //for (int j = 0; j < p.ItemText.Length; j++) {
+         //   LogoText += ((short)p.ItemText[j]).ToString("X4");
+         //}
+      }
+
       private void WritePrinterSettings(XmlTextWriter writer) {
 
          writer.WriteStartElement("Printer");
-         // Write it out but do not load it back
-         //writer.WriteAttributeString("Model", this.PXRType);
-         //writer.WriteAttributeString("Make", "Hitachi");
+         {
+            {
+               writer.WriteAttributeString("Model", GetAttribute(eipClassCode.Unit_Information, (byte)eipUnit_Information.Model_Name));
+            }
+            writer.WriteAttributeString("Make", "Hitachi");
 
-         //writer.WriteStartElement("PrintHead");
-         //writer.WriteAttributeString("Orientation", this.CharacterOrientation);
-         //writer.WriteEndElement(); // PrintHead
+            writer.WriteStartElement("PrintHead");
+            {
+               writer.WriteAttributeString("Orientation", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Orientation));
+            }
+            writer.WriteEndElement(); // PrintHead
 
-         //writer.WriteStartElement("ContinuousPrinting");
-         //writer.WriteAttributeString("RepeatInterval", this.RepeatInterval);
-         //writer.WriteAttributeString("PrintsPerTrigger", this.PrintsPerTrigger);
-         //writer.WriteEndElement(); // ContinuousPrinting
+            writer.WriteStartElement("ContinuousPrinting");
+            {
+               writer.WriteAttributeString("RepeatInterval", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Repeat_Interval));
+               writer.WriteAttributeString("PrintsPerTrigger", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Repeat_Count));
+            }
+            writer.WriteEndElement(); // ContinuousPrinting
 
-         //writer.WriteStartElement("TargetSensor");
-         //writer.WriteAttributeString("Filter", this.TargetSensorFilter);
-         //writer.WriteAttributeString("SetupValue", this.TargetSensorSetupValue);
-         //writer.WriteAttributeString("Timer", this.TargetSensorTimer);
-         //writer.WriteEndElement(); // TargetSensor
+            writer.WriteStartElement("TargetSensor");
+            {
+               writer.WriteAttributeString("Filter", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Target_Sensor_Filter));
+               writer.WriteAttributeString("SetupValue", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Targer_Sensor_Filter_Value));
+               writer.WriteAttributeString("Timer", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Target_Sensor_Timer));
+            }
+            writer.WriteEndElement(); // TargetSensor
 
-         //writer.WriteStartElement("CharacterSize");
-         //writer.WriteAttributeString("Height", this.CharacterHeight);
-         //writer.WriteAttributeString("Width", this.CharacterWidth);
-         //writer.WriteEndElement(); // CharacterSize
+            writer.WriteStartElement("CharacterSize");
+            {
+               writer.WriteAttributeString("Height", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Width));
+               writer.WriteAttributeString("Width", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Height));
+            }
+            writer.WriteEndElement(); // CharacterSize
 
-         //writer.WriteStartElement("PrintStartDelay");
-         //writer.WriteAttributeString("Reverse", this.ReverseDelay);
-         //writer.WriteAttributeString("Forward", this.ForwardDelay);
-         //writer.WriteEndElement(); // PrintStartDelay
+            writer.WriteStartElement("PrintStartDelay");
+            {
+               writer.WriteAttributeString("Reverse", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Print_Start_Delay_Forward));
+               writer.WriteAttributeString("Forward", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Print_Start_Delay_Reverse));
+            }
+            writer.WriteEndElement(); // PrintStartDelay
 
-         //writer.WriteStartElement("EncoderSettings");
-         //writer.WriteAttributeString("HighSpeedPrinting", this.HighSpeedPrinting);
-         //writer.WriteAttributeString("Divisor", this.Divisor);
-         //writer.WriteAttributeString("ExternalEncoder", this.ExternalEncoder.ToString());
-         //writer.WriteEndElement(); // EncoderSettings
+            writer.WriteStartElement("EncoderSettings");
+            {
+               writer.WriteAttributeString("HighSpeedPrinting", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.High_Speed_Print));
+               writer.WriteAttributeString("Divisor", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Pulse_Rate_Division_Factor));
+               writer.WriteAttributeString("ExternalEncoder", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Product_Speed_Matching));
+            }
+            writer.WriteEndElement(); // EncoderSettings
 
-         //writer.WriteStartElement("InkStream");
-         //writer.WriteAttributeString("InkDropUse", this.InkDropUse);
-         //writer.WriteAttributeString("ChargeRule", this.InkDropChargeRule); // InkDropChargeRule presents as ChargeRule in message .xml file
-         //writer.WriteEndElement(); // InkStream
+            writer.WriteStartElement("InkStream");
+            {
+               writer.WriteAttributeString("InkDropUse", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Ink_Drop_Use));
+               writer.WriteAttributeString("ChargeRule", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Ink_Drop_Charge_Rule));
+            }
+            writer.WriteEndElement(); // InkStream
 
-         //writer.WriteStartElement("TwinNozzle");
-         //writer.WriteAttributeString("LeadingCharControl", this.LeadingCharacterControl.ToString());
-         //writer.WriteAttributeString("LeadingCharControlWidth1", this.LeadingCharacterControlWidth1.ToString());
-         //writer.WriteAttributeString("LeadingCharControlWidth2", this.LeadingCharacterControlWidth2.ToString());
-         //writer.WriteAttributeString("NozzleSpaceAlignment", this.NozzleSpaceAlignment.ToString());
-         //writer.WriteEndElement(); // TwinNozzle
-
-
+            writer.WriteStartElement("TwinNozzle");
+            {
+               //writer.WriteAttributeString("LeadingCharControl", this.LeadingCharacterControl.ToString());
+               //writer.WriteAttributeString("LeadingCharControlWidth1", this.LeadingCharacterControlWidth1.ToString());
+               //writer.WriteAttributeString("LeadingCharControlWidth2", this.LeadingCharacterControlWidth2.ToString());
+               //writer.WriteAttributeString("NozzleSpaceAlignment", this.NozzleSpaceAlignment.ToString());
+            }
+            writer.WriteEndElement(); // TwinNozzle
+         }
          writer.WriteEndElement(); // Printer
       }
 
-      public bool ProcessLabel(string xml) {
+      private bool ProcessLabel(string xml) {
          bool result = false;
          try {
             int i = xml.IndexOf("<Label");
