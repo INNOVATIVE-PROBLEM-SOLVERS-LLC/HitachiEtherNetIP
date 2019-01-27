@@ -76,7 +76,11 @@ namespace HitachiEIP {
 
          this.Text += " - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+         txtIPAddress.Text = Properties.Settings.Default.IPAddress;
+         txtPort.Text = Properties.Settings.Default.IPPort;
+         txtSaveFolder.Text = Properties.Settings.Default.LogFolder;
          VerifyAddressAndPort();
+
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
@@ -183,6 +187,11 @@ namespace HitachiEIP {
          // Close log/traffic files
          CloseTrafficFile(false);
          CloseLogFile(false);
+
+         Properties.Settings.Default.IPAddress = txtIPAddress.Text;
+         Properties.Settings.Default.IPPort = txtIPAddress.Text;
+         Properties.Settings.Default.LogFolder = txtSaveFolder.Text;
+         Properties.Settings.Default.Save();
       }
 
       private void HitachiBrowser_Resize(object sender, EventArgs e) {
@@ -224,12 +233,12 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, txtData, 26, 2, 2, 7);
             Utils.ResizeObject(ref R, txtDataBytes, 28, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, txtSaveFolder, 31, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, btnProperties, 33, 0.5f, 2, 8.5f);
-            //Utils.ResizeObject(ref R, btnBrowse, 33, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 2, 6);
+            Utils.ResizeObject(ref R, btnBrowse, 30, 6, 2, 3);
+            Utils.ResizeObject(ref R, txtSaveFolder, 32, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnProperties, 34, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lstErrors, 36, 0.5f, 12, 8.5f);
+            Utils.ResizeObject(ref R, lstErrors, 37, 0.5f, 11, 8.5f);
 
             #endregion
 
@@ -540,6 +549,11 @@ namespace HitachiEIP {
 
       private void EIP_ReadComplete(EIP sender, EIPEventArg e) {
          txtStatus.Text = EIP.GetStatus;
+         if (e.Successful) {
+            txtStatus.BackColor = Color.LightGreen;
+         } else {
+            txtStatus.BackColor = Color.Pink;
+         }
          switch (e.Access) {
             case eipAccessCode.Get:
                txtCount.Text = EIP.GetDataLength.ToString();
@@ -549,7 +563,7 @@ namespace HitachiEIP {
             case eipAccessCode.Set:
             case eipAccessCode.Service:
                txtCount.Text = EIP.SetDataLength.ToString();
-               txtData.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
+               txtData.Text = EIP.SetDataValue;
                txtDataBytes.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
                break;
          }
@@ -560,6 +574,10 @@ namespace HitachiEIP {
          using (AttrProperties p = new AttrProperties(this, EIP, cbClassCode.SelectedIndex, cbFunction.SelectedIndex)) {
             p.ShowDialog(this);
          }
+      }
+
+      private void btnBrowse_Click(object sender, EventArgs e) {
+         BrowseForFolder(txtSaveFolder);
       }
 
       #endregion
@@ -619,6 +637,9 @@ namespace HitachiEIP {
       }
 
       private string CreateFileName(string directory, string s) {
+         if(Directory.Exists(directory)) {
+            Directory.CreateDirectory(directory);
+         }
          return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.csv");
       }
 
@@ -689,6 +710,17 @@ namespace HitachiEIP {
          }
          SetButtonEnables();
          return result;
+      }
+
+      private void BrowseForFolder(TextBox tb) {
+         using (FolderBrowserDialog dlg = new FolderBrowserDialog()) {
+            dlg.ShowNewFolderButton = true;
+            dlg.SelectedPath = tb.Text;
+            if (dlg.ShowDialog() == DialogResult.OK) {
+               tb.Text = dlg.SelectedPath;
+            }
+         }
+
       }
 
       void SetButtonEnables() {

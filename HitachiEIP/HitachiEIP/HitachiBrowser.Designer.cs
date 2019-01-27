@@ -285,8 +285,8 @@
          this.lblSaveFolder.Name = "lblSaveFolder";
          this.lblSaveFolder.Size = new System.Drawing.Size(202, 19);
          this.lblSaveFolder.TabIndex = 27;
-         this.lblSaveFolder.Text = "Traffic/Log Save Folder";
-         this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblSaveFolder.Text = "Traffic/Log";
+         this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
          // 
          // txtSaveFolder
          // 
@@ -299,13 +299,13 @@
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(231, 483);
+         this.btnBrowse.Location = new System.Drawing.Point(235, 477);
          this.btnBrowse.Name = "btnBrowse";
          this.btnBrowse.Size = new System.Drawing.Size(81, 32);
          this.btnBrowse.TabIndex = 29;
          this.btnBrowse.Text = "Browse";
          this.btnBrowse.UseVisualStyleBackColor = true;
-         this.btnBrowse.Visible = false;
+         this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
          // 
          // btnViewTraffic
          // 
