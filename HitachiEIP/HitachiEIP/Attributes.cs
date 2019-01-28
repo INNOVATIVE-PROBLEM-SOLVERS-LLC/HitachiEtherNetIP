@@ -80,9 +80,12 @@ namespace HitachiEIP {
             texts[tag].BackColor = Color.Pink;
             counts[tag].BackColor = Color.LightGreen;
          } else {
-            texts[tag].Text = "Loading";
-            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, out string val, attr.Fmt);
-            EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag]);
+            if (attr.Get.Len == 0) {
+               texts[tag].Text = "Loading";
+            }
+            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, attr, data,  out string val);
+            EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
          SetButtonEnables();
       }
@@ -94,7 +97,7 @@ namespace HitachiEIP {
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
          } else {
-            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr);
+            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Set);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
@@ -107,7 +110,7 @@ namespace HitachiEIP {
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
          } else {
-            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr);
+            byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Service);
             bool Success = EIP.ServiceAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
@@ -179,7 +182,8 @@ namespace HitachiEIP {
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
          ExtraText[n].Text = "Loading";
-         if (EIP.ReadOneAttribute(ccIndex, at, out string val, DataFormats.Decimal)) {
+         AttrData attr = Data.AttrDict[ccIndex, at];
+         if (EIP.ReadOneAttribute(ccIndex, at, attr, EIP.Nodata, out string val)) {
             ExtraText[n].Text = val;
             ExtraText[n].BackColor = Color.LightGreen;
          } else {
@@ -192,10 +196,10 @@ namespace HitachiEIP {
          Button b = (Button)sender;
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
-         AttrData attr = Data.AttrDict[(byte)eipClassCode.Index, at];
-         int len = attr.Len;
-         if (!int.TryParse(ExtraText[n].Text, out int val)) {
-            val = attr.Min;
+         AttrData attr = Data.AttrDict[eipClassCode.Index, at];
+         int len = attr.Get.Len;
+         if (!long.TryParse(ExtraText[n].Text, out long val)) {
+            val = attr.Get.Min;
          }
          byte[] data = EIP.ToBytes((uint)val, len);
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
@@ -213,13 +217,28 @@ namespace HitachiEIP {
          TextBox b = (TextBox)sender;
          int tag = Convert.ToInt32(((TextBox)sender).Tag);
          AttrData attr = attrs[tag];
-         if (EIP.TextIsValid(attr, texts[tag].Text)) {
-            if (attr.HasSet) {
-               sets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
-            } else {
-               services[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
-            }
-         }
+         //if (attr.HasSet) {
+         //   if (EIP.TextIsValid(texts[tag].Text, attr.Set)) {
+         //      sets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         //   } else {
+         //      sets[tag].Enabled = false;
+         //   }
+         //}
+         //if (attr.HasGet) {
+         //   if (attr.Get.Len == 0 || EIP.TextIsValid(texts[tag].Text, attr.Get)) {
+         //      gets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         //   } else {
+         //      gets[tag].Enabled = false;
+         //   }
+         //}
+         //if (attr.HasService) {
+         //   if (attr.Service.Len == 0 || EIP.TextIsValid(texts[tag].Text, attr.Service)) {
+         //      services[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         //   } else {
+         //      services[tag].Enabled = false;
+         //   }
+         //}
+         SetButtonEnables();
       }
 
       private void ExtraText_KeyPress(object sender, KeyPressEventArgs e) {
@@ -277,13 +296,21 @@ namespace HitachiEIP {
                                       Text = s };
             tab.Controls.Add(labels[i]);
 
-            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center, Text = attr.Len.ToString() };
+            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center };
+            if (attr.HasService) {
+               counts[i].Text = attr.Service.Len.ToString();
+            } else if(attr.HasSet) {
+               counts[i].Text = attr.Set.Len.ToString();
+            } else {
+               counts[i].Text = attr.Get.Len.ToString();
+            }
+
             tab.Controls.Add(counts[i]);
 
             texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
-            texts[i].ReadOnly = !(attr.HasSet || attr.HasService && attr.Len > 0);
+            texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
 
             if (attr.DropDown >= 0) {
                dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
@@ -299,19 +326,18 @@ namespace HitachiEIP {
             if (attr.HasSet) {
                sets[i] = new Button() { Tag = i, Text = "Set" };
                sets[i].Click += Set_Click;
-               texts[i].Leave += Text_Leave;
                tab.Controls.Add(sets[i]);
-               if (attr.Fmt == DataFormats.Decimal) {
+               if (attr.Set.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
                }
             }
             if (attr.HasService) {
                services[i] = new Button() { Tag = i, Text = "Service" };
                services[i].Click += Service_Click;
-               if (attr.Len > 0) {
-                  texts[i].Leave += Text_Leave;
-               }
                tab.Controls.Add(services[i]);
+            }
+            if(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0) {
+               texts[i].Leave += Text_Leave;
             }
          }
 
@@ -326,9 +352,9 @@ namespace HitachiEIP {
 
       private string[] GetDropdownNames(AttrData attr) {
          if (attr.DropDown == 0) {
-            string[] names = new string[attr.Max - attr.Min + 1];
+            string[] names = new string[(int)(attr.Get.Max - attr.Get.Min + 1)];
             for (int i = 0; i < names.Length; i++) {
-               names[i] = (i + attr.Min).ToString();
+               names[i] = (i + attr.Get.Min).ToString();
             }
             return names;
          } else {
@@ -491,19 +517,27 @@ namespace HitachiEIP {
          for (int i = 0; i < attributes.Length; i++) {
             AttrData attr = attrs[i];
             if (attr.HasSet) {
-               sets[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
-               anySets |= enable;
+               if (EIP.TextIsValid(texts[i].Text, attr.Set)) {
+                  sets[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+                  anySets |= enable;
+               } else {
+                  sets[i].Enabled = false;
+               }
             }
             if (attr.HasGet) {
-               gets[i].Enabled = enable;
-               anyGets |= enable;
+               if (attr.Get.Len == 0 || EIP.TextIsValid(texts[i].Text, attr.Get)) {
+                  gets[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+                  anyGets |= enable;
+               } else {
+                  gets[i].Enabled = false;
+               }
             }
             if (attr.HasService) {
-               //if (attr.Len > 0) {
-               //   services[i].Enabled = enable && EIP.TextIsValid(attr, texts[i].Text);
-               //} else {
-               services[i].Enabled = enable;
-               //}
+               if (attr.Service.Len == 0 || EIP.TextIsValid(texts[i].Text, attr.Service)) {
+                  services[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+               } else {
+                  services[i].Enabled = false;
+               }
             }
          }
          setAll.Enabled = anySets;
@@ -526,10 +560,10 @@ namespace HitachiEIP {
          }
          for (int i = start; i < end; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
-            AttrData attr = Data.AttrDict[(byte)eipClassCode.Index, at];
+            AttrData attr = Data.AttrDict[eipClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
-               val >= attr.Min && val <= attr.Max;
+               val >= attr.Get.Min && val <= attr.Get.Max;
          }
       }
 

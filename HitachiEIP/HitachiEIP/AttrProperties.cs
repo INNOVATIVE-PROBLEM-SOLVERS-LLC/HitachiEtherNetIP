@@ -143,11 +143,11 @@ namespace HitachiEIP {
          chkHasSet.Checked = attr.HasSet;
          chkHasService.Checked = attr.HasService;
 
-         txtLength.Text = attr.Len.ToString();
-         txtMin.Text = attr.Min.ToString();
-         txtMax.Text = attr.Max.ToString();
+         txtLength.Text = attr.Get.Len.ToString();
+         txtMin.Text = attr.Get.Min.ToString();
+         txtMax.Text = attr.Get.Max.ToString();
 
-         cbFormat.SelectedIndex = (int)attr.Fmt;
+         cbFormat.SelectedIndex = (int)attr.Get.Fmt;
          chkLockUp.Checked = attr.Ignore;
 
          SetButtonEnables();
@@ -177,14 +177,15 @@ namespace HitachiEIP {
 
       private void btnIssueSet_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
-         byte[] Data = EIP.FormatOutput(txtData.Text, attr);
-            EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], Data);
-            txtStatus.Text = EIP.GetStatus;
+         byte[] Data = EIP.FormatOutput(txtData.Text, attr.Set);
+         EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], Data);
+         txtStatus.Text = EIP.GetStatus;
       }
 
       private void btnIssueGet_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
-         EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], out string val, attr.Fmt);
+         byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
+         EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], attr, data, out string val);
          txtStatus.Text = EIP.GetStatus;
          txtData.Text = EIP.GetDataValue;
          txtRawData.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
@@ -192,7 +193,7 @@ namespace HitachiEIP {
 
       private void btnIssueService_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
-         byte[] data = EIP.FormatOutput(txtData.Text, attr);
+         byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
          EIP.ServiceAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data);
          txtStatus.Text = EIP.GetStatus;
       }
@@ -222,14 +223,14 @@ namespace HitachiEIP {
          attr.HasGet = chkHasGet.Checked;
          attr.HasService = chkHasService.Checked;
          if (int.TryParse(txtLength.Text, out val)) {
-            attr.Len = val;
+            attr.Get.Len = val;
          }
-         attr.Fmt = (DataFormats)cbFormat.SelectedIndex;
+         attr.Get.Fmt = (DataFormats)cbFormat.SelectedIndex;
          if (int.TryParse(txtMin.Text, out val)) {
-            attr.Min = val;
+            attr.Get.Min = val;
          }
          if (int.TryParse(txtMax.Text, out val)) {
-            attr.Max = val;
+            attr.Get.Max = val;
          }
          attr.Ignore = chkLockUp.Checked;
          return attr;
