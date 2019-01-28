@@ -73,7 +73,8 @@ namespace HitachiEIP {
       #region Events handlers
 
       private void Get_Click(object sender, EventArgs e) {
-         int tag = Convert.ToInt32(((Button)sender).Tag);
+         Button b = (Button)sender;
+         int tag = (int)b.Tag;
          AttrData attr = attrs[tag];
          if (attr.Ignore) {
             texts[tag].Text = "Ignored!";
@@ -197,9 +198,9 @@ namespace HitachiEIP {
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
          AttrData attr = Data.AttrDict[eipClassCode.Index, at];
-         int len = attr.Get.Len;
+         int len = attr.Set.Len;
          if (!long.TryParse(ExtraText[n].Text, out long val)) {
-            val = attr.Get.Min;
+            val = attr.Set.Min;
          }
          byte[] data = EIP.ToBytes((uint)val, len);
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
@@ -215,29 +216,8 @@ namespace HitachiEIP {
 
       private void Text_Leave(object sender, EventArgs e) {
          TextBox b = (TextBox)sender;
-         int tag = Convert.ToInt32(((TextBox)sender).Tag);
+         int tag = (int)b.Tag;
          AttrData attr = attrs[tag];
-         //if (attr.HasSet) {
-         //   if (EIP.TextIsValid(texts[tag].Text, attr.Set)) {
-         //      sets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         //   } else {
-         //      sets[tag].Enabled = false;
-         //   }
-         //}
-         //if (attr.HasGet) {
-         //   if (attr.Get.Len == 0 || EIP.TextIsValid(texts[tag].Text, attr.Get)) {
-         //      gets[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         //   } else {
-         //      gets[tag].Enabled = false;
-         //   }
-         //}
-         //if (attr.HasService) {
-         //   if (attr.Service.Len == 0 || EIP.TextIsValid(texts[tag].Text, attr.Service)) {
-         //      services[tag].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         //   } else {
-         //      services[tag].Enabled = false;
-         //   }
-         //}
          SetButtonEnables();
       }
 
@@ -352,9 +332,9 @@ namespace HitachiEIP {
 
       private string[] GetDropdownNames(AttrData attr) {
          if (attr.DropDown == 0) {
-            string[] names = new string[(int)(attr.Get.Max - attr.Get.Min + 1)];
+            string[] names = new string[(int)(attr.Data.Max - attr.Data.Min + 1)];
             for (int i = 0; i < names.Length; i++) {
-               names[i] = (i + attr.Get.Min).ToString();
+               names[i] = (i + attr.Data.Min).ToString();
             }
             return names;
          } else {
