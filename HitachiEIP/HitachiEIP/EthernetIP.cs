@@ -995,13 +995,16 @@ namespace HitachiEIP {
          text.Text = GetDataValue;
          text.BackColor = TextValid;
          if (attr.DropDown >= 0) {
-            dropdown.Visible = true;
-            long val = Convert.ToInt32(GetDataValue);
-            if (val >= prop.Min && val <= prop.Max) {
-               dropdown.SelectedIndex = (int)(val - prop.Min);
-               dropdown.BackColor = Color.LightGreen;
-               dropdown.Visible = true;
-               text.Visible = false;
+            if (long.TryParse(GetDataValue, out long val)) {
+               if (val >= prop.Min && val <= prop.Max) {
+                  dropdown.SelectedIndex = (int)(val - prop.Min);
+                  dropdown.BackColor = Color.LightGreen;
+                  dropdown.Visible = true;
+                  text.Visible = false;
+               } else {
+                  dropdown.Visible = false;
+                  text.Visible = true;
+               }
             } else {
                dropdown.Visible = false;
                text.Visible = true;
@@ -1337,9 +1340,12 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.Date:
-               if (data.Length == 12) {
+               if (data.Length >= 10) {
                   val = $"{Get(data, 0, 2, mem.LittleEndian)}/{Get(data, 2, 2, mem.LittleEndian)}/{Get(data, 4, 2, mem.LittleEndian)}";
-                  val += $" {Get(data, 6, 2, mem.LittleEndian)}:{Get(data, 8, 2, mem.LittleEndian)}:{Get(data, 10, 2, mem.LittleEndian)}";
+                  val += $" {Get(data, 6, 2, mem.LittleEndian)}:{Get(data, 8, 2, mem.LittleEndian)}";
+                  if (data.Length == 12) {
+                     val += $":{Get(data, 10, 2, mem.LittleEndian)}";
+                  }
                } else {
                   val = GetBytes(data, 0, data.Length);
                }

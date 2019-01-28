@@ -194,7 +194,7 @@ namespace HitachiEIP {
          new int[] { 0X66, 0, 1, 0, 6, 3, 0, 0, 4, 0, -1},    // Fault and warning history
          new int[] { 0X67, 0, 1, 0, 1, 3, 0, 0, 6, 0, -1},    // Operating condition
          new int[] { 0X68, 0, 1, 0, 1, 3, 0, 0, 10, 0, -1},   // Warning condition
-         new int[] { 0X6A, 0, 1, 0, 10, 3, 0, 0, 1, 0, -1},   // Date and time information
+         new int[] { 0X6A, 0, 1, 0, 10, 2, 0, 0, 1, 0, -1},   // Date and time information
          new int[] { 0X6B, 0, 1, 0, 1, 3, 0, 0, 3, 0, -1},    // Error code
          new int[] { 0X6C, 0, 0, 1, 0, 3, 0, 0, 8, 0, -1},    // Start Remote Operation
          new int[] { 0X6D, 0, 0, 1, 0, 3, 0, 0, 9, 0, -1},    // Stop Remote Operation
