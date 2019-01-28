@@ -507,10 +507,11 @@ namespace HitachiEIP {
       public int GetDecValue { get; set; }
       public string GetStatus { get; set; }
 
-      public byte SetDataLength { get; set; } = 0;
+      public int SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
       public string SetDataValue { get; set; }
 
+      public byte[] Nodata = new byte[0];
 
       public Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
@@ -684,22 +685,22 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, out string val, DataFormats fmt) {
+      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, AttrData attr, byte[] dataOut,  out string dataIn) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
          SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
-         val = "#Error";
+         dataIn = "#Error";
          if (ForwardIsOpen) {
-            SetDataLength = 0;
-            SetData = new byte[SetDataLength];
+            SetDataLength = dataOut.Length;
+            SetData = dataOut;
             SetDataValue = string.Empty;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
-               GetDataValue = val = FormatResult(fmt, GetData);
+               GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
                Successful = true;
             }
          }
@@ -987,17 +988,17 @@ namespace HitachiEIP {
       }
 
       // Format input byte array to readable characters
-      public void SetBackColor(AttrData attr, TextBox count, TextBox text, ComboBox dropdown) {
+      public void SetBackColor(AttrData attr, TextBox count, TextBox text, ComboBox dropdown, Prop prop) {
          count.Text = GetDataLength.ToString();
          count.BackColor = CountIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
-         Color TextValid = TextIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
+         Color TextValid = TextIsValid(GetData, prop) ? Color.LightGreen : Color.Pink;
          text.Text = GetDataValue;
          text.BackColor = TextValid;
          if (attr.DropDown >= 0) {
             dropdown.Visible = true;
-            int val = Convert.ToInt32(GetDataValue);
-            if (val >= attr.Min && val <= attr.Max) {
-               dropdown.SelectedIndex = val - attr.Min;
+            long val = Convert.ToInt32(GetDataValue);
+            if (val >= prop.Min && val <= prop.Max) {
+               dropdown.SelectedIndex = (int)(val - prop.Min);
                dropdown.BackColor = Color.LightGreen;
                dropdown.Visible = true;
                text.Visible = false;
@@ -1009,24 +1010,27 @@ namespace HitachiEIP {
       }
 
       // Format output
-      public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr) {
+      public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
          if(attr.DropDown >= 0 && c.Visible) {
-            SetDataValue = (c.SelectedIndex + attr.Min).ToString();
-            return ToBytes((uint)(c.SelectedIndex + attr.Min), attr.Len);
+            SetDataValue = (c.SelectedIndex + prop.Min).ToString();
+            return ToBytes((uint)(c.SelectedIndex + prop.Min), prop.Len);
          } else {
-            return FormatOutput(t.Text, attr);
+            return FormatOutput(t.Text, prop);
          }
       }
 
       // Format output
-      public byte[] FormatOutput(string s, AttrData attr) {
+      public byte[] FormatOutput(string s, Prop prop) {
+         if (prop.Len == 0) {
+            return Nodata;
+         }
          byte[] result = null;
          string[] sa;
          SetDataValue = s;
-         switch (attr.Fmt) {
+         switch (prop.Fmt) {
             case DataFormats.Decimal:
                if (uint.TryParse(s, out uint val)) {
-                  result = ToBytes(val, attr.Len);
+                  result = ToBytes(val, prop.Len);
                }
                break;
             case DataFormats.ASCII:
@@ -1053,8 +1057,8 @@ namespace HitachiEIP {
                break;
             case DataFormats.Bytes:
                sa = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-               result = new byte[attr.Len];
-               for (int i = 0; i < Math.Min(sa.Length, attr.Len); i++) {
+               result = new byte[prop.Len];
+               for (int i = 0; i < Math.Min(sa.Length, prop.Len); i++) {
                   if (int.TryParse(sa[i], System.Globalization.NumberStyles.HexNumber, null, out int n)) {
                      result[i] = (byte)n;
                   }
@@ -1095,17 +1099,17 @@ namespace HitachiEIP {
       // Does count agree with Hitachi Document?
       public bool CountIsValid(AttrData attr, byte[] data) {
          bool IsValid = false;
-         switch (attr.Fmt) {
+         switch (attr.Data.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.Date:
             case DataFormats.Bytes:
             case DataFormats.XY:
             case DataFormats.N2N2:
-               IsValid = attr.Len == data.Length;
+               IsValid = attr.Data.Len == data.Length;
                break;
             case DataFormats.N2Char:
             case DataFormats.ASCII:
-               IsValid = attr.Len >= data.Length;
+               IsValid = attr.Data.Len >= data.Length;
                break;
             default:
                break;
@@ -1114,13 +1118,13 @@ namespace HitachiEIP {
       }
 
       // Does text agree with Hitachi Document?
-      public bool TextIsValid(AttrData attr, byte[] data) {
+      public bool TextIsValid(byte[] data, Prop prop) {
          bool IsValid = false;
-         switch (attr.Fmt) {
+         switch (prop.Fmt) {
             case DataFormats.Decimal:
                if (data.Length <= 8) {
                   ulong dec = Get(data, 0, data.Length, mem.BigEndian);
-                  IsValid = attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max;
+                  IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
                }
                break;
             case DataFormats.ASCII:
@@ -1128,30 +1132,30 @@ namespace HitachiEIP {
                break;
             case DataFormats.Date:
                if (data.Length == 12) {
-                  IsValid = DateTime.TryParse(FormatResult(attr.Fmt, data), out DateTime d);
+                  IsValid = DateTime.TryParse(FormatResult(prop.Fmt, data), out DateTime d);
                }
                break;
             case DataFormats.Bytes:
-               IsValid = attr.Len == data.Length;
+               IsValid = prop.Len == data.Length;
                break;
             case DataFormats.XY:
-               if (attr.Len == data.Length) {
+               if (prop.Len == data.Length) {
                   uint x = Get(data, 0, 2, mem.BigEndian);
                   uint y = Get(data, 2, 1, mem.BigEndian);
                   IsValid = x <= 65535 && y <= 47;
                }
                break;
             case DataFormats.N2N2:
-               if (attr.Len == data.Length) {
+               if (prop.Len == data.Length) {
                   uint n1 = Get(data, 0, 2, mem.LittleEndian);
                   uint n2 = Get(data, 2, 2, mem.LittleEndian);
-                  IsValid = n1 >= attr.Min && n1 <= attr.Max && n2 >= attr.Min && n2 <= attr.Max;
+                  IsValid = n1 >= prop.Min && n1 <= prop.Max && n2 >= prop.Min && n2 <= prop.Max;
                }
                break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
                   uint n = Get(data, 0, 2, mem.LittleEndian);
-                  IsValid = n >= attr.Min && n <= attr.Max;
+                  IsValid = n >= prop.Min && n <= prop.Max;
                }
                break;
             default:
@@ -1161,16 +1165,16 @@ namespace HitachiEIP {
       }
 
       // Does text agree with Hitachi Document?
-      public bool TextIsValid(AttrData attr, string s) {
+      public bool TextIsValid(string s, Prop prop) {
          bool IsValid = false;
-         switch (attr.Fmt) {
+         switch (prop.Fmt) {
             case DataFormats.Decimal:
-               if (ulong.TryParse(s, out ulong dec)) {
-                  IsValid = attr.Max == 0 || dec >= (ulong)attr.Min && dec <= (ulong)attr.Max;
+               if (long.TryParse(s, out long dec)) {
+                  IsValid = prop.Max == 0 || dec >= prop.Min && dec <= prop.Max;
                }
                break;
             case DataFormats.ASCII:
-               IsValid = true;
+               IsValid = s.Length > 0;
                break;
             case DataFormats.Date:
                IsValid = DateTime.TryParse(s, out DateTime d);
@@ -1208,7 +1212,7 @@ namespace HitachiEIP {
                   if (!int.TryParse(n1n2[1].Trim(), out int y)) {
                      break;
                   }
-                  IsValid = x <= attr.Max && y <= attr.Max;
+                  IsValid = x <= prop.Max && y <= prop.Max;
                }
                break;
             case DataFormats.N2Char:
@@ -1217,7 +1221,7 @@ namespace HitachiEIP {
                   if (!int.TryParse(gp[0].Trim(), out int x)) {
                      break;
                   }
-                  IsValid = x >= attr.Min && x <= attr.Max;
+                  IsValid = x >= prop.Min && x <= prop.Max;
                }
                break;
             default:

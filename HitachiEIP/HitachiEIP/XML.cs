@@ -564,17 +564,18 @@ namespace HitachiEIP {
       }
 
       private string GetAttribute(eipClassCode Class, byte Attribute) {
-         bool successful = EIP.ReadOneAttribute(Class, Attribute, out string val, Data.AttrDict[(byte)Class, Attribute].Fmt);
+         AttrData attr = Data.AttrDict[Class, Attribute];
+         bool successful = EIP.ReadOneAttribute(Class, Attribute, attr, EIP.Nodata, out string val);
          return val;
       }
 
       private int GetDecimalAttribute(eipClassCode Class, byte Attribute) {
-         bool successful = EIP.ReadOneAttribute(Class, Attribute, out string val, DataFormats.Decimal);
+         GetAttribute(Class, Attribute);
          return EIP.GetDecValue;
       }
 
       private int SetAttribute(eipClassCode Class, byte Attribute, int n) {
-         bool successful = EIP.WriteOneAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[(byte)Class, Attribute].Len));
+         bool successful = EIP.WriteOneAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Set.Len));
          return EIP.GetDecValue;
       }
 

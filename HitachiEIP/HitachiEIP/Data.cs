@@ -9,12 +9,12 @@ namespace HitachiEIP {
 
       // Print Data Management (Class Code 0x66) Complete!
       public static int[][] PrintDataManagement = new int[][] {
-         new int[] { 0X64, 0, 0, 1, 2, 0, 1, 2000, 9, 0, -1},      // Select Message
+         new int[] { 0X64, 0, 0, 1, 0, 0, 0, 0, 9, 0, -1, 2, 0, 1, 2000}, // Select Message
          new int[] { 0X65, 1, 0, 0, 15, 1, 0, 0, 10, 0, -1},       // Store Print Data
          new int[] { 0X67, 1, 0, 0, 2, 0, 1, 2000, 3, 0, -1},      // Delete Print Data
          new int[] { 0X69, 1, 0, 0, 10, 1, 0, 0, 7, 0, -1},        // Print Data Name
-         new int[] { 0X6A, 0, 1, 0, 2, 0, 1, 2000, 6, 1, -1},      // List of Messages
-         new int[] { 0X6B, 1, 0, 5, 4, 0, 1, 2000, 8, 0, -1},      // Print Data Number
+         new int[] { 0X6A, 0, 1, 0, 0, 0, 0, 0, 6, 1, -1, 2, 0, 1, 2000}, // List of Messages
+         new int[] { 0X6B, 1, 0, 0, 4, 0, 1, 2000, 8, 0, -1},      // Print Data Number
          new int[] { 0X6C, 1, 0, 0, 14, 1, 0, 14, 1, 0, -1},       // Change Create Group Name
          new int[] { 0X6D, 1, 0, 0, 1, 0, 1, 99, 4, 0, -1},        // Group Deletion
          new int[] { 0X6F, 0, 1, 0, 1, 0, 1, 99, 5, 1, -1},        // List of Groups
@@ -314,7 +314,7 @@ namespace HitachiEIP {
       #region Service Routines
 
       // Lookup for getting attributes associated with a Class/Function
-      public static Dictionary<byte, byte, AttrData> AttrDict;
+      public static Dictionary<eipClassCode, byte, AttrData> AttrDict;
 
       // Get attribute data for an arbitrary class/attribute
       public static AttrData GetAttrData(byte Class, byte attr) {
@@ -371,19 +371,25 @@ namespace HitachiEIP {
       //   [6] = Min Value
       //   [7] = Max Value
       //   [8] = AlphaSortOrder 
-      //   [9] = Ignore due to error }
+      //   [9] = Ignore due to error
+      //   [10] = Drop Down
+      //   [11] = Data Length
+      //   [12] = Format
+      //   [13] = Min Value
+      //   [14] = Max Value
 
       public byte Val { get; set; } = 0;
       public bool HasSet { get; set; } = false;
       public bool HasGet { get; set; } = false;
       public bool HasService { get; set; } = false;
-      public int Len { get; set; } = 0;
-      public DataFormats Fmt { get; set; } = DataFormats.Decimal;
-      public int Min { get; set; } = 0;
-      public int Max { get; set; } = 0;
       public int Order { get; set; } = 0;
       public bool Ignore { get; set; } = false;
       public int DropDown { get; set; } = -1;
+
+      public Prop Data { get; set; }
+      public Prop Get { get; set; }
+      public Prop Set { get; set; }
+      public Prop Service { get; set; }
 
       public AttrData() {
 
@@ -394,27 +400,28 @@ namespace HitachiEIP {
          HasSet = values[1] > 0;
          HasGet = values[2] > 0;
          HasService = values[3] > 0;
-         Len = values[4];
-         Fmt = (DataFormats)values[5];
-         Min = values[6];
-         Max = values[7];
          Order = values[8] - 1;
          Ignore = values[9] > 0;
          DropDown = values[10];
-      }
 
-      public AttrData(AttrData clone) {
-         Val = clone.Val;
-         HasSet = clone.HasSet;
-         HasGet = clone.HasGet;
-         HasService = clone.HasService;
-         Len = clone.Len;
-         Fmt = clone.Fmt;
-         Min = Min;
-         Max = clone.Max;
-         Order = clone.Order;
-         Ignore = clone.Ignore;
-         DropDown = clone.DropDown;
+         Data = new Prop(values[4], (DataFormats)values[5], values[6], values[7]);
+         if (HasSet) {
+            Set = Data;
+         }
+         if (values.Length == 11) {
+            if (HasGet) {
+               Get = new Prop(0, DataFormats.Decimal, 0, 0);
+            } else if (HasService) {
+               Service = Get = new Prop(0, DataFormats.Decimal, 0, 0);
+            }
+         } else {
+            if (HasGet) {
+               Get = new Prop(values[11], (DataFormats)values[12], values[13], values[14]);
+            } else if (HasService) {
+               Service = new Prop(values[11], (DataFormats)values[12], values[13], values[14]);
+            }
+         }
+
       }
 
       #endregion
@@ -432,6 +439,26 @@ namespace HitachiEIP {
 
       public void Add(TKey1 key1, TKey2 key2, TValue value) {
          base.Add(Tuple.Create(key1, key2), value);
+      }
+
+      #endregion
+
+   }
+
+   public class Prop {
+
+      #region Constructors, properties and methods
+
+      public int Len { get; set; }
+      public DataFormats Fmt { get; set; }
+      public long Min { get; set; }
+      public long Max { get; set; }
+
+      public Prop(int Len, DataFormats Fmt, long Min, long Max) {
+         this.Len = Len;
+         this.Fmt = Fmt;
+         this.Min = Min;
+         this.Max = Max;
       }
 
       #endregion

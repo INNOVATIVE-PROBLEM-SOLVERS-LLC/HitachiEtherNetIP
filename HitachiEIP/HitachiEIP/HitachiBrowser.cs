@@ -325,7 +325,8 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], out string val, attr.Fmt);
+               byte[] Data = EIP.FormatOutput(txtData.Text, attr.Get);
+               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, Data, out string val);
                string trafficText = $"{EIP.LastIO}\t";
                trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
@@ -346,7 +347,7 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] Data = EIP.FormatOutput(txtData.Text, attr);
+               byte[] Data = EIP.FormatOutput(txtData.Text, attr.Set);
                Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
                txtStatus.Text = EIP.GetStatus;
             } catch {
@@ -360,7 +361,7 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] data = EIP.FormatOutput(txtData.Text, attr);
+               byte[] data = EIP.FormatOutput(txtData.Text, attr.Service);
                Success = EIP.ServiceAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
@@ -585,11 +586,11 @@ namespace HitachiEIP {
       #region Service Routines
 
       private void BuildAttributeDictionary(eipClassCode[] cc) {
-         Data.AttrDict = new Dictionary<byte, byte, AttrData>();
+         Data.AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
          for (int i = 0; i < cc.Length; i++) {
             int[] ClassAttr = (int[])Data.ClassCodeAttributes[i].GetEnumValues();
             for (int j = 0; j < ClassAttr.Length; j++) {
-               Data.AttrDict.Add((byte)cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
+               Data.AttrDict.Add(cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
             }
 
          }
@@ -645,7 +646,8 @@ namespace HitachiEIP {
 
       private bool GetComSetting() {
          bool result;
-         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, out string val, DataFormats.Decimal)) {
+         AttrData attr = Data.AttrDict[eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline];
+         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, attr, EIP.Nodata, out string val)) {
             if (val == "1") {
                btnCom.Text = "COM\n1";
                btnCom.BackColor = Color.LightGreen;
@@ -668,7 +670,8 @@ namespace HitachiEIP {
 
       private bool GetMgmtSetting() {
          bool result;
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, out string val, DataFormats.Decimal)) {
+         AttrData attr = Data.AttrDict[eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag];
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, attr, EIP.Nodata, out string val)) {
             if (val != "0") {
                btnManagementFlag.Text = $"S/S Management\n{val}";
                btnManagementFlag.BackColor = Color.Pink;
@@ -691,7 +694,8 @@ namespace HitachiEIP {
 
       private bool GetAutoReflectionSetting() {
          bool result;
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, out string val, DataFormats.Decimal)) {
+         AttrData attr = Data.AttrDict[eipClassCode.Index, (byte)eipIndex.Automatic_reflection];
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, attr, EIP.Nodata, out string val)) {
             if (val == "1") {
                btnAutoReflection.Text = "Auto Reflection\n1";
                btnAutoReflection.BackColor = Color.Pink;
