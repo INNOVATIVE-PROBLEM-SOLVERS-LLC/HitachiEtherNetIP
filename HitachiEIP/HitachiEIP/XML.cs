@@ -35,6 +35,13 @@ namespace HitachiEIP {
 
       string XMLText = string.Empty;
 
+      enum ItemType {
+         Text = 1,
+         Date = 2,
+         Counter = 3,
+         Logo = 4,
+      }
+
       #endregion
 
       #region Constructors and destructors
@@ -183,7 +190,7 @@ namespace HitachiEIP {
                //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
                //writer.WriteAttributeString("Format", MessageStyle.ToString());
 
-               writer.WriteAttributeString("Version", "3");
+               writer.WriteAttributeString("Version", "1");
                WritePrinterSettings(writer);
 
                writer.WriteStartElement("Objects"); // Start Objects
@@ -199,9 +206,11 @@ namespace HitachiEIP {
                   }
 
                   SetAttribute(eipClassCode.Index, (byte)eipIndex.Item_Count, i + 1);
+                  string text = GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String);
+
                   writer.WriteStartElement("Object"); // Start Object
 
-                  //   writer.WriteAttributeString("Type", Enum.GetName(typeof(TPB.ItemTypes), p.ItemType));
+                  //writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), p.ItemType));
 
                   writer.WriteStartElement("Font"); // Start Font
                   {
