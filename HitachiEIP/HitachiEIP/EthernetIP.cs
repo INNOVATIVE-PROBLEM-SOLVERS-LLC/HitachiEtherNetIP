@@ -523,7 +523,7 @@ namespace HitachiEIP {
          this.IPAddress = IPAddress;
          this.port = port;
 
-         BuildAttributeDictionary();
+         Data.BuildAttributeDictionary();
       }
 
       #endregion
@@ -889,39 +889,11 @@ namespace HitachiEIP {
          return packet.ToArray<byte>();
       }
 
-      // Get attribute Human readable name
-      public string GetAttributeName(eipClassCode c, int v) {
-         switch (c) {
-            case eipClassCode.Print_data_management:
-               return ((eipPrint_Data_Management)v).ToString();
-            case eipClassCode.Print_format:
-               return ((eipPrint_format)v).ToString();
-            case eipClassCode.Print_specification:
-               return ((eipPrint_specification)v).ToString();
-            case eipClassCode.Calendar:
-               return ((eipCalendar)v).ToString();
-            case eipClassCode.User_pattern:
-               return ((eipUser_pattern)v).ToString();
-            case eipClassCode.Substitution_rules:
-               return ((eipSubstitution_rules)v).ToString();
-            case eipClassCode.Enviroment_setting:
-               return ((eipEnviroment_setting)v).ToString();
-            case eipClassCode.Unit_Information:
-               return ((eipUnit_Information)v).ToString();
-            case eipClassCode.Operation_management:
-               return ((eipOperation_management)v).ToString();
-            case eipClassCode.IJP_operation:
-               return ((eipIJP_operation)v).ToString();
-            case eipClassCode.Count:
-               return ((eipCount)v).ToString();
-            case eipClassCode.Index:
-               return ((eipIndex)v).ToString();
-            default:
-               break;
-         }
-         return "Unknown";
+      public string GetAttributeNameII(Type cc, int v) {
+         string result = Enum.GetName(cc, v);
+         return result;
       }
-
+ 
       // Get an unsigned int from up to 4 consecutive bytes
       public uint Get(byte[] b, int start, int length, mem m) {
          uint result = 0;
@@ -1233,19 +1205,6 @@ namespace HitachiEIP {
                break;
          }
          return IsValid;
-      }
-
-      public void BuildAttributeDictionary() {
-         if (Data.AttrDict == null) {
-            Data.AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
-            eipClassCode[] cc = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
-            for (int i = 0; i < cc.Length; i++) {
-               int[] ClassAttr = (int[])Data.ClassCodeAttributes[i].GetEnumValues();
-               for (int j = 0; j < ClassAttr.Length; j++) {
-                  Data.AttrDict.Add(cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
-               }
-            }
-         }
       }
 
       #endregion

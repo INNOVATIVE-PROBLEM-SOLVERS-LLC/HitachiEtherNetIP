@@ -20,7 +20,6 @@ namespace HitachiEIP {
       eipAccessCode[] AccessCodes;
 
       eipClassCode[] ClassCodes;
-      string[] ClassNames;
 
       int[] ClassAttr;
       AttrData attr;
@@ -97,12 +96,9 @@ namespace HitachiEIP {
          Utils.PositionForm(this, 0.75f, 0.9f);
          AccessCodes = (eipAccessCode[])Enum.GetValues(typeof(eipAccessCode));
 
-         ClassNames = Enum.GetNames(typeof(eipClassCode));
-         ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
-
          cbClassCode.Items.Clear();
-         for (int i = 0; i < ClassNames.Length; i++) {
-            cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)ClassCodes[i]:X2})");
+         for (int i = 0; i < Data.ClassNames.Length; i++) {
+            cbClassCode.Items.Add($"{Data.ClassNames[i].Replace('_', ' ')} (0x{(byte)Data.ClassCodes[i]:X2})");
          }
 
          BuildTrafficFile();
@@ -323,10 +319,10 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] Data = EIP.FormatOutput(txtData.Text, attr.Get);
-               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, Data, out string val);
+               byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
+               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, data, out string val);
                string trafficText = $"{EIP.LastIO}\t";
-               trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeName(EIP.Class, ClassAttr[cbFunction.SelectedIndex])}\t";
+               trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeNameII(Data.ClassCodeAttributes[cbClassCode.SelectedIndex], ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
                   trafficText += $"{hdr}\t{EIP.GetStatus}\t";
@@ -566,7 +562,8 @@ namespace HitachiEIP {
                txtDataBytes.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
                break;
          }
-         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(EIP.Class, e.Attribute)} Complete");
+         Type at = Data.ClassCodeAttributes[Array.IndexOf(Data.ClassCodes, e.Class)];
+         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeNameII(at, e.Attribute)} Complete");
       }
 
       private void btnProperties_Click(object sender, EventArgs e) {
@@ -582,18 +579,6 @@ namespace HitachiEIP {
       #endregion
 
       #region Service Routines
-
-      private void BuildAttributeDictionary(eipClassCode[] cc) {
-         Data.AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
-         for (int i = 0; i < cc.Length; i++) {
-            int[] ClassAttr = (int[])Data.ClassCodeAttributes[i].GetEnumValues();
-            for (int j = 0; j < ClassAttr.Length; j++) {
-               Data.AttrDict.Add(cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
-            }
-
-         }
-
-      }
 
       private void VerifyAddressAndPort() {
          if (!Int32.TryParse(txtPort.Text, out port)) {

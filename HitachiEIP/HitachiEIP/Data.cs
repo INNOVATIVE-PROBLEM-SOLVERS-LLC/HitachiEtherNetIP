@@ -277,8 +277,14 @@ namespace HitachiEIP {
             typeof(eipIndex),                   // 0x7A Index function
          };
 
+      // Class Names
+      public static string[] ClassNames = Enum.GetNames(typeof(eipClassCode));
+
+      // Class Codes
+      public static eipClassCode[] ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
+
       // Class Codes with Sort Order
-      public static int[,] ClassCodes = new int[,] {
+      public static int[,] ClassCodeSort = new int[,] {
          { 0X66, 7},   // Print data management function
          { 0X67, 8},   // Print format function
          { 0X68, 9},   // Print specification function
@@ -317,20 +323,29 @@ namespace HitachiEIP {
       public static Dictionary<eipClassCode, byte, AttrData> AttrDict;
 
       // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(byte Class, byte attr) {
-         for (int i = 0; i < ClassCodes.GetLength(0); i++) {
-            if ((byte)ClassCodes[i, 0] == Class) {
-               int[][] tab = ClassCodeData[i];
-               for (int j = 0; j < tab.Length; j++) {
-                  if ((byte)tab[j][0] == attr) {
-                     return new AttrData(tab[j]);
-                  }
+      public static AttrData GetAttrData(eipClassCode Class, byte attr) {
+         int[][] tab = ClassCodeData[Array.IndexOf(ClassCodes, Class)];
+         for (int j = 0; j < tab.Length; j++) {
+            if ((byte)tab[j][0] == attr) {
+               return new AttrData(tab[j]);
+            }
+         }
+         return null;
+      }
+
+      // Build the Attribute Dictionary
+      public static void BuildAttributeDictionary() {
+         if (AttrDict == null) {
+            AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
+            for (int i = 0; i < ClassCodes.Length; i++) {
+               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
+               for (int j = 0; j < ClassAttr.Length; j++) {
+                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
                }
             }
          }
-         // Something terribly wrong if we get here
-         return null;
       }
+
 
       #endregion
 
