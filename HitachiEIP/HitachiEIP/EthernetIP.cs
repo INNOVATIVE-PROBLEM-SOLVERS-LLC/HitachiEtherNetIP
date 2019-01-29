@@ -522,6 +522,8 @@ namespace HitachiEIP {
       public EIP(string IPAddress, Int32 port) {
          this.IPAddress = IPAddress;
          this.port = port;
+
+         BuildAttributeDictionary();
       }
 
       #endregion
@@ -1231,6 +1233,19 @@ namespace HitachiEIP {
                break;
          }
          return IsValid;
+      }
+
+      public void BuildAttributeDictionary() {
+         if (Data.AttrDict == null) {
+            Data.AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
+            eipClassCode[] cc = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
+            for (int i = 0; i < cc.Length; i++) {
+               int[] ClassAttr = (int[])Data.ClassCodeAttributes[i].GetEnumValues();
+               for (int j = 0; j < ClassAttr.Length; j++) {
+                  Data.AttrDict.Add(cc[i], (byte)ClassAttr[j], Data.GetAttrData((byte)cc[i], (Byte)ClassAttr[j]));
+               }
+            }
+         }
       }
 
       #endregion

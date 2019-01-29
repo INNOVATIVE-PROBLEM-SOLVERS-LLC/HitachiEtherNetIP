@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Label ClockSystem="24-Hour" Registration="101" GroupNumber="00" GroupName="" Name="EthernetIP" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+  <Printer Model="RX-2" Make="Hitachi">
+    <PrintHead Orientation="1" />
+    <ContinuousPrinting RepeatInterval="03300" PrintsPerTrigger="0000" />
+    <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
+    <CharacterSize Height="60" Width="0008" />
+    <PrintStartDelay Reverse="0502" Forward="0502" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="005" ExternalEncoder="False" />
+    <InkStream InkDropUse="05" ChargeRule="Standard" />
+    <TwinNozzle LeadingCharControl="0" LeadingCharControlWidth1="20" LeadingCharControlWidth2="20" NozzleSpaceAlignment="0" />
+  </Printer>
+  <Objects>
+    <Object Type="Text">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5X8</Font>
+      <Location ItemNumber="1" Column="0" Row="0" Height="8" Width="62" Left="0" Top="8" />
+      <Text>Text{:}Only{!} </Text>
+    </Object>
+    <Object Type="Date">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5X8</Font>
+      <Location ItemNumber="2" Column="1" Row="0" Height="8" Width="168" Left="62" Top="8" />
+      <Date Variable="" WindowsFormat="True">
+        <Offset Minute="-50" Hour="-04" Day="0003" Month="02" Year="01" />
+        <ZeroSuppress DayOfWeek="True" Week="True" Minute="True" Hour="True" Day="True" Month="True" Year="True" />
+        <EnableSubstitution SubstitutionRule="01" DayOfWeek="False" Week="False" Minute="False" Hour="False" Day="False" Month="False" Year="False" />
+      </Date>
+      <Text>Date Time {MM}/{DD}/{YY} {hh}:{mm}:{ss} </Text>
+    </Object>
+    <Object Type="Counter">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5X8</Font>
+      <Location ItemNumber="3" Column="2" Row="0" Height="8" Width="60" Left="230" Top="8" />
+      <Counter Reset="0" ExternalSignal="0" ResetSignal="0" Variable="" CountUp="True" Increment="02" JumpTo="0000" JumpFrom="9999" UpdateUnit="0001" UpdateIP="0000" Range2="9999" Range1="0000" InitialValue="0000" Format="Count {0000}" Multiplier="0001" ZeroSuppression="True" />
+      <Text>Count {0000}</Text>
+    </Object>
+    <Object Type="Logo">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">12X16</Font>
+      <Location ItemNumber="4" Column="3" Row="0" Height="16" Width="52" Left="290" Top="16" />
+      <Logo Variable="" HAlignment="Not_Aligned" VAlignment="Not_Aligned" Filter="86" ReverseVideo="False" Source="C:\cijConnect\ASC_Capacitors\Logos\cRUus-12X16.txt" LogoLength="4" Registration="-1" size="190">
+        <Data Length="190">42 4D BE 00 00 00 00 00 00 00 3E 00 00 00 28 00 00 00 34 00 00 00 10 00 00 00 01 00 01 00 00 00 00 00 00 00 00 00 C4 0E 00 00 C4 0E 00 00 02 00 00 00 02 00 00 00 00 00 00 FF FF FF FF FF 8F F0 FF 00 1C 71 F0 00 77 F8 FE 00 1B AE F0 00 7F F8 7E 00 1B BE F0 00 7F FC 3C 00 1B B1 F0 00 7F FC 3C 78 3B AF F0 00 77 FE 38 7C 3B AE F0 00 8F FE 10 FC 7B B1 F0 00 FF C0 00 F8 7F FF F0 00 FF 80 01 F8 78 7F F0 00 FF 80 01 F0 F7 BF F0 00 FF 1F C3 F0 EB 5F F0 00 FF 1F C3 E1 E8 DF F0 00 FE 1F C3 E1 EB 5F F0 00 FE 00 07 C3 E8 DF F0 00 FE 00 07 C3 F7 BF F0 00 FF 00 0F 87 F8 7F F0 00</Data>
+      </Logo>
+      <Text />
+    </Object>
+  </Objects>
+</Label>

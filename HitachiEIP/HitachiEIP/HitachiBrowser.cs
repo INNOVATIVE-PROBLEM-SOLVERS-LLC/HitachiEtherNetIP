@@ -100,8 +100,6 @@ namespace HitachiEIP {
          ClassNames = Enum.GetNames(typeof(eipClassCode));
          ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
 
-         BuildAttributeDictionary(ClassCodes);
-
          cbClassCode.Items.Clear();
          for (int i = 0; i < ClassNames.Length; i++) {
             cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)ClassCodes[i]:X2})");
