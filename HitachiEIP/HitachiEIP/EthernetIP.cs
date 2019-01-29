@@ -221,7 +221,7 @@ namespace HitachiEIP {
       InterCharacter_SpaceII = 0x7B,
       Add_To_End_Of_String = 0x8A,
       Calendar_Offset = 0x8D,
-      DIN_Print = 0x8Ee,
+      DIN_Print = 0x8E,
       EAN_Prefix = 0x8F,
       Barcode_Printing = 0x90,
       QR_Error_Correction_Level = 0x91,
