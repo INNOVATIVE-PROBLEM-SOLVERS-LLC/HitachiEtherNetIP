@@ -19,8 +19,6 @@ namespace HitachiEIP {
 
       eipAccessCode[] AccessCodes;
 
-      eipClassCode[] ClassCodes;
-
       int[] ClassAttr;
       AttrData attr;
 
@@ -47,9 +45,9 @@ namespace HitachiEIP {
       Attributes<eipUnit_Information> unitInfoAttr; // 0x73
       Attributes<eipEnviroment_setting> envirAttr;  // 0x71
       Attributes<eipOperation_management> mgmtAttr; // 0x74
+      Attributes<eipUser_pattern> userPatAttr;      // 0x6B Not implemented here
       XML processXML;                               // xml processing
 
-      //Attributes<eipUser_pattern> userPatAttr;    // 0x6B Not implemented here
 
       public bool ComIsOn = false;
       public bool MgmtIsOn = false;
@@ -106,34 +104,32 @@ namespace HitachiEIP {
 
          // Load all the tabbed control data
          indexAttr = new Attributes<eipIndex>
-            (this, EIP, tabIndex, eipClassCode.Index, Data.Index);
+            (this, EIP, tabIndex, eipClassCode.Index);
          oprAttr = new Attributes<eipIJP_operation>
-            (this, EIP, tabIJPOperation, eipClassCode.IJP_operation, Data.IJPOperation);
+            (this, EIP, tabIJPOperation, eipClassCode.IJP_operation);
          pdmAttr = new Attributes<eipPrint_Data_Management>
-            (this, EIP, tabPrintManagement, eipClassCode.Print_data_management, Data.PrintDataManagement);
+            (this, EIP, tabPrintManagement, eipClassCode.Print_data_management);
          psAttr = new Attributes<eipPrint_specification>
-            (this, EIP, tabPrintSpec, eipClassCode.Print_specification, Data.PrintSpecification);
+            (this, EIP, tabPrintSpec, eipClassCode.Print_specification);
          pFmtAttr = new Attributes<eipPrint_format>
-            (this, EIP, tabPrintFormat, eipClassCode.Print_format, Data.PrintFormat,
-            AddItem | AddPosition | AddColumn);
+            (this, EIP, tabPrintFormat, eipClassCode.Print_format, AddItem | AddPosition | AddColumn);
          calAttr = new Attributes<eipCalendar>
-            (this, EIP, tabCalendar, eipClassCode.Calendar, Data.Calendar,
-            AddCalendar | AddItem);
+            (this, EIP, tabCalendar, eipClassCode.Calendar, AddCalendar | AddItem);
          sRulesAttr = new Attributes<eipSubstitution_rules>
-            (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, Data.SubstitutionRules,
-            AddSubstitution);
+            (this, EIP, tabSubstitution, eipClassCode.Substitution_rules, AddSubstitution);
          countAttr = new Attributes<eipCount>
-            (this, EIP, tabCount, eipClassCode.Count, Data.Count,
+            (this, EIP, tabCount, eipClassCode.Count,
             AddItem | AddCount);
          unitInfoAttr = new Attributes<eipUnit_Information>
-            (this, EIP, tabUnitInformation, eipClassCode.Unit_Information, Data.UnitInformation);
+            (this, EIP, tabUnitInformation, eipClassCode.Unit_Information);
          envirAttr = new Attributes<eipEnviroment_setting>
-            (this, EIP, tabEnviroment, eipClassCode.Enviroment_setting, Data.EnviromentSetting);
+            (this, EIP, tabEnviroment, eipClassCode.Enviroment_setting);
          mgmtAttr = new Attributes<eipOperation_management>
-            (this, EIP, tabOpMgmt, eipClassCode.Operation_management, Data.OperationManagement);
+            (this, EIP, tabOpMgmt, eipClassCode.Operation_management);
+         userPatAttr = new Attributes<eipUser_pattern>
+            (this, EIP, tabUserPattern, eipClassCode.User_pattern);
          processXML = new XML(this, EIP, tabXML);
 
-         //userPatAttr = new Attributes<eipUser_pattern>(this, EIP, tabUserPattern, eipClassCode.User_pattern);
 
          // Force a resize
          initComplete = true;
@@ -172,7 +168,7 @@ namespace HitachiEIP {
          envirAttr = null;
          mgmtAttr = null;
          processXML = null;
-         //userPatAttr = null;
+         userPatAttr = null;
 
          // Stop logging
          EIP.Log -= EIP_Log;
@@ -251,6 +247,7 @@ namespace HitachiEIP {
             unitInfoAttr.ResizeControls(ref R);
             envirAttr.ResizeControls(ref R);
             mgmtAttr.ResizeControls(ref R);
+            userPatAttr.ResizeControls(ref R);
             processXML.ResizeControls(ref R);
 
             #endregion
@@ -320,7 +317,7 @@ namespace HitachiEIP {
             && cbFunction.SelectedIndex >= 0) {
             try {
                byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
-               Success = EIP.ReadOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, data, out string val);
+               Success = EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, data, out string val);
                string trafficText = $"{EIP.LastIO}\t";
                trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeNameII(Data.ClassCodeAttributes[cbClassCode.SelectedIndex], ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
@@ -341,8 +338,8 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] Data = EIP.FormatOutput(txtData.Text, attr.Set);
-               Success = EIP.WriteOneAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], Data);
+               byte[] data = EIP.FormatOutput(txtData.Text, attr.Set);
+               Success = EIP.WriteOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
                txtStatus.Text = EIP.GetStatus;
             } catch {
                AllGood = false;
@@ -356,7 +353,7 @@ namespace HitachiEIP {
             && cbFunction.SelectedIndex >= 0) {
             try {
                byte[] data = EIP.FormatOutput(txtData.Text, attr.Service);
-               Success = EIP.ServiceAttribute(ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+               Success = EIP.ServiceAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
                if (Success) {
                   string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
                   int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
@@ -497,7 +494,7 @@ namespace HitachiEIP {
          unitInfoAttr.RefreshExtras();
          envirAttr.RefreshExtras();
          mgmtAttr.RefreshExtras();
-         //userPatAttr.RefreshExtras();
+         userPatAttr.RefreshExtras();
 
       }
 
@@ -736,8 +733,8 @@ namespace HitachiEIP {
             unitInfoAttr.SetButtonEnables();
             envirAttr.SetButtonEnables();
             mgmtAttr.SetButtonEnables();
+            userPatAttr.SetButtonEnables();
             processXML.SetButtonEnables();
-            //userPatAttr.SetButtonEnables();
          }
 
       }

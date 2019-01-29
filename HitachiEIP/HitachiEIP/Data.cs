@@ -8,7 +8,7 @@ namespace HitachiEIP {
       #region Attribute raw data tables
 
       // Print Data Management (Class Code 0x66) Complete!
-      public static int[][] PrintDataManagement = new int[][] {
+      private static int[][] PrintDataManagement = new int[][] {
          new int[] { 0X64, 0, 0, 1, 0, 0, 0, 0, 9, 0, -1, 2, 0, 1, 2000}, // Select Message
          new int[] { 0X65, 1, 0, 0, 15, 1, 0, 0, 10, 0, -1},       // Store Print Data
          new int[] { 0X67, 1, 0, 0, 2, 0, 1, 2000, 3, 0, -1},      // Delete Print Data
@@ -22,7 +22,7 @@ namespace HitachiEIP {
       };
 
       // Print Format (Class Code 0x67)
-      public static int[][] PrintFormat = new int[][] {
+      private static int[][] PrintFormat = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 0, 0, 0, 20, 1, -1},       // Message Name
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 99, 25, 0, -1},      // Print Item
          new int[] { 0X66, 0, 1, 0, 1, 0, 1, 100, 21, 0, -1},     // Number Of Columns
@@ -54,7 +54,7 @@ namespace HitachiEIP {
      };
 
       // Print Specification (Class Code 0x68)
-      public static int[][] PrintSpecification = new int[][] {
+      private static int[][] PrintSpecification = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 99, 2, 0, -1},         // Character Height
          new int[] { 0X65, 1, 1, 0, 1, 0, 1, 16, 8, 0, -1},         // Ink Drop Use
          new int[] { 0X66, 1, 1, 0, 1, 0, 0, 3, 6, 0, -1},          // High Speed Print
@@ -79,7 +79,7 @@ namespace HitachiEIP {
       };
 
       // Calendar (Class Code = 0x69) Complete!
-      public static int[][] Calendar = new int[][] {
+      private static int[][] Calendar = new int[][] {
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 0, 10, 0, -1},      // Shift Count Condition
          new int[] { 0X66, 0, 1, 0, 1, 0, 0, 8, 3, 0, -1},       // First Calendar Block Number
          new int[] { 0X67, 0, 1, 0, 1, 0, 0, 8, 1, 0, -1},       // Calendar Block Number In Item
@@ -115,13 +115,13 @@ namespace HitachiEIP {
       };
 
       // User Pattern (Class Code 0x6B) Complete!
-      public static int[][] UserPattern = new int[][] {
+      private static int[][] UserPattern = new int[][] {
          new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 1, -1}, // User Pattern Fixed
          new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 1, -1}, // User Pattern Free
      };
 
       // Substitution Rules(Class Code 0x6C) Complete!
-      public static int[][] SubstitutionRules = new int[][] {
+      private static int[][] SubstitutionRules = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 3, 0, 0, 3, 0, -1},     // Number
          new int[] { 0X65, 1, 1, 0, 1, 3, 0, 0, 2, 1, -1},     // Name
          new int[] { 0X66, 1, 1, 0, 2, 3, 0, 0, 1, 0, -1},     // Start Year
@@ -135,7 +135,7 @@ namespace HitachiEIP {
       };
 
       // Enviroment Setting (Class Code 0x71) Complete!
-      public static int[][] EnviromentSetting = new int[][] {
+      private static int[][] EnviromentSetting = new int[][] {
          new int[] { 0X65, 1, 1, 0, 12, 2, 0, 0, 5, 0, -1},    // Current Time
          new int[] { 0X66, 1, 1, 0, 12, 2, 0, 0, 1, 0, -1},    // Calendar Date Time
          new int[] { 0X67, 1, 1, 0, 1, 0, 1, 2, 2, 0, 4},      // Calendar Date Time Availibility
@@ -147,7 +147,7 @@ namespace HitachiEIP {
       };
 
       // Unit Information (Class Code 0x73) Complete!
-      public static int[][] UnitInformation = new int[][] {
+      private static int[][] UnitInformation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 64, 1, 0, 0, 20, 0, -1},       // Unit Information
          new int[] { 0X6B, 0, 1, 0, 12, 1, 0, 0, 15, 0, -1},       // Model Name
          new int[] { 0X6C, 0, 1, 0, 8, 0, 0, 0, 17, 0, -1},        // Serial Number
@@ -172,7 +172,7 @@ namespace HitachiEIP {
       };
 
       // Operation Management (Class Code 0x74) Complete!
-      public static int[][] OperationManagement = new int[][] {
+      private static int[][] OperationManagement = new int[][] {
          new int[] { 0X64, 0, 1, 0, 2, 1, 0, 0, 12, 0, -1},   // Operating Management
          new int[] { 0X65, 1, 1, 0, 2, 0, 0, 0, 9, 0, -1},    // Ink Operating Time
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},    // Alarm Time
@@ -189,7 +189,7 @@ namespace HitachiEIP {
      };
 
       // IJP Operation (Class Code 0x75) Complete!
-      public static int[][] IJPOperation = new int[][] {
+      private static int[][] IJPOperation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 3, 0, 0, 7, 0, -1},    // Remote operation information
          new int[] { 0X66, 0, 1, 0, 6, 3, 0, 0, 4, 0, -1},    // Fault and warning history
          new int[] { 0X67, 0, 1, 0, 1, 3, 0, 0, 6, 0, -1},    // Operating condition
@@ -203,7 +203,7 @@ namespace HitachiEIP {
       };
 
       // Count (Class Code 0x79) Complete!
-      public static int[][] Count = new int[][] {
+      private static int[][] Count = new int[][] {
          new int[] { 0X66, 0, 1, 0, 0, 0, 0, 0, 12, 0, -1},   // Number Of Count Block
          new int[] { 0X67, 1, 1, 0, 0, 1, 0, 0, 9, 0, -1},    // Initial Value
          new int[] { 0X68, 1, 1, 0, 0, 1, 0, 0, 4, 0, -1},    // Count Range 1
@@ -223,7 +223,7 @@ namespace HitachiEIP {
       };
 
       // Index (Class Code 0x7A) Complete!
-      public static int[][] Index = new int[][] {
+      private static int[][] Index = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0, -1},     // Start Stop Management Flag
          new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0, -1},      // Automatic reflection
          new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0, -1},    // Item Count
@@ -345,7 +345,6 @@ namespace HitachiEIP {
             }
          }
       }
-
 
       #endregion
 
