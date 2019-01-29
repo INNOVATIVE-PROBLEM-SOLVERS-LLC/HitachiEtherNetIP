@@ -205,16 +205,16 @@ namespace HitachiEIP {
       // Count (Class Code 0x79) Complete!
       public static int[][] Count = new int[][] {
          new int[] { 0X66, 0, 1, 0, 0, 0, 0, 0, 12, 0, -1},   // Number Of Count Block
-         new int[] { 0X67, 1, 1, 0, 0, 0, 0, 0, 9, 0, -1},    // Initial Value
-         new int[] { 0X68, 1, 1, 0, 0, 0, 0, 0, 4, 0, -1},    // Count Range 1
-         new int[] { 0X69, 1, 1, 0, 0, 0, 0, 0, 5, 0, -1},    // Count Range 2
+         new int[] { 0X67, 1, 1, 0, 0, 1, 0, 0, 9, 0, -1},    // Initial Value
+         new int[] { 0X68, 1, 1, 0, 0, 1, 0, 0, 4, 0, -1},    // Count Range 1
+         new int[] { 0X69, 1, 1, 0, 0, 1, 0, 0, 5, 0, -1},    // Count Range 2
          new int[] { 0X6A, 1, 1, 0, 0, 0, 0, 0, 15, 0, -1},   // Update Unit Halfway
          new int[] { 0X6B, 1, 1, 0, 0, 0, 0, 0, 16, 0, -1},   // Update Unit Unit
          new int[] { 0X6C, 1, 1, 0, 1, 0, 0, 0, 8, 0, -1},    // Increment Value
          new int[] { 0X6D, 1, 1, 0, 1, 0, 1, 2, 7, 0, 7},     // Direction Value
-         new int[] { 0X6E, 1, 1, 0, 0, 0, 0, 0, 10, 0, -1},   // Jump From
-         new int[] { 0X6F, 1, 1, 0, 0, 0, 0, 0, 11, 0, -1},   // Jump To
-         new int[] { 0X70, 1, 1, 0, 0, 0, 0, 0, 13, 0, -1},   // Reset Value
+         new int[] { 0X6E, 1, 1, 0, 0, 1, 0, 0, 10, 0, -1},   // Jump From
+         new int[] { 0X6F, 1, 1, 0, 0, 1, 0, 0, 11, 0, -1},   // Jump To
+         new int[] { 0X70, 1, 1, 0, 0, 1, 0, 0, 13, 0, -1},   // Reset Value
          new int[] { 0X71, 1, 1, 0, 1, 0, 0, 0, 14, 0, 6},    // Type Of Reset Signal
          new int[] { 0X72, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1},     // Availibility Of External Count
          new int[] { 0X73, 1, 1, 0, 1, 0, 0, 0, 2, 0, 1},     // Availibility Of Zero Suppression

@@ -543,7 +543,7 @@ namespace HitachiEIP {
             AttrData attr = Data.AttrDict[eipClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
-               val >= attr.Get.Min && val <= attr.Get.Max;
+               val >= attr.Data.Min && val <= attr.Data.Max;
          }
       }
 
