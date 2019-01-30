@@ -81,10 +81,8 @@ namespace HitachiEIP {
             texts[tag].BackColor = Color.Pink;
             counts[tag].BackColor = Color.LightGreen;
          } else {
-            if (attr.Get.Len == 0) {
-               texts[tag].Text = "Loading";
-            }
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
+            texts[tag].Text = "Loading";
             parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, attr, data,  out string val);
             EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
