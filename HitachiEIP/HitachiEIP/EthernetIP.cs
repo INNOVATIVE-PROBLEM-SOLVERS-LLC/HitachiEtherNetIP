@@ -198,7 +198,7 @@ namespace HitachiEIP {
    // Attributes within Print Format class 0x67
    public enum eipPrint_format {
       Message_Name = 0x64,
-      Print_Item = 0x65,
+      Number_Of_Items = 0x65,
       Number_Of_Columns = 0x66,
       Format_Type = 0x67,
       Insert_Column = 0x69,
@@ -400,7 +400,7 @@ namespace HitachiEIP {
    public enum eipIndex {
       Start_Stop_Management_Flag = 0x64,
       Automatic_reflection = 0x65,
-      Item_Count = 0x66,
+      Item = 0x66,
       Column = 0x67,
       Line = 0x68,
       Character_position = 0x69,
