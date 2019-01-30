@@ -36,6 +36,7 @@ namespace HitachiEIP {
       string XMLText = string.Empty;
 
       enum ItemType {
+         Unknown = 0,
          Text = 1,
          Date = 2,
          Counter = 3,
@@ -170,6 +171,7 @@ namespace HitachiEIP {
       #region XML Routines
 
       private string ConvertLayoutToXML() {
+         ItemType itemType = ItemType.Text;
          bool OpenCloseForward = !EIP.ForwardIsOpen;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
@@ -208,9 +210,11 @@ namespace HitachiEIP {
                   SetAttribute(eipClassCode.Index, (byte)eipIndex.Item_Count, i + 1);
                   string text = GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String);
 
+                  itemType = GetItemType(text);
+
                   writer.WriteStartElement("Object"); // Start Object
 
-                  //writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), p.ItemType));
+                  writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
                   writer.WriteStartElement("Font"); // Start Font
                   {
@@ -235,25 +239,24 @@ namespace HitachiEIP {
                      //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
                   }
                   writer.WriteEndElement(); // End Location
-                  writer.WriteElementString("Text", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String));
 
-                  //   switch (p.ItemType) {
-                  //      case TPB.ItemTypes.Counter:
-                  //WriteCounterSettings(writer);
-                  //         writer.WriteElementString("Text", p.RawText);
-                  //         break;
-                  //      case TPB.ItemTypes.Date:
-                  //WriteCalendarSettings(writer);
-                  //         writer.WriteElementString("Text", p.RawText);
-                  //         break;
-                  //      case TPB.ItemTypes.Logo:
-                  //WriteUserPatternSettings(writer);
-                  //         writer.WriteElementString("Text", LogoText);
-                  //         break;
-                  //      case TPB.ItemTypes.Text:
-                  //         writer.WriteElementString("Text", p.RawText);
-                  //         break;
-                  //   }
+                  switch (itemType) {
+                     case ItemType.Text:
+                        break;
+                     case ItemType.Date:
+                        WriteCalendarSettings(writer);
+                        break;
+                     case ItemType.Counter:
+                        WriteCounterSettings(writer);
+                        break;
+                     case ItemType.Logo:
+                        WriteUserPatternSettings(writer);
+                        break;
+                     default:
+                        break;
+                  }
+
+                  writer.WriteElementString("Text", text);
                   writer.WriteEndElement(); // End Object
 
                   if (EIP.ForwardIsOpen && OpenCloseForward) {
@@ -593,6 +596,36 @@ namespace HitachiEIP {
             return;
          }
          cmdSaveAs.Enabled = XMLText.Length > 0;
+      }
+
+      private ItemType GetItemType(string text) {
+         string[] s = text.Split('{');
+         for (int i = 0; i < s.Length; i++) {
+            int n = s[i].IndexOf('}');
+            if (n >= 0) {
+               for (int j = 0; j < n; j++) {
+                  switch (s[i][j]) {
+                     case 'C':
+                        return ItemType.Counter;
+                     case 'Y':
+                     case 'M':
+                     case 'D':
+                     case 'h':
+                     case 'm':
+                     case 's':
+                     case 'T':
+                     case 'W':
+                     case '7':
+                     case 'E':
+                     case 'F':
+                        return ItemType.Date;
+                     case 'X':
+                        return ItemType.Logo;
+                  }
+               }
+            }
+         }
+         return ItemType.Text;
       }
 
       #endregion

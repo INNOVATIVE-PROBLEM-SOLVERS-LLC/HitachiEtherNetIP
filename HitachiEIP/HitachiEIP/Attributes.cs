@@ -529,16 +529,7 @@ namespace HitachiEIP {
 
       public void SetExtraButtonEnables(object sender, EventArgs e) {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         int start;
-         int end;
-         if (sender == null) {
-            start = 0;
-            end = extrasUsed;
-         } else {
-            start = (byte)((TextBox)sender).Tag;
-            end = start + 1;
-         }
-         for (int i = start; i < end; i++) {
+         for (int i = 0; i < extrasUsed; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
             AttrData attr = Data.AttrDict[eipClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
