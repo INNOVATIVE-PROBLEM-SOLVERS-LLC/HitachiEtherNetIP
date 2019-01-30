@@ -51,15 +51,15 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc, int[][] data, int Extras = 0) {
+      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc, int Extras = 0) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
-         attrs = new AttrData[data.Length];
-         for (int i = 0; i < data.Length; i++) {
-            attrs[i] = new AttrData(data[i]);
+         attrs = new AttrData[attributes.Length];
+         for (int i = 0; i < attributes.Length; i++) {
+            attrs[i] = Data.AttrDict[cc, Convert.ToByte(attributes[i])];
          }
          this.Extras = Extras;
 
