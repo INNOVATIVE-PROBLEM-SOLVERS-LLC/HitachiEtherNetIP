@@ -506,6 +506,8 @@ namespace HitachiEIP {
       public string GetDataValue { get; set; }
       public int GetDecValue { get; set; }
       public string GetStatus { get; set; }
+      public bool GetLengthIsValid { get; set; }
+      public bool GetDataIsValid { get; set; }
 
       public int SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
@@ -699,9 +701,13 @@ namespace HitachiEIP {
             SetDataLength = dataOut.Length;
             SetData = dataOut;
             SetDataValue = string.Empty;
+            GetLengthIsValid = false;
+            GetDataIsValid = false;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
+               GetLengthIsValid = CountIsValid(GetData, attr);
+               GetDataIsValid = TextIsValid(GetData, attr.Data);
                GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
                Successful = true;
             }
@@ -964,10 +970,9 @@ namespace HitachiEIP {
       // Format input byte array to readable characters
       public void SetBackColor(AttrData attr, TextBox count, TextBox text, ComboBox dropdown, Prop prop) {
          count.Text = GetDataLength.ToString();
-         count.BackColor = CountIsValid(attr, GetData) ? Color.LightGreen : Color.Pink;
-         Color TextValid = TextIsValid(GetData, prop) ? Color.LightGreen : Color.Pink;
+         count.BackColor = GetLengthIsValid ? Color.LightGreen : Color.Pink;
+         text.BackColor = GetDataIsValid ? Color.LightGreen : Color.Pink;
          text.Text = GetDataValue;
-         text.BackColor = TextValid;
          if (attr.DropDown >= 0) {
             if (long.TryParse(GetDataValue, out long val)) {
                if (val >= prop.Min && val <= prop.Max) {
@@ -1074,7 +1079,7 @@ namespace HitachiEIP {
       }
 
       // Does count agree with Hitachi Document?
-      public bool CountIsValid(AttrData attr, byte[] data) {
+      public bool CountIsValid(byte[] data, AttrData attr) {
          bool IsValid = false;
          switch (attr.Data.Fmt) {
             case DataFormats.Decimal:

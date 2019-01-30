@@ -318,12 +318,10 @@ namespace HitachiEIP {
             try {
                byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
                Success = EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, data, out string val);
-               string trafficText = $"{EIP.LastIO}\t";
+               string trafficText = $"{EIP.LastIO}\t{EIP.GetLengthIsValid}\t{EIP.GetDataIsValid}\t";
                trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeNameII(Data.ClassCodeAttributes[cbClassCode.SelectedIndex], ClassAttr[cbFunction.SelectedIndex])}\t";
                if (Success) {
-                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
-                  trafficText += $"{hdr}\t{EIP.GetStatus}\t";
-                  string s = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
+                  trafficText += $"{EIP.GetBytes(EIP.ReadData, 46, 4)}\t{EIP.GetStatus}\t";
                   trafficText += $"{txtCount.Text}\t{txtData.Text}\t{txtDataBytes.Text}";
                }
                TrafficFileStream.WriteLine(trafficText);
@@ -354,20 +352,7 @@ namespace HitachiEIP {
             try {
                byte[] data = EIP.FormatOutput(txtData.Text, attr.Service);
                Success = EIP.ServiceAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
-               if (Success) {
-                  string hdr = EIP.GetBytes(EIP.ReadData, 46, 4);
-                  int status = (int)EIP.Get(EIP.ReadData, 48, 2, mem.LittleEndian);
-                  string text = "Unknown!";
-                  switch (status) {
-                     case 0:
-                        text = "O.K.";
-                        break;
-                     case 0x14:
-                        text = "Attribute Not Supported!";
-                        break;
-                  }
-                  txtStatus.Text = $"{status:X2} -- {text} -- {EIP.Access:X2} {EIP.Class:X2} {EIP.Instance:X2} {EIP.Attribute:X2}";
-               }
+               txtStatus.Text = EIP.GetStatus;
             } catch (Exception e2) {
                AllGood = false;
             }
