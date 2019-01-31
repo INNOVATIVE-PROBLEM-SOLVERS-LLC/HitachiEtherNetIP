@@ -57,12 +57,12 @@ namespace HitachiEIP {
       private static int[][] PrintSpecification = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 99, 2, 0, -1},         // Character Height
          new int[] { 0X65, 1, 1, 0, 1, 0, 1, 16, 8, 0, -1},         // Ink Drop Use
-         new int[] { 0X66, 1, 1, 0, 1, 0, 0, 3, 6, 0, -1},          // High Speed Print
+         new int[] { 0X66, 1, 1, 0, 1, 0, 0, 3, 6, 0, 17},          // High Speed Print
          new int[] { 0X67, 1, 1, 0, 2, 0, 0, 3999, 4, 0, -1},       // Character Width
-         new int[] { 0X68, 1, 1, 0, 1, 0, 0, 3, 3, 0, -1},          // Character Orientation
+         new int[] { 0X68, 1, 1, 0, 1, 0, 0, 3, 3, 0, 15},          // Character Orientation
          new int[] { 0X69, 1, 1, 0, 2, 0, 0, 9999, 11, 0, -1},      // Print Start Delay Forward
          new int[] { 0X6A, 1, 1, 0, 2, 0, 0, 9999, 10, 0, -1},      // Print Start Delay Reverse
-         new int[] { 0X6B, 1, 1, 0, 1, 0, 0, 2, 14, 0, -1},         // Product Speed Matching
+         new int[] { 0X6B, 1, 1, 0, 1, 0, 0, 2, 14, 0, 16},         // Product Speed Matching
          new int[] { 0X6C, 1, 1, 0, 2, 0, 0, 999, 15, 0, -1},       // Pulse Rate Division Factor
          new int[] { 0X6D, 1, 1, 0, 1, 0, 0, 1, 18, 0, -1},         // Speed Compensation
          new int[] { 0X6E, 1, 1, 0, 2, 0, 0, 9999, 9, 0, -1},       // Line Speed
@@ -72,7 +72,7 @@ namespace HitachiEIP {
          new int[] { 0X72, 1, 1, 0, 2, 0, 0, 9999, 16, 0, -1},      // Repeat Count
          new int[] { 0X73, 1, 1, 0, 3, 0, 0, 99999, 17, 0, -1},     // Repeat Interval
          new int[] { 0X74, 1, 1, 0, 2, 0, 0, 999, 21, 0, -1},       // Target Sensor Timer
-         new int[] { 0X75, 1, 1, 0, 1, 0, 0, 1, 20, 0, -1},         // Target Sensor Filter
+         new int[] { 0X75, 1, 1, 0, 1, 0, 0, 1, 20, 0, 18},         // Target Sensor Filter
          new int[] { 0X76, 1, 1, 0, 2, 0, 0, 9999, 19, 0, -1},      // Targer Sensor Filter Value
          new int[] { 0X77, 1, 1, 0, 1, 0, 0, 2, 7, 0, -1},          // Ink Drop Charge Rule
          new int[] { 0X78, 1, 1, 0, 2, 0, -50, +50, 12, 0, -1},     // Print Start Position Adjustment Value
@@ -242,15 +242,15 @@ namespace HitachiEIP {
 
       #region Conversion Tables
 
-   // Attribute DropDown conversion
-   public static string[][] DropDowns = new string[][] {
+      // Attribute DropDown conversion
+      public static string[][] DropDowns = new string[][] {
          new string[] { },                                            // 0 - Just decimal values
          new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
          new string[] { "Disable", "Space Fill", "Character Fill" },  // 2 - Disable, space fill, character fill
          new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
          new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
          new string[] { "Off Line", "On Line" },                      // 5 - Offline/Online
-         new string[] { "None", "Signal 1", "Signal2" },              // 6 - None, Signal 1, Signal 2
+         new string[] { "None", "Signal 1", "Signal 2" },             // 6 - None, Signal 1, Signal 2
          new string[] { "Up", "Down" },                               // 7 - Up/Down
          new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
          new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8×32", "DM16×16", "DM16×36",
@@ -265,6 +265,11 @@ namespace HitachiEIP {
          new string[] { "4×5", "5×5", "5×8(5×7)", "9×8(9×7)", "7×10", "10×12", "12×16", "18×24", "24×32",
                         "11×11", "5×3(Chimney)", "5×5(Chimney)", "7×5(Chimney)", "QR33", "30×40", "36×48"  }, 
                                                                       // 14 - Font Types
+         new string[] { "Normal/Forward", "Normal/Reverse",
+                         "Inverted/Forward", "Inverted/Reverse",},    // 15 - Orientation
+         new string[] { "None", "Encoder", "Auto" },                  // 16 - Product speed matching
+         new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
+         new string[] { "Time Setup", "Until End of Print" },         // 18 - Target Sensor Filter
       };
 
       // Class Codes to Attributes
@@ -484,5 +489,4 @@ namespace HitachiEIP {
       #endregion
 
    }
-
 }
