@@ -336,7 +336,7 @@ namespace HitachiEIP {
             }
             return names;
          } else {
-            return Data.DropDowns[attr.DropDown].GetEnumNames();
+            return Data.DropDowns[attr.DropDown];
          }
       }
 
@@ -348,7 +348,7 @@ namespace HitachiEIP {
          ExtraSet = new Button[MaxExtras];
 
          if ((Extras & HitachiBrowser.AddItem) > 0) {
-            AddExtras(ref n, eipIndex.Item_Count);
+            AddExtras(ref n, eipIndex.Item);
          }
          if ((Extras & HitachiBrowser.AddColumn) > 0) {
             AddExtras(ref n, eipIndex.Column);

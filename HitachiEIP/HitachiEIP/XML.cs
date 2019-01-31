@@ -41,6 +41,8 @@ namespace HitachiEIP {
          Date = 2,
          Counter = 3,
          Logo = 4,
+         Link = 5,     // Not supported in the printer
+         Prompt = 6,   // Not supported in the printer
       }
 
       #endregion
@@ -168,7 +170,7 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region XML Routines
+      #region XML  Save Routines
 
       private string ConvertLayoutToXML() {
          ItemType itemType = ItemType.Text;
@@ -200,14 +202,14 @@ namespace HitachiEIP {
                   EIP.ForwardClose();
                }
 
-               int itemCount = GetDecimalAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Item);
+               int itemCount = GetDecimalAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Number_Of_Items);
                for (int i = 0; i < itemCount; i++) {
                   OpenCloseForward = !EIP.ForwardIsOpen;
                   if (OpenCloseForward) {
                      EIP.ForwardOpen();
                   }
 
-                  SetAttribute(eipClassCode.Index, (byte)eipIndex.Item_Count, i + 1);
+                  SetAttribute(eipClassCode.Index, (byte)eipIndex.Item, i + 1);
                   string text = GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String);
 
                   itemType = GetItemType(text);
@@ -510,6 +512,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Add a node to the tree view
       private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode) {
          if (inXmlNode is XmlWhitespace)
             return;
@@ -538,14 +541,217 @@ namespace HitachiEIP {
          }
       }
 
+      // Get the attributes associated witha anode
       private string GetNameAttr(XmlNode n) {
          string result = n.Name;
          if (n.Attributes.Count > 0) {
             foreach (XmlAttribute attribute in n.Attributes) {
-               result += " " + attribute.Name + "=\"" + attribute.Value + "\"";
+               result += $" {attribute.Name}=\"{attribute.Value}\"";
             }
          }
          return result;
+      }
+
+      #endregion
+
+      #region XML Load Routines
+
+      // Move xml string into the printer
+      internal void LoadXMLFile(string xml) {
+         int Version;
+         ItemType type;
+         XmlNode n;
+         //   FormatSetup msgStyle;
+
+         XmlDocument xmlDoc = new XmlDocument();
+         xmlDoc.PreserveWhitespace = true;
+         try {
+            xmlDoc.LoadXml(xml);
+            n = xmlDoc.SelectSingleNode("Label");
+            //this.MessageName = GetAttr(n, "Name", Path.GetFileNameWithoutExtension(fileName));
+            //this.Registration = GetAttr(n, "Registration", 1);
+            //this.ClockSystem = GetAttr(n, "ClockSystem", "24-Hour");
+            //this.BeRestrictive = GetAttr(n, "BeRestrictive", false);
+            //this.UseHalfSpace = GetAttr(n, "UseHalfSpace", false);
+            //this.MessageGroup = GetAttr(n, "GroupName", "");
+            //this.MessageGroupNumber = GetAttr(n, "GroupNumber", "");
+            //if (Enum.TryParse(GetAttr(n, "Format", "Individual"), out msgStyle)) {
+            //   this.MessageStyle = msgStyle;
+            //} else {
+            //   this.MessageStyle = FormatSetup.Individual;
+            //}
+            Version = GetAttr(n, "Version", 1);
+
+            ReadPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
+
+            foreach (System.Xml.XmlNode item in xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes) {
+               if (!(item is XmlWhitespace)) {
+                  type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(item, "Type", "Text"), true);
+                  n = item.SelectSingleNode("Location");
+                  int x = GetAttr(n, "Left", 0);
+                  int y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
+                  int r = GetAttr(n, "Row", -1);
+                  int c = GetAttr(n, "Column", -1);
+
+                  n = item.SelectSingleNode("Font");
+                  string F = n.InnerText;
+                  int ICS = GetAttr(n, "InterCharacterSpace", 1);
+                  int ILS = GetAttr(n, "InterLineSpace", 1);
+                  int IW = GetAttr(n, "IncreasedWidth", 1);
+
+                  // New item must be created here
+                  //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
+
+                  //p.Row = r;
+                  //p.Column = c;
+
+                  //p.BarCode = GetAttr(n, "BarCode", "(None)");
+                  //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
+                  //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
+
+                  // Done to here
+                  switch (type) {
+                     case ItemType.Counter:
+                        n = item.SelectSingleNode("Text");
+                        //p.RawText = GetValue(n, "{0000}");
+
+                        n = item.SelectSingleNode("Counter");
+                        // Must set length before any other attribute
+                        string initValue = GetAttr(n, "InitialValue", "0000");
+                        //p.CtWidth = initValue.Length;
+                        //p.CtInitialValue = initValue;
+                        //p.CtRangeStart = GetAttr(n, "Range1", "0000");
+                        //p.CtRangeEnd = GetAttr(n, "Range2", "9999");
+                        //p.CtUpdateIP = GetAttr(n, "UpdateIP", "0000");
+                        //p.CtUpdateUnit = GetAttr(n, "UpdateUnit", "0001");
+                        //p.CtJumpFrom = GetAttr(n, "JumpFrom", "9999");
+                        //p.CtJumpTo = GetAttr(n, "JumpTo", "0000");
+                        //p.CtIncrement = GetAttr(n, "Increment", "01");
+                        //p.CtDirection = GetAttr(n, "CountUp", true);
+                        //p.CtReset = GetAttr(n, "Reset", "0");
+                        //p.CtReset = GetAttr(n, "Reset", "0");
+                        //p.CtMultiplier = GetAttr(n, "Multiplier", "0001");
+                        //p.CtZeroSuppression = GetAttr(n, "ZeroSuppression", false);
+                        //p.CtResetSignal = GetAttr(n, "ResetSignal", "0");
+                        //p.CtExternalSignal = GetAttr(n, "ExternalSignal", "0");
+                        break;
+                     case ItemType.Date:
+                        n = item.SelectSingleNode("Date");
+                        //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
+
+                        n = item.SelectSingleNode("Date/Offset");
+                        //p.DtYearOffset = GetAttr(n, "Year", "0000");
+                        //p.DtMonthOffset = GetAttr(n, "Month", "0000");
+                        //p.DtDayOffset = GetAttr(n, "Day", "0000");
+                        //p.DtHourOffset = GetAttr(n, "Hour", "0000");
+                        //p.DtMinuteOffset = GetAttr(n, "Minute", "0000");
+
+                        n = item.SelectSingleNode("Date/ZeroSuppress");
+                        //p.DtYearZS = GetAttr(n, "Year", false);
+                        //p.DtMonthZS = GetAttr(n, "Month", false);
+                        //p.DtDayZS = GetAttr(n, "Day", false);
+                        //p.DtHourZS = GetAttr(n, "Hour", false);
+                        //p.DtMinuteZS = GetAttr(n, "Minute", false);
+                        //p.DtWeekZS = GetAttr(n, "Week", false);
+                        //p.DtDayOfWeekZS = GetAttr(n, "DayOfWeek", false);
+
+                        n = item.SelectSingleNode("Date/EnableSubstitution");
+                        //p.DtYearSub = GetAttr(n, "Year", false);
+                        //p.DtMonthSub = GetAttr(n, "Month", false);
+                        //p.DtDaySub = GetAttr(n, "Day", false);
+                        //p.DtHourSub = GetAttr(n, "Hour", false);
+                        //p.DtMinuteSub = GetAttr(n, "Minute", false);
+                        //p.DtWeekSub = GetAttr(n, "Week", false);
+                        //p.DtDayOfWeekSub = GetAttr(n, "DayOfWeek", false);
+                        //p.DTSubRule = GetAttr(n, "SubstitutionRule", "01");
+                        break;
+                     case ItemType.Logo:
+                        n = item.SelectSingleNode("Logo");
+                        //p.LogoFilter = GetAttr(n, "Filter", 84);
+                        //p.LogoReverseVideo = GetAttr(n, "ReverseVideo", false);
+                        //p.LogoSource = GetAttr(n, "Source", "");
+                        //p.LogoLength = GetAttr(n, "LogoLength", 1);
+                        //p.LogoRegistration = GetAttr(n, "Registration", -1);
+                        //p.LogoSource = GetAttr(n, "Source", "");
+                        //p.ScaledImage = GetLogoScaledImage(p, n);
+                        n = item.SelectSingleNode("Text");
+                        //if (n == null) {
+                        //   p.LogoItemText = string.Empty;
+                        //} else {
+                        //   string ItemText = GetValue(n, "<TEXT>");
+                        //   string it = "";
+                        //   if (ItemText.Length > 0) {
+                        //      for (int i = 0; i < ItemText.Length; i += 4) {
+                        //         it += (char)Convert.ToInt16(ItemText.Substring(i, 4), 16);
+                        //      }
+                        //      p.LogoItemText = it;
+                        //   }
+                        //}
+                        break;
+                     case ItemType.Text:
+                        n = item.SelectSingleNode("Text");
+                        //p.RawText = GetValue(n, "<TEXT>");
+                        break;
+                     case ItemType.Link:
+                        // Ignore for this application
+                        n = item.SelectSingleNode("Link");
+                        n = item.SelectSingleNode("Text");
+                        break;
+                     case ItemType.Prompt:
+                        // Ignore for this application
+                        n = item.SelectSingleNode("Prompt");
+                        n = item.SelectSingleNode("Text");
+                       break;
+                  }
+               }
+            }
+         } catch (Exception ex2) {
+            MessageBox.Show($"Invalid file format for file \"{LoadedFileName}\"");
+            //LogIt("Invalid file format for file \"" + fileName + "\"\r\n" + ex2.ToString());
+         }
+      }
+
+      // Load printer wide settings
+      private void ReadPrinterSettings(XmlNode pr) {
+         foreach (XmlNode c in pr.ChildNodes) {
+            switch (c.Name) {
+               case "PrintHead":
+                  //this.CharacterOrientation = GetAttr(c, "Orientation", "0");
+                  break;
+               case "ContinuousPrinting":
+                  //this.RepeatInterval = GetAttr(c, "RepeatInterval", "0000");
+                  //this.PrintsPerTrigger = GetAttr(c, "PrintsPerTrigger", "0000");
+                  break;
+               case "TargetSensor":
+                  //this.TargetSensorFilter = GetAttr(c, "Filter", "2");
+                  //this.TargetSensorSetupValue = GetAttr(c, "SetupValue", "0050");
+                  //this.TargetSensorTimer = GetAttr(c, "Timer", "000");
+                  break;
+               case "CharacterSize":
+                  //this.CharacterWidth = GetAttr(c, "Width", "010");
+                  //this.CharacterHeight = GetAttr(c, "Height", "70");
+                  break;
+               case "PrintStartDelay":
+                  //this.ReverseDelay = GetAttr(c, "Reverse", "0000");
+                  //this.ForwardDelay = GetAttr(c, "Forward", "0000");
+                  break;
+               case "EncoderSettings":
+                  //this.HighSpeedPrinting = GetAttr(c, "HighSpeedPrinting", "0");
+                  //this.Divisor = GetAttr(c, "Divisor", "001");
+                  //this.ExternalEncoder = GetAttr(c, "ExternalEncoder", false);
+                  break;
+               case "InkStream":
+                  //this.InkDropUse = GetAttr(c, "InkDropUse", "03");
+                  //this.InkDropChargeRule = GetAttr(c, "ChargeRule", InkDropChargeRules.Standard);
+                  break;
+               case "TwinNozzle":
+                  //this.LeadingCharacterControl = GetAttr(c, "LeadingCharControl", 0);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth1", 32);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
+                  //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
+                  break;
+            }
+         }
       }
 
       #endregion
@@ -575,29 +781,42 @@ namespace HitachiEIP {
          R.offset = 0;
       }
 
+      // Get the contents of one attribute
       private string GetAttribute(eipClassCode Class, byte Attribute) {
          AttrData attr = Data.AttrDict[Class, Attribute];
+         // <TODO> Some data may be required in place of NoData
          bool successful = EIP.ReadOneAttribute(Class, Attribute, attr, EIP.Nodata, out string val);
          return val;
       }
 
+      // Get the value of an attribute that is known to be a decimal number
       private int GetDecimalAttribute(eipClassCode Class, byte Attribute) {
          GetAttribute(Class, Attribute);
          return EIP.GetDecValue;
       }
 
-      private int SetAttribute(eipClassCode Class, byte Attribute, int n) {
+      // Set one attribute based on the Set Property
+      private void SetAttribute(eipClassCode Class, byte Attribute, int n) {
+         // <TODO> Data is not always int
          bool successful = EIP.WriteOneAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Set.Len));
-         return EIP.GetDecValue;
       }
 
+      // Set one attribute based on the Set Property
+      private void ServiceAttribute(eipClassCode Class, byte Attribute, int n) {
+         // <TODO> Need to format the output.
+         bool successful = EIP.ServiceAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Service.Len));
+      }
+
+      // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
+         // No need to set the button enables if this screen is not visible
          if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
          cmdSaveAs.Enabled = XMLText.Length > 0;
       }
 
+      // Examine the contents of a print message to determine its type
       private ItemType GetItemType(string text) {
          string[] s = text.Split('{');
          for (int i = 0; i < s.Length; i++) {
@@ -606,6 +825,8 @@ namespace HitachiEIP {
                for (int j = 0; j < n; j++) {
                   switch (s[i][j]) {
                      case 'C':
+                        // Contains a counter character
+                        // "{CCCC}"
                         return ItemType.Counter;
                      case 'Y':
                      case 'M':
@@ -618,14 +839,78 @@ namespace HitachiEIP {
                      case '7':
                      case 'E':
                      case 'F':
+                        // Contains a calendar character
+                        // {{MM}/{DD}/{YY} {hh}:[mm]:[ss}}
                         return ItemType.Date;
                      case 'X':
+                     case 'Z':
+                        // Contains a Fixed or Free layout user pattern
+                        // {X/n} or {Z/n} where n is the character position
                         return ItemType.Logo;
+                     case ' ':
+                     case '\'':
+                     case '.':
+                     case ';':
+                     case ':':
+                     case '!':
+                     case ',':
+                        // Half size characters are treated as text
+                        // {'}{.}{:}{,}{;}{!}{ }
+                        break;
                   }
                }
             }
          }
          return ItemType.Text;
+      }
+
+      private string GetValue(XmlNode node, string DefaultValue) {
+         try {
+            return node.InnerText;
+         } catch (Exception e) {
+            //ErrorMessage = e.Message;
+            return DefaultValue;
+         }
+      }
+
+      private int GetAttr(XmlNode node, string AttrName, int DefaultValue) {
+         try {
+            return Convert.ToInt32(node.Attributes[AttrName].Value);
+         } catch (Exception e) {
+            //ErrorMessage = e.Message;
+            return DefaultValue;
+         }
+      }
+
+      private bool GetAttr(XmlNode node, string AttrName, bool DefaultValue) {
+         bool result = DefaultValue;
+         string s;
+         try {
+            s = node.Attributes[AttrName].Value;
+            switch (s) {
+               case "0":
+                  result = false;
+                  break;
+               case "1":
+                  result = true;
+                  break;
+               default:
+                  result = bool.Parse(s);
+                  break;
+            }
+         } catch (Exception e) {
+            //ErrorMessage = e.Message;
+         }
+         return result;
+      }
+
+      private string GetAttr(XmlNode node, string AttrName, string DefaultValue) {
+         try {
+            return node.Attributes[AttrName].Value;
+         } catch (Exception e) {
+            //ErrorMessage = e.Message;
+            return DefaultValue;
+         }
       }
 
       #endregion

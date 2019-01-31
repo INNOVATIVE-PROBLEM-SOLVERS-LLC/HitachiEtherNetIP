@@ -123,15 +123,15 @@ namespace HitachiEIP {
       // Substitution Rules(Class Code 0x6C) Complete!
       private static int[][] SubstitutionRules = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 3, 0, 0, 3, 0, -1},     // Number
-         new int[] { 0X65, 1, 1, 0, 1, 3, 0, 0, 2, 1, -1},     // Name
-         new int[] { 0X66, 1, 1, 0, 2, 3, 0, 0, 1, 0, -1},     // Start Year
-         new int[] { 0X67, 1, 1, 0, 3, 3, 0, 0, 10, 0, -1},    // Year
-         new int[] { 0X68, 1, 1, 0, 0, 3, 0, 0, 8, 0, -1},     // Month
-         new int[] { 0X69, 1, 1, 0, 0, 3, 0, 0, 4, 0, -1},     // Day
-         new int[] { 0X6A, 1, 1, 0, 0, 3, 0, 0, 6, 0, -1},     // Hour
-         new int[] { 0X6B, 1, 1, 0, 0, 3, 0, 0, 7, 0, -1},     // Minute
-         new int[] { 0X6C, 1, 1, 0, 0, 3, 0, 0, 9, 0, -1},     // Week
-         new int[] { 0X6D, 1, 1, 0, 0, 3, 0, 0, 5, 0, -1},     // Day Of Week
+         new int[] { 0X65, 1, 1, 0, 1, 1, 0, 0, 2, 1, -1},     // Name
+         new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},     // Start Year
+         new int[] { 0X67, 1, 1, 0, 3, 1, 0, 0, 10, 0, -1},    // Year
+         new int[] { 0X68, 1, 1, 0, 0, 1, 0, 0, 8, 0, -1},     // Month
+         new int[] { 0X69, 1, 1, 0, 0, 1, 0, 0, 4, 0, -1},     // Day
+         new int[] { 0X6A, 1, 1, 0, 0, 1, 0, 0, 6, 0, -1},     // Hour
+         new int[] { 0X6B, 1, 1, 0, 0, 1, 0, 0, 7, 0, -1},     // Minute
+         new int[] { 0X6C, 1, 1, 0, 0, 1, 0, 0, 9, 0, -1},     // Week
+         new int[] { 0X6D, 1, 1, 0, 0, 1, 0, 0, 5, 0, -1},     // Day Of Week
       };
 
       // Enviroment Setting (Class Code 0x71) Complete!
@@ -242,23 +242,29 @@ namespace HitachiEIP {
 
       #region Conversion Tables
 
-      // Attribute DropDown conversion
-      public static Type[] DropDowns = new Type[] {
-         typeof(DD_Decimal),                    // 0 - Just decimal values
-         typeof(DD_EnableDisable),              // 1 - Enable and disable
-         typeof(DD_Suppression),                // 2 - Disable, space fill, character fill
-         typeof(DD_ClockSystem),                // 3 - 12 & 24 hour
-         typeof(DD_ClockAvailability),          // 4 - Current time or stop clock
-         typeof(DD_OnlineOffline),              // 5 - Offline/Online
-         typeof(DD_ResetSignal),                // 6 - None, Signal 1, Signal 2
-         typeof(DD_UpDown),                     // 7 - Up/Down
-         typeof(DD_ReadableCode),               // 8 - Readable Code 5X5 or 5X7
-         typeof(DD_BarcodeTypes),               // 9 - Barcode Types
-         typeof(DD_NormalReverse),              // 10 - Normal/reverse
-         typeof(DD_QR_Error_Correction),        // 11 - M 15%, Q 25%
-         typeof(DD_EAN_Prefix),                 // 12 - Edit/Print
-         typeof(DD_CalendarOffset),             // 13 - From Yesterday/Today
-         typeof(DD_Font),                       // 14 - Font Types
+   // Attribute DropDown conversion
+   public static string[][] DropDowns = new string[][] {
+         new string[] { },                                            // 0 - Just decimal values
+         new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
+         new string[] { "Disable", "Space Fill", "Character Fill" },  // 2 - Disable, space fill, character fill
+         new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
+         new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
+         new string[] { "Off Line", "On Line" },                      // 5 - Offline/Online
+         new string[] { "None", "Signal 1", "Signal2" },              // 6 - None, Signal 1, Signal 2
+         new string[] { "Up", "Down" },                               // 7 - Up/Down
+         new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
+         new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8×32", "DM16×16", "DM16×36",
+                        "DM16×48", "DM18×18", "DM20×20", "DM22×22", "DM24×24", "Code 128 (Code set B)",
+                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21×21", "QR25×25", "QR29×29",
+                        "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)", "GS1 DataBar (Stacked)", "DM14×14", }, 
+                                                                      // 9 - Barcode Types
+         new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
+         new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
+         new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
+         new string[] { "From Yesterday", "From Today" },             // 13 - From Yesterday/Today
+         new string[] { "4×5", "5×5", "5×8(5×7)", "9×8(9×7)", "7×10", "10×12", "12×16", "18×24", "24×32",
+                        "11×11", "5×3(Chimney)", "5×5(Chimney)", "7×5(Chimney)", "QR33", "30×40", "36×48"  }, 
+                                                                      // 14 - Font Types
       };
 
       // Class Codes to Attributes
