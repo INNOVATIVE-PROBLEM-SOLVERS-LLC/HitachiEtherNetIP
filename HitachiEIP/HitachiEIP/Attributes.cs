@@ -98,6 +98,9 @@ namespace HitachiEIP {
          } else {
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Set);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
+            if(Success) {
+               texts[tag].BackColor = Color.LightGreen;
+            }
          }
          SetButtonEnables();
       }
@@ -174,6 +177,7 @@ namespace HitachiEIP {
       private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
          e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+         t.BackColor = Color.LightYellow;
       }
 
       private void GetExtras_Click(object sender, EventArgs e) {
@@ -204,6 +208,7 @@ namespace HitachiEIP {
          bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
          if (Success) {
             ExtraText[n].BackColor = Color.LightGreen;
+            GetAll_Click(null, null);
          }
       }
 
@@ -219,7 +224,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      private void ExtraText_KeyPress(object sender, KeyPressEventArgs e) {
+      private void Text_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
          t.BackColor = Color.LightYellow;
       }
@@ -307,6 +312,8 @@ namespace HitachiEIP {
                tab.Controls.Add(sets[i]);
                if (attr.Set.Fmt == DataFormats.Decimal) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
+               } else {
+                  texts[i].KeyPress += Text_KeyPress;
                }
             }
             if (attr.HasService) {
@@ -391,7 +398,7 @@ namespace HitachiEIP {
          ExtraText[n].Leave += SetExtraButtonEnables;
          ExtraGet[n].Click += GetExtras_Click;
          ExtraSet[n].Click += SetExtras_Click;
-         ExtraText[n].KeyPress += ExtraText_KeyPress;
+         ExtraText[n].KeyPress += Text_KeyPress;
          n++;
       }
 
@@ -478,6 +485,7 @@ namespace HitachiEIP {
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
+         GetAll_Click(null, null);
          if (OpenCloseForward) {
             EIP.ForwardClose();
          }
