@@ -150,6 +150,11 @@ namespace HitachiEIP {
                EIP.ForwardClose();
             }
          }
+         // Force the first tab to load
+         if (EIP.SessionIsOpen) {
+            tclClasses_SelectedIndexChanged(null, null);
+         }
+
          SetButtonEnables();
       }
 
