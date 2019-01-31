@@ -336,7 +336,7 @@ namespace HitachiEIP {
             }
             return names;
          } else {
-            return Data.DropDowns[attr.DropDown].GetEnumNames();
+            return Data.DropDowns[attr.DropDown];
          }
       }
 

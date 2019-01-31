@@ -34,129 +34,6 @@ namespace HitachiEIP {
 
    // Drop Down lists
 
-   // 0
-   public enum DD_Decimal {
-      DecimalValues = 0,
-   }
-
-   // 1
-   public enum DD_EnableDisable {
-      Disable = 0,
-      Enable = 1,
-   }
-
-   // 2
-   public enum DD_Suppression {
-      Disable = 0,
-      SpaceFill = 1,
-      CharacterFill = 2,
-   }
-
-   // 3
-   public enum DD_ClockSystem {
-      TwentyFourHour = 1,
-      TwelveHour = 2,
-   }
-
-   // 4
-   public enum DD_ClockAvailability {
-      CurrentTime = 1,
-      StopClock = 2,
-   }
-
-   // 5
-   public enum DD_OnlineOffline {
-      OffLine = 0,
-      OnLine = 1,
-   }
-
-   // 6
-   public enum DD_ResetSignal {
-      None = 0,
-      Signal1 = 1,
-      Signal2 = 2,
-   }
-
-   // 7
-   public enum DD_UpDown {
-      Up = 1,
-      Down = 2,
-   }
-
-   // 8
-   public enum DD_ReadableCode {
-      None = 0,
-      Size5X5 = 1,
-      Size5X7 = 2,
-   }
-
-   // 9
-   public enum DD_BarcodeTypes {
-      Not_Used = 0,
-      Code_39 = 1,
-      ITF = 2,
-      NW_7 = 3,
-      EAN_13 = 4,
-      DM8x32 = 5,
-      DM16x16 = 6,
-      DM16x36 = 7,
-      DM16x48 = 8,
-      DM18x18 = 9,
-      DM20x20 = 10,
-      DM22x22 = 11,
-      DM24x24 = 12,
-      Code_128_Set_B = 13,
-      Code_128_Set_C = 14,
-      UPC_A = 15,
-      UPC_E = 16,
-      EAN_8 = 17,
-      QR21x21 = 18,
-      QR25x25 = 19,
-      QR29x29 = 20,
-   }
-
-   // 10
-   public enum DD_NormalReverse {
-      Normal = 0,
-      Reverse = 1,
-   }
-
-   // 11
-   public enum DD_QR_Error_Correction {
-      M_15_Pcnt = 0,
-      Q_25_Pcnt = 1,
-
-   }
-
-   // 12
-   public enum DD_EAN_Prefix {
-      EditMessage = 0,
-      PrintFormat = 1,
-   }
-
-   // 13
-   public enum DD_CalendarOffset {
-      FromYesterday = 0,
-      FromToday = 1,
-   }
-
-   // 14
-   public enum DD_Font {
-      F_4x5 = 0,
-      F_5x5 = 1,
-      F_5x8_5x7 = 2,
-      F_9x8_9x7 = 3,
-      F_7x10 = 4,
-      F_10x12 = 5,
-      F_12x16 = 6,
-      F_18x24 = 7,
-      F_24x32 = 8,
-      F_11x11 = 9,
-      F_5x3_Chimney = 10,
-      F_5x5_Chimney = 11,
-      F_7x5_Chimney = 12,
-   }
-
 
    // Access codes
    public enum eipAccessCode {
@@ -935,11 +812,12 @@ namespace HitachiEIP {
 
       // Get data as ascii characters
       public string GetAscii(byte[] data, int start, int length) {
-         string s = encode.GetString(data, 0, Math.Min(length, 20));
-         if (length > 20) {
-            s += "...";
-         }
-         return s;
+         return $"\"{encode.GetString(data, 0, length)}\"";
+         //string s = encode.GetString(data, 0, Math.Min(length, 30));
+         //if (length > 30) {
+         //   s += "...";
+         //}
+         //return s;
       }
 
       // Convert unsigned integer to byte array
@@ -1016,7 +894,11 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.ASCII:
-               result = encode.GetBytes(s + "\x00");
+               if(s.StartsWith("\"") && s.EndsWith("\"")) {
+                  result = encode.GetBytes($"{s.Substring(1, s.Length - 2)}\x00");
+               } else {
+                  result = encode.GetBytes($"{s}\x00");
+               }
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
