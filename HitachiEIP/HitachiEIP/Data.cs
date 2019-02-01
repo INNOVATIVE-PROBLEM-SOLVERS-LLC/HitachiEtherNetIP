@@ -122,7 +122,7 @@ namespace HitachiEIP {
 
       // Substitution Rules(Class Code 0x6C) Complete!
       private static int[][] SubstitutionRules = new int[][] {
-         new int[] { 0X64, 1, 1, 0, 1, 3, 0, 0, 3, 0, -1},     // Number
+         new int[] { 0X64, 1, 1, 0, 1, 0, 1, 99, 3, 0, -1},    // Number
          new int[] { 0X65, 1, 1, 0, 1, 1, 0, 0, 2, 1, -1},     // Name
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},     // Start Year
          new int[] { 0X67, 1, 1, 0, 3, 1, 0, 0, 10, 0, -1},    // Year
