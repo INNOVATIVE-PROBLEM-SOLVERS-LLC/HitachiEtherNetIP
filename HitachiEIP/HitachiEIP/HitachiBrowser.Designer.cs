@@ -371,55 +371,55 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 453);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 474);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // tabPrintManagement
          // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 453);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 474);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 453);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 474);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 453);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 474);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
-         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
+         this.tabCalendar.Location = new System.Drawing.Point(4, 25);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 453);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 474);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
          // 
          // tabSubstitution
          // 
-         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 25);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 453);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 474);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -685,18 +685,6 @@
       private System.Windows.Forms.Button btnViewTraffic;
       private System.Windows.Forms.Button btnViewLog;
       private System.Windows.Forms.Button btnReadAll;
-      private System.Windows.Forms.TabPage tabIndex;
-      private System.Windows.Forms.TabPage tabIJPOperation;
-      private System.Windows.Forms.TabPage tabPrintManagement;
-      private System.Windows.Forms.TabPage tabPrintSpec;
-      private System.Windows.Forms.TabPage tabPrintFormat;
-      private System.Windows.Forms.TabPage tabCalendar;
-      private System.Windows.Forms.TabPage tabSubstitution;
-      private System.Windows.Forms.TabPage tabCount;
-      private System.Windows.Forms.TabPage tabUnitInformation;
-      private System.Windows.Forms.TabPage tabEnviroment;
-      private System.Windows.Forms.TabPage tabOpMgmt;
-      private System.Windows.Forms.TabPage tabUserPattern;
       private System.Windows.Forms.Button btnCom;
       private System.Windows.Forms.ListBox lstErrors;
       private System.Windows.Forms.ContextMenuStrip cmLog;
@@ -714,7 +702,19 @@
       public System.Windows.Forms.TextBox txtData;
       public System.Windows.Forms.TextBox txtCount;
       private System.Windows.Forms.Button btnProperties;
-      private System.Windows.Forms.TabPage tabXML;
+      public System.Windows.Forms.TabPage tabIndex;
+      public System.Windows.Forms.TabPage tabIJPOperation;
+      public System.Windows.Forms.TabPage tabPrintManagement;
+      public System.Windows.Forms.TabPage tabPrintSpec;
+      public System.Windows.Forms.TabPage tabPrintFormat;
+      public System.Windows.Forms.TabPage tabCalendar;
+      public System.Windows.Forms.TabPage tabSubstitution;
+      public System.Windows.Forms.TabPage tabCount;
+      public System.Windows.Forms.TabPage tabUnitInformation;
+      public System.Windows.Forms.TabPage tabEnviroment;
+      public System.Windows.Forms.TabPage tabOpMgmt;
+      public System.Windows.Forms.TabPage tabUserPattern;
+      public System.Windows.Forms.TabPage tabXML;
    }
 }
 

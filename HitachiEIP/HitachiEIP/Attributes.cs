@@ -11,9 +11,14 @@ namespace HitachiEIP {
 
       #region Data Declarations
 
+      ResizeInfo R;
+
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
+      int tclHeight;
+      int tclWidth;
+
       AttrData[] attrs;
 
       t1[] attributes;
@@ -55,6 +60,7 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
+         IsSubstitution = Object.Equals(tab, parent.tabSubstitution);
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
          attrs = new AttrData[attributes.Length];
@@ -83,7 +89,7 @@ namespace HitachiEIP {
          } else {
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
             texts[tag].Text = "Loading";
-            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, attr, data,  out string val);
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, attr, data, out string val);
             EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
          SetButtonEnables();
@@ -98,7 +104,7 @@ namespace HitachiEIP {
          } else {
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Set);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
-            if(Success) {
+            if (Success) {
                texts[tag].BackColor = Color.LightGreen;
             }
          }
@@ -248,7 +254,7 @@ namespace HitachiEIP {
          } else {
             hdrs = new Label[4];
          }
-         hdrs[0] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight};
+         hdrs[0] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight };
          hdrs[1] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
          hdrs[2] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
          hdrs[3] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
@@ -275,14 +281,17 @@ namespace HitachiEIP {
          for (int i = 0; i < attributes.Length; i++) {
             AttrData attr = attrs[i];
             string s = $"{attributes[i].ToString().Replace('_', ' ')} (0x{attr.Val:X2})";
-            labels[i] = new Label() { Tag = i, TextAlign = System.Drawing.ContentAlignment.TopRight,
-                                      Text = s };
+            labels[i] = new Label() {
+               Tag = i,
+               TextAlign = System.Drawing.ContentAlignment.TopRight,
+               Text = s
+            };
             tab.Controls.Add(labels[i]);
 
             counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center };
             if (attr.HasService) {
                counts[i].Text = attr.Service.Len.ToString();
-            } else if(attr.HasSet) {
+            } else if (attr.HasSet) {
                counts[i].Text = attr.Set.Len.ToString();
             } else {
                counts[i].Text = attr.Get.Len.ToString();
@@ -321,7 +330,7 @@ namespace HitachiEIP {
                services[i].Click += Service_Click;
                tab.Controls.Add(services[i]);
             }
-            if(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0) {
+            if (attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0) {
                texts[i].Leave += Text_Leave;
             }
          }
@@ -332,6 +341,9 @@ namespace HitachiEIP {
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
+
+         // Tab specific controls
+         BuildSubstitutionControls();
 
       }
 
@@ -386,7 +398,7 @@ namespace HitachiEIP {
                ExtraControls.Controls.Add(ExtraSet[i]);
             }
          }
-         return n; 
+         return n;
       }
 
       private void AddExtras(ref byte n, eipIndex function) {
@@ -406,8 +418,10 @@ namespace HitachiEIP {
          if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
+         this.R = R;
          parent.tclClasses.Visible = false;
-         int tclHeight = (int)(tab.ClientSize.Height / R.H);
+         tclHeight = (int)(tab.ClientSize.Height / R.H);
+         tclWidth = (int)(tab.ClientSize.Width / R.W);
          float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
          R.offset = offset;
          float cw = 17.5f;
@@ -433,7 +447,7 @@ namespace HitachiEIP {
                r = 2 + (i - half) * 2;
                c = 1;
             }
-            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 2, 8);
+            Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 8);
             Utils.ResizeObject(ref R, counts[i], r, 8.25f + c * cw, 1.5f, 1);
             Utils.ResizeObject(ref R, texts[i], r, 9.5f + c * cw, 1.5f, 4.75f);
             if (dropdowns[i] != null) {
@@ -457,7 +471,7 @@ namespace HitachiEIP {
             int r = -1;
             int c = 0;
             for (int i = 0; i < extrasUsed; i++) {
-               if((i & 1) == 0) {
+               if ((i & 1) == 0) {
                   c = 0;
                   r += 2;
                } else {
@@ -469,6 +483,9 @@ namespace HitachiEIP {
                Utils.ResizeObject(ref R, ExtraSet[i], r, 9.5f + c, 1.5f, 2);
             }
          }
+
+         ResizeSubstitutionControls(ref R);
+
          R.offset = 0;
          parent.tclClasses.Visible = true;
       }
@@ -541,6 +558,144 @@ namespace HitachiEIP {
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
                val >= attr.Data.Min && val <= attr.Data.Max;
+         }
+      }
+
+      #endregion
+
+      #region Tab Specific Routines (Substitution)
+
+      // Substitution Specific Controls
+      bool IsSubstitution = false;
+      GroupBox SubControls;
+      Label lblCategory;
+      ComboBox cbCategory;
+      Button subGet;
+      Button subSet;
+      Label[][] subLabels;
+      TextBox[][] subTexts;
+      int[] startWith = new[] { 19, 1, 1, 0, 0, 1, 1 };
+      eipSubstitution_rules[] at = new eipSubstitution_rules[] {
+         eipSubstitution_rules.Year,
+         eipSubstitution_rules.Month,
+         eipSubstitution_rules.Day,
+         eipSubstitution_rules.Hour,
+         eipSubstitution_rules.Minute,
+         eipSubstitution_rules.Week,
+         eipSubstitution_rules.Day_Of_Week,
+      };
+
+      int lastCategory = -1;
+
+      private void BuildSubstitutionControls() {
+         if (IsSubstitution) {
+            SubControls = new GroupBox() { Text = "Substitution Rules" };
+            tab.Controls.Add(SubControls);
+            SubControls.Paint += GroupBorder_Paint;
+
+            lblCategory = new Label() { Text = "Category", TextAlign = ContentAlignment.TopRight };
+            SubControls.Controls.Add(lblCategory);
+
+            cbCategory = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+            SubControls.Controls.Add(cbCategory);
+            cbCategory.SelectedIndexChanged += CbCategory_SelectedIndexChanged;
+            for (int i = 3; i < labels.Length; i++) {
+               cbCategory.Items.Add(labels[i].Text);
+            }
+
+            subGet = new Button() { Text = "Get" };
+            SubControls.Controls.Add(subGet);
+            subGet.Click += SubGet_Click;
+
+            subSet = new Button() { Text = "Set" };
+            SubControls.Controls.Add(subSet);
+            subSet.Click += SubSet_Click;
+
+            subLabels = new Label[][] {
+               new Label[25],
+               new Label[12],
+               new Label[31],
+               new Label[24],
+               new Label[60],
+               new Label[53],
+               new Label[7],
+            };
+            subTexts = new TextBox[][] {
+               new TextBox[25],
+               new TextBox[12],
+               new TextBox[31],
+               new TextBox[24],
+               new TextBox[60],
+               new TextBox[53],
+               new TextBox[7],
+            };
+            for (int i = 0; i < subLabels.GetLength(0); i++) {
+               for (int j = 0; j < subLabels[i].Length; j++) {
+                  subLabels[i][j] = new Label() { Text = (j + startWith[i]).ToString("D2"), Visible = false, TextAlign = ContentAlignment.TopRight };
+                  SubControls.Controls.Add(subLabels[i][j]);
+                  subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center };
+                  SubControls.Controls.Add(subTexts[i][j]);
+               }
+            }
+         }
+      }
+
+      private void SubGet_Click(object sender, EventArgs e) {
+         if (lastCategory >= 0) {
+
+         }
+      }
+
+      private void SubSet_Click(object sender, EventArgs e) {
+         if (lastCategory >= 0) {
+            bool OpenCloseForward = !EIP.ForwardIsOpen;
+            if (OpenCloseForward) {
+               EIP.ForwardOpen();
+            }
+            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
+               byte[] data = EIP.ToBytes((char)(i + startWith[lastCategory]) + subTexts[lastCategory][i].Text + "\x00");
+               EIP.WriteOneAttribute(eipClassCode.Substitution_rules, (byte)at[lastCategory], data);
+            }
+            if (OpenCloseForward && EIP.ForwardIsOpen) {
+               EIP.ForwardClose();
+            }
+         }
+      }
+
+      private void CbCategory_SelectedIndexChanged(object sender, EventArgs e) {
+         if (lastCategory >= 0) {
+            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
+               subLabels[lastCategory][i].Visible = false;
+               subTexts[lastCategory][i].Visible = false;
+            }
+         }
+         lastCategory = cbCategory.SelectedIndex;
+         for (int i = 0; i < subLabels[lastCategory].Length; i++) {
+            subLabels[lastCategory][i].Visible = true;
+            subTexts[lastCategory][i].Visible = true;
+         }
+         ResizeSubstitutionControls(ref R);
+      }
+
+      private void ResizeSubstitutionControls(ref ResizeInfo R) {
+         if (IsSubstitution) {
+            int groupStart = (labels.Length + 1) * 2;
+            int groupHeight = tclHeight - groupStart - 5;
+            Utils.ResizeObject(ref R, SubControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
+            {
+               Utils.ResizeObject(ref R, lblCategory, 1, 1, 1.5f, 4);
+               Utils.ResizeObject(ref R, cbCategory, 1, 5, 1.5f, 6);
+               Utils.ResizeObject(ref R, subGet, 1, tclWidth - 9, 1.5f, 3);
+               Utils.ResizeObject(ref R, subSet, 1, tclWidth - 5, 1.5f, 3);
+            }
+         }
+         if(lastCategory >= 0) {
+            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
+               int r = 3 + 2 * (int)(i / 15);
+               float c = (i % 15) * 2.25f + 0.25f;
+               Utils.ResizeObject(ref R, subLabels[lastCategory][i], r, c, 1.5f, 1);
+               Utils.ResizeObject(ref R, subTexts[lastCategory][i], r, c + 1, 1.5f, 1.25f);
+            }
          }
       }
 
