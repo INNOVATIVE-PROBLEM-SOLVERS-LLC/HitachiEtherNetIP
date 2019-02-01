@@ -724,9 +724,9 @@ namespace HitachiEIP {
          //            GetAttr(c, "Orientation"));
          //p.RawText = GetValue(n, "{0000}");
 
-         n = item.SelectSingleNode("Counter");
+         c = item.SelectSingleNode("Counter");
          // Must set length before any other attribute
-         string initValue = GetAttr(n, "InitialValue", "0000");
+         string initValue = GetAttr(c, "InitialValue", "0000");
          //p.CtWidth = initValue.Length;
          //p.CtInitialValue = initValue;
          SetAttribute(eipClassCode.Count,
