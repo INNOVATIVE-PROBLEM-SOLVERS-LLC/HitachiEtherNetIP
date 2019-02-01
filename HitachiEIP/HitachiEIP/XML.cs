@@ -582,10 +582,11 @@ namespace HitachiEIP {
             //}
             Version = GetAttr(n, "Version", 1);
 
-            ReadPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
+            PrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
 
             foreach (System.Xml.XmlNode item in xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes) {
                if (!(item is XmlWhitespace)) {
+                  // New item must be created here
                   type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(item, "Type", "Text"), true);
                   n = item.SelectSingleNode("Location");
                   int x = GetAttr(n, "Left", 0);
@@ -599,7 +600,6 @@ namespace HitachiEIP {
                   int ILS = GetAttr(n, "InterLineSpace", 1);
                   int IW = GetAttr(n, "IncreasedWidth", 1);
 
-                  // New item must be created here
                   //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
 
                   //p.Row = r;
@@ -612,96 +612,18 @@ namespace HitachiEIP {
                   // Done to here
                   switch (type) {
                      case ItemType.Counter:
-                        n = item.SelectSingleNode("Text");
-                        //p.RawText = GetValue(n, "{0000}");
-
-                        n = item.SelectSingleNode("Counter");
-                        // Must set length before any other attribute
-                        string initValue = GetAttr(n, "InitialValue", "0000");
-                        //p.CtWidth = initValue.Length;
-                        //p.CtInitialValue = initValue;
-                        //p.CtRangeStart = GetAttr(n, "Range1", "0000");
-                        //p.CtRangeEnd = GetAttr(n, "Range2", "9999");
-                        //p.CtUpdateIP = GetAttr(n, "UpdateIP", "0000");
-                        //p.CtUpdateUnit = GetAttr(n, "UpdateUnit", "0001");
-                        //p.CtJumpFrom = GetAttr(n, "JumpFrom", "9999");
-                        //p.CtJumpTo = GetAttr(n, "JumpTo", "0000");
-                        //p.CtIncrement = GetAttr(n, "Increment", "01");
-                        //p.CtDirection = GetAttr(n, "CountUp", true);
-                        //p.CtReset = GetAttr(n, "Reset", "0");
-                        //p.CtReset = GetAttr(n, "Reset", "0");
-                        //p.CtMultiplier = GetAttr(n, "Multiplier", "0001");
-                        //p.CtZeroSuppression = GetAttr(n, "ZeroSuppression", false);
-                        //p.CtResetSignal = GetAttr(n, "ResetSignal", "0");
-                        //p.CtExternalSignal = GetAttr(n, "ExternalSignal", "0");
+                        CountSettings(item);
                         break;
                      case ItemType.Date:
-                        n = item.SelectSingleNode("Date");
-                        //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
-
-                        n = item.SelectSingleNode("Date/Offset");
-                        //p.DtYearOffset = GetAttr(n, "Year", "0000");
-                        //p.DtMonthOffset = GetAttr(n, "Month", "0000");
-                        //p.DtDayOffset = GetAttr(n, "Day", "0000");
-                        //p.DtHourOffset = GetAttr(n, "Hour", "0000");
-                        //p.DtMinuteOffset = GetAttr(n, "Minute", "0000");
-
-                        n = item.SelectSingleNode("Date/ZeroSuppress");
-                        //p.DtYearZS = GetAttr(n, "Year", false);
-                        //p.DtMonthZS = GetAttr(n, "Month", false);
-                        //p.DtDayZS = GetAttr(n, "Day", false);
-                        //p.DtHourZS = GetAttr(n, "Hour", false);
-                        //p.DtMinuteZS = GetAttr(n, "Minute", false);
-                        //p.DtWeekZS = GetAttr(n, "Week", false);
-                        //p.DtDayOfWeekZS = GetAttr(n, "DayOfWeek", false);
-
-                        n = item.SelectSingleNode("Date/EnableSubstitution");
-                        //p.DtYearSub = GetAttr(n, "Year", false);
-                        //p.DtMonthSub = GetAttr(n, "Month", false);
-                        //p.DtDaySub = GetAttr(n, "Day", false);
-                        //p.DtHourSub = GetAttr(n, "Hour", false);
-                        //p.DtMinuteSub = GetAttr(n, "Minute", false);
-                        //p.DtWeekSub = GetAttr(n, "Week", false);
-                        //p.DtDayOfWeekSub = GetAttr(n, "DayOfWeek", false);
-                        //p.DTSubRule = GetAttr(n, "SubstitutionRule", "01");
+                        CalendarSettings(item);
                         break;
                      case ItemType.Logo:
-                        n = item.SelectSingleNode("Logo");
-                        //p.LogoFilter = GetAttr(n, "Filter", 84);
-                        //p.LogoReverseVideo = GetAttr(n, "ReverseVideo", false);
-                        //p.LogoSource = GetAttr(n, "Source", "");
-                        //p.LogoLength = GetAttr(n, "LogoLength", 1);
-                        //p.LogoRegistration = GetAttr(n, "Registration", -1);
-                        //p.LogoSource = GetAttr(n, "Source", "");
-                        //p.ScaledImage = GetLogoScaledImage(p, n);
-                        n = item.SelectSingleNode("Text");
-                        //if (n == null) {
-                        //   p.LogoItemText = string.Empty;
-                        //} else {
-                        //   string ItemText = GetValue(n, "<TEXT>");
-                        //   string it = "";
-                        //   if (ItemText.Length > 0) {
-                        //      for (int i = 0; i < ItemText.Length; i += 4) {
-                        //         it += (char)Convert.ToInt16(ItemText.Substring(i, 4), 16);
-                        //      }
-                        //      p.LogoItemText = it;
-                        //   }
-                        //}
+                        LogoSettings(item);
                         break;
                      case ItemType.Text:
                         n = item.SelectSingleNode("Text");
                         //p.RawText = GetValue(n, "<TEXT>");
                         break;
-                     case ItemType.Link:
-                        // Ignore for this application
-                        n = item.SelectSingleNode("Link");
-                        n = item.SelectSingleNode("Text");
-                        break;
-                     case ItemType.Prompt:
-                        // Ignore for this application
-                        n = item.SelectSingleNode("Prompt");
-                        n = item.SelectSingleNode("Text");
-                       break;
                   }
                }
             }
@@ -712,46 +634,272 @@ namespace HitachiEIP {
       }
 
       // Load printer wide settings
-      private void ReadPrinterSettings(XmlNode pr) {
+      private void PrinterSettings(XmlNode pr) {
          foreach (XmlNode c in pr.ChildNodes) {
             switch (c.Name) {
                case "PrintHead":
+                  SetAttribute(eipClassCode.Print_specification,
+                              (byte)eipPrint_specification.Character_Orientation,
+                              GetAttr(c, "Orientation"));
                   //this.CharacterOrientation = GetAttr(c, "Orientation", "0");
                   break;
                case "ContinuousPrinting":
+                  SetAttribute(eipClassCode.Print_specification,
+                              (byte)eipPrint_specification.Repeat_Interval,
+                              GetAttr(c, "RepeatInterval"));
                   //this.RepeatInterval = GetAttr(c, "RepeatInterval", "0000");
+                  SetAttribute(eipClassCode.Print_specification,
+                              (byte)eipPrint_specification.Repeat_Count,
+                              GetAttr(c, "PrintsPerTrigger"));
                   //this.PrintsPerTrigger = GetAttr(c, "PrintsPerTrigger", "0000");
                   break;
                case "TargetSensor":
+                  SetAttribute(eipClassCode.Print_specification,
+                             (byte)eipPrint_specification.Target_Sensor_Filter,
+                             GetAttr(c, "Filter"));
                   //this.TargetSensorFilter = GetAttr(c, "Filter", "2");
+                  SetAttribute(eipClassCode.Print_specification,
+                             (byte)eipPrint_specification.Targer_Sensor_Filter_Value,
+                             GetAttr(c, "SetupValue"));
                   //this.TargetSensorSetupValue = GetAttr(c, "SetupValue", "0050");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Target_Sensor_Timer,
+                            GetAttr(c, "Timer"));
                   //this.TargetSensorTimer = GetAttr(c, "Timer", "000");
                   break;
                case "CharacterSize":
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Character_Width,
+                            GetAttr(c, "Width"));
                   //this.CharacterWidth = GetAttr(c, "Width", "010");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Character_Height,
+                            GetAttr(c, "Height"));
                   //this.CharacterHeight = GetAttr(c, "Height", "70");
                   break;
                case "PrintStartDelay":
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Print_Start_Delay_Reverse,
+                            GetAttr(c, "Reverse"));
                   //this.ReverseDelay = GetAttr(c, "Reverse", "0000");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Print_Start_Delay_Forward,
+                            GetAttr(c, "Forward"));
                   //this.ForwardDelay = GetAttr(c, "Forward", "0000");
                   break;
                case "EncoderSettings":
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.High_Speed_Print,
+                            GetAttr(c, "HighSpeedPrinting"));
                   //this.HighSpeedPrinting = GetAttr(c, "HighSpeedPrinting", "0");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Pulse_Rate_Division_Factor,
+                            GetAttr(c, "Divisor"));
                   //this.Divisor = GetAttr(c, "Divisor", "001");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Product_Speed_Matching,
+                            GetAttr(c, "ExternalEncoder"));
                   //this.ExternalEncoder = GetAttr(c, "ExternalEncoder", false);
                   break;
                case "InkStream":
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Ink_Drop_Use,
+                            GetAttr(c, "InkDropUse"));
                   //this.InkDropUse = GetAttr(c, "InkDropUse", "03");
+                  SetAttribute(eipClassCode.Print_specification,
+                            (byte)eipPrint_specification.Ink_Drop_Charge_Rule,
+                            GetAttr(c, "ChargeRule"));
                   //this.InkDropChargeRule = GetAttr(c, "ChargeRule", InkDropChargeRules.Standard);
-                  break;
-               case "TwinNozzle":
-                  //this.LeadingCharacterControl = GetAttr(c, "LeadingCharControl", 0);
-                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth1", 32);
-                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
-                  //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
                   break;
             }
          }
+      }
+
+      // Load Count Block
+      private void CountSettings(XmlNode item) {
+         XmlNode c;
+         c = item.SelectSingleNode("Text");
+         //SetAttribute(eipClassCode.Count,
+         //            (byte)eipCount.Character_Orientation,
+         //            GetAttr(c, "Orientation"));
+         //p.RawText = GetValue(n, "{0000}");
+
+         n = item.SelectSingleNode("Counter");
+         // Must set length before any other attribute
+         string initValue = GetAttr(n, "InitialValue", "0000");
+         //p.CtWidth = initValue.Length;
+         //p.CtInitialValue = initValue;
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Range_1,
+                     GetAttr(c, "Range1"));
+         //p.CtRangeStart = GetAttr(n, "Range1", "0000");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Range_2,
+                     GetAttr(c, "Range2"));
+         //p.CtRangeEnd = GetAttr(n, "Range2", "9999");
+         SetAttribute(eipClassCode.Count,
+                   (byte)eipCount.Update_Unit_Halfway,
+                   GetAttr(c, "UpdateIP"));
+         //p.CtUpdateIP = GetAttr(n, "UpdateIP", "0000");
+         SetAttribute(eipClassCode.Count,
+                  (byte)eipCount.Update_Unit_Unit,
+                  GetAttr(c, "UpdateUnit"));
+         //p.CtUpdateUnit = GetAttr(n, "UpdateUnit", "0001");
+         SetAttribute(eipClassCode.Count,
+                    (byte)eipCount.Jump_From,
+                    GetAttr(c, "JumpFrom"));
+         //p.CtJumpFrom = GetAttr(n, "JumpFrom", "9999");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Jump_To,
+                     GetAttr(c, "JumpTo"));
+         //p.CtJumpTo = GetAttr(n, "JumpTo", "0000");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Increment_Value,
+                     GetAttr(c, "Increment"));
+         //p.CtIncrement = GetAttr(n, "Increment", "01");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Direction_Value,
+                     GetAttr(c, "CountUp"));
+         //p.CtDirection = GetAttr(n, "CountUp", true);
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Type_Of_Reset_Signal,
+                     GetAttr(c, "Reset"));
+         //p.CtReset = GetAttr(n, "Reset", "0");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Multiplier,
+                     GetAttr(c, "Multiplier"));
+         //p.CtMultiplier = GetAttr(n, "Multiplier", "0001");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Availibility_Of_Zero_Suppression,
+                     GetAttr(c, "ZeroSuppression"));
+         //p.CtZeroSuppression = GetAttr(n, "ZeroSuppression", false);
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Type_Of_Reset_Signal,
+                     GetAttr(c, "ResetSignal"));
+         //p.CtResetSignal = GetAttr(n, "ResetSignal", "0");
+         SetAttribute(eipClassCode.Count,
+                    (byte)eipCount.Availibility_Of_External_Count,
+                    GetAttr(c, "ExternalSignal"));
+         //p.CtExternalSignal = GetAttr(n, "ExternalSignal", "0");
+      }
+
+      // Load Logo
+      private void LogoSettings(XmlNode item) {
+         XmlNode n;
+         n = item.SelectSingleNode("Logo");
+         //p.LogoFilter = GetAttr(n, "Filter", 84);
+         //p.LogoReverseVideo = GetAttr(n, "ReverseVideo", false);
+         //p.LogoSource = GetAttr(n, "Source", "");
+         //p.LogoLength = GetAttr(n, "LogoLength", 1);
+         //p.LogoRegistration = GetAttr(n, "Registration", -1);
+         //p.LogoSource = GetAttr(n, "Source", "");
+         //p.ScaledImage = GetLogoScaledImage(p, n);
+         n = item.SelectSingleNode("Text");
+         //if (n == null) {
+         //   p.LogoItemText = string.Empty;
+         //} else {
+         //   string ItemText = GetValue(n, "<TEXT>");
+         //   string it = "";
+         //   if (ItemText.Length > 0) {
+         //      for (int i = 0; i < ItemText.Length; i += 4) {
+         //         it += (char)Convert.ToInt16(ItemText.Substring(i, 4), 16);
+         //      }
+         //      p.LogoItemText = it;
+         //   }
+         //}
+      }
+
+      // Load Calendar Block
+      private void CalendarSettings(XmlNode item) {
+         XmlNode n;
+         n = item.SelectSingleNode("Date");
+         //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
+
+         n = item.SelectSingleNode("Date/Offset");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Year,
+                   GetAttr(n, "Year"));
+         //p.DtYearOffset = GetAttr(n, "Year", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Month,
+                   GetAttr(n, "Month"));
+         //p.DtMonthOffset = GetAttr(n, "Month", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Day,
+                   GetAttr(n, "Day"));
+         //p.DtDayOffset = GetAttr(n, "Day", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Hour,
+                   GetAttr(n, "Hour"));
+         //p.DtHourOffset = GetAttr(n, "Hour", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Minute,
+                   GetAttr(n, "Minute"));
+         //p.DtMinuteOffset = GetAttr(n, "Minute", "0000");
+
+         n = item.SelectSingleNode("Date/ZeroSuppress");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Year,
+                   GetAttr(n, "Year"));
+         //p.DtYearZS = GetAttr(n, "Year", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Month,
+                   GetAttr(n, "Month"));
+         //p.DtMonthZS = GetAttr(n, "Month", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Day,
+                   GetAttr(n, "Day"));
+         //p.DtDayZS = GetAttr(n, "Day", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Hour,
+                   GetAttr(n, "Hour"));
+         //p.DtHourZS = GetAttr(n, "Hour", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Minute,
+                   GetAttr(n, "Minute"));
+         //p.DtMinuteZS = GetAttr(n, "Minute", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Weeks,
+                   GetAttr(n, "Week"));
+         //p.DtWeekZS = GetAttr(n, "Week", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Day_Of_Week,
+                   GetAttr(n, "DayOfWeek"));
+         //p.DtDayOfWeekZS = GetAttr(n, "DayOfWeek", false);
+
+         n = item.SelectSingleNode("Date/EnableSubstitution");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Year,
+                   GetAttr(n, "Year"));
+         //p.DtYearSub = GetAttr(n, "Year", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Month,
+                   GetAttr(n, "Month"));
+         //p.DtMonthSub = GetAttr(n, "Month", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Day,
+                   GetAttr(n, "Day"));
+         //p.DtDaySub = GetAttr(n, "Day", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Hour,
+                   GetAttr(n, "Hour"));
+         //p.DtHourSub = GetAttr(n, "Hour", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Minute,
+                   GetAttr(n, "Minute"));
+         //p.DtMinuteSub = GetAttr(n, "Minute", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Weeks,
+                   GetAttr(n, "Week"));
+         //p.DtWeekSub = GetAttr(n, "Week", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Day_Of_Week,
+                   GetAttr(n, "DayOfWeek"));
+         //p.DtDayOfWeekSub = GetAttr(n, "DayOfWeek", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Calendar_Block_Number_In_Item,
+                   GetAttr(n, "SubstitutionRule"));
+         //p.DTSubRule = GetAttr(n, "SubstitutionRule", "01");
       }
 
       #endregion
@@ -797,8 +945,16 @@ namespace HitachiEIP {
 
       // Set one attribute based on the Set Property
       private void SetAttribute(eipClassCode Class, byte Attribute, int n) {
-         // <TODO> Data is not always int
-         bool successful = EIP.WriteOneAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Set.Len));
+         AttrData attr = Data.AttrDict[Class, Attribute];
+         byte[] data = EIP.ToBytes((uint)n, attr.Set.Len);
+         bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
+      }
+
+      // Set one attribute based on the Set Property
+      private void SetAttribute(eipClassCode Class, byte Attribute, string s) {
+         AttrData attr = Data.AttrDict[Class, Attribute];
+         byte[] data = EIP.FormatOutput(s, attr.Set);
+         bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
       // Set one attribute based on the Set Property
@@ -904,7 +1060,7 @@ namespace HitachiEIP {
          return result;
       }
 
-      private string GetAttr(XmlNode node, string AttrName, string DefaultValue) {
+      private string GetAttr(XmlNode node, string AttrName, string DefaultValue = "?") {
          try {
             return node.Attributes[AttrName].Value;
          } catch (Exception e) {
