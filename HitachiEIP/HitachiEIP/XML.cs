@@ -717,8 +717,8 @@ namespace HitachiEIP {
 
       // Load Count Block
       private void CountSettings(XmlNode item) {
-         XmlNode n;
-         n = item.SelectSingleNode("Text");
+         XmlNode c;
+         c = item.SelectSingleNode("Text");
          //SetAttribute(eipClassCode.Count,
          //            (byte)eipCount.Character_Orientation,
          //            GetAttr(c, "Orientation"));
@@ -729,19 +729,57 @@ namespace HitachiEIP {
          string initValue = GetAttr(n, "InitialValue", "0000");
          //p.CtWidth = initValue.Length;
          //p.CtInitialValue = initValue;
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Range_1,
+                     GetAttr(c, "Range1"));
          //p.CtRangeStart = GetAttr(n, "Range1", "0000");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Range_2,
+                     GetAttr(c, "Range2"));
          //p.CtRangeEnd = GetAttr(n, "Range2", "9999");
+         SetAttribute(eipClassCode.Count,
+                   (byte)eipCount.Update_Unit_Halfway,
+                   GetAttr(c, "UpdateIP"));
          //p.CtUpdateIP = GetAttr(n, "UpdateIP", "0000");
+         SetAttribute(eipClassCode.Count,
+                  (byte)eipCount.Update_Unit_Unit,
+                  GetAttr(c, "UpdateUnit"));
          //p.CtUpdateUnit = GetAttr(n, "UpdateUnit", "0001");
+         SetAttribute(eipClassCode.Count,
+                    (byte)eipCount.Jump_From,
+                    GetAttr(c, "JumpFrom"));
          //p.CtJumpFrom = GetAttr(n, "JumpFrom", "9999");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Jump_To,
+                     GetAttr(c, "JumpTo"));
          //p.CtJumpTo = GetAttr(n, "JumpTo", "0000");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Increment_Value,
+                     GetAttr(c, "Increment"));
          //p.CtIncrement = GetAttr(n, "Increment", "01");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Direction_Value,
+                     GetAttr(c, "CountUp"));
          //p.CtDirection = GetAttr(n, "CountUp", true);
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Type_Of_Reset_Signal,
+                     GetAttr(c, "Reset"));
          //p.CtReset = GetAttr(n, "Reset", "0");
-         //p.CtReset = GetAttr(n, "Reset", "0");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Count_Multiplier,
+                     GetAttr(c, "Multiplier"));
          //p.CtMultiplier = GetAttr(n, "Multiplier", "0001");
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Availibility_Of_Zero_Suppression,
+                     GetAttr(c, "ZeroSuppression"));
          //p.CtZeroSuppression = GetAttr(n, "ZeroSuppression", false);
+         SetAttribute(eipClassCode.Count,
+                     (byte)eipCount.Type_Of_Reset_Signal,
+                     GetAttr(c, "ResetSignal"));
          //p.CtResetSignal = GetAttr(n, "ResetSignal", "0");
+         SetAttribute(eipClassCode.Count,
+                    (byte)eipCount.Availibility_Of_External_Count,
+                    GetAttr(c, "ExternalSignal"));
          //p.CtExternalSignal = GetAttr(n, "ExternalSignal", "0");
       }
 
@@ -778,29 +816,89 @@ namespace HitachiEIP {
          //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
 
          n = item.SelectSingleNode("Date/Offset");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Year,
+                   GetAttr(n, "Year"));
          //p.DtYearOffset = GetAttr(n, "Year", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Month,
+                   GetAttr(n, "Month"));
          //p.DtMonthOffset = GetAttr(n, "Month", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Day,
+                   GetAttr(n, "Day"));
          //p.DtDayOffset = GetAttr(n, "Day", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Hour,
+                   GetAttr(n, "Hour"));
          //p.DtHourOffset = GetAttr(n, "Hour", "0000");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Offset_Minute,
+                   GetAttr(n, "Minute"));
          //p.DtMinuteOffset = GetAttr(n, "Minute", "0000");
 
          n = item.SelectSingleNode("Date/ZeroSuppress");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Year,
+                   GetAttr(n, "Year"));
          //p.DtYearZS = GetAttr(n, "Year", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Month,
+                   GetAttr(n, "Month"));
          //p.DtMonthZS = GetAttr(n, "Month", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Day,
+                   GetAttr(n, "Day"));
          //p.DtDayZS = GetAttr(n, "Day", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Hour,
+                   GetAttr(n, "Hour"));
          //p.DtHourZS = GetAttr(n, "Hour", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Minute,
+                   GetAttr(n, "Minute"));
          //p.DtMinuteZS = GetAttr(n, "Minute", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Weeks,
+                   GetAttr(n, "Week"));
          //p.DtWeekZS = GetAttr(n, "Week", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Zero_Suppress_Day_Of_Week,
+                   GetAttr(n, "DayOfWeek"));
          //p.DtDayOfWeekZS = GetAttr(n, "DayOfWeek", false);
 
          n = item.SelectSingleNode("Date/EnableSubstitution");
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Year,
+                   GetAttr(n, "Year"));
          //p.DtYearSub = GetAttr(n, "Year", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Month,
+                   GetAttr(n, "Month"));
          //p.DtMonthSub = GetAttr(n, "Month", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Day,
+                   GetAttr(n, "Day"));
          //p.DtDaySub = GetAttr(n, "Day", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Hour,
+                   GetAttr(n, "Hour"));
          //p.DtHourSub = GetAttr(n, "Hour", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Minute,
+                   GetAttr(n, "Minute"));
          //p.DtMinuteSub = GetAttr(n, "Minute", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Weeks,
+                   GetAttr(n, "Week"));
          //p.DtWeekSub = GetAttr(n, "Week", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Substitute_Rule_Day_Of_Week,
+                   GetAttr(n, "DayOfWeek"));
          //p.DtDayOfWeekSub = GetAttr(n, "DayOfWeek", false);
+         SetAttribute(eipClassCode.Calendar,
+                   (byte)eipCalendar.Calendar_Block_Number_In_Item,
+                   GetAttr(n, "SubstitutionRule"));
          //p.DTSubRule = GetAttr(n, "SubstitutionRule", "01");
       }
 
