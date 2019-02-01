@@ -270,6 +270,9 @@ namespace HitachiEIP {
          new string[] { "None", "Encoder", "Auto" },                  // 16 - Product speed matching
          new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
          new string[] { "Time Setup", "Until End of Print" },         // 18 - Target Sensor Filter
+         new string[] { "4×5", "5×5", "5×8(5×7)", "9×8(9×7)", "7×10", "10×12", "12×16", "18×24", "24×32",
+                        "11×11", "5×3(Chimney)", "5×5(Chimney)", "7×5(Chimney)", "30×40", "36×48"  }, 
+                                                                      // 19 - User Pattern Font Types
       };
 
       // Class Codes to Attributes

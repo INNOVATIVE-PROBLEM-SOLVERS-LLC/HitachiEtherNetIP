@@ -533,7 +533,7 @@ namespace HitachiEIP {
          if (stream != null) {
             try {
                // Allow for up to 1 second for a response
-               stream.ReadTimeout = 1000;
+               stream.ReadTimeout = 5000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {
