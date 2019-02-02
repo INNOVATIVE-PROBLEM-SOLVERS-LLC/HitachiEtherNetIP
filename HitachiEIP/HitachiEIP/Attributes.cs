@@ -726,7 +726,14 @@ namespace HitachiEIP {
       ComboBox cbUpCount;
       Button UpGet;
       Button UpSet;
-      PictureBox pbUpMain;
+
+      Button UpBrowse;
+      Button UpSaveAs;
+
+      // Grid objects
+      GroupBox grpGrid;
+      PictureBox pbGrid;
+      HScrollBar hsbGrid;
 
       private void BuildUserPatternControls() {
          if (IsUserPattern) {
@@ -773,9 +780,51 @@ namespace HitachiEIP {
             UpControls.Controls.Add(UpSet);
             UpSet.Click += UpSet_Click;
 
-            pbUpMain = new PictureBox();
-            UpControls.Controls.Add(pbUpMain);
+            UpBrowse = new Button() { Text = "Browse" };
+            UpControls.Controls.Add(UpBrowse);
+            UpBrowse.Click += UpBrowse_Click;
 
+            UpSaveAs = new Button() { Text = "Save As" };
+            UpControls.Controls.Add(UpSaveAs);
+            UpSaveAs.Click += UpSaveAs_Click;
+
+            grpGrid = new GroupBox() {  Text = "Scaled Image Grid", BackColor = Color.LightBlue };
+            UpControls.Controls.Add(grpGrid);
+            grpGrid.Paint += GroupBorder_Paint;
+
+            hsbGrid = new HScrollBar() { };
+            UpControls.Controls.Add(hsbGrid);
+
+            pbGrid = new PictureBox();
+            grpGrid.Controls.Add(pbGrid);
+
+         }
+      }
+
+      private void UpSaveAs_Click(object sender, EventArgs e) {
+
+      }
+
+      private void UpBrowse_Click(object sender, EventArgs e) {
+         string fileName = String.Empty;
+         string logoDirectory;
+
+         using (OpenFileDialog dlg = new OpenFileDialog()) {
+            dlg.AutoUpgradeEnabled = true;
+            dlg.CheckFileExists = true;
+            dlg.CheckPathExists = true;
+            dlg.Multiselect = false;
+            dlg.ValidateNames = true;
+            dlg.Title = "Select Printer Logo file";
+            dlg.Filter = "Printer Logo Files|*.txt";
+            if (dlg.ShowDialog() == DialogResult.OK) {
+               fileName = dlg.FileName;
+               // Rewrite directory
+               logoDirectory = fileName.Substring(0, fileName.LastIndexOf("\\"));
+               //ReadLogoFromFile(fileName);
+               //LoadLogo();
+               SetButtonEnables();
+            }
          }
       }
 
@@ -808,21 +857,30 @@ namespace HitachiEIP {
 
       private void ResizeUserPatternnControls(ref ResizeInfo R) {
          if (IsUserPattern) {
-            pbUpMain.Image = new Bitmap((int)(R.H * 3), (int)(R.W * 3));
-            pbUpMain.BackColor = Color.LightGreen;
+            pbGrid.Image = new Bitmap((int)(R.H * 3), (int)(R.W * 3));
+            pbGrid.BackColor = Color.LightGreen;
             int groupStart = (labels.Length + 1) * 2;
             int groupHeight = tclHeight - groupStart - 5;
             Utils.ResizeObject(ref R, UpControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
             {
-               Utils.ResizeObject(ref R, lblUpFont, 1, 1, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpFont, 1, 4, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpPosition, 1, 7, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpPosition, 1, 10, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpCount, 1, 13, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpCount, 1, 16, 1.5f, 3);
-               Utils.ResizeObject(ref R, UpGet, 1, tclWidth - 9, 1.5f, 3);
-               Utils.ResizeObject(ref R, UpSet, 1, tclWidth - 5, 1.5f, 3);
-               Utils.ResizeObject(ref R, pbUpMain, 3, 1, 3, 3);
+               Utils.ResizeObject(ref R, lblUpFont, 2, 1, 1.5f, 3);
+               Utils.ResizeObject(ref R, cbUpFont, 2, 4, 1.5f, 3);
+               Utils.ResizeObject(ref R, lblUpPosition, 2, 7, 1.5f, 3);
+               Utils.ResizeObject(ref R, cbUpPosition, 2, 10, 1.5f, 3);
+               Utils.ResizeObject(ref R, lblUpCount, 2, 13, 1.5f, 3);
+               Utils.ResizeObject(ref R, cbUpCount, 2, 16, 1.5f, 3);
+               Utils.ResizeObject(ref R, UpGet, 1.75f, tclWidth - 9, 2, 3);
+               Utils.ResizeObject(ref R, UpSet, 1.75f, tclWidth - 5, 2, 3);
+
+               Utils.ResizeObject(ref R, grpGrid, 4, 1, groupHeight - 10, tclWidth - 2);
+               {
+                  Utils.ResizeObject(ref R, pbGrid, 3, 1, 3, 3);
+               }
+               Utils.ResizeObject(ref R, hsbGrid, groupHeight - 6, 1, 2, tclWidth - 2);
+
+
+               Utils.ResizeObject(ref R, UpBrowse, groupHeight - 3, tclWidth - 9, 2, 3);
+               Utils.ResizeObject(ref R, UpSaveAs, groupHeight - 3, tclWidth - 5, 2, 3);
             }
          }
       }
