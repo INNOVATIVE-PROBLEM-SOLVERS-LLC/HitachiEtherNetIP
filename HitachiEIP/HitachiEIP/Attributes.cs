@@ -49,6 +49,12 @@ namespace HitachiEIP {
 
       int half;
 
+      bool IsSubstitution = false;
+      Substitution Substitution;
+
+      bool IsUserPattern = false;
+      UserPattern UserPattern;
+
       #endregion
 
       #region Constructors and destructors
@@ -57,8 +63,12 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         IsSubstitution = Equals(tab, parent.tabSubstitution);
-         IsUserPattern = Equals(tab, parent.tabUserPattern);
+         if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
+            Substitution = new Substitution(EIP, tab);
+         }
+         if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
+            UserPattern = new UserPattern(EIP, tab);
+         }
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
          attrs = new AttrData[attributes.Length];
@@ -341,8 +351,8 @@ namespace HitachiEIP {
          setAll.Click += SetAll_Click;
 
          // Tab specific controls
-         BuildSubstitutionControls();
-         BuildUserPatternControls();
+         Substitution?.BuildSubstitutionControls();
+         UserPattern?.BuildUserPatternControls();
 
       }
 
@@ -484,8 +494,10 @@ namespace HitachiEIP {
          }
 
          // Tab specific controls
-         ResizeSubstitutionControls(ref R);
-         ResizeUserPatternnControls(ref R);
+         int groupStart = (labels.Length + 1) * 2;
+         int groupHeight = tclHeight - groupStart - 5;
+         Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeUserPatternnControls(ref R, groupStart, groupHeight, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
@@ -548,8 +560,8 @@ namespace HitachiEIP {
          getAll.Enabled = anyGets;
 
          SetExtraButtonEnables(null, null);
-         SetSubstitutionButtonEnables();
-         SetUpButtonEnables();
+         Substitution?.SetSubstitutionButtonEnables();
+         UserPattern?.SetUpButtonEnables();
 
       }
 
@@ -566,543 +578,6 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region Tab Specific Routines (Substitution)
-
-      // Substitution Specific Controls
-      bool IsSubstitution = false;
-      GroupBox SubControls;
-      Label lblCategory;
-      ComboBox cbCategory;
-      Button subGet;
-      Button subSet;
-      Label[][] subLabels;
-      TextBox[][] subTexts;
-      int[] startWith = new[] { 19, 1, 1, 0, 0, 1, 1 };
-      eipSubstitution_rules[] at = new eipSubstitution_rules[] {
-         eipSubstitution_rules.Year,
-         eipSubstitution_rules.Month,
-         eipSubstitution_rules.Day,
-         eipSubstitution_rules.Hour,
-         eipSubstitution_rules.Minute,
-         eipSubstitution_rules.Week,
-         eipSubstitution_rules.Day_Of_Week,
-      };
-
-      int lastCategory = -1;
-
-      private void BuildSubstitutionControls() {
-         if (IsSubstitution) {
-            SubControls = new GroupBox() { Text = "Substitution Rules" };
-            tab.Controls.Add(SubControls);
-            SubControls.Paint += GroupBorder_Paint;
-
-            lblCategory = new Label() { Text = "Category", TextAlign = ContentAlignment.TopRight };
-            SubControls.Controls.Add(lblCategory);
-
-            cbCategory = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            SubControls.Controls.Add(cbCategory);
-            cbCategory.SelectedIndexChanged += CbCategory_SelectedIndexChanged;
-            for (int i = 3; i < labels.Length; i++) {
-               cbCategory.Items.Add(labels[i].Text);
-            }
-
-            subGet = new Button() { Text = "Get" };
-            SubControls.Controls.Add(subGet);
-            subGet.Click += SubGet_Click;
-
-            subSet = new Button() { Text = "Set" };
-            SubControls.Controls.Add(subSet);
-            subSet.Click += SubSet_Click;
-
-            subLabels = new Label[][] {
-               new Label[25],
-               new Label[12],
-               new Label[31],
-               new Label[24],
-               new Label[60],
-               new Label[53],
-               new Label[7],
-            };
-            subTexts = new TextBox[][] {
-               new TextBox[25],
-               new TextBox[12],
-               new TextBox[31],
-               new TextBox[24],
-               new TextBox[60],
-               new TextBox[53],
-               new TextBox[7],
-            };
-            for (int i = 0; i < subLabels.GetLength(0); i++) {
-               for (int j = 0; j < subLabels[i].Length; j++) {
-                  subLabels[i][j] = new Label() { Text = (j + startWith[i]).ToString("D2"), Visible = false, TextAlign = ContentAlignment.TopRight };
-                  SubControls.Controls.Add(subLabels[i][j]);
-                  subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center };
-                  SubControls.Controls.Add(subTexts[i][j]);
-               }
-            }
-         }
-      }
-
-      private void SubGet_Click(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-
-         }
-      }
-
-      private void SubSet_Click(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-            bool OpenCloseForward = !EIP.ForwardIsOpen;
-            if (OpenCloseForward) {
-               EIP.ForwardOpen();
-            }
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               byte[] data = EIP.ToBytes((char)(i + startWith[lastCategory]) + subTexts[lastCategory][i].Text + "\x00");
-               EIP.WriteOneAttribute(eipClassCode.Substitution_rules, (byte)at[lastCategory], data);
-            }
-            if (OpenCloseForward && EIP.ForwardIsOpen) {
-               EIP.ForwardClose();
-            }
-         }
-      }
-
-      private void CbCategory_SelectedIndexChanged(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               subLabels[lastCategory][i].Visible = false;
-               subTexts[lastCategory][i].Visible = false;
-            }
-         }
-         lastCategory = cbCategory.SelectedIndex;
-         for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-            subLabels[lastCategory][i].Visible = true;
-            subTexts[lastCategory][i].Visible = true;
-         }
-         ResizeSubstitutionControls(ref R);
-      }
-
-      private void ResizeSubstitutionControls(ref ResizeInfo R) {
-         if (IsSubstitution) {
-            int groupStart = (labels.Length + 1) * 2;
-            int groupHeight = tclHeight - groupStart - 5;
-            Utils.ResizeObject(ref R, SubControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
-            {
-               Utils.ResizeObject(ref R, lblCategory, 1, 1, 1.5f, 4);
-               Utils.ResizeObject(ref R, cbCategory, 1, 5, 1.5f, 6);
-               Utils.ResizeObject(ref R, subGet, 1, tclWidth - 9, 1.5f, 3);
-               Utils.ResizeObject(ref R, subSet, 1, tclWidth - 5, 1.5f, 3);
-            }
-         }
-         if (lastCategory >= 0) {
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               int r = 3 + 2 * (int)(i / 15);
-               float c = (i % 15) * 2.25f + 0.25f;
-               Utils.ResizeObject(ref R, subLabels[lastCategory][i], r, c, 1.5f, 1);
-               Utils.ResizeObject(ref R, subTexts[lastCategory][i], r, c + 1, 1.5f, 1.25f);
-            }
-         }
-      }
-
-      private void SetSubstitutionButtonEnables() {
-         if (IsSubstitution) {
-
-         }
-      }
-
-      #endregion
-
-      #region Tab Specific Routines (User Pattern)
-
-      // User Pattern Specific Controls
-      bool IsUserPattern = false;
-      GroupBox UpControls;
-      Label lblUpFont;
-      ComboBox cbUpFont;
-      Label lblUpPosition;
-      ComboBox cbUpPosition;
-      Label lblUpCount;
-      ComboBox cbUpCount;
-      Button UpGet;
-      Button UpSet;
-
-      Button UpBrowse;
-      Button UpSaveAs;
-
-      // Grid objects
-      GroupBox grpGrid;
-      PictureBox pbGrid;
-      HScrollBar hsbGrid;
-
-      //
-      bool isValid = true;
-      string fileName;
-      string logoName;
-      string font;
-      int charHeight = 0;
-      int charWidth = 0;
-      int pos;
-      int ics;
-      int count = 0;
-      int registration;
-      string[] pattern = null;
-
-
-      private void BuildUserPatternControls() {
-         if (IsUserPattern) {
-            UpControls = new GroupBox() { Text = "User Pattern Rules" };
-            tab.Controls.Add(UpControls);
-            UpControls.Paint += GroupBorder_Paint;
-
-            lblUpFont = new Label() { Text = "Font", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpFont);
-
-            cbUpFont = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpFont);
-            cbUpFont.SelectedIndexChanged += cbUpFont_SelectedIndexChanged;
-            for (int i = 0; i < Data.DropDowns[19].Length; i++) {
-               cbUpFont.Items.Add(Data.DropDowns[19][i]);
-            }
-
-            lblUpPosition = new Label() { Text = "Position", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpPosition);
-
-            cbUpPosition = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpPosition);
-            cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
-            for (int i = 0; i < 200; i++) {
-               cbUpPosition.Items.Add(i.ToString("D3"));
-            }
-
-            lblUpCount = new Label() { Text = "Count", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpCount);
-
-            cbUpCount = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpCount);
-            cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
-            for (int i = 1; i < 10; i++) {
-               cbUpCount.Items.Add(i.ToString("D0"));
-            }
-            cbUpCount.SelectedIndex = 0;
-
-            UpGet = new Button() { Text = "Get" };
-            UpControls.Controls.Add(UpGet);
-            UpGet.Click += UpGet_Click;
-
-            UpSet = new Button() { Text = "Set" };
-            UpControls.Controls.Add(UpSet);
-            UpSet.Click += UpSet_Click;
-
-            UpBrowse = new Button() { Text = "Browse" };
-            UpControls.Controls.Add(UpBrowse);
-            UpBrowse.Click += UpBrowse_Click;
-
-            UpSaveAs = new Button() { Text = "Save As" };
-            UpControls.Controls.Add(UpSaveAs);
-            UpSaveAs.Click += UpSaveAs_Click;
-
-            grpGrid = new GroupBox() {  Text = "Scaled Image Grid", BackColor = Color.LightBlue };
-            UpControls.Controls.Add(grpGrid);
-            grpGrid.Paint += GroupBorder_Paint;
-
-            hsbGrid = new HScrollBar() { };
-            UpControls.Controls.Add(hsbGrid);
-
-            pbGrid = new PictureBox();
-            grpGrid.Controls.Add(pbGrid);
-
-         }
-      }
-
-      private void UpSaveAs_Click(object sender, EventArgs e) {
-
-      }
-
-      private void UpBrowse_Click(object sender, EventArgs e) {
-         string fileName = String.Empty;
-         long[,] stripes;
-
-         using (OpenFileDialog dlg = new OpenFileDialog()) {
-            dlg.AutoUpgradeEnabled = true;
-            dlg.CheckFileExists = true;
-            dlg.CheckPathExists = true;
-            dlg.Multiselect = false;
-            dlg.ValidateNames = true;
-            dlg.Title = "Select Printer Logo file";
-            dlg.Filter = "Printer Logo Files|*.txt";
-            if (dlg.ShowDialog() == DialogResult.OK) {
-               fileName = dlg.FileName;
-               if (ReadLogoFromFile(fileName, out stripes)) {
-                  pbGrid.Image = LoadLogo(stripes);
-                  pbGrid.Refresh();
-               }
-               SetButtonEnables();
-            }
-         }
-      }
-
-      private Bitmap LoadLogo(long[,] stripes) {
-         Bitmap result = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1), charHeight);
-         using (Graphics g = Graphics.FromImage(result)) {
-            for (int i = 0; i < stripes.GetLength(0); i++) {
-               for (int j = 0; j < stripes.GetLength(1); j++) {
-                  long b = 1;
-                  for (int k = charHeight - 1; k >= 0; k--) {
-                     if ((stripes[i, j] & b) > 0) {
-                        result.SetPixel(i * charWidth + j, k, Color.Black);
-                     } else {
-                        result.SetPixel(i * charWidth + j, k, Color.White);
-                     }
-                     b <<= 1;
-                  }
-               }
-            }
-         }
-         return result;
-      }
-
-      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
-      }
-
-      private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
-      }
-
-      private void UpSet_Click(object sender, EventArgs e) {
-
-      }
-
-      private void UpGet_Click(object sender, EventArgs e) {
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
-         for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
-            byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
-            AttrData attr = Data.AttrDict[eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed];
-            bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, attr, data, out string val);
-         }
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
-      }
-
-      private void ResizeUserPatternnControls(ref ResizeInfo R) {
-         if (IsUserPattern) {
-            pbGrid.Image = new Bitmap((int)(R.H * 3), (int)(R.W * 3));
-            pbGrid.BackColor = Color.LightGreen;
-            int groupStart = (labels.Length + 1) * 2;
-            int groupHeight = tclHeight - groupStart - 5;
-            Utils.ResizeObject(ref R, UpControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
-            {
-               Utils.ResizeObject(ref R, lblUpFont, 2, 1, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpFont, 2, 4, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpPosition, 2, 7, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpPosition, 2, 10, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpCount, 2, 13, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpCount, 2, 16, 1.5f, 3);
-               Utils.ResizeObject(ref R, UpGet, 1.75f, tclWidth - 9, 2, 3);
-               Utils.ResizeObject(ref R, UpSet, 1.75f, tclWidth - 5, 2, 3);
-
-               Utils.ResizeObject(ref R, grpGrid, 4, 1, groupHeight - 10, tclWidth - 2);
-               {
-                  Utils.ResizeObject(ref R, pbGrid, 2, 1, groupHeight - 13, tclWidth - 4);
-               }
-               Utils.ResizeObject(ref R, hsbGrid, groupHeight - 6, 1, 2, tclWidth - 2);
-
-
-               Utils.ResizeObject(ref R, UpBrowse, groupHeight - 3, tclWidth - 9, 2, 3);
-               Utils.ResizeObject(ref R, UpSaveAs, groupHeight - 3, tclWidth - 5, 2, 3);
-            }
-         }
-      }
-
-      internal bool ReadLogoFromFile(string fullFileName, out long[,] stripes) {
-         stripes = null;
-         try {
-            isValid = true;
-
-            if (File.Exists(fullFileName)) {
-               fileName = fullFileName;
-               logoName = Path.GetFileNameWithoutExtension(fileName);
-               using (StreamReader sr = new StreamReader(fileName)) {
-                  string[] header = sr.ReadLine().Split(',');
-                  if (header.Length > 2) {
-                     font = header[0];
-                     if (GetFontInfo(font, out charHeight, out charWidth, out pos)) {
-                     } else {
-                        isValid = false;
-                     }
-                     if (!int.TryParse(header[1], out ics) || !int.TryParse(header[2], out count)) {
-                        isValid = false;
-                     } else {
-                        if (header.Length > 3) {
-                           if (!int.TryParse(header[3], out registration)) {
-                              isValid = false;
-                           }
-                        } else {
-                           registration = -1;
-                        }
-                     }
-                  }
-                  if (isValid) {
-                     pattern = new string[count];
-                     for (int i = 0; i < count; i++) {
-                        if (sr.EndOfStream) {
-                           isValid = false;
-                        } else {
-                           pattern[i] = sr.ReadLine();
-                        }
-                     }
-                     if (!sr.EndOfStream) {
-                        isValid = false;
-                     }
-                  }
-                  sr.Close();
-                  stripes = BuildStripes(charHeight, charWidth, pattern);
-               }
-            } else {
-               isValid = false;
-            }
-         } catch (Exception e) {
-            isValid = false;
-         }
-         return isValid;
-      }
-
-      private long[,] BuildStripes(int charHeight, int charWidth, string[] pattern) {
-         long[,] result = null;
-         int stride = ((charHeight + 7) / 8) * 2;
-         result = new long[pattern.Length, charWidth];
-         for (int i = 0; i < pattern.Length; i++) {
-            int l = pattern[i].Length / stride;
-            for (int j = 0; j < l; j++) {
-               long n = 0;
-               string s = pattern[i].Substring(j * stride, stride);
-               for (int k = 0; k < s.Length / 2; k++) {
-                  n += (Convert.ToInt64(s.Substring(k * 2, 2), 16) << k * 8);
-               }
-               result[i, j] = n;
-            }
-         }
-         return result;
-      }
-
-      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int pos) {
-         bool IsValid = true;
-         switch (font.Replace('X', 'x')) {
-            case "0":
-            case "4x5":
-               charHeight = 5;
-               charWidth = 8;
-               pos = 0;
-               break;
-            case "1":
-            case "5x5":
-               charHeight = 5;
-               charWidth = 8;
-               pos = 1;
-               break;
-            case "2":
-            case "5x8":
-            case "5x7":
-            case "5x8(5x7)":
-               charHeight = 8;
-               charWidth = 8;
-               pos = 2;
-               break;
-            case "3":
-            case "9x8":
-            case "9x7":
-            case "9x8(9x7)":
-               charHeight = 8;
-               charWidth = 16;
-               pos = 3;
-               break;
-            case "4":
-            case "7x10":
-               charHeight = 10;
-               charWidth = 8;
-               pos = 4;
-               break;
-            case "5":
-            case "10x12":
-               charHeight = 12;
-               charWidth = 16;
-               pos = 5;
-               break;
-            case "6":
-            case "12x16":
-               charHeight = 16;
-               charWidth = 16;
-               pos = 6;
-               break;
-            case "7":
-            case "18x24":
-               charHeight = 24;
-               charWidth = 24;
-               pos = 7;
-               break;
-            case "8":
-            case "24x32":
-               charHeight = 32;
-               charWidth = 32;
-               pos = 8;
-               break;
-            case "9":
-            case "11x11":
-               charHeight = 11;
-               charWidth = 16;
-               pos = 9;
-               break;
-            case "10":
-            case "5x3(Chimney)":
-               charHeight = 3;
-               charWidth = 5;
-               pos = 10;
-               break;
-            case "11":
-            case "5x5(Chimney)":
-               charHeight = 5;
-               charWidth = 5;
-               pos = 11;
-               break;
-            case "12":
-            case "7x5(Chimney)":
-               charHeight = 5;
-               charWidth = 7;
-               pos = 12;
-               break;
-            case "13":
-            case "30x40":
-               charHeight = 40;
-               charWidth = 40;
-               pos = 13;
-               break;
-            case "14":
-            case "36x48":
-               charHeight = 48;
-               charWidth = 48;
-               pos = 14;
-               break;
-            default:
-               charHeight = 0;
-               charWidth = 0;
-               pos = -1;
-               IsValid = false;
-               break;
-         }
-         return IsValid;
-      }
-
-      private void SetUpButtonEnables() {
-         if (IsUserPattern) {
-            bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0;
-            UpGet.Enabled = UpEnabled;
-            UpSet.Enabled = UpEnabled;
-         }
-      }
-
-      #endregion
-
    }
+
 }

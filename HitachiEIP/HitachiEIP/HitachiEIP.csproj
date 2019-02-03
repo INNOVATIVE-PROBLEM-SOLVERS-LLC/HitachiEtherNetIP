@@ -91,6 +91,8 @@
       <DependentUpon>AttrProperties.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Substitution.cs" />
+    <Compile Include="UserPattern.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="XML.cs" />
     <EmbeddedResource Include="HitachiBrowser.resx">
