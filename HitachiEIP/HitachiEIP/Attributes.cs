@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
@@ -52,6 +49,12 @@ namespace HitachiEIP {
 
       int half;
 
+      bool IsSubstitution = false;
+      Substitution Substitution;
+
+      bool IsUserPattern = false;
+      UserPattern UserPattern;
+
       #endregion
 
       #region Constructors and destructors
@@ -60,8 +63,12 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         IsSubstitution = Equals(tab, parent.tabSubstitution);
-         IsUserPattern = Equals(tab, parent.tabUserPattern);
+         if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
+            Substitution = new Substitution(EIP, tab);
+         }
+         if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
+            UserPattern = new UserPattern(EIP, tab);
+         }
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
          attrs = new AttrData[attributes.Length];
@@ -344,8 +351,8 @@ namespace HitachiEIP {
          setAll.Click += SetAll_Click;
 
          // Tab specific controls
-         BuildSubstitutionControls();
-         BuildUserPatternControls();
+         Substitution?.BuildSubstitutionControls();
+         UserPattern?.BuildUserPatternControls();
 
       }
 
@@ -487,8 +494,10 @@ namespace HitachiEIP {
          }
 
          // Tab specific controls
-         ResizeSubstitutionControls(ref R);
-         ResizeUserPatternnControls(ref R);
+         int groupStart = (labels.Length + 1) * 2;
+         int groupHeight = tclHeight - groupStart - 5;
+         Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeUserPatternnControls(ref R, groupStart, groupHeight, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
@@ -551,8 +560,8 @@ namespace HitachiEIP {
          getAll.Enabled = anyGets;
 
          SetExtraButtonEnables(null, null);
-         SetSubstitutionButtonEnables();
-         SetUpButtonEnables();
+         Substitution?.SetSubstitutionButtonEnables();
+         UserPattern?.SetUpButtonEnables();
 
       }
 
@@ -569,273 +578,6 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region Tab Specific Routines (Substitution)
-
-      // Substitution Specific Controls
-      bool IsSubstitution = false;
-      GroupBox SubControls;
-      Label lblCategory;
-      ComboBox cbCategory;
-      Button subGet;
-      Button subSet;
-      Label[][] subLabels;
-      TextBox[][] subTexts;
-      int[] startWith = new[] { 19, 1, 1, 0, 0, 1, 1 };
-      eipSubstitution_rules[] at = new eipSubstitution_rules[] {
-         eipSubstitution_rules.Year,
-         eipSubstitution_rules.Month,
-         eipSubstitution_rules.Day,
-         eipSubstitution_rules.Hour,
-         eipSubstitution_rules.Minute,
-         eipSubstitution_rules.Week,
-         eipSubstitution_rules.Day_Of_Week,
-      };
-
-      int lastCategory = -1;
-
-      private void BuildSubstitutionControls() {
-         if (IsSubstitution) {
-            SubControls = new GroupBox() { Text = "Substitution Rules" };
-            tab.Controls.Add(SubControls);
-            SubControls.Paint += GroupBorder_Paint;
-
-            lblCategory = new Label() { Text = "Category", TextAlign = ContentAlignment.TopRight };
-            SubControls.Controls.Add(lblCategory);
-
-            cbCategory = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            SubControls.Controls.Add(cbCategory);
-            cbCategory.SelectedIndexChanged += CbCategory_SelectedIndexChanged;
-            for (int i = 3; i < labels.Length; i++) {
-               cbCategory.Items.Add(labels[i].Text);
-            }
-
-            subGet = new Button() { Text = "Get" };
-            SubControls.Controls.Add(subGet);
-            subGet.Click += SubGet_Click;
-
-            subSet = new Button() { Text = "Set" };
-            SubControls.Controls.Add(subSet);
-            subSet.Click += SubSet_Click;
-
-            subLabels = new Label[][] {
-               new Label[25],
-               new Label[12],
-               new Label[31],
-               new Label[24],
-               new Label[60],
-               new Label[53],
-               new Label[7],
-            };
-            subTexts = new TextBox[][] {
-               new TextBox[25],
-               new TextBox[12],
-               new TextBox[31],
-               new TextBox[24],
-               new TextBox[60],
-               new TextBox[53],
-               new TextBox[7],
-            };
-            for (int i = 0; i < subLabels.GetLength(0); i++) {
-               for (int j = 0; j < subLabels[i].Length; j++) {
-                  subLabels[i][j] = new Label() { Text = (j + startWith[i]).ToString("D2"), Visible = false, TextAlign = ContentAlignment.TopRight };
-                  SubControls.Controls.Add(subLabels[i][j]);
-                  subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center };
-                  SubControls.Controls.Add(subTexts[i][j]);
-               }
-            }
-         }
-      }
-
-      private void SubGet_Click(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-
-         }
-      }
-
-      private void SubSet_Click(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-            bool OpenCloseForward = !EIP.ForwardIsOpen;
-            if (OpenCloseForward) {
-               EIP.ForwardOpen();
-            }
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               byte[] data = EIP.ToBytes((char)(i + startWith[lastCategory]) + subTexts[lastCategory][i].Text + "\x00");
-               EIP.WriteOneAttribute(eipClassCode.Substitution_rules, (byte)at[lastCategory], data);
-            }
-            if (OpenCloseForward && EIP.ForwardIsOpen) {
-               EIP.ForwardClose();
-            }
-         }
-      }
-
-      private void CbCategory_SelectedIndexChanged(object sender, EventArgs e) {
-         if (lastCategory >= 0) {
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               subLabels[lastCategory][i].Visible = false;
-               subTexts[lastCategory][i].Visible = false;
-            }
-         }
-         lastCategory = cbCategory.SelectedIndex;
-         for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-            subLabels[lastCategory][i].Visible = true;
-            subTexts[lastCategory][i].Visible = true;
-         }
-         ResizeSubstitutionControls(ref R);
-      }
-
-      private void ResizeSubstitutionControls(ref ResizeInfo R) {
-         if (IsSubstitution) {
-            int groupStart = (labels.Length + 1) * 2;
-            int groupHeight = tclHeight - groupStart - 5;
-            Utils.ResizeObject(ref R, SubControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
-            {
-               Utils.ResizeObject(ref R, lblCategory, 1, 1, 1.5f, 4);
-               Utils.ResizeObject(ref R, cbCategory, 1, 5, 1.5f, 6);
-               Utils.ResizeObject(ref R, subGet, 1, tclWidth - 9, 1.5f, 3);
-               Utils.ResizeObject(ref R, subSet, 1, tclWidth - 5, 1.5f, 3);
-            }
-         }
-         if (lastCategory >= 0) {
-            for (int i = 0; i < subLabels[lastCategory].Length; i++) {
-               int r = 3 + 2 * (int)(i / 15);
-               float c = (i % 15) * 2.25f + 0.25f;
-               Utils.ResizeObject(ref R, subLabels[lastCategory][i], r, c, 1.5f, 1);
-               Utils.ResizeObject(ref R, subTexts[lastCategory][i], r, c + 1, 1.5f, 1.25f);
-            }
-         }
-      }
-
-      private void SetSubstitutionButtonEnables() {
-         if (IsSubstitution) {
-
-         }
-      }
-
-      #endregion
-
-      #region Tab Specific Routines (User Pattern)
-
-      // User Pattern Specific Controls
-      bool IsUserPattern = false;
-      GroupBox UpControls;
-      Label lblUpFont;
-      ComboBox cbUpFont;
-      Label lblUpPosition;
-      ComboBox cbUpPosition;
-      Label lblUpCount;
-      ComboBox cbUpCount;
-      Button UpGet;
-      Button UpSet;
-      PictureBox pbUpMain;
-
-      private void BuildUserPatternControls() {
-         if (IsUserPattern) {
-            UpControls = new GroupBox() { Text = "User Pattern Rules" };
-            tab.Controls.Add(UpControls);
-            UpControls.Paint += GroupBorder_Paint;
-
-            lblUpFont = new Label() { Text = "Font", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpFont);
-
-            cbUpFont = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpFont);
-            cbUpFont.SelectedIndexChanged += cbUpFont_SelectedIndexChanged;
-            for (int i = 0; i < Data.DropDowns[19].Length; i++) {
-               cbUpFont.Items.Add(Data.DropDowns[19][i]);
-            }
-
-            lblUpPosition = new Label() { Text = "Position", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpPosition);
-
-            cbUpPosition = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpPosition);
-            cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
-            for (int i = 0; i < 200; i++) {
-               cbUpPosition.Items.Add(i.ToString("D3"));
-            }
-
-            lblUpCount = new Label() { Text = "Count", TextAlign = ContentAlignment.TopRight };
-            UpControls.Controls.Add(lblUpCount);
-
-            cbUpCount = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-            UpControls.Controls.Add(cbUpCount);
-            cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
-            for (int i = 1; i < 10; i++) {
-               cbUpCount.Items.Add(i.ToString("D0"));
-            }
-            cbUpCount.SelectedIndex = 0;
-
-            UpGet = new Button() { Text = "Get" };
-            UpControls.Controls.Add(UpGet);
-            UpGet.Click += UpGet_Click;
-
-            UpSet = new Button() { Text = "Set" };
-            UpControls.Controls.Add(UpSet);
-            UpSet.Click += UpSet_Click;
-
-            pbUpMain = new PictureBox();
-            UpControls.Controls.Add(pbUpMain);
-
-         }
-      }
-
-      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
-      }
-
-      private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
-      }
-
-      private void UpSet_Click(object sender, EventArgs e) {
-
-      }
-
-      private void UpGet_Click(object sender, EventArgs e) {
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
-         for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
-            byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
-            AttrData attr = Data.AttrDict[eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed];
-            bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, attr, data, out string val);
-         }
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
-      }
-
-      private void ResizeUserPatternnControls(ref ResizeInfo R) {
-         if (IsUserPattern) {
-            pbUpMain.Image = new Bitmap((int)(R.H * 3), (int)(R.W * 3));
-            pbUpMain.BackColor = Color.LightGreen;
-            int groupStart = (labels.Length + 1) * 2;
-            int groupHeight = tclHeight - groupStart - 5;
-            Utils.ResizeObject(ref R, UpControls, groupStart + 0.75f, 0.5f, groupHeight, tclWidth - 0.5f);
-            {
-               Utils.ResizeObject(ref R, lblUpFont, 1, 1, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpFont, 1, 4, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpPosition, 1, 7, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpPosition, 1, 10, 1.5f, 3);
-               Utils.ResizeObject(ref R, lblUpCount, 1, 13, 1.5f, 3);
-               Utils.ResizeObject(ref R, cbUpCount, 1, 16, 1.5f, 3);
-               Utils.ResizeObject(ref R, UpGet, 1, tclWidth - 9, 1.5f, 3);
-               Utils.ResizeObject(ref R, UpSet, 1, tclWidth - 5, 1.5f, 3);
-               Utils.ResizeObject(ref R, pbUpMain, 3, 1, 3, 3);
-            }
-         }
-      }
-
-      private void SetUpButtonEnables() {
-         if (IsUserPattern) {
-            bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0;
-            UpGet.Enabled = UpEnabled;
-            UpSet.Enabled = UpEnabled;
-         }
-      }
-
-      #endregion
-
    }
+
 }
