@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
@@ -735,6 +732,20 @@ namespace HitachiEIP {
       PictureBox pbGrid;
       HScrollBar hsbGrid;
 
+      //
+      bool isValid = true;
+      string fileName;
+      string logoName;
+      string font;
+      int charHeight = 0;
+      int charWidth = 0;
+      int pos;
+      int ics;
+      int count = 0;
+      int registration;
+      string[] pattern = null;
+
+
       private void BuildUserPatternControls() {
          if (IsUserPattern) {
             UpControls = new GroupBox() { Text = "User Pattern Rules" };
@@ -807,7 +818,7 @@ namespace HitachiEIP {
 
       private void UpBrowse_Click(object sender, EventArgs e) {
          string fileName = String.Empty;
-         string logoDirectory;
+         long[,] stripes;
 
          using (OpenFileDialog dlg = new OpenFileDialog()) {
             dlg.AutoUpgradeEnabled = true;
@@ -819,13 +830,33 @@ namespace HitachiEIP {
             dlg.Filter = "Printer Logo Files|*.txt";
             if (dlg.ShowDialog() == DialogResult.OK) {
                fileName = dlg.FileName;
-               // Rewrite directory
-               logoDirectory = fileName.Substring(0, fileName.LastIndexOf("\\"));
-               //ReadLogoFromFile(fileName);
-               //LoadLogo();
+               if (ReadLogoFromFile(fileName, out stripes)) {
+                  pbGrid.Image = LoadLogo(stripes);
+                  pbGrid.Refresh();
+               }
                SetButtonEnables();
             }
          }
+      }
+
+      private Bitmap LoadLogo(long[,] stripes) {
+         Bitmap result = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1), charHeight);
+         using (Graphics g = Graphics.FromImage(result)) {
+            for (int i = 0; i < stripes.GetLength(0); i++) {
+               for (int j = 0; j < stripes.GetLength(1); j++) {
+                  long b = 1;
+                  for (int k = charHeight - 1; k >= 0; k--) {
+                     if ((stripes[i, j] & b) > 0) {
+                        result.SetPixel(i * charWidth + j, k, Color.Black);
+                     } else {
+                        result.SetPixel(i * charWidth + j, k, Color.White);
+                     }
+                     b <<= 1;
+                  }
+               }
+            }
+         }
+         return result;
       }
 
       private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
@@ -874,7 +905,7 @@ namespace HitachiEIP {
 
                Utils.ResizeObject(ref R, grpGrid, 4, 1, groupHeight - 10, tclWidth - 2);
                {
-                  Utils.ResizeObject(ref R, pbGrid, 3, 1, 3, 3);
+                  Utils.ResizeObject(ref R, pbGrid, 2, 1, groupHeight - 13, tclWidth - 4);
                }
                Utils.ResizeObject(ref R, hsbGrid, groupHeight - 6, 1, 2, tclWidth - 2);
 
@@ -883,6 +914,184 @@ namespace HitachiEIP {
                Utils.ResizeObject(ref R, UpSaveAs, groupHeight - 3, tclWidth - 5, 2, 3);
             }
          }
+      }
+
+      internal bool ReadLogoFromFile(string fullFileName, out long[,] stripes) {
+         stripes = null;
+         try {
+            isValid = true;
+
+            if (File.Exists(fullFileName)) {
+               fileName = fullFileName;
+               logoName = Path.GetFileNameWithoutExtension(fileName);
+               using (StreamReader sr = new StreamReader(fileName)) {
+                  string[] header = sr.ReadLine().Split(',');
+                  if (header.Length > 2) {
+                     font = header[0];
+                     if (GetFontInfo(font, out charHeight, out charWidth, out pos)) {
+                     } else {
+                        isValid = false;
+                     }
+                     if (!int.TryParse(header[1], out ics) || !int.TryParse(header[2], out count)) {
+                        isValid = false;
+                     } else {
+                        if (header.Length > 3) {
+                           if (!int.TryParse(header[3], out registration)) {
+                              isValid = false;
+                           }
+                        } else {
+                           registration = -1;
+                        }
+                     }
+                  }
+                  if (isValid) {
+                     pattern = new string[count];
+                     for (int i = 0; i < count; i++) {
+                        if (sr.EndOfStream) {
+                           isValid = false;
+                        } else {
+                           pattern[i] = sr.ReadLine();
+                        }
+                     }
+                     if (!sr.EndOfStream) {
+                        isValid = false;
+                     }
+                  }
+                  sr.Close();
+                  stripes = BuildStripes(charHeight, charWidth, pattern);
+               }
+            } else {
+               isValid = false;
+            }
+         } catch (Exception e) {
+            isValid = false;
+         }
+         return isValid;
+      }
+
+      private long[,] BuildStripes(int charHeight, int charWidth, string[] pattern) {
+         long[,] result = null;
+         int stride = ((charHeight + 7) / 8) * 2;
+         result = new long[pattern.Length, charWidth];
+         for (int i = 0; i < pattern.Length; i++) {
+            int l = pattern[i].Length / stride;
+            for (int j = 0; j < l; j++) {
+               long n = 0;
+               string s = pattern[i].Substring(j * stride, stride);
+               for (int k = 0; k < s.Length / 2; k++) {
+                  n += (Convert.ToInt64(s.Substring(k * 2, 2), 16) << k * 8);
+               }
+               result[i, j] = n;
+            }
+         }
+         return result;
+      }
+
+      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int pos) {
+         bool IsValid = true;
+         switch (font.Replace('X', 'x')) {
+            case "0":
+            case "4x5":
+               charHeight = 5;
+               charWidth = 8;
+               pos = 0;
+               break;
+            case "1":
+            case "5x5":
+               charHeight = 5;
+               charWidth = 8;
+               pos = 1;
+               break;
+            case "2":
+            case "5x8":
+            case "5x7":
+            case "5x8(5x7)":
+               charHeight = 8;
+               charWidth = 8;
+               pos = 2;
+               break;
+            case "3":
+            case "9x8":
+            case "9x7":
+            case "9x8(9x7)":
+               charHeight = 8;
+               charWidth = 16;
+               pos = 3;
+               break;
+            case "4":
+            case "7x10":
+               charHeight = 10;
+               charWidth = 8;
+               pos = 4;
+               break;
+            case "5":
+            case "10x12":
+               charHeight = 12;
+               charWidth = 16;
+               pos = 5;
+               break;
+            case "6":
+            case "12x16":
+               charHeight = 16;
+               charWidth = 16;
+               pos = 6;
+               break;
+            case "7":
+            case "18x24":
+               charHeight = 24;
+               charWidth = 24;
+               pos = 7;
+               break;
+            case "8":
+            case "24x32":
+               charHeight = 32;
+               charWidth = 32;
+               pos = 8;
+               break;
+            case "9":
+            case "11x11":
+               charHeight = 11;
+               charWidth = 16;
+               pos = 9;
+               break;
+            case "10":
+            case "5x3(Chimney)":
+               charHeight = 3;
+               charWidth = 5;
+               pos = 10;
+               break;
+            case "11":
+            case "5x5(Chimney)":
+               charHeight = 5;
+               charWidth = 5;
+               pos = 11;
+               break;
+            case "12":
+            case "7x5(Chimney)":
+               charHeight = 5;
+               charWidth = 7;
+               pos = 12;
+               break;
+            case "13":
+            case "30x40":
+               charHeight = 40;
+               charWidth = 40;
+               pos = 13;
+               break;
+            case "14":
+            case "36x48":
+               charHeight = 48;
+               charWidth = 48;
+               pos = 14;
+               break;
+            default:
+               charHeight = 0;
+               charWidth = 0;
+               pos = -1;
+               IsValid = false;
+               break;
+         }
+         return IsValid;
       }
 
       private void SetUpButtonEnables() {
