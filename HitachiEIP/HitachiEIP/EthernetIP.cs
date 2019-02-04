@@ -532,8 +532,8 @@ namespace HitachiEIP {
          bytes = -1;
          if (stream != null) {
             try {
-               // Allow for up to 1 second for a response
-               stream.ReadTimeout = 5000;
+               // Allow for up to 2 seconds for a response
+               stream.ReadTimeout = 2000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {
@@ -566,7 +566,7 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, AttrData attr, byte[] dataOut,  out string dataIn) {
+      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, AttrData attr, byte[] dataOut, out string dataIn) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
@@ -776,7 +776,7 @@ namespace HitachiEIP {
          string result = Enum.GetName(cc, v);
          return result;
       }
- 
+
       // Get an unsigned int from up to 4 consecutive bytes
       public uint Get(byte[] b, int start, int length, mem m) {
          uint result = 0;
@@ -871,7 +871,7 @@ namespace HitachiEIP {
 
       // Format output
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
-         if(attr.DropDown >= 0 && c.Visible) {
+         if (attr.DropDown >= 0 && c.Visible) {
             SetDataValue = (c.SelectedIndex + prop.Min).ToString();
             return ToBytes((uint)(c.SelectedIndex + prop.Min), prop.Len);
          } else {
@@ -894,7 +894,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.ASCII:
-               if(s.StartsWith("\"") && s.EndsWith("\"")) {
+               if (s.StartsWith("\"") && s.EndsWith("\"")) {
                   result = encode.GetBytes($"{s.Substring(1, s.Length - 2)}\x00");
                } else {
                   result = encode.GetBytes($"{s}\x00");
@@ -945,7 +945,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.N2Char:
-               sa = s.Split(new char[] { ',' },1 );
+               sa = s.Split(new char[] { ',' }, 1);
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
                      string gp = new string(new char[] { (char)(n >> 8), (char)(n & 0xFF) });
@@ -1092,6 +1092,24 @@ namespace HitachiEIP {
                break;
          }
          return IsValid;
+      }
+
+      // Merge parts of a byte array into a single byte array
+      public byte[] MergeByteArrays(byte[][] b) {
+         // Calculate the needed length
+         int n = 0;
+         for (int i = 0; i < b.Length; i++) {
+            n += b[i].Length;
+         }
+         byte[] result = new byte[n];
+         // Stuff away the pieces into the result
+         n = 0;
+         for (int i = 0; i < b.Length; i++) {
+            for (int j = 0; j < b[i].Length; j++) {
+               result[n++] = b[i][j];
+            }
+         }
+         return result;
       }
 
       #endregion
