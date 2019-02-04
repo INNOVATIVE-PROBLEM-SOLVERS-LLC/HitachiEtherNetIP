@@ -67,7 +67,7 @@ namespace HitachiEIP {
             Substitution = new Substitution(EIP, tab);
          }
          if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
-            UserPattern = new UserPattern(EIP, tab);
+            UserPattern = new UserPattern(parent, EIP, tab);
          }
          this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
