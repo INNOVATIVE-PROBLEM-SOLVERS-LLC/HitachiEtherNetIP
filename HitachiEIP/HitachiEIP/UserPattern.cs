@@ -283,6 +283,7 @@ namespace HitachiEIP {
          if (OpenCloseForward) {
             EIP.ForwardOpen();
          }
+
          // <TODO> == Send It Out
          if (OpenCloseForward && EIP.ForwardIsOpen) {
             EIP.ForwardClose();

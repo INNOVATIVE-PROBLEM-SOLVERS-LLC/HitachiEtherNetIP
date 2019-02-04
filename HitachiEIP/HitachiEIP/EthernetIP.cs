@@ -932,7 +932,7 @@ namespace HitachiEIP {
                sa = s.Split(',');
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint x) && uint.TryParse(sa[1].Trim(), out uint y)) {
-                     result = ToBytes((x << 8) + y, 3);
+                     result = Merge(ToBytes(x, 2), ToBytes(y, 1));
                   }
                }
                break;
@@ -940,7 +940,7 @@ namespace HitachiEIP {
                sa = s.Split(',');
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
-                     result = ToBytes((n1 << 16) + n2, 4);
+                     result = Merge(ToBytes(n1, 2), ToBytes(n2, 2));
                   }
                }
                break;
@@ -949,7 +949,7 @@ namespace HitachiEIP {
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
                      string gp = new string(new char[] { (char)(n >> 8), (char)(n & 0xFF) });
-                     result = encode.GetBytes(gp + s + "\x00");
+                     result = Merge(ToBytes(n, 2), encode.GetBytes(s + "\x00"));
                   }
                }
                break;
@@ -1095,7 +1095,7 @@ namespace HitachiEIP {
       }
 
       // Merge parts of a byte array into a single byte array
-      public byte[] MergeByteArrays(byte[][] b) {
+      public byte[] Merge(params byte[][] b) {
          // Calculate the needed length
          int n = 0;
          for (int i = 0; i < b.Length; i++) {
