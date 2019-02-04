@@ -23,6 +23,8 @@ namespace HitachiEIP {
       ComboBox cbUpPosition;
       Label lblUpCount;
       ComboBox cbUpCount;
+      Label lblUpICS;
+      ComboBox cbUpICS;
       Button UpGet;
       Button UpSet;
 
@@ -33,6 +35,8 @@ namespace HitachiEIP {
       GroupBox grpGrid;
       PictureBox pbGrid;
       HScrollBar hsbGrid;
+
+      bool ignoreChange = false;
 
       //
       bool isValid = true;
@@ -48,6 +52,8 @@ namespace HitachiEIP {
       string[] pattern = null;
       long[,] stripes;
 
+      int cellSize;
+      int maxScrollColumn = 0;
 
       #endregion
 
@@ -60,7 +66,7 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region Tab Specific Routines (User Pattern)
+      #region Routines called from parent
 
       public void BuildUserPatternControls() {
          UpControls = new GroupBox() { Text = "User Pattern Rules" };
@@ -84,8 +90,19 @@ namespace HitachiEIP {
          UpControls.Controls.Add(cbUpPosition);
          cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
          for (int i = 0; i < 200; i++) {
-            cbUpPosition.Items.Add(i.ToString("D3"));
+            cbUpPosition.Items.Add(i.ToString());
          }
+
+         lblUpICS = new Label() { Text = "ICS", TextAlign = ContentAlignment.TopRight };
+         UpControls.Controls.Add(lblUpICS);
+
+         cbUpICS = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbUpICS);
+         cbUpICS.SelectedIndexChanged += cbUpICS_SelectedIndexChanged;
+         for (int i = 0; i < 20; i++) {
+            cbUpICS.Items.Add(i.ToString());
+         }
+         cbUpICS.SelectedIndex = 0;
 
          lblUpCount = new Label() { Text = "Count", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpCount);
@@ -93,8 +110,8 @@ namespace HitachiEIP {
          cbUpCount = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          UpControls.Controls.Add(cbUpCount);
          cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
-         for (int i = 1; i < 10; i++) {
-            cbUpCount.Items.Add(i.ToString("D0"));
+         for (int i = 1; i < 200; i++) {
+            cbUpCount.Items.Add(i.ToString());
          }
          cbUpCount.SelectedIndex = 0;
 
@@ -120,10 +137,127 @@ namespace HitachiEIP {
 
          hsbGrid = new HScrollBar() { };
          UpControls.Controls.Add(hsbGrid);
+         hsbGrid.Scroll += HsbGrid_Scroll;
 
          pbGrid = new PictureBox();
          grpGrid.Controls.Add(pbGrid);
 
+      }
+
+      public void ResizeUserPatternControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
+         this.R = R;
+         this.GroupStart = GroupStart;
+         this.GroupHeight = GroupHeight;
+         this.GroupWidth = GroupWidth;
+
+         Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
+         {
+            Utils.ResizeObject(ref R, lblUpFont, 2, 1, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpFont, 2, 4, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblUpPosition, 2, 7, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpPosition, 2, 10, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblUpICS, 2, 13, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpICS, 2, 16, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblUpCount, 2, 19, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpCount, 2, 22, 1.5f, 3);
+            Utils.ResizeObject(ref R, UpGet, 1.75f, GroupWidth - 9, 2, 3);
+            Utils.ResizeObject(ref R, UpSet, 1.75f, GroupWidth - 5, 2, 3);
+
+            Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 10, GroupWidth - 2);
+            {
+               if (stripes != null) {
+                  if (pbGrid.Image != null) {
+                     pbGrid.Image.Dispose();
+                     pbGrid.Image = null;
+                  }
+                  cellSize = Math.Min((int)((GroupHeight - 13) * R.H / charHeight), 10);
+                  pbGrid.Image = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1) * cellSize, charHeight * cellSize);
+                  pbGrid.Location = new Point((int)(1 * R.W), (int)(2 * R.H));
+                  pbGrid.Size = pbGrid.Image.Size;
+
+                  // Initialize Scroll Bar
+                  maxScrollColumn = ((pbGrid.Width - grpGrid.Size.Width) + (2 * (int)R.W)) / cellSize;
+                  hsbGrid.Visible = maxScrollColumn > 0;
+                  hsbGrid.Minimum = 0;
+                  hsbGrid.SmallChange = 1;
+                  hsbGrid.Maximum = charWidth * stripes.GetLength(0);
+                  hsbGrid.LargeChange = Math.Max(hsbGrid.Maximum - maxScrollColumn, cellSize);
+                  hsbGrid.Value = 0;
+
+                  using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
+                     SolidBrush pb = new SolidBrush(Color.Black);
+                     g.Clear(Color.White);
+
+                     // 
+                     int pLineWidth = 2;
+
+                     // Fill in the grid
+                     float xOffset = 0;
+                     for (int x = 0; x < stripes.GetLength(0); x++) {
+                        for (int y = 0; y < stripes.GetLength(1); y++) {
+                           long n = stripes[x, y];
+                           int b = 1;
+                           float yOffset = cellSize * charHeight;
+                           for (int k = 0; k < charHeight; k++) {
+                              yOffset -= cellSize;
+                              if ((n & b) > 0) {
+                                 g.FillRectangle(pb, xOffset, yOffset, cellSize, cellSize);
+                              }
+                              b <<= 1;
+                           }
+                           xOffset += cellSize;
+                        }
+                     }
+
+                     using (Pen pen = new Pen(Color.CadetBlue, pLineWidth)) {
+                        // vertical lines
+                        for (int x = 0; x <= charWidth * stripes.GetLength(0); x++) {
+                           if ((x % charWidth) == 0) {
+                              pen.Color = Color.Red;
+                           } else {
+                              pen.Color = Color.CadetBlue;
+                           }
+                           g.DrawLine(pen, x * cellSize, 0, x * cellSize, pbGrid.Image.Height);
+                        }
+
+                        // horizontal lines
+                        for (int y = 0; y <= charHeight; y++) {
+                           if (y == 0 || y == charHeight) {
+                              pen.Color = Color.Black;
+                           } else {
+                              pen.Color = Color.CadetBlue;
+                           }
+                           g.DrawLine(pen, 0, y * cellSize, pbGrid.Image.Width, y * cellSize);
+                        }
+                     }
+                  }
+                  pbGrid.Invalidate();
+               }
+            }
+            Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 6, 1, 2, GroupWidth - 2);
+
+            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 3, GroupWidth - 9, 2, 3);
+            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 3, GroupWidth - 5, 2, 3);
+         }
+      }
+
+      public void SetButtonEnables() {
+         bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0;
+         UpGet.Enabled = UpEnabled;
+         UpSet.Enabled = UpEnabled;
+         hsbGrid.Visible = pbGrid.Width > grpGrid.Width - 2 * (int)R.W;
+      }
+
+      #endregion
+
+      #region Form control routines
+
+      private void HsbGrid_Scroll(object sender, ScrollEventArgs e) {
+         if (e.NewValue > maxScrollColumn) {
+            pbGrid.Left = -(maxScrollColumn * cellSize) + cellSize / 2;
+         } else {
+            pbGrid.Left = (int)R.W - e.NewValue * cellSize;
+         }
       }
 
       private void UpSaveAs_Click(object sender, EventArgs e) {
@@ -147,39 +281,19 @@ namespace HitachiEIP {
                if (ReadLogoFromFile(fileName, out stripes)) {
                   //pbGrid.Image = LoadLogo(stripes);
                   //pbGrid.Refresh();
-                  ResizeUserPatternnControls(ref R, GroupStart, GroupHeight, GroupWidth);
+                  ResizeUserPatternControls(ref R, GroupStart, GroupHeight, GroupWidth);
                }
-               SetUpButtonEnables();
+               SetButtonEnables();
             }
          }
-      }
-
-      private Bitmap LoadLogo(long[,] stripes) {
-         Bitmap result = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1), charHeight);
-         using (Graphics g = Graphics.FromImage(result)) {
-            for (int i = 0; i < stripes.GetLength(0); i++) {
-               for (int j = 0; j < stripes.GetLength(1); j++) {
-                  long b = 1;
-                  for (int k = charHeight - 1; k >= 0; k--) {
-                     if ((stripes[i, j] & b) > 0) {
-                        result.SetPixel(i * charWidth + j, k, Color.Black);
-                     } else {
-                        result.SetPixel(i * charWidth + j, k, Color.White);
-                     }
-                     b <<= 1;
-                  }
-               }
-            }
-         }
-         return result;
       }
 
       private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
+         SetButtonEnables();
       }
 
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
-         SetUpButtonEnables();
+         SetButtonEnables();
       }
 
       private void UpSet_Click(object sender, EventArgs e) {
@@ -201,67 +315,22 @@ namespace HitachiEIP {
          }
       }
 
-      public void ResizeUserPatternnControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
-         this.R = R;
-         this.GroupStart = GroupStart;
-         this.GroupHeight = GroupHeight;
-         this.GroupWidth = GroupWidth;
-
-         Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
-         {
-            Utils.ResizeObject(ref R, lblUpFont, 2, 1, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpFont, 2, 4, 1.5f, 3);
-            Utils.ResizeObject(ref R, lblUpPosition, 2, 7, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpPosition, 2, 10, 1.5f, 3);
-            Utils.ResizeObject(ref R, lblUpCount, 2, 13, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpCount, 2, 16, 1.5f, 3);
-            Utils.ResizeObject(ref R, UpGet, 1.75f, GroupWidth - 9, 2, 3);
-            Utils.ResizeObject(ref R, UpSet, 1.75f, GroupWidth - 5, 2, 3);
-
-            Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 10, GroupWidth - 2);
-            {
-               if (stripes != null) {
-                  if (pbGrid.Image != null) {
-                     pbGrid.Image.Dispose();
-                     pbGrid.Image = null;
-                  }
-                  int cellSize = Math.Min((int)((GroupHeight - 13) * R.H / charHeight), 6);
-                  pbGrid.Image = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1) * cellSize, charHeight * cellSize);
-                  pbGrid.Location = new Point((int)(1 * R.W), (int)(2 * R.H));
-                  pbGrid.Size = pbGrid.Image.Size;
-                  using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
-                     SolidBrush pb = new SolidBrush(Color.Black);
-                     g.Clear(Color.White);
-
-                     // Fill in the grid
-                     float xOffset = 0;
-                     for (int i = 0; i < stripes.GetLength(0); i++) {
-                        for (int j = 0; j < stripes.GetLength(1); j++) {
-                           long n = stripes[i, j];
-                           int b = 1;
-                           float yOffset = cellSize * charHeight;
-                           for (int k = 0; k < charHeight; k++) {
-                              yOffset -= cellSize;
-                              if ((n & b) > 0) {
-                                 g.FillRectangle(pb, xOffset, yOffset, cellSize, cellSize);
-                              }
-                              b <<= 1;
-                           }
-                           xOffset += cellSize;
-                        }
-                     }
-                  }
-                  pbGrid.Invalidate();
-               }
-            }
-            Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 6, 1, 2, GroupWidth - 2);
-
-            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 3, GroupWidth - 9, 2, 3);
-            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 3, GroupWidth - 5, 2, 3);
+      private void GroupBorder_Paint(object sender, PaintEventArgs e) {
+         GroupBox gb = (GroupBox)sender;
+         using (Pen p = new Pen(Color.CadetBlue, 2)) {
+            e.Graphics.DrawRectangle(p, 1, 1, gb.Width - 2, gb.Height - 2);
          }
       }
 
-      internal bool ReadLogoFromFile(string fullFileName, out long[,] stripes) {
+      private void cbUpICS_SelectedIndexChanged(object sender, EventArgs e) {
+
+      }
+
+      #endregion
+
+      #region Service Routines
+
+      private bool ReadLogoFromFile(string fullFileName, out long[,] stripes) {
          stripes = null;
          try {
             isValid = true;
@@ -273,20 +342,11 @@ namespace HitachiEIP {
                   string[] header = sr.ReadLine().Split(',');
                   if (header.Length > 2) {
                      font = header[0];
-                     if (GetFontInfo(font, out charHeight, out charWidth, out pos)) {
+                     isValid = GetFontInfo(font, out charHeight, out charWidth, out pos) &&
+                        int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
+                     if (isValid && header.Length > 3 && (isValid = int.TryParse(header[3], out registration))) {
                      } else {
-                        isValid = false;
-                     }
-                     if (!int.TryParse(header[1], out ics) || !int.TryParse(header[2], out count)) {
-                        isValid = false;
-                     } else {
-                        if (header.Length > 3) {
-                           if (!int.TryParse(header[3], out registration)) {
-                              isValid = false;
-                           }
-                        } else {
-                           registration = -1;
-                        }
+                        registration = -1;
                      }
                   }
                   if (isValid) {
@@ -298,9 +358,7 @@ namespace HitachiEIP {
                            pattern[i] = sr.ReadLine();
                         }
                      }
-                     if (!sr.EndOfStream) {
-                        isValid = false;
-                     }
+                     isValid = sr.EndOfStream;
                   }
                   sr.Close();
                   stripes = BuildStripes(charHeight, charWidth, pattern);
@@ -310,6 +368,14 @@ namespace HitachiEIP {
             }
          } catch (Exception e) {
             isValid = false;
+         }
+         if(isValid) {
+            ignoreChange = true;
+            cbUpFont.SelectedIndex = pos;
+            cbUpPosition.SelectedIndex = registration;
+            cbUpICS.SelectedIndex = ics;
+            cbUpCount.SelectedIndex = pattern.Length - 1;
+            ignoreChange = false;
          }
          return isValid;
       }
@@ -439,17 +505,24 @@ namespace HitachiEIP {
          return IsValid;
       }
 
-      public void SetUpButtonEnables() {
-         bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0;
-         UpGet.Enabled = UpEnabled;
-         UpSet.Enabled = UpEnabled;
-      }
-
-      private void GroupBorder_Paint(object sender, PaintEventArgs e) {
-         GroupBox gb = (GroupBox)sender;
-         using (Pen p = new Pen(Color.CadetBlue, 2)) {
-            e.Graphics.DrawRectangle(p, 1, 1, gb.Width - 2, gb.Height - 2);
+      private Bitmap LoadLogo(long[,] stripes) {
+         Bitmap result = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1), charHeight);
+         using (Graphics g = Graphics.FromImage(result)) {
+            for (int i = 0; i < stripes.GetLength(0); i++) {
+               for (int j = 0; j < stripes.GetLength(1); j++) {
+                  long b = 1;
+                  for (int k = charHeight - 1; k >= 0; k--) {
+                     if ((stripes[i, j] & b) > 0) {
+                        result.SetPixel(i * charWidth + j, k, Color.Black);
+                     } else {
+                        result.SetPixel(i * charWidth + j, k, Color.White);
+                     }
+                     b <<= 1;
+                  }
+               }
+            }
          }
+         return result;
       }
 
       #endregion

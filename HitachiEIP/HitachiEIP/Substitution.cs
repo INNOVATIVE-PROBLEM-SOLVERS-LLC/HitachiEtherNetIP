@@ -51,7 +51,7 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region Tab Specific Routines (Substitution)
+      #region Routines called from parent
 
       public void BuildSubstitutionControls() {
          SubControls = new GroupBox() { Text = "Substitution Rules" };
@@ -105,6 +105,37 @@ namespace HitachiEIP {
          }
       }
 
+      public void ResizeSubstitutionControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
+         this.R = R;
+         this.GroupStart = GroupStart;
+         this.GroupHeight = GroupHeight;
+         this.GroupWidth = GroupWidth;
+
+         Utils.ResizeObject(ref R, SubControls, GroupStart + 0.75f, 0.5f, GroupHeight - 1, GroupWidth - 0.5f);
+         {
+            Utils.ResizeObject(ref R, lblCategory, 1, 1, 1.5f, 4);
+            Utils.ResizeObject(ref R, cbCategory, 1, 5, 1.5f, 6);
+            Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
+            Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
+         }
+         if (visibleCategory >= 0) {
+            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+               float r = 3.5f + 2 * (int)(i / 15);
+               float c = (i % 15) * 2.25f + 0.25f;
+               Utils.ResizeObject(ref R, subLabels[visibleCategory][i], r, c, 1.5f, 1);
+               Utils.ResizeObject(ref R, subTexts[visibleCategory][i], r, c + 1, 1.5f, 1.25f);
+            }
+         }
+      }
+
+      public void SetButtonEnables() {
+
+      }
+
+      #endregion
+
+      #region Form Control routines
+
       private void SubGet_Click(object sender, EventArgs e) {
          if (visibleCategory >= 0) {
 
@@ -140,33 +171,6 @@ namespace HitachiEIP {
             subTexts[visibleCategory][i].Visible = true;
          }
          ResizeSubstitutionControls(ref R, GroupStart, GroupHeight, GroupWidth);
-      }
-
-      public void ResizeSubstitutionControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
-         this.R = R;
-         this.GroupStart = GroupStart;
-         this.GroupHeight = GroupHeight;
-         this.GroupWidth = GroupWidth;
-
-         Utils.ResizeObject(ref R, SubControls, GroupStart + 0.75f, 0.5f, GroupHeight - 1, GroupWidth - 0.5f);
-         {
-            Utils.ResizeObject(ref R, lblCategory, 1, 1, 1.5f, 4);
-            Utils.ResizeObject(ref R, cbCategory, 1, 5, 1.5f, 6);
-            Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
-            Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
-         }
-         if (visibleCategory >= 0) {
-            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
-               float r = 3.5f + 2 * (int)(i / 15);
-               float c = (i % 15) * 2.25f + 0.25f;
-               Utils.ResizeObject(ref R, subLabels[visibleCategory][i], r, c, 1.5f, 1);
-               Utils.ResizeObject(ref R, subTexts[visibleCategory][i], r, c + 1, 1.5f, 1.25f);
-            }
-         }
-      }
-
-      public void SetSubstitutionButtonEnables() {
-
       }
 
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
