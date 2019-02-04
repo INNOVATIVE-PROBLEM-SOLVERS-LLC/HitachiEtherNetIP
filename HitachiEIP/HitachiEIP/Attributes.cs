@@ -497,7 +497,7 @@ namespace HitachiEIP {
          int groupStart = (labels.Length + 1) * 2;
          int groupHeight = tclHeight - groupStart - 5;
          Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
-         UserPattern?.ResizeUserPatternnControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
@@ -560,8 +560,8 @@ namespace HitachiEIP {
          getAll.Enabled = anyGets;
 
          SetExtraButtonEnables(null, null);
-         Substitution?.SetSubstitutionButtonEnables();
-         UserPattern?.SetUpButtonEnables();
+         Substitution?.SetButtonEnables();
+         UserPattern?.SetButtonEnables();
 
       }
 
