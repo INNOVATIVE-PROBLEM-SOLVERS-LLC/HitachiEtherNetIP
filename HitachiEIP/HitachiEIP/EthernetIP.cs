@@ -394,6 +394,9 @@ namespace HitachiEIP {
 
       public Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
+      // Flag to avoid constant forward open/close if alread open
+      bool OpenCloseForward = false;
+
       #endregion
 
       #region Constructors and Destructors
@@ -490,38 +493,52 @@ namespace HitachiEIP {
       }
 
       // Start EtherNet/IP Forward Open
-      public bool ForwardOpen() {
+      public bool ForwardOpen(bool preserveState = false) {
          bool successful = false;
-         byte[] data;
-         Int32 bytes;
-         O_T_ConnectionID = 0;
-         T_O_ConnectionID = 0;
-         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
-         if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 52) {
-            O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
-            T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
-            successful = true;
-            LogIt("Forward Open!");
+         if (preserveState) {
+            OpenCloseForward = !ForwardIsOpen;
+            if (OpenCloseForward) {
+               successful = ForwardOpen();
+            }
          } else {
-            LogIt("Forward Open Failed!");
+            byte[] data;
+            Int32 bytes;
+            O_T_ConnectionID = 0;
+            T_O_ConnectionID = 0;
+            byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
+            if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 52) {
+               O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
+               T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
+               successful = true;
+               LogIt("Forward Open!");
+            } else {
+               LogIt("Forward Open Failed!");
+            }
+            StateChanged?.Invoke(this, "Forward Changed");
          }
-         StateChanged?.Invoke(this, "Forward Changed");
          return successful;
       }
 
       // End EtherNet/IP Forward Open
-      public bool ForwardClose() {
-         byte[] data;
-         Int32 bytes;
-         O_T_ConnectionID = 0;
-         T_O_ConnectionID = 0;
-         byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
-         if (Write(ed, 0, ed.Length) && Read(out data, out bytes)) {
-            LogIt("Forward Close!");
+      public bool ForwardClose(bool restoreState = false) {
+         if (restoreState) {
+            if (OpenCloseForward && ForwardIsOpen) {
+               ForwardClose();
+            }
+            OpenCloseForward = false;
          } else {
-            LogIt("Forward Close Failed!");
+            byte[] data;
+            Int32 bytes;
+            O_T_ConnectionID = 0;
+            T_O_ConnectionID = 0;
+            byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
+            if (Write(ed, 0, ed.Length) && Read(out data, out bytes)) {
+               LogIt("Forward Close!");
+            } else {
+               LogIt("Forward Close Failed!");
+            }
+            StateChanged?.Invoke(this, "Forward Changed");
          }
-         StateChanged?.Invoke(this, "Forward Changed");
          return true;
       }
 

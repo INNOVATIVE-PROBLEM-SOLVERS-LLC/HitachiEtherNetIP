@@ -174,15 +174,11 @@ namespace HitachiEIP {
 
       private string ConvertLayoutToXML() {
          ItemType itemType = ItemType.Text;
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
-               OpenCloseForward = !EIP.ForwardIsOpen;
-               if (OpenCloseForward) {
-                  EIP.ForwardOpen();
-               }
+               EIP.ForwardOpen(true);
                writer.WriteStartElement("Label"); // Start Label
 
                //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
@@ -198,16 +194,11 @@ namespace HitachiEIP {
                WritePrinterSettings(writer);
 
                writer.WriteStartElement("Objects"); // Start Objects
-               if (EIP.ForwardIsOpen && OpenCloseForward) {
-                  EIP.ForwardClose();
-               }
+               EIP.ForwardClose(true);
 
                int itemCount = GetDecimalAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Number_Of_Items);
                for (int i = 0; i < itemCount; i++) {
-                  OpenCloseForward = !EIP.ForwardIsOpen;
-                  if (OpenCloseForward) {
-                     EIP.ForwardOpen();
-                  }
+                  EIP.ForwardOpen(true);
 
                   SetAttribute(eipClassCode.Index, (byte)eipIndex.Item, i + 1);
                   string text = GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String);
@@ -261,9 +252,7 @@ namespace HitachiEIP {
                   writer.WriteElementString("Text", text);
                   writer.WriteEndElement(); // End Object
 
-                  if (EIP.ForwardIsOpen && OpenCloseForward) {
-                     EIP.ForwardClose();
-                  }
+                  EIP.ForwardClose(true);
                }
 
                writer.WriteEndElement(); // End Objects

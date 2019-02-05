@@ -64,7 +64,7 @@ namespace HitachiEIP {
          this.EIP = EIP;
          this.tab = tab;
          if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
-            Substitution = new Substitution(EIP, tab);
+            Substitution = new Substitution(parent, EIP, tab);
          }
          if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
             UserPattern = new UserPattern(parent, EIP, tab);
@@ -147,10 +147,7 @@ namespace HitachiEIP {
             }
          }
          parent.Refresh();
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
+         EIP.ForwardOpen(true);
          for (int i = 0; i < gets.Length && parent.AllGood; i++) {
             if (gets[i] != null) {
                Get_Click(gets[i], null);
@@ -161,18 +158,13 @@ namespace HitachiEIP {
          if (!parent.AllGood) {
             parent.EIP_Log(null, "GetAll completed abnormally");
          }
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
+         EIP.ForwardClose(true);
          SetButtonEnables();
       }
 
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
+         EIP.ForwardOpen(true);
          for (int i = 0; i < sets.Length && parent.AllGood; i++) {
             if (sets[i] != null) {
                Set_Click(sets[i], null);
@@ -183,9 +175,7 @@ namespace HitachiEIP {
          if (!parent.AllGood) {
             parent.EIP_Log(null, "SetAll completed abnormally");
          }
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
+         EIP.ForwardClose(true);
       }
 
       private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
@@ -508,17 +498,12 @@ namespace HitachiEIP {
          if (extrasLoaded || !enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
          }
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
+         EIP.ForwardOpen(true);
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
          GetAll_Click(null, null);
-         if (OpenCloseForward) {
-            EIP.ForwardClose();
-         }
+         EIP.ForwardClose(true);
          extrasLoaded = true;
          SetExtraButtonEnables(null, null);
       }
