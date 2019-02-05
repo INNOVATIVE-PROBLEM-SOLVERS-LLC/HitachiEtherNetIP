@@ -9,9 +9,7 @@ namespace HitachiEIP {
       #region Data Declarations
 
       ResizeInfo R;
-      int GroupStart;
-      int GroupHeight;
-      int GroupWidth;
+
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
@@ -40,13 +38,13 @@ namespace HitachiEIP {
       Bitmap bmGrid = null;
       HScrollBar hsbGrid;
 
+      int blackPixel = Color.Black.ToArgb();
+      int whitePixel = Color.White.ToArgb();
 
       bool ignoreChange = true;
 
       //
       bool isValid = true;
-      string fileName;
-      string logoName;
       string font;
       int charHeight = 0;
       int charWidth = 0;
@@ -55,8 +53,7 @@ namespace HitachiEIP {
       int ics;
       int count = 0;
       int registration;
-      string[] pattern = null;
-      long[,] stripes;
+      long[][] stripes;
 
       int cellSize;
       int maxScrollColumn = 0;
@@ -75,6 +72,7 @@ namespace HitachiEIP {
 
       #region Routines called from parent
 
+      // Dynamically build all the controls.
       public void BuildUserPatternControls() {
          UpControls = new GroupBox() { Text = "User Pattern Rules" };
          tab.Controls.Add(UpControls);
@@ -106,7 +104,7 @@ namespace HitachiEIP {
 
          cbUpCount = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          UpControls.Controls.Add(cbUpCount);
-         cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
+         cbUpCount.SelectedIndexChanged += cbUpCount_SelectedIndexChanged;
 
          UpGet = new Button() { Text = "Get" };
          UpControls.Controls.Add(UpGet);
@@ -162,11 +160,9 @@ namespace HitachiEIP {
 
       }
 
+      // Refit the controls based on the new space requirem,ents
       public void ResizeUserPatternControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
          this.R = R;
-         this.GroupStart = GroupStart;
-         this.GroupHeight = GroupHeight;
-         this.GroupWidth = GroupWidth;
 
          Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
          {
@@ -183,7 +179,7 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 10, GroupWidth - 2);
             {
-               BuildImage();
+               BitMapToImage();
             }
             Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 6, 1, 2, GroupWidth - 2);
 
@@ -194,6 +190,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Enable buttons only when they can be used
       public void SetButtonEnables() {
          bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
          bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
@@ -209,15 +206,12 @@ namespace HitachiEIP {
 
       #region Form control routines
 
+      // Allow all the image to be viewed
       private void HsbGrid_Scroll(object sender, ScrollEventArgs e) {
-         if (e.NewValue > maxScrollColumn) {
-            pbGrid.Left = -(maxScrollColumn * cellSize) + cellSize / 2;
-         } else {
-            pbGrid.Left = (int)R.W - e.NewValue * cellSize;
-         }
-         SetButtonEnables();
+         pbGrid.Left = (int)R.W - e.NewValue * cellSize;
       }
 
+      // Save the bitmap in cijConnect format
       private void UpSaveAs_Click(object sender, EventArgs e) {
          string filename = "Logo" + String.Format("{0:yyyyMMddHHmm}", DateTime.Now);
          using (SaveFileDialog sfd = new SaveFileDialog()) {
@@ -228,10 +222,11 @@ namespace HitachiEIP {
             sfd.CheckPathExists = true;
             sfd.FileName = filename;
             if (sfd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(sfd.FileName)) {
-               // Rewrite the Image Directory
-               TextWriter tw = new StreamWriter(fileName);
+               TextWriter tw = new StreamWriter(sfd.FileName);
+               // Load from controls
                tw.WriteLine($"{cbUpFont.Text},{0},{count},{registration}");
-               string[] Pattern = StripesToPattern(charHeight, stripes);
+               // Need Bitmap not stripes
+               string[] pattern = StripesToPattern(charHeight, BitMapToStripes(bmGrid, charWidth));
                for (int i = 0; i < pattern.Length; i++) {
                   tw.WriteLine(pattern[i]);
                }
@@ -242,8 +237,8 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Load a file that is in cijConnect format
       private void UpBrowse_Click(object sender, EventArgs e) {
-
          using (OpenFileDialog dlg = new OpenFileDialog()) {
             dlg.AutoUpgradeEnabled = true;
             dlg.CheckFileExists = true;
@@ -253,35 +248,24 @@ namespace HitachiEIP {
             dlg.Title = "Select Printer Logo file";
             dlg.Filter = "Printer Logo Files|*.txt";
             if (dlg.ShowDialog() == DialogResult.OK) {
-               CleanUpGrid();
-               if (ReadLogoFromFile(dlg.FileName, out stripes)) {
-                  bmGrid = BuildBitMap(stripes);
-                  BuildImage();
-               }
-               SetButtonEnables();
+               ReadLogoFromFile(dlg.FileName, out stripes);
             }
          }
-      }
-
-      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         if(!ignoreChange) {
-
-         }
          SetButtonEnables();
       }
 
-      private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
-         if (!ignoreChange) {
-
-         }
-         SetButtonEnables();
-      }
-
+      // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
-         byte[,] b = StripesToBytes(charHeight, stripes);
+         byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
          bool OpenCloseForward = !EIP.ForwardIsOpen;
          if (OpenCloseForward) {
             EIP.ForwardOpen();
+         }
+         int pos = cbUpPosition.SelectedIndex + 1;
+         int count = cbUpCount.SelectedIndex + 1;
+         for (int i = 0; i < count; i++) {
+            byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes( (uint)(pos + i), 1), b[i]);
+            EIP.WriteOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, data);
          }
          // <TODO> == Send It Out
          if (OpenCloseForward && EIP.ForwardIsOpen) {
@@ -290,13 +274,17 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Get characters from the printer
       private void UpGet_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out pos, out bytesPerCharacter);
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out int maxICS, out pos, out bytesPerCharacter);
          // Build the blank image
-         stripes = new long[cbUpCount.SelectedIndex + 1, charWidth];
-         bmGrid = BuildBitMap(stripes);
-         BuildImage();
+         stripes = new long[cbUpCount.SelectedIndex + 1][];
+         for(int i = 0; i < stripes.Length; i++) {
+            stripes[i] = new long[charWidth];
+         }
+         bmGrid = StripesToBitMap(stripes);
+         BitMapToImage();
 
          bool OpenCloseForward = !EIP.ForwardIsOpen;
          if (OpenCloseForward) {
@@ -308,9 +296,9 @@ namespace HitachiEIP {
             bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, attr, data, out string val);
             if(Success) {
                if(EIP.GetDataLength == bytesPerCharacter) {
-                  BytesToStripes(i, charHeight, EIP.GetData);
-                  bmGrid = BuildBitMap(stripes);
-                  BuildImage();
+                  stripes[i] = BytesToStripe(charHeight, EIP.GetData);
+                  bmGrid = StripesToBitMap(stripes);
+                  BitMapToImage();
                   grpGrid.Invalidate();
                } else {
                   break;
@@ -321,22 +309,27 @@ namespace HitachiEIP {
             EIP.ForwardClose();
          }
          // Build the real image
-         bmGrid = BuildBitMap(stripes);
-         BuildImage();
+         bmGrid = StripesToBitMap(stripes);
+         BitMapToImage();
          SetButtonEnables();
       }
 
-      private void BytesToStripes(int n, int charHeight, byte[] getData) {
+      // Build a stripe from a single character
+      private long[] BytesToStripe(int charHeight, byte[] b) {
          int stride = (charHeight + 7) / 8;
-         long val = 0;
-         for (int i = 0; i < getData.Length; i += stride) {
+         int count = b.Length / stride;
+         long[] stripe = new long[count];
+         for (int i = 0; i < b.Length; i += stride) {
+            long val = 0;
             for (int j = 0; j < stride; j++) {
-               val += getData[i + j] << (8 * j);
+               val += b[i + j] << (8 * j);
             }
-            stripes[n, i / stride] = val;
+            stripe[i / stride] = val;
          }
+         return stripe;
       }
 
+      // Make the group box be more visible
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
          using (Pen p = new Pen(Color.CadetBlue, 2)) {
@@ -344,26 +337,21 @@ namespace HitachiEIP {
          }
       }
 
-      private void cbUpICS_SelectedIndexChanged(object sender, EventArgs e) {
-         if (!ignoreChange) {
-
-         }
-         SetButtonEnables();
-      }
-
+      // Invert one pixel
       private void pbGrid_MouseClick(object sender, MouseEventArgs e) {
          Rectangle rect;
-
          if (pbGrid.Image != null) {
+            // x and y are relative to the image
             int x = Math.Max(0, Math.Min(e.Location.X / cellSize * cellSize, pbGrid.Image.Width - 1));
             int y = Math.Max(0, Math.Min(e.Location.Y / cellSize * cellSize, pbGrid.Image.Height - 1));
+            // row and column are relative to the bitmap
             int row = y / cellSize;
             int col = x / cellSize;
 
             rect = new Rectangle(x, y, cellSize, cellSize);
             using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
                // Flip the color
-               if (Color.Black.ToArgb() == bmGrid.GetPixel(col, row).ToArgb()) {
+               if (bmGrid.GetPixel(col, row).ToArgb() == blackPixel) {
                   // if black, write white
                   g.FillRectangle(Brushes.White, rect);
                   bmGrid.SetPixel(col, row, Color.White);
@@ -372,24 +360,17 @@ namespace HitachiEIP {
                   g.FillRectangle(Brushes.Black, rect);
                   bmGrid.SetPixel(col, row, Color.Black);
                }
+
+               // Redraw adjacent vertical lines to the left and right
                Pen pen = new Pen(Color.CadetBlue, 1);
-               // Redraw adjacent vertical lines
                for (int i = col; i <= col + 2; i++) {
-                  if ((i % charWidth) == 0) {
-                     pen.Color = Color.Red;
-                  } else {
-                     pen.Color = Color.CadetBlue;
-                  }
+                  pen.Color = (i % charWidth) == 0 ? Color.Red : Color.CadetBlue;
                   g.DrawLine(pen, i * cellSize, 0, i * cellSize, pbGrid.Image.Height);
                }
 
-               // Redraw adjacent horizontal lines
+               // Redraw adjacent horizontal lines above and below
+               pen.Color = Color.CadetBlue;
                for (int i = row; i <= row + 2; i++) {
-                  if (i == 0 || i == charHeight) {
-                     pen.Color = Color.Black;
-                  } else {
-                     pen.Color = Color.CadetBlue;
-                  }
                   g.DrawLine(pen, 0, i * cellSize, pbGrid.Image.Width, i * cellSize);
                }
 
@@ -398,23 +379,60 @@ namespace HitachiEIP {
          }
       }
 
+      // Create an empty grid
       private void UpNew_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out pos, out bytesPerCharacter);
-         stripes = new long[cbUpCount.SelectedIndex + 1, charWidth];
-         bmGrid = BuildBitMap(stripes);
-         BuildImage();
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out int maxICS, out pos, out bytesPerCharacter);
+         stripes = new long[cbUpCount.SelectedIndex + 1][];
+         for (int i = 0; i < stripes.Length; i++) {
+            stripes[i] = new long[charWidth];
+         }
+         bmGrid = StripesToBitMap(stripes);
+         BitMapToImage();
          SetButtonEnables();
       }
 
+      // Clear the stripes and rebuild the bitmap and image
       private void UpClear_Click(object sender, EventArgs e) {
-         for (int i = 0; i < stripes.GetLength(0); i++) {
-            for (int j = 0; j < stripes.GetLength(1); j++) {
-               stripes[i, j] = 0;
+         for (int i = 0; i < stripes.Length; i++) {
+            for (int j = 0; j < stripes[i].Length; j++) {
+               stripes[i][j] = 0;
             }
          }
-         bmGrid = BuildBitMap(stripes);
-         BuildImage();
+         bmGrid = StripesToBitMap(stripes);
+         BitMapToImage();
+         SetButtonEnables();
+      }
+
+      // The selected font changed
+      private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
+         if (!ignoreChange) {
+            // <TODO>
+         }
+         SetButtonEnables();
+      }
+
+      // The location in the printer changed
+      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
+         if (!ignoreChange) {
+            // <TODO>
+         }
+         SetButtonEnables();
+      }
+
+      // The inter-character space changed
+      private void cbUpICS_SelectedIndexChanged(object sender, EventArgs e) {
+         if (!ignoreChange) {
+            // <TODO>
+         }
+         SetButtonEnables();
+      }
+
+      // The number of characters changed
+      private void cbUpCount_SelectedIndexChanged(object sender, EventArgs e) {
+         if (!ignoreChange) {
+            // <TODO>
+         }
          SetButtonEnables();
       }
 
@@ -422,38 +440,38 @@ namespace HitachiEIP {
 
       #region Service Routines
 
-      private bool ReadLogoFromFile(string fullFileName, out long[,] stripes) {
+      // convert cijConnect logo file to stripes
+      private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
+         string[] pattern = null;
          stripes = null;
          try {
             isValid = true;
-
             if (File.Exists(fullFileName)) {
-               fileName = fullFileName;
-               logoName = Path.GetFileNameWithoutExtension(fileName);
-               using (StreamReader sr = new StreamReader(fileName)) {
+               using (StreamReader sr = new StreamReader(fullFileName)) {
+                  // Process the header
                   string[] header = sr.ReadLine().Split(',');
                   if (header.Length > 2) {
                      font = header[0];
-                     isValid = GetFontInfo(font, out charHeight, out charWidth, out pos, out bytesPerCharacter) &&
+                     isValid = GetFontInfo(font, out charHeight, out charWidth, out int maxICSMO, out pos, out bytesPerCharacter) &&
                         int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
-                     if (isValid && header.Length > 3 && (isValid = int.TryParse(header[3], out registration))) {
+                     if (isValid && header.Length > 3) {
+                        if(!int.TryParse(header[3], out registration)) {
+                           registration = -1;
+                           isValid = false;
+                        }
                      } else {
                         registration = -1;
                      }
                   }
+                  // Retrieve the pattern
                   if (isValid) {
                      pattern = new string[count];
-                     for (int i = 0; i < count; i++) {
-                        if (sr.EndOfStream) {
-                           isValid = false;
-                        } else {
-                           pattern[i] = sr.ReadLine();
-                        }
+                     for (int i = 0; i < count && !sr.EndOfStream; i++) {
+                        pattern[i] = sr.ReadLine();
                      }
-                     isValid = sr.EndOfStream;
+                     isValid = sr.EndOfStream && pattern[count - 1] != null;
                   }
                   sr.Close();
-                  stripes = PatternToStripes(charHeight, charWidth, pattern);
                }
             } else {
                isValid = false;
@@ -462,6 +480,12 @@ namespace HitachiEIP {
             isValid = false;
          }
          if(isValid) {
+            // Load the cijConnect logo into the printer browser
+            CleanUpGrid();
+            stripes = PatternToStripes(charHeight, charWidth, pattern);
+            bmGrid = StripesToBitMap(stripes);
+            BitMapToImage();
+            // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
             cbUpFont.SelectedIndex = pos;
             cbUpPosition.SelectedIndex = registration;
@@ -469,14 +493,15 @@ namespace HitachiEIP {
             cbUpCount.SelectedIndex = pattern.Length - 1;
             ignoreChange = false;
          }
-         return isValid;
       }
 
-      private long[,] PatternToStripes(int charHeight, int charWidth, string[] pattern) {
-         long[,] result = null;
+      // Convert cijConnect formatted file to stripes
+      private long[][] PatternToStripes(int charHeight, int charWidth, string[] pattern) {
+         long[][] result = null;
          int stride = ((charHeight + 7) / 8) * 2;
-         result = new long[pattern.Length, charWidth];
+         result = new long[pattern.Length][];
          for (int i = 0; i < pattern.Length; i++) {
+            result[i] = new long[charWidth];
             int l = pattern[i].Length / stride;
             for (int j = 0; j < l; j++) {
                long n = 0;
@@ -484,19 +509,20 @@ namespace HitachiEIP {
                for (int k = 0; k < s.Length / 2; k++) {
                   n += (Convert.ToInt64(s.Substring(k * 2, 2), 16) << k * 8);
                }
-               result[i, j] = n;
+               result[i][j] = n;
             }
          }
          return result;
       }
 
-      private string[] StripesToPattern(int charHeight, long[,] stripes) {
-         string[] result = new string[stripes.GetLength(0)];
+      // Convert stripes back to a cijConnect formatted pattern
+      private string[] StripesToPattern(int charHeight, long[][] stripes) {
+         string[] result = new string[stripes.Length];
          int stride = (charHeight + 7) / 8;
-         for (int i = 0; i < stripes.GetLength(0); i++) {
+         for (int i = 0; i < stripes.Length; i++) {
             string s = string.Empty;
-            for (int j = 0; j < stripes.GetLength(1); j++) {
-               long n = stripes[i, j];
+            for (int j = 0; j < stripes[i].Length; j++) {
+               long n = stripes[i][j];
                for (int k = 0; k < stride; k++)  {
                   s += (n & 0xFF).ToString("X2");
                   n >>= 8;
@@ -507,15 +533,16 @@ namespace HitachiEIP {
          return result;
       }
 
-      private byte[,] StripesToBytes(int charHeight, long[,] stripes) {
+      // Convert stripes to a byte array for sending to the printer
+      private byte[][] StripesToBytes(int charHeight, long[][] stripes) {
          int stride = (charHeight + 7) / 8;
-         byte[,] result = new byte[stripes.GetLength(0), stripes.GetLength(1) * stride];
-         for (int i = 0; i < stripes.GetLength(0); i++) {
-            int b = 0;
-            for (int j = 0; j < stripes.GetLength(1); j++) {
-               long n = stripes[i, j];
+         byte[][] result = new byte[stripes.Length][];
+         for (int i = 0; i < stripes.Length; i++) {
+            result[i] = new byte[stripes[i].Length * stride];
+            for (int j = 0; j < stripes[i].Length; j++) {
+               long n = stripes[i][j];
                for (int k = 0; k < stride; k++) {
-                  result[i, b++] = (byte)n;
+                  result[i][j * stride + k] = (byte)n;
                   n >>= 8;
                }
             }
@@ -523,13 +550,15 @@ namespace HitachiEIP {
          return result;
       }
 
-      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int pos, out int bytesPerCharacter) {
+      // get information about the selected font
+      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int pos, out int bytesPerCharacter) {
          bool IsValid = true;
          switch (font.Replace('X', 'x')) {
             case "0":
             case "4x5":
                charHeight = 5;
                charWidth = 8;
+               maxICS = 4;
                bytesPerCharacter = 8;
                pos = 0;
                break;
@@ -537,6 +566,7 @@ namespace HitachiEIP {
             case "5x5":
                charHeight = 5;
                charWidth = 8;
+               maxICS = 3;
                bytesPerCharacter = 8;
                pos = 1;
                break;
@@ -546,6 +576,7 @@ namespace HitachiEIP {
             case "5x8(5x7)":
                charHeight = 8;
                charWidth = 8;
+               maxICS = 3;
                bytesPerCharacter = 8;
                pos = 2;
                break;
@@ -555,6 +586,7 @@ namespace HitachiEIP {
             case "9x8(9x7)":
                charHeight = 8;
                charWidth = 16;
+               maxICS = 7;
                bytesPerCharacter = 16;
                pos = 3;
                break;
@@ -562,6 +594,7 @@ namespace HitachiEIP {
             case "7x10":
                charHeight = 10;
                charWidth = 8;
+               maxICS = 1;
                bytesPerCharacter = 16;
                pos = 4;
                break;
@@ -569,6 +602,7 @@ namespace HitachiEIP {
             case "10x12":
                charHeight = 12;
                charWidth = 16;
+               maxICS = 6;
                bytesPerCharacter = 32;
                pos = 5;
                break;
@@ -576,6 +610,7 @@ namespace HitachiEIP {
             case "12x16":
                charHeight = 16;
                charWidth = 16;
+               maxICS = 4;
                bytesPerCharacter = 32;
                pos = 6;
                break;
@@ -583,6 +618,7 @@ namespace HitachiEIP {
             case "18x24":
                charHeight = 24;
                charWidth = 24;
+               maxICS = 6;
                bytesPerCharacter = 72;
                pos = 7;
                break;
@@ -590,6 +626,7 @@ namespace HitachiEIP {
             case "24x32":
                charHeight = 32;
                charWidth = 32;
+               maxICS = 12;
                bytesPerCharacter = 128;
                pos = 8;
                break;
@@ -597,6 +634,7 @@ namespace HitachiEIP {
             case "11x11":
                charHeight = 11;
                charWidth = 16;
+               maxICS = 5;
                bytesPerCharacter = 32;
                pos = 9;
                break;
@@ -604,20 +642,23 @@ namespace HitachiEIP {
             case "5x3(Chimney)":
                charHeight = 3;
                charWidth = 5;
-               pos = 10;
+               maxICS = 0;
                bytesPerCharacter = 5;
+               pos = 10;
                break;
             case "11":
             case "5x5(Chimney)":
                charHeight = 5;
                charWidth = 5;
-               pos = 11;
+               maxICS = 0;
                bytesPerCharacter = 5;
+               pos = 11;
                break;
             case "12":
             case "7x5(Chimney)":
                charHeight = 5;
                charWidth = 7;
+               maxICS = 0;
                bytesPerCharacter = 7;
                pos = 12;
                break;
@@ -625,6 +666,7 @@ namespace HitachiEIP {
             case "30x40":
                charHeight = 40;
                charWidth = 40;
+               maxICS = 10;
                bytesPerCharacter = 200;
                pos = 13;
                break;
@@ -632,12 +674,14 @@ namespace HitachiEIP {
             case "36x48":
                charHeight = 48;
                charWidth = 48;
+               maxICS = 12;
                bytesPerCharacter = 288;
                pos = 14;
                break;
             default:
                charHeight = 0;
                charWidth = 0;
+               maxICS = 0;
                bytesPerCharacter = 0;
                pos = -1;
                IsValid = false;
@@ -646,17 +690,17 @@ namespace HitachiEIP {
          return IsValid;
       }
 
-      private Bitmap BuildBitMap(long[,] stripes) {
-         Bitmap result = new Bitmap(stripes.GetLength(0) * stripes.GetLength(1), charHeight);
+      // Convert stripes to a bitmap 
+      private Bitmap StripesToBitMap(long[][] stripes) {
+         Bitmap result = new Bitmap(stripes.Length * charWidth, charHeight);
          using (Graphics g = Graphics.FromImage(result)) {
-            for (int i = 0; i < stripes.GetLength(0); i++) {
-               for (int j = 0; j < stripes.GetLength(1); j++) {
+            g.Clear(Color.White);
+            for (int i = 0; i < stripes.Length; i++) {
+               for (int j = 0; j < stripes[i].Length; j++) {
                   long b = 1;
                   for (int k = charHeight - 1; k >= 0; k--) {
-                     if ((stripes[i, j] & b) > 0) {
+                     if ((stripes[i][j] & b) > 0) {
                         result.SetPixel(i * charWidth + j, k, Color.Black);
-                     } else {
-                        result.SetPixel(i * charWidth + j, k, Color.White);
                      }
                      b <<= 1;
                   }
@@ -666,15 +710,44 @@ namespace HitachiEIP {
          return result;
       }
 
-      private void BuildImage() {
-         if (stripes != null) {
+      // Convert bitmap to stripes
+      private long[][] BitMapToStripes(Bitmap b, int charWidth) {
+         int nChars = b.Width / charWidth;
+         long[][] s = new long[nChars][];
+         int x = 0;
+         for (int c = 0; c < nChars; c++) {
+            s[c] = new long[charWidth];
+            for (int i = 0; i < charWidth; i++) {
+               long stripe = 0;
+               int bit = 1;
+               for (int y = b.Height - 1; y >= 0; y--) {
+                  if (b.GetPixel(x, y).ToArgb() == blackPixel) {
+                     stripe += bit;
+                  }
+                  bit <<= 1;
+               }
+               x += 1;
+               s[c][i] = stripe;
+            }
+         }
+         return s;
+      }
+
+      // Convert bitmap to an image
+      private void BitMapToImage() {
+         if (bmGrid != null) {
+            // Dispose of old image
             if (pbGrid.Image != null) {
                pbGrid.Image.Dispose();
                pbGrid.Image = null;
             }
-            cellSize = Math.Min((int)((GroupHeight - 13) * R.H / charHeight), 10);
+            // Allow for 3 extra spaces in the group box (2 above and 1 below)
+            cellSize = Math.Min((int)((grpGrid.Height - 3 * R.H) / charHeight), 10);
+            // Add an extra pixel below and to the right for drading lines
             pbGrid.Image = new Bitmap(bmGrid.Width * cellSize + 1, bmGrid.Height * cellSize + 1);
+            // Place the image at Row 2, Column 1 in the group box
             pbGrid.Location = new Point((int)(1 * R.W), (int)(2 * R.H));
+            // Make the image and the grid the same size
             pbGrid.Size = pbGrid.Image.Size;
 
             // Initialize Scroll Bar
@@ -682,7 +755,7 @@ namespace HitachiEIP {
             hsbGrid.Visible = maxScrollColumn > 0;
             hsbGrid.Minimum = 0;
             hsbGrid.SmallChange = 1;
-            hsbGrid.Maximum = charWidth * stripes.GetLength(0);
+            hsbGrid.Maximum = bmGrid.Width;
             hsbGrid.LargeChange = Math.Max(hsbGrid.Maximum - maxScrollColumn, cellSize);
             hsbGrid.Value = 0;
 
@@ -700,30 +773,27 @@ namespace HitachiEIP {
 
                using (Pen pen = new Pen(Color.CadetBlue, 1)) {
                   // vertical lines
-                  for (int x = 0; x <= charWidth * stripes.GetLength(0); x++) {
-                     if ((x % charWidth) == 0) {
-                        pen.Color = Color.Red;
-                     } else {
-                        pen.Color = Color.CadetBlue;
-                     }
+                  for (int x = 0; x <= bmGrid.Width; x++) {
+                     pen.Color = (x % charWidth) == 0 ? Color.Red : Color.CadetBlue;
                      g.DrawLine(pen, x * cellSize, 0, x * cellSize, pbGrid.Image.Height);
                   }
 
                   // horizontal lines
+                  pen.Color = Color.CadetBlue;
                   for (int y = 0; y <= charHeight; y++) {
-                     if (y == 0 || y == charHeight) {
-                        pen.Color = Color.Black;
-                     } else {
-                        pen.Color = Color.CadetBlue;
-                     }
                      g.DrawLine(pen, 0, y * cellSize, pbGrid.Image.Width, y * cellSize);
                   }
                }
+
             }
             pbGrid.Invalidate();
+            pbGrid.Visible = true;
+         } else {
+            pbGrid.Visible = false;
          }
       }
 
+      // Clear out stripes, bitmap, and image
       private void CleanUpGrid() {
          // Clean up the old display
          if (stripes != null) {
