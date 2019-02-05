@@ -432,10 +432,7 @@ namespace HitachiEIP {
 
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
-            bool OpenCloseForward = !EIP.ForwardIsOpen;
-            if (OpenCloseForward) {
-               EIP.ForwardOpen();
-            }
+            EIP.ForwardOpen(true);
             int val = ComIsOn ? 0 : 1;
             if (EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, EIP.ToBytes((uint)val, 1))) {
                GetComSetting();
@@ -444,9 +441,7 @@ namespace HitachiEIP {
                   GetMgmtSetting();
                }
             }
-            if (OpenCloseForward) {
-               EIP.ForwardClose();
-            }
+            EIP.ForwardClose(true);
          }
          SetButtonEnables();
       }

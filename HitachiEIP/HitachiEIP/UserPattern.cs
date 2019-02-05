@@ -44,13 +44,13 @@ namespace HitachiEIP {
       bool ignoreChange = true;
 
       //
-      bool isValid = true;
       string font;
+      int dotMatrixCode;
       int charHeight = 0;
       int charWidth = 0;
-      int bytesPerCharacter;
-      int pos;
       int ics;
+      int maxICS;
+      int bytesPerCharacter;
       int count = 0;
       int registration;
       long[][] stripes;
@@ -257,27 +257,21 @@ namespace HitachiEIP {
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
          byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
+         EIP.ForwardOpen(true);
          int pos = cbUpPosition.SelectedIndex + 1;
          int count = cbUpCount.SelectedIndex + 1;
          for (int i = 0; i < count; i++) {
             byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes( (uint)(pos + i), 1), b[i]);
             EIP.WriteOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, data);
          }
-         // <TODO> == Send It Out
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
+         EIP.ForwardClose(true);
          SetButtonEnables();
       }
 
       // Get characters from the printer
       private void UpGet_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out int maxICS, out pos, out bytesPerCharacter);
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          // Build the blank image
          stripes = new long[cbUpCount.SelectedIndex + 1][];
          for(int i = 0; i < stripes.Length; i++) {
@@ -286,10 +280,7 @@ namespace HitachiEIP {
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();
 
-         bool OpenCloseForward = !EIP.ForwardIsOpen;
-         if (OpenCloseForward) {
-            EIP.ForwardOpen();
-         }
+         EIP.ForwardOpen(true);
          for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
             byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
             AttrData attr = Data.AttrDict[eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed];
@@ -305,9 +296,7 @@ namespace HitachiEIP {
                }
             }
          }
-         if (OpenCloseForward && EIP.ForwardIsOpen) {
-            EIP.ForwardClose();
-         }
+         EIP.ForwardClose(true);
          // Build the real image
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();
@@ -382,7 +371,7 @@ namespace HitachiEIP {
       // Create an empty grid
       private void UpNew_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out int maxICS, out pos, out bytesPerCharacter);
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          stripes = new long[cbUpCount.SelectedIndex + 1][];
          for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
@@ -404,34 +393,33 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      // The selected font changed
+      // The selected font changed, get info about new font.
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
          if (!ignoreChange) {
-            // <TODO>
+            CleanUpGrid();
+            GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+            cbUpICS.Items.Clear();
+            for (int i = 0; i < maxICS; i++) {
+               cbUpICS.Items.Add(i.ToString());
+            }
          }
          SetButtonEnables();
       }
 
       // The location in the printer changed
       private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         if (!ignoreChange) {
-            // <TODO>
-         }
          SetButtonEnables();
       }
 
       // The inter-character space changed
       private void cbUpICS_SelectedIndexChanged(object sender, EventArgs e) {
-         if (!ignoreChange) {
-            // <TODO>
-         }
          SetButtonEnables();
       }
 
       // The number of characters changed
       private void cbUpCount_SelectedIndexChanged(object sender, EventArgs e) {
          if (!ignoreChange) {
-            // <TODO>
+            CleanUpGrid();
          }
          SetButtonEnables();
       }
@@ -442,17 +430,17 @@ namespace HitachiEIP {
 
       // convert cijConnect logo file to stripes
       private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
+         bool isValid = true;
          string[] pattern = null;
          stripes = null;
          try {
-            isValid = true;
             if (File.Exists(fullFileName)) {
                using (StreamReader sr = new StreamReader(fullFileName)) {
                   // Process the header
                   string[] header = sr.ReadLine().Split(',');
                   if (header.Length > 2) {
                      font = header[0];
-                     isValid = GetFontInfo(font, out charHeight, out charWidth, out int maxICSMO, out pos, out bytesPerCharacter) &&
+                     isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
                         int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
                      if (isValid && header.Length > 3) {
                         if(!int.TryParse(header[3], out registration)) {
@@ -487,7 +475,7 @@ namespace HitachiEIP {
             BitMapToImage();
             // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
-            cbUpFont.SelectedIndex = pos;
+            cbUpFont.SelectedIndex = dotMatrixCode;
             cbUpPosition.SelectedIndex = registration;
             cbUpICS.SelectedIndex = ics;
             cbUpCount.SelectedIndex = pattern.Length - 1;
@@ -551,26 +539,26 @@ namespace HitachiEIP {
       }
 
       // get information about the selected font
-      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int pos, out int bytesPerCharacter) {
+      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode, out int bytesPerCharacter) {
          bool IsValid = true;
          switch (font.Replace('X', 'x')) {
-            case "0":
+            case "1":
             case "4x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 4;
                bytesPerCharacter = 8;
-               pos = 0;
+               dotmatrixCode = 1;
                break;
-            case "1":
+            case "2":
             case "5x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               pos = 1;
+               dotmatrixCode = 2;
                break;
-            case "2":
+            case "3":
             case "5x8":
             case "5x7":
             case "5x8(5x7)":
@@ -578,9 +566,9 @@ namespace HitachiEIP {
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               pos = 2;
+               dotmatrixCode = 3;
                break;
-            case "3":
+            case "4":
             case "9x8":
             case "9x7":
             case "9x8(9x7)":
@@ -588,102 +576,102 @@ namespace HitachiEIP {
                charWidth = 16;
                maxICS = 7;
                bytesPerCharacter = 16;
-               pos = 3;
+               dotmatrixCode = 4;
                break;
-            case "4":
+            case "5":
             case "7x10":
                charHeight = 10;
                charWidth = 8;
                maxICS = 1;
                bytesPerCharacter = 16;
-               pos = 4;
+               dotmatrixCode = 5;
                break;
-            case "5":
+            case "6":
             case "10x12":
                charHeight = 12;
                charWidth = 16;
                maxICS = 6;
                bytesPerCharacter = 32;
-               pos = 5;
+               dotmatrixCode = 6;
                break;
-            case "6":
+            case "7":
             case "12x16":
                charHeight = 16;
                charWidth = 16;
                maxICS = 4;
                bytesPerCharacter = 32;
-               pos = 6;
+               dotmatrixCode = 7;
                break;
-            case "7":
+            case "8":
             case "18x24":
                charHeight = 24;
                charWidth = 24;
                maxICS = 6;
                bytesPerCharacter = 72;
-               pos = 7;
+               dotmatrixCode = 8;
                break;
-            case "8":
+            case "9":
             case "24x32":
                charHeight = 32;
                charWidth = 32;
                maxICS = 12;
                bytesPerCharacter = 128;
-               pos = 8;
+               dotmatrixCode = 9;
                break;
-            case "9":
+            case "10":
             case "11x11":
                charHeight = 11;
                charWidth = 16;
                maxICS = 5;
                bytesPerCharacter = 32;
-               pos = 9;
+               dotmatrixCode = 10;
                break;
-            case "10":
+            case "11":
             case "5x3(Chimney)":
                charHeight = 3;
                charWidth = 5;
                maxICS = 0;
                bytesPerCharacter = 5;
-               pos = 10;
+               dotmatrixCode = 11;
                break;
-            case "11":
+            case "12":
             case "5x5(Chimney)":
                charHeight = 5;
                charWidth = 5;
                maxICS = 0;
                bytesPerCharacter = 5;
-               pos = 11;
+               dotmatrixCode = 12;
                break;
-            case "12":
+            case "13":
             case "7x5(Chimney)":
                charHeight = 5;
                charWidth = 7;
                maxICS = 0;
                bytesPerCharacter = 7;
-               pos = 12;
+               dotmatrixCode = 13;
                break;
-            case "13":
+            case "14":
             case "30x40":
                charHeight = 40;
                charWidth = 40;
                maxICS = 10;
                bytesPerCharacter = 200;
-               pos = 13;
+               dotmatrixCode = 14;
                break;
-            case "14":
+            case "15":
             case "36x48":
                charHeight = 48;
                charWidth = 48;
                maxICS = 12;
                bytesPerCharacter = 288;
-               pos = 14;
+               dotmatrixCode = 15;
                break;
             default:
-               charHeight = 0;
-               charWidth = 0;
-               maxICS = 0;
-               bytesPerCharacter = 0;
-               pos = -1;
+               charHeight = -1;
+               charWidth = -1;
+               maxICS = -1;
+               bytesPerCharacter = -1;
+               dotmatrixCode = -1;
                IsValid = false;
                break;
          }
