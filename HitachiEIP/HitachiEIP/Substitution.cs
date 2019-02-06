@@ -13,9 +13,6 @@ namespace HitachiEIP {
       EIP EIP;
       TabPage tab;
 
-      string[] attributeNames;
-      eipSubstitution_rules[] attributeValues;
-
       // Substitution Specific Controls
       GroupBox SubControls;
       Label lblRule;
@@ -49,15 +46,17 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         this.attributeNames = (string[])typeof(eipSubstitution_rules).GetEnumNames();
-         this.attributeValues = (eipSubstitution_rules[])typeof(eipSubstitution_rules).GetEnumValues();
       }
 
       #endregion
 
       #region Routines called from parent
 
+      // Build all controls unique to this class
       public void BuildSubstitutionControls() {
+         string[] attributeNames = (string[])typeof(eipSubstitution_rules).GetEnumNames();
+         eipSubstitution_rules[] attributeValues = (eipSubstitution_rules[])typeof(eipSubstitution_rules).GetEnumValues();
+
          SubControls = new GroupBox() { Text = "Substitution Rules" };
          tab.Controls.Add(SubControls);
          SubControls.Paint += GroupBorder_Paint;
@@ -77,7 +76,7 @@ namespace HitachiEIP {
 
          cbAttribute = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          SubControls.Controls.Add(cbAttribute);
-         cbAttribute.SelectedIndexChanged += CbCategory_SelectedIndexChanged;
+         cbAttribute.SelectedIndexChanged += cbCategory_SelectedIndexChanged;
          for (int i = 3; i < attributeNames.Length; i++) {
             string s = $"{attributeNames[i].Replace('_', ' ')} (0x{(int)attributeValues[i]:X2})";
             cbAttribute.Items.Add(s);
@@ -120,6 +119,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Adjust for screen resolution
       public void ResizeSubstitutionControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
          this.R = R;
 
@@ -138,6 +138,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Allow button clicke only if conditions allow it
       public void SetButtonEnables() {
          bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
          bool subEnabled = cbRule.SelectedIndex > 0 && cbAttribute.SelectedIndex > 0;
@@ -149,13 +150,28 @@ namespace HitachiEIP {
 
       #region Form Control routines
 
+      // Get the substitution rule data
       private void SubGet_Click(object sender, EventArgs e) {
+         byte[] data;
          if (visibleCategory >= 0) {
+            // Save the state on entry
+            EIP.ForwardOpen(true);
+            // Set the correct substitution Rule
+            data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
+            EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Substitution_Rules_Setting, data);
+            AttrData attr = Data.AttrDict[eipClassCode.Substitution_rules, (byte)at[visibleCategory]];
+            // Get the substitution all at once
+            EIP.ReadOneAttribute(eipClassCode.Substitution_rules, (byte)at[visibleCategory], attr, EIP.Nodata, out string dataIn);
 
+            // <TODO> decode the input once data is returned by the printer
+
+            // Restore the state
+            EIP.ForwardClose(true);
          }
          SetButtonEnables();
       }
 
+      // Set the substitution rule data
       private void SubSet_Click(object sender, EventArgs e) {
          byte[] data;
          if (visibleCategory >= 0) {
@@ -176,13 +192,16 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      private void CbCategory_SelectedIndexChanged(object sender, EventArgs e) {
+      // Hide the old controls and make the new ones visible
+      private void cbCategory_SelectedIndexChanged(object sender, EventArgs e) {
+         // Hide the current set of controls
          if (visibleCategory >= 0) {
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                subLabels[visibleCategory][i].Visible = false;
                subTexts[visibleCategory][i].Visible = false;
             }
          }
+         // Show the new set of controls
          visibleCategory = cbAttribute.SelectedIndex;
          for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
             subLabels[visibleCategory][i].Visible = true;
@@ -192,7 +211,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      // Make the group box be more visible
+      // Make the group box more visible
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
          using (Pen p = new Pen(Color.CadetBlue, 2)) {
@@ -214,7 +233,7 @@ namespace HitachiEIP {
 
       #region Service Routines
 
-      // Call o0n resize or category change
+      // Called on resize or category change
       private void resizeSubstitutions(ref ResizeInfo R) {
          if (visibleCategory >= 0 && resizeNeeded[visibleCategory]) {
             resizeNeeded[visibleCategory] = false;

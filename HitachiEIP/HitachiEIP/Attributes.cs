@@ -502,8 +502,8 @@ namespace HitachiEIP {
          for (int i = 0; i < extrasUsed; i++) {
             GetExtras_Click(ExtraGet[i], null);
          }
-         GetAll_Click(null, null);
          EIP.ForwardClose(true);
+         GetAll_Click(null, null);
          extrasLoaded = true;
          SetExtraButtonEnables(null, null);
       }
