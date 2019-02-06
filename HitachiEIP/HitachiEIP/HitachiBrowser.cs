@@ -329,6 +329,9 @@ namespace HitachiEIP {
                   trafficText += $"{EIP.GetBytes(EIP.ReadData, 46, 4)}\t{EIP.GetStatus}\t";
                   trafficText += $"{txtCount.Text}\t{txtData.Text}\t{txtDataBytes.Text}";
                }
+               if(trafficText.Length > 255) {
+                  trafficText = trafficText.Substring(0, 250);
+               }
                TrafficFileStream.WriteLine(trafficText);
             } catch (Exception e2) {
                AllGood = false;
@@ -577,6 +580,7 @@ namespace HitachiEIP {
       private void BuildTrafficFile() {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false);
+         TrafficFileStream.WriteLine("Path\tCount OK\tData OK\tAccess\tClass\tInstance\tAttribute\tCIP Status\tEtherNet/IP Status\tLength\tFormatted Data\tRawDate");
       }
 
       private void BuildLogFile() {
