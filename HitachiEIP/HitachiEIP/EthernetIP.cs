@@ -721,14 +721,14 @@ namespace HitachiEIP {
                      Add(packet, (ulong)62, 2);        // Length of added data at end
                      Add(packet, (ulong)SessionID, 4); // Session ID
                      Add(packet, (ulong)0, 4);         // Success
-                     Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Pertinent to sender
+                     Add(packet, (ulong)0, 8);         // Pertinent to sender
                      Add(packet, (ulong)0, 4);         // option flags
                      Add(packet, (ulong)0, 4);         // option interface handle
                      Add(packet, (ulong)255, 2);       // Timeout
                      Add(packet, (ulong)2, 2);         // Item count
                      Add(packet, (ulong)0, 2);         // Null type
                      Add(packet, (ulong)0, 2);         // length of 0
-                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
+                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data type
                      Add(packet, (ulong)46, 2);        // length of 46
 
                      // Common Packet
@@ -760,7 +760,7 @@ namespace HitachiEIP {
                      Add(packet, (ulong)34, 2);        // Length of added data at end
                      Add(packet, (ulong)SessionID, 4); // Session ID
                      Add(packet, (ulong)0, 4);         // Success
-                     Add(packet, (ulong)0x0100030000008601, 8, mem.BigEndian); // Pertinant to sender(Unknown for now)
+                     Add(packet, (ulong)0, 8);         // Pertinant to sender(Unknown for now)
                      Add(packet, (ulong)0, 4);         // option flags
                      Add(packet, (ulong)0, 4);         // option interface handle
                      Add(packet, (ulong)30, 2);        // Timeout
@@ -772,7 +772,7 @@ namespace HitachiEIP {
 
                      // Common Packet
                      Add(packet, (ulong)c, 1);         // Forward open
-                     Add(packet, (ulong)02, 1);        // Requested path size
+                     Add(packet, (ulong)2, 1);         // Requested path size
                      Add(packet, (byte)Segment.Class, 6);           // Class
                      Add(packet, (byte)Segment.Instance, Instance); // Instance
                      Add(packet, (ulong)7, 1);         // Priority/Time
@@ -829,12 +829,11 @@ namespace HitachiEIP {
 
       // Get data as ascii characters
       public string GetAscii(byte[] data, int start, int length) {
-         return $"\"{encode.GetString(data, 0, length)}\"";
-         //string s = encode.GetString(data, 0, Math.Min(length, 30));
-         //if (length > 30) {
-         //   s += "...";
-         //}
-         //return s;
+         string s = encode.GetString(data, 0, Math.Min(length, 20));
+         if (length > 20) {
+            s += "...";
+         }
+         return s;
       }
 
       // Convert unsigned integer to byte array

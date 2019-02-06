@@ -155,7 +155,7 @@ namespace HitachiEIP {
          new int[] { 0X6E, 0, 1, 0, 1, 0, 0, 0, 9, 0, -1},         // Input Mode
          new int[] { 0X6F, 0, 1, 0, 2, 0, 240, 1000, 11, 0, -1},   // Maximum Character Count
          new int[] { 0X70, 0, 1, 0, 2, 0, 300, 2000, 13, 0, -1},   // Maximum Registered Message Count
-         new int[] { 0X71, 0, 1, 0, 2, 0, 1, 2, 1, 0, -1},         // Barcode Information
+         new int[] { 0X71, 0, 1, 0, 1, 0, 1, 2, 1, 0, -1},         // Barcode Information
          new int[] { 0X72, 0, 1, 0, 1, 0, 0, 0, 21, 0, -1},        // Usable Character Size
          new int[] { 0X73, 0, 1, 0, 1, 0, 3, 8, 10, 0, -1},        // Maximum Calendar And Count
          new int[] { 0X74, 0, 1, 0, 1, 0, 48, 99, 14, 0, -1},      // Maximum Substitution Rule
