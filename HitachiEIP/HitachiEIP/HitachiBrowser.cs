@@ -138,18 +138,6 @@ namespace HitachiEIP {
          //Start out connected to the printer
          btnStartSession_Click(null, null);
 
-         if (EIP.SessionIsOpen) {
-            // These three flags control all traffic to/from the printer
-            if (EIP.ForwardOpen()) {
-               EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, new byte[] { 1 });
-               GetComSetting();
-               if (ComIsOn) {
-                  GetAutoReflectionSetting();
-                  GetMgmtSetting();
-               }
-               EIP.ForwardClose();
-            }
-         }
          // Force the first tab to load
          if (EIP.SessionIsOpen) {
             tclClasses_SelectedIndexChanged(null, null);
@@ -286,6 +274,21 @@ namespace HitachiEIP {
          EIP.port = port;
          EIP.StartSession();
          txtSessionID.Text = EIP.SessionID.ToString();
+
+         // Be sure that com is on
+         if (EIP.SessionIsOpen) {
+            // These three flags control all traffic to/from the printer
+            if (EIP.ForwardOpen()) {
+               EIP.WriteOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, new byte[] { 1 });
+               GetComSetting();
+               if (ComIsOn) {
+                  GetAutoReflectionSetting();
+                  GetMgmtSetting();
+               }
+               EIP.ForwardClose();
+            }
+         }
+
          SetButtonEnables();
       }
 
