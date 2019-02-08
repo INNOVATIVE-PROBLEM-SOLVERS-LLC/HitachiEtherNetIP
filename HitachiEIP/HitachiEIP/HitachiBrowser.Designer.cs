@@ -40,11 +40,11 @@
          this.cbClassCode = new System.Windows.Forms.ComboBox();
          this.lblFunction = new System.Windows.Forms.Label();
          this.cbFunction = new System.Windows.Forms.ComboBox();
-         this.lbldata = new System.Windows.Forms.Label();
-         this.txtDataBytes = new System.Windows.Forms.TextBox();
+         this.lbldataOut = new System.Windows.Forms.Label();
+         this.txtDataBytesOut = new System.Windows.Forms.TextBox();
          this.txtStatus = new System.Windows.Forms.TextBox();
          this.lblStatus = new System.Windows.Forms.Label();
-         this.txtData = new System.Windows.Forms.TextBox();
+         this.txtDataOut = new System.Windows.Forms.TextBox();
          this.lblSaveFolder = new System.Windows.Forms.Label();
          this.txtSaveFolder = new System.Windows.Forms.TextBox();
          this.btnBrowse = new System.Windows.Forms.Button();
@@ -75,9 +75,14 @@
          this.btnIssueService = new System.Windows.Forms.Button();
          this.btnManagementFlag = new System.Windows.Forms.Button();
          this.btnAutoReflection = new System.Windows.Forms.Button();
-         this.txtCount = new System.Windows.Forms.TextBox();
-         this.lblCount = new System.Windows.Forms.Label();
+         this.txtCountOut = new System.Windows.Forms.TextBox();
+         this.lblCountOut = new System.Windows.Forms.Label();
          this.btnProperties = new System.Windows.Forms.Button();
+         this.lblCountIn = new System.Windows.Forms.Label();
+         this.txtDataBytesIn = new System.Windows.Forms.TextBox();
+         this.txtCountIn = new System.Windows.Forms.TextBox();
+         this.txtDataIn = new System.Windows.Forms.TextBox();
+         this.lbldataIn = new System.Windows.Forms.Label();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -234,27 +239,27 @@
          this.cbFunction.TabIndex = 20;
          this.cbFunction.SelectedIndexChanged += new System.EventHandler(this.cbFunction_SelectedIndexChanged);
          // 
-         // lbldata
+         // lbldataOut
          // 
-         this.lbldata.Location = new System.Drawing.Point(90, 402);
-         this.lbldata.Name = "lbldata";
-         this.lbldata.Size = new System.Drawing.Size(229, 22);
-         this.lbldata.TabIndex = 22;
-         this.lbldata.Text = "Data";
-         this.lbldata.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lbldataOut.Location = new System.Drawing.Point(90, 402);
+         this.lbldataOut.Name = "lbldataOut";
+         this.lbldataOut.Size = new System.Drawing.Size(229, 22);
+         this.lbldataOut.TabIndex = 22;
+         this.lbldataOut.Text = "Data Out";
+         this.lbldataOut.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
-         // txtDataBytes
+         // txtDataBytesOut
          // 
-         this.txtDataBytes.Location = new System.Drawing.Point(28, 455);
-         this.txtDataBytes.Name = "txtDataBytes";
-         this.txtDataBytes.ReadOnly = true;
-         this.txtDataBytes.Size = new System.Drawing.Size(288, 22);
-         this.txtDataBytes.TabIndex = 23;
-         this.txtDataBytes.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtDataBytesOut.Location = new System.Drawing.Point(28, 455);
+         this.txtDataBytesOut.Name = "txtDataBytesOut";
+         this.txtDataBytesOut.ReadOnly = true;
+         this.txtDataBytesOut.Size = new System.Drawing.Size(288, 22);
+         this.txtDataBytesOut.TabIndex = 23;
+         this.txtDataBytesOut.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // txtStatus
          // 
-         this.txtStatus.Location = new System.Drawing.Point(23, 377);
+         this.txtStatus.Location = new System.Drawing.Point(26, 377);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
          this.txtStatus.Size = new System.Drawing.Size(293, 22);
@@ -270,37 +275,37 @@
          this.lblStatus.Text = "Status";
          this.lblStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
-         // txtData
+         // txtDataOut
          // 
-         this.txtData.Location = new System.Drawing.Point(87, 427);
-         this.txtData.Name = "txtData";
-         this.txtData.Size = new System.Drawing.Size(229, 22);
-         this.txtData.TabIndex = 26;
-         this.txtData.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtDataOut.Location = new System.Drawing.Point(87, 427);
+         this.txtDataOut.Name = "txtDataOut";
+         this.txtDataOut.Size = new System.Drawing.Size(229, 22);
+         this.txtDataOut.TabIndex = 26;
+         this.txtDataOut.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(23, 490);
+         this.lblSaveFolder.Location = new System.Drawing.Point(97, 554);
          this.lblSaveFolder.Name = "lblSaveFolder";
-         this.lblSaveFolder.Size = new System.Drawing.Size(202, 19);
+         this.lblSaveFolder.Size = new System.Drawing.Size(76, 19);
          this.lblSaveFolder.TabIndex = 27;
          this.lblSaveFolder.Text = "Traffic/Log";
          this.lblSaveFolder.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(26, 521);
+         this.txtSaveFolder.Location = new System.Drawing.Point(26, 553);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
-         this.txtSaveFolder.Size = new System.Drawing.Size(290, 22);
+         this.txtSaveFolder.Size = new System.Drawing.Size(65, 22);
          this.txtSaveFolder.TabIndex = 28;
          this.txtSaveFolder.Text = "c:\\Temp";
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(235, 477);
+         this.btnBrowse.Location = new System.Drawing.Point(179, 554);
          this.btnBrowse.Name = "btnBrowse";
-         this.btnBrowse.Size = new System.Drawing.Size(81, 32);
+         this.btnBrowse.Size = new System.Drawing.Size(66, 22);
          this.btnBrowse.TabIndex = 29;
          this.btnBrowse.Text = "Browse";
          this.btnBrowse.UseVisualStyleBackColor = true;
@@ -371,55 +376,55 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 474);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 453);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // tabPrintManagement
          // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 453);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 453);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 453);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
-         this.tabCalendar.Location = new System.Drawing.Point(4, 25);
+         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 474);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 453);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
          // 
          // tabSubstitution
          // 
-         this.tabSubstitution.Location = new System.Drawing.Point(4, 25);
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 474);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 453);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -494,9 +499,9 @@
          this.lstErrors.ContextMenuStrip = this.cmLog;
          this.lstErrors.FormattingEnabled = true;
          this.lstErrors.ItemHeight = 16;
-         this.lstErrors.Location = new System.Drawing.Point(26, 549);
+         this.lstErrors.Location = new System.Drawing.Point(26, 581);
          this.lstErrors.Name = "lstErrors";
-         this.lstErrors.Size = new System.Drawing.Size(290, 68);
+         this.lstErrors.Size = new System.Drawing.Size(290, 36);
          this.lstErrors.TabIndex = 35;
          this.lstErrors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstErrors_MouseDoubleClick);
          // 
@@ -577,23 +582,23 @@
          this.btnAutoReflection.UseVisualStyleBackColor = false;
          this.btnAutoReflection.Click += new System.EventHandler(this.btnAutoReflection_Click);
          // 
-         // txtCount
+         // txtCountOut
          // 
-         this.txtCount.Location = new System.Drawing.Point(28, 427);
-         this.txtCount.Name = "txtCount";
-         this.txtCount.ReadOnly = true;
-         this.txtCount.Size = new System.Drawing.Size(53, 22);
-         this.txtCount.TabIndex = 41;
-         this.txtCount.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         this.txtCountOut.Location = new System.Drawing.Point(28, 427);
+         this.txtCountOut.Name = "txtCountOut";
+         this.txtCountOut.ReadOnly = true;
+         this.txtCountOut.Size = new System.Drawing.Size(53, 22);
+         this.txtCountOut.TabIndex = 41;
+         this.txtCountOut.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
-         // lblCount
+         // lblCountOut
          // 
-         this.lblCount.Location = new System.Drawing.Point(25, 402);
-         this.lblCount.Name = "lblCount";
-         this.lblCount.Size = new System.Drawing.Size(66, 22);
-         this.lblCount.TabIndex = 23;
-         this.lblCount.Text = "#";
-         this.lblCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblCountOut.Location = new System.Drawing.Point(25, 402);
+         this.lblCountOut.Name = "lblCountOut";
+         this.lblCountOut.Size = new System.Drawing.Size(66, 22);
+         this.lblCountOut.TabIndex = 23;
+         this.lblCountOut.Text = "#";
+         this.lblCountOut.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
          // btnProperties
          // 
@@ -605,15 +610,64 @@
          this.btnProperties.UseVisualStyleBackColor = true;
          this.btnProperties.Click += new System.EventHandler(this.btnProperties_Click);
          // 
+         // lblCountIn
+         // 
+         this.lblCountIn.Location = new System.Drawing.Point(22, 480);
+         this.lblCountIn.Name = "lblCountIn";
+         this.lblCountIn.Size = new System.Drawing.Size(66, 22);
+         this.lblCountIn.TabIndex = 44;
+         this.lblCountIn.Text = "#";
+         this.lblCountIn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         // 
+         // txtDataBytesIn
+         // 
+         this.txtDataBytesIn.Location = new System.Drawing.Point(25, 533);
+         this.txtDataBytesIn.Name = "txtDataBytesIn";
+         this.txtDataBytesIn.ReadOnly = true;
+         this.txtDataBytesIn.Size = new System.Drawing.Size(288, 22);
+         this.txtDataBytesIn.TabIndex = 45;
+         this.txtDataBytesIn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // txtCountIn
+         // 
+         this.txtCountIn.Location = new System.Drawing.Point(25, 505);
+         this.txtCountIn.Name = "txtCountIn";
+         this.txtCountIn.ReadOnly = true;
+         this.txtCountIn.Size = new System.Drawing.Size(53, 22);
+         this.txtCountIn.TabIndex = 47;
+         this.txtCountIn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // txtDataIn
+         // 
+         this.txtDataIn.Location = new System.Drawing.Point(84, 505);
+         this.txtDataIn.Name = "txtDataIn";
+         this.txtDataIn.Size = new System.Drawing.Size(229, 22);
+         this.txtDataIn.TabIndex = 46;
+         this.txtDataIn.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // lbldataIn
+         // 
+         this.lbldataIn.Location = new System.Drawing.Point(87, 480);
+         this.lbldataIn.Name = "lbldataIn";
+         this.lbldataIn.Size = new System.Drawing.Size(229, 22);
+         this.lbldataIn.TabIndex = 43;
+         this.lbldataIn.Text = "Data In";
+         this.lbldataIn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.lblCountIn);
+         this.Controls.Add(this.txtDataBytesIn);
+         this.Controls.Add(this.txtCountIn);
+         this.Controls.Add(this.txtDataIn);
+         this.Controls.Add(this.lbldataIn);
          this.Controls.Add(this.btnProperties);
-         this.Controls.Add(this.lblCount);
-         this.Controls.Add(this.txtDataBytes);
-         this.Controls.Add(this.txtCount);
+         this.Controls.Add(this.lblCountOut);
+         this.Controls.Add(this.txtDataBytesOut);
+         this.Controls.Add(this.txtCountOut);
          this.Controls.Add(this.btnAutoReflection);
          this.Controls.Add(this.btnManagementFlag);
          this.Controls.Add(this.btnIssueService);
@@ -628,10 +682,10 @@
          this.Controls.Add(this.btnBrowse);
          this.Controls.Add(this.txtSaveFolder);
          this.Controls.Add(this.lblSaveFolder);
-         this.Controls.Add(this.txtData);
+         this.Controls.Add(this.txtDataOut);
          this.Controls.Add(this.txtStatus);
          this.Controls.Add(this.lblStatus);
-         this.Controls.Add(this.lbldata);
+         this.Controls.Add(this.lbldataOut);
          this.Controls.Add(this.lblFunction);
          this.Controls.Add(this.cbFunction);
          this.Controls.Add(this.lblClassCode);
@@ -677,7 +731,7 @@
       private System.Windows.Forms.ComboBox cbClassCode;
       private System.Windows.Forms.Label lblFunction;
       private System.Windows.Forms.ComboBox cbFunction;
-      private System.Windows.Forms.Label lbldata;
+      private System.Windows.Forms.Label lbldataOut;
       private System.Windows.Forms.Label lblStatus;
       private System.Windows.Forms.Label lblSaveFolder;
       private System.Windows.Forms.TextBox txtSaveFolder;
@@ -696,11 +750,11 @@
       private System.Windows.Forms.Button btnIssueService;
       private System.Windows.Forms.Button btnManagementFlag;
       private System.Windows.Forms.Button btnAutoReflection;
-      private System.Windows.Forms.Label lblCount;
-      public System.Windows.Forms.TextBox txtDataBytes;
+      private System.Windows.Forms.Label lblCountOut;
+      public System.Windows.Forms.TextBox txtDataBytesOut;
       public System.Windows.Forms.TextBox txtStatus;
-      public System.Windows.Forms.TextBox txtData;
-      public System.Windows.Forms.TextBox txtCount;
+      public System.Windows.Forms.TextBox txtDataOut;
+      public System.Windows.Forms.TextBox txtCountOut;
       private System.Windows.Forms.Button btnProperties;
       public System.Windows.Forms.TabPage tabIndex;
       public System.Windows.Forms.TabPage tabIJPOperation;
@@ -715,6 +769,11 @@
       public System.Windows.Forms.TabPage tabOpMgmt;
       public System.Windows.Forms.TabPage tabUserPattern;
       public System.Windows.Forms.TabPage tabXML;
+      private System.Windows.Forms.Label lblCountIn;
+      public System.Windows.Forms.TextBox txtDataBytesIn;
+      public System.Windows.Forms.TextBox txtCountIn;
+      public System.Windows.Forms.TextBox txtDataIn;
+      private System.Windows.Forms.Label lbldataIn;
    }
 }
 

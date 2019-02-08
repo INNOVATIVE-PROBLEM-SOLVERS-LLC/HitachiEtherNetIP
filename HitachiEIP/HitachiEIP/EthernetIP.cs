@@ -377,14 +377,15 @@ namespace HitachiEIP {
       public byte[] ReadData;
       public Int32 ReadDataLength;
 
+      public bool LengthIsValid { get; set; }
+      public bool DataIsValid { get; set; }
+
       // User data portion of the packet
       public int GetDataLength { get; set; }
       public byte[] GetData { get; set; }
       public string GetDataValue { get; set; }
       public int GetDecValue { get; set; }
       public string GetStatus { get; set; }
-      public bool GetLengthIsValid { get; set; }
-      public bool GetDataIsValid { get; set; }
 
       public int SetDataLength { get; set; } = 0;
       public byte[] SetData { get; set; } = { };
@@ -583,25 +584,25 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, AttrData attr, byte[] dataOut, out string dataIn) {
+      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, byte[] dataOut, out string dataIn) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
          dataIn = "#Error";
          if (ForwardIsOpen) {
             SetDataLength = dataOut.Length;
             SetData = dataOut;
             SetDataValue = string.Empty;
-            GetLengthIsValid = false;
-            GetDataIsValid = false;
+            LengthIsValid = false;
+            DataIsValid = false;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
-               GetLengthIsValid = CountIsValid(GetData, attr);
-               GetDataIsValid = TextIsValid(GetData, attr.Data);
+               LengthIsValid = CountIsValid(GetData, attr);
+               DataIsValid = TextIsValid(GetData, attr.Data);
                GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
                Successful = true;
             }
@@ -620,13 +621,15 @@ namespace HitachiEIP {
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         SetRequest(eipAccessCode.Set, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(eipAccessCode.Set, Class, 0x01, Attribute);
          if (ForwardIsOpen) {
             SetData = val;
             SetDataLength = (byte)val.Length;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
+               LengthIsValid = CountIsValid(SetData, attr);
+               DataIsValid = TextIsValid(SetData, attr.Data);
                Successful = true;
             }
          }
@@ -644,13 +647,15 @@ namespace HitachiEIP {
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         SetRequest(eipAccessCode.Service, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(eipAccessCode.Service, Class, 0x01, Attribute);
          if (ForwardIsOpen) {
             SetData = val;
             SetDataLength = (byte)val.Length;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
+               LengthIsValid = CountIsValid(SetData, attr);
+               DataIsValid = TextIsValid(SetData, attr.Data);
                Successful = true;
             }
          }
@@ -789,7 +794,8 @@ namespace HitachiEIP {
          return packet.ToArray<byte>();
       }
 
-      public string GetAttributeNameII(Type cc, int v) {
+      // get the human readanle name
+      public string GetAttributeName(Type cc, int v) {
          string result = Enum.GetName(cc, v);
          return result;
       }
@@ -864,8 +870,8 @@ namespace HitachiEIP {
       // Format input byte array to readable characters
       public void SetBackColor(AttrData attr, TextBox count, TextBox text, ComboBox dropdown, Prop prop) {
          count.Text = GetDataLength.ToString();
-         count.BackColor = GetLengthIsValid ? Color.LightGreen : Color.Pink;
-         text.BackColor = GetDataIsValid ? Color.LightGreen : Color.Pink;
+         count.BackColor = LengthIsValid ? Color.LightGreen : Color.Pink;
+         text.BackColor = DataIsValid ? Color.LightGreen : Color.Pink;
          text.Text = GetDataValue;
          if (attr.DropDown >= 0) {
             if (long.TryParse(GetDataValue, out long val)) {
@@ -1265,12 +1271,13 @@ namespace HitachiEIP {
          return val;
       }
 
-      private void SetRequest(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
+      private AttrData SetRequest(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
          this.Access = Access;
          this.Class = Class;
          this.Instance = Instance;
          this.Attribute = Attribute;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
+         return Data.AttrDict[Class, Attribute];
       }
 
       #endregion

@@ -182,7 +182,7 @@ namespace HitachiEIP {
       private void btnIssueGet_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
          byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
-         EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], attr, data, out string val);
+         EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data, out string val);
          txtStatus.Text = EIP.GetStatus;
          txtData.Text = EIP.GetDataValue;
          txtRawData.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);

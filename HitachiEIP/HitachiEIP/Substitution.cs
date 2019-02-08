@@ -159,9 +159,8 @@ namespace HitachiEIP {
             // Set the correct substitution Rule
             data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
             EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Substitution_Rules_Setting, data);
-            AttrData attr = Data.AttrDict[eipClassCode.Substitution_rules, (byte)at[visibleCategory]];
             // Get the substitution all at once
-            EIP.ReadOneAttribute(eipClassCode.Substitution_rules, (byte)at[visibleCategory], attr, EIP.Nodata, out string dataIn);
+            EIP.ReadOneAttribute(eipClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
 
             // <TODO> decode the input once data is returned by the printer
 

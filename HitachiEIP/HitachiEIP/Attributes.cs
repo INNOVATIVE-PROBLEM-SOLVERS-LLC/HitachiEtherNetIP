@@ -97,7 +97,7 @@ namespace HitachiEIP {
          } else {
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
             texts[tag].Text = "Loading";
-            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, attr, data, out string val);
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, data, out string val);
             EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
          SetButtonEnables();
@@ -189,8 +189,7 @@ namespace HitachiEIP {
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
          ExtraText[n].Text = "Loading";
-         AttrData attr = Data.AttrDict[ccIndex, at];
-         if (EIP.ReadOneAttribute(ccIndex, at, attr, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(ccIndex, at, EIP.Nodata, out string val)) {
             ExtraText[n].Text = val;
             ExtraText[n].BackColor = Color.LightGreen;
          } else {

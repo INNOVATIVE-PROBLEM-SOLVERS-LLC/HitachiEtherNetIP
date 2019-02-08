@@ -283,8 +283,7 @@ namespace HitachiEIP {
          EIP.ForwardOpen(true);
          for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
             byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
-            AttrData attr = Data.AttrDict[eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed];
-            bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, attr, data, out string val);
+            bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, data, out string val);
             if(Success) {
                if(EIP.GetDataLength == bytesPerCharacter) {
                   stripes[i] = BytesToStripe(charHeight, EIP.GetData);

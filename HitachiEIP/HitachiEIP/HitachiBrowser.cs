@@ -208,20 +208,27 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, btnIssueSet, 19, 5, 2, 4);
             Utils.ResizeObject(ref R, btnIssueService, 19, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblStatus, 22, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, txtStatus, 23, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, lblCount, 25, 0.5f, 1, 1);
-            Utils.ResizeObject(ref R, lbldata, 25, 2, 1, 7);
-            Utils.ResizeObject(ref R, txtCount, 26, 0.5f, 2, 1);
-            Utils.ResizeObject(ref R, txtData, 26, 2, 2, 7);
-            Utils.ResizeObject(ref R, txtDataBytes, 28, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblStatus, 21, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, txtStatus, 22, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblSaveFolder, 30, 0.5f, 2, 6);
-            Utils.ResizeObject(ref R, btnBrowse, 30, 6, 2, 3);
-            Utils.ResizeObject(ref R, txtSaveFolder, 32, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, btnProperties, 34, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblCountOut, 24, 0.5f, 1, 1);
+            Utils.ResizeObject(ref R, lbldataOut, 24, 2, 1, 7);
+            Utils.ResizeObject(ref R, txtCountOut, 25, 0.5f, 2, 1);
+            Utils.ResizeObject(ref R, txtDataOut, 25, 2, 2, 7);
+            Utils.ResizeObject(ref R, txtDataBytesOut, 27, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lstErrors, 37, 0.5f, 11, 8.5f);
+            Utils.ResizeObject(ref R, lblCountIn, 29, 0.5f, 1, 1);
+            Utils.ResizeObject(ref R, lbldataIn, 29, 2, 1, 7);
+            Utils.ResizeObject(ref R, txtCountIn, 30, 0.5f, 2, 1);
+            Utils.ResizeObject(ref R, txtDataIn, 30, 2, 2, 7);
+            Utils.ResizeObject(ref R, txtDataBytesIn, 32, 0.5f, 2, 8.5f);
+
+            Utils.ResizeObject(ref R, lblSaveFolder, 34, 0.5f, 1, 6);
+            Utils.ResizeObject(ref R, txtSaveFolder, 35, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnBrowse, 37, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnProperties, 37, 5, 2, 4);
+
+            Utils.ResizeObject(ref R, lstErrors, 40, 0.5f, 8, 8.5f);
 
             #endregion
 
@@ -324,19 +331,10 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
-               Success = EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], attr, data, out string val);
-               string trafficText = $"{EIP.LastIO}\t{EIP.GetLengthIsValid}\t{EIP.GetDataIsValid}\t";
-               trafficText += $"{EIP.Access}\t{EIP.Class}\t{EIP.Instance}\t{EIP.GetAttributeNameII(Data.ClassCodeAttributes[cbClassCode.SelectedIndex], ClassAttr[cbFunction.SelectedIndex])}\t";
-               if (Success) {
-                  trafficText += $"{EIP.GetBytes(EIP.ReadData, 46, 4)}\t{EIP.GetStatus}\t";
-                  trafficText += $"{txtCount.Text}\t{txtData.Text}\t{txtDataBytes.Text}";
-               }
-               if(trafficText.Length > 255) {
-                  trafficText = trafficText.Substring(0, 250);
-               }
-               TrafficFileStream.WriteLine(trafficText);
-            } catch (Exception e2) {
+               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
+               Success = EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
+               LogTraffic(Success);
+            } catch {
                AllGood = false;
             }
          }
@@ -347,9 +345,9 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] data = EIP.FormatOutput(txtData.Text, attr.Set);
+               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Set);
                Success = EIP.WriteOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
-               txtStatus.Text = EIP.GetStatus;
+               LogTraffic(Success);
             } catch {
                AllGood = false;
             }
@@ -361,9 +359,9 @@ namespace HitachiEIP {
          if (cbClassCode.SelectedIndex >= 0
             && cbFunction.SelectedIndex >= 0) {
             try {
-               byte[] data = EIP.FormatOutput(txtData.Text, attr.Service);
+               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Service);
                Success = EIP.ServiceAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
-               txtStatus.Text = EIP.GetStatus;
+               LogTraffic(Success);
             } catch (Exception e2) {
                AllGood = false;
             }
@@ -537,21 +535,26 @@ namespace HitachiEIP {
          } else {
             txtStatus.BackColor = Color.Pink;
          }
-         switch (e.Access) {
-            case eipAccessCode.Get:
-               txtCount.Text = EIP.GetDataLength.ToString();
-               txtData.Text = EIP.GetDataValue;
-               txtDataBytes.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
-               break;
-            case eipAccessCode.Set:
-            case eipAccessCode.Service:
-               txtCount.Text = EIP.SetDataLength.ToString();
-               txtData.Text = EIP.SetDataValue;
-               txtDataBytes.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
-               break;
-         }
+
+         txtCountOut.Text = EIP.SetDataLength.ToString();
+         txtDataOut.Text = EIP.SetDataValue;
+         txtDataBytesOut.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
+
+         txtCountIn.Text = EIP.GetDataLength.ToString();
+         txtDataIn.Text = EIP.GetDataValue;
+         txtDataBytesIn.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
+
          Type at = Data.ClassCodeAttributes[Array.IndexOf(Data.ClassCodes, e.Class)];
-         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeNameII(at, e.Attribute)} Complete");
+         string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}\t";
+         trafficText += $"{e.Access}\t{e.Class}\t{e.Instance}\t{EIP.GetAttributeName(at, e.Attribute)}\t";
+         if (e.Successful) {
+            trafficText += $"{EIP.GetBytes(EIP.ReadData, 46, 4)}\t{EIP.GetStatus}\t";
+            trafficText += $"{txtCountOut.Text}\t{txtDataOut.Text}\t{txtDataBytesOut.Text}\t";
+            trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{txtDataBytesIn.Text}";
+         }
+         TrafficFileStream.WriteLine(trafficText);
+
+         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
       }
 
       private void btnProperties_Click(object sender, EventArgs e) {
@@ -583,12 +586,12 @@ namespace HitachiEIP {
       private void BuildTrafficFile() {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false);
-         TrafficFileStream.WriteLine("Path\tCount OK\tData OK\tAccess\tClass\tInstance\tAttribute\tCIP Status\tEtherNet/IP Status\tLength\tFormatted Data\tRawDate");
+         TrafficFileStream.WriteLine(
+            "Path\tCount OK\tData OK\tAccess\tClass\tInstance\tAttribute\tCIP Status\tEtherNet/IP Status" +
+            "\t# Out\tFormatted Data Out\tRaw Data Out\t# In\tFormatted Data In\tRaw Data In");
       }
 
-      private void BuildLogFile() {
-         LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
-         LogFileStream = new StreamWriter(LogFilename, false);
+      private void LogTraffic(bool success) {
       }
 
       private void CloseTrafficFile(bool view) {
@@ -598,6 +601,11 @@ namespace HitachiEIP {
             Process.Start("notepad.exe", TrafficFilename);
             BuildTrafficFile();
          }
+      }
+
+      private void BuildLogFile() {
+         LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
+         LogFileStream = new StreamWriter(LogFilename, false);
       }
 
       private void CloseLogFile(bool view) {
@@ -618,8 +626,7 @@ namespace HitachiEIP {
 
       private bool GetComSetting() {
          bool result;
-         AttrData attr = Data.AttrDict[eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline];
-         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, attr, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(eipClassCode.IJP_operation, (byte)eipIJP_operation.Online_Offline, EIP.Nodata, out string val)) {
             if (val == "1") {
                btnCom.Text = "COM\n1";
                btnCom.BackColor = Color.LightGreen;
@@ -642,8 +649,7 @@ namespace HitachiEIP {
 
       private bool GetMgmtSetting() {
          bool result;
-         AttrData attr = Data.AttrDict[eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag];
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, attr, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Start_Stop_Management_Flag, EIP.Nodata, out string val)) {
             if (val != "0") {
                btnManagementFlag.Text = $"S/S Management\n{val}";
                btnManagementFlag.BackColor = Color.Pink;
@@ -666,8 +672,7 @@ namespace HitachiEIP {
 
       private bool GetAutoReflectionSetting() {
          bool result;
-         AttrData attr = Data.AttrDict[eipClassCode.Index, (byte)eipIndex.Automatic_reflection];
-         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, attr, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(eipClassCode.Index, (byte)eipIndex.Automatic_reflection, EIP.Nodata, out string val)) {
             if (val == "1") {
                btnAutoReflection.Text = "Auto Reflection\n1";
                btnAutoReflection.BackColor = Color.Pink;
