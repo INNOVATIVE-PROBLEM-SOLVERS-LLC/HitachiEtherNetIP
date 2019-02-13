@@ -8,7 +8,7 @@ namespace HitachiEIP {
       #region Attribute raw data tables
 
       // Print Data Management (Class Code 0x66) Complete!
-      private static int[][] PrintDataManagement = new int[][] {
+      public static int[][] PrintDataManagement = new int[][] {
          new int[] { 0X64, 0, 0, 1, 0, 0, 0, 0, 9, 0, -1, 2, 0, 1, 2000}, // Select Message
          new int[] { 0X65, 1, 0, 0, 15, 1, 0, 0, 10, 0, -1},       // Store Print Data
          new int[] { 0X67, 1, 0, 0, 2, 0, 1, 2000, 3, 0, -1},      // Delete Print Data
@@ -22,7 +22,7 @@ namespace HitachiEIP {
       };
 
       // Print Format (Class Code 0x67)
-      private static int[][] PrintFormat = new int[][] {
+      public static int[][] PrintFormat = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 0, 0, 0, 20, 1, -1},       // Message Name
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 99, 25, 0, -1},      // Print Item
          new int[] { 0X66, 0, 1, 0, 1, 0, 1, 100, 21, 0, -1},     // Number Of Columns
@@ -54,7 +54,7 @@ namespace HitachiEIP {
      };
 
       // Print Specification (Class Code 0x68)
-      private static int[][] PrintSpecification = new int[][] {
+      public static int[][] PrintSpecification = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 99, 2, 0, -1},         // Character Height
          new int[] { 0X65, 1, 1, 0, 1, 0, 1, 16, 8, 0, -1},         // Ink Drop Use
          new int[] { 0X66, 1, 1, 0, 1, 0, 0, 3, 6, 0, 17},          // High Speed Print
@@ -79,7 +79,7 @@ namespace HitachiEIP {
       };
 
       // Calendar (Class Code = 0x69) Complete!
-      private static int[][] Calendar = new int[][] {
+      public static int[][] Calendar = new int[][] {
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 0, 10, 0, -1},      // Shift Count Condition
          new int[] { 0X66, 0, 1, 0, 1, 0, 0, 8, 3, 0, -1},       // First Calendar Block Number
          new int[] { 0X67, 0, 1, 0, 1, 0, 0, 8, 1, 0, -1},       // Calendar Block Number In Item
@@ -115,13 +115,13 @@ namespace HitachiEIP {
       };
 
       // User Pattern (Class Code 0x6B) Complete!
-      private static int[][] UserPattern = new int[][] {
+      public static int[][] UserPattern = new int[][] {
          new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 1, -1}, // User Pattern Fixed
          new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 1, -1}, // User Pattern Free
      };
 
       // Substitution Rules(Class Code 0x6C) Complete!
-      private static int[][] SubstitutionRules = new int[][] {
+      public static int[][] SubstitutionRules = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 1, 99, 3, 0, -1},    // Number
          new int[] { 0X65, 1, 1, 0, 1, 1, 0, 0, 2, 1, -1},     // Name
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},     // Start Year
@@ -135,7 +135,7 @@ namespace HitachiEIP {
       };
 
       // Enviroment Setting (Class Code 0x71) Complete!
-      private static int[][] EnviromentSetting = new int[][] {
+      public static int[][] EnviromentSetting = new int[][] {
          new int[] { 0X65, 1, 1, 0, 12, 2, 0, 0, 5, 0, -1},    // Current Time
          new int[] { 0X66, 1, 1, 0, 12, 2, 0, 0, 1, 0, -1},    // Calendar Date Time
          new int[] { 0X67, 1, 1, 0, 1, 0, 1, 2, 2, 0, 4},      // Calendar Date Time Availibility
@@ -147,7 +147,7 @@ namespace HitachiEIP {
       };
 
       // Unit Information (Class Code 0x73) Complete!
-      private static int[][] UnitInformation = new int[][] {
+      public static int[][] UnitInformation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 64, 1, 0, 0, 20, 0, -1},       // Unit Information
          new int[] { 0X6B, 0, 1, 0, 12, 1, 0, 0, 15, 0, -1},       // Model Name
          new int[] { 0X6C, 0, 1, 0, 8, 0, 0, 0, 17, 0, -1},        // Serial Number
@@ -172,7 +172,7 @@ namespace HitachiEIP {
       };
 
       // Operation Management (Class Code 0x74) Complete!
-      private static int[][] OperationManagement = new int[][] {
+      public static int[][] OperationManagement = new int[][] {
          new int[] { 0X64, 0, 1, 0, 2, 1, 0, 0, 12, 0, -1},   // Operating Management
          new int[] { 0X65, 1, 1, 0, 2, 0, 0, 0, 9, 0, -1},    // Ink Operating Time
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},    // Alarm Time
@@ -189,7 +189,7 @@ namespace HitachiEIP {
      };
 
       // IJP Operation (Class Code 0x75) Complete!
-      private static int[][] IJPOperation = new int[][] {
+      public static int[][] IJPOperation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 3, 0, 0, 7, 0, -1},    // Remote operation information
          new int[] { 0X66, 0, 1, 0, 6, 3, 0, 0, 4, 0, -1},    // Fault and warning history
          new int[] { 0X67, 0, 1, 0, 1, 3, 0, 0, 6, 0, -1},    // Operating condition
@@ -203,7 +203,7 @@ namespace HitachiEIP {
       };
 
       // Count (Class Code 0x79) Complete!
-      private static int[][] Count = new int[][] {
+      public static int[][] Count = new int[][] {
          new int[] { 0X66, 0, 1, 0, 0, 0, 0, 0, 12, 0, -1},   // Number Of Count Block
          new int[] { 0X67, 1, 1, 0, 0, 1, 0, 0, 9, 0, -1},    // Initial Value
          new int[] { 0X68, 1, 1, 0, 0, 1, 0, 0, 4, 0, -1},    // Count Range 1
@@ -223,7 +223,7 @@ namespace HitachiEIP {
       };
 
       // Index (Class Code 0x7A) Complete!
-      private static int[][] Index = new int[][] {
+      public static int[][] Index = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0, -1},     // Start Stop Management Flag
          new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0, -1},      // Automatic reflection
          new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0, -1},    // Item Count
@@ -277,25 +277,25 @@ namespace HitachiEIP {
 
       // Class Codes to Attributes
       public static Type[] ClassCodeAttributes = new Type[] {
-            typeof(eipPrint_Data_Management),   // 0x66 Print data management function
-            typeof(eipPrint_format),            // 0x67 Print format function
-            typeof(eipPrint_specification),     // 0x68 Print specification function
-            typeof(eipCalendar),                // 0x69 Calendar function
-            typeof(eipUser_pattern),            // 0x6B User pattern function
-            typeof(eipSubstitution_rules),      // 0x6C Substitution rules function
-            typeof(eipEnviroment_setting),      // 0x71 Enviroment setting function
-            typeof(eipUnit_Information),        // 0x73 Unit Information function
-            typeof(eipOperation_management),    // 0x74 Operation management function
-            typeof(eipIJP_operation),           // 0x75 IJP operation function
-            typeof(eipCount),                   // 0x79 Count function
-            typeof(eipIndex),                   // 0x7A Index function
+            typeof(ccPDM),   // 0x66 Print data management function
+            typeof(ccPF),    // 0x67 Print format function
+            typeof(ccPS),    // 0x68 Print specification function
+            typeof(ccCal),   // 0x69 Calendar function
+            typeof(ccUP),    // 0x6B User pattern function
+            typeof(ccSR),    // 0x6C Substitution rules function
+            typeof(ccES),    // 0x71 Enviroment setting function
+            typeof(ccUI),    // 0x73 Unit Information function
+            typeof(ccOM),    // 0x74 Operation management function
+            typeof(ccIJP),   // 0x75 IJP operation function
+            typeof(ccCount), // 0x79 Count function
+            typeof(ccIDX),   // 0x7A Index function
          };
 
       // Class Names
-      public static string[] ClassNames = Enum.GetNames(typeof(eipClassCode));
+      public static string[] ClassNames = Enum.GetNames(typeof(ClassCode));
 
       // Class Codes
-      public static eipClassCode[] ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
+      public static ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
 
       // Class Codes with Sort Order
       public static int[,] ClassCodeSort = new int[,] {
@@ -334,10 +334,10 @@ namespace HitachiEIP {
       #region Service Routines
 
       // Lookup for getting attributes associated with a Class/Function
-      public static Dictionary<eipClassCode, byte, AttrData> AttrDict;
+      public static Dictionary<ClassCode, byte, AttrData> AttrDict;
 
       // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(eipClassCode Class, byte attr) {
+      public static AttrData GetAttrData(ClassCode Class, byte attr) {
          int[][] tab = ClassCodeData[Array.IndexOf(ClassCodes, Class)];
          for (int j = 0; j < tab.Length; j++) {
             if ((byte)tab[j][0] == attr) {
@@ -350,7 +350,7 @@ namespace HitachiEIP {
       // Build the Attribute Dictionary
       public static void BuildAttributeDictionary() {
          if (AttrDict == null) {
-            AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
+            AttrDict = new Dictionary<ClassCode, byte, AttrData>();
             for (int i = 0; i < ClassCodes.Length; i++) {
                int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
                for (int j = 0; j < ClassAttr.Length; j++) {
@@ -382,6 +382,17 @@ namespace HitachiEIP {
       }
 
       #endregion
+
+   }
+
+   public class AttrDataII<t> {
+      public AttrDataII(t Val, GSS acc, Prop data, Prop data2, bool Ignore = false) {
+
+      }
+
+      public AttrDataII(t Val, GSS acc, Prop data, bool Ignore = false) {
+
+      }
 
    }
 
@@ -456,7 +467,8 @@ namespace HitachiEIP {
 
    }
 
-   public class Dictionary<TKey1, TKey2, TValue> : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
+   public class Dictionary<TKey1, TKey2, TValue> 
+      : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
 
       #region Constructor and methods
 
@@ -481,12 +493,14 @@ namespace HitachiEIP {
       public DataFormats Fmt { get; set; }
       public long Min { get; set; }
       public long Max { get; set; }
+      public fmtDD DropDown { get; set; }
 
-      public Prop(int Len, DataFormats Fmt, long Min, long Max) {
+      public Prop(int Len, DataFormats Fmt, long Min, long Max, fmtDD DropDown = fmtDD.None) {
          this.Len = Len;
          this.Fmt = Fmt;
          this.Min = Min;
          this.Max = Max;
+         this.DropDown = DropDown;
       }
 
       #endregion

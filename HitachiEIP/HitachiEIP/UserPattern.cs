@@ -262,7 +262,7 @@ namespace HitachiEIP {
          int count = cbUpCount.SelectedIndex + 1;
          for (int i = 0; i < count; i++) {
             byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes( (uint)(pos + i), 1), b[i]);
-            EIP.WriteOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, data);
+            EIP.WriteOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
          }
          EIP.ForwardClose(true);
          SetButtonEnables();
@@ -283,7 +283,7 @@ namespace HitachiEIP {
          EIP.ForwardOpen(true);
          for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
             byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
-            bool Success = EIP.ReadOneAttribute(eipClassCode.User_pattern, (byte)eipUser_pattern.User_Pattern_Fixed, data, out string val);
+            bool Success = EIP.ReadOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data, out string val);
             if(Success) {
                if(EIP.GetDataLength == bytesPerCharacter) {
                   stripes[i] = BytesToStripe(charHeight, EIP.GetData);

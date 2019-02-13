@@ -196,12 +196,12 @@ namespace HitachiEIP {
                writer.WriteStartElement("Objects"); // Start Objects
                EIP.ForwardClose(true);
 
-               int itemCount = GetDecimalAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Number_Of_Items);
+               int itemCount = GetDecimalAttribute(ClassCode.Print_format, (byte)ccPF.Number_Of_Items);
                for (int i = 0; i < itemCount; i++) {
                   EIP.ForwardOpen(true);
 
-                  SetAttribute(eipClassCode.Index, (byte)eipIndex.Item, i + 1);
-                  string text = GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Print_Character_String);
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i + 1);
+                  string text = GetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String);
 
                   itemType = GetItemType(text);
 
@@ -211,13 +211,13 @@ namespace HitachiEIP {
 
                   writer.WriteStartElement("Font"); // Start Font
                   {
-                     writer.WriteAttributeString("HumanReadableFont", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Readable_Code));
-                     writer.WriteAttributeString("EANPrefix", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Prefix_Code));
-                     writer.WriteAttributeString("BarCode", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Barcode_Type));
-                     writer.WriteAttributeString("IncreasedWidth", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Character_Bold));
-                     writer.WriteAttributeString("InterLineSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Line_Spacing));
-                     writer.WriteAttributeString("InterCharacterSpace", GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.InterCharacter_Space));
-                     writer.WriteString(GetAttribute(eipClassCode.Print_format, (byte)eipPrint_format.Dot_Matrix));
+                     writer.WriteAttributeString("HumanReadableFont", GetAttribute(ClassCode.Print_format, (byte)ccPF.Readable_Code));
+                     writer.WriteAttributeString("EANPrefix", GetAttribute(ClassCode.Print_format, (byte)ccPF.Prefix_Code));
+                     writer.WriteAttributeString("BarCode", GetAttribute(ClassCode.Print_format, (byte)ccPF.Barcode_Type));
+                     writer.WriteAttributeString("IncreasedWidth", GetAttribute(ClassCode.Print_format, (byte)ccPF.Character_Bold));
+                     writer.WriteAttributeString("InterLineSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Spacing));
+                     writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space));
+                     writer.WriteString(GetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix));
                   }
                   writer.WriteEndElement(); // End Font
 
@@ -268,21 +268,21 @@ namespace HitachiEIP {
 
       private void WriteCounterSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Counter"); // Start Counter
-         writer.WriteAttributeString("Reset", GetAttribute(eipClassCode.Count, (byte)eipCount.Reset_Value));
+         writer.WriteAttributeString("Reset", GetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value));
          //writer.WriteAttributeString("ExternalSignal", p.CtExternalSignal);
          //writer.WriteAttributeString("ResetSignal", p.CtResetSignal);
-         writer.WriteAttributeString("CountUp", GetAttribute(eipClassCode.Count, (byte)eipCount.Direction_Value));
-         writer.WriteAttributeString("Increment", GetAttribute(eipClassCode.Count, (byte)eipCount.Increment_Value));
-         writer.WriteAttributeString("JumpTo", GetAttribute(eipClassCode.Count, (byte)eipCount.Jump_To));
-         writer.WriteAttributeString("JumpFrom", GetAttribute(eipClassCode.Count, (byte)eipCount.Jump_From));
-         writer.WriteAttributeString("UpdateUnit", GetAttribute(eipClassCode.Count, (byte)eipCount.Update_Unit_Unit));
-         writer.WriteAttributeString("UpdateIP", GetAttribute(eipClassCode.Count, (byte)eipCount.Update_Unit_Halfway));
-         writer.WriteAttributeString("Range2", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Range_2));
-         writer.WriteAttributeString("Range1", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Range_1));
-         writer.WriteAttributeString("InitialValue", GetAttribute(eipClassCode.Count, (byte)eipCount.Initial_Value));
+         writer.WriteAttributeString("CountUp", GetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value));
+         writer.WriteAttributeString("Increment", GetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value));
+         writer.WriteAttributeString("JumpTo", GetAttribute(ClassCode.Count, (byte)ccCount.Jump_To));
+         writer.WriteAttributeString("JumpFrom", GetAttribute(ClassCode.Count, (byte)ccCount.Jump_From));
+         writer.WriteAttributeString("UpdateUnit", GetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit));
+         writer.WriteAttributeString("UpdateIP", GetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway));
+         writer.WriteAttributeString("Range2", GetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2));
+         writer.WriteAttributeString("Range1", GetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1));
+         writer.WriteAttributeString("InitialValue", GetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value));
          //writer.WriteAttributeString("Format", p.RawText);
-         writer.WriteAttributeString("Multiplier", GetAttribute(eipClassCode.Count, (byte)eipCount.Count_Multiplier));
-         writer.WriteAttributeString("ZeroSuppression", GetAttribute(eipClassCode.Count, (byte)eipCount.Availibility_Of_Zero_Suppression));
+         writer.WriteAttributeString("Multiplier", GetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier));
+         writer.WriteAttributeString("ZeroSuppression", GetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression));
          writer.WriteEndElement(); //  End Counter
       }
 
@@ -293,36 +293,36 @@ namespace HitachiEIP {
 
             writer.WriteStartElement("Offset"); // Start Offset
             {
-               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Minute));
-               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Hour));
-               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Day));
-               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Month));
-               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Offset_Year));
+               writer.WriteAttributeString("Minute", GetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour));
+               writer.WriteAttributeString("Day", GetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day));
+               writer.WriteAttributeString("Month", GetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month));
+               writer.WriteAttributeString("Year", GetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year));
             }
             writer.WriteEndElement(); // End Offset
 
             writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
             {
-               writer.WriteAttributeString("DayOfWeek", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Day_Of_Week));
-               writer.WriteAttributeString("Week", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Weeks));
-               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Minute));
-               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Hour));
-               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Day));
-               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Month));
-               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Calendar, (byte)eipCalendar.Zero_Suppress_Year));
+               writer.WriteAttributeString("DayOfWeek", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week));
+               writer.WriteAttributeString("Week", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks));
+               writer.WriteAttributeString("Minute", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour));
+               writer.WriteAttributeString("Day", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day));
+               writer.WriteAttributeString("Month", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month));
+               writer.WriteAttributeString("Year", GetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year));
             }
             writer.WriteEndElement(); // End ZeroSuppress
 
             writer.WriteStartElement("EnableSubstitution"); // Start EnableSubstitution
             {
                //writer.WriteAttributeString("SubstitutionRule", p.DTSubRule);
-               writer.WriteAttributeString("DayOfWeek", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Day_Of_Week));
-               writer.WriteAttributeString("Week", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Week));
-               writer.WriteAttributeString("Minute", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Minute));
-               writer.WriteAttributeString("Hour", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Hour));
-               writer.WriteAttributeString("Day", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Day));
-               writer.WriteAttributeString("Month", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Month));
-               writer.WriteAttributeString("Year", GetAttribute(eipClassCode.Substitution_rules, (byte)eipSubstitution_rules.Year));
+               writer.WriteAttributeString("DayOfWeek", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Day_Of_Week));
+               writer.WriteAttributeString("Week", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Week));
+               writer.WriteAttributeString("Minute", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Minute));
+               writer.WriteAttributeString("Hour", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Hour));
+               writer.WriteAttributeString("Day", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Day));
+               writer.WriteAttributeString("Month", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Month));
+               writer.WriteAttributeString("Year", GetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Year));
             }
             writer.WriteEndElement(); // End EnableSubstitution
 
@@ -385,57 +385,57 @@ namespace HitachiEIP {
          writer.WriteStartElement("Printer");
          {
             {
-               writer.WriteAttributeString("Model", GetAttribute(eipClassCode.Unit_Information, (byte)eipUnit_Information.Model_Name));
+               writer.WriteAttributeString("Model", GetAttribute(ClassCode.Unit_Information, (byte)ccUI.Model_Name));
             }
             writer.WriteAttributeString("Make", "Hitachi");
 
             writer.WriteStartElement("PrintHead");
             {
-               writer.WriteAttributeString("Orientation", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Orientation));
+               writer.WriteAttributeString("Orientation", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Orientation));
             }
             writer.WriteEndElement(); // PrintHead
 
             writer.WriteStartElement("ContinuousPrinting");
             {
-               writer.WriteAttributeString("RepeatInterval", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Repeat_Interval));
-               writer.WriteAttributeString("PrintsPerTrigger", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Repeat_Count));
+               writer.WriteAttributeString("RepeatInterval", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Interval));
+               writer.WriteAttributeString("PrintsPerTrigger", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Count));
             }
             writer.WriteEndElement(); // ContinuousPrinting
 
             writer.WriteStartElement("TargetSensor");
             {
-               writer.WriteAttributeString("Filter", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Target_Sensor_Filter));
-               writer.WriteAttributeString("SetupValue", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Targer_Sensor_Filter_Value));
-               writer.WriteAttributeString("Timer", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Target_Sensor_Timer));
+               writer.WriteAttributeString("Filter", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Filter));
+               writer.WriteAttributeString("SetupValue", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Targer_Sensor_Filter_Value));
+               writer.WriteAttributeString("Timer", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Timer));
             }
             writer.WriteEndElement(); // TargetSensor
 
             writer.WriteStartElement("CharacterSize");
             {
-               writer.WriteAttributeString("Height", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Width));
-               writer.WriteAttributeString("Width", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Character_Height));
+               writer.WriteAttributeString("Height", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Width));
+               writer.WriteAttributeString("Width", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Height));
             }
             writer.WriteEndElement(); // CharacterSize
 
             writer.WriteStartElement("PrintStartDelay");
             {
-               writer.WriteAttributeString("Reverse", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Print_Start_Delay_Forward));
-               writer.WriteAttributeString("Forward", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Print_Start_Delay_Reverse));
+               writer.WriteAttributeString("Reverse", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Forward));
+               writer.WriteAttributeString("Forward", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Reverse));
             }
             writer.WriteEndElement(); // PrintStartDelay
 
             writer.WriteStartElement("EncoderSettings");
             {
-               writer.WriteAttributeString("HighSpeedPrinting", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.High_Speed_Print));
-               writer.WriteAttributeString("Divisor", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Pulse_Rate_Division_Factor));
-               writer.WriteAttributeString("ExternalEncoder", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Product_Speed_Matching));
+               writer.WriteAttributeString("HighSpeedPrinting", GetAttribute(ClassCode.Print_specification, (byte)ccPS.High_Speed_Print));
+               writer.WriteAttributeString("Divisor", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Pulse_Rate_Division_Factor));
+               writer.WriteAttributeString("ExternalEncoder", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Product_Speed_Matching));
             }
             writer.WriteEndElement(); // EncoderSettings
 
             writer.WriteStartElement("InkStream");
             {
-               writer.WriteAttributeString("InkDropUse", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Ink_Drop_Use));
-               writer.WriteAttributeString("ChargeRule", GetAttribute(eipClassCode.Print_specification, (byte)eipPrint_specification.Ink_Drop_Charge_Rule));
+               writer.WriteAttributeString("InkDropUse", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Use));
+               writer.WriteAttributeString("ChargeRule", GetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Charge_Rule));
             }
             writer.WriteEndElement(); // InkStream
 
@@ -627,76 +627,76 @@ namespace HitachiEIP {
          foreach (XmlNode c in pr.ChildNodes) {
             switch (c.Name) {
                case "PrintHead":
-                  SetAttribute(eipClassCode.Print_specification,
-                              (byte)eipPrint_specification.Character_Orientation,
+                  SetAttribute(ClassCode.Print_specification,
+                              (byte)ccPS.Character_Orientation,
                               GetAttr(c, "Orientation"));
                   //this.CharacterOrientation = GetAttr(c, "Orientation", "0");
                   break;
                case "ContinuousPrinting":
-                  SetAttribute(eipClassCode.Print_specification,
-                              (byte)eipPrint_specification.Repeat_Interval,
+                  SetAttribute(ClassCode.Print_specification,
+                              (byte)ccPS.Repeat_Interval,
                               GetAttr(c, "RepeatInterval"));
                   //this.RepeatInterval = GetAttr(c, "RepeatInterval", "0000");
-                  SetAttribute(eipClassCode.Print_specification,
-                              (byte)eipPrint_specification.Repeat_Count,
+                  SetAttribute(ClassCode.Print_specification,
+                              (byte)ccPS.Repeat_Count,
                               GetAttr(c, "PrintsPerTrigger"));
                   //this.PrintsPerTrigger = GetAttr(c, "PrintsPerTrigger", "0000");
                   break;
                case "TargetSensor":
-                  SetAttribute(eipClassCode.Print_specification,
-                             (byte)eipPrint_specification.Target_Sensor_Filter,
+                  SetAttribute(ClassCode.Print_specification,
+                             (byte)ccPS.Target_Sensor_Filter,
                              GetAttr(c, "Filter"));
                   //this.TargetSensorFilter = GetAttr(c, "Filter", "2");
-                  SetAttribute(eipClassCode.Print_specification,
-                             (byte)eipPrint_specification.Targer_Sensor_Filter_Value,
+                  SetAttribute(ClassCode.Print_specification,
+                             (byte)ccPS.Targer_Sensor_Filter_Value,
                              GetAttr(c, "SetupValue"));
                   //this.TargetSensorSetupValue = GetAttr(c, "SetupValue", "0050");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Target_Sensor_Timer,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Target_Sensor_Timer,
                             GetAttr(c, "Timer"));
                   //this.TargetSensorTimer = GetAttr(c, "Timer", "000");
                   break;
                case "CharacterSize":
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Character_Width,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Character_Width,
                             GetAttr(c, "Width"));
                   //this.CharacterWidth = GetAttr(c, "Width", "010");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Character_Height,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Character_Height,
                             GetAttr(c, "Height"));
                   //this.CharacterHeight = GetAttr(c, "Height", "70");
                   break;
                case "PrintStartDelay":
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Print_Start_Delay_Reverse,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Print_Start_Delay_Reverse,
                             GetAttr(c, "Reverse"));
                   //this.ReverseDelay = GetAttr(c, "Reverse", "0000");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Print_Start_Delay_Forward,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Print_Start_Delay_Forward,
                             GetAttr(c, "Forward"));
                   //this.ForwardDelay = GetAttr(c, "Forward", "0000");
                   break;
                case "EncoderSettings":
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.High_Speed_Print,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.High_Speed_Print,
                             GetAttr(c, "HighSpeedPrinting"));
                   //this.HighSpeedPrinting = GetAttr(c, "HighSpeedPrinting", "0");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Pulse_Rate_Division_Factor,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Pulse_Rate_Division_Factor,
                             GetAttr(c, "Divisor"));
                   //this.Divisor = GetAttr(c, "Divisor", "001");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Product_Speed_Matching,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Product_Speed_Matching,
                             GetAttr(c, "ExternalEncoder"));
                   //this.ExternalEncoder = GetAttr(c, "ExternalEncoder", false);
                   break;
                case "InkStream":
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Ink_Drop_Use,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Ink_Drop_Use,
                             GetAttr(c, "InkDropUse"));
                   //this.InkDropUse = GetAttr(c, "InkDropUse", "03");
-                  SetAttribute(eipClassCode.Print_specification,
-                            (byte)eipPrint_specification.Ink_Drop_Charge_Rule,
+                  SetAttribute(ClassCode.Print_specification,
+                            (byte)ccPS.Ink_Drop_Charge_Rule,
                             GetAttr(c, "ChargeRule"));
                   //this.InkDropChargeRule = GetAttr(c, "ChargeRule", InkDropChargeRules.Standard);
                   break;
@@ -718,56 +718,56 @@ namespace HitachiEIP {
          string initValue = GetAttr(c, "InitialValue", "0000");
          //p.CtWidth = initValue.Length;
          //p.CtInitialValue = initValue;
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Count_Range_1,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Count_Range_1,
                      GetAttr(c, "Range1"));
          //p.CtRangeStart = GetAttr(n, "Range1", "0000");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Count_Range_2,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Count_Range_2,
                      GetAttr(c, "Range2"));
          //p.CtRangeEnd = GetAttr(n, "Range2", "9999");
-         SetAttribute(eipClassCode.Count,
-                   (byte)eipCount.Update_Unit_Halfway,
+         SetAttribute(ClassCode.Count,
+                   (byte)ccCount.Update_Unit_Halfway,
                    GetAttr(c, "UpdateIP"));
          //p.CtUpdateIP = GetAttr(n, "UpdateIP", "0000");
-         SetAttribute(eipClassCode.Count,
-                  (byte)eipCount.Update_Unit_Unit,
+         SetAttribute(ClassCode.Count,
+                  (byte)ccCount.Update_Unit_Unit,
                   GetAttr(c, "UpdateUnit"));
          //p.CtUpdateUnit = GetAttr(n, "UpdateUnit", "0001");
-         SetAttribute(eipClassCode.Count,
-                    (byte)eipCount.Jump_From,
+         SetAttribute(ClassCode.Count,
+                    (byte)ccCount.Jump_From,
                     GetAttr(c, "JumpFrom"));
          //p.CtJumpFrom = GetAttr(n, "JumpFrom", "9999");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Jump_To,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Jump_To,
                      GetAttr(c, "JumpTo"));
          //p.CtJumpTo = GetAttr(n, "JumpTo", "0000");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Increment_Value,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Increment_Value,
                      GetAttr(c, "Increment"));
          //p.CtIncrement = GetAttr(n, "Increment", "01");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Direction_Value,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Direction_Value,
                      GetAttr(c, "CountUp"));
          //p.CtDirection = GetAttr(n, "CountUp", true);
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Type_Of_Reset_Signal,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Type_Of_Reset_Signal,
                      GetAttr(c, "Reset"));
          //p.CtReset = GetAttr(n, "Reset", "0");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Count_Multiplier,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Count_Multiplier,
                      GetAttr(c, "Multiplier"));
          //p.CtMultiplier = GetAttr(n, "Multiplier", "0001");
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Availibility_Of_Zero_Suppression,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Availibility_Of_Zero_Suppression,
                      GetAttr(c, "ZeroSuppression"));
          //p.CtZeroSuppression = GetAttr(n, "ZeroSuppression", false);
-         SetAttribute(eipClassCode.Count,
-                     (byte)eipCount.Type_Of_Reset_Signal,
+         SetAttribute(ClassCode.Count,
+                     (byte)ccCount.Type_Of_Reset_Signal,
                      GetAttr(c, "ResetSignal"));
          //p.CtResetSignal = GetAttr(n, "ResetSignal", "0");
-         SetAttribute(eipClassCode.Count,
-                    (byte)eipCount.Availibility_Of_External_Count,
+         SetAttribute(ClassCode.Count,
+                    (byte)ccCount.Availibility_Of_External_Count,
                     GetAttr(c, "ExternalSignal"));
          //p.CtExternalSignal = GetAttr(n, "ExternalSignal", "0");
       }
@@ -805,88 +805,88 @@ namespace HitachiEIP {
          //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
 
          n = item.SelectSingleNode("Date/Offset");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Offset_Year,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Offset_Year,
                    GetAttr(n, "Year"));
          //p.DtYearOffset = GetAttr(n, "Year", "0000");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Offset_Month,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Offset_Month,
                    GetAttr(n, "Month"));
          //p.DtMonthOffset = GetAttr(n, "Month", "0000");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Offset_Day,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Offset_Day,
                    GetAttr(n, "Day"));
          //p.DtDayOffset = GetAttr(n, "Day", "0000");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Offset_Hour,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Offset_Hour,
                    GetAttr(n, "Hour"));
          //p.DtHourOffset = GetAttr(n, "Hour", "0000");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Offset_Minute,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Offset_Minute,
                    GetAttr(n, "Minute"));
          //p.DtMinuteOffset = GetAttr(n, "Minute", "0000");
 
          n = item.SelectSingleNode("Date/ZeroSuppress");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Year,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Year,
                    GetAttr(n, "Year"));
          //p.DtYearZS = GetAttr(n, "Year", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Month,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Month,
                    GetAttr(n, "Month"));
          //p.DtMonthZS = GetAttr(n, "Month", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Day,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Day,
                    GetAttr(n, "Day"));
          //p.DtDayZS = GetAttr(n, "Day", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Hour,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Hour,
                    GetAttr(n, "Hour"));
          //p.DtHourZS = GetAttr(n, "Hour", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Minute,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Minute,
                    GetAttr(n, "Minute"));
          //p.DtMinuteZS = GetAttr(n, "Minute", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Weeks,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Weeks,
                    GetAttr(n, "Week"));
          //p.DtWeekZS = GetAttr(n, "Week", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Zero_Suppress_Day_Of_Week,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Zero_Suppress_Day_Of_Week,
                    GetAttr(n, "DayOfWeek"));
          //p.DtDayOfWeekZS = GetAttr(n, "DayOfWeek", false);
 
          n = item.SelectSingleNode("Date/EnableSubstitution");
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Year,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Year,
                    GetAttr(n, "Year"));
          //p.DtYearSub = GetAttr(n, "Year", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Month,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Month,
                    GetAttr(n, "Month"));
          //p.DtMonthSub = GetAttr(n, "Month", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Day,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Day,
                    GetAttr(n, "Day"));
          //p.DtDaySub = GetAttr(n, "Day", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Hour,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Hour,
                    GetAttr(n, "Hour"));
          //p.DtHourSub = GetAttr(n, "Hour", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Minute,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Minute,
                    GetAttr(n, "Minute"));
          //p.DtMinuteSub = GetAttr(n, "Minute", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Weeks,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Weeks,
                    GetAttr(n, "Week"));
          //p.DtWeekSub = GetAttr(n, "Week", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Substitute_Rule_Day_Of_Week,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Substitute_Rule_Day_Of_Week,
                    GetAttr(n, "DayOfWeek"));
          //p.DtDayOfWeekSub = GetAttr(n, "DayOfWeek", false);
-         SetAttribute(eipClassCode.Calendar,
-                   (byte)eipCalendar.Calendar_Block_Number_In_Item,
+         SetAttribute(ClassCode.Calendar,
+                   (byte)ccCal.Calendar_Block_Number_In_Item,
                    GetAttr(n, "SubstitutionRule"));
          //p.DTSubRule = GetAttr(n, "SubstitutionRule", "01");
       }
@@ -919,34 +919,34 @@ namespace HitachiEIP {
       }
 
       // Get the contents of one attribute
-      private string GetAttribute(eipClassCode Class, byte Attribute) {
+      private string GetAttribute(ClassCode Class, byte Attribute) {
          // <TODO> Some data may be required in place of NoData
          bool successful = EIP.ReadOneAttribute(Class, Attribute, EIP.Nodata, out string val);
          return val;
       }
 
       // Get the value of an attribute that is known to be a decimal number
-      private int GetDecimalAttribute(eipClassCode Class, byte Attribute) {
+      private int GetDecimalAttribute(ClassCode Class, byte Attribute) {
          GetAttribute(Class, Attribute);
          return EIP.GetDecValue;
       }
 
       // Set one attribute based on the Set Property
-      private void SetAttribute(eipClassCode Class, byte Attribute, int n) {
+      private void SetAttribute(ClassCode Class, byte Attribute, int n) {
          AttrData attr = Data.AttrDict[Class, Attribute];
          byte[] data = EIP.ToBytes((uint)n, attr.Set.Len);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
       // Set one attribute based on the Set Property
-      private void SetAttribute(eipClassCode Class, byte Attribute, string s) {
+      private void SetAttribute(ClassCode Class, byte Attribute, string s) {
          AttrData attr = Data.AttrDict[Class, Attribute];
          byte[] data = EIP.FormatOutput(s, attr.Set);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
       // Set one attribute based on the Set Property
-      private void ServiceAttribute(eipClassCode Class, byte Attribute, int n) {
+      private void ServiceAttribute(ClassCode Class, byte Attribute, int n) {
          // <TODO> Need to format the output.
          bool successful = EIP.ServiceAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Service.Len));
       }
