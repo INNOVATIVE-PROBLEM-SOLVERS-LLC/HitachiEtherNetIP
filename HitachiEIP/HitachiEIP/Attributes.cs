@@ -73,7 +73,7 @@ namespace HitachiEIP {
          this.cc = cc;
          attrs = new AttrData[attributes.Length];
          for (int i = 0; i < attributes.Length; i++) {
-            attrs[i] = Data.AttrDict[cc, Convert.ToByte(attributes[i])];
+            attrs[i] = DataII.AttrDict[cc, Convert.ToByte(attributes[i])];
          }
          this.Extras = Extras;
 
@@ -202,7 +202,7 @@ namespace HitachiEIP {
          Button b = (Button)sender;
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
-         AttrData attr = Data.AttrDict[ClassCode.Index, at];
+         AttrData attr = DataII.AttrDict[ClassCode.Index, at];
          int len = attr.Set.Len;
          if (!long.TryParse(ExtraText[n].Text, out long val)) {
             val = attr.Set.Min;
@@ -553,7 +553,7 @@ namespace HitachiEIP {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
          for (int i = 0; i < extrasUsed; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
-            AttrData attr = Data.AttrDict[ClassCode.Index, at];
+            AttrData attr = DataII.AttrDict[ClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
                val >= attr.Data.Min && val <= attr.Data.Max;

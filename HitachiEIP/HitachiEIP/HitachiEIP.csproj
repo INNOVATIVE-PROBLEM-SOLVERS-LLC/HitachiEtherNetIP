@@ -85,12 +85,6 @@
       <DependentUpon>HitachiBrowser.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="AttrProperties.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AttrProperties.Designer.cs">
-      <DependentUpon>AttrProperties.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Substitution.cs" />
     <Compile Include="UserPattern.cs" />
@@ -98,9 +92,6 @@
     <Compile Include="XML.cs" />
     <EmbeddedResource Include="HitachiBrowser.resx">
       <DependentUpon>HitachiBrowser.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AttrProperties.resx">
-      <DependentUpon>AttrProperties.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

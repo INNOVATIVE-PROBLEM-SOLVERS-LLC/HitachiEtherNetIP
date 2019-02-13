@@ -933,14 +933,14 @@ namespace HitachiEIP {
 
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, int n) {
-         AttrData attr = Data.AttrDict[Class, Attribute];
+         AttrData attr = DataII.AttrDict[Class, Attribute];
          byte[] data = EIP.ToBytes((uint)n, attr.Set.Len);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, string s) {
-         AttrData attr = Data.AttrDict[Class, Attribute];
+         AttrData attr = DataII.AttrDict[Class, Attribute];
          byte[] data = EIP.FormatOutput(s, attr.Set);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
@@ -948,7 +948,7 @@ namespace HitachiEIP {
       // Set one attribute based on the Set Property
       private void ServiceAttribute(ClassCode Class, byte Attribute, int n) {
          // <TODO> Need to format the output.
-         bool successful = EIP.ServiceAttribute(Class, Attribute, EIP.ToBytes((uint)n, Data.AttrDict[Class, Attribute].Service.Len));
+         bool successful = EIP.ServiceAttribute(Class, Attribute, EIP.ToBytes((uint)n, DataII.AttrDict[Class, Attribute].Service.Len));
       }
 
       // Only allow buttons if conditions are right to process the request

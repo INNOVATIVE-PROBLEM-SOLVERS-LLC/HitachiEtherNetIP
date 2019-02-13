@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HitachiEIP {
 
@@ -8,7 +9,7 @@ namespace HitachiEIP {
       #region Attribute raw data tables
 
       // Print Data Management (Class Code 0x66) Complete!
-      public static int[][] PrintDataManagement = new int[][] {
+      private static int[][] PrintDataManagement = new int[][] {
          new int[] { 0X64, 0, 0, 1, 0, 0, 0, 0, 9, 0, -1, 2, 0, 1, 2000}, // Select Message
          new int[] { 0X65, 1, 0, 0, 15, 1, 0, 0, 10, 0, -1},       // Store Print Data
          new int[] { 0X67, 1, 0, 0, 2, 0, 1, 2000, 3, 0, -1},      // Delete Print Data
@@ -22,7 +23,7 @@ namespace HitachiEIP {
       };
 
       // Print Format (Class Code 0x67)
-      public static int[][] PrintFormat = new int[][] {
+      private static int[][] PrintFormat = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 0, 0, 0, 20, 1, -1},       // Message Name
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 99, 25, 0, -1},      // Print Item
          new int[] { 0X66, 0, 1, 0, 1, 0, 1, 100, 21, 0, -1},     // Number Of Columns
@@ -54,7 +55,7 @@ namespace HitachiEIP {
      };
 
       // Print Specification (Class Code 0x68)
-      public static int[][] PrintSpecification = new int[][] {
+      private static int[][] PrintSpecification = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 99, 2, 0, -1},         // Character Height
          new int[] { 0X65, 1, 1, 0, 1, 0, 1, 16, 8, 0, -1},         // Ink Drop Use
          new int[] { 0X66, 1, 1, 0, 1, 0, 0, 3, 6, 0, 17},          // High Speed Print
@@ -79,7 +80,7 @@ namespace HitachiEIP {
       };
 
       // Calendar (Class Code = 0x69) Complete!
-      public static int[][] Calendar = new int[][] {
+      private static int[][] Calendar = new int[][] {
          new int[] { 0X65, 0, 1, 0, 1, 0, 0, 0, 10, 0, -1},      // Shift Count Condition
          new int[] { 0X66, 0, 1, 0, 1, 0, 0, 8, 3, 0, -1},       // First Calendar Block Number
          new int[] { 0X67, 0, 1, 0, 1, 0, 0, 8, 1, 0, -1},       // Calendar Block Number In Item
@@ -115,13 +116,13 @@ namespace HitachiEIP {
       };
 
       // User Pattern (Class Code 0x6B) Complete!
-      public static int[][] UserPattern = new int[][] {
+      private static int[][] UserPattern = new int[][] {
          new int[] { 0X64, 1, 1, 0, 0, 0, 0, 0, 1, 1, -1}, // User Pattern Fixed
          new int[] { 0X65, 1, 1, 0, 0, 0, 0, 0, 2, 1, -1}, // User Pattern Free
      };
 
       // Substitution Rules(Class Code 0x6C) Complete!
-      public static int[][] SubstitutionRules = new int[][] {
+      private static int[][] SubstitutionRules = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 1, 99, 3, 0, -1},    // Number
          new int[] { 0X65, 1, 1, 0, 1, 1, 0, 0, 2, 1, -1},     // Name
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},     // Start Year
@@ -135,7 +136,7 @@ namespace HitachiEIP {
       };
 
       // Enviroment Setting (Class Code 0x71) Complete!
-      public static int[][] EnviromentSetting = new int[][] {
+      private static int[][] EnviromentSetting = new int[][] {
          new int[] { 0X65, 1, 1, 0, 12, 2, 0, 0, 5, 0, -1},    // Current Time
          new int[] { 0X66, 1, 1, 0, 12, 2, 0, 0, 1, 0, -1},    // Calendar Date Time
          new int[] { 0X67, 1, 1, 0, 1, 0, 1, 2, 2, 0, 4},      // Calendar Date Time Availibility
@@ -147,7 +148,7 @@ namespace HitachiEIP {
       };
 
       // Unit Information (Class Code 0x73) Complete!
-      public static int[][] UnitInformation = new int[][] {
+      private static int[][] UnitInformation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 64, 1, 0, 0, 20, 0, -1},       // Unit Information
          new int[] { 0X6B, 0, 1, 0, 12, 1, 0, 0, 15, 0, -1},       // Model Name
          new int[] { 0X6C, 0, 1, 0, 8, 0, 0, 0, 17, 0, -1},        // Serial Number
@@ -172,7 +173,7 @@ namespace HitachiEIP {
       };
 
       // Operation Management (Class Code 0x74) Complete!
-      public static int[][] OperationManagement = new int[][] {
+      private static int[][] OperationManagement = new int[][] {
          new int[] { 0X64, 0, 1, 0, 2, 1, 0, 0, 12, 0, -1},   // Operating Management
          new int[] { 0X65, 1, 1, 0, 2, 0, 0, 0, 9, 0, -1},    // Ink Operating Time
          new int[] { 0X66, 1, 1, 0, 2, 0, 0, 0, 1, 0, -1},    // Alarm Time
@@ -189,7 +190,7 @@ namespace HitachiEIP {
      };
 
       // IJP Operation (Class Code 0x75) Complete!
-      public static int[][] IJPOperation = new int[][] {
+      private static int[][] IJPOperation = new int[][] {
          new int[] { 0X64, 0, 1, 0, 1, 3, 0, 0, 7, 0, -1},    // Remote operation information
          new int[] { 0X66, 0, 1, 0, 6, 3, 0, 0, 4, 0, -1},    // Fault and warning history
          new int[] { 0X67, 0, 1, 0, 1, 3, 0, 0, 6, 0, -1},    // Operating condition
@@ -203,7 +204,7 @@ namespace HitachiEIP {
       };
 
       // Count (Class Code 0x79) Complete!
-      public static int[][] Count = new int[][] {
+      private static int[][] Count = new int[][] {
          new int[] { 0X66, 0, 1, 0, 0, 0, 0, 0, 12, 0, -1},   // Number Of Count Block
          new int[] { 0X67, 1, 1, 0, 0, 1, 0, 0, 9, 0, -1},    // Initial Value
          new int[] { 0X68, 1, 1, 0, 0, 1, 0, 0, 4, 0, -1},    // Count Range 1
@@ -223,7 +224,7 @@ namespace HitachiEIP {
       };
 
       // Index (Class Code 0x7A) Complete!
-      public static int[][] Index = new int[][] {
+      private static int[][] Index = new int[][] {
          new int[] { 0X64, 1, 1, 0, 1, 0, 0, 2, 10, 0, -1},     // Start Stop Management Flag
          new int[] { 0X65, 1, 1, 0, 1, 0, 0, 1, 1, 0, -1},      // Automatic reflection
          new int[] { 0X66, 1, 1, 0, 2, 0, 1, 100, 6, 0, -1},    // Item Count
@@ -238,6 +239,58 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0, 0},       // Calendar Block
       };
 
+      public static void ReformatTables(StreamWriter RFS) {
+
+         DumpTable(RFS, PrintDataManagement, ClassCode.Print_data_management, typeof(ccPDM));
+         DumpTable(RFS, PrintFormat, ClassCode.Print_format, typeof(ccPF));
+         DumpTable(RFS, PrintSpecification, ClassCode.Print_specification, typeof(ccPS));
+         DumpTable(RFS, Calendar, ClassCode.Calendar, typeof(ccCal));
+         DumpTable(RFS, UserPattern, ClassCode.User_pattern, typeof(ccUP));
+         DumpTable(RFS, SubstitutionRules, ClassCode.Substitution_rules, typeof(ccSR));
+         DumpTable(RFS, EnviromentSetting, ClassCode.Enviroment_setting, typeof(ccES));
+         DumpTable(RFS, UnitInformation, ClassCode.Unit_Information, typeof(ccUI));
+         DumpTable(RFS, OperationManagement, ClassCode.Operation_management, typeof(ccOM));
+         DumpTable(RFS, IJPOperation, ClassCode.IJP_operation, typeof(ccIJP));
+         DumpTable(RFS, Count, ClassCode.Count, typeof(ccCount));
+         DumpTable(RFS, Index, ClassCode.Index, typeof(ccIDX));
+
+      }
+
+      private static void DumpTable(StreamWriter RFS, int[][] tbl, ClassCode cc, Type at) {
+         string name = at.ToString();
+         name = name.Substring(name.IndexOf('.') + 1);
+         RFS.WriteLine($"\t// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
+         RFS.WriteLine($"\tprivate static AttrData[] {name}_Addrs = new AttrData[] {{");
+         string[] attrNames = Enum.GetNames(at);
+         for (int i = 0; i < tbl.Length; i++) {
+            string access = string.Empty;
+            if (tbl[i][2] > 0) {
+               access += "Get";
+            }
+            if (tbl[i][1] > 0) {
+               access += "Set";
+            }
+            if (tbl[i][3] > 0) {
+               access += "Service";
+            }
+            string ignore = tbl[i][9] > 0 ? "true" : "false";
+            string fmt = ((DataFormats)tbl[i][5]).ToString();
+            string printLine = $"\t\t\tnew AttrData((byte){name}.{attrNames[i]}, GSS.{access}, {ignore}, {tbl[i][8]},";
+            string spaces = new string(' ', Math.Max(70 - printLine.Length, 1));
+            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")}");
+            if (tbl[i].Length == 11) {
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]})),");
+            } else {
+               string fmt2 = ((DataFormats)tbl[i][12]).ToString();
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]}),");
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][11]}, DataFormats.{fmt2}, {tbl[i][13]}, {tbl[i][14]}, fmtDD.{(fmtDD)tbl[i][10]})),");
+            }
+         }
+
+         RFS.WriteLine("\t\t};");
+
+         RFS.WriteLine();
+      }
       #endregion
 
       #region Conversion Tables
@@ -275,46 +328,30 @@ namespace HitachiEIP {
                                                                       // 19 - User Pattern Font Types
       };
 
-      // Class Codes to Attributes
-      public static Type[] ClassCodeAttributes = new Type[] {
-            typeof(ccPDM),   // 0x66 Print data management function
-            typeof(ccPF),    // 0x67 Print format function
-            typeof(ccPS),    // 0x68 Print specification function
-            typeof(ccCal),   // 0x69 Calendar function
-            typeof(ccUP),    // 0x6B User pattern function
-            typeof(ccSR),    // 0x6C Substitution rules function
-            typeof(ccES),    // 0x71 Enviroment setting function
-            typeof(ccUI),    // 0x73 Unit Information function
-            typeof(ccOM),    // 0x74 Operation management function
-            typeof(ccIJP),   // 0x75 IJP operation function
-            typeof(ccCount), // 0x79 Count function
-            typeof(ccIDX),   // 0x7A Index function
-         };
+      //// Class Codes to Attributes
+      //public static Type[] ClassCodeAttributes = new Type[] {
+      //      typeof(ccPDM),   // 0x66 Print data management function
+      //      typeof(ccPF),    // 0x67 Print format function
+      //      typeof(ccPS),    // 0x68 Print specification function
+      //      typeof(ccCal),   // 0x69 Calendar function
+      //      typeof(ccUP),    // 0x6B User pattern function
+      //      typeof(ccSR),    // 0x6C Substitution rules function
+      //      typeof(ccES),    // 0x71 Enviroment setting function
+      //      typeof(ccUI),    // 0x73 Unit Information function
+      //      typeof(ccOM),    // 0x74 Operation management function
+      //      typeof(ccIJP),   // 0x75 IJP operation function
+      //      typeof(ccCount), // 0x79 Count function
+      //      typeof(ccIDX),   // 0x7A Index function
+      //   };
 
-      // Class Names
-      public static string[] ClassNames = Enum.GetNames(typeof(ClassCode));
+      //// Class Names
+      //public static string[] ClassNames = Enum.GetNames(typeof(ClassCode));
 
-      // Class Codes
-      public static ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
-
-      // Class Codes with Sort Order
-      public static int[,] ClassCodeSort = new int[,] {
-         { 0X66, 7},   // Print data management function
-         { 0X67, 8},   // Print format function
-         { 0X68, 9},   // Print specification function
-         { 0X69, 1},   // Calendar function
-         { 0X6B, 12},  // User pattern function
-         { 0X6C, 10},  // Substitution rules function
-         { 0X71, 3},   // Enviroment setting function
-         { 0X73, 11},  // Unit Information function
-         { 0X74, 6},   // Operation management function
-         { 0X75, 4},   // IJP operation function
-         { 0X79, 2},   // Count function
-         { 0X7A, 5},   // Index function
-      };
+      //// Class Codes
+      //public static ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
 
       // Class Codes to Data Tables Conversion
-      public static int[][][] ClassCodeData = new int[][][] {
+      private static int[][][] ClassCodeData = new int[][][] {
             PrintDataManagement,           // 0x66 Print data management function
             PrintFormat,                   // 0x67 Print format function
             PrintSpecification,            // 0x68 Print specification function
@@ -333,66 +370,34 @@ namespace HitachiEIP {
 
       #region Service Routines
 
-      // Lookup for getting attributes associated with a Class/Function
-      public static Dictionary<ClassCode, byte, AttrData> AttrDict;
+      //// Lookup for getting attributes associated with a Class/Function
+      //public static Dictionary<ClassCode, byte, AttrData> AttrDict;
 
       // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(ClassCode Class, byte attr) {
-         int[][] tab = ClassCodeData[Array.IndexOf(ClassCodes, Class)];
-         for (int j = 0; j < tab.Length; j++) {
-            if ((byte)tab[j][0] == attr) {
-               return new AttrData(tab[j]);
-            }
-         }
-         return null;
-      }
+      //public static AttrData GetAttrData(ClassCode Class, byte attr) {
+      //   int[][] tab = ClassCodeData[Array.IndexOf(ClassCodes, Class)];
+      //   for (int j = 0; j < tab.Length; j++) {
+      //      if ((byte)tab[j][0] == attr) {
+      //         return new AttrData(tab[j]);
+      //      }
+      //   }
+      //   return null;
+      //}
 
-      // Build the Attribute Dictionary
-      public static void BuildAttributeDictionary() {
-         if (AttrDict == null) {
-            AttrDict = new Dictionary<ClassCode, byte, AttrData>();
-            for (int i = 0; i < ClassCodes.Length; i++) {
-               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
-               for (int j = 0; j < ClassAttr.Length; j++) {
-                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
-               }
-            }
-         }
-      }
-
-      #endregion
-
-   }
-
-   public class ClassCodeData {
-
-      #region Properties and Constructor
-
-      // Class Codes = { 
-      //   [0] = value, 
-      //   [1] = AlphaSortOrder }
-
-      int[] values;
-
-      public byte Val { get { return (byte)values[0]; } }
-      public int Order { get { return values[1] - 1; } }
-
-      public ClassCodeData(int[] values) {
-         this.values = values;
-      }
+      //// Build the Attribute Dictionary
+      //public static void BuildAttributeDictionary() {
+      //   if (AttrDict == null) {
+      //      AttrDict = new Dictionary<ClassCode, byte, AttrData>();
+      //      for (int i = 0; i < ClassCodes.Length; i++) {
+      //         int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
+      //         for (int j = 0; j < ClassAttr.Length; j++) {
+      //            AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], DataII.GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
+      //         }
+      //      }
+      //   }
+      //}
 
       #endregion
-
-   }
-
-   public class AttrDataII<t> {
-      public AttrDataII(t Val, GSS acc, Prop data, Prop data2, bool Ignore = false) {
-
-      }
-
-      public AttrDataII(t Val, GSS acc, Prop data, bool Ignore = false) {
-
-      }
 
    }
 
@@ -463,11 +468,38 @@ namespace HitachiEIP {
 
       }
 
+      public AttrData(byte Val, GSS acc, bool Ignore, int Order, Prop data, Prop data2 = null) {
+         this.Val = Val;
+         this.HasSet = acc == GSS.Set || acc == GSS.GetSet;
+         this.HasGet = acc == GSS.Get || acc == GSS.GetSet;
+         this.HasService = acc == GSS.Service;
+         this.Ignore = Ignore;
+         this.Order = Order;
+
+         this.Data = Data;
+         if (HasSet) {
+            Set = Data;
+         }
+         if (data2 != null) {
+            if (HasGet) {
+               Get = data2;
+            } else if (HasService) {
+               Service = data2;
+            }
+         } else {
+            if (HasGet) {
+               Get = new Prop(0, DataFormats.Decimal, 0, 0);
+            } else if (HasService) {
+               Service = Get = new Prop(0, DataFormats.Decimal, 0, 0);
+            }
+         }
+      }
+
       #endregion
 
    }
 
-   public class Dictionary<TKey1, TKey2, TValue> 
+   public class Dictionary<TKey1, TKey2, TValue>
       : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
 
       #region Constructor and methods

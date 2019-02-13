@@ -48,8 +48,8 @@ namespace HitachiEIP {
          cbFormat.Items.AddRange(Enum.GetNames(typeof(DataFormats)));
 
          cbClassCode.Items.Clear();
-         for (int i = 0; i < Data.ClassNames.Length; i++) {
-            cbClassCode.Items.Add($"{Data.ClassNames[i].Replace('_', ' ')} (0x{(byte)Data.ClassCodes[i]:X2})");
+         for (int i = 0; i < DataII.ClassNames.Length; i++) {
+            cbClassCode.Items.Add($"{DataII.ClassNames[i].Replace('_', ' ')} (0x{(byte)DataII.ClassCodes[i]:X2})");
          }
          cbClassCode.SelectedIndex = selectedCC;
          cbAttribute.SelectedIndex = selectedAttr;
@@ -117,8 +117,8 @@ namespace HitachiEIP {
 
          if (cbClassCode.SelectedIndex >= 0) {
             // Get all names associated with the enumeration
-            string[] names = Data.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumNames();
-            ClassAttr = (int[])Data.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumValues();
+            string[] names = DataII.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumNames();
+            ClassAttr = (int[])DataII.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumValues();
             for (int i = 0; i < names.Length; i++) {
                cbAttribute.Items.Add($"{names[i].Replace('_', ' ')}  (0x{ClassAttr[i]:X2})");
             }
@@ -131,7 +131,7 @@ namespace HitachiEIP {
          btnIssueSet.Visible = false;
          btnIssueService.Visible = false;
          if (cbClassCode.SelectedIndex >= 0 && cbAttribute.SelectedIndex >= 0) {
-            attr = new AttrData(Data.ClassCodeData[cbClassCode.SelectedIndex][cbAttribute.SelectedIndex]);
+            attr = new AttrData(DataII.ClassCodeData[cbClassCode.SelectedIndex][cbAttribute.SelectedIndex]);
             btnIssueGet.Visible = attr.HasGet;
             btnIssueSet.Visible = attr.HasSet;
             btnIssueService.Visible = attr.HasService;
@@ -175,14 +175,14 @@ namespace HitachiEIP {
       private void btnIssueSet_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
          byte[] data = EIP.FormatOutput(txtData.Text, attr.Set);
-         EIP.WriteOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data);
+         EIP.WriteOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data);
          txtStatus.Text = EIP.GetStatus;
       }
 
       private void btnIssueGet_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
          byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
-         EIP.ReadOneAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data, out string val);
+         EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data, out string val);
          txtStatus.Text = EIP.GetStatus;
          txtData.Text = EIP.GetDataValue;
          txtRawData.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
@@ -191,7 +191,7 @@ namespace HitachiEIP {
       private void btnIssueService_Click(object sender, EventArgs e) {
          AttrData attr = localAttr();
          byte[] data = EIP.FormatOutput(txtData.Text, attr.Get);
-         EIP.ServiceAttribute(Data.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data);
+         EIP.ServiceAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbAttribute.SelectedIndex], data);
          txtStatus.Text = EIP.GetStatus;
       }
 

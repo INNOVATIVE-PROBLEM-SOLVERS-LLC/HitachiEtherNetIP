@@ -412,7 +412,7 @@ namespace HitachiEIP {
          this.IPAddress = IPAddress;
          this.port = port;
 
-         Data.BuildAttributeDictionary();
+         DataII.BuildAttributeDictionary();
       }
 
       #endregion
@@ -1283,7 +1283,7 @@ namespace HitachiEIP {
          this.Instance = Instance;
          this.Attribute = Attribute;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
-         return Data.AttrDict[Class, Attribute];
+         return DataII.AttrDict[Class, Attribute];
       }
 
       #endregion
