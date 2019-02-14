@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace HitachiEIP {
 
@@ -238,255 +239,57 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0, 0},       // Calendar Block
       };
 
-      #endregion
+      public static void ReformatTables(StreamWriter RFS) {
 
-      #region Conversion Tables
+         DumpTable(RFS, PrintDataManagement, ClassCode.Print_data_management, typeof(ccPDM));
+         DumpTable(RFS, PrintFormat, ClassCode.Print_format, typeof(ccPF));
+         DumpTable(RFS, PrintSpecification, ClassCode.Print_specification, typeof(ccPS));
+         DumpTable(RFS, Calendar, ClassCode.Calendar, typeof(ccCal));
+         DumpTable(RFS, UserPattern, ClassCode.User_pattern, typeof(ccUP));
+         DumpTable(RFS, SubstitutionRules, ClassCode.Substitution_rules, typeof(ccSR));
+         DumpTable(RFS, EnviromentSetting, ClassCode.Enviroment_setting, typeof(ccES));
+         DumpTable(RFS, UnitInformation, ClassCode.Unit_Information, typeof(ccUI));
+         DumpTable(RFS, OperationManagement, ClassCode.Operation_management, typeof(ccOM));
+         DumpTable(RFS, IJPOperation, ClassCode.IJP_operation, typeof(ccIJP));
+         DumpTable(RFS, Count, ClassCode.Count, typeof(ccCount));
+         DumpTable(RFS, Index, ClassCode.Index, typeof(ccIDX));
 
-      // Attribute DropDown conversion
-      public static string[][] DropDowns = new string[][] {
-         new string[] { },                                            // 0 - Just decimal values
-         new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
-         new string[] { "Disable", "Space Fill", "Character Fill" },  // 2 - Disable, space fill, character fill
-         new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
-         new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
-         new string[] { "Off Line", "On Line" },                      // 5 - Offline/Online
-         new string[] { "None", "Signal 1", "Signal 2" },             // 6 - None, Signal 1, Signal 2
-         new string[] { "Up", "Down" },                               // 7 - Up/Down
-         new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
-         new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
-                        "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
-                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25", "QR29x29",
-                        "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)", "GS1 DataBar (Stacked)", "DM14x14", },
-                                                                      // 9 - Barcode Types
-         new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
-         new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
-         new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
-         new string[] { "From Yesterday", "From Today" },             // 13 - From Yesterday/Today
-         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
-                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "QR33", "30x40", "36x48"  },
-                                                                      // 14 - Font Types
-         new string[] { "Normal/Forward", "Normal/Reverse",
-                         "Inverted/Forward", "Inverted/Reverse",},    // 15 - Orientation
-         new string[] { "None", "Encoder", "Auto" },                  // 16 - Product speed matching
-         new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
-         new string[] { "Time Setup", "Until End of Print" },         // 18 - Target Sensor Filter
-         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
-                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
-                                                                      // 19 - User Pattern Font Types
-      };
+      }
 
-      // Class Codes to Attributes
-      public static Type[] ClassCodeAttributes = new Type[] {
-            typeof(eipPrint_Data_Management),   // 0x66 Print data management function
-            typeof(eipPrint_format),            // 0x67 Print format function
-            typeof(eipPrint_specification),     // 0x68 Print specification function
-            typeof(eipCalendar),                // 0x69 Calendar function
-            typeof(eipUser_pattern),            // 0x6B User pattern function
-            typeof(eipSubstitution_rules),      // 0x6C Substitution rules function
-            typeof(eipEnviroment_setting),      // 0x71 Enviroment setting function
-            typeof(eipUnit_Information),        // 0x73 Unit Information function
-            typeof(eipOperation_management),    // 0x74 Operation management function
-            typeof(eipIJP_operation),           // 0x75 IJP operation function
-            typeof(eipCount),                   // 0x79 Count function
-            typeof(eipIndex),                   // 0x7A Index function
-         };
-
-      // Class Names
-      public static string[] ClassNames = Enum.GetNames(typeof(eipClassCode));
-
-      // Class Codes
-      public static eipClassCode[] ClassCodes = (eipClassCode[])Enum.GetValues(typeof(eipClassCode));
-
-      // Class Codes with Sort Order
-      public static int[,] ClassCodeSort = new int[,] {
-         { 0X66, 7},   // Print data management function
-         { 0X67, 8},   // Print format function
-         { 0X68, 9},   // Print specification function
-         { 0X69, 1},   // Calendar function
-         { 0X6B, 12},  // User pattern function
-         { 0X6C, 10},  // Substitution rules function
-         { 0X71, 3},   // Enviroment setting function
-         { 0X73, 11},  // Unit Information function
-         { 0X74, 6},   // Operation management function
-         { 0X75, 4},   // IJP operation function
-         { 0X79, 2},   // Count function
-         { 0X7A, 5},   // Index function
-      };
-
-      // Class Codes to Data Tables Conversion
-      public static int[][][] ClassCodeData = new int[][][] {
-            PrintDataManagement,           // 0x66 Print data management function
-            PrintFormat,                   // 0x67 Print format function
-            PrintSpecification,            // 0x68 Print specification function
-            Calendar,                      // 0x69 Calendar function
-            UserPattern,                   // 0x6B User pattern function
-            SubstitutionRules,             // 0x6C Substitution rules function
-            EnviromentSetting,             // 0x71 Enviroment setting function
-            UnitInformation,               // 0x73 Unit Information function
-            OperationManagement,           // 0x74 Operation management function
-            IJPOperation,                  // 0x75 IJP operation function
-            Count,                         // 0x79 Count function
-            Index,                         // 0x7A Index function
-         };
-
-      #endregion
-
-      #region Service Routines
-
-      // Lookup for getting attributes associated with a Class/Function
-      public static Dictionary<eipClassCode, byte, AttrData> AttrDict;
-
-      // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(eipClassCode Class, byte attr) {
-         int[][] tab = ClassCodeData[Array.IndexOf(ClassCodes, Class)];
-         for (int j = 0; j < tab.Length; j++) {
-            if ((byte)tab[j][0] == attr) {
-               return new AttrData(tab[j]);
+      private static void DumpTable(StreamWriter RFS, int[][] tbl, ClassCode cc, Type at) {
+         string name = at.ToString();
+         name = name.Substring(name.IndexOf('.') + 1);
+         RFS.WriteLine($"\t// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
+         RFS.WriteLine($"\tprivate static AttrData[] {name}_Addrs = new AttrData[] {{");
+         string[] attrNames = Enum.GetNames(at);
+         for (int i = 0; i < tbl.Length; i++) {
+            string access = string.Empty;
+            if (tbl[i][2] > 0) {
+               access += "Get";
             }
-         }
-         return null;
-      }
-
-      // Build the Attribute Dictionary
-      public static void BuildAttributeDictionary() {
-         if (AttrDict == null) {
-            AttrDict = new Dictionary<eipClassCode, byte, AttrData>();
-            for (int i = 0; i < ClassCodes.Length; i++) {
-               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
-               for (int j = 0; j < ClassAttr.Length; j++) {
-                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
-               }
+            if (tbl[i][1] > 0) {
+               access += "Set";
             }
-         }
-      }
-
-      #endregion
-
-   }
-
-   public class ClassCodeData {
-
-      #region Properties and Constructor
-
-      // Class Codes = { 
-      //   [0] = value, 
-      //   [1] = AlphaSortOrder }
-
-      int[] values;
-
-      public byte Val { get { return (byte)values[0]; } }
-      public int Order { get { return values[1] - 1; } }
-
-      public ClassCodeData(int[] values) {
-         this.values = values;
-      }
-
-      #endregion
-
-   }
-
-   public class AttrData {
-
-      #region Properties and Constructor
-
-      // Class Code Attributes = {
-      //   [0] = Value
-      //   [1] = Set Available
-      //   [2] = Get Available
-      //   [3] = Service Available
-      //   [4] = Data Length
-      //   [5] = Format
-      //   [6] = Min Value
-      //   [7] = Max Value
-      //   [8] = AlphaSortOrder 
-      //   [9] = Ignore due to error
-      //   [10] = Drop Down
-      //   [11] = Data Length
-      //   [12] = Format
-      //   [13] = Min Value
-      //   [14] = Max Value
-
-      public byte Val { get; set; } = 0;
-      public bool HasSet { get; set; } = false;
-      public bool HasGet { get; set; } = false;
-      public bool HasService { get; set; } = false;
-      public int Order { get; set; } = 0;
-      public bool Ignore { get; set; } = false;
-      public int DropDown { get; set; } = -1;
-
-      public Prop Data { get; set; }
-      public Prop Get { get; set; }
-      public Prop Set { get; set; }
-      public Prop Service { get; set; }
-
-      public AttrData() {
-
-      }
-
-      public AttrData(int[] values) {
-         Val = (byte)values[0];
-         HasSet = values[1] > 0;
-         HasGet = values[2] > 0;
-         HasService = values[3] > 0;
-         Order = values[8] - 1;
-         Ignore = values[9] > 0;
-         DropDown = values[10];
-
-         Data = new Prop(values[4], (DataFormats)values[5], values[6], values[7]);
-         if (HasSet) {
-            Set = Data;
-         }
-         if (values.Length == 11) {
-            if (HasGet) {
-               Get = new Prop(0, DataFormats.Decimal, 0, 0);
-            } else if (HasService) {
-               Service = Get = new Prop(0, DataFormats.Decimal, 0, 0);
+            if (tbl[i][3] > 0) {
+               access += "Service";
             }
-         } else {
-            if (HasGet) {
-               Get = new Prop(values[11], (DataFormats)values[12], values[13], values[14]);
-            } else if (HasService) {
-               Service = new Prop(values[11], (DataFormats)values[12], values[13], values[14]);
+            string ignore = tbl[i][9] > 0 ? "true" : "false";
+            string fmt = ((DataFormats)tbl[i][5]).ToString();
+            string printLine = $"\t\t\tnew AttrData((byte){name}.{attrNames[i]}, GSS.{access}, {ignore}, {tbl[i][8]},";
+            string spaces = new string(' ', Math.Max(70 - printLine.Length, 1));
+            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")}");
+            if (tbl[i].Length == 11) {
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]})),");
+            } else {
+               string fmt2 = ((DataFormats)tbl[i][12]).ToString();
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]}),");
+               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][11]}, DataFormats.{fmt2}, {tbl[i][13]}, {tbl[i][14]}, fmtDD.{(fmtDD)tbl[i][10]})),");
             }
          }
 
-      }
+         RFS.WriteLine("\t\t};");
 
-      #endregion
-
-   }
-
-   public class Dictionary<TKey1, TKey2, TValue> : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
-
-      #region Constructor and methods
-
-      public TValue this[TKey1 key1, TKey2 key2] {
-         get { return base[Tuple.Create(key1, key2)]; }
-         set { base[Tuple.Create(key1, key2)] = value; }
-      }
-
-      public void Add(TKey1 key1, TKey2 key2, TValue value) {
-         base.Add(Tuple.Create(key1, key2), value);
-      }
-
-      #endregion
-
-   }
-
-   public class Prop {
-
-      #region Constructors, properties and methods
-
-      public int Len { get; set; }
-      public DataFormats Fmt { get; set; }
-      public long Min { get; set; }
-      public long Max { get; set; }
-
-      public Prop(int Len, DataFormats Fmt, long Min, long Max) {
-         this.Len = Len;
-         this.Fmt = Fmt;
-         this.Min = Min;
-         this.Max = Max;
+         RFS.WriteLine();
       }
 
       #endregion

@@ -83,6 +83,7 @@
          this.txtCountIn = new System.Windows.Forms.TextBox();
          this.txtDataIn = new System.Windows.Forms.TextBox();
          this.lbldataIn = new System.Windows.Forms.Label();
+         this.btnReformat = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -486,7 +487,7 @@
          // btnCom
          // 
          this.btnCom.BackColor = System.Drawing.Color.Red;
-         this.btnCom.Location = new System.Drawing.Point(362, 565);
+         this.btnCom.Location = new System.Drawing.Point(347, 565);
          this.btnCom.Name = "btnCom";
          this.btnCom.Size = new System.Drawing.Size(89, 52);
          this.btnCom.TabIndex = 34;
@@ -563,7 +564,7 @@
          // btnManagementFlag
          // 
          this.btnManagementFlag.BackColor = System.Drawing.Color.Red;
-         this.btnManagementFlag.Location = new System.Drawing.Point(607, 565);
+         this.btnManagementFlag.Location = new System.Drawing.Point(567, 565);
          this.btnManagementFlag.Name = "btnManagementFlag";
          this.btnManagementFlag.Size = new System.Drawing.Size(113, 52);
          this.btnManagementFlag.TabIndex = 40;
@@ -574,7 +575,7 @@
          // btnAutoReflection
          // 
          this.btnAutoReflection.BackColor = System.Drawing.Color.Red;
-         this.btnAutoReflection.Location = new System.Drawing.Point(473, 565);
+         this.btnAutoReflection.Location = new System.Drawing.Point(442, 565);
          this.btnAutoReflection.Name = "btnAutoReflection";
          this.btnAutoReflection.Size = new System.Drawing.Size(119, 52);
          this.btnAutoReflection.TabIndex = 35;
@@ -654,11 +655,22 @@
          this.lbldataIn.Text = "Data In";
          this.lbldataIn.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
+         // btnReformat
+         // 
+         this.btnReformat.Location = new System.Drawing.Point(686, 565);
+         this.btnReformat.Name = "btnReformat";
+         this.btnReformat.Size = new System.Drawing.Size(89, 52);
+         this.btnReformat.TabIndex = 48;
+         this.btnReformat.Text = "Reformat";
+         this.btnReformat.UseVisualStyleBackColor = true;
+         this.btnReformat.Click += new System.EventHandler(this.btnReformat_Click);
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.btnReformat);
          this.Controls.Add(this.lblCountIn);
          this.Controls.Add(this.txtDataBytesIn);
          this.Controls.Add(this.txtCountIn);
@@ -774,6 +786,7 @@
       public System.Windows.Forms.TextBox txtCountIn;
       public System.Windows.Forms.TextBox txtDataIn;
       private System.Windows.Forms.Label lbldataIn;
+      private System.Windows.Forms.Button btnReformat;
    }
 }
 

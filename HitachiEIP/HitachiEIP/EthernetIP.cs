@@ -13,12 +13,21 @@ namespace HitachiEIP {
 
    #region Public Enums
 
+   // Get, Set, or Service
+   public enum GSS {
+      Get,
+      Set,
+      GetSet,
+      Service,
+   }
+
    public enum mem {
       BigEndian,
       LittleEndian
    }
 
    public enum DataFormats {
+      None = -1,     // No formating
       Decimal = 0,   // Decimal numbers up to 8 digits
       ASCII = 1,     // ISO-8859-1 characters (Not ASCII or unicode)
       Date = 2,      // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
@@ -32,18 +41,15 @@ namespace HitachiEIP {
 
    #region EtherNetIP Definitions
 
-   // Drop Down lists
-
-
    // Access codes
-   public enum eipAccessCode {
+   public enum AccessCode {
       Set = 0x32,
       Get = 0x33,
       Service = 0x34,
    }
 
    // Class codes
-   public enum eipClassCode {
+   public enum ClassCode {
       Print_data_management = 0x66,
       Print_format = 0x67,
       Print_specification = 0x68,
@@ -59,7 +65,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Print Data Management class 0x66
-   public enum eipPrint_Data_Management {
+   public enum ccPDM {
       Select_Message = 0x64,
       Store_Print_Data = 0x65,
       Delete_Print_Data = 0x67,
@@ -73,7 +79,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Print Format class 0x67
-   public enum eipPrint_format {
+   public enum ccPF {
       Message_Name = 0x64,
       Number_Of_Items = 0x65,
       Number_Of_Columns = 0x66,
@@ -105,7 +111,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Print Specification class 0x68
-   public enum eipPrint_specification {
+   public enum ccPS {
       Character_Height = 0x64,
       Ink_Drop_Use = 0x65,
       High_Speed_Print = 0x66,
@@ -130,7 +136,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Calendar class 0x69
-   public enum eipCalendar {
+   public enum ccCal {
       Shift_Count_Condition = 0x65,
       First_Calendar_Block_Number = 0x66,
       Calendar_Block_Number_In_Item = 0x67,
@@ -166,13 +172,13 @@ namespace HitachiEIP {
    }
 
    // Attributes within User Pattern class 0x6B
-   public enum eipUser_pattern { // 0x6B
+   public enum ccUP { // 0x6B
       User_Pattern_Fixed = 0x64,
       User_Pattern_Free = 0x65,
    }
 
    // Attributes within Substitution Rules class 0x6C
-   public enum eipSubstitution_rules { // 0x6C
+   public enum ccSR { // 0x6C
       Number = 0x64,
       Name = 0x65,
       Start_Year = 0x66,
@@ -186,7 +192,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Enviroment Setting class 0x71
-   public enum eipEnviroment_setting {
+   public enum ccES {
       Current_Time = 0x65,
       Calendar_Date_Time = 0x66,
       Calendar_Date_Time_Availibility = 0x67,
@@ -198,7 +204,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Unit Information class 0x73
-   public enum eipUnit_Information {
+   public enum ccUI {
       Unit_Information = 0x64,
       Model_Name = 0x6B,
       Serial_Number = 0x6C,
@@ -223,7 +229,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Operation Management class 0x74
-   public enum eipOperation_management {
+   public enum ccOM {
       Operating_Management = 0x64,
       Ink_Operating_Time = 0x65,
       Alarm_Time = 0x66,
@@ -240,7 +246,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within IJP Operation class 0x75
-   public enum eipIJP_operation {
+   public enum ccIJP {
       Remote_operation_information = 0x64,
       Fault_and_warning_history = 0x66,
       Operating_condition = 0x67,
@@ -254,7 +260,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Count class 0x79
-   public enum eipCount {
+   public enum ccCount {
       Number_Of_Count_Block = 0x66,
       Initial_Value = 0x67,
       Count_Range_1 = 0x68,
@@ -274,7 +280,7 @@ namespace HitachiEIP {
    }
 
    // Attributes within Index class 0x7A
-   public enum eipIndex {
+   public enum ccIDX {
       Start_Stop_Management_Flag = 0x64,
       Automatic_reflection = 0x65,
       Item = 0x66,
@@ -352,8 +358,8 @@ namespace HitachiEIP {
 
       public uint SessionID { get; set; } = 0;
 
-      public eipAccessCode Access { get; set; }
-      public eipClassCode Class { get; set; }
+      public AccessCode Access { get; set; }
+      public ClassCode Class { get; set; }
       public byte Instance { get; set; } = 1;
       public byte Attribute { get; set; } = 1;
       public uint O_T_ConnectionID { get; set; } = 0;
@@ -406,7 +412,7 @@ namespace HitachiEIP {
          this.IPAddress = IPAddress;
          this.port = port;
 
-         Data.BuildAttributeDictionary();
+         DataII.BuildAttributeDictionary();
       }
 
       #endregion
@@ -584,13 +590,13 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(eipClassCode Class, byte Attribute, byte[] dataOut, out string dataIn) {
+      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] dataOut, out string dataIn) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         AttrData attr = SetRequest(eipAccessCode.Get, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute);
          dataIn = "#Error";
          if (ForwardIsOpen) {
             SetDataLength = dataOut.Length;
@@ -598,7 +604,7 @@ namespace HitachiEIP {
             SetDataValue = string.Empty;
             LengthIsValid = false;
             DataIsValid = false;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Get);
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Get);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(GetData, attr);
@@ -607,7 +613,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Get, Class, 0x01, Attribute, Successful));
+         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -615,17 +621,17 @@ namespace HitachiEIP {
       }
 
       // Write one attribute
-      public bool WriteOneAttribute(eipClassCode Class, byte Attribute, byte[] val) {
+      public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] val) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         AttrData attr = SetRequest(eipAccessCode.Set, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute);
          if (ForwardIsOpen) {
             SetData = val;
             SetDataLength = (byte)val.Length;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Set);
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Set);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
@@ -633,7 +639,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Set, Class, 0x01, Attribute, Successful));
+         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -641,17 +647,17 @@ namespace HitachiEIP {
       }
 
       // Service one attribute
-      public bool ServiceAttribute(eipClassCode Class, byte Attribute, byte[] val) {
+      public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] val) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         AttrData attr = SetRequest(eipAccessCode.Service, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute);
          if (ForwardIsOpen) {
             SetData = val;
             SetDataLength = (byte)val.Length;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, eipAccessCode.Service);
+            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Service);
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
@@ -659,7 +665,7 @@ namespace HitachiEIP {
                Successful = true;
             }
          }
-         IOComplete?.Invoke(this, new EIPEventArg(eipAccessCode.Service, Class, 0x01, Attribute, Successful));
+         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
          if (OpenCloseForward && ForwardIsOpen) {
             ForwardClose();
          }
@@ -667,7 +673,7 @@ namespace HitachiEIP {
       }
 
       // Handles Hitachi Get, Set, and Service
-      private byte[] EIP_Hitachi(EIP_Type t, eipAccessCode c) {
+      private byte[] EIP_Hitachi(EIP_Type t, AccessCode c) {
          List<byte> packet = new List<byte>();
          Add(packet, (ulong)t, 2);                                 // Command
          Add(packet, (ulong)(30 + SetDataLength), 2);              // Length of added data at end
@@ -1271,13 +1277,13 @@ namespace HitachiEIP {
          return val;
       }
 
-      private AttrData SetRequest(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute) {
+      private AttrData SetRequest(AccessCode Access, ClassCode Class, byte Instance, byte Attribute) {
          this.Access = Access;
          this.Class = Class;
          this.Instance = Instance;
          this.Attribute = Attribute;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
-         return Data.AttrDict[Class, Attribute];
+         return DataII.AttrDict[Class, Attribute];
       }
 
       #endregion
@@ -1288,13 +1294,13 @@ namespace HitachiEIP {
 
       #region Properties, Constructors and Destructors
 
-      public eipAccessCode Access { get; set; }
-      public eipClassCode Class { get; set; }
+      public AccessCode Access { get; set; }
+      public ClassCode Class { get; set; }
       public byte Instance { get; set; }
       public byte Attribute { get; set; }
       public bool Successful { get; set; }
 
-      public EIPEventArg(eipAccessCode Access, eipClassCode Class, byte Instance, byte Attribute, bool Successful) {
+      public EIPEventArg(AccessCode Access, ClassCode Class, byte Instance, byte Attribute, bool Successful) {
          this.Access = Access;
          this.Class = Class;
          this.Instance = Instance;

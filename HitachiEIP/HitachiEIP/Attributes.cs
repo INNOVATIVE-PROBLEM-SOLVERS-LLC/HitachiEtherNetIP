@@ -19,8 +19,8 @@ namespace HitachiEIP {
       AttrData[] attrs;
 
       t1[] attributes;
-      eipClassCode cc;
-      eipClassCode ccIndex = eipClassCode.Index;
+      ClassCode cc;
+      ClassCode ccIndex = ClassCode.Index;
 
       // Headers
       Label[] hdrs;
@@ -59,7 +59,7 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, eipClassCode cc, int Extras = 0) {
+      public Attributes(HitachiBrowser parent, EIP EIP, TabPage tab, ClassCode cc, int Extras = 0) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
@@ -73,7 +73,7 @@ namespace HitachiEIP {
          this.cc = cc;
          attrs = new AttrData[attributes.Length];
          for (int i = 0; i < attributes.Length; i++) {
-            attrs[i] = Data.AttrDict[cc, Convert.ToByte(attributes[i])];
+            attrs[i] = DataII.AttrDict[cc, Convert.ToByte(attributes[i])];
          }
          this.Extras = Extras;
 
@@ -202,7 +202,7 @@ namespace HitachiEIP {
          Button b = (Button)sender;
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
-         AttrData attr = Data.AttrDict[eipClassCode.Index, at];
+         AttrData attr = DataII.AttrDict[ClassCode.Index, at];
          int len = attr.Set.Len;
          if (!long.TryParse(ExtraText[n].Text, out long val)) {
             val = attr.Set.Min;
@@ -353,7 +353,7 @@ namespace HitachiEIP {
             }
             return names;
          } else {
-            return Data.DropDowns[attr.DropDown];
+            return DataII.DropDowns[attr.DropDown];
          }
       }
 
@@ -365,25 +365,25 @@ namespace HitachiEIP {
          ExtraSet = new Button[MaxExtras];
 
          if ((Extras & HitachiBrowser.AddItem) > 0) {
-            AddExtras(ref n, eipIndex.Item);
+            AddExtras(ref n, ccIDX.Item);
          }
          if ((Extras & HitachiBrowser.AddColumn) > 0) {
-            AddExtras(ref n, eipIndex.Column);
+            AddExtras(ref n, ccIDX.Column);
          }
          if ((Extras & HitachiBrowser.AddLine) > 0) {
-            AddExtras(ref n, eipIndex.Line);
+            AddExtras(ref n, ccIDX.Line);
          }
          if ((Extras & HitachiBrowser.AddPosition) > 0) {
-            AddExtras(ref n, eipIndex.Character_position);
+            AddExtras(ref n, ccIDX.Character_position);
          }
          if ((Extras & HitachiBrowser.AddCalendar) > 0) {
-            AddExtras(ref n, eipIndex.Calendar_Block);
+            AddExtras(ref n, ccIDX.Calendar_Block);
          }
          if ((Extras & HitachiBrowser.AddCount) > 0) {
-            AddExtras(ref n, eipIndex.Count_Block);
+            AddExtras(ref n, ccIDX.Count_Block);
          }
          if ((Extras & HitachiBrowser.AddSubstitution) > 0) {
-            AddExtras(ref n, eipIndex.Substitution_Rules_Setting);
+            AddExtras(ref n, ccIDX.Substitution_Rules_Setting);
          }
          if (n > 0) {
             ExtraControls = new GroupBox() { Text = "Index Functions" };
@@ -399,7 +399,7 @@ namespace HitachiEIP {
          return n;
       }
 
-      private void AddExtras(ref byte n, eipIndex function) {
+      private void AddExtras(ref byte n, ccIDX function) {
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
          ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
          ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
@@ -553,7 +553,7 @@ namespace HitachiEIP {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
          for (int i = 0; i < extrasUsed; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
-            AttrData attr = Data.AttrDict[eipClassCode.Index, at];
+            AttrData attr = DataII.AttrDict[ClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
                val >= attr.Data.Min && val <= attr.Data.Max;

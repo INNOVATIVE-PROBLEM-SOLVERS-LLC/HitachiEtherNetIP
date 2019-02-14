@@ -26,14 +26,14 @@ namespace HitachiEIP {
 
       bool[] resizeNeeded = new bool[] { true, true, true, true, true, true, true };
       readonly int[] startWith = new[] { 19, 1, 1, 0, 0, 1, 1 };
-      readonly eipSubstitution_rules[] at = new eipSubstitution_rules[] {
-         eipSubstitution_rules.Year,
-         eipSubstitution_rules.Month,
-         eipSubstitution_rules.Day,
-         eipSubstitution_rules.Hour,
-         eipSubstitution_rules.Minute,
-         eipSubstitution_rules.Week,
-         eipSubstitution_rules.Day_Of_Week,
+      readonly ccSR[] at = new ccSR[] {
+         ccSR.Year,
+         ccSR.Month,
+         ccSR.Day,
+         ccSR.Hour,
+         ccSR.Minute,
+         ccSR.Week,
+         ccSR.Day_Of_Week,
       };
 
       int visibleCategory = -1;
@@ -54,8 +54,8 @@ namespace HitachiEIP {
 
       // Build all controls unique to this class
       public void BuildSubstitutionControls() {
-         string[] attributeNames = (string[])typeof(eipSubstitution_rules).GetEnumNames();
-         eipSubstitution_rules[] attributeValues = (eipSubstitution_rules[])typeof(eipSubstitution_rules).GetEnumValues();
+         string[] attributeNames = (string[])typeof(ccSR).GetEnumNames();
+         ccSR[] attributeValues = (ccSR[])typeof(ccSR).GetEnumValues();
 
          SubControls = new GroupBox() { Text = "Substitution Rules" };
          tab.Controls.Add(SubControls);
@@ -158,9 +158,9 @@ namespace HitachiEIP {
             EIP.ForwardOpen(true);
             // Set the correct substitution Rule
             data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
-            EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Substitution_Rules_Setting, data);
+            EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
             // Get the substitution all at once
-            EIP.ReadOneAttribute(eipClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
+            EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
 
             // <TODO> decode the input once data is returned by the printer
 
@@ -178,12 +178,12 @@ namespace HitachiEIP {
             EIP.ForwardOpen(true);
             // Set the correct substitution Rule
             data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
-            EIP.WriteOneAttribute(eipClassCode.Index, (byte)eipIndex.Substitution_Rules_Setting, data);
+            EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
             // Send the substitution data one at a time
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                data = EIP.Merge(EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1),
                                 EIP.ToBytes(subTexts[visibleCategory][i].Text + "\x00"));
-               EIP.WriteOneAttribute(eipClassCode.Substitution_rules, (byte)at[visibleCategory], data);
+               EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
             }
             // Restore the state
             EIP.ForwardClose(true);
