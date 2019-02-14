@@ -605,6 +605,7 @@ namespace HitachiEIP {
             LengthIsValid = false;
             DataIsValid = false;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Get);
+            // Write the request and read the response
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(GetData, attr);
@@ -623,6 +624,7 @@ namespace HitachiEIP {
       // Write one attribute
       public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] val) {
          bool Successful = false;
+         // Can be called with or without a Forward path open
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
@@ -632,6 +634,7 @@ namespace HitachiEIP {
             SetData = val;
             SetDataLength = (byte)val.Length;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Set);
+            // Write the request and read the response
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
@@ -658,6 +661,7 @@ namespace HitachiEIP {
             SetData = val;
             SetDataLength = (byte)val.Length;
             byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Service);
+            // Write the request and read the response
             if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
@@ -1144,8 +1148,8 @@ namespace HitachiEIP {
 
       #region Service Routines
 
+      // Convert a number to adds specifying a count and memory layout
       private void Add(List<byte> packet, ulong value, int count, mem m = mem.LittleEndian) {
-
          switch (m) {
             case mem.BigEndian:
                for (int i = (count - 1) * 8; i >= 0; i -= 8) {
@@ -1158,28 +1162,29 @@ namespace HitachiEIP {
                   value >>= 8;
                }
                break;
-            default:
-               break;
          }
-
       }
 
+      // Add two bytes
       private void Add(List<byte> packet, byte v1, byte v2) {
          packet.Add(v1);
          packet.Add(v2);
       }
 
+      // Convert the byte array to individual adds
       private void Add(List<byte> packet, byte[] v) {
          for (int i = 0; i < v.Length; i++) {
             packet.Add(v[i]);
          }
-
       }
 
+      // Register a message if someone is listening
       private void LogIt(string msg) {
          Log?.Invoke(this, msg);
       }
 
+      // Check to see if all characters are ASCII.  This should be changed
+      // to all characters in "ISO-8859-1" to handle western Europe.
       private bool AllAscii(byte[] s) {
          bool result = true;
          for (int i = 0; i < s.Length; i++) {
@@ -1192,6 +1197,7 @@ namespace HitachiEIP {
          Error?.Invoke(this, "Ouch");
       }
 
+      // Interpret the CIP Status and EtherNet/IP Status
       private void InterpretResult(byte[] readData, int readDataLength) {
          string text = "Unknown!";
          int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
@@ -1199,84 +1205,89 @@ namespace HitachiEIP {
          GetDataValue = string.Empty;
          GetDecValue = 0;
          if (GetDataLength >= 0) {
+            // There needs to be another case.
+            // Hitachi returns success even when COM is off or value is not valid
             switch (status) {
                case 0:
+                  // Success returned
                   text = "O.K.";
                   break;
                case 0x14:
+                  // Have seen this once but not repeatable
                   text = "Attribute Not Supported!";
                   break;
             }
             GetStatus = $"{status:X2} -- {text} -- {LastIO}";
             if (GetDataLength > 0) {
+               // Build a byte array containing the returned data
                GetData = new byte[GetDataLength];
                for (int i = 0; i < GetDataLength; i++) {
                   GetData[i] = ReadData[50 + i];
                }
             } else {
+               // No data returned
                GetData = new byte[0];
             }
          } else {
+            // No idea what happened
             GetStatus = $"?? -- {text} -- {LastIO}";
             GetData = new byte[0];
          }
       }
 
+      // Format the data based on the data format specified
       private string FormatResult(DataFormats fmt, byte[] data) {
-         string val = "N/A";
+         // Assume that the worst will happen
+         string val = GetBytes(data, 0, data.Length);
          switch (fmt) {
             case DataFormats.Decimal:
-               if (data.Length > 8) {
-                  val = GetBytes(data, 0, data.Length);
-               } else {
+               if (data.Length <= 8) {
+                  // Convert to a decimal and string value
                   GetDecValue = (int)Get(data, 0, data.Length, mem.BigEndian);
                   val = GetDecValue.ToString();
                }
                break;
             case DataFormats.Bytes:
-               val = GetBytes(data, 0, data.Length);
+               // Default will work
                break;
             case DataFormats.ASCII:
+               // Convert bytes to characters using "ISO-8859-1"
                val = GetAscii(data, 0, data.Length);
                break;
             case DataFormats.XY:
                if (data.Length == 3) {
+                  // Exactly three characters gets xxx,yy
                   val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 1, mem.BigEndian)}";
-               } else {
-                  val = GetBytes(data, 0, data.Length);
                }
                break;
             case DataFormats.Date:
-               if (data.Length >= 10) {
+               if (data.Length == 10 || data.Length == 12) {
+                  // Date is returned as "MM DD YYYY hh mm"
                   val = $"{Get(data, 0, 2, mem.LittleEndian)}/{Get(data, 2, 2, mem.LittleEndian)}/{Get(data, 4, 2, mem.LittleEndian)}";
                   val += $" {Get(data, 6, 2, mem.LittleEndian)}:{Get(data, 8, 2, mem.LittleEndian)}";
                   if (data.Length == 12) {
+                     // and maybe "ss"
                      val += $":{Get(data, 10, 2, mem.LittleEndian)}";
                   }
-               } else {
-                  val = GetBytes(data, 0, data.Length);
                }
                break;
             case DataFormats.N2N2:
                if (data.Length == 4) {
+                  // Shown an nn,nn
                   val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 2, mem.BigEndian)}";
-               } else {
-                  val = GetBytes(data, 0, data.Length);
                }
                break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
+                  // shown as nn, "ISO-8859-1 characters"
                   val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetAscii(data, 1, data.Length - 1)}";
-               } else {
-                  val = GetBytes(data, 0, data.Length);
                }
-               break;
-            default:
                break;
          }
          return val;
       }
 
+      // Save away the details of the request and return the associated attribute data
       private AttrData SetRequest(AccessCode Access, ClassCode Class, byte Instance, byte Attribute) {
          this.Access = Access;
          this.Class = Class;

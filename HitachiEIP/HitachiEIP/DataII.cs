@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
+   // Dropdowns to be used in the display when discrete values are returned.
    public enum fmtDD {
       None = -1,
       Decimal = 0,
@@ -30,6 +31,7 @@ namespace HitachiEIP {
       UserPatternFont = 19,
    }
 
+   // Completely describe the Hitachi Model 161 data
    public static class DataII {
 
       // Print_data_management (Class Code 0x66)
@@ -224,7 +226,7 @@ namespace HitachiEIP {
 				new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),
          new AttrData((byte)ccCal.Shift_Start_Minute, GSS.GetSet, false, 14, // Shift Start Minute
 				new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),
-         new AttrData((byte)ccCal.Shift_End_Hour, GSS.GetSet, false, 11,    // Shift End Hour
+         new AttrData((byte)ccCal.Shift_End_Hour, GSS.Get, false, 11,    // Shift End Hour
 				new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),
          new AttrData((byte)ccCal.Shift_Ene_Minute, GSS.GetSet, false, 12,  // Shift Ene Minute
 				new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),

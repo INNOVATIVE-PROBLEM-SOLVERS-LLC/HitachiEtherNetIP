@@ -10,22 +10,6 @@ namespace HitachiEIP {
 
       #region Properties and Constructor
 
-      //   [0] = Value
-      //   [1] = Set Available
-      //   [2] = Get Available
-      //   [3] = Service Available
-      //   [4] = Data Length
-      //   [5] = Format
-      //   [6] = Min Value
-      //   [7] = Max Value
-      //   [8] = AlphaSortOrder 
-      //   [9] = Ignore due to error
-      //   [10] = Drop Down
-      //   [11] = Data Length
-      //   [12] = Format
-      //   [13] = Min Value
-      //   [14] = Max Value
-
       public byte Val { get; set; } = 0;
       public bool HasSet { get; set; } = false;
       public bool HasGet { get; set; } = false;

@@ -8,6 +8,25 @@ namespace HitachiEIP {
 
       #region Attribute raw data tables
 
+      //   [0] = Value               = Attribute Value
+      //   [1] = Set Available       = Set operations are possible
+      //   [2] = Get Available       = Get operations are available
+      //   [3] = Service Available   = Service Operations are available
+      //                           = Property to describe Data and Get request
+      //   [4] = Data Length         = Number of data bytes
+      //   [5] = Format              = The format of the data (see DataFormats enum)
+      //   [6] = Min Value           = Minimum value (Applies to Decimal Data only)
+      //   [7] = Max Value           = Maximum value (Applies to Decimal Data only)
+      //
+      //   [8] = AlphaSortOrder      = For use if Alphabetical order is desired
+      //   [9] = Ignore due to error = This request will cause the printer to lock up*
+      //   [10] = Drop Down          = The dropdown to convert numbers to readable form
+      //                           = Extra Property for some Get or Service routine
+      //   [11] = Data Length        = Number of data bytes
+      //   [12] = Format             = The format of the data (see DataFormats enum)
+      //   [13] = Min Value          = Minimum value (Applies to Decimal Data only)
+      //   [14] = Max Value          = Maximum value (Applies to Decimal Data only)
+
       // Print Data Management (Class Code 0x66) Complete!
       private static int[][] PrintDataManagement = new int[][] {
          new int[] { 0X64, 0, 0, 1, 0, 0, 0, 0, 9, 0, -1, 2, 0, 1, 2000}, // Select Message
@@ -239,6 +258,7 @@ namespace HitachiEIP {
          new int[] { 0X6F, 1, 1, 0, 1, 0, 1, 8, 2, 0, 0},       // Calendar Block
       };
 
+      // Reformat the raw data tables in this module to make them easier to read and modify
       public static void ReformatTables(StreamWriter RFS) {
 
          DumpTable(RFS, PrintDataManagement, ClassCode.Print_data_management, typeof(ccPDM));
@@ -256,40 +276,47 @@ namespace HitachiEIP {
 
       }
 
+      // Process the tables one at a time
       private static void DumpTable(StreamWriter RFS, int[][] tbl, ClassCode cc, Type at) {
          string name = at.ToString();
          name = name.Substring(name.IndexOf('.') + 1);
+
+         // Write out the table header
          RFS.WriteLine($"\t// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
          RFS.WriteLine($"\tprivate static AttrData[] {name}_Addrs = new AttrData[] {{");
+
+         // Now process each attributs within the Class
          string[] attrNames = Enum.GetNames(at);
          for (int i = 0; i < tbl.Length; i++) {
+
+            // Turn Access into an enum
             string access = string.Empty;
-            if (tbl[i][2] > 0) {
-               access += "Get";
-            }
-            if (tbl[i][1] > 0) {
-               access += "Set";
-            }
-            if (tbl[i][3] > 0) {
-               access += "Service";
-            }
+            if (tbl[i][2] > 0) access += "Get";
+            if (tbl[i][1] > 0) access += "Set";
+            if (tbl[i][3] > 0) access += "Service";
+
+            // Format Ignore as true/false and Data Format to an enum
             string ignore = tbl[i][9] > 0 ? "true" : "false";
             string fmt = ((DataFormats)tbl[i][5]).ToString();
+
+            // Space the comment at the end of the line for readability
             string printLine = $"\t\t\tnew AttrData((byte){name}.{attrNames[i]}, GSS.{access}, {ignore}, {tbl[i][8]},";
             string spaces = new string(' ', Math.Max(70 - printLine.Length, 1));
             RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")}");
+
+            // Was only one property specified
             if (tbl[i].Length == 11) {
+               // Add the one property needed for processing Get, Set, or Service requests
                RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]})),");
             } else {
+               // Add the two properties needed for processing the odd Get or Service requests
                string fmt2 = ((DataFormats)tbl[i][12]).ToString();
                RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]}),");
                RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][11]}, DataFormats.{fmt2}, {tbl[i][13]}, {tbl[i][14]}, fmtDD.{(fmtDD)tbl[i][10]})),");
             }
          }
-
-         RFS.WriteLine("\t\t};");
-
-         RFS.WriteLine();
+         // Terminate the Attribute table
+         RFS.WriteLine("\t\t};\n");
       }
 
       #endregion
