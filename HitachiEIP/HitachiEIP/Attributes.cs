@@ -353,7 +353,7 @@ namespace HitachiEIP {
             }
             return names;
          } else {
-            return Data.DropDowns[attr.DropDown];
+            return DataII.DropDowns[attr.DropDown];
          }
       }
 

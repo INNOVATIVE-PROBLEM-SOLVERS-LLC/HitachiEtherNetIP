@@ -397,7 +397,7 @@ namespace HitachiEIP {
          btnIssueSet.Visible = false;
          btnIssueService.Visible = false;
          if (cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0) {
-            //attr = new AttrData(DataII.ClassCodeAttrData[cbClassCode.SelectedIndex][cbFunction.SelectedIndex]);
+            attr = DataII.AttrDict[DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex]];
             btnIssueGet.Visible = attr.HasGet;
             btnIssueSet.Visible = attr.HasSet;
             btnIssueService.Visible = attr.HasService;

@@ -145,8 +145,8 @@ namespace HitachiEIP {
          ignoreChange = false;
 
          // Now fill in the controls
-         for (int i = 0; i < Data.DropDowns[19].Length; i++) {
-            cbUpFont.Items.Add(Data.DropDowns[19][i]);
+         for (int i = 0; i < DataII.DropDowns[19].Length; i++) {
+            cbUpFont.Items.Add(DataII.DropDowns[19][i]);
          }
          for (int i = 0; i < 200; i++) {
             cbUpPosition.Items.Add(i.ToString());

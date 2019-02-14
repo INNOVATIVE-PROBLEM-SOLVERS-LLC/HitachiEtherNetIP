@@ -507,6 +507,40 @@ namespace HitachiEIP {
             }
          }
       }
+
+      // Attribute DropDown conversion
+      public static string[][] DropDowns = new string[][] {
+         new string[] { },                                            // 0 - Just decimal values
+         new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
+         new string[] { "Disable", "Space Fill", "Character Fill" },  // 2 - Disable, space fill, character fill
+         new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
+         new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
+         new string[] { "Off Line", "On Line" },                      // 5 - Offline/Online
+         new string[] { "None", "Signal 1", "Signal 2" },             // 6 - None, Signal 1, Signal 2
+         new string[] { "Up", "Down" },                               // 7 - Up/Down
+         new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
+         new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
+                        "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
+                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25", "QR29x29",
+                        "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)", "GS1 DataBar (Stacked)", "DM14x14", },
+                                                                      // 9 - Barcode Types
+         new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
+         new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
+         new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
+         new string[] { "From Yesterday", "From Today" },             // 13 - From Yesterday/Today
+         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
+                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "QR33", "30x40", "36x48"  },
+                                                                      // 14 - Font Types
+         new string[] { "Normal/Forward", "Normal/Reverse",
+                         "Inverted/Forward", "Inverted/Reverse",},    // 15 - Orientation
+         new string[] { "None", "Encoder", "Auto" },                  // 16 - Product speed matching
+         new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
+         new string[] { "Time Setup", "Until End of Print" },         // 18 - Target Sensor Filter
+         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
+                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
+                                                                      // 19 - User Pattern Font Types
+      };
+
    }
 }
 
