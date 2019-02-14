@@ -4,6 +4,9 @@ using System.IO;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
+
+   #region User Pattern processing
+
    class UserPattern {
 
       #region Data Declarations
@@ -62,6 +65,7 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
+      // Just tuck away the calling parameters
       public UserPattern(HitachiBrowser parent, EIP EIP, TabPage tab) {
          this.parent = parent;
          this.EIP = EIP;
@@ -145,8 +149,8 @@ namespace HitachiEIP {
          ignoreChange = false;
 
          // Now fill in the controls
-         for (int i = 0; i < DataII.DropDowns[19].Length; i++) {
-            cbUpFont.Items.Add(DataII.DropDowns[19][i]);
+         for (int i = 0; i < DataII.DropDowns[(int)fmtDD.UserPatternFont].Length; i++) {
+            cbUpFont.Items.Add(DataII.DropDowns[(int)fmtDD.UserPatternFont][i]);
          }
          for (int i = 0; i < 200; i++) {
             cbUpPosition.Items.Add(i.ToString());
@@ -799,4 +803,8 @@ namespace HitachiEIP {
       #endregion
 
    }
+
+   #endregion
+
 }
+

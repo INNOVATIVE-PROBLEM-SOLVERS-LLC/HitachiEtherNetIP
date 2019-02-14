@@ -83,7 +83,7 @@ namespace HitachiEIP {
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
          EIP.Error += EIP_Error;
-         EIP.IOComplete += EIP_ReadComplete;
+         EIP.IOComplete += EIP_IO_Complete;
          EIP.StateChanged += EIP_StateChanged;
 
       }
@@ -278,23 +278,30 @@ namespace HitachiEIP {
 
       #region Form control events
 
+      // Start a new session
       private void btnStartSession_Click(object sender, EventArgs e) {
+         // Verify the IP address and port.  Then use them to open the session
          VerifyAddressAndPort();
          EIP.IPAddress = txtIPAddress.Text;
          EIP.port = port;
          EIP.StartSession();
+
+         // Session ID is returned
          txtSessionID.Text = EIP.SessionID.ToString();
 
          // Be sure that com is on
          if (EIP.SessionIsOpen) {
-            // These three flags control all traffic to/from the printer
+            // Open a path to the device
             if (EIP.ForwardOpen()) {
+               // Blindly Set COM on and read it back
                EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, new byte[] { 1 });
                GetComSetting();
                if (ComIsOn) {
+                  // Got it, Get the other critical settings
                   GetAutoReflectionSetting();
                   GetMgmtSetting();
                }
+               // Close the forward to avoid a timeout
                EIP.ForwardClose();
             }
          }
@@ -302,23 +309,26 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Close out a session
       private void btnEndSession_Click(object sender, EventArgs e) {
          EIP.EndSession();
          txtSessionID.Text = string.Empty;
-         //EIP.Disconnect();
          SetButtonEnables();
       }
 
+      // Open a path to the device
       private void btnForwardOpen_Click(object sender, EventArgs e) {
          EIP.ForwardOpen();
          SetButtonEnables();
       }
 
+      // Close the path to the device
       private void btnForwardClose_Click(object sender, EventArgs e) {
          EIP.ForwardClose();
          SetButtonEnables();
       }
 
+      // That's all folks, Cleanup and exit
       private void btnExit_Click(object sender, EventArgs e) {
          if (EIP.ForwardIsOpen) {
             btnForwardClose_Click(null, null);
@@ -329,48 +339,40 @@ namespace HitachiEIP {
          this.Close();
       }
 
+      // Issue a Get based on the Class Code and Function dropdowns
       private void btnIssueGet_Click(object sender, EventArgs e) {
          bool Success = false;
-         if (cbClassCode.SelectedIndex >= 0
-            && cbFunction.SelectedIndex >= 0) {
-            try {
-               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-               Success = EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
-               LogTraffic(Success);
-            } catch {
-               AllGood = false;
-            }
+         try {
+            byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
+            Success = EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
+         } catch {
+            AllGood = false;
          }
       }
 
+      // Issue a Set based on the Class Code and Function dropdowns
       private void btnIssueSet_Click(object sender, EventArgs e) {
          bool Success = false;
-         if (cbClassCode.SelectedIndex >= 0
-            && cbFunction.SelectedIndex >= 0) {
-            try {
-               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Set);
-               Success = EIP.WriteOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
-               LogTraffic(Success);
-            } catch {
-               AllGood = false;
-            }
+         try {
+            byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Set);
+            Success = EIP.WriteOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+         } catch {
+            AllGood = false;
          }
       }
 
+      // Issue a Service based on the Class Code and Function dropdowns
       private void btnIssueService_Click(object sender, EventArgs e) {
          bool Success = false;
-         if (cbClassCode.SelectedIndex >= 0
-            && cbFunction.SelectedIndex >= 0) {
-            try {
-               byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Service);
-               Success = EIP.ServiceAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
-               LogTraffic(Success);
-            } catch (Exception e2) {
-               AllGood = false;
-            }
+         try {
+            byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Service);
+            Success = EIP.ServiceAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+         } catch {
+            AllGood = false;
          }
       }
 
+      // The class code changed, update the fulction dropdown list
       private void cbClassCode_SelectedIndexChanged(object sender, EventArgs e) {
          cbFunction.Items.Clear();
          ClassAttr = null;
@@ -386,34 +388,36 @@ namespace HitachiEIP {
             for (int i = 0; i < names.Length; i++) {
                cbFunction.Items.Add($"{names[i].Replace('_', ' ')}  (0x{ClassAttr[i]:X2})");
             }
-
          }
-
          SetButtonEnables();
       }
 
+      // The function drop changed.  Set the correct Get/Set/Service buttons visible
       private void cbFunction_SelectedIndexChanged(object sender, EventArgs e) {
-         btnIssueGet.Visible = false;
-         btnIssueSet.Visible = false;
-         btnIssueService.Visible = false;
          if (cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0) {
             attr = DataII.AttrDict[DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex]];
             btnIssueGet.Visible = attr.HasGet;
             btnIssueSet.Visible = attr.HasSet;
             btnIssueService.Visible = attr.HasService;
+         } else {
+            btnIssueGet.Visible = false;
+            btnIssueSet.Visible = false;
+            btnIssueService.Visible = false;
          }
-
          SetButtonEnables();
       }
 
+      // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
          CloseTrafficFile(true);
       }
 
+      // Cycle the Log file and bring it up in Notepad
       private void btnViewLog_Click(object sender, EventArgs e) {
          CloseLogFile(true);
       }
 
+      // Step thru all classes and attributes with classes to issue Get requests
       private void btnReadAll_Click(object sender, EventArgs e) {
          // Get is assumed for read all request
          AllGood = true;
@@ -437,32 +441,42 @@ namespace HitachiEIP {
 
       }
 
+      // Invert the com setting
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
-            EIP.ForwardOpen(true);
-            int val = ComIsOn ? 0 : 1;
-            if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes((uint)val, 1))) {
-               GetComSetting();
-               if (ComIsOn) {
-                  GetAutoReflectionSetting();
-                  GetMgmtSetting();
+            // Conditionally open and stack the path to the printer
+            if (EIP.ForwardOpen(true)) {
+               // Get (guess at) the current state, invert it, and read it back
+               int val = ComIsOn ? 0 : 1;
+               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes((uint)val, 1))) {
+                  GetComSetting();
+                  if (ComIsOn) {
+                     // Update the other two major controls
+                     GetAutoReflectionSetting();
+                     GetMgmtSetting();
+                  }
                }
+               // Close the request if necessary
+               EIP.ForwardClose(true);
             }
-            EIP.ForwardClose(true);
          }
          SetButtonEnables();
       }
 
+      // Issue the command to clean up any stacked requests
       private void btnManagementFlag_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
+            // Don't know what the "1" state means.  If it is off, issue the "2"
             int val = MgmtIsOn ? 0 : 2;
             if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes((uint)val, 1))) {
+               // Refresh the setting since "2" does not take but returns 0
                GetMgmtSetting();
             }
          }
          SetButtonEnables();
       }
 
+      // Invert the Auto-Reflection flag
       private void btnAutoReflection_Click(object sender, EventArgs e) {
          if (EIP.SessionIsOpen) {
             int val = AutoReflIsOn ? 0 : 1;
@@ -473,6 +487,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Update the Extra controls on the Attributes page that is open
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          HitachiBrowser_Resize(null, null);
          indexAttr.RefreshExtras();
@@ -487,13 +502,14 @@ namespace HitachiEIP {
          envirAttr.RefreshExtras();
          mgmtAttr.RefreshExtras();
          userPatAttr.RefreshExtras();
-
       }
 
+      // Clear the Log display
       private void cmLogClear_Click(object sender, EventArgs e) {
          lstErrors.Items.Clear();
       }
 
+      // Copy the Log display to a file and open it in Notepad
       private void cmLogView_Click(object sender, EventArgs e) {
          string ViewFilename = CreateFileName(txtSaveFolder.Text, "View");
          StreamWriter ViewStream = new StreamWriter(ViewFilename, false);
@@ -505,25 +521,30 @@ namespace HitachiEIP {
          Process.Start("notepad.exe", ViewFilename);
       }
 
+      // Douple click triggers Copy/Display of the Log file
       private void lstErrors_MouseDoubleClick(object sender, MouseEventArgs e) {
          cmLogView_Click(null, null);
       }
 
+      // Stop the Read All operation
       private void btnStop_Click(object sender, EventArgs e) {
          AllGood = false;
       }
 
+      // Respond to errors detected in EIP
       private void EIP_Error(EIP sender, string msg) {
          AllGood = false;
          lstErrors.Items.Add(msg);
       }
 
+      // Log messages from EIP
       public void EIP_Log(EIP sender, string msg) {
          LogFileStream.WriteLine(msg);
          lstErrors.Items.Add(msg);
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 
+      // Respond to EIP change in success/fail state
       private void EIP_StateChanged(EIP sender, string msg) {
          if (!EIP.SessionIsOpen) {
             AllGood = false;
@@ -531,7 +552,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      private void EIP_ReadComplete(EIP sender, EIPEventArg e) {
+      // A Get/Set/Service request has completed
+      private void EIP_IO_Complete(EIP sender, EIPEventArg e) {
+         // Record status and color it
          txtStatus.Text = EIP.GetStatus;
          if (e.Successful) {
             txtStatus.BackColor = Color.LightGreen;
@@ -539,14 +562,17 @@ namespace HitachiEIP {
             txtStatus.BackColor = Color.Pink;
          }
 
+         // Display the data sent to the printer
          txtCountOut.Text = EIP.SetDataLength.ToString();
          txtDataOut.Text = EIP.SetDataValue;
          txtDataBytesOut.Text = EIP.GetBytes(EIP.SetData, 0, EIP.SetDataLength);
 
+         // Display the printer's response
          txtCountIn.Text = EIP.GetDataLength.ToString();
          txtDataIn.Text = EIP.GetDataValue;
          txtDataBytesIn.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
 
+         // Record the operation in the Traffic file
          Type at = DataII.ClassCodeAttributes[Array.IndexOf(DataII.ClassCodes, e.Class)];
          string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}\t";
          trafficText += $"{e.Access}\t{e.Class}\t{e.Instance}\t{EIP.GetAttributeName(at, e.Attribute)}\t";
@@ -557,28 +583,47 @@ namespace HitachiEIP {
          }
          TrafficFileStream.WriteLine(trafficText);
 
+         // Record the operation in the log
          EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
       }
 
+      // A start to an idea that must be finished someday
       private void btnProperties_Click(object sender, EventArgs e) {
          //using (AttrProperties p = new AttrProperties(this, EIP, cbClassCode.SelectedIndex, cbFunction.SelectedIndex)) {
          //   p.ShowDialog(this);
          //}
       }
 
+      // Get folder for saving Log/Traffic/Reformat data
       private void btnBrowse_Click(object sender, EventArgs e) {
          BrowseForFolder(txtSaveFolder);
+      }
+
+      // Reformat the old raw "Data" into "DataII" for maintainability
+      private void btnReformat_Click(object sender, EventArgs e) {
+
+         RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
+         RFS = new StreamWriter(RFN, false);
+
+         Data.ReformatTables(RFS);
+
+         RFS.Flush();
+         RFS.Close();
+         Process.Start("notepad.exe", RFN);
       }
 
       #endregion
 
       #region Service Routines
 
+      // Make sure the IP Address and Port look valid
       private void VerifyAddressAndPort() {
+         // Port must be a number
          if (!Int32.TryParse(txtPort.Text, out port)) {
             port = 44818;
             txtPort.Text = port.ToString();
          }
+         // IP Address must be IPV4 format
          if (!System.Net.IPAddress.TryParse(txtIPAddress.Text, out System.Net.IPAddress IPAddress)) {
             txtIPAddress.Text = "192.168.0.1";
             IPAddress = IPAddress.Parse(txtIPAddress.Text);
@@ -586,6 +631,7 @@ namespace HitachiEIP {
          this.IPAddress = IPAddress.ToString();
       }
 
+      // Build a file to save items from Get/Set/Service requests
       private void BuildTrafficFile() {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false);
@@ -594,9 +640,7 @@ namespace HitachiEIP {
             "\t# Out\tFormatted Data Out\tRaw Data Out\t# In\tFormatted Data In\tRaw Data In");
       }
 
-      private void LogTraffic(bool success) {
-      }
-
+      // Close the Traffic file and open it in Notepad if desired
       private void CloseTrafficFile(bool view) {
          TrafficFileStream.Flush();
          TrafficFileStream.Close();
@@ -606,11 +650,13 @@ namespace HitachiEIP {
          }
       }
 
+      // Build a file to save items in the log display
       private void BuildLogFile() {
          LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
          LogFileStream = new StreamWriter(LogFilename, false);
       }
 
+      // Close the log file and open it in Notepad if desired
       private void CloseLogFile(bool view) {
          LogFileStream.Flush();
          LogFileStream.Close();
@@ -620,6 +666,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Create a unique file name by incorporating time into the filename
       private string CreateFileName(string directory, string s) {
          if (Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
@@ -627,20 +674,25 @@ namespace HitachiEIP {
          return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.csv");
       }
 
+      // Get the com setting
       private bool GetComSetting() {
          bool result;
+         // Get the current setting == Com must be on for the printer to respond properly
          if (EIP.ReadOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.Nodata, out string val)) {
             if (val == "1") {
+               // Com is on.  That is good
                btnCom.Text = "COM\n1";
                btnCom.BackColor = Color.LightGreen;
                ComIsOn = true;
             } else {
+               // Com is Off.  That is an issue
                btnCom.Text = "COM\n0";
                btnCom.BackColor = Color.Pink;
                ComIsOn = false;
             }
             result = true;
          } else {
+            // Com state is unknown.  That is an issue
             btnCom.Text = "COM\n?";
             btnCom.BackColor = SystemColors.Control;
             ComIsOn = false;
@@ -650,20 +702,25 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Get Start/Stop Management flag
       private bool GetMgmtSetting() {
          bool result;
+         // Get the currevt setting
          if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata, out string val)) {
             if (val != "0") {
+               // Non-zero says requests are to be stacked.
                btnManagementFlag.Text = $"S/S Management\n{val}";
                btnManagementFlag.BackColor = Color.Pink;
                MgmtIsOn = true;
             } else {
+               // Zero says requests are processed immediately
                btnManagementFlag.Text = "S/S Management\n0";
                btnManagementFlag.BackColor = Color.LightGreen;
                MgmtIsOn = false;
             }
             result = true;
          } else {
+            // Could not be read so indicate so
             btnManagementFlag.Text = "S/S Management\n?";
             btnManagementFlag.BackColor = SystemColors.Control;
             MgmtIsOn = false;
@@ -673,29 +730,36 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Get the auto-reflection setting in the printer
       private bool GetAutoReflectionSetting() {
          bool result;
+         // Read the value
          if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata, out string val)) {
             if (val == "1") {
+               // Do not know whet 1 means but I think it is bad
                btnAutoReflection.Text = "Auto Reflection\n1";
                btnAutoReflection.BackColor = Color.Pink;
                AutoReflIsOn = true;
             } else {
+               // Hoped for response
                btnAutoReflection.Text = "Auto Reflection\n0";
                btnAutoReflection.BackColor = Color.LightGreen;
                AutoReflIsOn = false;
             }
             result = true;
          } else {
+            // Cannot read it so indicate so.
             btnAutoReflection.Text = "Auto Reflection\n?";
             btnAutoReflection.BackColor = SystemColors.Control;
             AutoReflIsOn = false;
             result = false;
          }
          SetButtonEnables();
+         // Return true if state is known
          return result;
       }
 
+      // Browse for folder to save Log/Traffic/Reformat data
       private void BrowseForFolder(TextBox tb) {
          using (FolderBrowserDialog dlg = new FolderBrowserDialog()) {
             dlg.ShowNewFolderButton = true;
@@ -707,6 +771,7 @@ namespace HitachiEIP {
 
       }
 
+      // Enable only the buttons that should be used
       void SetButtonEnables() {
          btnStartSession.Enabled = !EIP.SessionIsOpen;
          btnEndSession.Enabled = EIP.SessionIsOpen;
@@ -741,51 +806,6 @@ namespace HitachiEIP {
 
       #endregion
 
-      private void btnReformat_Click(object sender, EventArgs e) {
-
-         RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
-         RFS = new StreamWriter(RFN, false);
-
-         RFS.Flush();
-         RFS.Close();
-         Process.Start("notepad.exe", RFN);
-      }
-
-      private void DumpTable(int[][] tbl, ClassCode cc, Type at) {
-         string name = at.ToString();
-         name = name.Substring(name.IndexOf('.') + 1);
-         RFS.WriteLine($"\t// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
-         RFS.WriteLine($"\tprivate static AttrDataII<{name}>[] {name}II = new AttrDataII<{name}>[] {{");
-         string[] attrNames = Enum.GetNames(at);
-         for (int i = 0; i < tbl.Length; i++) {
-            string access = string.Empty;
-            if(tbl[i][2] > 0) {
-               access += "Get";
-            }
-            if (tbl[i][1] > 0) {
-               access += "Set";
-            }
-            if (tbl[i][3] > 0) {
-               access += "Service";
-            }
-            string ignore = tbl[i][9] > 0 ? ", true" : "";
-            string fmt = ((DataFormats)tbl[i][5]).ToString();
-            string printLine = $"\t\t\tnew AttrDataII<{name}>({name}.{attrNames[i]}, GSS.{access},";
-            string spaces = new string(' ', Math.Max(70 - printLine.Length, 1));
-            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")}");
-            if(tbl[i].Length == 11) {
-               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]}){ignore}),");
-            } else {
-               string fmt2 = ((DataFormats)tbl[i][12]).ToString();
-               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][4]}, DataFormats.{fmt}, {tbl[i][6]}, {tbl[i][7]}, fmtDD.{(fmtDD)tbl[i][10]}),");
-               RFS.WriteLine($"\t\t\t\tnew Prop({tbl[i][11]}, DataFormats.{fmt2}, {tbl[i][13]}, {tbl[i][14]}, fmtDD.{(fmtDD)tbl[i][10]}){ignore}),");
-            }
-         }
-
-         RFS.WriteLine("\t\t};");
-
-         RFS.WriteLine();
-      }
    }
 }
 
