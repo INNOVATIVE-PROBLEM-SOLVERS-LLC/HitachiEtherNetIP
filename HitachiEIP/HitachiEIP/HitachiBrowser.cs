@@ -237,20 +237,47 @@ namespace HitachiEIP {
             #region  Classes
 
             Utils.ResizeObject(ref R, tclClasses, 1, 10, 44, 36);
-
-            indexAttr.ResizeControls(ref R);
-            oprAttr.ResizeControls(ref R);
-            pdmAttr.ResizeControls(ref R);
-            psAttr.ResizeControls(ref R);
-            pFmtAttr.ResizeControls(ref R);
-            calAttr.ResizeControls(ref R);
-            sRulesAttr.ResizeControls(ref R);
-            countAttr.ResizeControls(ref R);
-            unitInfoAttr.ResizeControls(ref R);
-            envirAttr.ResizeControls(ref R);
-            mgmtAttr.ResizeControls(ref R);
-            userPatAttr.ResizeControls(ref R);
-            processXML.ResizeControls(ref R);
+            switch (tclClasses.SelectedIndex) {
+               case 0:
+                  indexAttr.ResizeControls(ref R);
+                  break;
+               case 1:
+                  oprAttr.ResizeControls(ref R);
+                  break;
+               case 2:
+                  pdmAttr.ResizeControls(ref R);
+                  break;
+               case 3:
+                  psAttr.ResizeControls(ref R);
+                  break;
+               case 4:
+                  pFmtAttr.ResizeControls(ref R);
+                  break;
+               case 5:
+                  calAttr.ResizeControls(ref R);
+                  break;
+               case 6:
+                  sRulesAttr.ResizeControls(ref R);
+                  break;
+               case 7:
+                  countAttr.ResizeControls(ref R);
+                  break;
+               case 8:
+                  unitInfoAttr.ResizeControls(ref R);
+                  break;
+               case 9:
+                  envirAttr.ResizeControls(ref R);
+                  break;
+               case 10:
+                  mgmtAttr.ResizeControls(ref R);
+                  break;
+               case 11:
+                  userPatAttr.ResizeControls(ref R);
+                  break;
+               case 12:
+                  processXML.ResizeControls(ref R);
+                  break;
+            }
 
             #endregion
 
@@ -490,18 +517,47 @@ namespace HitachiEIP {
       // Update the Extra controls on the Attributes page that is open
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          HitachiBrowser_Resize(null, null);
-         indexAttr.RefreshExtras();
-         oprAttr.RefreshExtras();
-         pdmAttr.RefreshExtras();
-         psAttr.RefreshExtras();
-         pFmtAttr.RefreshExtras();
-         calAttr.RefreshExtras();
-         sRulesAttr.RefreshExtras();
-         countAttr.RefreshExtras();
-         unitInfoAttr.RefreshExtras();
-         envirAttr.RefreshExtras();
-         mgmtAttr.RefreshExtras();
-         userPatAttr.RefreshExtras();
+         switch (tclClasses.SelectedIndex) {
+            case 0:
+               indexAttr.RefreshExtras();
+               break;
+            case 1:
+               oprAttr.RefreshExtras();
+               break;
+            case 2:
+               pdmAttr.RefreshExtras();
+               break;
+            case 3:
+               psAttr.RefreshExtras();
+               break;
+            case 4:
+               pFmtAttr.RefreshExtras();
+               break;
+            case 5:
+               calAttr.RefreshExtras();
+               break;
+            case 6:
+               sRulesAttr.RefreshExtras();
+               break;
+            case 7:
+               countAttr.RefreshExtras();
+               break;
+            case 8:
+               unitInfoAttr.RefreshExtras();
+               break;
+            case 9:
+               envirAttr.RefreshExtras();
+               break;
+            case 10:
+               mgmtAttr.RefreshExtras();
+               break;
+            case 11:
+               userPatAttr.RefreshExtras();
+               break;
+            case 12:
+               // XML does not need one
+               break;
+         }
       }
 
       // Clear the Log display
