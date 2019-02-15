@@ -16,13 +16,13 @@ namespace HitachiEIP {
       public bool HasService { get; set; } = false;
       public int Order { get; set; } = 0;
       public bool Ignore { get; set; } = false;
-      public int DropDown { get; set; } = -1;
 
       public Prop Data { get; set; }
       public Prop Get { get; set; }
       public Prop Set { get; set; }
       public Prop Service { get; set; }
 
+      // A description of the data from four points of view.
       public AttrData(byte Val, GSS acc, bool Ignore, int Order, Prop Data, Prop Data2 = null) {
          this.Val = Val;
          this.HasSet = acc == GSS.Set || acc == GSS.GetSet;
@@ -45,7 +45,7 @@ namespace HitachiEIP {
                this.Service = Data2;
             }
          } else {
-            // Only one parameter, get and service pass no data
+            // Only one parameter? Get and service pass no data
             this.Service = this.Get = new Prop(0, DataFormats.Decimal, 0, 0);
          }
       }

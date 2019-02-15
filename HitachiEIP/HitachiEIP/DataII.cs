@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
+   #region Public enumerations
+
    // Dropdowns to be used in the display when discrete values are returned.
    public enum fmtDD {
       None = -1,
@@ -30,6 +32,10 @@ namespace HitachiEIP {
       TargetSensorFilter = 18,
       UserPatternFont = 19,
    }
+
+   #endregion
+
+   #region Data Tables
 
    // Completely describe the Hitachi Model 161 data
    public static class DataII {
@@ -450,6 +456,10 @@ namespace HitachiEIP {
 				new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),
       };
 
+      #endregion
+
+      #region Class Codes => Attributes => Attribute Data lookup tables
+
       // Class Codes
       public static ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
 
@@ -488,28 +498,6 @@ namespace HitachiEIP {
             ccIDX_Addrs,           // 0x7A Index function
          };
 
-      // Get attribute data for an arbitrary class/attribute
-      public static AttrData GetAttrData(ClassCode Class, byte attr) {
-         AttrData[] tab = ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
-         return Array.Find(tab, at => at.Val == attr);
-      }
-
-      // Lookup for getting attributes associated with a Class/Function
-      public static Dictionary<ClassCode, byte, AttrData> AttrDict;
-
-      // Build the Attribute Dictionary
-      public static void BuildAttributeDictionary() {
-         if (AttrDict == null) {
-            AttrDict = new Dictionary<ClassCode, byte, AttrData>();
-            for (int i = 0; i < ClassCodes.Length; i++) {
-               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
-               for (int j = 0; j < ClassAttr.Length; j++) {
-                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
-               }
-            }
-         }
-      }
-
       // Attribute DropDown conversion
       public static string[][] DropDowns = new string[][] {
          new string[] { },                                            // 0 - Just decimal values
@@ -542,6 +530,34 @@ namespace HitachiEIP {
                         "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
                                                                       // 19 - User Pattern Font Types
       };
+
+      #endregion
+
+      #region Service routines
+
+      // Get attribute data for an arbitrary class/attribute
+      public static AttrData GetAttrData(ClassCode Class, byte attr) {
+         AttrData[] tab = ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
+         return Array.Find(tab, at => at.Val == attr);
+      }
+
+      // Lookup for getting attributes associated with a Class/Function
+      public static Dictionary<ClassCode, byte, AttrData> AttrDict;
+
+      // Build the Attribute Dictionary
+      public static void BuildAttributeDictionary() {
+         if (AttrDict == null) {
+            AttrDict = new Dictionary<ClassCode, byte, AttrData>();
+            for (int i = 0; i < ClassCodes.Length; i++) {
+               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
+               for (int j = 0; j < ClassAttr.Length; j++) {
+                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
+               }
+            }
+         }
+      }
+
+      #endregion
 
    }
 }

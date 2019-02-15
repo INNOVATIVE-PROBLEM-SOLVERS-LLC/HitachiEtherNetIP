@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
@@ -16,10 +17,8 @@ namespace HitachiEIP {
       int tclHeight;
       int tclWidth;
 
-      AttrData[] attrs;
-
-      t1[] attributes;
       ClassCode cc;
+      byte[] ccAttribute;
       ClassCode ccIndex = ClassCode.Index;
 
       // Headers
@@ -63,18 +62,16 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
+         // Substitution has extra controls
          if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
             Substitution = new Substitution(parent, EIP, tab);
          }
+         // UserPattern has extra controls
          if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
             UserPattern = new UserPattern(parent, EIP, tab);
          }
-         this.attributes = (t1[])typeof(t1).GetEnumValues();
          this.cc = cc;
-         attrs = new AttrData[attributes.Length];
-         for (int i = 0; i < attributes.Length; i++) {
-            attrs[i] = DataII.AttrDict[cc, Convert.ToByte(attributes[i])];
-         }
+         this.ccAttribute = ((t1[])typeof(t1).GetEnumValues()).Select(x => Convert.ToByte(x)).ToArray();
          this.Extras = Extras;
 
          extrasUsed = AddExtraControls();
@@ -86,54 +83,67 @@ namespace HitachiEIP {
 
       #region Events handlers
 
+      // Issue a single Get request
       private void Get_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = (int)b.Tag;
-         AttrData attr = attrs[tag];
+         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
+            // Avoid a printer hang
             texts[tag].Text = "Ignored!";
             texts[tag].BackColor = Color.Pink;
             counts[tag].BackColor = Color.LightGreen;
          } else {
+            // Build and issue the request
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
             texts[tag].Text = "Loading";
             parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, data, out string val);
+            // Process the data returned
             EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
          SetButtonEnables();
       }
 
+      // Issue a single Set request
       private void Set_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = (int)b.Tag;
-         AttrData attr = attrs[tag];
+         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
+            // Avoid a printer hang
             texts[tag].Text = "Ignored!";
          } else {
+            // Build output string if needed and issue Set request
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Set);
             bool Success = EIP.WriteOneAttribute(cc, attr.Val, data);
             if (Success) {
+               // In case the control was yellow
                texts[tag].BackColor = Color.LightGreen;
             }
          }
          SetButtonEnables();
       }
 
+      // Issue a single service request
       private void Service_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = (int)b.Tag;
-         AttrData attr = attrs[tag];
+         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
+            // Avoid a printer hang
             texts[tag].Text = "Ignored!";
          } else {
+            // Build output string if needed and issue Service request
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Service);
             bool Success = EIP.ServiceAttribute(cc, attr.Val, data);
          }
          SetButtonEnables();
       }
 
+      // Get all the valid input data on the display
       private void GetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
+         // Set all controls to their initial empty state
          for (int i = 0; i < gets.Length; i++) {
             counts[i].BackColor = SystemColors.Control;
             if (gets[i] != null) {
@@ -146,92 +156,118 @@ namespace HitachiEIP {
                texts[i].BackColor = SystemColors.Control;
             }
          }
+         // Let the user see what is happening
          parent.Refresh();
-         EIP.ForwardOpen(true);
-         for (int i = 0; i < gets.Length && parent.AllGood; i++) {
-            if (gets[i] != null) {
-               Get_Click(gets[i], null);
-               parent.Refresh();
-               Application.DoEvents();
+         if (EIP.ForwardOpen(true)) {
+            // Do them all but stop on an error
+            for (int i = 0; i < gets.Length && parent.AllGood; i++) {
+               if (gets[i] != null) {
+                  Get_Click(gets[i], null);
+                  parent.Refresh();
+                  Application.DoEvents();
+               }
             }
+            if (!parent.AllGood) {
+               // Oops, something bad happened
+               parent.EIP_Log(null, "GetAll completed abnormally");
+            }
+            EIP.ForwardClose(true);
          }
-         if (!parent.AllGood) {
-            parent.EIP_Log(null, "GetAll completed abnormally");
-         }
-         EIP.ForwardClose(true);
          SetButtonEnables();
       }
 
+      // Set all the valid output data on the display
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
-         EIP.ForwardOpen(true);
-         for (int i = 0; i < sets.Length && parent.AllGood; i++) {
-            if (sets[i] != null) {
-               Set_Click(sets[i], null);
-               parent.Refresh();
-               Application.DoEvents();
+         if (EIP.ForwardOpen(true)) {
+            // Do them all but stop on an error
+            for (int i = 0; i < sets.Length && parent.AllGood; i++) {
+               if (sets[i] != null) {
+                  Set_Click(sets[i], null);
+                  // Show the value immediately
+                  parent.Refresh();
+                  // Let the Cancel button event be processed
+                  Application.DoEvents();
+               }
             }
+            if (!parent.AllGood) {
+               // Oops, something bad happened
+               parent.EIP_Log(null, "SetAll completed abnormally");
+            }
+            EIP.ForwardClose(true);
          }
-         if (!parent.AllGood) {
-            parent.EIP_Log(null, "SetAll completed abnormally");
-         }
-         EIP.ForwardClose(true);
       }
 
+      // Allow only numbers (<TODO> Need to add negative number also)
       private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
          e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
          t.BackColor = Color.LightYellow;
       }
 
+      // Get the value associated with an extra control
       private void GetExtras_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
+
+         // Tag contains control number and attribute
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
+
+         // Mark as loading
          ExtraText[n].Text = "Loading";
          if (EIP.ReadOneAttribute(ccIndex, at, EIP.Nodata, out string val)) {
+            // Success, post the new value
             ExtraText[n].Text = val;
             ExtraText[n].BackColor = Color.LightGreen;
          } else {
+            // Failure, indicate so.
             ExtraText[n].Text = "#Error";
             ExtraText[n].BackColor = Color.Pink;
          }
       }
 
+      // Update the printer with the value of an Extra control
       private void SetExtras_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
+
+         // Tag contains control number and attribute
          byte n = ((byte[])b.Tag)[0];
          byte at = ((byte[])b.Tag)[1];
          AttrData attr = DataII.AttrDict[ClassCode.Index, at];
+
+         // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Set.Len;
          if (!long.TryParse(ExtraText[n].Text, out long val)) {
             val = attr.Set.Min;
          }
+
+         // Write the value to the printer
          byte[] data = EIP.ToBytes((uint)val, len);
-         bool Success = EIP.WriteOneAttribute(ccIndex, attr.Val, data);
-         if (Success) {
+         if (EIP.WriteOneAttribute(ccIndex, attr.Val, data)) {
+            // It worked, set normal on the control and update the full display
             ExtraText[n].BackColor = Color.LightGreen;
             GetAll_Click(null, null);
          }
       }
 
+      // Highlight all the text
       private void Text_Enter(object sender, EventArgs e) {
          TextBox tb = (TextBox)sender;
          parent.BeginInvoke((Action)delegate { tb.SelectAll(); });
       }
 
+      // Update the enables to reflect data change
       private void Text_Leave(object sender, EventArgs e) {
-         TextBox b = (TextBox)sender;
-         int tag = (int)b.Tag;
-         AttrData attr = attrs[tag];
          SetButtonEnables();
       }
 
+      // Turn the text box yellow to indicate a change.  Back to normal when the I/O completes
       private void Text_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
          t.BackColor = Color.LightYellow;
       }
 
+      // Make the group box more visible
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
          using (Pen p = new Pen(Color.CadetBlue, 2)) {
@@ -243,45 +279,45 @@ namespace HitachiEIP {
 
       #region Service Routines
 
+      // Build all the controls for this attribute tab
       private void BuildControls() {
 
-         // build headers
-         if (attributes.Length > half) {
+         bool twoCols = ccAttribute.Length > half;
+         // build headers for one or two columns of attributes
+         if (twoCols) {
             hdrs = new Label[8];
          } else {
             hdrs = new Label[4];
          }
-         hdrs[0] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight };
-         hdrs[1] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-         hdrs[2] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-         hdrs[3] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-         if (attributes.Length > half) {
-            hdrs[4] = new Label() { Text = "Attributes", TextAlign = System.Drawing.ContentAlignment.TopRight };
-            hdrs[5] = new Label() { Text = "#", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-            hdrs[6] = new Label() { Text = "Data", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-            hdrs[7] = new Label() { Text = "Control", TextAlign = System.Drawing.ContentAlignment.TopCenter };
-         }
-         for (int i = 0; i < hdrs.Length; i++) {
-            hdrs[i].Font = new Font(hdrs[i].Font, FontStyle.Underline | FontStyle.Bold);
+         // Need to bold them all
+         Font bolded = new Font(tab.Font, FontStyle.Underline | FontStyle.Bold);
+
+         // Build all the headers
+         for (int i = 0; i < (twoCols ? 2 : 1); i++) {
+            hdrs[i * 4 + 0] = new Label() { Text = "Attributes", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopRight };
+            hdrs[i * 4 + 1] = new Label() { Text = "#", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
+            hdrs[i * 4 + 2] = new Label() { Text = "Data", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
+            hdrs[i * 4 + 3] = new Label() { Text = "Control", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
          }
          tab.Controls.AddRange(hdrs);
 
-         //validData = new int[attributes.Length, 2];
-         labels = new Label[attributes.Length];
-         texts = new TextBox[attributes.Length];
-         dropdowns = new ComboBox[attributes.Length];
-         counts = new TextBox[attributes.Length];
-         gets = new Button[attributes.Length];
-         sets = new Button[attributes.Length];
-         services = new Button[attributes.Length];
+         // Allocate the arrays to hold the controls
+         labels = new Label[ccAttribute.Length];
+         texts = new TextBox[ccAttribute.Length];
+         dropdowns = new ComboBox[ccAttribute.Length];
+         counts = new TextBox[ccAttribute.Length];
+         gets = new Button[ccAttribute.Length];
+         sets = new Button[ccAttribute.Length];
+         services = new Button[ccAttribute.Length];
 
-         for (int i = 0; i < attributes.Length; i++) {
-            AttrData attr = attrs[i];
-            string s = $"{attributes[i].ToString().Replace('_', ' ')} (0x{attr.Val:X2})";
+         // Build the controls
+         for (int i = 0; i < ccAttribute.Length; i++) {
+            AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
+            string s = Enum.GetName(typeof(t1), ccAttribute[i]);
             labels[i] = new Label() {
                Tag = i,
                TextAlign = System.Drawing.ContentAlignment.TopRight,
-               Text = s
+               Text = $"{Enum.GetName(typeof(t1), ccAttribute[i]).Replace('_', ' ')} (0x{attr.Val:X2})"
             };
             tab.Controls.Add(labels[i]);
 
@@ -301,7 +337,7 @@ namespace HitachiEIP {
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
 
-            if (attr.DropDown >= 0) {
+            if (attr.Data.DropDown  != fmtDD.None) {
                dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
                dropdowns[i].Items.AddRange(GetDropdownNames(attr));
                tab.Controls.Add(dropdowns[i]);
@@ -345,18 +381,22 @@ namespace HitachiEIP {
 
       }
 
+      // Get the names associated with the dropdown
       private string[] GetDropdownNames(AttrData attr) {
-         if (attr.DropDown == 0) {
+         if (attr.Data.DropDown == fmtDD.Decimal) {
+            // For decimal, just git the integer values from Min to Max
             string[] names = new string[(int)(attr.Data.Max - attr.Data.Min + 1)];
             for (int i = 0; i < names.Length; i++) {
                names[i] = (i + attr.Data.Min).ToString();
             }
             return names;
          } else {
-            return DataII.DropDowns[attr.DropDown];
+            // Get the names from the translation table
+            return DataII.DropDowns[(int)attr.Data.DropDown];
          }
       }
 
+      // Add the controls that the user desires
       private int AddExtraControls() {
          byte n = 0;
          ExtraLabel = new Label[MaxExtras];
@@ -399,6 +439,7 @@ namespace HitachiEIP {
          return n;
       }
 
+      // Add a single extra control
       private void AddExtras(ref byte n, ccIDX function) {
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
          ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
@@ -412,6 +453,7 @@ namespace HitachiEIP {
          n++;
       }
 
+      // Resize all the controls on the tab
       public void ResizeControls(ref ResizeInfo R) {
          this.R = R;
          parent.tclClasses.Visible = false;
@@ -489,21 +531,22 @@ namespace HitachiEIP {
          parent.tclClasses.Visible = true;
       }
 
+      // Reload the extra controls from the printer
       public void RefreshExtras() {
-         bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         if (extrasLoaded || !enabled) {
-            return;
+         if (!extrasLoaded && parent.ComIsOn && EIP.SessionIsOpen) {
+            if (EIP.ForwardOpen(true)) {
+               for (int i = 0; i < extrasUsed; i++) {
+                  GetExtras_Click(ExtraGet[i], null);
+               }
+               EIP.ForwardClose(true);
+               GetAll_Click(null, null);
+               extrasLoaded = true;
+            }
+            SetExtraButtonEnables(null, null);
          }
-         EIP.ForwardOpen(true);
-         for (int i = 0; i < extrasUsed; i++) {
-            GetExtras_Click(ExtraGet[i], null);
-         }
-         EIP.ForwardClose(true);
-         GetAll_Click(null, null);
-         extrasLoaded = true;
-         SetExtraButtonEnables(null, null);
       }
 
+      // Enable appropriate buttons based on conditions
       public void SetButtonEnables() {
          if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
             return;
@@ -511,8 +554,8 @@ namespace HitachiEIP {
          bool enable = parent.ComIsOn & EIP.SessionIsOpen;
          bool anySets = false;
          bool anyGets = false;
-         for (int i = 0; i < attributes.Length; i++) {
-            AttrData attr = attrs[i];
+         for (int i = 0; i < ccAttribute.Length; i++) {
+            AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
             if (attr.HasSet) {
                if (EIP.TextIsValid(texts[i].Text, attr.Set)) {
                   sets[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
@@ -541,11 +584,14 @@ namespace HitachiEIP {
          getAll.Enabled = anyGets;
 
          SetExtraButtonEnables(null, null);
+
+         // Substitution and User Pattern have extra controls
          Substitution?.SetButtonEnables();
          UserPattern?.SetButtonEnables();
 
       }
 
+      // Set enables on the extra buttons of the display
       public void SetExtraButtonEnables(object sender, EventArgs e) {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
          for (int i = 0; i < extrasUsed; i++) {
