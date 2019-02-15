@@ -413,9 +413,6 @@ namespace HitachiEIP {
       }
 
       public void ResizeControls(ref ResizeInfo R) {
-         if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
-            return;
-         }
          this.R = R;
          parent.tclClasses.Visible = false;
          tclHeight = (int)(tab.ClientSize.Height / R.H);
@@ -494,7 +491,7 @@ namespace HitachiEIP {
 
       public void RefreshExtras() {
          bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
-         if (extrasLoaded || !enabled | parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
+         if (extrasLoaded || !enabled) {
             return;
          }
          EIP.ForwardOpen(true);
