@@ -17,8 +17,6 @@ namespace HitachiEIP {
 
       EIP EIP;
 
-      AccessCode[] AccessCodes;
-
       int[] ClassAttr;
       AttrData attr;
 
@@ -36,19 +34,19 @@ namespace HitachiEIP {
       public bool AllGood { get; set; } = true;
 
       // Attribute Screens
-      Attributes<ccIDX> indexAttr;               // 0x7A
-      Attributes<ccIJP> oprAttr;         // 0x75
-      Attributes<ccPDM> pdmAttr; // 0x66
-      Attributes<ccPS> psAttr;    // 0x68
-      Attributes<ccPF> pFmtAttr;         // 0x67
-      Attributes<ccCal> calAttr;              // 0x69
-      Attributes<ccSR> sRulesAttr; // 0x6C
-      Attributes<ccCount> countAttr;               // 0x79
-      Attributes<ccUI> unitInfoAttr; // 0x73
-      Attributes<ccES> envirAttr;  // 0x71
-      Attributes<ccOM> mgmtAttr; // 0x74
-      Attributes<ccUP> userPatAttr;      // 0x6B Not implemented here
-      XML processXML;                               // xml processing
+      Attributes<ccIDX> indexAttr;     // 0x7A
+      Attributes<ccIJP> oprAttr;       // 0x75
+      Attributes<ccPDM> pdmAttr;       // 0x66
+      Attributes<ccPS> psAttr;         // 0x68
+      Attributes<ccPF> pFmtAttr;       // 0x67
+      Attributes<ccCal> calAttr;       // 0x69
+      Attributes<ccSR> sRulesAttr;     // 0x6C
+      Attributes<ccCount> countAttr;   // 0x79
+      Attributes<ccUI> unitInfoAttr;   // 0x73
+      Attributes<ccES> envirAttr;      // 0x71
+      Attributes<ccOM> mgmtAttr;       // 0x74
+      Attributes<ccUP> userPatAttr;    // 0x6B
+      XML processXML;                  // xml processing
 
 
       public bool ComIsOn = false;
@@ -92,15 +90,17 @@ namespace HitachiEIP {
 
       #region Form Level events
 
+      // Application has finished initialization, start the application
       private void HitachiBrowser_Load(object sender, EventArgs e) {
+         // Center the form on the screen
          Utils.PositionForm(this, 0.75f, 0.9f);
-         AccessCodes = (AccessCode[])Enum.GetValues(typeof(AccessCode));
 
-         cbClassCode.Items.Clear();
+         // Create the ClassCode dropdown without the underscores 
          for (int i = 0; i < DataII.ClassNames.Length; i++) {
             cbClassCode.Items.Add($"{DataII.ClassNames[i].Replace('_', ' ')} (0x{(byte)DataII.ClassCodes[i]:X2})");
          }
 
+         // Build traffic and log files
          BuildTrafficFile();
          BuildLogFile();
 
@@ -132,7 +132,6 @@ namespace HitachiEIP {
             (this, EIP, tabUserPattern, ClassCode.User_pattern);
          processXML = new XML(this, EIP, tabXML);
 
-
          // Force a resize
          initComplete = true;
          HitachiBrowser_Resize(null, null);
@@ -148,40 +147,28 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Browser closing.  No un-managed memory so let the runtime environment clean most of it up
       private void HitachiBrowser_FormClosing(object sender, FormClosingEventArgs e) {
-
-         // Cleanup the open classes
-         indexAttr = null;
-         oprAttr = null;
-         pdmAttr = null;
-         psAttr = null;
-         pFmtAttr = null;
-         calAttr = null;
-         sRulesAttr = null;
-         countAttr = null;
-         unitInfoAttr = null;
-         envirAttr = null;
-         mgmtAttr = null;
-         processXML = null;
-         userPatAttr = null;
 
          // Stop logging
          EIP.Log -= EIP_Log;
          EIP.Error -= EIP_Error;
 
-         // Close log/traffic files
+         // Close traffic/log files
          CloseTrafficFile(false);
          CloseLogFile(false);
 
+         // Save away the user's data
          Properties.Settings.Default.IPAddress = txtIPAddress.Text;
          Properties.Settings.Default.IPPort = txtIPAddress.Text;
          Properties.Settings.Default.LogFolder = txtSaveFolder.Text;
          Properties.Settings.Default.Save();
       }
 
+      // Handle all screen resolutions
       private void HitachiBrowser_Resize(object sender, EventArgs e) {
          //
-         // Avoid resize on screen minimize
+         // Avoid resize before Program Load has run or on screen minimize
          if (initComplete && ClientRectangle.Height > 0) {
             //
             this.SuspendLayout();
@@ -238,40 +225,40 @@ namespace HitachiEIP {
 
             Utils.ResizeObject(ref R, tclClasses, 1, 10, 44, 36);
             switch (tclClasses.SelectedIndex) {
-               case 0:
+               case 0:                         // ccIDX == 0x7A Index function 
                   indexAttr.ResizeControls(ref R);
                   break;
-               case 1:
+               case 1:                         // ccIJP == 0x75 IJP operation function
                   oprAttr.ResizeControls(ref R);
                   break;
-               case 2:
+               case 2:                         // ccPDM == 0x66 Print data management function
                   pdmAttr.ResizeControls(ref R);
                   break;
-               case 3:
+               case 3:                         // ccPS == 0x68 Print specification function
                   psAttr.ResizeControls(ref R);
                   break;
-               case 4:
+               case 4:                         // ccPF == 0x67 Print format function
                   pFmtAttr.ResizeControls(ref R);
                   break;
-               case 5:
+               case 5:                         // ccCal == 0x69 Calendar function
                   calAttr.ResizeControls(ref R);
                   break;
-               case 6:
+               case 6:                         // ccSR == 0x6C Substitution rules function
                   sRulesAttr.ResizeControls(ref R);
                   break;
-               case 7:
+               case 7:                         // ccCount == 0x79 Count function
                   countAttr.ResizeControls(ref R);
                   break;
-               case 8:
+               case 8:                         // ccUI == 0x73 Unit Information function
                   unitInfoAttr.ResizeControls(ref R);
                   break;
-               case 9:
+               case 9:                         // ccES == 0x71 Enviroment setting function
                   envirAttr.ResizeControls(ref R);
                   break;
-               case 10:
+               case 10:                        // ccOM == 0x74 Operation management function
                   mgmtAttr.ResizeControls(ref R);
                   break;
-               case 11:
+               case 11:                        // ccUP == 0x6B User pattern function
                   userPatAttr.ResizeControls(ref R);
                   break;
                case 12:
@@ -518,44 +505,41 @@ namespace HitachiEIP {
       private void tclClasses_SelectedIndexChanged(object sender, EventArgs e) {
          HitachiBrowser_Resize(null, null);
          switch (tclClasses.SelectedIndex) {
-            case 0:
+            case 0:                         // ccIDX == 0x7A Index function 
                indexAttr.RefreshExtras();
                break;
-            case 1:
+            case 1:                         // ccIJP == 0x75 IJP operation function
                oprAttr.RefreshExtras();
                break;
-            case 2:
+            case 2:                         // ccPDM == 0x66 Print data management function
                pdmAttr.RefreshExtras();
                break;
-            case 3:
+            case 3:                         // ccPS == 0x68 Print specification function
                psAttr.RefreshExtras();
                break;
-            case 4:
+            case 4:                         // ccPF == 0x67 Print format function
                pFmtAttr.RefreshExtras();
                break;
-            case 5:
+            case 5:                         // ccCal == 0x69 Calendar function
                calAttr.RefreshExtras();
                break;
-            case 6:
+            case 6:                         // ccSR == 0x6C Substitution rules function
                sRulesAttr.RefreshExtras();
                break;
-            case 7:
+            case 7:                         // ccCount == 0x79 Count function
                countAttr.RefreshExtras();
                break;
-            case 8:
+            case 8:                         // ccUI == 0x73 Unit Information function
                unitInfoAttr.RefreshExtras();
                break;
-            case 9:
+            case 9:                         // ccES == 0x71 Enviroment setting function
                envirAttr.RefreshExtras();
                break;
-            case 10:
+            case 10:                        // ccOM == 0x74 Operation management function
                mgmtAttr.RefreshExtras();
                break;
-            case 11:
+            case 11:                        // ccUP == 0x6B User pattern function
                userPatAttr.RefreshExtras();
-               break;
-            case 12:
-               // XML does not need one
                break;
          }
       }

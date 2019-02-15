@@ -594,6 +594,7 @@ namespace HitachiEIP {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
+            // Status is checked later
             ForwardOpen();
          }
          AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute);
@@ -883,7 +884,7 @@ namespace HitachiEIP {
          count.BackColor = LengthIsValid ? Color.LightGreen : Color.Pink;
          text.BackColor = DataIsValid ? Color.LightGreen : Color.Pink;
          text.Text = GetDataValue;
-         if (attr.DropDown >= 0) {
+         if (attr.Data.DropDown != fmtDD.None) {
             if (long.TryParse(GetDataValue, out long val)) {
                if (val >= prop.Min && val <= prop.Max) {
                   dropdown.SelectedIndex = (int)(val - prop.Min);
@@ -903,7 +904,7 @@ namespace HitachiEIP {
 
       // Format output
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
-         if (attr.DropDown >= 0 && c.Visible) {
+         if (attr.Data.DropDown != fmtDD.None && c.Visible) {
             SetDataValue = (c.SelectedIndex + prop.Min).ToString();
             return ToBytes((uint)(c.SelectedIndex + prop.Min), prop.Len);
          } else {
