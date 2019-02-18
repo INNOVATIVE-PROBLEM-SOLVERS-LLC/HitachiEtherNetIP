@@ -29,12 +29,12 @@ namespace HitachiEIP {
    public enum DataFormats {
       None = -1,     // No formating
       Decimal = 0,   // Decimal numbers up to 8 digits
-      ASCII = 1,     // ISO-8859-1 characters (Not ASCII or unicode)
+      UTF8 = 1,      // UTF8 characters (Not ASCII or unicode)
       Date = 2,      // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
       Bytes = 3,     // Raw data in 2-digit hex notation
       XY = 4,        // x = 2 bytes, y = 1 byte
       N2N2 = 5,      // 2 2-byte numbers
-      N2Char = 6     // 2 byte number + Ascii String
+      N2Char = 6     // 2-byte number + UTF8 String
    }
 
    #endregion
@@ -434,6 +434,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Set a new IP Address and port before connecting
       private bool Connect(string IPAddress, int port) {
          this.IPAddress = IPAddress;
          this.port = port;
@@ -844,8 +845,8 @@ namespace HitachiEIP {
          return s;
       }
 
-      // Get data as ascii characters
-      public string GetAscii(byte[] data, int start, int length) {
+      // Get data as UTF8 characters
+      public string GetUTF8(byte[] data, int start, int length) {
          string s = encode.GetString(data, 0, Math.Min(length, 20));
          if (length > 20) {
             s += "...";
@@ -873,7 +874,7 @@ namespace HitachiEIP {
          return result;
       }
 
-      // Convert ascii string to bytes
+      // Convert UTF8 string to bytes
       public byte[] ToBytes(string v) {
          return encode.GetBytes(v);
       }
@@ -926,7 +927,7 @@ namespace HitachiEIP {
                   result = ToBytes(val, prop.Len);
                }
                break;
-            case DataFormats.ASCII:
+            case DataFormats.UTF8:
                if (s.StartsWith("\"") && s.EndsWith("\"")) {
                   result = encode.GetBytes($"{s.Substring(1, s.Length - 2)}\x00");
                } else {
@@ -1005,7 +1006,7 @@ namespace HitachiEIP {
                IsValid = attr.Data.Len == data.Length;
                break;
             case DataFormats.N2Char:
-            case DataFormats.ASCII:
+            case DataFormats.UTF8:
                IsValid = attr.Data.Len >= data.Length;
                break;
             default:
@@ -1024,8 +1025,8 @@ namespace HitachiEIP {
                   IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
                }
                break;
-            case DataFormats.ASCII:
-               IsValid = AllAscii(data);
+            case DataFormats.UTF8:
+               IsValid = true;
                break;
             case DataFormats.Date:
                if (data.Length == 12) {
@@ -1070,7 +1071,7 @@ namespace HitachiEIP {
                   IsValid = prop.Max == 0 || dec >= prop.Min && dec <= prop.Max;
                }
                break;
-            case DataFormats.ASCII:
+            case DataFormats.UTF8:
                IsValid = s.Length > 0;
                break;
             case DataFormats.Date:
@@ -1184,20 +1185,6 @@ namespace HitachiEIP {
          Log?.Invoke(this, msg);
       }
 
-      // Check to see if all characters are ASCII.  This should be changed
-      // to all characters in "ISO-8859-1" to handle western Europe.
-      private bool AllAscii(byte[] s) {
-         bool result = true;
-         for (int i = 0; i < s.Length; i++) {
-            result &= s[i] >= 0x20 && s[i] < 0x80;
-         }
-         return result;
-      }
-
-      private void ErrorOut() {
-         Error?.Invoke(this, "Ouch");
-      }
-
       // Interpret the CIP Status and EtherNet/IP Status
       private void InterpretResult(byte[] readData, int readDataLength) {
          string text = "Unknown!";
@@ -1251,9 +1238,9 @@ namespace HitachiEIP {
             case DataFormats.Bytes:
                // Default will work
                break;
-            case DataFormats.ASCII:
+            case DataFormats.UTF8:
                // Convert bytes to characters using "ISO-8859-1"
-               val = GetAscii(data, 0, data.Length);
+               val = GetUTF8(data, 0, data.Length);
                break;
             case DataFormats.XY:
                if (data.Length == 3) {
@@ -1281,7 +1268,7 @@ namespace HitachiEIP {
             case DataFormats.N2Char:
                if (data.Length > 1) {
                   // shown as nn, "ISO-8859-1 characters"
-                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetAscii(data, 1, data.Length - 1)}";
+                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
                }
                break;
          }
@@ -1312,6 +1299,7 @@ namespace HitachiEIP {
       public byte Attribute { get; set; }
       public bool Successful { get; set; }
 
+      // Pass reguest information and status on to the user
       public EIPEventArg(AccessCode Access, ClassCode Class, byte Instance, byte Attribute, bool Successful) {
          this.Access = Access;
          this.Class = Class;

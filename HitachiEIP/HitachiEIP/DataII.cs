@@ -12,8 +12,8 @@ namespace HitachiEIP {
    public enum fmtDD {
       None = -1,
       Decimal = 0,
-      Ascii = 1,
-      EnableDisable = 2,
+      EnableDisable = 1,
+      DisableSpaceChar = 2,
       Hour12_24 = 3,
       CurrentTime_StopClock = 4,
       OnlineOffline = 5,
@@ -46,18 +46,18 @@ namespace HitachiEIP {
 				new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),
          new AttrData((byte)ccPDM.Store_Print_Data, GSS.Set, false, 10,     // Store Print Data
-				new Prop(15, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(15, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccPDM.Delete_Print_Data, GSS.Set, false, 3,     // Delete Print Data
 				new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),
          new AttrData((byte)ccPDM.Print_Data_Name, GSS.Set, false, 7,       // Print Data Name
-				new Prop(10, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccPDM.List_of_Messages, GSS.Get, true, 6,       // List of Messages
 				new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),
          new AttrData((byte)ccPDM.Print_Data_Number, GSS.Set, false, 8,     // Print Data Number
 				new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None)),
          new AttrData((byte)ccPDM.Change_Create_Group_Name, GSS.Set, false, 1, // Change Create Group Name
-				new Prop(14, DataFormats.ASCII, 0, 14, fmtDD.None)),
+				new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),
          new AttrData((byte)ccPDM.Group_Deletion, GSS.Set, false, 4,        // Group Deletion
 				new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),
          new AttrData((byte)ccPDM.List_of_Groups, GSS.Get, true, 5,         // List of Groups
@@ -91,7 +91,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccPF.Deleting_Print_Items, GSS.Service, false, 9, // Deleting Print Items
 				new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),
          new AttrData((byte)ccPF.Print_Character_String, GSS.GetSet, false, 24, // Print Character String
-				new Prop(750, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccPF.Line_Count, GSS.GetSet, false, 18,         // Line Count
 				new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),
          new AttrData((byte)ccPF.Line_Spacing, GSS.GetSet, false, 19,       // Line Spacing
@@ -113,11 +113,11 @@ namespace HitachiEIP {
          new AttrData((byte)ccPF.InterCharacter_SpaceII, GSS.GetSet, false, 17, // InterCharacter SpaceII
 				new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),
          new AttrData((byte)ccPF.Add_To_End_Of_String, GSS.Set, false, 2,   // Add To End Of String
-				new Prop(750, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccPF.Calendar_Offset, GSS.GetSet, false, 6,     // Calendar Offset
 				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),
          new AttrData((byte)ccPF.DIN_Print, GSS.GetSet, false, 10,          // DIN Print
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccPF.EAN_Prefix, GSS.GetSet, false, 12,         // EAN Prefix
 				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),
          new AttrData((byte)ccPF.Barcode_Printing, GSS.GetSet, false, 4,    // Barcode Printing
@@ -205,25 +205,25 @@ namespace HitachiEIP {
          new AttrData((byte)ccCal.Zero_Suppress_Day_Of_Week, GSS.GetSet, false, 27, // Zero Suppress Day Of Week
 				new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),
          new AttrData((byte)ccCal.Substitute_Rule_Year, GSS.GetSet, false, 21, // Substitute Rule Year
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Month, GSS.GetSet, false, 19, // Substitute Rule Month
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Day, GSS.GetSet, false, 15, // Substitute Rule Day
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Hour, GSS.GetSet, false, 17, // Substitute Rule Hour
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Minute, GSS.GetSet, false, 18, // Substitute Rule Minute
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Weeks, GSS.GetSet, false, 20, // Substitute Rule Weeks
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Substitute_Rule_Day_Of_Week, GSS.GetSet, false, 16, // Substitute Rule Day Of Week
-				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCal.Time_Count_Start_Value, GSS.GetSet, false, 24, // Time Count Start Value
-				new Prop(3, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCal.Time_Count_End_Value, GSS.GetSet, false, 22, // Time Count End Value
-				new Prop(3, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCal.Time_Count_Reset_Value, GSS.GetSet, false, 23, // Time Count Reset Value
-				new Prop(3, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCal.Reset_Time_Value, GSS.GetSet, false, 9,   // Reset Time Value
 				new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),
          new AttrData((byte)ccCal.Update_Interval_Value, GSS.GetSet, false, 25, // Update Interval Value
@@ -237,7 +237,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccCal.Shift_Ene_Minute, GSS.GetSet, false, 12,  // Shift Ene Minute
 				new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),
          new AttrData((byte)ccCal.Count_String_Value, GSS.GetSet, false, 2, // Count String Value
-				new Prop(10, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),
       };
 
       // User_pattern (Class Code 0x6B)
@@ -253,23 +253,23 @@ namespace HitachiEIP {
          new AttrData((byte)ccSR.Number, GSS.GetSet, false, 3,              // Number
 				new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),
          new AttrData((byte)ccSR.Name, GSS.GetSet, true, 2,                 // Name
-				new Prop(1, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(1, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Start_Year, GSS.GetSet, false, 1,          // Start Year
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Year, GSS.GetSet, false, 10,               // Year
-				new Prop(3, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Month, GSS.GetSet, false, 8,               // Month
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Day, GSS.GetSet, false, 4,                 // Day
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Hour, GSS.GetSet, false, 6,                // Hour
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Minute, GSS.GetSet, false, 7,              // Minute
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Week, GSS.GetSet, false, 9,                // Week
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Day_Of_Week, GSS.GetSet, false, 5,         // Day Of Week
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
       };
 
       // Enviroment_setting (Class Code 0x71)
@@ -295,13 +295,13 @@ namespace HitachiEIP {
       // Unit_Information (Class Code 0x73)
       private static AttrData[] ccUI_Addrs = new AttrData[] {
          new AttrData((byte)ccUI.Unit_Information, GSS.Get, false, 20,      // Unit Information
-				new Prop(64, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Model_Name, GSS.Get, false, 15,            // Model Name
-				new Prop(12, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Serial_Number, GSS.Get, false, 17,         // Serial Number
 				new Prop(8, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Ink_Name, GSS.Get, false, 8,               // Ink Name
-				new Prop(28, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Input_Mode, GSS.Get, false, 9,             // Input Mode
 				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Maximum_Character_Count, GSS.Get, false, 11, // Maximum Character Count
@@ -323,25 +323,25 @@ namespace HitachiEIP {
          new AttrData((byte)ccUI.Maximum_Line_Count, GSS.Get, false, 12,    // Maximum Line Count
 				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Basic_Software_Version, GSS.Get, false, 2, // Basic Software Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Controller_Software_Version, GSS.Get, false, 4, // Controller Software Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Engine_M_Software_Version, GSS.Get, false, 5, // Engine M Software Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Engine_S_Software_Version, GSS.Get, false, 6, // Engine S Software Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.First_Language_Version, GSS.Get, false, 7, // First Language Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Second_Language_Version, GSS.Get, false, 16, // Second Language Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Software_Option_Version, GSS.Get, true, 19, // Software Option Version
-				new Prop(5, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),
       };
 
       // Operation_management (Class Code 0x74)
       private static AttrData[] ccOM_Addrs = new AttrData[] {
          new AttrData((byte)ccOM.Operating_Management, GSS.Get, false, 12,  // Operating Management
-				new Prop(2, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccOM.Ink_Operating_Time, GSS.GetSet, false, 9,  // Ink Operating Time
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccOM.Alarm_Time, GSS.GetSet, false, 1,          // Alarm Time
@@ -353,7 +353,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccOM.Cumulative_Operation_Time, GSS.Get, false, 4, // Cumulative Operation Time
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccOM.Ink_And_Makeup_Name, GSS.Get, false, 8,    // Ink And Makeup Name
-				new Prop(2, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccOM.Ink_Viscosity, GSS.Get, false, 11,         // Ink Viscosity
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccOM.Ink_Pressure, GSS.Get, false, 10,          // Ink Pressure
@@ -397,11 +397,11 @@ namespace HitachiEIP {
          new AttrData((byte)ccCount.Number_Of_Count_Block, GSS.Get, false, 12, // Number Of Count Block
 				new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Initial_Value, GSS.GetSet, false, 9,    // Initial Value
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Count_Range_1, GSS.GetSet, false, 4,    // Count Range 1
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Count_Range_2, GSS.GetSet, false, 5,    // Count Range 2
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Update_Unit_Halfway, GSS.GetSet, false, 15, // Update Unit Halfway
 				new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Update_Unit_Unit, GSS.GetSet, false, 16, // Update Unit Unit
@@ -411,17 +411,17 @@ namespace HitachiEIP {
          new AttrData((byte)ccCount.Direction_Value, GSS.GetSet, false, 7,  // Direction Value
 				new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),
          new AttrData((byte)ccCount.Jump_From, GSS.GetSet, false, 10,       // Jump From
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Jump_To, GSS.GetSet, false, 11,         // Jump To
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Reset_Value, GSS.GetSet, false, 13,     // Reset Value
-				new Prop(0, DataFormats.ASCII, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Type_Of_Reset_Signal, GSS.GetSet, false, 14, // Type Of Reset Signal
 				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),
          new AttrData((byte)ccCount.Availibility_Of_External_Count, GSS.GetSet, false, 1, // Availibility Of External Count
-				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCount.Availibility_Of_Zero_Suppression, GSS.GetSet, false, 2, // Availibility Of Zero Suppression
-				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.Ascii)),
+				new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar)),
          new AttrData((byte)ccCount.Count_Multiplier, GSS.GetSet, false, 3, // Count Multiplier
 				new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCount.Count_Skip, GSS.GetSet, false, 6,       // Count Skip
