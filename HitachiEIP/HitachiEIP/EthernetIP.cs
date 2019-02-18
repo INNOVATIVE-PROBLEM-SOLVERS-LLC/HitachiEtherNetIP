@@ -333,9 +333,9 @@ namespace HitachiEIP {
       }
 
       enum Data_Type {
-         ConnectedAddressItem = 0xa1,
-         ConnectedDataItem = 0xb1,
-         UnconnectedDataItem = 0xb2,
+         AddressItem = 0xa1,                 // Connected Address Item
+         ConnectedDataItem = 0xb1,           // Connected Data Item
+         UCDataItem = 0xb2,                  // Unconnected Data Item
       }
 
       public enum EIP_Command {
@@ -472,7 +472,7 @@ namespace HitachiEIP {
          Int32 bytes;
          SessionID = 0;
          if (Connect()) {
-            byte[] ed = EIP_Wrapper(EIP_Type.RegisterSession, EIP_Command.Null);
+            byte[] ed = EIP_Session(EIP_Type.RegisterSession);
             if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 8) {
                SessionID = Get(data, 4, 4, mem.LittleEndian);
                LogIt("Session Started!");
@@ -491,7 +491,7 @@ namespace HitachiEIP {
       public bool EndSession() {
          SessionID = 0;
          if (client.Connected) {
-            byte[] ed = EIP_Wrapper(EIP_Type.UnRegisterSession, EIP_Command.Null);
+            byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
             Write(ed, 0, ed.Length);
          }
          LogIt("Session Ended!");
@@ -591,24 +591,22 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] dataOut, out string dataIn) {
+      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut, out string dataIn) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             // Status is checked later
             ForwardOpen();
          }
-         AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
          dataIn = "#Error";
          if (ForwardIsOpen) {
-            SetDataLength = dataOut.Length;
-            SetData = dataOut;
             SetDataValue = string.Empty;
             LengthIsValid = false;
             DataIsValid = false;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Get);
+            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
-            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(GetData, attr);
                DataIsValid = TextIsValid(GetData, attr.Data);
@@ -624,20 +622,18 @@ namespace HitachiEIP {
       }
 
       // Write one attribute
-      public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] val) {
+      public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
          // Can be called with or without a Forward path open
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
          if (ForwardIsOpen) {
-            SetData = val;
-            SetDataLength = (byte)val.Length;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Set);
+            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
-            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
                DataIsValid = TextIsValid(SetData, attr.Data);
@@ -652,19 +648,17 @@ namespace HitachiEIP {
       }
 
       // Service one attribute
-      public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] val) {
+      public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
          bool OpenCloseForward = !ForwardIsOpen;
          if (OpenCloseForward) {
             ForwardOpen();
          }
-         AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute);
+         AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
          if (ForwardIsOpen) {
-            SetData = val;
-            SetDataLength = (byte)val.Length;
-            byte[] ed = EIP_Hitachi(EIP_Type.SendUnitData, AccessCode.Service);
+            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
-            if (Write(ed, 0, ed.Length) && Read(out ReadData, out ReadDataLength)) {
+            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
                DataIsValid = TextIsValid(SetData, attr.Data);
@@ -679,134 +673,156 @@ namespace HitachiEIP {
       }
 
       // Handles Hitachi Get, Set, and Service
-      private byte[] EIP_Hitachi(EIP_Type t, AccessCode c) {
-         List<byte> packet = new List<byte>();
-         Add(packet, (ulong)t, 2);                                 // Command
-         Add(packet, (ulong)(30 + SetDataLength), 2);              // Length of added data at end
-         Add(packet, (ulong)SessionID, 4);                         // Session ID
-         Add(packet, (ulong)0, 4);                                 // Success
-         Add(packet, (ulong)0x0200030000008601, 8, mem.BigEndian); // Sender Context
-         Add(packet, (ulong)0, 4);                                 // option flags
-         Add(packet, (ulong)0, 4);                                 // option interface handle
-         Add(packet, (ulong)30, 2);                                // Timeout
-         Add(packet, (ulong)2, 2);                                 // Item count
+      byte[] GetSetSrvPkt = null;
+      private int EIP_GSS(EIP_Type t, AccessCode c, ClassCode Class, byte Instance, byte Attribute, byte[] DataOut) {
+         if (GetSetSrvPkt == null) {
+            List<byte> packet = new List<byte>();
+            Add(packet, (ulong)t, 2);                              // 00-01 Command
+            Add(packet, (ulong)(30 + DataOut.Length), 2);          // 02-03 Length of added data at end
+            Add(packet, (ulong)SessionID, 4);                      // 04-07 Session ID
+            Add(packet, (ulong)0, 4);                              // 08-11 Success
+            Add(packet, (ulong)1, 8);                              // 12-19 Sender Context
+            Add(packet, (ulong)0, 4);                              // 20-23 option flags
+            Add(packet, (ulong)0, 4);                              // 24-27 option interface handle
+            Add(packet, (ulong)30, 2);                             // 28-29 Timeout
+            Add(packet, (ulong)2, 2);                              // 30-31 Item count
 
-         // Item #1
-         Add(packet, (ulong)Data_Type.ConnectedAddressItem, 2); // Connected address type
-         Add(packet, (ulong)4, 2);                              // length of 4
-         Add(packet, O_T_ConnectionID, 4);                      // O->T Connection ID
+            // Item #1
+            Add(packet, (ulong)Data_Type.AddressItem, 2);          // 32-33 Connected address type
+            Add(packet, (ulong)4, 2);                              // 34-35 length of 4
+            Add(packet, O_T_ConnectionID, 4);                      // 36-39 O->T Connection ID
 
-         // Item #2
-         Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // data type
-         Add(packet, (ulong)(10 + SetDataLength), 2);           // length of 10 + data length
-         Add(packet, (ulong)2, 2);                              // Count Sequence
-         Add(packet, (byte)c, 3);                               // Hitachi command and count
-         Add(packet, (byte)Segment.Class, (byte)Class);         // Class
-         Add(packet, (byte)Segment.Instance, (byte)Instance);   // Instance
-         Add(packet, (byte)Segment.Attribute, (byte)Attribute); // Attribute
-         Add(packet, SetData);                                  // Data
+            // Item #2
+            Add(packet, (ulong)Data_Type.ConnectedDataItem, 2);    // 40-41 data type
+            Add(packet, (ulong)(10 + DataOut.Length), 2);          // 42-43 length of 10 + data length
+            Add(packet, (ulong)2, 2);                              // 44-45 Count Sequence
+            Add(packet, (byte)c, (byte)3);                         // 46-47 Hitachi command and count
+            Add(packet, (byte)Segment.Class, (byte)Class);         // 48-49 Class
+            Add(packet, (byte)Segment.Instance, (byte)Instance);   // 50-51 Instance
+            Add(packet, (byte)Segment.Attribute, (byte)Attribute); // 52-53 Attribute
+            Add(packet, DataOut);                                  // 54... Data
 
-         return packet.ToArray<byte>();
+            GetSetSrvPkt = new byte[2000];
+            for (int i = 0; i < packet.Count; i++) {
+               GetSetSrvPkt[i] = packet[i];
+            }
+            return 54 + DataOut.Length;
+         }
+         // Fill in the multi-byte variable data
+         Set(GetSetSrvPkt, (uint)t, 0, 2);
+         Set(GetSetSrvPkt, (uint)(30 + DataOut.Length), 2, 2);
+         Set(GetSetSrvPkt, SessionID, 4, 4);
+         Set(GetSetSrvPkt, O_T_ConnectionID, 36, 4);
+         Set(GetSetSrvPkt, (uint)(10 + DataOut.Length), 42, 2);
+
+         // Fill in the Single byte variable data
+         GetSetSrvPkt[46] = (byte)c;
+         GetSetSrvPkt[49] = (byte)Class;
+         GetSetSrvPkt[51] = Instance;
+         GetSetSrvPkt[53] = Attribute;
+
+         // Add in the extra data
+         Buffer.BlockCopy(DataOut, 0, GetSetSrvPkt, 54, DataOut.Length);
+
+         return 54 + DataOut.Length;
       }
 
-      // handles Register Session, Unregister Session, Send RR Data(Forward Open, Forward Close)
+      // Shortcut building of session start/end packets
+      byte[] SessionPkt = null;
+      private byte[] EIP_Session(EIP_Type t, uint SessionID = 0) {
+         if (SessionPkt == null) {
+            List<byte> packet = new List<byte>();
+            Add(packet, (ulong)t, 2);           // 00-01 Command
+            Add(packet, (ulong)4, 2);           // 02-03 Length of added data at end
+            Add(packet, (ulong)0, 4);           // 04-07 Session ID (Not set yet)
+            Add(packet, (ulong)0, 4);           // 08-11 Status to be returned
+            Add(packet, (ulong)0, 8);           // 12-19 Sender Context
+            Add(packet, (ulong)0, 4);           // 20-23 Options
+            Add(packet, (ulong)1, 2);           // 24-25 Protocol Version
+            Add(packet, (ulong)0, 2);           // 26-27 Flags
+            SessionPkt = packet.ToArray<byte>();
+         }
+         Set(SessionPkt, (uint)t, 0, 2);     // Set the command
+         Set(SessionPkt, SessionID, 4, 4);   // Set the session ID
+         return SessionPkt;
+      }
+
+      // handles Send RR Data(Forward Open, Forward Close)
       private byte[] EIP_Wrapper(EIP_Type t, EIP_Command c) {
          List<byte> packet = new List<byte>();
-         switch (t) {
-            case EIP_Type.RegisterSession:
-               Add(packet, (ulong)t, 2); // Command
-               Add(packet, (ulong)4, 2); // Length of added data at end
-               Add(packet, (ulong)0, 4); // Session ID (Not set yet)
-               Add(packet, (ulong)0, 4); // Status to be returned
-               Add(packet, (ulong)0, 8); // Sender Context
-               Add(packet, (ulong)0, 4); // Options
-               Add(packet, (ulong)1, 2); // Protocol Version
-               Add(packet, (ulong)0, 2); // Flags
-               break;
-            case EIP_Type.UnRegisterSession:
+         switch (c) {
+            case EIP_Command.ForwardOpen:
                Add(packet, (ulong)t, 2);         // Command
-               Add(packet, (ulong)0, 2);         // Length of added data at end
-               Add(packet, (ulong)SessionID, 4); // Session ID (Not set yet)
-               Add(packet, (ulong)0, 4);         // Status to be returned
-               Add(packet, (ulong)0, 8);         // Sender Context
-               Add(packet, (ulong)0, 4);         // Options
+               Add(packet, (ulong)62, 2);        // Length of added data at end
+               Add(packet, (ulong)SessionID, 4); // Session ID
+               Add(packet, (ulong)0, 4);         // Success
+               Add(packet, (ulong)0, 8);         // Pertinent to sender
+               Add(packet, (ulong)0, 4);         // option flags
+               Add(packet, (ulong)0, 4);         // option interface handle
+               Add(packet, (ulong)255, 2);       // Timeout
+               Add(packet, (ulong)2, 2);         // Item count
+               Add(packet, (ulong)0, 2);         // Null type
+               Add(packet, (ulong)0, 2);         // length of 0
+               Add(packet, (ulong)Data_Type.UCDataItem, 2); // data type
+               Add(packet, (ulong)46, 2);        // length of 46
+
+               // Common Packet
+               Add(packet, (ulong)c, 1);         // Forward open
+               Add(packet, (ulong)02, 1);        // Requested path size
+               Add(packet, (byte)Segment.Class, 6);           // Class
+               Add(packet, (byte)Segment.Instance, Instance); // Instance
+               Add(packet, (ulong)7, 1);         // Priority/Time
+               Add(packet, (ulong)0xea, 1);      // Timeout Ticks
+               Add(packet, (ulong)0, 4);         // O->T Connection ID Random Number
+               Add(packet, 0x98000340, 4, mem.BigEndian);  // T->O Connection ID Random number
+               Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
+               Add(packet, (ulong)0, 2);         // vendor ID
+               Add(packet, (ulong)0, 4);         // Originator Serial number
+               Add(packet, (ulong)0, 1);         // Connection Timeout Multiplier
+               Add(packet, (ulong)0, 3);         // Reserved
+
+               Add(packet, 10000000, 4);         // O->T RPI
+               Add(packet, 0xff, 0x43);          // O->T Network Connection Parameters
+               Add(packet, 10000000, 4);         // T->O RPI
+               Add(packet, 0xff, 0x43);          // T->O Network Connection Parameters
+               Add(packet, (ulong)0xa3, 1);      // Transport type/trigger
+               Add(packet, (ulong)2, 1);         // Connection Path Size in 16-bit words
+               Add(packet, (byte)Segment.Class, 2);           // Class
+               Add(packet, (byte)Segment.Instance, Instance); // Instance
                break;
-            case EIP_Type.SendRRData:
-               switch (c) {
-                  case EIP_Command.ForwardOpen:
-                     Add(packet, (ulong)t, 2);         // Command
-                     Add(packet, (ulong)62, 2);        // Length of added data at end
-                     Add(packet, (ulong)SessionID, 4); // Session ID
-                     Add(packet, (ulong)0, 4);         // Success
-                     Add(packet, (ulong)0, 8);         // Pertinent to sender
-                     Add(packet, (ulong)0, 4);         // option flags
-                     Add(packet, (ulong)0, 4);         // option interface handle
-                     Add(packet, (ulong)255, 2);       // Timeout
-                     Add(packet, (ulong)2, 2);         // Item count
-                     Add(packet, (ulong)0, 2);         // Null type
-                     Add(packet, (ulong)0, 2);         // length of 0
-                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data type
-                     Add(packet, (ulong)46, 2);        // length of 46
+            case EIP_Command.ForwardClose:
+               Add(packet, (ulong)t, 2);         // Command
+               Add(packet, (ulong)34, 2);        // Length of added data at end
+               Add(packet, (ulong)SessionID, 4); // Session ID
+               Add(packet, (ulong)0, 4);         // Success
+               Add(packet, (ulong)0, 8);         // Pertinant to sender(Unknown for now)
+               Add(packet, (ulong)0, 4);         // option flags
+               Add(packet, (ulong)0, 4);         // option interface handle
+               Add(packet, (ulong)30, 2);        // Timeout
+               Add(packet, (ulong)2, 2);         // Item count
+               Add(packet, (ulong)0, 2);         // Null type
+               Add(packet, (ulong)0, 2);         // length of 0
+               Add(packet, (ulong)Data_Type.UCDataItem, 2); // data type
+               Add(packet, (ulong)18, 2);        // length of 46
 
-                     // Common Packet
-                     Add(packet, (ulong)c, 1);         // Forward open
-                     Add(packet, (ulong)02, 1);        // Requested path size
-                     Add(packet, (byte)Segment.Class, 6);           // Class
-                     Add(packet, (byte)Segment.Instance, Instance); // Instance
-                     Add(packet, (ulong)7, 1);         // Priority/Time
-                     Add(packet, (ulong)0xea, 1);      // Timeout Ticks
-                     Add(packet, (ulong)0, 4);         // O->T Connection ID Random Number
-                     Add(packet, 0x98000340, 4, mem.BigEndian);  // T->O Connection ID Random number
-                     Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
-                     Add(packet, (ulong)0, 2);         // vendor ID
-                     Add(packet, (ulong)0, 4);         // Originator Serial number
-                     Add(packet, (ulong)0, 1);         // Connection Timeout Multiplier
-                     Add(packet, (ulong)0, 3);         // Reserved
-
-                     Add(packet, 10000000, 4);         // O->T RPI
-                     Add(packet, 0xff, 0x43);          // O->T Network Connection Parameters
-                     Add(packet, 10000000, 4);         // T->O RPI
-                     Add(packet, 0xff, 0x43);          // T->O Network Connection Parameters
-                     Add(packet, (ulong)0xa3, 1);      // Transport type/trigger
-                     Add(packet, (ulong)2, 1);         // Connection Path Size in 16-bit words
-                     Add(packet, (byte)Segment.Class, 2);           // Class
-                     Add(packet, (byte)Segment.Instance, Instance); // Instance
-                     break;
-                  case EIP_Command.ForwardClose:
-                     Add(packet, (ulong)t, 2);         // Command
-                     Add(packet, (ulong)34, 2);        // Length of added data at end
-                     Add(packet, (ulong)SessionID, 4); // Session ID
-                     Add(packet, (ulong)0, 4);         // Success
-                     Add(packet, (ulong)0, 8);         // Pertinant to sender(Unknown for now)
-                     Add(packet, (ulong)0, 4);         // option flags
-                     Add(packet, (ulong)0, 4);         // option interface handle
-                     Add(packet, (ulong)30, 2);        // Timeout
-                     Add(packet, (ulong)2, 2);         // Item count
-                     Add(packet, (ulong)0, 2);         // Null type
-                     Add(packet, (ulong)0, 2);         // length of 0
-                     Add(packet, (ulong)Data_Type.UnconnectedDataItem, 2); // data tyoe
-                     Add(packet, (ulong)18, 2);        // length of 46
-
-                     // Common Packet
-                     Add(packet, (ulong)c, 1);         // Forward open
-                     Add(packet, (ulong)2, 1);         // Requested path size
-                     Add(packet, (byte)Segment.Class, 6);           // Class
-                     Add(packet, (byte)Segment.Instance, Instance); // Instance
-                     Add(packet, (ulong)7, 1);         // Priority/Time
-                     Add(packet, (ulong)0xea, 1);      // Timeout Ticks
-                     Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
-                     Add(packet, (ulong)0, 2);         // vendor ID
-                     Add(packet, (ulong)0, 4);         // Originator Serial number
-                     Add(packet, (ulong)0, 1);         // Connection Path Size
-                     Add(packet, (ulong)0, 1);         // Reserved
-                     break;
-               }
+               // Common Packet
+               Add(packet, (ulong)c, 1);         // Forward close
+               Add(packet, (ulong)2, 1);         // Requested path size
+               Add(packet, (byte)Segment.Class, (byte)6);     // Class
+               Add(packet, (byte)Segment.Instance, Instance); // Instance
+               Add(packet, (ulong)7, 1);         // Priority/Time
+               Add(packet, (ulong)0xea, 1);      // Timeout Ticks
+               Add(packet, (ulong)0x98, 2);      // Connection Serial Number random number
+               Add(packet, (ulong)0, 2);         // vendor ID
+               Add(packet, (ulong)0, 4);         // Originator Serial number
+               Add(packet, (ulong)0, 1);         // Connection Path Size
+               Add(packet, (ulong)0, 1);         // Reserved
                break;
          }
          return packet.ToArray<byte>();
       }
 
-      // get the human readanle name
+      // get the human readable name
       public string GetAttributeName(Type cc, int v) {
          string result = Enum.GetName(cc, v);
          return result;
@@ -1180,6 +1196,14 @@ namespace HitachiEIP {
          }
       }
 
+      // Set data at a specific location in a byte array
+      private void Set(byte[] dest, uint val, int start, int len, mem m = mem.LittleEndian) {
+         for (int i = 0; i < len; i++) {
+            dest[i + start] = (byte)val;
+            val >>= 8;
+         }
+      }
+
       // Register a message if someone is listening
       private void LogIt(string msg) {
          Log?.Invoke(this, msg);
@@ -1276,11 +1300,13 @@ namespace HitachiEIP {
       }
 
       // Save away the details of the request and return the associated attribute data
-      private AttrData SetRequest(AccessCode Access, ClassCode Class, byte Instance, byte Attribute) {
+      private AttrData SetRequest(AccessCode Access, ClassCode Class, byte Instance, byte Attribute, byte[] dataOut) {
          this.Access = Access;
          this.Class = Class;
          this.Instance = Instance;
          this.Attribute = Attribute;
+         this.SetData = dataOut;
+         this.SetDataLength = (byte)dataOut.Length;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
          return DataII.AttrDict[Class, Attribute];
       }
