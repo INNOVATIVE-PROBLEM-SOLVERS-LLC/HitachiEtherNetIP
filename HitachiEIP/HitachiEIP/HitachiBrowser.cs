@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -643,7 +644,7 @@ namespace HitachiEIP {
       private void btnReformat_Click(object sender, EventArgs e) {
 
          RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
-         RFS = new StreamWriter(RFN, false);
+         RFS = new StreamWriter(RFN, false, Encoding.UTF8);
 
          Data.ReformatTables(RFS);
 
