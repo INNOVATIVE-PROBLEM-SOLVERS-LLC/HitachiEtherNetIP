@@ -10,17 +10,18 @@ namespace HitachiEIP {
 
       #region Properties and Constructor
 
-      public byte Val { get; set; } = 0;
-      public bool HasSet { get; set; } = false;
-      public bool HasGet { get; set; } = false;
-      public bool HasService { get; set; } = false;
-      public int Order { get; set; } = 0;
-      public bool Ignore { get; set; } = false;
+      public byte Val { get; set; } = 0;             // The Attribute (Makes the tables easier to read)
+      public bool HasSet { get; set; } = false;      // Supports a Set Request
+      public bool HasGet { get; set; } = false;      // Supports a Get Request
+      public bool HasService { get; set; } = false;  // Supports a Service Request
+      public int Order { get; set; } = 0;            // Sort Order if Alpha Sort is requested
+      public bool Ignore { get; set; } = false;      // Indicates that the request will hang printer
 
-      public Prop Data { get; set; }
-      public Prop Get { get; set; }
-      public Prop Set { get; set; }
-      public Prop Service { get; set; }
+      // Four views of the printer data
+      public Prop Data { get; set; }     // As it appears in the printer
+      public Prop Get { get; set; }      // Data to be passed on a Get Request
+      public Prop Set { get; set; }      // Data to be passed on a Set Request
+      public Prop Service { get; set; }  // Data to be passed on a Service Request
 
       // A description of the data from four points of view.
       public AttrData(byte Val, GSS acc, bool Ignore, int Order, Prop Data, Prop Data2 = null) {
@@ -54,16 +55,19 @@ namespace HitachiEIP {
 
    }
 
+   // Look up AttrData using Class and Attribute
    public class Dictionary<TKey1, TKey2, TValue>
       : Dictionary<Tuple<TKey1, TKey2>, TValue>, IDictionary<Tuple<TKey1, TKey2>, TValue> {
 
       #region Constructor and methods
 
+      // Convert the Class and Attribute to a Tuple for get/set
       public TValue this[TKey1 key1, TKey2 key2] {
          get { return base[Tuple.Create(key1, key2)]; }
          set { base[Tuple.Create(key1, key2)] = value; }
       }
 
+      // Convert the Class and Attribute to a Tuple for Add
       public void Add(TKey1 key1, TKey2 key2, TValue value) {
          base.Add(Tuple.Create(key1, key2), value);
       }

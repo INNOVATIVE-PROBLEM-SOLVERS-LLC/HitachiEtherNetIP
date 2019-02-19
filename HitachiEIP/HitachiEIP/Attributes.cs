@@ -198,11 +198,22 @@ namespace HitachiEIP {
          }
       }
 
-      // Allow only numbers (<TODO> Need to add negative number also)
+      // Allow only positive and negative numbers
       private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
-         e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
-         t.BackColor = Color.LightYellow;
+         e.Handled = !char.IsControl(e.KeyChar) && ("0123456789-".IndexOf(e.KeyChar) == -1);
+         if (!e.Handled && !char.IsControl(e.KeyChar)) {
+            string s =
+               t.Text.Substring(0, t.SelectionStart) +                 // Data before the selection
+               e.KeyChar +                                             // Character entered
+               t.Text.Substring(t.SelectionStart + t.SelectionLength); // Number after the selection
+            if (!int.TryParse(s, out int n)) {                         // See if it is an integer
+               e.Handled = true;                                       // Nope, throw away the character
+            }
+         }
+         if(!e.Handled) {
+            t.BackColor = Color.LightYellow;                           // Indicate that it has changed
+         }
       }
 
       // Get the value associated with an extra control
