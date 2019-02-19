@@ -675,7 +675,7 @@ namespace HitachiEIP {
       // Build a file to save items from Get/Set/Service requests
       private void BuildTrafficFile() {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
-         TrafficFileStream = new StreamWriter(TrafficFilename, false);
+         TrafficFileStream = new StreamWriter(TrafficFilename, false, Encoding.UTF8);
          TrafficFileStream.WriteLine(
             "Path\tCount OK\tData OK\tAccess\tClass\tInstance\tAttribute\tCIP Status\tEtherNet/IP Status" +
             "\t# Out\tFormatted Data Out\tRaw Data Out\t# In\tFormatted Data In\tRaw Data In");
@@ -694,7 +694,7 @@ namespace HitachiEIP {
       // Build a file to save items in the log display
       private void BuildLogFile() {
          LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
-         LogFileStream = new StreamWriter(LogFilename, false);
+         LogFileStream = new StreamWriter(LogFilename, false, Encoding.UTF8);
       }
 
       // Close the log file and open it in Notepad if desired
