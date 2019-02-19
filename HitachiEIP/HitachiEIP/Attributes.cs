@@ -157,13 +157,13 @@ namespace HitachiEIP {
             }
          }
          // Let the user see what is happening
-         parent.Refresh();
+         //parent.Refresh();
          if (EIP.ForwardOpen(true)) {
             // Do them all but stop on an error
             for (int i = 0; i < gets.Length && parent.AllGood; i++) {
                if (gets[i] != null) {
                   Get_Click(gets[i], null);
-                  parent.Refresh();
+                  //parent.Refresh();
                   Application.DoEvents();
                }
             }
@@ -185,7 +185,7 @@ namespace HitachiEIP {
                if (sets[i] != null) {
                   Set_Click(sets[i], null);
                   // Show the value immediately
-                  parent.Refresh();
+                  //parent.Refresh();
                   // Let the Cancel button event be processed
                   Application.DoEvents();
                }

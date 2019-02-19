@@ -284,7 +284,7 @@ namespace HitachiEIP {
 
             #endregion
 
-            this.Refresh();
+            //this.Refresh();
             this.ResumeLayout();
          }
       }
@@ -438,14 +438,14 @@ namespace HitachiEIP {
          AllGood = true;
          for (int i = 0; i < cbClassCode.Items.Count && AllGood; i++) {
             cbClassCode.SelectedIndex = i;
-            this.Refresh();
+            //this.Refresh();
             // Establish the connection
             btnForwardOpen_Click(null, null);
             // Issue commands for this group
             for (int j = 0; j < cbFunction.Items.Count && AllGood; j++) {
                cbFunction.SelectedIndex = j;
                if (attr.HasGet && !attr.Ignore) {
-                  this.Refresh();
+                  //this.Refresh();
                   btnIssueGet_Click(null, null);
                }
             }
