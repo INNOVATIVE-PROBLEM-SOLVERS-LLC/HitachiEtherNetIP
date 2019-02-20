@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -45,6 +45,8 @@ namespace HitachiEIP {
          Prompt = 6,   // Not supported in the printer
       }
 
+      Font courier = new Font("Courier New", 9);
+
       #endregion
 
       #region Constructors and destructors
@@ -54,11 +56,11 @@ namespace HitachiEIP {
          this.EIP = EIP;
          this.tab = tab;
 
-         tclViewXML = new TabControl() { Name = "tclViewXML" };
+         tclViewXML = new TabControl() { Name = "tclViewXML", Font = courier };
          tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
          tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
 
-         tvXML = new TreeView() { Name = "tvXML" };
+         tvXML = new TreeView() { Name = "tvXML", Font = courier };
          txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
 
          cmdOpen = new Button() { Text = "Open" };
@@ -1011,8 +1013,7 @@ namespace HitachiEIP {
       private string GetValue(XmlNode node, string DefaultValue) {
          try {
             return node.InnerText;
-         } catch (Exception e) {
-            //ErrorMessage = e.Message;
+         } catch {
             return DefaultValue;
          }
       }
@@ -1020,8 +1021,7 @@ namespace HitachiEIP {
       private int GetAttr(XmlNode node, string AttrName, int DefaultValue) {
          try {
             return Convert.ToInt32(node.Attributes[AttrName].Value);
-         } catch (Exception e) {
-            //ErrorMessage = e.Message;
+         } catch {
             return DefaultValue;
          }
       }
@@ -1042,8 +1042,8 @@ namespace HitachiEIP {
                   result = bool.Parse(s);
                   break;
             }
-         } catch (Exception e) {
-            //ErrorMessage = e.Message;
+         } catch {
+
          }
          return result;
       }
@@ -1051,8 +1051,7 @@ namespace HitachiEIP {
       private string GetAttr(XmlNode node, string AttrName, string DefaultValue = "?") {
          try {
             return node.Attributes[AttrName].Value;
-         } catch (Exception e) {
-            //ErrorMessage = e.Message;
+         } catch {
             return DefaultValue;
          }
       }

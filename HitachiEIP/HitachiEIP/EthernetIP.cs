@@ -604,7 +604,7 @@ namespace HitachiEIP {
             SetDataValue = string.Empty;
             LengthIsValid = false;
             DataIsValid = false;
-            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
+            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
             if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
@@ -631,7 +631,7 @@ namespace HitachiEIP {
          }
          AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
          if (ForwardIsOpen) {
-            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
+            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
             if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
@@ -656,7 +656,7 @@ namespace HitachiEIP {
          }
          AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
          if (ForwardIsOpen) {
-            int n = EIP_GSS(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
+            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
             // Write the request and read the response
             if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                InterpretResult(ReadData, ReadDataLength);
@@ -674,7 +674,7 @@ namespace HitachiEIP {
 
       // Handles Hitachi Get, Set, and Service
       byte[] GetSetSrvPkt = null;
-      private int EIP_GSS(EIP_Type t, AccessCode c, ClassCode Class, byte Instance, byte Attribute, byte[] DataOut) {
+      private int EIP_GetSetSrv(EIP_Type t, AccessCode c, ClassCode Class, byte Instance, byte Attribute, byte[] DataOut) {
          if (GetSetSrvPkt == null) {
             List<byte> packet = new List<byte>();
             Add(packet, (ulong)t, 2);                              // 00-01 Command
@@ -1351,4 +1351,5 @@ namespace HitachiEIP {
       #endregion
 
    }
+
 }
