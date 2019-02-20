@@ -24,7 +24,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>3.0.10.0</ApplicationVersion>
+    <ApplicationVersion>3.0.11.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -76,7 +76,6 @@
   <ItemGroup>
     <Compile Include="AttrData.cs" />
     <Compile Include="Attributes.cs" />
-    <Compile Include="Data.cs" />
     <Compile Include="DataII.cs" />
     <Compile Include="EthernetIP.cs" />
     <Compile Include="HitachiBrowser.cs">

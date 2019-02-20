@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -555,6 +555,79 @@ namespace HitachiEIP {
                }
             }
          }
+      }
+
+      #endregion
+
+      #region Data reformatting routines
+
+      // Reformat the raw data tables in this module to make them easier to read and modify
+      public static void ReformatTables(StreamWriter RFS) {
+
+         DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
+         DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
+         DumpTable(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
+         DumpTable(RFS, ccCal_Addrs, ClassCode.Calendar, typeof(ccCal));
+         DumpTable(RFS, ccUP_Addrs, ClassCode.User_pattern, typeof(ccUP));
+         DumpTable(RFS, ccSR_Addrs, ClassCode.Substitution_rules, typeof(ccSR));
+         DumpTable(RFS, ccES_Addrs, ClassCode.Enviroment_setting, typeof(ccES));
+         DumpTable(RFS, ccUI_Addrs, ClassCode.Unit_Information, typeof(ccUI));
+         DumpTable(RFS, ccOM_Addrs, ClassCode.Operation_management, typeof(ccOM));
+         DumpTable(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
+         DumpTable(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
+         DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
+
+      }
+
+      // Process the tables one at a time
+      private static void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
+         string name = at.ToString();
+         name = name.Substring(name.IndexOf('.') + 1);
+
+         // Write out the table header
+         RFS.WriteLine($"\t// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
+         RFS.WriteLine($"\tprivate static AttrData[] {name}_Addrs = new AttrData[] {{");
+
+         // Now process each attributs within the Class
+         string[] attrNames = Enum.GetNames(at);
+         for (int i = 0; i < tbl.Length; i++) {
+
+            // Turn Access into an enum
+            string access = string.Empty;
+            if (tbl[i].HasGet)
+               access += "Get";
+            if (tbl[i].HasSet)
+               access += "Set";
+            if (tbl[i].HasService)
+               access += "Service";
+
+            // Format Ignore as true/false and Data Format to an enum
+            string ignore = tbl[i].Ignore ? "true" : "false";
+
+            // Space the comment at the end of the line for readability
+            string printLine = $"\t\t\tnew AttrData((byte){name}.{attrNames[i]}, GSS.{access}, {ignore}, {tbl[i].Order},";
+            string spaces = new string(' ', Math.Max(80 - printLine.Length, 1));
+            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")}");
+
+            // Was only one property specified
+            Prop p1 = tbl[i].Data;
+            Prop p2 = null;
+            if(tbl[i].HasGet && tbl[i].Get.Len > 0) {
+               p2 = tbl[i].Get;
+            } else if(tbl[i].HasService && tbl[i].Service.Len > 0) {
+               p2 = tbl[i].Service;
+            }
+            if (p2 == null) {
+               // Add the one property needed for processing Get, Set, or Service requests
+               RFS.WriteLine($"\t\t\t\tnew Prop({p1.Len}, DataFormats.{p1.Fmt}, {p1.Min}, {p1.Max}, fmtDD.{(fmtDD)p1.DropDown})),");
+            } else {
+               // Add the two properties needed for processing the odd Get or Service requests
+               RFS.WriteLine($"\t\t\t\tnew Prop({p1.Len}, DataFormats.{p1.Fmt}, {p1.Min}, {p1.Max}, fmtDD.{p1.DropDown}),");
+               RFS.WriteLine($"\t\t\t\tnew Prop({p2.Len}, DataFormats.{p2.Fmt}, {p2.Min}, {p2.Max}, fmtDD.{p2.DropDown})),");
+            }
+         }
+         // Terminate the Attribute table
+         RFS.WriteLine("\t\t};\n");
       }
 
       #endregion
