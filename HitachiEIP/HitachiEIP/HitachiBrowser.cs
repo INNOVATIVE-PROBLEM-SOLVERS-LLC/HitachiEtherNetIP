@@ -356,13 +356,8 @@ namespace HitachiEIP {
 
       // Issue a Get based on the Class Code and Function dropdowns
       private void btnIssueGet_Click(object sender, EventArgs e) {
-         bool Success = false;
-         try {
-            byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-            Success = EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
-         } catch {
-            AllGood = false;
-         }
+         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
+         EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
       }
 
       // Issue a Set based on the Class Code and Function dropdowns
@@ -434,26 +429,26 @@ namespace HitachiEIP {
 
       // Step thru all classes and attributes with classes to issue Get requests
       private void btnReadAll_Click(object sender, EventArgs e) {
+         EIP_Log(null, "Read All Starting");
          // Get is assumed for read all request
          AllGood = true;
-         for (int i = 0; i < cbClassCode.Items.Count && AllGood; i++) {
-            cbClassCode.SelectedIndex = i;
-            //this.Refresh();
+         for (int i = 0; i < DataII.ClassCodeAttributes.Length && AllGood; i++) {
+            ClassAttr = (int[])DataII.ClassCodeAttributes[i].GetEnumValues();
             // Establish the connection
             btnForwardOpen_Click(null, null);
             // Issue commands for this group
-            for (int j = 0; j < cbFunction.Items.Count && AllGood; j++) {
-               cbFunction.SelectedIndex = j;
+            for (int j = 0; j < ClassAttr.Length && AllGood; j++) {
+               // Get attr for request
+               attr = DataII.AttrDict[DataII.ClassCodes[i], (byte)ClassAttr[j]];
                if (attr.HasGet && !attr.Ignore) {
-                  //this.Refresh();
-                  btnIssueGet_Click(null, null);
+                  byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
+                  EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data, out string val);
                }
             }
             // Close out the connection
             btnForwardClose_Click(null, null);
          }
-
-
+         EIP_Log(null, "Read All Complete");
       }
 
       // Invert the com setting
@@ -616,11 +611,15 @@ namespace HitachiEIP {
          // Record the operation in the Traffic file
          Type at = DataII.ClassCodeAttributes[Array.IndexOf(DataII.ClassCodes, e.Class)];
          string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}\t";
-         trafficText += $"{e.Access}\t{e.Class}\t{e.Instance}\t{EIP.GetAttributeName(at, e.Attribute)}\t";
+         trafficText += $"{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}\t";
          if (e.Successful) {
-            trafficText += $"{EIP.GetBytes(EIP.ReadData, 46, 4)}\t{EIP.GetStatus}\t";
-            trafficText += $"{txtCountOut.Text}\t{txtDataOut.Text}\t{txtDataBytesOut.Text}\t";
-            trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{txtDataBytesIn.Text}";
+            trafficText += $"{EIP.GetStatus}\t";
+            if (txtDataIn.Text.Length > 20) {
+               trafficText += $"{txtCountIn.Text}\tSee=>\t{txtDataBytesIn.Text}\t";
+            } else {
+               trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{txtDataBytesIn.Text}\t";
+            }
+            trafficText += $"{txtCountOut.Text}\t{txtDataBytesOut.Text}";
          }
          TrafficFileStream.WriteLine(trafficText);
 
@@ -677,8 +676,8 @@ namespace HitachiEIP {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false, Encoding.UTF8);
          TrafficFileStream.WriteLine(
-            "Path\tCount OK\tData OK\tAccess\tClass\tInstance\tAttribute\tCIP Status\tEtherNet/IP Status" +
-            "\t# Out\tFormatted Data Out\tRaw Data Out\t# In\tFormatted Data In\tRaw Data In");
+            "Path\tCount OK\tData OK\tAccess\tClass\tAttribute\tEtherNet/IP Status" +
+            "\t#I\tData In\tRaw In\t#O\tRaw Out");
       }
 
       // Close the Traffic file and open it in Notepad if desired
@@ -814,33 +813,64 @@ namespace HitachiEIP {
 
       // Enable only the buttons that should be used
       void SetButtonEnables() {
-         btnStartSession.Enabled = !EIP.SessionIsOpen;
-         btnEndSession.Enabled = EIP.SessionIsOpen;
-         btnForwardOpen.Enabled = EIP.SessionIsOpen && !EIP.ForwardIsOpen;
-         btnForwardClose.Enabled = EIP.SessionIsOpen && EIP.ForwardIsOpen;
+         bool SessionIsOpen = EIP.SessionIsOpen;
+         bool ForwardIsOpen = EIP.ForwardIsOpen;
+
+         btnStartSession.Enabled = !SessionIsOpen;
+         btnEndSession.Enabled = SessionIsOpen;
+         btnForwardOpen.Enabled = SessionIsOpen && !ForwardIsOpen;
+         btnForwardClose.Enabled = SessionIsOpen && ForwardIsOpen;
          btnIssueGet.Enabled = btnIssueSet.Enabled = btnIssueService.Enabled =
-            EIP.SessionIsOpen && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
+            SessionIsOpen && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
 
-         btnCom.Enabled = EIP.SessionIsOpen;
-         btnAutoReflection.Enabled = EIP.SessionIsOpen && ComIsOn;
-         btnManagementFlag.Enabled = EIP.SessionIsOpen && ComIsOn;
+         btnCom.Enabled = SessionIsOpen;
+         btnAutoReflection.Enabled = SessionIsOpen && ComIsOn;
+         btnManagementFlag.Enabled = SessionIsOpen && ComIsOn;
 
-         btnReadAll.Enabled = EIP.SessionIsOpen && ComIsOn;
+         btnReadAll.Enabled = SessionIsOpen && ComIsOn;
 
          if (initComplete) {
-            indexAttr.SetButtonEnables();
-            oprAttr.SetButtonEnables();
-            pdmAttr.SetButtonEnables();
-            psAttr.SetButtonEnables();
-            pFmtAttr.SetButtonEnables();
-            calAttr.SetButtonEnables();
-            sRulesAttr.SetButtonEnables();
-            countAttr.SetButtonEnables();
-            unitInfoAttr.SetButtonEnables();
-            envirAttr.SetButtonEnables();
-            mgmtAttr.SetButtonEnables();
-            userPatAttr.SetButtonEnables();
-            processXML.SetButtonEnables();
+            switch (tclClasses.SelectedIndex) {
+               case 0:                         // ccIDX == 0x7A Index function 
+                  indexAttr.SetButtonEnables();
+                  break;
+               case 1:                         // ccIJP == 0x75 IJP operation function
+                  oprAttr.SetButtonEnables();
+                  break;
+               case 2:                         // ccPDM == 0x66 Print data management function
+                  pdmAttr.SetButtonEnables();
+                  break;
+               case 3:                         // ccPS == 0x68 Print specification function
+                  psAttr.SetButtonEnables();
+                  break;
+               case 4:                         // ccPF == 0x67 Print format function
+                  pFmtAttr.SetButtonEnables();
+                  break;
+               case 5:                         // ccCal == 0x69 Calendar function
+                  calAttr.SetButtonEnables();
+                  break;
+               case 6:                         // ccSR == 0x6C Substitution rules function
+                  sRulesAttr.SetButtonEnables();
+                  break;
+               case 7:                         // ccCount == 0x79 Count function
+                  countAttr.SetButtonEnables();
+                  break;
+               case 8:                         // ccUI == 0x73 Unit Information function
+                  unitInfoAttr.SetButtonEnables();
+                  break;
+               case 9:                         // ccES == 0x71 Enviroment setting function
+                  envirAttr.SetButtonEnables();
+                  break;
+               case 10:                        // ccOM == 0x74 Operation management function
+                  mgmtAttr.SetButtonEnables();
+                  break;
+               case 11:                        // ccUP == 0x6B User pattern function
+                  userPatAttr.SetButtonEnables();
+                  break;
+               case 12:
+                  processXML.SetButtonEnables();
+                  break;
+            }
          }
 
       }
