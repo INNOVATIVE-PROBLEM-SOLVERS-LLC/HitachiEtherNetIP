@@ -299,7 +299,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccUI.Model_Name, GSS.Get, false, 15,            // Model Name
 				new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Serial_Number, GSS.Get, false, 17,         // Serial Number
-				new Prop(8, DataFormats.Decimal, 0, 0, fmtDD.None)),
+				new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None)),
          new AttrData((byte)ccUI.Ink_Name, GSS.Get, false, 8,               // Ink Name
 				new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccUI.Input_Mode, GSS.Get, false, 9,             // Input Mode
