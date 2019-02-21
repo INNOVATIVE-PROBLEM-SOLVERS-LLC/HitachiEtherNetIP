@@ -28,13 +28,14 @@ namespace HitachiEIP {
 
    public enum DataFormats {
       None = -1,     // No formating
-      Decimal = 0,   // Decimal numbers up to 8 digits
+      Decimal = 0,   // Decimal numbers up to 8 digits (Big Endian)
       UTF8 = 1,      // UTF8 characters (Not ASCII or unicode)
       Date = 2,      // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
       Bytes = 3,     // Raw data in 2-digit hex notation
       XY = 4,        // x = 2 bytes, y = 1 byte
       N2N2 = 5,      // 2 2-byte numbers
-      N2Char = 6     // 2-byte number + UTF8 String
+      N2Char = 6,    // 2-byte number + UTF8 String
+      DecimalLE = 7, // Decimal numbers up to 8 digits (Little Endian)
    }
 
    #endregion
@@ -866,21 +867,15 @@ namespace HitachiEIP {
       // Get data array as xx xx xx xx ...
       public string GetBytes(byte[] data, int start, int length) {
          string s = string.Empty;
-         for (int i = 0; i < Math.Min(length, 20); i++) {
+         for (int i = 0; i < length; i++) {
             s += $"{data[start + i]:X2} ";
-         }
-         if (length > 20) {
-            s += "...";
          }
          return s;
       }
 
       // Get data as UTF8 characters
       public string GetUTF8(byte[] data, int start, int length) {
-         string s = encode.GetString(data, 0, Math.Min(length, 20));
-         if (length > 20) {
-            s += "...";
-         }
+         string s = encode.GetString(data, 0, length);
          return s;
       }
 
@@ -948,13 +943,19 @@ namespace HitachiEIP {
          if (prop.Len == 0) {
             return Nodata;
          }
+         uint val;
          byte[] result = null;
          string[] sa;
          SetDataValue = s;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
-               if (uint.TryParse(s, out uint val)) {
+               if (uint.TryParse(s, out val)) {
                   result = ToBytes(val, prop.Len);
+               }
+               break;
+            case DataFormats.DecimalLE:
+               if (uint.TryParse(s, out val)) {
+                  result = ToBytes(val, prop.Len, mem.LittleEndian);
                }
                break;
             case DataFormats.UTF8:
@@ -1029,6 +1030,7 @@ namespace HitachiEIP {
          bool IsValid = false;
          switch (attr.Data.Fmt) {
             case DataFormats.Decimal:
+            case DataFormats.DecimalLE:
             case DataFormats.Date:
             case DataFormats.Bytes:
             case DataFormats.XY:
@@ -1052,6 +1054,12 @@ namespace HitachiEIP {
             case DataFormats.Decimal:
                if (data.Length <= 8) {
                   ulong dec = Get(data, 0, data.Length, mem.BigEndian);
+                  IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
+               }
+               break;
+            case DataFormats.DecimalLE:
+               if (data.Length <= 8) {
+                  ulong dec = Get(data, 0, data.Length, mem.LittleEndian);
                   IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
                }
                break;
@@ -1270,6 +1278,13 @@ namespace HitachiEIP {
                if (data.Length <= 8) {
                   // Convert to a decimal and string value
                   GetDecValue = (int)Get(data, 0, data.Length, mem.BigEndian);
+                  val = GetDecValue.ToString();
+               }
+               break;
+            case DataFormats.DecimalLE:
+               if (data.Length <= 8) {
+                  // Convert to a decimal and string value
+                  GetDecValue = (int)Get(data, 0, data.Length, mem.LittleEndian);
                   val = GetDecValue.ToString();
                }
                break;
