@@ -8,7 +8,7 @@ namespace HitachiEIP {
       #region Data Declarations
 
       ResizeInfo R;
-
+      int GroupWidth = 0;
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
@@ -25,7 +25,7 @@ namespace HitachiEIP {
       TextBox[][] subTexts;
 
       bool[] resizeNeeded = new bool[] { true, true, true, true, true, true, true };
-      readonly int[] startWith = new[] { 19, 1, 1, 0, 0, 1, 1 };
+      readonly int[] startWith = new[] { 0, 1, 1, 0, 0, 1, 1 };
       readonly ccSR[] at = new ccSR[] {
          ccSR.Year,
          ccSR.Month,
@@ -92,7 +92,7 @@ namespace HitachiEIP {
          subSet.Click += SubSet_Click;
 
          subLabels = new Label[][] {
-               new Label[25],        // Year
+               new Label[24],        // Year
                new Label[12],        // Month
                new Label[31],        // Day
                new Label[24],        // Hour
@@ -101,7 +101,7 @@ namespace HitachiEIP {
                new Label[7],         // Day of week
             };
          subTexts = new TextBox[][] {
-               new TextBox[25],      // Year
+               new TextBox[24],      // Year
                new TextBox[12],      // Month
                new TextBox[31],      // Day
                new TextBox[24],      // Hour
@@ -122,26 +122,21 @@ namespace HitachiEIP {
       // Adjust for screen resolution
       public void ResizeSubstitutionControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
          this.R = R;
+         this.GroupWidth = GroupWidth;
 
          Utils.ResizeObject(ref R, SubControls, GroupStart + 0.75f, 0.5f, GroupHeight - 1, GroupWidth - 0.5f);
          {
-            Utils.ResizeObject(ref R, lblRule, 1, 1, 1.5f, 4);
-            Utils.ResizeObject(ref R, cbRule, 1, 5, 1.5f, 4);
-            Utils.ResizeObject(ref R, lblAttribute, 1, 9, 1.5f, 4);
-            Utils.ResizeObject(ref R, cbAttribute, 1, 13, 1.5f, 6);
             for (int i = 0; i < resizeNeeded.Length; i++) {
                resizeNeeded[i] = true;
             }
             resizeSubstitutions(ref R);
-            Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
-            Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
          }
       }
 
       // Allow button clicke only if conditions allow it
       public void SetButtonEnables() {
          bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
-         bool subEnabled = cbRule.SelectedIndex > 0 && cbAttribute.SelectedIndex > 0;
+         bool subEnabled = cbRule.SelectedIndex >= 0 && cbAttribute.SelectedIndex >= 0;
          subGet.Enabled = eipEnabled && subEnabled;
          subSet.Enabled = eipEnabled && subEnabled;
       }
@@ -234,6 +229,10 @@ namespace HitachiEIP {
 
       // Called on resize or category change
       private void resizeSubstitutions(ref ResizeInfo R) {
+         Utils.ResizeObject(ref R, lblRule, 1, 1, 1.5f, 4);
+         Utils.ResizeObject(ref R, cbRule, 1, 5, 1.5f, 4);
+         Utils.ResizeObject(ref R, lblAttribute, 1, 9, 1.5f, 4);
+         Utils.ResizeObject(ref R, cbAttribute, 1, 13, 1.5f, 6);
          if (visibleCategory >= 0 && resizeNeeded[visibleCategory]) {
             resizeNeeded[visibleCategory] = false;
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
@@ -243,6 +242,8 @@ namespace HitachiEIP {
                Utils.ResizeObject(ref R, subTexts[visibleCategory][i], r, c + 1, 1.5f, 1.25f);
             }
          }
+         Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
+         Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
       }
 
       #endregion

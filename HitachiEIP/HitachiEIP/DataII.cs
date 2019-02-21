@@ -223,7 +223,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccCal.Time_Count_End_Value, GSS.GetSet, false, 22, // Time Count End Value
 				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCal.Time_Count_Reset_Value, GSS.GetSet, false, 23, // Time Count Reset Value
-				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccCal.Reset_Time_Value, GSS.GetSet, false, 9,   // Reset Time Value
 				new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),
          new AttrData((byte)ccCal.Update_Interval_Value, GSS.GetSet, false, 25, // Update Interval Value
