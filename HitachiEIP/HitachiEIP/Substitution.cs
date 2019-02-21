@@ -156,9 +156,12 @@ namespace HitachiEIP {
             EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
             // Get the substitution all at once
             EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
-
-            // <TODO> decode the input once data is returned by the printer
-
+            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+               data = EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1);
+               if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data, out string sub)) {
+                  subTexts[visibleCategory][i].Text = sub;
+               }
+            }
             // Restore the state
             EIP.ForwardClose(true);
          }

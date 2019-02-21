@@ -35,10 +35,10 @@ namespace HitachiEIP {
 
    #endregion
 
-   #region Data Tables
-
    // Completely describe the Hitachi Model 161 data
    public static class DataII {
+
+      #region Data Tables
 
       // Print_data_management (Class Code 0x66)
       private static AttrData[] ccPDM_Addrs = new AttrData[] {
@@ -612,9 +612,9 @@ namespace HitachiEIP {
             // Was only one property specified
             Prop p1 = tbl[i].Data;
             Prop p2 = null;
-            if(tbl[i].HasGet && tbl[i].Get.Len > 0) {
+            if (tbl[i].HasGet && tbl[i].Get.Len > 0) {
                p2 = tbl[i].Get;
-            } else if(tbl[i].HasService && tbl[i].Service.Len > 0) {
+            } else if (tbl[i].HasService && tbl[i].Service.Len > 0) {
                p2 = tbl[i].Service;
             }
             if (p2 == null) {
