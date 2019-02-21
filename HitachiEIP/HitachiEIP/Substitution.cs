@@ -112,10 +112,10 @@ namespace HitachiEIP {
          for (int i = 0; i < subLabels.GetLength(0); i++) {
             for (int j = 0; j < subLabels[i].Length; j++) {
                subLabels[i][j] = new Label() { Text = (j + startWith[i]).ToString("D2"), Visible = false, TextAlign = ContentAlignment.TopRight };
-               SubControls.Controls.Add(subLabels[i][j]);
                subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center };
-               SubControls.Controls.Add(subTexts[i][j]);
             }
+            SubControls.Controls.AddRange(subLabels[i]);
+            SubControls.Controls.AddRange(subTexts[i]);
          }
       }
 

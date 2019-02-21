@@ -330,7 +330,6 @@ namespace HitachiEIP {
                TextAlign = System.Drawing.ContentAlignment.TopRight,
                Text = $"{Enum.GetName(typeof(t1), ccAttribute[i]).Replace('_', ' ')} (0x{attr.Val:X2})"
             };
-            tab.Controls.Add(labels[i]);
 
             counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center };
             if (attr.HasService) {
@@ -340,8 +339,6 @@ namespace HitachiEIP {
             } else {
                counts[i].Text = attr.Get.Len.ToString();
             }
-
-            tab.Controls.Add(counts[i]);
 
             texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
             texts[i].Enter += Text_Enter;
@@ -378,6 +375,9 @@ namespace HitachiEIP {
                texts[i].Leave += Text_Leave;
             }
          }
+         tab.Controls.AddRange(labels);
+         tab.Controls.AddRange(counts);
+
 
          getAll = new Button() { Text = "Get All" };
          getAll.Click += GetAll_Click;
@@ -559,9 +559,6 @@ namespace HitachiEIP {
 
       // Enable appropriate buttons based on conditions
       public void SetButtonEnables() {
-         if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
-            return;
-         }
          bool enable = parent.ComIsOn & EIP.SessionIsOpen;
          bool anySets = false;
          bool anyGets = false;
