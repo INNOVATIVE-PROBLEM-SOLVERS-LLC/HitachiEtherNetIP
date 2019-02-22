@@ -257,19 +257,33 @@ namespace HitachiEIP {
          new AttrData((byte)ccSR.Start_Year, GSS.GetSet, false, 1,          // Start Year
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Year, GSS.GetSet, false, 10,               // Year
-				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 0, 23, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Month, GSS.GetSet, false, 8,               // Month
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 1, 12, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Day, GSS.GetSet, false, 4,                 // Day
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 31, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 1, 31, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Hour, GSS.GetSet, false, 6,                // Hour
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 0, 23, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Minute, GSS.GetSet, false, 7,              // Minute
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 0, 59, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Week, GSS.GetSet, false, 9,                // Week
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 53, fmtDD.None),            //   Get
+            new Prop(1, DataFormats.N1Char, 1, 53, fmtDD.None)),            //   Set
          new AttrData((byte)ccSR.Day_Of_Week, GSS.GetSet, false, 5,         // Day Of Week
-				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),
+				new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 7, fmtDD.None),             //   Get
+            new Prop(1, DataFormats.N1Char, 1, 7, fmtDD.None)),             //   Set
       };
 
       // Enviroment_setting (Class Code 0x71)

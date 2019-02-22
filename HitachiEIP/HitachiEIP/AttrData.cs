@@ -24,7 +24,7 @@ namespace HitachiEIP {
       public Prop Service { get; set; }  // Data to be passed on a Service Request
 
       // A description of the data from four points of view.
-      public AttrData(byte Val, GSS acc, bool Ignore, int Order, Prop Data, Prop Data2 = null) {
+      public AttrData(byte Val, GSS acc, bool Ignore, int Order, Prop Data, Prop Data2 = null, Prop Data3 = null) {
          this.Val = Val;
          this.HasSet = acc == GSS.Set || acc == GSS.GetSet;
          this.HasGet = acc == GSS.Get || acc == GSS.GetSet;
@@ -36,17 +36,17 @@ namespace HitachiEIP {
          this.Data = Data;
          this.Set = Data;
 
-         // Is there an extra property?
-         if (Data2 != null) {
+         // Resolve how everyone else sees it
+         if (Data3 != null) {
+            this.Get = Data2;
+            this.Set = Data3;
+         } else if (Data2 != null) {
             if (HasGet) {
-               // Get sometimes passes parameters
                this.Get = Data2;
             } else if (HasService) {
-               // Service sometimes passes parameters
                this.Service = Data2;
             }
          } else {
-            // Only one parameter? Get and service pass no data
             this.Service = this.Get = new Prop(0, DataFormats.Decimal, 0, 0);
          }
       }

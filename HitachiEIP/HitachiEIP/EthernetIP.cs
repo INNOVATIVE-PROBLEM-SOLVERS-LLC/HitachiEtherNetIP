@@ -34,8 +34,9 @@ namespace HitachiEIP {
       Bytes = 3,     // Raw data in 2-digit hex notation
       XY = 4,        // x = 2 bytes, y = 1 byte
       N2N2 = 5,      // 2 2-byte numbers
-      N2Char = 6,    // 2-byte number + UTF8 String
+      N2Char = 6,    // 2-byte number + UTF8 String + 0x00
       DecimalLE = 7, // Decimal numbers up to 8 digits (Little Endian)
+      N1Char = 8,    // 1-byte number + UTF8 String + 0x00
    }
 
    #endregion
@@ -400,7 +401,7 @@ namespace HitachiEIP {
 
       public byte[] Nodata = new byte[0];
 
-      public Encoding encode = Encoding.GetEncoding("ISO-8859-1");
+      public Encoding encode = Encoding.UTF8;
 
       // Flag to avoid constant forward open/close if alread open
       bool OpenCloseForward = false;
@@ -1009,11 +1010,19 @@ namespace HitachiEIP {
                   }
                }
                break;
+            case DataFormats.N1Char:
+               // <TODO>
+               sa = s.Split(new char[] { ',' }, 1);
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
+                     result = Merge(ToBytes(n, 1), encode.GetBytes(s + "\x00"));
+                  }
+               }
+               break;
             case DataFormats.N2Char:
                sa = s.Split(new char[] { ',' }, 1);
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     string gp = new string(new char[] { (char)(n >> 8), (char)(n & 0xFF) });
                      result = Merge(ToBytes(n, 2), encode.GetBytes(s + "\x00"));
                   }
                }
@@ -1037,6 +1046,7 @@ namespace HitachiEIP {
             case DataFormats.N2N2:
                IsValid = attr.Data.Len == data.Length;
                break;
+            case DataFormats.N1Char:
             case DataFormats.N2Char:
             case DataFormats.UTF8:
                IsValid = attr.Data.Len >= data.Length;
@@ -1088,6 +1098,12 @@ namespace HitachiEIP {
                   IsValid = n1 >= prop.Min && n1 <= prop.Max && n2 >= prop.Min && n2 <= prop.Max;
                }
                break;
+            case DataFormats.N1Char:
+               if (data.Length > 1) {
+                  uint n = Get(data, 0, 1, mem.LittleEndian);
+                  IsValid = n >= prop.Min && n <= prop.Max;
+               }
+               break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
                   uint n = Get(data, 0, 2, mem.LittleEndian);
@@ -1103,6 +1119,7 @@ namespace HitachiEIP {
       // Does text agree with Hitachi Document?
       public bool TextIsValid(string s, Prop prop) {
          bool IsValid = false;
+         string[] gp;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
                if (long.TryParse(s, out long dec)) {
@@ -1151,8 +1168,17 @@ namespace HitachiEIP {
                   IsValid = x <= prop.Max && y <= prop.Max;
                }
                break;
+            case DataFormats.N1Char:
+               gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
+               if (gp.Length == 2) {
+                  if (!int.TryParse(gp[0].Trim(), out int x)) {
+                     break;
+                  }
+                  IsValid = x >= prop.Min && x <= prop.Max;
+               }
+               break;
             case DataFormats.N2Char:
-               string[] gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
+               gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
                if (gp.Length == 2) {
                   if (!int.TryParse(gp[0].Trim(), out int x)) {
                      break;
@@ -1292,7 +1318,7 @@ namespace HitachiEIP {
                // Default will work
                break;
             case DataFormats.UTF8:
-               // Convert bytes to characters using "ISO-8859-1"
+               // Convert bytes to characters using "UTF8"
                val = GetUTF8(data, 0, data.Length);
                break;
             case DataFormats.XY:
@@ -1318,9 +1344,15 @@ namespace HitachiEIP {
                   val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 2, mem.BigEndian)}";
                }
                break;
+            case DataFormats.N1Char:
+               if (data.Length > 1) {
+                  // shown as nn, "UTF8 characters"
+                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
+               }
+               break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
-                  // shown as nn, "ISO-8859-1 characters"
+                  // shown as nn, "UTF8 characters"
                   val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
                }
                break;
