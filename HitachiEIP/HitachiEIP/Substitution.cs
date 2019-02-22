@@ -12,11 +12,10 @@ namespace HitachiEIP {
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
+      TextBox RuleNo;
 
       // Substitution Specific Controls
       GroupBox SubControls;
-      Label lblRule;
-      ComboBox cbRule;
       Label lblAttribute;
       ComboBox cbAttribute;
       Button subGet;
@@ -38,14 +37,17 @@ namespace HitachiEIP {
 
       int visibleCategory = -1;
 
+      Font courier = new Font("Courier New", 9);
+
       #endregion
 
       #region Constructors and destructors
 
-      public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab) {
+      public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab, TextBox RuleNo) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
+         this.RuleNo = RuleNo;
       }
 
       #endregion
@@ -60,16 +62,6 @@ namespace HitachiEIP {
          SubControls = new GroupBox() { Text = "Substitution Rules" };
          tab.Controls.Add(SubControls);
          SubControls.Paint += GroupBorder_Paint;
-
-         lblRule = new Label() { Text = "Substitution Rule", TextAlign = ContentAlignment.TopRight };
-         SubControls.Controls.Add(lblRule);
-
-         cbRule = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-         SubControls.Controls.Add(cbRule);
-         for (int i = 1; i < 100; i++) {
-            cbRule.Items.Add(i.ToString());
-         }
-         cbRule.Click += cbRule_Click;
 
          lblAttribute = new Label() { Text = "Attribute", TextAlign = ContentAlignment.TopRight };
          SubControls.Controls.Add(lblAttribute);
@@ -112,7 +104,8 @@ namespace HitachiEIP {
          for (int i = 0; i < subLabels.GetLength(0); i++) {
             for (int j = 0; j < subLabels[i].Length; j++) {
                subLabels[i][j] = new Label() { Text = (j + startWith[i]).ToString("D2"), Visible = false, TextAlign = ContentAlignment.TopRight };
-               subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center };
+               subTexts[i][j] = new TextBox() { Visible = false, TextAlign = HorizontalAlignment.Center, Font = courier };
+               subTexts[i][j].Enter += TextBox_Enter;
             }
             SubControls.Controls.AddRange(subLabels[i]);
             SubControls.Controls.AddRange(subTexts[i]);
@@ -136,7 +129,7 @@ namespace HitachiEIP {
       // Allow button clicke only if conditions allow it
       public void SetButtonEnables() {
          bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
-         bool subEnabled = cbRule.SelectedIndex >= 0 && cbAttribute.SelectedIndex >= 0;
+         bool subEnabled = Rule > 0 && cbAttribute.SelectedIndex >= 0;
          subGet.Enabled = eipEnabled && subEnabled;
          subSet.Enabled = eipEnabled && subEnabled;
       }
@@ -152,7 +145,7 @@ namespace HitachiEIP {
             // Save the state on entry
             EIP.ForwardOpen(true);
             // Set the correct substitution Rule
-            data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
+            data = EIP.ToBytes(Rule, 1);
             EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
             // Get the substitution all at once
             EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
@@ -175,7 +168,7 @@ namespace HitachiEIP {
             // Save the state on entry
             EIP.ForwardOpen(true);
             // Set the correct substitution Rule
-            data = EIP.ToBytes((uint)cbRule.SelectedIndex + 1, 1);
+            data = EIP.ToBytes(Rule, 1);
             EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
             // Send the substitution data one at a time
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
@@ -221,21 +214,21 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      // Substitution rule number changed.
-      private void cbRule_Click(object sender, EventArgs e) {
-         SetButtonEnables();
-      }
-
       #endregion
 
       #region Service Routines
 
+      // Select all text when text box is entered
+      private void TextBox_Enter(object sender, EventArgs e) {
+         TextBox tb = (TextBox)sender;
+         parent.BeginInvoke((Action)delegate { tb.SelectAll(); });
+      }
+
       // Called on resize or category change
       private void resizeSubstitutions(ref ResizeInfo R) {
-         Utils.ResizeObject(ref R, lblRule, 1, 1, 1.5f, 4);
-         Utils.ResizeObject(ref R, cbRule, 1, 5, 1.5f, 4);
-         Utils.ResizeObject(ref R, lblAttribute, 1, 9, 1.5f, 4);
-         Utils.ResizeObject(ref R, cbAttribute, 1, 13, 1.5f, 6);
+         Utils.ResizeObject(ref R, lblAttribute, 1, 1, 1.5f, 4);
+         Utils.ResizeObject(ref R, cbAttribute, 1, 5, 1.5f, 4);
+
          if (visibleCategory >= 0 && resizeNeeded[visibleCategory]) {
             resizeNeeded[visibleCategory] = false;
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
@@ -247,6 +240,16 @@ namespace HitachiEIP {
          }
          Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
          Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
+      }
+
+      // get the rule number from the Text Box
+      public uint Rule {
+         get {
+            if (uint.TryParse(RuleNo.Text, out uint n)) {
+               return n;
+            }
+            return 1;
+         }
       }
 
       #endregion

@@ -36,7 +36,8 @@ namespace HitachiEIP {
       N2N2 = 5,      // 2 2-byte numbers
       N2Char = 6,    // 2-byte number + UTF8 String + 0x00
       DecimalLE = 7, // Decimal numbers up to 8 digits (Little Endian)
-      N1Char = 8,    // 1-byte number + UTF8 String + 0x00
+      ItemChar = 8,  // 1-byte item number + UTF8 String + 0x00
+      Item = 9,      // 1-byte item number
    }
 
    #endregion
@@ -406,6 +407,10 @@ namespace HitachiEIP {
       // Flag to avoid constant forward open/close if alread open
       bool OpenCloseForward = false;
 
+      // Save area for Index function values
+      uint[] IndexValue;
+      Byte[] IndexAttr;
+
       #endregion
 
       #region Constructors and Destructors
@@ -413,7 +418,8 @@ namespace HitachiEIP {
       public EIP(string IPAddress, Int32 port) {
          this.IPAddress = IPAddress;
          this.port = port;
-
+         IndexAttr = ((ccIDX[])Enum.GetValues(typeof(ccIDX))).Select(x => Convert.ToByte(x)).ToArray();
+         IndexValue = new uint[IndexAttr.Length];
          DataII.BuildAttributeDictionary();
       }
 
@@ -613,6 +619,11 @@ namespace HitachiEIP {
                LengthIsValid = CountIsValid(GetData, attr);
                DataIsValid = TextIsValid(GetData, attr.Data);
                GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
+               if (Class == ClassCode.Index) {
+                  // reflect any changes back to the Index Function
+                  int i = Array.FindIndex(IndexAttr, x => x == Attribute);
+                  IndexValue[i] = Get(GetData, 0, GetDataLength, mem.BigEndian);
+               }
                Successful = true;
             }
          }
@@ -639,6 +650,11 @@ namespace HitachiEIP {
                InterpretResult(ReadData, ReadDataLength);
                LengthIsValid = CountIsValid(SetData, attr);
                DataIsValid = TextIsValid(SetData, attr.Data);
+               if (Class == ClassCode.Index) {
+                  // reflect any changes back to the Index Function
+                  int i = Array.FindIndex(IndexAttr, x => x == Attribute);
+                  IndexValue[i] = Get(SetData, 0, SetDataLength, mem.BigEndian);
+               }
                Successful = true;
             }
          }
@@ -1010,14 +1026,8 @@ namespace HitachiEIP {
                   }
                }
                break;
-            case DataFormats.N1Char:
-               // <TODO>
-               sa = s.Split(new char[] { ',' }, 1);
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 1), encode.GetBytes(s + "\x00"));
-                  }
-               }
+            case DataFormats.ItemChar:
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Item), 1), encode.GetBytes(s + "\x00"));
                break;
             case DataFormats.N2Char:
                sa = s.Split(new char[] { ',' }, 1);
@@ -1026,6 +1036,9 @@ namespace HitachiEIP {
                      result = Merge(ToBytes(n, 2), encode.GetBytes(s + "\x00"));
                   }
                }
+               break;
+            case DataFormats.Item:
+               result = ToBytes(GetIndexSetting(ccIDX.Item), 1);
                break;
          }
          if (result == null) {
@@ -1046,10 +1059,14 @@ namespace HitachiEIP {
             case DataFormats.N2N2:
                IsValid = attr.Data.Len == data.Length;
                break;
-            case DataFormats.N1Char:
             case DataFormats.N2Char:
             case DataFormats.UTF8:
                IsValid = attr.Data.Len >= data.Length;
+               break;
+            case DataFormats.ItemChar:
+            case DataFormats.Item:
+               int n = (int)GetIndexSetting(ccIDX.Item);
+               IsValid = n >= attr.Data.Min && n <= attr.Data.Max;
                break;
             default:
                break;
@@ -1098,11 +1115,10 @@ namespace HitachiEIP {
                   IsValid = n1 >= prop.Min && n1 <= prop.Max && n2 >= prop.Min && n2 <= prop.Max;
                }
                break;
-            case DataFormats.N1Char:
-               if (data.Length > 1) {
-                  uint n = Get(data, 0, 1, mem.LittleEndian);
-                  IsValid = n >= prop.Min && n <= prop.Max;
-               }
+            case DataFormats.ItemChar:
+            case DataFormats.Item:
+               int i = (int)GetIndexSetting(ccIDX.Item);
+               IsValid = i >= prop.Min && i <= prop.Max;
                break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
@@ -1119,6 +1135,7 @@ namespace HitachiEIP {
       // Does text agree with Hitachi Document?
       public bool TextIsValid(string s, Prop prop) {
          bool IsValid = false;
+         int i;
          string[] gp;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
@@ -1134,7 +1151,7 @@ namespace HitachiEIP {
                break;
             case DataFormats.Bytes:
                string[] b = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-               for (int i = 0; i < b.Length; i++) {
+               for (i = 0; i < b.Length; i++) {
                   if (int.TryParse(b[i], out int n)) {
                      if (n < 0 || n > 255) {
                         break;
@@ -1168,14 +1185,9 @@ namespace HitachiEIP {
                   IsValid = x <= prop.Max && y <= prop.Max;
                }
                break;
-            case DataFormats.N1Char:
-               gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
-               if (gp.Length == 2) {
-                  if (!int.TryParse(gp[0].Trim(), out int x)) {
-                     break;
-                  }
-                  IsValid = x >= prop.Min && x <= prop.Max;
-               }
+            case DataFormats.ItemChar:
+               i = (int)GetIndexSetting(ccIDX.Item);
+               IsValid = i >= prop.Min && i <= prop.Max && s.Length <= prop.Len;
                break;
             case DataFormats.N2Char:
                gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
@@ -1185,6 +1197,10 @@ namespace HitachiEIP {
                   }
                   IsValid = x >= prop.Min && x <= prop.Max;
                }
+               break;
+            case DataFormats.Item:
+               i = (int)GetIndexSetting(ccIDX.Item);
+               IsValid = i >= prop.Min && i <= prop.Max;
                break;
             default:
                break;
@@ -1213,6 +1229,12 @@ namespace HitachiEIP {
       #endregion
 
       #region Service Routines
+
+      // Get the current setting of an index parameter
+      private uint GetIndexSetting(ccIDX attr) {
+         int i = Array.FindIndex(IndexAttr, x => x == (byte)attr);
+         return IndexValue[i];
+      }
 
       // Convert a number to adds specifying a count and memory layout
       private void Add(List<byte> packet, ulong value, int count, mem m = mem.LittleEndian) {
@@ -1344,10 +1366,9 @@ namespace HitachiEIP {
                   val = $"{Get(data, 0, 2, mem.BigEndian)}, {Get(data, 2, 2, mem.BigEndian)}";
                }
                break;
-            case DataFormats.N1Char:
+            case DataFormats.ItemChar:
                if (data.Length > 1) {
-                  // shown as nn, "UTF8 characters"
-                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
+                  val = GetUTF8(data, 1, data.Length - 1);
                }
                break;
             case DataFormats.N2Char:

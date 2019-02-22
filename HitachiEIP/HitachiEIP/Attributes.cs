@@ -18,14 +18,14 @@ namespace HitachiEIP {
       int tclWidth;
 
       ClassCode cc;
-      byte[] ccAttribute;
+      public byte[] ccAttribute;
       ClassCode ccIndex = ClassCode.Index;
 
       // Headers
       Label[] hdrs;
 
       Label[] labels;
-      TextBox[] texts;
+      public TextBox[] texts;
       ComboBox[] dropdowns;
       TextBox[] counts;
       Button[] gets;
@@ -54,6 +54,8 @@ namespace HitachiEIP {
       bool IsUserPattern = false;
       UserPattern UserPattern;
 
+      Font courier = new Font("Courier New", 9);
+
       #endregion
 
       #region Constructors and destructors
@@ -62,21 +64,27 @@ namespace HitachiEIP {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         // Substitution has extra controls
-         if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
-            Substitution = new Substitution(parent, EIP, tab);
-         }
-         // UserPattern has extra controls
-         if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
-            UserPattern = new UserPattern(parent, EIP, tab);
-         }
          this.cc = cc;
          this.ccAttribute = ((t1[])typeof(t1).GetEnumValues()).Select(x => Convert.ToByte(x)).ToArray();
          this.Extras = Extras;
 
          extrasUsed = AddExtraControls();
          half = 16;
+
          BuildControls();
+
+         // Substitution has extra controls
+         if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
+            // Assumes only one extra control
+            Substitution = new Substitution(parent, EIP, tab, texts[0]);
+            Substitution.BuildSubstitutionControls();
+         }
+         // UserPattern has extra controls
+         if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
+            UserPattern = new UserPattern(parent, EIP, tab);
+            UserPattern.BuildUserPatternControls();
+         }
+
       }
 
       #endregion
@@ -305,10 +313,10 @@ namespace HitachiEIP {
 
          // Build all the headers
          for (int i = 0; i < (twoCols ? 2 : 1); i++) {
-            hdrs[i * 4 + 0] = new Label() { Text = "Attributes", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopRight };
-            hdrs[i * 4 + 1] = new Label() { Text = "#", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
-            hdrs[i * 4 + 2] = new Label() { Text = "Data", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
-            hdrs[i * 4 + 3] = new Label() { Text = "Control", Font = bolded, TextAlign = System.Drawing.ContentAlignment.TopCenter };
+            hdrs[i * 4 + 0] = new Label() { Text = "Attributes", Font = bolded, TextAlign = ContentAlignment.TopRight };
+            hdrs[i * 4 + 1] = new Label() { Text = "#", Font = bolded, TextAlign = ContentAlignment.TopCenter };
+            hdrs[i * 4 + 2] = new Label() { Text = "Data", Font = bolded, TextAlign = ContentAlignment.TopCenter };
+            hdrs[i * 4 + 3] = new Label() { Text = "Control", Font = bolded, TextAlign = ContentAlignment.TopCenter };
          }
          tab.Controls.AddRange(hdrs);
 
@@ -331,7 +339,7 @@ namespace HitachiEIP {
                Text = $"{Enum.GetName(typeof(t1), ccAttribute[i]).Replace('_', ' ')} (0x{attr.Val:X2})"
             };
 
-            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center };
+            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center, Font = courier };
             if (attr.HasService) {
                counts[i].Text = attr.Service.Len.ToString();
             } else if (attr.HasSet) {
@@ -340,7 +348,7 @@ namespace HitachiEIP {
                counts[i].Text = attr.Get.Len.ToString();
             }
 
-            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center };
+            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center, Font = courier };
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
@@ -385,11 +393,6 @@ namespace HitachiEIP {
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
-
-         // Tab specific controls
-         Substitution?.BuildSubstitutionControls();
-         UserPattern?.BuildUserPatternControls();
-
       }
 
       // Get the names associated with the dropdown
@@ -453,7 +456,7 @@ namespace HitachiEIP {
       // Add a single extra control
       private void AddExtras(ref byte n, ccIDX function) {
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
-         ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center };
+         ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center, Font = courier };
          ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
          ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)function } };
          ExtraText[n].Enter += Text_Enter;

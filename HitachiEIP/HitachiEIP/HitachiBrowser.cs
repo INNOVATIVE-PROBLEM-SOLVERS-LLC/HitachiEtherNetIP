@@ -119,10 +119,9 @@ namespace HitachiEIP {
          calAttr = new Attributes<ccCal>
             (this, EIP, tabCalendar, ClassCode.Calendar, AddCalendar | AddItem);
          sRulesAttr = new Attributes<ccSR>
-            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddSubstitution);
+            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddItem);
          countAttr = new Attributes<ccCount>
-            (this, EIP, tabCount, ClassCode.Count,
-            AddItem | AddCount);
+            (this, EIP, tabCount, ClassCode.Count, AddItem | AddCount);
          unitInfoAttr = new Attributes<ccUI>
             (this, EIP, tabUnitInformation, ClassCode.Unit_Information);
          envirAttr = new Attributes<ccES>
@@ -594,6 +593,18 @@ namespace HitachiEIP {
          txtStatus.Text = EIP.GetStatus;
          if (e.Successful) {
             txtStatus.BackColor = Color.LightGreen;
+            if (e.Class == ClassCode.Index) {
+               switch (e.Access) {
+                  case AccessCode.Set:
+                     // reflect any changes back to the Index Function
+                     int n = Array.FindIndex(indexAttr.ccAttribute, x => x == e.Attribute);
+                     indexAttr.texts[n].Text = EIP.Get(EIP.SetData, 0, EIP.SetDataLength, mem.BigEndian).ToString();
+                     break;
+                  case AccessCode.Get:
+
+                     break;
+               }
+            }
          } else {
             txtStatus.BackColor = Color.Pink;
          }
