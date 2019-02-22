@@ -257,33 +257,33 @@ namespace HitachiEIP {
          new AttrData((byte)ccSR.Start_Year, GSS.GetSet, false, 1,          // Start Year
 				new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),
          new AttrData((byte)ccSR.Year, GSS.GetSet, false, 10,               // Year
-				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 0, 23, fmtDD.None)),          //   Set
+            new Prop(3, DataFormats.ItemChar, 0, 23, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Month, GSS.GetSet, false, 8,               // Month
-				new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 1, 12, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 1, 12, fmtDD.None)),          //   Set
+            new Prop(4, DataFormats.ItemChar, 1, 12, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Day, GSS.GetSet, false, 4,                 // Day
-				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 1, 31, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 1, 31, fmtDD.None)),          //   Set
+            new Prop(3, DataFormats.ItemChar, 1, 31, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Hour, GSS.GetSet, false, 6,                // Hour
-				new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 0, 23, fmtDD.None)),          //   Set
+            new Prop(3, DataFormats.ItemChar, 0, 23, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Minute, GSS.GetSet, false, 7,              // Minute
-				new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
+            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 0, 59, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 0, 59, fmtDD.None)),          //   Set
+            new Prop(4, DataFormats.ItemChar, 0, 59, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Week, GSS.GetSet, false, 9,                // Week
 				new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 1, 53, fmtDD.None),               //   Get
-            new Prop(1, DataFormats.ItemChar, 1, 53, fmtDD.None)),          //   Set
+            new Prop(4, DataFormats.ItemChar, 1, 53, fmtDD.None)),          //   Set
          new AttrData((byte)ccSR.Day_Of_Week, GSS.GetSet, false, 5,         // Day Of Week
 				new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                //   Data
             new Prop(1, DataFormats.Item, 1, 7, fmtDD.None),                //   Get
-            new Prop(1, DataFormats.ItemChar, 1, 7, fmtDD.None)),           //   Set
+            new Prop(4, DataFormats.ItemChar, 1, 7, fmtDD.None)),           //   Set
       };
 
       // Enviroment_setting (Class Code 0x71)
@@ -449,7 +449,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccIDX.Automatic_reflection, GSS.GetSet, false, 1, // Automatic reflection
 				new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),
          new AttrData((byte)ccIDX.Item, GSS.GetSet, false, 6,               // Item
-				new Prop(2, DataFormats.Decimal, 1, 100, fmtDD.None)),
+				new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),
          new AttrData((byte)ccIDX.Column, GSS.GetSet, false, 4,             // Column
 				new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),
          new AttrData((byte)ccIDX.Line, GSS.GetSet, false, 7,               // Line
