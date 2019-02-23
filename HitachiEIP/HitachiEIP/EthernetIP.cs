@@ -1153,7 +1153,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.UTF8:
-               IsValid = FromQuoted(s).Length <= prop.Max;
+               IsValid = FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.Date:
                IsValid = DateTime.TryParse(s, out DateTime d);
