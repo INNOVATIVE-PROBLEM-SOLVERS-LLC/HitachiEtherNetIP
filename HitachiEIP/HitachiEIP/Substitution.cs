@@ -169,7 +169,7 @@ namespace HitachiEIP {
             for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                // Send the substitution data one at a time
                data = EIP.Merge(EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1),
-                                EIP.ToBytes(subTexts[visibleCategory][i].Text + "\x00"));
+                                EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
                EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
             }
             // Restore the state
