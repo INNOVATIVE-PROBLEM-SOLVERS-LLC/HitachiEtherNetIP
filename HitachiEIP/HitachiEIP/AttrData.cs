@@ -34,20 +34,11 @@ namespace HitachiEIP {
 
          // This is what the data looks like in the printer
          this.Data = Data;
-         this.Set = Data;
-
-         // Resolve how everyone else sees it
-         if (Data3 != null) {
+         if(this.HasService) {
+            this.Service = Data2;
+         } else {
             this.Get = Data2;
             this.Set = Data3;
-         } else if (Data2 != null) {
-            if (HasGet) {
-               this.Get = Data2;
-            } else if (HasService) {
-               this.Service = Data2;
-            }
-         } else {
-            this.Service = this.Get = new Prop(0, DataFormats.Decimal, 0, 0);
          }
       }
 
