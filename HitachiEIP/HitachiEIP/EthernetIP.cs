@@ -892,8 +892,7 @@ namespace HitachiEIP {
 
       // Get data as UTF8 characters
       public string GetUTF8(byte[] data, int start, int length) {
-         string s = encode.GetString(data, 0, length);
-         return s;
+         return ToQuoted(encode.GetString(data, 0, length));
       }
 
       // Convert unsigned integer to byte array
@@ -976,11 +975,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.UTF8:
-               if (s.StartsWith("\"") && s.EndsWith("\"")) {
-                  result = encode.GetBytes($"{s.Substring(1, s.Length - 2)}\x00");
-               } else {
-                  result = encode.GetBytes($"{s}\x00");
-               }
+               result = encode.GetBytes($"{FromQuoted(s)}\x00");
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
@@ -1027,7 +1022,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.ItemChar:
-               result = Merge(ToBytes(GetIndexSetting(ccIDX.Item), 1), encode.GetBytes(s + "\x00"));
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Item), 1), encode.GetBytes(FromQuoted(s) + "\x00"));
                break;
             case DataFormats.N2Char:
                sa = s.Split(new char[] { ',' }, 1);
@@ -1045,6 +1040,20 @@ namespace HitachiEIP {
             result = new byte[0];
          }
          return result;
+      }
+
+      // Convert string to quoted string
+      public string ToQuoted(string s) {
+         return $"\"{s.Replace("\"","\"\"")}\"";
+      }
+
+      // Convert quoted string to string
+      public string FromQuoted(string s) {
+         if (s.StartsWith("\"") && s.EndsWith("\"")) {
+            return s.Substring(1, s.Length - 2).Replace("\"\"", "\"");
+         } else {
+            return s;
+         }
       }
 
       // Does count agree with Hitachi Document?
@@ -1144,7 +1153,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.UTF8:
-               IsValid = s.Length > 0;
+               IsValid = FromQuoted(s).Length <= prop.Max;
                break;
             case DataFormats.Date:
                IsValid = DateTime.TryParse(s, out DateTime d);
@@ -1187,7 +1196,7 @@ namespace HitachiEIP {
                break;
             case DataFormats.ItemChar:
                i = (int)GetIndexSetting(ccIDX.Item);
-               IsValid = i >= prop.Min && i <= prop.Max && s.Length <= prop.Len;
+               IsValid = i >= prop.Min && i <= prop.Max &&FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.N2Char:
                gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
