@@ -623,9 +623,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccOM.Ink_And_Makeup_Name, GSS.Get, false, 8,        // Ink And Makeup Name 0x6A
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccOM.Ink_Viscosity, GSS.Get, false, 11,             // Ink Viscosity 0x6B
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -784,9 +784,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Set
          new AttrData((byte)ccIDX.Character_position, GSS.GetSet, false, 3,     // Character position 0x69
-            new Prop(2, DataFormats.Decimal, 1, 1000, fmtDD.None),              //   Data
+            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 1, 1000, fmtDD.None)),             //   Set
+            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Set
          new AttrData((byte)ccIDX.Print_Data_Message_Number, GSS.GetSet, false, 9, // Print Data Message Number 0x6A
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get

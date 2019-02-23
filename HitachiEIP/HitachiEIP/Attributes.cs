@@ -94,7 +94,7 @@ namespace HitachiEIP {
       // Issue a single Get request
       private void Get_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
-         int tag = (int)b.Tag;
+         int tag = ((byte[])b.Tag)[0];
          AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
@@ -115,7 +115,7 @@ namespace HitachiEIP {
       // Issue a single Set request
       private void Set_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
-         int tag = (int)b.Tag;
+         int tag = ((byte[])b.Tag)[0];
          AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
@@ -135,7 +135,7 @@ namespace HitachiEIP {
       // Issue a single service request
       private void Service_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
-         int tag = (int)b.Tag;
+         int tag = ((byte[])b.Tag)[0];
          AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
@@ -286,6 +286,54 @@ namespace HitachiEIP {
          t.BackColor = Color.LightYellow;
       }
 
+      // Respond to mouse wheel over a control
+      private void ExtraText_MouseWheel(object sender, MouseEventArgs e) {
+         TextBox t = (TextBox)sender;
+
+         // Tag contains control number and attribute
+         byte n = ((byte[])t.Tag)[0];
+         byte at = ((byte[])t.Tag)[1];
+         AttrData attr = DataII.AttrDict[ClassCode.Index, at];
+
+         // Only decimal values are allowed.  Set to Min if in error
+         int len = attr.Data.Len;
+         if (!long.TryParse(t.Text, out long val)) {
+            val = attr.Set.Min;
+         }
+
+         if (e.Delta > 0) {
+            val = Math.Min(val + 1, attr.Set.Max);
+         } else {
+            val = Math.Max(val - 1, attr.Set.Min);
+         }
+         t.Text = val.ToString();
+         t.BackColor = Color.LightYellow;
+      }
+
+      // Respond to mouse wheel over a control
+      private void Text_MouseWheel(object sender, MouseEventArgs e) {
+         TextBox t = (TextBox)sender;
+
+         // Tag contains control number and attribute
+         byte n = ((byte[])t.Tag)[0];
+         byte at = ((byte[])t.Tag)[1];
+         AttrData attr = DataII.AttrDict[cc, ccAttribute[n]];
+
+         // Only decimal values are allowed.  Set to Min if in error
+         int len = attr.Data.Len;
+         if (!long.TryParse(t.Text, out long val)) {
+            val = attr.Set.Min;
+         }
+
+         if (e.Delta > 0) {
+            val = Math.Min(val + 1, attr.Set.Max);
+         } else {
+            val = Math.Max(val - 1, attr.Set.Min);
+         }
+         t.Text = val.ToString();
+         t.BackColor = Color.LightYellow;
+      }
+
       // Make the group box more visible
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
@@ -333,13 +381,14 @@ namespace HitachiEIP {
          for (int i = 0; i < ccAttribute.Length; i++) {
             AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
             string s = Enum.GetName(typeof(t1), ccAttribute[i]);
+            byte[] tag = new byte[] { (byte)i, ccAttribute[i] };
             labels[i] = new Label() {
-               Tag = i,
+               Tag = tag,
                TextAlign = System.Drawing.ContentAlignment.TopRight,
                Text = $"{Enum.GetName(typeof(t1), ccAttribute[i]).Replace('_', ' ')} (0x{attr.Val:X2})"
             };
 
-            counts[i] = new TextBox() { Tag = i, ReadOnly = true, TextAlign = HorizontalAlignment.Center, Font = courier };
+            counts[i] = new TextBox() { Tag = tag, ReadOnly = true, TextAlign = HorizontalAlignment.Center, Font = courier };
             if (attr.HasService) {
                counts[i].Text = attr.Service.Len.ToString();
             } else if (attr.HasSet) {
@@ -348,24 +397,27 @@ namespace HitachiEIP {
                counts[i].Text = attr.Get.Len.ToString();
             }
 
-            texts[i] = new TextBox() { Tag = i, TextAlign = HorizontalAlignment.Center, Font = courier };
+            texts[i] = new TextBox() { Tag = tag, TextAlign = HorizontalAlignment.Center, Font = courier };
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
+            if(attr.HasSet && attr.Data.Fmt == DataFormats.Decimal && attr.Data.DropDown == fmtDD.None) {
+               texts[i].MouseWheel += Text_MouseWheel;
+            }
 
-            if (attr.Data.DropDown  != fmtDD.None) {
+            if (attr.Data.DropDown != fmtDD.None) {
                dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
                dropdowns[i].Items.AddRange(GetDropdownNames(attr));
                tab.Controls.Add(dropdowns[i]);
             }
 
             if (attr.HasGet) {
-               gets[i] = new Button() { Tag = i, Text = "Get" };
+               gets[i] = new Button() { Tag = tag, Text = "Get" };
                gets[i].Click += Get_Click;
                tab.Controls.Add(gets[i]);
             }
             if (attr.HasSet) {
-               sets[i] = new Button() { Tag = i, Text = "Set" };
+               sets[i] = new Button() { Tag = tag, Text = "Set" };
                sets[i].Click += Set_Click;
                tab.Controls.Add(sets[i]);
                if (attr.Set.Fmt == DataFormats.Decimal) {
@@ -375,7 +427,7 @@ namespace HitachiEIP {
                }
             }
             if (attr.HasService) {
-               services[i] = new Button() { Tag = i, Text = "Service" };
+               services[i] = new Button() { Tag = tag, Text = "Service" };
                services[i].Click += Service_Click;
                tab.Controls.Add(services[i]);
             }
@@ -456,7 +508,7 @@ namespace HitachiEIP {
       // Add a single extra control
       private void AddExtras(ref byte n, ccIDX function) {
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
-         ExtraText[n] = new TextBox() { Tag = n, TextAlign = HorizontalAlignment.Center, Font = courier };
+         ExtraText[n] = new TextBox() { Tag = new byte[] { n, (byte)function }, TextAlign = HorizontalAlignment.Center, Font = courier };
          ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
          ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)function } };
          ExtraText[n].Enter += Text_Enter;
@@ -464,6 +516,7 @@ namespace HitachiEIP {
          ExtraGet[n].Click += GetExtras_Click;
          ExtraSet[n].Click += SetExtras_Click;
          ExtraText[n].KeyPress += Text_KeyPress;
+         ExtraText[n].MouseWheel += ExtraText_MouseWheel;
          n++;
       }
 
