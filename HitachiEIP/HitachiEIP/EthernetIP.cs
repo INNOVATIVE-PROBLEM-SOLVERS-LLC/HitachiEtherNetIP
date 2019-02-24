@@ -1049,7 +1049,7 @@ namespace HitachiEIP {
 
       // Convert quoted string to string
       public string FromQuoted(string s) {
-         if (s.StartsWith("\"") && s.EndsWith("\"")) {
+         if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\"")) {
             return s.Substring(1, s.Length - 2).Replace("\"\"", "\"");
          } else {
             return s;
