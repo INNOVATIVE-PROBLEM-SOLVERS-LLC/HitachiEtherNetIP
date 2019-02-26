@@ -405,10 +405,34 @@ namespace HitachiEIP {
       public Encoding encode = Encoding.UTF8;
 
       // Flag to avoid constant session open/close if alread open
-      bool OpenCloseSession = false;
+      int OCS = 0;
+      bool OpenCloseSession {
+         get {
+            return (OCS & 1) > 0;
+         }
+         set {
+            if (value) {
+               OCS |= 1;
+            } else {
+               OCS &= ~1;
+            }
+         }
+      }
 
+      int OCF = 0;
       // Flag to avoid constant forward open/close if alread open
-      bool OpenCloseForward = false;
+      bool OpenCloseForward {
+         get {
+            return (OCF & 1) > 0;
+         }
+         set {
+            if (value) {
+               OCF |= 1;
+            } else {
+               OCF &= ~1;
+            }
+         }
+      }
 
       // Save area for Index function values
       uint[] IndexValue;
@@ -477,26 +501,21 @@ namespace HitachiEIP {
       }
 
       // Start EtherNet/IP Session
-      public bool StartSession(bool preserveState = false) {
-         bool successful = false;
-         if (preserveState) {
-            OpenCloseSession = !SessionIsOpen;
-            if (OpenCloseSession) {
-               successful = StartSession();
-            } else {
-               successful = true;
-            }
-         } else {
-            byte[] data;
-            Int32 bytes;
+      public bool StartSession() {
+         bool successful = true;
+         OCS <<= 1;
+         if (OpenCloseSession = !SessionIsOpen) {
             SessionID = 1;
             if (Connect()) {
                byte[] ed = EIP_Session(EIP_Type.RegisterSession);
-               if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 8) {
+               if (Write(ed, 0, ed.Length) && Read(out byte[] data, out int bytes) && bytes >= 8) {
                   SessionID = Get(data, 4, 4, mem.LittleEndian);
                   LogIt("Session Started!");
-                  successful = true;
+               } else {
+                  successful = false;
                }
+            } else {
+               successful = false;
             }
             if (!successful) {
                LogIt("Session Start Failed!");
@@ -508,35 +527,27 @@ namespace HitachiEIP {
       }
 
       // End EtherNet/IP Session
-      public void EndSession(bool restoreState = false) {
-         if (restoreState) {
-            if (OpenCloseSession && SessionIsOpen) {
-               EndSession();
+      public void EndSession() {
+         if (OpenCloseSession) {
+            if (SessionIsOpen) {
+               SessionID = 0;
+               if (client.Connected) {
+                  byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
+                  Write(ed, 0, ed.Length);
+               }
+               LogIt("Session Ended!");
+               Disconnect();
+               StateChanged?.Invoke(this, "Session Changed");
             }
-            OpenCloseSession = false;
-         } else {
-            SessionID = 0;
-            if (client.Connected) {
-               byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
-               Write(ed, 0, ed.Length);
-            }
-            LogIt("Session Ended!");
-            Disconnect();
-            StateChanged?.Invoke(this, "Session Changed");
          }
+         OCS >>= 1;
       }
 
       // Start EtherNet/IP Forward Open
-      public bool ForwardOpen(bool preserveState = false) {
-         bool successful = false;
-         if (preserveState) {
-            OpenCloseForward = !ForwardIsOpen;
-            if (OpenCloseForward) {
-               successful = ForwardOpen();
-            } else {
-               successful = true;
-            }
-         } else {
+      public bool ForwardOpen() {
+         bool successful = true;
+         OCF <<= 1;
+         if (OpenCloseForward = !ForwardIsOpen) {
             byte[] data;
             Int32 bytes;
             O_T_ConnectionID = 0;
@@ -545,36 +556,30 @@ namespace HitachiEIP {
             if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 52) {
                O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
                T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
-               successful = true;
                LogIt("Forward Open!");
             } else {
+               successful = false;
                LogIt("Forward Open Failed!");
             }
-            StateChanged?.Invoke(this, "Forward Changed");
          }
+         StateChanged?.Invoke(this, "Forward Changed");
          return successful;
       }
 
       // End EtherNet/IP Forward Open
-      public void ForwardClose(bool restoreState = false) {
-         if (restoreState) {
-            if (OpenCloseForward && ForwardIsOpen) {
-               ForwardClose();
-            }
-            OpenCloseForward = false;
-         } else {
-            byte[] data;
-            Int32 bytes;
+      public void ForwardClose() {
+         if (OpenCloseForward) {
             O_T_ConnectionID = 0;
             T_O_ConnectionID = 0;
             byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardClose);
-            if (Write(ed, 0, ed.Length) && Read(out data, out bytes)) {
+            if (Write(ed, 0, ed.Length) && Read(out byte[] data, out int bytes)) {
                LogIt("Forward Close!");
             } else {
                LogIt("Forward Close Failed!");
             }
             StateChanged?.Invoke(this, "Forward Changed");
          }
+         OCF >>= 1;
       }
 
       // Read response to EtherNet/IP request
@@ -621,16 +626,8 @@ namespace HitachiEIP {
       public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut, out string dataIn) {
          bool Successful = false;
          dataIn = "#Error";
-         bool OpenCloseSession = !SessionIsOpen;
-         if (OpenCloseSession) {
-            Successful = StartSession();
-         }
-         if (SessionIsOpen) {
-            bool OpenCloseForward = !ForwardIsOpen;
-            if (OpenCloseForward) {
-               Successful = ForwardOpen();
-            }
-            if (ForwardIsOpen) {
+         if (StartSession()) {
+            if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
                SetDataValue = string.Empty;
                LengthIsValid = false;
@@ -649,14 +646,10 @@ namespace HitachiEIP {
                   }
                   Successful = true;
                }
-               if (OpenCloseForward && ForwardIsOpen) {
-                  ForwardClose();
-               }
             }
-            if (OpenCloseSession && SessionIsOpen) {
-               EndSession();
-            }
+            ForwardClose();
          }
+         EndSession();
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
          return Successful;
       }
@@ -664,16 +657,8 @@ namespace HitachiEIP {
       // Write one attribute
       public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
-         bool OpenCloseSession = !SessionIsOpen;
-         if (OpenCloseSession) {
-            Successful = StartSession();
-         }
-         if (SessionIsOpen) {
-            bool OpenCloseForward = !ForwardIsOpen;
-            if (OpenCloseForward) {
-               Successful = ForwardOpen();
-            }
-            if (ForwardIsOpen) {
+         if (StartSession()) {
+            if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
                int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
                // Write the request and read the response
@@ -688,14 +673,10 @@ namespace HitachiEIP {
                   }
                   Successful = true;
                }
-               if (OpenCloseForward && ForwardIsOpen) {
-                  ForwardClose();
-               }
             }
-            if (OpenCloseSession && SessionIsOpen) {
-               EndSession();
-            }
+            ForwardClose();
          }
+         EndSession();
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
          return Successful;
       }
@@ -703,16 +684,8 @@ namespace HitachiEIP {
       // Service one attribute
       public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
-         bool OpenCloseSession = !SessionIsOpen;
-         if (OpenCloseSession) {
-            Successful = StartSession();
-         }
-         if (SessionIsOpen) {
-            bool OpenCloseForward = !ForwardIsOpen;
-            if (OpenCloseForward) {
-               Successful = ForwardOpen();
-            }
-            if (ForwardIsOpen) {
+         if (StartSession()) {
+            if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
                int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
                // Write the request and read the response
@@ -722,14 +695,10 @@ namespace HitachiEIP {
                   DataIsValid = TextIsValid(SetData, attr.Data);
                   Successful = true;
                }
-               if (OpenCloseForward && ForwardIsOpen) {
-                  ForwardClose();
-               }
             }
-            if (OpenCloseSession && SessionIsOpen) {
-               EndSession();
-            }
+            ForwardClose();
          }
+         EndSession();
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
          return Successful;
       }

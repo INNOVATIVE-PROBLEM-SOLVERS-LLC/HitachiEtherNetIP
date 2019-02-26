@@ -260,8 +260,8 @@ namespace HitachiEIP {
 
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
-         if (EIP.StartSession(true)) {
-            if (EIP.ForwardOpen(true)) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
                int pos = cbUpPosition.SelectedIndex + 1;
                int count = cbUpCount.SelectedIndex + 1;
@@ -269,10 +269,10 @@ namespace HitachiEIP {
                   byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes((uint)(pos + i), 1), b[i]);
                   EIP.WriteOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                }
-               EIP.ForwardClose(true);
             }
-            EIP.EndSession(true);
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          SetButtonEnables();
       }
 
@@ -288,8 +288,8 @@ namespace HitachiEIP {
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();
 
-         if (EIP.StartSession(true)) {
-            if (EIP.ForwardOpen(true)) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
                for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
                   byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
                   bool Success = EIP.ReadOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data, out string val);
@@ -304,10 +304,10 @@ namespace HitachiEIP {
                      }
                   }
                }
-               EIP.ForwardClose(true);
             }
-            EIP.EndSession(true);
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          // Build the real image
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();

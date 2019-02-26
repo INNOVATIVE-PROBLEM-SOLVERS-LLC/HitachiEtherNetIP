@@ -180,8 +180,8 @@ namespace HitachiEIP {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
-               if (EIP.StartSession(true)) {
-                  if (EIP.ForwardOpen(true)) {
+               if (EIP.StartSession()) {
+                  if (EIP.ForwardOpen()) {
                      writer.WriteStartElement("Label"); // Start Label
 
                      //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
@@ -197,15 +197,15 @@ namespace HitachiEIP {
                      WritePrinterSettings(writer);
 
                      writer.WriteStartElement("Objects"); // Start Objects
-                     EIP.ForwardClose(true);
                   }
-                  EIP.EndSession(true);
+                  EIP.ForwardClose();
                }
+               EIP.EndSession();
 
                int itemCount = GetDecimalAttribute(ClassCode.Print_format, (byte)ccPF.Number_Of_Items);
                for (int i = 0; i < itemCount; i++) {
-                  if (EIP.StartSession(true)) {
-                     if (EIP.ForwardOpen(true)) {
+                  if (EIP.StartSession()) {
+                     if (EIP.ForwardOpen()) {
 
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i + 1);
                         string text = GetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String);
@@ -259,10 +259,10 @@ namespace HitachiEIP {
                         writer.WriteElementString("Text", text);
                         writer.WriteEndElement(); // End Object
 
-                        EIP.ForwardClose(true);
                      }
-                     EIP.EndSession(true);
+                     EIP.ForwardClose();
                   }
+                  EIP.EndSession();
                }
 
                writer.WriteEndElement(); // End Objects
