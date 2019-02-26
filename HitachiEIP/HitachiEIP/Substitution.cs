@@ -142,9 +142,9 @@ namespace HitachiEIP {
       private void SubGet_Click(object sender, EventArgs e) {
          byte[] data;
          if (visibleCategory >= 0) {
-            if (EIP.StartSession(true)) {
+            if (EIP.StartSession()) {
                // Save the state on entry
-               if (EIP.ForwardOpen(true)) {
+               if (EIP.ForwardOpen()) {
                   // The correct substitution rule is already set
                   EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
                   for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
@@ -154,11 +154,10 @@ namespace HitachiEIP {
                         subTexts[visibleCategory][i].Text = sub;
                      }
                   }
-                  // Restore the state
-                  EIP.ForwardClose(true);
                }
-               EIP.EndSession(true);
+               EIP.ForwardClose();
             }
+            EIP.EndSession();
          }
          SetButtonEnables();
       }
@@ -167,9 +166,8 @@ namespace HitachiEIP {
       private void SubSet_Click(object sender, EventArgs e) {
          byte[] data;
          if (visibleCategory >= 0) {
-            if (EIP.StartSession(true)) {
-               // Save the state on entry
-               if (EIP.ForwardOpen(true)) {
+            if (EIP.StartSession()) {
+               if (EIP.ForwardOpen()) {
                   // The correct substitution rule is already set
                   for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                      // Send the substitution data one at a time
@@ -177,11 +175,10 @@ namespace HitachiEIP {
                                       EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
                      EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
                   }
-                  // Restore the state
-                  EIP.ForwardClose(true);
                }
-               EIP.EndSession(true);
+               EIP.ForwardClose();
             }
+            EIP.EndSession();
          }
          SetButtonEnables();
       }

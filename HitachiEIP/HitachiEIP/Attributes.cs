@@ -164,8 +164,8 @@ namespace HitachiEIP {
                texts[i].BackColor = SystemColors.Control;
             }
          }
-         if (EIP.StartSession(true)) {
-            if (EIP.ForwardOpen(true)) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
                // Do them all but stop on an error
                for (int i = 0; i < gets.Length && parent.AllGood; i++) {
                   if (gets[i] != null) {
@@ -177,18 +177,18 @@ namespace HitachiEIP {
                   // Oops, something bad happened
                   parent.EIP_Log(null, "GetAll completed abnormally");
                }
-               EIP.ForwardClose(true);
             }
-            EIP.EndSession(true);
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          SetButtonEnables();
       }
 
       // Set all the valid output data on the display
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
-         if (EIP.StartSession(true)) {
-            if (EIP.ForwardOpen(true)) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
                // Do them all but stop on an error
                for (int i = 0; i < sets.Length && parent.AllGood; i++) {
                   if (sets[i] != null) {
@@ -203,10 +203,10 @@ namespace HitachiEIP {
                   // Oops, something bad happened
                   parent.EIP_Log(null, "SetAll completed abnormally");
                }
-               EIP.ForwardClose(true);
             }
-            EIP.EndSession(true);
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
       }
 
       // Allow only positive and negative numbers
@@ -604,17 +604,19 @@ namespace HitachiEIP {
       // Reload the extra controls from the printer
       public void RefreshExtras() {
          if (!extrasLoaded && parent.ComIsOn) {
-            if (EIP.StartSession(true)) {
-               if (EIP.ForwardOpen(true)) {
-                  for (int i = 0; i < extrasUsed; i++) {
-                     GetExtras_Click(ExtraGet[i], null);
+            if (extrasUsed > 0) {
+               if (EIP.StartSession()) {
+                  if (EIP.ForwardOpen()) {
+                     for (int i = 0; i < extrasUsed; i++) {
+                        GetExtras_Click(ExtraGet[i], null);
+                     }
+                     extrasLoaded = true;
                   }
-                  EIP.ForwardClose(true);
-                  GetAll_Click(null, null);
-                  extrasLoaded = true;
+                  EIP.ForwardClose();
                }
-               EIP.EndSession(true);
+               EIP.EndSession();
             }
+            GetAll_Click(null, null);
             SetExtraButtonEnables(null, null);
          }
       }

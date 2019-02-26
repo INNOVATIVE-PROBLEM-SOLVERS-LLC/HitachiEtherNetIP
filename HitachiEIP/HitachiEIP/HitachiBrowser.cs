@@ -301,13 +301,12 @@ namespace HitachiEIP {
          VerifyAddressAndPort();
          EIP.IPAddress = txtIPAddress.Text;
          EIP.port = port;
-         EIP.StartSession();
-
-         // Session ID is returned
-         txtSessionID.Text = EIP.SessionID.ToString();
 
          // Be sure that com is on
-         if (EIP.SessionIsOpen) {
+         if (EIP.StartSession()) {
+            // Session ID is returned
+            txtSessionID.Text = EIP.SessionID.ToString();
+
             // Open a path to the device
             if (EIP.ForwardOpen()) {
                // Blindly Set COM on and read it back
@@ -319,8 +318,8 @@ namespace HitachiEIP {
                   GetMgmtSetting();
                }
                // Close the forward to avoid a timeout
-               EIP.ForwardClose();
             }
+            EIP.ForwardClose();
          }
 
          SetButtonEnables();
@@ -455,9 +454,9 @@ namespace HitachiEIP {
 
       // Invert the com setting
       private void btnCom_Click(object sender, EventArgs e) {
-         if (EIP.StartSession(true)) {
+         if (EIP.StartSession()) {
             // Conditionally open and stack the path to the printer
-            if (EIP.ForwardOpen(true)) {
+            if (EIP.ForwardOpen()) {
                // Get (guess at) the current state, invert it, and read it back
                int val = ComIsOn ? 0 : 1;
                if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes((uint)val, 1))) {
@@ -468,11 +467,10 @@ namespace HitachiEIP {
                      GetMgmtSetting();
                   }
                }
-               // Close the request if necessary
-               EIP.ForwardClose(true);
             }
-            EIP.EndSession(true);
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          SetButtonEnables();
       }
 
