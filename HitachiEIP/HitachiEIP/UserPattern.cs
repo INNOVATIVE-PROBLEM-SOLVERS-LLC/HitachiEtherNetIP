@@ -197,7 +197,7 @@ namespace HitachiEIP {
       // Enable buttons only when they can be used
       public void SetButtonEnables() {
          bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
-         bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
+         bool eipEnabled = parent.ComIsOn;
          UpGet.Enabled = UpEnabled && eipEnabled;
          UpSet.Enabled = UpEnabled && eipEnabled;
          hsbGrid.Visible = pbGrid != null && pbGrid.Width > grpGrid.Width - 2 * (int)R.W;
@@ -260,15 +260,19 @@ namespace HitachiEIP {
 
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
-         byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
-         EIP.ForwardOpen(true);
-         int pos = cbUpPosition.SelectedIndex + 1;
-         int count = cbUpCount.SelectedIndex + 1;
-         for (int i = 0; i < count; i++) {
-            byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes( (uint)(pos + i), 1), b[i]);
-            EIP.WriteOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
+         if (EIP.StartSession(true)) {
+            if (EIP.ForwardOpen(true)) {
+               byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
+               int pos = cbUpPosition.SelectedIndex + 1;
+               int count = cbUpCount.SelectedIndex + 1;
+               for (int i = 0; i < count; i++) {
+                  byte[] data = EIP.Merge(EIP.ToBytes((uint)cbUpFont.SelectedIndex, 1), EIP.ToBytes((uint)(pos + i), 1), b[i]);
+                  EIP.WriteOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
+               }
+               EIP.ForwardClose(true);
+            }
+            EIP.EndSession(true);
          }
-         EIP.ForwardClose(true);
          SetButtonEnables();
       }
 
@@ -284,22 +288,26 @@ namespace HitachiEIP {
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();
 
-         EIP.ForwardOpen(true);
-         for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
-            byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
-            bool Success = EIP.ReadOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data, out string val);
-            if(Success) {
-               if(EIP.GetDataLength == bytesPerCharacter) {
-                  stripes[i] = BytesToStripe(charHeight, EIP.GetData);
-                  bmGrid = StripesToBitMap(stripes);
-                  BitMapToImage();
-                  grpGrid.Invalidate();
-               } else {
-                  break;
+         if (EIP.StartSession(true)) {
+            if (EIP.ForwardOpen(true)) {
+               for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
+                  byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
+                  bool Success = EIP.ReadOneAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data, out string val);
+                  if (Success) {
+                     if (EIP.GetDataLength == bytesPerCharacter) {
+                        stripes[i] = BytesToStripe(charHeight, EIP.GetData);
+                        bmGrid = StripesToBitMap(stripes);
+                        BitMapToImage();
+                        grpGrid.Invalidate();
+                     } else {
+                        break;
+                     }
+                  }
                }
+               EIP.ForwardClose(true);
             }
+            EIP.EndSession(true);
          }
-         EIP.ForwardClose(true);
          // Build the real image
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();

@@ -180,81 +180,89 @@ namespace HitachiEIP {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
-               EIP.ForwardOpen(true);
-               writer.WriteStartElement("Label"); // Start Label
+               if (EIP.StartSession(true)) {
+                  if (EIP.ForwardOpen(true)) {
+                     writer.WriteStartElement("Label"); // Start Label
 
-               //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
-               //writer.WriteAttributeString("Registration", this.Registration.ToString());
-               //writer.WriteAttributeString("GroupNumber", this.MessageGroupNumber);
-               //writer.WriteAttributeString("GroupName", this.MessageGroup);
-               //writer.WriteAttributeString("Name", this.MessageName);
-               //writer.WriteAttributeString("BeRestrictive", this.BeRestrictive.ToString());
-               //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
-               //writer.WriteAttributeString("Format", MessageStyle.ToString());
+                     //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
+                     //writer.WriteAttributeString("Registration", this.Registration.ToString());
+                     //writer.WriteAttributeString("GroupNumber", this.MessageGroupNumber);
+                     //writer.WriteAttributeString("GroupName", this.MessageGroup);
+                     //writer.WriteAttributeString("Name", this.MessageName);
+                     //writer.WriteAttributeString("BeRestrictive", this.BeRestrictive.ToString());
+                     //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
+                     //writer.WriteAttributeString("Format", MessageStyle.ToString());
 
-               writer.WriteAttributeString("Version", "1");
-               WritePrinterSettings(writer);
+                     writer.WriteAttributeString("Version", "1");
+                     WritePrinterSettings(writer);
 
-               writer.WriteStartElement("Objects"); // Start Objects
-               EIP.ForwardClose(true);
+                     writer.WriteStartElement("Objects"); // Start Objects
+                     EIP.ForwardClose(true);
+                  }
+                  EIP.EndSession(true);
+               }
 
                int itemCount = GetDecimalAttribute(ClassCode.Print_format, (byte)ccPF.Number_Of_Items);
                for (int i = 0; i < itemCount; i++) {
-                  EIP.ForwardOpen(true);
+                  if (EIP.StartSession(true)) {
+                     if (EIP.ForwardOpen(true)) {
 
-                  SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i + 1);
-                  string text = GetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String);
+                        SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i + 1);
+                        string text = GetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String);
 
-                  itemType = GetItemType(text);
+                        itemType = GetItemType(text);
 
-                  writer.WriteStartElement("Object"); // Start Object
+                        writer.WriteStartElement("Object"); // Start Object
 
-                  writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
+                        writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
-                  writer.WriteStartElement("Font"); // Start Font
-                  {
-                     writer.WriteAttributeString("HumanReadableFont", GetAttribute(ClassCode.Print_format, (byte)ccPF.Readable_Code));
-                     writer.WriteAttributeString("EANPrefix", GetAttribute(ClassCode.Print_format, (byte)ccPF.Prefix_Code));
-                     writer.WriteAttributeString("BarCode", GetAttribute(ClassCode.Print_format, (byte)ccPF.Barcode_Type));
-                     writer.WriteAttributeString("IncreasedWidth", GetAttribute(ClassCode.Print_format, (byte)ccPF.Character_Bold));
-                     writer.WriteAttributeString("InterLineSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Spacing));
-                     writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space));
-                     writer.WriteString(GetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix));
+                        writer.WriteStartElement("Font"); // Start Font
+                        {
+                           writer.WriteAttributeString("HumanReadableFont", GetAttribute(ClassCode.Print_format, (byte)ccPF.Readable_Code));
+                           writer.WriteAttributeString("EANPrefix", GetAttribute(ClassCode.Print_format, (byte)ccPF.Prefix_Code));
+                           writer.WriteAttributeString("BarCode", GetAttribute(ClassCode.Print_format, (byte)ccPF.Barcode_Type));
+                           writer.WriteAttributeString("IncreasedWidth", GetAttribute(ClassCode.Print_format, (byte)ccPF.Character_Bold));
+                           writer.WriteAttributeString("InterLineSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Spacing));
+                           writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space));
+                           writer.WriteString(GetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix));
+                        }
+                        writer.WriteEndElement(); // End Font
+
+                        writer.WriteStartElement("Location"); // Start Location
+                        {
+                           writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
+                           //   writer.WriteAttributeString("Column", p.Column.ToString());
+                           //   writer.WriteAttributeString("Row", p.Row.ToString());
+                           //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
+                           //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
+                           //   writer.WriteAttributeString("Left", p.X.ToString());
+                           //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
+                        }
+                        writer.WriteEndElement(); // End Location
+
+                        switch (itemType) {
+                           case ItemType.Text:
+                              break;
+                           case ItemType.Date:
+                              WriteCalendarSettings(writer);
+                              break;
+                           case ItemType.Counter:
+                              WriteCounterSettings(writer);
+                              break;
+                           case ItemType.Logo:
+                              WriteUserPatternSettings(writer);
+                              break;
+                           default:
+                              break;
+                        }
+
+                        writer.WriteElementString("Text", text);
+                        writer.WriteEndElement(); // End Object
+
+                        EIP.ForwardClose(true);
+                     }
+                     EIP.EndSession(true);
                   }
-                  writer.WriteEndElement(); // End Font
-
-                  writer.WriteStartElement("Location"); // Start Location
-                  {
-                     writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
-                     //   writer.WriteAttributeString("Column", p.Column.ToString());
-                     //   writer.WriteAttributeString("Row", p.Row.ToString());
-                     //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
-                     //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
-                     //   writer.WriteAttributeString("Left", p.X.ToString());
-                     //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
-                  }
-                  writer.WriteEndElement(); // End Location
-
-                  switch (itemType) {
-                     case ItemType.Text:
-                        break;
-                     case ItemType.Date:
-                        WriteCalendarSettings(writer);
-                        break;
-                     case ItemType.Counter:
-                        WriteCounterSettings(writer);
-                        break;
-                     case ItemType.Logo:
-                        WriteUserPatternSettings(writer);
-                        break;
-                     default:
-                        break;
-                  }
-
-                  writer.WriteElementString("Text", text);
-                  writer.WriteEndElement(); // End Object
-
-                  EIP.ForwardClose(true);
                }
 
                writer.WriteEndElement(); // End Objects

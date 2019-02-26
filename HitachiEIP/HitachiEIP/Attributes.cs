@@ -164,22 +164,22 @@ namespace HitachiEIP {
                texts[i].BackColor = SystemColors.Control;
             }
          }
-         // Let the user see what is happening
-         //parent.Refresh();
-         if (EIP.ForwardOpen(true)) {
-            // Do them all but stop on an error
-            for (int i = 0; i < gets.Length && parent.AllGood; i++) {
-               if (gets[i] != null) {
-                  Get_Click(gets[i], null);
-                  //parent.Refresh();
-                  Application.DoEvents();
+         if (EIP.StartSession(true)) {
+            if (EIP.ForwardOpen(true)) {
+               // Do them all but stop on an error
+               for (int i = 0; i < gets.Length && parent.AllGood; i++) {
+                  if (gets[i] != null) {
+                     Get_Click(gets[i], null);
+                     Application.DoEvents();
+                  }
                }
+               if (!parent.AllGood) {
+                  // Oops, something bad happened
+                  parent.EIP_Log(null, "GetAll completed abnormally");
+               }
+               EIP.ForwardClose(true);
             }
-            if (!parent.AllGood) {
-               // Oops, something bad happened
-               parent.EIP_Log(null, "GetAll completed abnormally");
-            }
-            EIP.ForwardClose(true);
+            EIP.EndSession(true);
          }
          SetButtonEnables();
       }
@@ -187,22 +187,25 @@ namespace HitachiEIP {
       // Set all the valid output data on the display
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
-         if (EIP.ForwardOpen(true)) {
-            // Do them all but stop on an error
-            for (int i = 0; i < sets.Length && parent.AllGood; i++) {
-               if (sets[i] != null) {
-                  Set_Click(sets[i], null);
-                  // Show the value immediately
-                  //parent.Refresh();
-                  // Let the Cancel button event be processed
-                  Application.DoEvents();
+         if (EIP.StartSession(true)) {
+            if (EIP.ForwardOpen(true)) {
+               // Do them all but stop on an error
+               for (int i = 0; i < sets.Length && parent.AllGood; i++) {
+                  if (sets[i] != null) {
+                     Set_Click(sets[i], null);
+                     // Show the value immediately
+                     //parent.Refresh();
+                     // Let the Cancel button event be processed
+                     Application.DoEvents();
+                  }
                }
+               if (!parent.AllGood) {
+                  // Oops, something bad happened
+                  parent.EIP_Log(null, "SetAll completed abnormally");
+               }
+               EIP.ForwardClose(true);
             }
-            if (!parent.AllGood) {
-               // Oops, something bad happened
-               parent.EIP_Log(null, "SetAll completed abnormally");
-            }
-            EIP.ForwardClose(true);
+            EIP.EndSession(true);
          }
       }
 
@@ -600,14 +603,17 @@ namespace HitachiEIP {
 
       // Reload the extra controls from the printer
       public void RefreshExtras() {
-         if (!extrasLoaded && parent.ComIsOn && EIP.SessionIsOpen) {
-            if (EIP.ForwardOpen(true)) {
-               for (int i = 0; i < extrasUsed; i++) {
-                  GetExtras_Click(ExtraGet[i], null);
+         if (!extrasLoaded && parent.ComIsOn) {
+            if (EIP.StartSession(true)) {
+               if (EIP.ForwardOpen(true)) {
+                  for (int i = 0; i < extrasUsed; i++) {
+                     GetExtras_Click(ExtraGet[i], null);
+                  }
+                  EIP.ForwardClose(true);
+                  GetAll_Click(null, null);
+                  extrasLoaded = true;
                }
-               EIP.ForwardClose(true);
-               GetAll_Click(null, null);
-               extrasLoaded = true;
+               EIP.EndSession(true);
             }
             SetExtraButtonEnables(null, null);
          }
@@ -615,14 +621,14 @@ namespace HitachiEIP {
 
       // Enable appropriate buttons based on conditions
       public void SetButtonEnables() {
-         bool enable = parent.ComIsOn & EIP.SessionIsOpen;
+         bool enable = parent.ComIsOn;
          bool anySets = false;
          bool anyGets = false;
          for (int i = 0; i < ccAttribute.Length; i++) {
             AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
             if (attr.HasSet) {
                if (EIP.TextIsValid(texts[i].Text, attr.Set)) {
-                  sets[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+                  sets[i].Enabled = parent.ComIsOn;
                   anySets |= enable;
                } else {
                   sets[i].Enabled = false;
@@ -630,7 +636,7 @@ namespace HitachiEIP {
             }
             if (attr.HasGet) {
                if (attr.Get.Len == 0 || EIP.TextIsValid(texts[i].Text, attr.Get)) {
-                  gets[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+                  gets[i].Enabled = parent.ComIsOn;
                   anyGets |= enable;
                } else {
                   gets[i].Enabled = false;
@@ -638,7 +644,7 @@ namespace HitachiEIP {
             }
             if (attr.HasService) {
                if (attr.Service.Len == 0 || EIP.TextIsValid(texts[i].Text, attr.Service)) {
-                  services[i].Enabled = parent.ComIsOn & EIP.SessionIsOpen;
+                  services[i].Enabled = parent.ComIsOn;
                } else {
                   services[i].Enabled = false;
                }
@@ -657,7 +663,7 @@ namespace HitachiEIP {
 
       // Set enables on the extra buttons of the display
       public void SetExtraButtonEnables(object sender, EventArgs e) {
-         bool enabled = parent.ComIsOn & EIP.SessionIsOpen;
+         bool enabled = parent.ComIsOn;
          for (int i = 0; i < extrasUsed; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[1];
             AttrData attr = DataII.AttrDict[ClassCode.Index, at];

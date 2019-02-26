@@ -128,7 +128,7 @@ namespace HitachiEIP {
 
       // Allow button clicke only if conditions allow it
       public void SetButtonEnables() {
-         bool eipEnabled = parent.ComIsOn & EIP.SessionIsOpen;
+         bool eipEnabled = parent.ComIsOn;
          bool subEnabled = Rule > 0 && cbAttribute.SelectedIndex >= 0;
          subGet.Enabled = eipEnabled && subEnabled;
          subSet.Enabled = eipEnabled && subEnabled;
@@ -142,19 +142,23 @@ namespace HitachiEIP {
       private void SubGet_Click(object sender, EventArgs e) {
          byte[] data;
          if (visibleCategory >= 0) {
-            // Save the state on entry
-            EIP.ForwardOpen(true);
-            // The correct substitution rule is already set
-            EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
-            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
-               // Get the substitution all at once
-               data = EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1);
-               if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data, out string sub)) {
-                  subTexts[visibleCategory][i].Text = sub;
+            if (EIP.StartSession(true)) {
+               // Save the state on entry
+               if (EIP.ForwardOpen(true)) {
+                  // The correct substitution rule is already set
+                  EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
+                  for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+                     // Get the substitution all at once
+                     data = EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1);
+                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data, out string sub)) {
+                        subTexts[visibleCategory][i].Text = sub;
+                     }
+                  }
+                  // Restore the state
+                  EIP.ForwardClose(true);
                }
+               EIP.EndSession(true);
             }
-            // Restore the state
-            EIP.ForwardClose(true);
          }
          SetButtonEnables();
       }
@@ -163,17 +167,21 @@ namespace HitachiEIP {
       private void SubSet_Click(object sender, EventArgs e) {
          byte[] data;
          if (visibleCategory >= 0) {
-            // Save the state on entry
-            EIP.ForwardOpen(true);
-            // The correct substitution rule is already set
-            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
-               // Send the substitution data one at a time
-               data = EIP.Merge(EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1),
-                                EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
-               EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
+            if (EIP.StartSession(true)) {
+               // Save the state on entry
+               if (EIP.ForwardOpen(true)) {
+                  // The correct substitution rule is already set
+                  for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+                     // Send the substitution data one at a time
+                     data = EIP.Merge(EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1),
+                                      EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
+                     EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
+                  }
+                  // Restore the state
+                  EIP.ForwardClose(true);
+               }
+               EIP.EndSession(true);
             }
-            // Restore the state
-            EIP.ForwardClose(true);
          }
          SetButtonEnables();
       }

@@ -404,6 +404,9 @@ namespace HitachiEIP {
 
       public Encoding encode = Encoding.UTF8;
 
+      // Flag to avoid constant session open/close if alread open
+      bool OpenCloseSession = false;
+
       // Flag to avoid constant forward open/close if alread open
       bool OpenCloseForward = false;
 
@@ -474,38 +477,53 @@ namespace HitachiEIP {
       }
 
       // Start EtherNet/IP Session
-      public bool StartSession() {
+      public bool StartSession(bool preserveState = false) {
          bool successful = false;
-         byte[] data;
-         Int32 bytes;
-         SessionID = 0;
-         if (Connect()) {
-            byte[] ed = EIP_Session(EIP_Type.RegisterSession);
-            if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 8) {
-               SessionID = Get(data, 4, 4, mem.LittleEndian);
-               LogIt("Session Started!");
+         if (preserveState) {
+            OpenCloseSession = !SessionIsOpen;
+            if (OpenCloseSession) {
+               successful = StartSession();
+            } else {
                successful = true;
             }
+         } else {
+            byte[] data;
+            Int32 bytes;
+            SessionID = 1;
+            if (Connect()) {
+               byte[] ed = EIP_Session(EIP_Type.RegisterSession);
+               if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 8) {
+                  SessionID = Get(data, 4, 4, mem.LittleEndian);
+                  LogIt("Session Started!");
+                  successful = true;
+               }
+            }
+            if (!successful) {
+               LogIt("Session Start Failed!");
+               Disconnect();
+            }
+            StateChanged?.Invoke(this, "Session Changed");
          }
-         if (!successful) {
-            LogIt("Session Start Failed!");
-            Disconnect();
-         }
-         StateChanged?.Invoke(this, "Session Changed");
          return successful;
       }
 
       // End EtherNet/IP Session
-      public bool EndSession() {
-         SessionID = 0;
-         if (client.Connected) {
-            byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
-            Write(ed, 0, ed.Length);
+      public void EndSession(bool restoreState = false) {
+         if (restoreState) {
+            if (OpenCloseSession && SessionIsOpen) {
+               EndSession();
+            }
+            OpenCloseSession = false;
+         } else {
+            SessionID = 0;
+            if (client.Connected) {
+               byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
+               Write(ed, 0, ed.Length);
+            }
+            LogIt("Session Ended!");
+            Disconnect();
+            StateChanged?.Invoke(this, "Session Changed");
          }
-         LogIt("Session Ended!");
-         Disconnect();
-         StateChanged?.Invoke(this, "Session Changed");
-         return true;
       }
 
       // Start EtherNet/IP Forward Open
@@ -515,6 +533,8 @@ namespace HitachiEIP {
             OpenCloseForward = !ForwardIsOpen;
             if (OpenCloseForward) {
                successful = ForwardOpen();
+            } else {
+               successful = true;
             }
          } else {
             byte[] data;
@@ -536,7 +556,7 @@ namespace HitachiEIP {
       }
 
       // End EtherNet/IP Forward Open
-      public bool ForwardClose(bool restoreState = false) {
+      public void ForwardClose(bool restoreState = false) {
          if (restoreState) {
             if (OpenCloseForward && ForwardIsOpen) {
                ForwardClose();
@@ -555,7 +575,6 @@ namespace HitachiEIP {
             }
             StateChanged?.Invoke(this, "Forward Changed");
          }
-         return true;
       }
 
       // Read response to EtherNet/IP request
@@ -601,92 +620,117 @@ namespace HitachiEIP {
       // Read one attribute
       public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut, out string dataIn) {
          bool Successful = false;
-         bool OpenCloseForward = !ForwardIsOpen;
-         if (OpenCloseForward) {
-            // Status is checked later
-            ForwardOpen();
-         }
-         AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
          dataIn = "#Error";
-         if (ForwardIsOpen) {
-            SetDataValue = string.Empty;
-            LengthIsValid = false;
-            DataIsValid = false;
-            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
-            // Write the request and read the response
-            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
-               InterpretResult(ReadData, ReadDataLength);
-               LengthIsValid = CountIsValid(GetData, attr);
-               DataIsValid = TextIsValid(GetData, attr.Data);
-               GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
-               if (Class == ClassCode.Index) {
-                  // reflect any changes back to the Index Function
-                  int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                  IndexValue[i] = Get(GetData, 0, GetDataLength, mem.BigEndian);
+         bool OpenCloseSession = !SessionIsOpen;
+         if (OpenCloseSession) {
+            Successful = StartSession();
+         }
+         if (SessionIsOpen) {
+            bool OpenCloseForward = !ForwardIsOpen;
+            if (OpenCloseForward) {
+               Successful = ForwardOpen();
+            }
+            if (ForwardIsOpen) {
+               AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
+               SetDataValue = string.Empty;
+               LengthIsValid = false;
+               DataIsValid = false;
+               int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
+               // Write the request and read the response
+               if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
+                  InterpretResult(ReadData, ReadDataLength);
+                  LengthIsValid = CountIsValid(GetData, attr);
+                  DataIsValid = TextIsValid(GetData, attr.Data);
+                  GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
+                  if (Class == ClassCode.Index) {
+                     // reflect any changes back to the Index Function
+                     int i = Array.FindIndex(IndexAttr, x => x == Attribute);
+                     IndexValue[i] = Get(GetData, 0, GetDataLength, mem.BigEndian);
+                  }
+                  Successful = true;
                }
-               Successful = true;
+               if (OpenCloseForward && ForwardIsOpen) {
+                  ForwardClose();
+               }
+            }
+            if (OpenCloseSession && SessionIsOpen) {
+               EndSession();
             }
          }
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
-         if (OpenCloseForward && ForwardIsOpen) {
-            ForwardClose();
-         }
          return Successful;
       }
 
       // Write one attribute
       public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
-         // Can be called with or without a Forward path open
-         bool OpenCloseForward = !ForwardIsOpen;
-         if (OpenCloseForward) {
-            ForwardOpen();
+         bool OpenCloseSession = !SessionIsOpen;
+         if (OpenCloseSession) {
+            Successful = StartSession();
          }
-         AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
-         if (ForwardIsOpen) {
-            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
-            // Write the request and read the response
-            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
-               InterpretResult(ReadData, ReadDataLength);
-               LengthIsValid = CountIsValid(SetData, attr);
-               DataIsValid = TextIsValid(SetData, attr.Data);
-               if (Class == ClassCode.Index) {
-                  // reflect any changes back to the Index Function
-                  int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                  IndexValue[i] = Get(SetData, 0, SetDataLength, mem.BigEndian);
+         if (SessionIsOpen) {
+            bool OpenCloseForward = !ForwardIsOpen;
+            if (OpenCloseForward) {
+               Successful = ForwardOpen();
+            }
+            if (ForwardIsOpen) {
+               AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
+               int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
+               // Write the request and read the response
+               if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
+                  InterpretResult(ReadData, ReadDataLength);
+                  LengthIsValid = CountIsValid(SetData, attr);
+                  DataIsValid = TextIsValid(SetData, attr.Data);
+                  if (Class == ClassCode.Index) {
+                     // reflect any changes back to the Index Function
+                     int i = Array.FindIndex(IndexAttr, x => x == Attribute);
+                     IndexValue[i] = Get(SetData, 0, SetDataLength, mem.BigEndian);
+                  }
+                  Successful = true;
                }
-               Successful = true;
+               if (OpenCloseForward && ForwardIsOpen) {
+                  ForwardClose();
+               }
+            }
+            if (OpenCloseSession && SessionIsOpen) {
+               EndSession();
             }
          }
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
-         if (OpenCloseForward && ForwardIsOpen) {
-            ForwardClose();
-         }
          return Successful;
       }
 
       // Service one attribute
       public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
-         bool OpenCloseForward = !ForwardIsOpen;
-         if (OpenCloseForward) {
-            ForwardOpen();
+         bool OpenCloseSession = !SessionIsOpen;
+         if (OpenCloseSession) {
+            Successful = StartSession();
          }
-         AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
-         if (ForwardIsOpen) {
-            int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
-            // Write the request and read the response
-            if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
-               InterpretResult(ReadData, ReadDataLength);
-               LengthIsValid = CountIsValid(SetData, attr);
-               DataIsValid = TextIsValid(SetData, attr.Data);
-               Successful = true;
+         if (SessionIsOpen) {
+            bool OpenCloseForward = !ForwardIsOpen;
+            if (OpenCloseForward) {
+               Successful = ForwardOpen();
+            }
+            if (ForwardIsOpen) {
+               AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
+               int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
+               // Write the request and read the response
+               if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
+                  InterpretResult(ReadData, ReadDataLength);
+                  LengthIsValid = CountIsValid(SetData, attr);
+                  DataIsValid = TextIsValid(SetData, attr.Data);
+                  Successful = true;
+               }
+               if (OpenCloseForward && ForwardIsOpen) {
+                  ForwardClose();
+               }
+            }
+            if (OpenCloseSession && SessionIsOpen) {
+               EndSession();
             }
          }
          IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
-         if (OpenCloseForward && ForwardIsOpen) {
-            ForwardClose();
-         }
          return Successful;
       }
 
