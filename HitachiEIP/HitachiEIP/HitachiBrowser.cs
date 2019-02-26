@@ -144,6 +144,9 @@ namespace HitachiEIP {
             tclClasses_SelectedIndexChanged(null, null);
          }
 
+         // Close out the session
+         btnEndSession_Click(null, null);
+
          SetButtonEnables();
       }
 
@@ -452,7 +455,7 @@ namespace HitachiEIP {
 
       // Invert the com setting
       private void btnCom_Click(object sender, EventArgs e) {
-         if (EIP.SessionIsOpen) {
+         if (EIP.StartSession(true)) {
             // Conditionally open and stack the path to the printer
             if (EIP.ForwardOpen(true)) {
                // Get (guess at) the current state, invert it, and read it back
@@ -468,6 +471,7 @@ namespace HitachiEIP {
                // Close the request if necessary
                EIP.ForwardClose(true);
             }
+            EIP.EndSession(true);
          }
          SetButtonEnables();
       }
@@ -832,13 +836,13 @@ namespace HitachiEIP {
          btnForwardOpen.Enabled = SessionIsOpen && !ForwardIsOpen;
          btnForwardClose.Enabled = SessionIsOpen && ForwardIsOpen;
          btnIssueGet.Enabled = btnIssueSet.Enabled = btnIssueService.Enabled =
-            SessionIsOpen && cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
+            cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
 
-         btnCom.Enabled = SessionIsOpen;
-         btnAutoReflection.Enabled = SessionIsOpen && ComIsOn;
-         btnManagementFlag.Enabled = SessionIsOpen && ComIsOn;
+         btnCom.Enabled = true;
+         btnAutoReflection.Enabled = ComIsOn;
+         btnManagementFlag.Enabled = ComIsOn;
 
-         btnReadAll.Enabled = SessionIsOpen && ComIsOn;
+         btnReadAll.Enabled = ComIsOn;
 
          if (initComplete) {
             switch (tclClasses.SelectedIndex) {
