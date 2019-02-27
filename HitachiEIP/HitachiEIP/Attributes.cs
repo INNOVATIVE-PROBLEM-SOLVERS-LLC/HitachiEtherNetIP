@@ -164,6 +164,7 @@ namespace HitachiEIP {
                texts[i].BackColor = SystemColors.Control;
             }
          }
+         // Avoid Open/Close on each request
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Do them all but stop on an error
@@ -187,6 +188,7 @@ namespace HitachiEIP {
       // Set all the valid output data on the display
       private void SetAll_Click(object sender, EventArgs e) {
          parent.AllGood = true;
+         // Avoid Open/Close on each request
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Do them all but stop on an error

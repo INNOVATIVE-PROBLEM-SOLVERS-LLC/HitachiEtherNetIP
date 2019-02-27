@@ -443,33 +443,33 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccSR.Year, GSS.GetSet, false, 10,                   // Year 0x67
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
+            new Prop(2, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Month, GSS.GetSet, false, 8,                   // Month 0x68
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 12, fmtDD.None),                   //   Get
-            new Prop(4, DataFormats.ItemChar, 1, 12, fmtDD.None)),              //   Set
+            new Prop(3, DataFormats.ItemChar, 1, 12, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Day, GSS.GetSet, false, 4,                     // Day 0x69
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 31, fmtDD.None),                   //   Get
             new Prop(3, DataFormats.ItemChar, 1, 31, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Hour, GSS.GetSet, false, 6,                    // Hour 0x6A
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
+            new Prop(2, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Minute, GSS.GetSet, false, 7,                  // Minute 0x6B
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 0, 59, fmtDD.None),                   //   Get
-            new Prop(4, DataFormats.ItemChar, 0, 59, fmtDD.None)),              //   Set
+            new Prop(2, DataFormats.ItemChar, 0, 59, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Week, GSS.GetSet, false, 9,                    // Week 0x6C
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 53, fmtDD.None),                   //   Get
-            new Prop(4, DataFormats.ItemChar, 1, 53, fmtDD.None)),              //   Set
+            new Prop(3, DataFormats.ItemChar, 1, 53, fmtDD.None)),              //   Set
          new AttrData((byte)ccSR.Day_Of_Week, GSS.GetSet, false, 5,             // Day Of Week 0x6D
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 7, fmtDD.None),                    //   Get
-            new Prop(4, DataFormats.ItemChar, 1, 7, fmtDD.None)),               //   Set
+            new Prop(3, DataFormats.ItemChar, 1, 7, fmtDD.None)),               //   Set
       };
 
       // Enviroment_setting (Class Code 0x71)
@@ -700,17 +700,17 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccCount.Initial_Value, GSS.GetSet, false, 9,        // Initial Value 0x67
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Range_1, GSS.GetSet, false, 4,        // Count Range 1 0x68
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Range_2, GSS.GetSet, false, 5,        // Count Range 2 0x69
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Update_Unit_Halfway, GSS.GetSet, false, 15, // Update Unit Halfway 0x6A
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -728,37 +728,37 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Set
          new AttrData((byte)ccCount.Jump_From, GSS.GetSet, false, 10,           // Jump From 0x6E
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Jump_To, GSS.GetSet, false, 11,             // Jump To 0x6F
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Reset_Value, GSS.GetSet, false, 13,         // Reset Value 0x70
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Type_Of_Reset_Signal, GSS.GetSet, false, 14, // Type Of Reset Signal 0x71
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2),      //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),     //   Set
          new AttrData((byte)ccCount.Availibility_Of_External_Count, GSS.GetSet, false, 1, // Availibility Of External Count 0x72
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCount.Availibility_Of_Zero_Suppression, GSS.GetSet, false, 2, // Availibility Of Zero Suppression 0x73
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCount.Count_Multiplier, GSS.GetSet, false, 3,     // Count Multiplier 0x74
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccCount.Count_Skip, GSS.GetSet, false, 6,           // Count Skip 0x75
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
       };
 
       // Index (Class Code 0x7A)

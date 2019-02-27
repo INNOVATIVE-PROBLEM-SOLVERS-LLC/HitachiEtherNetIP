@@ -476,25 +476,33 @@ namespace HitachiEIP {
 
       // Issue the command to clean up any stacked requests
       private void btnManagementFlag_Click(object sender, EventArgs e) {
-         if (EIP.SessionIsOpen) {
-            // Don't know what the "1" state means.  If it is off, issue the "2"
-            int val = MgmtIsOn ? 0 : 2;
-            if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes((uint)val, 1))) {
-               // Refresh the setting since "2" does not take but returns 0
-               GetMgmtSetting();
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Don't know what the "1" state means.  If it is off, issue the "2"
+               int val = MgmtIsOn ? 0 : 2;
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes((uint)val, 1))) {
+                  // Refresh the setting since "2" does not take but returns 0
+                  GetMgmtSetting();
+               }
             }
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          SetButtonEnables();
       }
 
       // Invert the Auto-Reflection flag
       private void btnAutoReflection_Click(object sender, EventArgs e) {
-         if (EIP.SessionIsOpen) {
-            int val = AutoReflIsOn ? 0 : 1;
-            if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.ToBytes((uint)val, 1))) {
-               GetAutoReflectionSetting();
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               int val = AutoReflIsOn ? 0 : 1;
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.ToBytes((uint)val, 1))) {
+                  GetAutoReflectionSetting();
+               }
             }
+            EIP.ForwardClose();
          }
+         EIP.EndSession();
          SetButtonEnables();
       }
 
