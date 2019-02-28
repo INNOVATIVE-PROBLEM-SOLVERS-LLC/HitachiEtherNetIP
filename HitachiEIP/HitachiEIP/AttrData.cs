@@ -55,7 +55,6 @@ namespace HitachiEIP {
       // Convert the Class and Attribute to a Tuple for get/set
       public TValue this[TKey1 key1, TKey2 key2] {
          get { return base[Tuple.Create(key1, key2)]; }
-         set { base[Tuple.Create(key1, key2)] = value; }
       }
 
       // Convert the Class and Attribute to a Tuple for Add

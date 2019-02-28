@@ -930,8 +930,11 @@ namespace HitachiEIP {
 
       // Get the contents of one attribute
       private string GetAttribute(ClassCode Class, byte Attribute) {
-         // <TODO> Some data may be required in place of NoData
+         AttrData attr = DataII.AttrDict[Class, Attribute];
          bool successful = EIP.ReadOneAttribute(Class, Attribute, EIP.Nodata, out string val);
+         if(attr.Data.Fmt == DataFormats.UTF8) {
+            val = EIP.FromQuoted(val);
+         }
          return val;
       }
 

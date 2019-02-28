@@ -243,11 +243,12 @@ namespace HitachiEIP {
 
          // Tag contains control number and attribute
          byte n = ((byte[])b.Tag)[0];
-         byte at = ((byte[])b.Tag)[1];
+         ClassCode cc = (ClassCode)((byte[])b.Tag)[1];
+         byte at = ((byte[])b.Tag)[2];
 
          // Mark as loading
          ExtraText[n].Text = "Loading";
-         if (EIP.ReadOneAttribute(ccIndex, at, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(cc, at, EIP.Nodata, out string val)) {
             // Success, post the new value
             ExtraText[n].Text = val;
             ExtraText[n].BackColor = Color.LightGreen;
@@ -256,6 +257,7 @@ namespace HitachiEIP {
             ExtraText[n].Text = "#Error";
             ExtraText[n].BackColor = Color.Pink;
          }
+         SetButtonEnables();
       }
 
       // Update the printer with the value of an Extra control
@@ -264,8 +266,9 @@ namespace HitachiEIP {
 
          // Tag contains control number and attribute
          byte n = ((byte[])b.Tag)[0];
-         byte at = ((byte[])b.Tag)[1];
-         AttrData attr = DataII.AttrDict[ClassCode.Index, at];
+         ClassCode cc = (ClassCode)((byte[])b.Tag)[1];
+         byte at = ((byte[])b.Tag)[2];
+         AttrData attr = DataII.AttrDict[cc, at];
 
          // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Set.Len;
@@ -275,11 +278,12 @@ namespace HitachiEIP {
 
          // Write the value to the printer
          byte[] data = EIP.ToBytes((uint)val, len);
-         if (EIP.WriteOneAttribute(ccIndex, attr.Val, data)) {
+         if (EIP.WriteOneAttribute(cc, attr.Val, data)) {
             // It worked, set normal on the control and update the full display
             ExtraText[n].BackColor = Color.LightGreen;
             GetAll_Click(null, null);
          }
+         SetButtonEnables();
       }
 
       // Highlight all the text
@@ -300,37 +304,14 @@ namespace HitachiEIP {
       }
 
       // Respond to mouse wheel over a control
-      private void ExtraText_MouseWheel(object sender, MouseEventArgs e) {
-         TextBox t = (TextBox)sender;
-
-         // Tag contains control number and attribute
-         byte n = ((byte[])t.Tag)[0];
-         byte at = ((byte[])t.Tag)[1];
-         AttrData attr = DataII.AttrDict[ClassCode.Index, at];
-
-         // Only decimal values are allowed.  Set to Min if in error
-         int len = attr.Data.Len;
-         if (!long.TryParse(t.Text, out long val)) {
-            val = attr.Set.Min;
-         }
-
-         if (e.Delta > 0) {
-            val = Math.Min(val + 1, attr.Set.Max);
-         } else {
-            val = Math.Max(val - 1, attr.Set.Min);
-         }
-         t.Text = val.ToString();
-         t.BackColor = Color.LightYellow;
-      }
-
-      // Respond to mouse wheel over a control
       private void Text_MouseWheel(object sender, MouseEventArgs e) {
          TextBox t = (TextBox)sender;
 
          // Tag contains control number and attribute
          byte n = ((byte[])t.Tag)[0];
-         byte at = ((byte[])t.Tag)[1];
-         AttrData attr = DataII.AttrDict[cc, ccAttribute[n]];
+         ClassCode cc = (ClassCode)((byte[])t.Tag)[1];
+         byte at = ((byte[])t.Tag)[2];
+         AttrData attr = DataII.AttrDict[cc, at];
 
          // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Data.Len;
@@ -394,7 +375,7 @@ namespace HitachiEIP {
          for (int i = 0; i < ccAttribute.Length; i++) {
             AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
             string s = Enum.GetName(typeof(t1), ccAttribute[i]);
-            byte[] tag = new byte[] { (byte)i, ccAttribute[i] };
+            byte[] tag = new byte[] { (byte)i, (byte)cc, ccAttribute[i] };
             labels[i] = new Label() {
                Tag = tag,
                TextAlign = System.Drawing.ContentAlignment.TopRight,
@@ -524,16 +505,17 @@ namespace HitachiEIP {
 
       // Add a single extra control
       private void AddExtras(ref byte n, ccIDX function) {
+         byte[] tag = new byte[] { n, (byte)ClassCode.Index, (byte)function };
          ExtraLabel[n] = new Label() { TextAlign = ContentAlignment.TopRight, Text = function.ToString().Replace('_', ' ') };
-         ExtraText[n] = new TextBox() { Tag = new byte[] { n, (byte)function }, TextAlign = HorizontalAlignment.Center, Font = courier };
-         ExtraGet[n] = new Button() { Text = "Get", Tag = new byte[] { n, (byte)function } };
-         ExtraSet[n] = new Button() { Text = "Set", Tag = new byte[] { n, (byte)function } };
+         ExtraText[n] = new TextBox() { Tag = tag, TextAlign = HorizontalAlignment.Center, Font = courier };
+         ExtraGet[n] = new Button() { Text = "Get", Tag = tag };
+         ExtraSet[n] = new Button() { Text = "Set", Tag = tag };
          ExtraText[n].Enter += Text_Enter;
          ExtraText[n].Leave += SetExtraButtonEnables;
          ExtraGet[n].Click += GetExtras_Click;
          ExtraSet[n].Click += SetExtras_Click;
          ExtraText[n].KeyPress += Text_KeyPress;
-         ExtraText[n].MouseWheel += ExtraText_MouseWheel;
+         ExtraText[n].MouseWheel += Text_MouseWheel;
          n++;
       }
 
@@ -681,7 +663,7 @@ namespace HitachiEIP {
       public void SetExtraButtonEnables(object sender, EventArgs e) {
          bool enabled = parent.ComIsOn;
          for (int i = 0; i < extrasUsed; i++) {
-            byte at = ((byte[])ExtraSet[i].Tag)[1];
+            byte at = ((byte[])ExtraSet[i].Tag)[2];
             AttrData attr = DataII.AttrDict[ClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&

@@ -434,22 +434,24 @@ namespace HitachiEIP {
          EIP_Log(null, "Read All Starting");
          // Get is assumed for read all request
          AllGood = true;
-         for (int i = 0; i < DataII.ClassCodeAttributes.Length && AllGood; i++) {
-            ClassAttr = (int[])DataII.ClassCodeAttributes[i].GetEnumValues();
-            // Establish the connection
-            btnForwardOpen_Click(null, null);
-            // Issue commands for this group
-            for (int j = 0; j < ClassAttr.Length && AllGood; j++) {
-               // Get attr for request
-               attr = DataII.AttrDict[DataII.ClassCodes[i], (byte)ClassAttr[j]];
-               if (attr.HasGet && !attr.Ignore) {
-                  byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-                  EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data, out string val);
+         if (EIP.StartSession()) {
+            for (int i = 0; i < DataII.ClassCodeAttributes.Length && AllGood; i++) {
+               ClassAttr = (int[])DataII.ClassCodeAttributes[i].GetEnumValues();
+               if (EIP.ForwardOpen()) {
+                  // Issue commands for this group
+                  for (int j = 0; j < ClassAttr.Length && AllGood; j++) {
+                     // Get attr for request
+                     attr = DataII.AttrDict[DataII.ClassCodes[i], (byte)ClassAttr[j]];
+                     if (attr.HasGet && !attr.Ignore) {
+                        byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
+                        EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data, out string val);
+                     }
+                  }
                }
+               EIP.ForwardClose();
             }
-            // Close out the connection
-            btnForwardClose_Click(null, null);
          }
+         EIP.EndSession();
          EIP_Log(null, "Read All Complete");
       }
 
@@ -642,6 +644,9 @@ namespace HitachiEIP {
                trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{txtDataBytesIn.Text}\t";
             }
             trafficText += $"{txtCountOut.Text}\t{txtDataBytesOut.Text}";
+            if (trafficText.Length > 200) {
+               trafficText = trafficText.Substring(0, 200) + "...";
+            }
          }
          TrafficFileStream.WriteLine(trafficText);
 
