@@ -211,17 +211,25 @@ namespace HitachiEIP {
          EIP.EndSession();
       }
 
-      // Allow only positive and negative numbers
+      // Allow only positive numbers
       private void NumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
          TextBox t = (TextBox)sender;
-         e.Handled = !char.IsControl(e.KeyChar) && ("0123456789-".IndexOf(e.KeyChar) == -1);
+         e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+      }
+
+      // Allow only positive and negative numbers
+      private void SignedNumbersOnly_KeyPress(object sender, KeyPressEventArgs e) {
+         TextBox t = (TextBox)sender;
+         e.Handled = !char.IsControl(e.KeyChar) && ("0123456789-+".IndexOf(e.KeyChar) == -1);
          if (!e.Handled && !char.IsControl(e.KeyChar)) {
             string s =
                t.Text.Substring(0, t.SelectionStart) +                 // Data before the selection
                e.KeyChar +                                             // Character entered
                t.Text.Substring(t.SelectionStart + t.SelectionLength); // Number after the selection
-            if (!int.TryParse(s, out int n)) {                         // See if it is an integer
-               e.Handled = true;                                       // Nope, throw away the character
+            if (s != "-" && s != "+") {                                // A lone minus or plus should be allowed
+               if (!int.TryParse(s, out int n)) {                      // See if it is an integer
+                  e.Handled = true;                                    // Nope, throw away the character
+               }
             }
          }
          if(!e.Handled) {
@@ -406,7 +414,9 @@ namespace HitachiEIP {
             texts[i].Enter += Text_Enter;
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
-            if(attr.HasSet && attr.Data.Fmt == DataFormats.Decimal && attr.Data.DropDown == fmtDD.None) {
+            if (attr.HasSet && attr.Data.DropDown == fmtDD.None &&
+               (attr.Data.Fmt == DataFormats.Decimal || attr.Data.Fmt == DataFormats.DecimalLE ||
+                attr.Data.Fmt == DataFormats.SDecimal || attr.Data.Fmt == DataFormats.SDecimalLE)) {
                texts[i].MouseWheel += Text_MouseWheel;
             }
 
@@ -425,8 +435,10 @@ namespace HitachiEIP {
                sets[i] = new Button() { Tag = tag, Text = "Set" };
                sets[i].Click += Set_Click;
                tab.Controls.Add(sets[i]);
-               if (attr.Set.Fmt == DataFormats.Decimal) {
+               if (attr.Set.Fmt == DataFormats.Decimal || attr.Set.Fmt == DataFormats.DecimalLE) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
+               } else if (attr.Set.Fmt == DataFormats.SDecimal || attr.Set.Fmt == DataFormats.SDecimalLE) {
+                  texts[i].KeyPress += SignedNumbersOnly_KeyPress;
                } else {
                   texts[i].KeyPress += Text_KeyPress;
                }

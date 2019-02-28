@@ -33,6 +33,7 @@ namespace HitachiEIP {
       HighSpeedPrint = 17,
       TargetSensorFilter = 18,
       UserPatternFont = 19,
+      Messagelayout = 20,
    }
 
    #endregion
@@ -116,10 +117,10 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
-         new AttrData((byte)ccPF.Format_Setup, GSS.Set, false, 13,              // Format Setup 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
+         new AttrData((byte)ccPF.Format_Setup, GSS.GetSet, false, 13,           // Format Setup 0x6D
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout)),       //   Set
          new AttrData((byte)ccPF.Adding_Print_Items, GSS.Service, false, 3,     // Adding Print Items 0x6E
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
@@ -235,9 +236,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Set
          new AttrData((byte)ccPS.Speed_Compensation, GSS.GetSet, false, 18,     // Speed Compensation 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccPS.Line_Speed, GSS.GetSet, false, 9,              // Line Speed 0x6E
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -311,13 +312,13 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Set
          new AttrData((byte)ccCal.Offset_Hour, GSS.GetSet, false, 5,            // Offset Hour 0x6B
-            new Prop(2, DataFormats.Decimal, -23, 99, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, -23, 99, fmtDD.None)),             //   Set
+            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None),             //   Data
+            new Prop(0, DataFormats.SDecimal, 0, 0, fmtDD.None),                //   Get
+            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Set
          new AttrData((byte)ccCal.Offset_Minute, GSS.GetSet, false, 6,          // Offset Minute 0x6C
-            new Prop(2, DataFormats.Decimal, -59, 99, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, -59, 99, fmtDD.None)),             //   Set
+            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None),             //   Data
+            new Prop(0, DataFormats.SDecimal, 0, 0, fmtDD.None),                //   Get
+            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Year, GSS.GetSet, false, 32,    // Zero Suppress Year 0x6D
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -886,6 +887,7 @@ namespace HitachiEIP {
          new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
                         "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
                                                                       // 19 - User Pattern Font Types
+         new string[] { "Individual", "Overall", " Free Layout" }     // 20 - Message Layout
       };
 
       #endregion

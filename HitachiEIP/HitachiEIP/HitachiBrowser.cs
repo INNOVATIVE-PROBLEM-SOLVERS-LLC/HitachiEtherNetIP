@@ -278,6 +278,7 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
 
             Utils.ResizeObject(ref R, btnReformat, 46, 26, 2, 3);
+            Utils.ResizeObject(ref R, btnRefresh, 46, 26, 2, 3);
             Utils.ResizeObject(ref R, btnStop, 46, 29.5f, 2, 3);
             Utils.ResizeObject(ref R, btnViewTraffic, 46, 33, 2, 3);
             Utils.ResizeObject(ref R, btnViewLog, 46, 36.5f, 2, 3);
@@ -671,6 +672,19 @@ namespace HitachiEIP {
          RFS.Flush();
          RFS.Close();
          Process.Start("notepad.exe", RFN);
+      }
+
+      // Refresh COM/Management/Auto-Reflection controls
+      private void btnRefresh_Click(object sender, EventArgs e) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               GetComSetting();
+               GetMgmtSetting();
+               GetAutoReflectionSetting();
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
       }
 
       #endregion
