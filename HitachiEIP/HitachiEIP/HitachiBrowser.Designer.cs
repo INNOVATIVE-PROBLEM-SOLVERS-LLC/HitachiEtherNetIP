@@ -85,6 +85,7 @@
          this.txtDataIn = new System.Windows.Forms.TextBox();
          this.lbldataIn = new System.Windows.Forms.Label();
          this.btnReformat = new System.Windows.Forms.Button();
+         this.btnRefresh = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -658,20 +659,31 @@
          // 
          // btnReformat
          // 
-         this.btnReformat.Location = new System.Drawing.Point(686, 565);
+         this.btnReformat.Location = new System.Drawing.Point(686, 557);
          this.btnReformat.Name = "btnReformat";
-         this.btnReformat.Size = new System.Drawing.Size(89, 52);
+         this.btnReformat.Size = new System.Drawing.Size(89, 26);
          this.btnReformat.TabIndex = 48;
          this.btnReformat.Text = "Reformat";
          this.btnReformat.UseVisualStyleBackColor = true;
          this.btnReformat.Visible = false;
          this.btnReformat.Click += new System.EventHandler(this.btnReformat_Click);
          // 
+         // btnRefresh
+         // 
+         this.btnRefresh.Location = new System.Drawing.Point(686, 589);
+         this.btnRefresh.Name = "btnRefresh";
+         this.btnRefresh.Size = new System.Drawing.Size(89, 26);
+         this.btnRefresh.TabIndex = 49;
+         this.btnRefresh.Text = "Refresh";
+         this.btnRefresh.UseVisualStyleBackColor = true;
+         this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.btnRefresh);
          this.Controls.Add(this.btnReformat);
          this.Controls.Add(this.lblCountIn);
          this.Controls.Add(this.txtDataBytesIn);
@@ -790,6 +802,7 @@
       public System.Windows.Forms.TextBox txtDataIn;
       private System.Windows.Forms.Label lbldataIn;
       private System.Windows.Forms.Button btnReformat;
+      private System.Windows.Forms.Button btnRefresh;
    }
 }
 

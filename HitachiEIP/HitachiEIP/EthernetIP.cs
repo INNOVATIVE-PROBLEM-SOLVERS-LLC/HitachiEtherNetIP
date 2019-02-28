@@ -27,17 +27,19 @@ namespace HitachiEIP {
    }
 
    public enum DataFormats {
-      None = -1,     // No formating
-      Decimal = 0,   // Decimal numbers up to 8 digits (Big Endian)
-      UTF8 = 1,      // UTF8 characters (Not ASCII or unicode)
-      Date = 2,      // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
-      Bytes = 3,     // Raw data in 2-digit hex notation
-      XY = 4,        // x = 2 bytes, y = 1 byte
-      N2N2 = 5,      // 2 2-byte numbers
-      N2Char = 6,    // 2-byte number + UTF8 String + 0x00
-      DecimalLE = 7, // Decimal numbers up to 8 digits (Little Endian)
-      ItemChar = 8,  // 1-byte item number + UTF8 String + 0x00
-      Item = 9,      // 1-byte item number
+      None = -1,      // No formating
+      Decimal = 0,    // Unsigned Decimal numbers up to 8 digits (Big Endian)
+      DecimalLE = 1,  // Unsigned Decimal numbers up to 8 digits (Little Endian)
+      SDecimal = 2,   // Signed Decimal numbers up to 8 digits (Big Endian)
+      SDecimalLE = 3, // Signed Decimal numbers up to 8 digits (Little Endian)
+      UTF8 = 4,       // UTF8 characters (Not ASCII or unicode)
+      Date = 5,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
+      Bytes = 6,      // Raw data in 2-digit hex notation
+      XY = 7,         // x = 2 bytes, y = 1 byte
+      N2N2 = 8,       // 2 2-byte numbers
+      N2Char = 9,     // 2-byte number + UTF8 String + 0x00
+      ItemChar = 10,  // 1-byte item number + UTF8 String + 0x00
+      Item = 11,      // 1-byte item number
    }
 
    #endregion
@@ -646,11 +648,11 @@ namespace HitachiEIP {
                   }
                   Successful = true;
                }
+               IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
          }
          EndSession();
-         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
          return Successful;
       }
 
@@ -673,11 +675,11 @@ namespace HitachiEIP {
                   }
                   Successful = true;
                }
+               IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
          }
          EndSession();
-         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
          return Successful;
       }
 
@@ -695,11 +697,11 @@ namespace HitachiEIP {
                   DataIsValid = TextIsValid(SetData, attr.Data);
                   Successful = true;
                }
+               IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
          }
          EndSession();
-         IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
          return Successful;
       }
 
@@ -978,11 +980,13 @@ namespace HitachiEIP {
          SetDataValue = s;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
+            case DataFormats.SDecimal:
                if (uint.TryParse(s, out val)) {
                   result = ToBytes(val, prop.Len);
                }
                break;
             case DataFormats.DecimalLE:
+            case DataFormats.SDecimalLE:
                if (uint.TryParse(s, out val)) {
                   result = ToBytes(val, prop.Len, mem.LittleEndian);
                }
@@ -1075,6 +1079,8 @@ namespace HitachiEIP {
          switch (attr.Data.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.DecimalLE:
+            case DataFormats.SDecimal:
+            case DataFormats.SDecimalLE:
             case DataFormats.Date:
             case DataFormats.Bytes:
             case DataFormats.XY:
@@ -1101,12 +1107,14 @@ namespace HitachiEIP {
          bool IsValid = false;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
+            case DataFormats.SDecimal:
                if (data.Length <= 8) {
                   ulong dec = Get(data, 0, data.Length, mem.BigEndian);
                   IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
                }
                break;
             case DataFormats.DecimalLE:
+            case DataFormats.SDecimalLE:
                if (data.Length <= 8) {
                   ulong dec = Get(data, 0, data.Length, mem.LittleEndian);
                   IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
@@ -1161,6 +1169,9 @@ namespace HitachiEIP {
          string[] gp;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
+            case DataFormats.DecimalLE:
+            case DataFormats.SDecimal:
+            case DataFormats.SDecimalLE:
                if (long.TryParse(s, out long dec)) {
                   IsValid = prop.Max == 0 || dec >= prop.Min && dec <= prop.Max;
                }
@@ -1345,6 +1356,7 @@ namespace HitachiEIP {
          string val = GetBytes(data, 0, data.Length);
          switch (fmt) {
             case DataFormats.Decimal:
+            case DataFormats.SDecimal:
                if (data.Length <= 8) {
                   // Convert to a decimal and string value
                   GetDecValue = (int)Get(data, 0, data.Length, mem.BigEndian);
@@ -1352,6 +1364,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.DecimalLE:
+            case DataFormats.SDecimalLE:
                if (data.Length <= 8) {
                   // Convert to a decimal and string value
                   GetDecValue = (int)Get(data, 0, data.Length, mem.LittleEndian);
