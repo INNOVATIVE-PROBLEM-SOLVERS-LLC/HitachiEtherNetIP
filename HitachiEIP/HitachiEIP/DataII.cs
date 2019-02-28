@@ -697,9 +697,9 @@ namespace HitachiEIP {
       // Count (Class Code 0x79)
       private static AttrData[] ccCount_Addrs = new AttrData[] {
          new AttrData((byte)ccCount.Number_Of_Count_Block, GSS.Get, false, 12,  // Number Of Count Block 0x66
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
          new AttrData((byte)ccCount.Initial_Value, GSS.GetSet, false, 9,        // Initial Value 0x67
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
