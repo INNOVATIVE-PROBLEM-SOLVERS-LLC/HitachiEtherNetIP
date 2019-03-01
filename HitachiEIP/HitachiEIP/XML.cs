@@ -33,6 +33,13 @@ namespace HitachiEIP {
       Button cmdSaveAs;
       Button cmdSendToPrinter;
 
+      // Testing Buttons
+      Button cmdTest1;
+      Button cmdTest2;
+      Button cmdTest3;
+      Button cmdTest4;
+      Button cmdTest5;
+
       string XMLText = string.Empty;
 
       enum ItemType {
@@ -56,41 +63,8 @@ namespace HitachiEIP {
          this.EIP = EIP;
          this.tab = tab;
 
-         tclViewXML = new TabControl() { Name = "tclViewXML", Font = courier };
-         tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
-         tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
+         BuildControls();
 
-         tvXML = new TreeView() { Name = "tvXML", Font = courier };
-         txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
-
-         cmdOpen = new Button() { Text = "Open" };
-         cmdOpen.Click += Open_Click;
-
-         cmdClear = new Button() { Text = "Clear" };
-         cmdClear.Click += Clear_Click;
-
-         cmdGenerate = new Button() { Text = "Generate" };
-         cmdGenerate.Click += Generate_Click;
-
-         cmdSaveAs = new Button() { Text = "Save As" };
-         cmdSaveAs.Click += SaveAs_Click;
-
-         cmdSendToPrinter = new Button() { Text = "Send To Printer", Enabled = false };
-         cmdSendToPrinter.Click += SendToPrinter_Click;
-
-         tab.Controls.Add(tclViewXML);
-
-         tclViewXML.Controls.Add(tabTreeView);
-         tclViewXML.Controls.Add(tabIndented);
-
-         tabTreeView.Controls.Add(tvXML);
-         tabIndented.Controls.Add(txtIndentedView);
-
-         tab.Controls.Add(cmdOpen);
-         tab.Controls.Add(cmdClear);
-         tab.Controls.Add(cmdGenerate);
-         tab.Controls.Add(cmdSaveAs);
-         tab.Controls.Add(cmdSendToPrinter);
       }
 
       #endregion
@@ -905,6 +879,65 @@ namespace HitachiEIP {
 
       #region Service Routines
 
+      // Build XML page controls
+      private void BuildControls() {
+         tclViewXML = new TabControl() { Name = "tclViewXML", Font = courier };
+         tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
+         tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
+
+         tvXML = new TreeView() { Name = "tvXML", Font = courier };
+         txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
+
+         cmdOpen = new Button() { Text = "Open" };
+         cmdOpen.Click += Open_Click;
+
+         cmdClear = new Button() { Text = "Clear" };
+         cmdClear.Click += Clear_Click;
+
+         cmdGenerate = new Button() { Text = "Generate" };
+         cmdGenerate.Click += Generate_Click;
+
+         cmdSaveAs = new Button() { Text = "Save As" };
+         cmdSaveAs.Click += SaveAs_Click;
+
+         cmdSendToPrinter = new Button() { Text = "Send To Printer", Enabled = false };
+         cmdSendToPrinter.Click += SendToPrinter_Click;
+
+         tab.Controls.Add(tclViewXML);
+
+         tclViewXML.Controls.Add(tabTreeView);
+         tclViewXML.Controls.Add(tabIndented);
+
+         tabTreeView.Controls.Add(tvXML);
+         tabIndented.Controls.Add(txtIndentedView);
+
+         tab.Controls.Add(cmdOpen);
+         tab.Controls.Add(cmdClear);
+         tab.Controls.Add(cmdGenerate);
+         tab.Controls.Add(cmdSaveAs);
+         tab.Controls.Add(cmdSendToPrinter);
+
+         // Testing controls
+         cmdTest1 = new Button() { Text = "Delete All" };
+         cmdTest2 = new Button() { Text = "Add Text" };
+         cmdTest3 = new Button() { Text = "Create Message" };
+         cmdTest4 = new Button() { Text = "Test4" };
+         cmdTest5 = new Button() { Text = "Test5" };
+
+         cmdTest1.Click += CmdTest1_Click;
+         cmdTest2.Click += CmdTest2_Click;
+         cmdTest3.Click += CmdTest3_Click;
+         cmdTest4.Click += CmdTest4_Click;
+         cmdTest4.Click += CmdTest5_Click;
+
+
+         tab.Controls.Add(cmdTest1);
+         tab.Controls.Add(cmdTest2);
+         tab.Controls.Add(cmdTest3);
+         tab.Controls.Add(cmdTest4);
+         tab.Controls.Add(cmdTest5);
+      }
+
       public void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int tclWidth = (int)(tab.ClientSize.Width / R.W);
@@ -913,11 +946,16 @@ namespace HitachiEIP {
             return;
          }
          R.offset = offset;
-         Utils.ResizeObject(ref R, tclViewXML, 0, 1, tclHeight - 4, tclWidth - 1);
+         Utils.ResizeObject(ref R, tclViewXML, 0, 1, tclHeight - 7, tclWidth - 1);
          {
-            Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 9, tclWidth - 3);
+            Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
+            Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 9, tclWidth - 3);
+            Utils.ResizeObject(ref R, cmdTest1, tclHeight - 6, 1, 2, 6);
+            Utils.ResizeObject(ref R, cmdTest2, tclHeight - 6, 8, 2, 6);
+            Utils.ResizeObject(ref R, cmdTest3, tclHeight - 6, 15, 2, 6);
+            Utils.ResizeObject(ref R, cmdTest4, tclHeight - 6, 22, 2, 6);
+            Utils.ResizeObject(ref R, cmdTest5, tclHeight - 6, 29, 2, 6);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2, 6);
             Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 8, 2, 6);
@@ -930,12 +968,13 @@ namespace HitachiEIP {
 
       // Get the contents of one attribute
       private string GetAttribute(ClassCode Class, byte Attribute) {
+         string val = string.Empty;
          AttrData attr = DataII.AttrDict[Class, Attribute];
-         bool successful = EIP.ReadOneAttribute(Class, Attribute, EIP.Nodata, out string val);
-         if(attr.Data.Fmt == DataFormats.UTF8) {
-            val = EIP.FromQuoted(val);
+         EIP.ReadOneAttribute(Class, Attribute, EIP.Nodata);
+         if (attr.Data.Fmt == DataFormats.UTF8) {
+            return EIP.FromQuoted(EIP.GetDataValue);
          }
-         return val;
+         return EIP.GetDataValue;
       }
 
       // Get the value of an attribute that is known to be a decimal number
@@ -947,7 +986,7 @@ namespace HitachiEIP {
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, int n) {
          AttrData attr = DataII.AttrDict[Class, Attribute];
-         byte[] data = EIP.ToBytes((uint)n, attr.Set.Len);
+         byte[] data = EIP.ToBytes(n, attr.Set.Len);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
@@ -956,12 +995,6 @@ namespace HitachiEIP {
          AttrData attr = DataII.AttrDict[Class, Attribute];
          byte[] data = EIP.FormatOutput(s, attr.Set);
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
-      }
-
-      // Set one attribute based on the Set Property
-      private void ServiceAttribute(ClassCode Class, byte Attribute, int n) {
-         // <TODO> Need to format the output.
-         bool successful = EIP.ServiceAttribute(Class, Attribute, EIP.ToBytes((uint)n, DataII.AttrDict[Class, Attribute].Service.Len));
       }
 
       // Only allow buttons if conditions are right to process the request
@@ -1065,6 +1098,148 @@ namespace HitachiEIP {
          } catch {
             return DefaultValue;
          }
+      }
+
+      #endregion
+
+      #region Test Routines
+
+      // Get the contents of one attribute
+      private int GetAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
+         if (success) {
+            AttrData attr = DataII.AttrDict[Class, Attribute];
+            byte[] data = EIP.ToBytes(n, attr.Get.Len);
+            success = EIP.ReadOneAttribute(Class, Attribute, data);
+            return EIP.GetDecValue;
+         } else {
+            return 0;
+         }
+      }
+
+      // Set one attribute based on the Set Property
+      private void SetAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
+         if (success) {
+            AttrData attr = DataII.AttrDict[Class, Attribute];
+            byte[] data = EIP.ToBytes(n, attr.Set.Len);
+            success = EIP.WriteOneAttribute(Class, Attribute, data);
+         }
+      }
+
+      // Set one attribute based on the Set Property
+      private void SetAttribute(ClassCode Class, byte Attribute, string s, ref bool success) {
+         if (success) {
+            AttrData attr = DataII.AttrDict[Class, Attribute];
+            byte[] data = EIP.FormatOutput(s, attr.Set);
+            success = EIP.WriteOneAttribute(Class, Attribute, data);
+         }
+      }
+
+      // Service one attribute based on the Set Property
+      private void ServiceAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
+         if (success) {
+            AttrData attr = DataII.AttrDict[Class, Attribute];
+            byte[] data = EIP.ToBytes(n, attr.Service.Len);
+            success = EIP.ServiceAttribute(Class, Attribute, data);
+         }
+      }
+
+      // Delete all but 1
+      private void CmdTest1_Click(object sender, EventArgs e) {
+         CleanUpDisplay();
+      }
+
+      // Add text to all items
+      private void CmdTest2_Click(object sender, EventArgs e) {
+         SetText();
+      }
+
+      // Create a message
+      private void CmdTest3_Click(object sender, EventArgs e) {
+         bool success = true;
+         string s;
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               for (int step = 0; step < 3 && success; step++) {
+                  switch (step) {
+                     case 0:
+                        // Cleanup the display
+                        CleanUpDisplay();
+                        break;
+                     case 1:
+                        // Put in some items
+                        for (int i = 0; i < 10; i++) {
+                           ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Add_Column, 0, ref success);
+                        }
+                        break;
+                     case 2:
+                        // Set the text
+                        //SetText();
+                        break;
+                  }
+               }
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
+      }
+
+      private void CmdTest4_Click(object sender, EventArgs e) {
+      }
+
+      private void CmdTest5_Click(object sender, EventArgs e) {
+      }
+
+      private bool CleanUpDisplay() {
+         int cols = 0;
+         bool success = true;
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Get the number of columns
+               cols = GetAttribute(ClassCode.Print_format, (byte)ccPF.Number_Of_Columns, 0, ref success);
+               // Column number is 0 origin
+               while (success && cols > 1) {
+                  // Select the column
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Column, cols - 1, ref success);
+                  // Delete the column
+                  ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Delete_Column, 0, ref success);
+                  cols--;
+               }
+               // Select item 1
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 1, ref success);
+               // Select column 0
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Column, 0, ref success);
+               // Set line count to 1. (Need to find out how delete single item works.)
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Count, 1, ref success);
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
+         return success;
+      }
+
+      private bool SetText() {
+         int items = 0;
+         bool success = true;
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Get the number of items
+               items = GetAttribute(ClassCode.Print_format, (byte)ccPF.Number_Of_Items, 0, ref success);
+               // Place item number in all of the items for identity
+               for (int i = 1; i <= items && success; i++) {
+                  // Select the item
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i, ref success);
+                  // Set font to "10x12"
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, 5);
+                  // Set ICS to 1
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1);
+                  // Insert the text
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, $" {i} ", ref success);
+               }
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
+         return success;
       }
 
       #endregion
