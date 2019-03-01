@@ -105,7 +105,7 @@ namespace HitachiEIP {
             // Build and issue the request
             byte[] data = EIP.FormatOutput(texts[tag], dropdowns[tag], attr, attr.Get);
             texts[tag].Text = "Loading";
-            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, data, out string val);
+            parent.AllGood = EIP.ReadOneAttribute(cc, attr.Val, data);
             // Process the data returned
             EIP.SetBackColor(attr, counts[tag], texts[tag], dropdowns[tag], attr.Data);
          }
@@ -248,9 +248,9 @@ namespace HitachiEIP {
 
          // Mark as loading
          ExtraText[n].Text = "Loading";
-         if (EIP.ReadOneAttribute(cc, at, EIP.Nodata, out string val)) {
+         if (EIP.ReadOneAttribute(cc, at, EIP.Nodata)) {
             // Success, post the new value
-            ExtraText[n].Text = val;
+            ExtraText[n].Text = EIP.GetDataValue;
             ExtraText[n].BackColor = Color.LightGreen;
          } else {
             // Failure, indicate so.
@@ -277,7 +277,7 @@ namespace HitachiEIP {
          }
 
          // Write the value to the printer
-         byte[] data = EIP.ToBytes((uint)val, len);
+         byte[] data = EIP.ToBytes(val, len);
          if (EIP.WriteOneAttribute(cc, attr.Val, data)) {
             // It worked, set normal on the control and update the full display
             ExtraText[n].BackColor = Color.LightGreen;

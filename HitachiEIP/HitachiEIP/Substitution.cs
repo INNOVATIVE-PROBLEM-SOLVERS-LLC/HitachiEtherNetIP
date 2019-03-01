@@ -146,12 +146,12 @@ namespace HitachiEIP {
                // Save the state on entry
                if (EIP.ForwardOpen()) {
                   // The correct substitution rule is already set
-                  EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
+                  //EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
                   for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                      // Get the substitution all at once
-                     data = EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1);
-                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data, out string sub)) {
-                        subTexts[visibleCategory][i].Text = sub;
+                     data = EIP.ToBytes((i + startWith[visibleCategory]), 1);
+                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data)) {
+                        subTexts[visibleCategory][i].Text = EIP.GetDataValue;
                      }
                   }
                }
@@ -171,7 +171,7 @@ namespace HitachiEIP {
                   // The correct substitution rule is already set
                   for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
                      // Send the substitution data one at a time
-                     data = EIP.Merge(EIP.ToBytes((uint)(i + startWith[visibleCategory]), 1),
+                     data = EIP.Merge(EIP.ToBytes((i + startWith[visibleCategory]), 1),
                                       EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
                      EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
                   }

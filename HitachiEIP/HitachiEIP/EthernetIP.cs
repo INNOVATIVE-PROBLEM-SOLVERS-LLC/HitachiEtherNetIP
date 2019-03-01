@@ -625,9 +625,8 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut, out string dataIn) {
+      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
-         dataIn = "#Error";
          if (StartSession()) {
             if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
@@ -640,7 +639,7 @@ namespace HitachiEIP {
                   InterpretResult(ReadData, ReadDataLength);
                   LengthIsValid = CountIsValid(GetData, attr);
                   DataIsValid = TextIsValid(GetData, attr.Data);
-                  GetDataValue = dataIn = FormatResult(attr.Data.Fmt, GetData);
+                  GetDataValue = FormatResult(attr.Data.Fmt, GetData);
                   if (Class == ClassCode.Index) {
                      // reflect any changes back to the Index Function
                      int i = Array.FindIndex(IndexAttr, x => x == Attribute);
@@ -911,7 +910,7 @@ namespace HitachiEIP {
       }
 
       // Convert unsigned integer to byte array
-      public byte[] ToBytes(uint v, int length, mem order = mem.BigEndian) {
+      public byte[] ToBytes(long v, int length, mem order = mem.BigEndian) {
          byte[] result = new byte[length];
          switch (order) {
             case mem.BigEndian:
@@ -963,7 +962,7 @@ namespace HitachiEIP {
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
          if (attr.Data.DropDown != fmtDD.None && c.Visible) {
             SetDataValue = (c.SelectedIndex + prop.Min).ToString();
-            return ToBytes((uint)(c.SelectedIndex + prop.Min), prop.Len);
+            return ToBytes((c.SelectedIndex + prop.Min), prop.Len);
          } else {
             return FormatOutput(t.Text, prop);
          }
@@ -996,11 +995,11 @@ namespace HitachiEIP {
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
-                  byte[] year = ToBytes((uint)d.Year, 4, mem.LittleEndian);
-                  byte[] month = ToBytes((uint)d.Month, 2, mem.LittleEndian);
-                  byte[] day = ToBytes((uint)d.Day, 2, mem.LittleEndian);
-                  byte[] hour = ToBytes((uint)d.Hour, 2, mem.LittleEndian);
-                  byte[] minute = ToBytes((uint)d.Minute, 2, mem.LittleEndian);
+                  byte[] year = ToBytes(d.Year, 4, mem.LittleEndian);
+                  byte[] month = ToBytes(d.Month, 2, mem.LittleEndian);
+                  byte[] day = ToBytes(d.Day, 2, mem.LittleEndian);
+                  byte[] hour = ToBytes(d.Hour, 2, mem.LittleEndian);
+                  byte[] minute = ToBytes(d.Minute, 2, mem.LittleEndian);
                   result = new byte[12];
                   for (int i = 0; i < 4; i++) {
                      result[i] = year[i];

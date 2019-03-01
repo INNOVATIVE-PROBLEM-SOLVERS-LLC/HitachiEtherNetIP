@@ -359,7 +359,7 @@ namespace HitachiEIP {
       // Issue a Get based on the Class Code and Function dropdowns
       private void btnIssueGet_Click(object sender, EventArgs e) {
          byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-         EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data, out string val);
+         EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
       }
 
       // Issue a Set based on the Class Code and Function dropdowns
@@ -444,7 +444,7 @@ namespace HitachiEIP {
                      attr = DataII.AttrDict[DataII.ClassCodes[i], (byte)ClassAttr[j]];
                      if (attr.HasGet && !attr.Ignore) {
                         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-                        EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data, out string val);
+                        EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data);
                      }
                   }
                }
@@ -462,7 +462,7 @@ namespace HitachiEIP {
             if (EIP.ForwardOpen()) {
                // Get (guess at) the current state, invert it, and read it back
                int val = ComIsOn ? 0 : 1;
-               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes((uint)val, 1))) {
+               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes(val, 1))) {
                   GetComSetting();
                   if (ComIsOn) {
                      // Update the other two major controls
@@ -483,7 +483,7 @@ namespace HitachiEIP {
             if (EIP.ForwardOpen()) {
                // Don't know what the "1" state means.  If it is off, issue the "2"
                int val = MgmtIsOn ? 0 : 2;
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes((uint)val, 1))) {
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes(val, 1))) {
                   // Refresh the setting since "2" does not take but returns 0
                   GetMgmtSetting();
                }
@@ -499,7 +499,7 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                int val = AutoReflIsOn ? 0 : 1;
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.ToBytes((uint)val, 1))) {
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.ToBytes(val, 1))) {
                   GetAutoReflectionSetting();
                }
             }
@@ -758,8 +758,8 @@ namespace HitachiEIP {
       private bool GetComSetting() {
          bool result;
          // Get the current setting == Com must be on for the printer to respond properly
-         if (EIP.ReadOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.Nodata, out string val)) {
-            if (val == "1") {
+         if (EIP.ReadOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.Nodata)) {
+            if (EIP.GetDataValue == "1") {
                // Com is on.  That is good
                btnCom.Text = "COM\n1";
                btnCom.BackColor = Color.LightGreen;
@@ -786,10 +786,10 @@ namespace HitachiEIP {
       private bool GetMgmtSetting() {
          bool result;
          // Get the currevt setting
-         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata, out string val)) {
-            if (val != "0") {
+         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata)) {
+            if (EIP.GetDataValue != "0") {
                // Non-zero says requests are to be stacked.
-               btnManagementFlag.Text = $"S/S Management\n{val}";
+               btnManagementFlag.Text = $"S/S Management\n{EIP.GetDataValue}";
                btnManagementFlag.BackColor = Color.Pink;
                MgmtIsOn = true;
             } else {
@@ -814,8 +814,8 @@ namespace HitachiEIP {
       private bool GetAutoReflectionSetting() {
          bool result;
          // Read the value
-         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata, out string val)) {
-            if (val == "1") {
+         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata)) {
+            if (EIP.GetDataValue == "1") {
                // Do not know whet 1 means but I think it is bad
                btnAutoReflection.Text = "Auto Reflection\n1";
                btnAutoReflection.BackColor = Color.Pink;

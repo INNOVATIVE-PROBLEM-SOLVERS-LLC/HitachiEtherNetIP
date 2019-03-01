@@ -117,7 +117,7 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
-         new AttrData((byte)ccPF.Format_Setup, GSS.GetSet, false, 13,           // Format Setup 0x6D
+         new AttrData((byte)ccPF.Format_Setup, GSS.Set, false, 13,              // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout)),       //   Set
@@ -320,61 +320,61 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.SDecimal, 0, 0, fmtDD.None),                //   Get
             new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Year, GSS.GetSet, false, 32,    // Zero Suppress Year 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Month, GSS.GetSet, false, 30,   // Zero Suppress Month 0x6E
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Day, GSS.GetSet, false, 26,     // Zero Suppress Day 0x6F
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Hour, GSS.GetSet, false, 28,    // Zero Suppress Hour 0x70
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Minute, GSS.GetSet, false, 29,  // Zero Suppress Minute 0x71
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Weeks, GSS.GetSet, false, 31,   // Zero Suppress Weeks 0x72
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Zero_Suppress_Day_Of_Week, GSS.GetSet, false, 27, // Zero Suppress Day Of Week 0x73
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable),        //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.EnableDisable)),       //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Year, GSS.GetSet, false, 21,  // Substitute Rule Year 0x74
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Month, GSS.GetSet, false, 19, // Substitute Rule Month 0x75
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Day, GSS.GetSet, false, 15,   // Substitute Rule Day 0x76
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Hour, GSS.GetSet, false, 17,  // Substitute Rule Hour 0x77
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Minute, GSS.GetSet, false, 18, // Substitute Rule Minute 0x78
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Weeks, GSS.GetSet, false, 20, // Substitute Rule Weeks 0x79
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Substitute_Rule_Day_Of_Week, GSS.GetSet, false, 16, // Substitute Rule Day Of Week 0x7A
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Time_Count_Start_Value, GSS.GetSet, false, 24, // Time Count Start Value 0x7B
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
