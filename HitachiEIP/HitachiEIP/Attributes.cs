@@ -581,7 +581,7 @@ namespace HitachiEIP {
                   c = 12;
                }
                Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4);
-               Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 2);
+               Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 2, 1.5f);
                Utils.ResizeObject(ref R, ExtraGet[i], r, 7 + c, 1.5f, 2);
                Utils.ResizeObject(ref R, ExtraSet[i], r, 9.5f + c, 1.5f, 2);
             }
