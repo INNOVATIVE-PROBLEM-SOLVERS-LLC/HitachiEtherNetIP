@@ -606,17 +606,26 @@ namespace HitachiEIP {
          txtStatus.Text = EIP.GetStatus;
          if (e.Successful) {
             txtStatus.BackColor = Color.LightGreen;
-            if (e.Class == ClassCode.Index) {
-               switch (e.Access) {
-                  case AccessCode.Set:
-                     // reflect any changes back to the Index Function
-                     int n = Array.FindIndex(indexAttr.ccAttribute, x => x == e.Attribute);
-                     indexAttr.texts[n].Text = EIP.Get(EIP.SetData, 0, EIP.SetDataLength, mem.BigEndian).ToString();
-                     break;
-                  case AccessCode.Get:
-
-                     break;
-               }
+            switch (e.Class) {
+               case ClassCode.Index:
+                  switch (e.Access) {
+                     case AccessCode.Set:
+                        // reflect any changes back to the Index Function
+                        int n = Array.FindIndex(indexAttr.ccAttribute, x => x == e.Attribute);
+                        indexAttr.texts[n].Text = EIP.SetDataValue;
+                        break;
+                  }
+                  break;
+               case ClassCode.IJP_operation:
+                  if ((ccIJP)e.Attribute == ccIJP.Online_Offline) {
+                     switch (e.Access) {
+                        case AccessCode.Set:
+                           break;
+                        case AccessCode.Get:
+                           break;
+                     }
+                  }
+                  break;
             }
          } else {
             txtStatus.BackColor = Color.Pink;

@@ -1173,7 +1173,7 @@ namespace HitachiEIP {
                         break;
                      case 2:
                         // Set the text
-                        //SetText();
+                        SetText();
                         break;
                   }
                }
@@ -1228,10 +1228,10 @@ namespace HitachiEIP {
                for (int i = 1; i <= items && success; i++) {
                   // Select the item
                   SetAttribute(ClassCode.Index, (byte)ccIDX.Item, i, ref success);
-                  // Set font to "10x12"
-                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, 5);
+                  // Set font
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, 3, ref success);
                   // Set ICS to 1
-                  SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1);
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                   // Insert the text
                   SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, $" {i} ", ref success);
                }
