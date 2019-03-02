@@ -142,7 +142,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccPF.Dot_Matrix, GSS.GetSet, false, 11,             // Dot Matrix 0x74
             new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),           //   Set
+            new Prop(1, DataFormats.Font, 1, 16, fmtDD.FontType)),              //   Set
          new AttrData((byte)ccPF.InterCharacter_Space, GSS.GetSet, false, 16,   // InterCharacter Space 0x75
             new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get

@@ -41,7 +41,7 @@ namespace HitachiEIP {
       Button cmdTest5;
 
       string XMLText = string.Empty;
-
+      XmlDocument xmlDoc = null;
       enum ItemType {
          Unknown = 0,
          Text = 1,
@@ -65,13 +65,17 @@ namespace HitachiEIP {
 
          BuildControls();
 
+         SetButtonEnables();
       }
 
       #endregion
 
       #region Form Control Events
 
+      // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
+         // Clear out any currently loaded file
+         Clear_Click(null, null);
          DialogResult dlgResult = DialogResult.Retry;
          string fileName = String.Empty;
          using (OpenFileDialog dlg = new OpenFileDialog()) {
@@ -97,10 +101,12 @@ namespace HitachiEIP {
                }
             }
          }
+         SetButtonEnables();
       }
 
       private void Clear_Click(object sender, EventArgs e) {
          txtIndentedView.Text = string.Empty;
+         xmlDoc = null;
          tvXML.Nodes.Clear();
          XMLText = string.Empty;
          SetButtonEnables();
@@ -139,9 +145,6 @@ namespace HitachiEIP {
          outfs.Flush();
          outfs.Close();
          SetButtonEnables();
-      }
-
-      private void SendToPrinter_Click(object sender, EventArgs e) {
       }
 
       #endregion
@@ -435,36 +438,44 @@ namespace HitachiEIP {
          writer.WriteEndElement(); // Printer
       }
 
+      // Process an XML Label
       private bool ProcessLabel(string xml) {
          bool result = false;
+         int xmlStart = 0;
+         int xmlEnd = 0;
          try {
-            int i = xml.IndexOf("<Label");
-            if (i == -1) {
+            // Can be called with a Filename or XML text
+            xmlStart = xml.IndexOf("<Label");
+            if (xmlStart == -1) {
                xml = File.ReadAllText(xml);
-               i = xml.IndexOf("<Label");
+               xmlStart = xml.IndexOf("<Label");
             }
-            i = xml.IndexOf("<Label");
-            int j = xml.IndexOf("</Label>", i + 7);
-            if (j > 0)
-               xml = xml.Substring(i, j - i + 8);
-            XmlDocument dom = new XmlDocument();
-            dom.PreserveWhitespace = true;
-            dom.LoadXml(xml);
-            xml = ToIndentedString(xml);
-            i = xml.IndexOf("<Label");
-            if (i > 0) {
-               xml = xml.Substring(i);
-               txtIndentedView.Text = xml;
+            // No label found, exit
+            if (xmlStart == -1) {
+               return result;
+            }
+            xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
+            if (xmlEnd > 0) {
+               xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
+               xmlDoc = new XmlDocument();
+               xmlDoc.PreserveWhitespace = true;
+               xmlDoc.LoadXml(xml);
+               xml = ToIndentedString(xml);
+               xmlStart = xml.IndexOf("<Label");
+               if (xmlStart > 0) {
+                  xml = xml.Substring(xmlStart);
+                  txtIndentedView.Text = xml;
 
-               tvXML.Nodes.Clear();
-               tvXML.Nodes.Add(new TreeNode(dom.DocumentElement.Name));
-               TreeNode tNode = new TreeNode();
-               tNode = tvXML.Nodes[0];
+                  tvXML.Nodes.Clear();
+                  tvXML.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
+                  TreeNode tNode = new TreeNode();
+                  tNode = tvXML.Nodes[0];
 
-               AddNode(dom.DocumentElement, tNode);
-               tvXML.ExpandAll();
+                  AddNode(xmlDoc.DocumentElement, tNode);
+                  tvXML.ExpandAll();
 
-               result = true;
+                  result = true;
+               }
             }
          } catch {
 
@@ -514,7 +525,7 @@ namespace HitachiEIP {
          }
       }
 
-      // Get the attributes associated witha anode
+      // Get the attributes associated with a node
       private string GetNameAttr(XmlNode n) {
          string result = n.Name;
          if (n.Attributes.Count > 0) {
@@ -877,6 +888,218 @@ namespace HitachiEIP {
 
       #endregion
 
+      #region Send to Printer Routines
+
+      // Types of items in the message
+      private enum ItemTypes {
+         Text = 0,
+         Logo = 1,
+         Counter = 2,
+         Date = 3,
+         Link = 4,
+         Prompt = 5,
+         HalfSize = 6,
+         DateCode = 7
+      }
+
+      // Send xlmDoc to printer
+      private void SendToPrinter_Click(object sender, EventArgs e) {
+         // Need a XMP Document to continue
+         if (xmlDoc == null) {
+            Open_Click(null, null);
+            if (xmlDoc == null) {
+               return;
+            }
+         }
+         // Set to only one item in printer
+         CleanUpDisplay();
+         // Send printer wide settings
+         SendPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
+         // Send the objects one at a time
+         SendObjectSettings(xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes);
+      }
+
+      // Send the Printer Wide Settings
+      private void SendPrinterSettings(XmlNode pr) {
+         foreach (XmlNode c in pr.ChildNodes) {
+            switch (c.Name) {
+               case "PrintHead":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Orientation, GetAttr(c, "Orientation"));
+                  //this.CharacterOrientation = GetAttr(c, "Orientation", "0");
+                  break;
+               case "ContinuousPrinting":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"));
+                  //this.RepeatInterval = GetAttr(c, "RepeatInterval", "0000");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"));
+                  //this.PrintsPerTrigger = GetAttr(c, "PrintsPerTrigger", "0000");
+                  break;
+               case "TargetSensor":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
+                  //this.TargetSensorFilter = GetAttr(c, "Filter", "2");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
+                  //this.TargetSensorSetupValue = GetAttr(c, "SetupValue", "0050");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
+                  //this.TargetSensorTimer = GetAttr(c, "Timer", "000");
+                  break;
+               case "CharacterSize":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Width, GetAttr(c, "Width"));
+                  //this.CharacterWidth = GetAttr(c, "Width", "010");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Width, GetAttr(c, "Height"));
+                  //this.CharacterHeight = GetAttr(c, "Height", "70");
+                  break;
+               case "PrintStartDelay":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"));
+                  //this.ReverseDelay = GetAttr(c, "Reverse", "0000");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"));
+                  //this.ForwardDelay = GetAttr(c, "Forward", "0000");
+                  break;
+               case "EncoderSettings":
+                  //this.HighSpeedPrinting = GetAttr(c, "HighSpeedPrinting", "0");
+                  //this.Divisor = GetAttr(c, "Divisor", "001");
+                  //this.ExternalEncoder = GetAttr(c, "ExternalEncoder", false);
+                  break;
+               case "InkStream":
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"));
+                  //this.InkDropUse = GetAttr(c, "InkDropUse", "03");
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"));
+                  //this.InkDropChargeRule = GetAttr(c, "ChargeRule", InkDropChargeRules.Standard);
+                  break;
+               case "TwinNozzle":
+                  // Not supported in EtherNet/IP
+                  //this.LeadingCharacterControl = GetAttr(c, "LeadingCharControl", 0);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth1", 32);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
+                  //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
+                  break;
+            }
+         }
+      }
+
+      // Send the individual objects
+      private void SendObjectSettings(XmlNodeList objs) {
+         ItemTypes type;
+         XmlNode n;
+         int item = 1;
+         foreach (XmlNode obj in objs) {
+            if (!(obj is XmlWhitespace)) {
+               // Get the item type
+               type = (ItemTypes)Enum.Parse(typeof(ItemTypes), GetAttr(obj, "Type"), true);
+               // Handle multiple line texts
+               string[] text = GetValue(obj.SelectSingleNode("Text"), "").Split(new string[] { "\r\n" }, StringSplitOptions.None);
+               for (int i = 0; i < text.Length; i++) {
+                  // Printer always has one item
+                  if (item > 1) {
+                     // Add an item <TODO> Need to add item, not column
+                     ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Add_Column, 0);
+                  }
+
+                  // Point to the item
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Item, item);
+
+                  // Set the text
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, text[i]);
+
+                  // Set the common parameters
+                  n = obj.SelectSingleNode("Location");
+                  //x = GetAttr(n, "Left", 0);
+                  //y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
+                  //int r = GetAttr(n, "Row", -1);
+                  //int c = GetAttr(n, "Column", -1);
+
+                  n = obj.SelectSingleNode("Font");
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, n.InnerText);
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
+
+                  //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
+
+                  //p.Row = r;
+                  //p.Column = c;
+
+                  //p.BarCode = GetAttr(n, "BarCode", "(None)");
+                  //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
+                  //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
+
+                  switch (type) {
+                     case ItemTypes.Text:
+                        break;
+                     case ItemTypes.Logo:
+                        break;
+                     case ItemTypes.Counter:
+                        SendCounterSettings(obj.SelectSingleNode("Counter"));
+                        break;
+                     case ItemTypes.Date:
+                        SendDateSettings(obj.SelectSingleNode("Date"));
+                        break;
+                     case ItemTypes.Link:
+                        break;
+                     case ItemTypes.Prompt:
+                        break;
+                     case ItemTypes.HalfSize:
+                        break;
+                     case ItemTypes.DateCode:
+                        break;
+                     default:
+                        break;
+                  }
+                  item++;
+               }
+            }
+         }
+      }
+
+      // Send Date related information
+      private void SendDateSettings(XmlNode d) {
+         XmlNode  n = d.SelectSingleNode("Offset");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"));
+
+         n = d.SelectSingleNode("ZeroSuppress");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"));
+
+         n = d.SelectSingleNode("EnableSubstitution");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Year, GetAttr(n, "Year"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Month, GetAttr(n, "Month"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day, GetAttr(n, "Day"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Hour, GetAttr(n, "Hour"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Minute, GetAttr(n, "Minute"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Weeks, GetAttr(n, "Week"));
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day_Of_Week, GetAttr(n, "DayOfWeek"));
+      }
+
+      // Send counter related information
+      private void SendCounterSettings(XmlNode n) {
+         // Must set length before any other attribute
+         //string initValue = GetAttr(n, "InitialValue", "0000");
+         //p.CtWidth = initValue.Length;
+         //p.CtInitialValue = initValue;
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, GetAttr(n, "CountUp"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"));
+         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"));
+      }
+
+      #endregion
+
       #region Service Routines
 
       // Build XML page controls
@@ -900,7 +1123,7 @@ namespace HitachiEIP {
          cmdSaveAs = new Button() { Text = "Save As" };
          cmdSaveAs.Click += SaveAs_Click;
 
-         cmdSendToPrinter = new Button() { Text = "Send To Printer", Enabled = false };
+         cmdSendToPrinter = new Button() { Text = "Send To Printer" };
          cmdSendToPrinter.Click += SendToPrinter_Click;
 
          tab.Controls.Add(tclViewXML);
@@ -997,13 +1220,17 @@ namespace HitachiEIP {
          bool successful = EIP.WriteOneAttribute(Class, Attribute, data);
       }
 
+      // Service one attribute based on the Set Property
+      private void ServiceAttribute(ClassCode Class, byte Attribute, int n) {
+         AttrData attr = DataII.AttrDict[Class, Attribute];
+         byte[] data = EIP.ToBytes(n, attr.Service.Len);
+         EIP.ServiceAttribute(Class, Attribute, data);
+      }
+
       // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
-         // No need to set the button enables if this screen is not visible
-         if (parent.tclClasses.SelectedIndex != parent.tclClasses.TabPages.IndexOf(tab)) {
-            return;
-         }
          cmdSaveAs.Enabled = XMLText.Length > 0;
+         cmdSendToPrinter.Enabled = xmlDoc != null;
       }
 
       // Examine the contents of a print message to determine its type

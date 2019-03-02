@@ -650,9 +650,9 @@ namespace HitachiEIP {
             if (txtDataIn.Text.Length > 20) {
                trafficText += $"{txtCountIn.Text}\tSee=>\t{txtDataBytesIn.Text}\t";
             } else {
-               trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{txtDataBytesIn.Text}\t";
+               trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{EIP.GetDecValue}\t{txtDataBytesIn.Text}\t";
             }
-            trafficText += $"{txtCountOut.Text}\t{txtDataBytesOut.Text}";
+            trafficText += $"{txtCountOut.Text}\t{EIP.SetDecValue}\t{txtDataBytesOut.Text}";
             if (trafficText.Length > 200) {
                trafficText = trafficText.Substring(0, 200) + "...";
             }
@@ -726,7 +726,7 @@ namespace HitachiEIP {
          TrafficFileStream = new StreamWriter(TrafficFilename, false, Encoding.UTF8);
          TrafficFileStream.WriteLine(
             "Path\tCount OK\tData OK\tAccess\tClass\tAttribute\tEtherNet/IP Status" +
-            "\t#I\tData In\tRaw In\t#O\tRaw Out");
+            "\t#I\tData In\tDec In\tRaw In\t#O\tDec Out\tRaw Out");
       }
 
       // Close the Traffic file and open it in Notepad if desired
