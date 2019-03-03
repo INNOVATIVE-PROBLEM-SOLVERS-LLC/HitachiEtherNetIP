@@ -22,7 +22,7 @@ namespace HitachiEIP {
       None_Signal_1_2 = 6,
       UpDown = 7,
       ReadableCode = 8,
-      BracodeType = 9,
+      BarcodeType = 9,
       NormalReverse = 10,
       M15Q25 = 11,
       EditPrint = 12,
@@ -142,7 +142,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccPF.Dot_Matrix, GSS.GetSet, false, 11,             // Dot Matrix 0x74
             new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Font, 1, 16, fmtDD.FontType)),              //   Set
+            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),          //   Set
          new AttrData((byte)ccPF.InterCharacter_Space, GSS.GetSet, false, 16,   // InterCharacter Space 0x75
             new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -152,9 +152,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Set
          new AttrData((byte)ccPF.Barcode_Type, GSS.GetSet, false, 5,            // Barcode Type 0x77
-            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BracodeType),         //   Data
+            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType),         //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BracodeType)),        //   Set
+            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Set
          new AttrData((byte)ccPF.Readable_Code, GSS.GetSet, false, 27,          // Readable Code 0x78
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode),         //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get

@@ -40,7 +40,6 @@ namespace HitachiEIP {
       N2Char = 9,     // 2-byte number + UTF8 String + 0x00
       ItemChar = 10,  // 1-byte item number + UTF8 String + 0x00
       Item = 11,      // 1-byte item number
-      Font = 12,      // 1-byte Dot-Matrix
    }
 
    #endregion
@@ -986,6 +985,21 @@ namespace HitachiEIP {
                if (int.TryParse(s, out val)) {
                   result = ToBytes(val, prop.Len);
                   SetDecValue = val;
+               } else if (bool.TryParse(s, out bool b)) {
+                  if(b) {
+                     result = ToBytes(1, prop.Len);
+                  } else {
+                     result = ToBytes(0, prop.Len);
+                  }
+               } else {
+                  // Translate dropdown back to a number
+                  if(prop.DropDown != fmtDD.None) {
+                     s = s.ToLower();
+                     val = Array.FindIndex(DataII.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     if (val >= 0) {
+                        result = ToBytes(val + prop.Min, prop.Len);
+                     }
+                  }
                }
                break;
             case DataFormats.DecimalLE:
@@ -1056,19 +1070,6 @@ namespace HitachiEIP {
             case DataFormats.Item:
                result = ToBytes(GetIndexSetting(ccIDX.Item), 1);
                break;
-            case DataFormats.Font:
-               int f = 1;
-               if(s.Length <= 2) {
-                  if(int.TryParse(s, out f)) {
-                     result = ToBytes(f, 1);
-                  }
-               } else {
-                  f = Array.FindIndex(DataII.DropDowns[(int)fmtDD.FontType], x => x.Contains(s.ToLower())) + 1;
-                  if (f > 0) {
-                     result = ToBytes(f, 1);
-                  }
-               }
-               break;
          }
          if (result == null) {
             result = new byte[0];
@@ -1102,7 +1103,6 @@ namespace HitachiEIP {
             case DataFormats.Bytes:
             case DataFormats.XY:
             case DataFormats.N2N2:
-            case DataFormats.Font:
                IsValid = attr.Data.Len == data.Length;
                break;
             case DataFormats.N2Char:
@@ -1173,9 +1173,6 @@ namespace HitachiEIP {
                   uint n = Get(data, 0, 2, mem.LittleEndian);
                   IsValid = n >= prop.Min && n <= prop.Max;
                }
-               break;
-            case DataFormats.Font:
-
                break;
          }
          return IsValid;
@@ -1253,9 +1250,6 @@ namespace HitachiEIP {
             case DataFormats.Item:
                i = (int)GetIndexSetting(ccIDX.Item);
                IsValid = i >= prop.Min && i <= prop.Max;
-               break;
-            case DataFormats.Font:
-
                break;
          }
          return IsValid;
@@ -1431,9 +1425,6 @@ namespace HitachiEIP {
                   // shown as nn, "UTF8 characters"
                   val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
                }
-               break;
-            case DataFormats.Font:
-
                break;
          }
          return val;

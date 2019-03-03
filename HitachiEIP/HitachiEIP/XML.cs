@@ -17,7 +17,7 @@ namespace HitachiEIP {
       EIP EIP;
       TabPage tab;
 
-      // Controls
+      // Tab Controls
       TabControl tclViewXML;
       TabPage tabTreeView;
       TabPage tabIndented;
@@ -25,6 +25,7 @@ namespace HitachiEIP {
       TreeView tvXML;
       TextBox txtIndentedView;
 
+      // Operating Buttons
       Button cmdOpen;
       Button cmdClear;
       Button cmdGenerate;
@@ -38,6 +39,7 @@ namespace HitachiEIP {
       Button cmdTest4;
       Button cmdTest5;
 
+      // XML Processing
       string XMLText = string.Empty;
       XmlDocument xmlDoc = null;
       enum ItemType {
@@ -50,12 +52,14 @@ namespace HitachiEIP {
          Prompt = 6,   // Not supported in the printer
       }
 
+      // Make things easier to read
       Font courier = new Font("Courier New", 9);
 
       #endregion
 
       #region Constructors and destructors
 
+      // Create class
       public XML(HitachiBrowser parent, EIP EIP, TabPage tab) {
          this.parent = parent;
          this.EIP = EIP;
@@ -101,6 +105,7 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Clear out the screens
       private void Clear_Click(object sender, EventArgs e) {
          txtIndentedView.Text = string.Empty;
          xmlDoc = null;
@@ -109,12 +114,14 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      // Generate an XMP Doc from the printer contents
       private void Generate_Click(object sender, EventArgs e) {
          XMLText = ConvertLayoutToXML();
          ProcessLabel(XMLText);
          SetButtonEnables();
       }
 
+      // Save the generated XML file
       private void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
          string filename = string.Empty;
@@ -129,18 +136,15 @@ namespace HitachiEIP {
             dlgResult = saveFileDialog1.ShowDialog();
             if (dlgResult == DialogResult.OK && !String.IsNullOrEmpty(saveFileDialog1.FileName)) {
                filename = saveFileDialog1.FileName;
-               this.SaveLayoutToXML(filename);
+               using (Stream outfs = new FileStream(filename, FileMode.Create)) {
+                  // Might have some possibilities here <TODO>
+                  outfs.Write(EIP.encode.GetBytes(XMLText), 0, XMLText.Length);
+                  outfs.Flush();
+                  outfs.Close();
+                  SetButtonEnables();
+               }
             }
          }
-         SetButtonEnables();
-      }
-
-      private void SaveLayoutToXML(string filename) {
-         Stream outfs = null;
-         outfs = new FileStream(filename, FileMode.Create);
-         outfs.Write(EIP.encode.GetBytes(XMLText), 0, XMLText.Length);
-         outfs.Flush();
-         outfs.Close();
          SetButtonEnables();
       }
 
@@ -148,6 +152,7 @@ namespace HitachiEIP {
 
       #region XML  Save Routines
 
+      // Generate an XMP Doc form the current printer settings
       private string ConvertLayoutToXML() {
          bool success = true;
          ItemType itemType = ItemType.Text;
@@ -251,6 +256,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Output the Counter Settings
       private void WriteCounterSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Counter"); // Start Counter
          writer.WriteAttributeString("Reset", GetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value));
@@ -271,6 +277,7 @@ namespace HitachiEIP {
          writer.WriteEndElement(); //  End Counter
       }
 
+      // Output the Calendar Settings
       private void WriteCalendarSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Date"); // Start Date
          {
@@ -315,6 +322,7 @@ namespace HitachiEIP {
          }
       }
 
+      // Output the User Pattern Settings
       private void WriteUserPatternSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Logo"); // Start Logo
          {
@@ -365,6 +373,7 @@ namespace HitachiEIP {
          //}
       }
 
+      // Write the global printyer settings
       private void WritePrinterSettings(XmlTextWriter writer) {
 
          writer.WriteStartElement("Printer");
@@ -481,6 +490,7 @@ namespace HitachiEIP {
          return result;
       }
 
+      // Convert an XML Document into an indented text string
       private string ToIndentedString(string unformattedXml) {
          string result;
          XmlReaderSettings readeroptions = new XmlReaderSettings { IgnoreWhitespace = true };
@@ -536,227 +546,7 @@ namespace HitachiEIP {
 
       #endregion
 
-      #region XML Load Routines
-
-      // Move xml string into the printer
-      internal void LoadXMLFile(string xml) {
-         int Version;
-         ItemType type;
-         XmlNode n;
-         //   FormatSetup msgStyle;
-
-         XmlDocument xmlDoc = new XmlDocument();
-         xmlDoc.PreserveWhitespace = true;
-         try {
-            xmlDoc.LoadXml(xml);
-            n = xmlDoc.SelectSingleNode("Label");
-            //this.MessageName = GetAttr(n, "Name", Path.GetFileNameWithoutExtension(fileName));
-            //this.Registration = GetAttr(n, "Registration", 1);
-            //this.ClockSystem = GetAttr(n, "ClockSystem", "24-Hour");
-            //this.BeRestrictive = GetAttr(n, "BeRestrictive", false);
-            //this.UseHalfSpace = GetAttr(n, "UseHalfSpace", false);
-            //this.MessageGroup = GetAttr(n, "GroupName", "");
-            //this.MessageGroupNumber = GetAttr(n, "GroupNumber", "");
-            //if (Enum.TryParse(GetAttr(n, "Format", "Individual"), out msgStyle)) {
-            //   this.MessageStyle = msgStyle;
-            //} else {
-            //   this.MessageStyle = FormatSetup.Individual;
-            //}
-            Version = GetAttr(n, "Version", 1);
-
-            PrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
-
-            foreach (System.Xml.XmlNode item in xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes) {
-               if (!(item is XmlWhitespace)) {
-                  // New item must be created here
-                  type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(item, "Type", "Text"), true);
-                  n = item.SelectSingleNode("Location");
-                  int x = GetAttr(n, "Left", 0);
-                  int y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
-                  int r = GetAttr(n, "Row", -1);
-                  int c = GetAttr(n, "Column", -1);
-
-                  n = item.SelectSingleNode("Font");
-                  string F = n.InnerText;
-                  int ICS = GetAttr(n, "InterCharacterSpace", 1);
-                  int ILS = GetAttr(n, "InterLineSpace", 1);
-                  int IW = GetAttr(n, "IncreasedWidth", 1);
-
-                  //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
-
-                  //p.Row = r;
-                  //p.Column = c;
-
-                  //p.BarCode = GetAttr(n, "BarCode", "(None)");
-                  //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
-                  //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
-
-                  // Done to here
-                  switch (type) {
-                     case ItemType.Counter:
-                        CountSettings(item);
-                        break;
-                     case ItemType.Date:
-                        CalendarSettings(item);
-                        break;
-                     case ItemType.Logo:
-                        LogoSettings(item);
-                        break;
-                     case ItemType.Text:
-                        n = item.SelectSingleNode("Text");
-                        //p.RawText = GetValue(n, "<TEXT>");
-                        break;
-                  }
-               }
-            }
-         } catch {
-
-         }
-      }
-
-      // Load printer wide settings
-      private void PrinterSettings(XmlNode pr) {
-         bool success = true;
-         foreach (XmlNode c in pr.ChildNodes) {
-            switch (c.Name) {
-               case "PrintHead":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Orientation, GetAttr(c, "Orientation"), ref success);
-                  break;
-               case "ContinuousPrinting":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"), ref success);
-                  break;
-               case "TargetSensor":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"), ref success);
-                  break;
-               case "CharacterSize":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Width, GetAttr(c, "Width"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Character_Height, GetAttr(c, "Height"), ref success);
-                  break;
-               case "PrintStartDelay":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"), ref success);
-                  break;
-               case "EncoderSettings":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"), ref success);
-                  break;
-               case "InkStream":
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"), ref success);
-                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"), ref success);
-                  break;
-            }
-         }
-      }
-
-      // Load Count Block
-      private void CountSettings(XmlNode item) {
-         bool success = true;
-         XmlNode c;
-         c = item.SelectSingleNode("Text");
-         //SetAttribute(eipClassCode.Count,
-         //            (byte)eipCount.Character_Orientation,
-         //            GetAttr(c, "Orientation"));
-         //p.RawText = GetValue(n, "{0000}");
-
-         c = item.SelectSingleNode("Counter");
-         // Must set length before any other attribute
-         string initValue = GetAttr(c, "InitialValue", "0000");
-         //p.CtWidth = initValue.Length;
-         //p.CtInitialValue = initValue;
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(c, "Range1"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(c, "Range2"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(c, "UpdateIP"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(c, "UpdateUnit"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(c, "JumpFrom"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(c, "JumpTo"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(c, "Increment"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, GetAttr(c, "CountUp"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(c, "Reset"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(c, "Multiplier"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(c, "ZeroSuppression"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(c, "ResetSignal"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(c, "ExternalSignal"), ref success);
-      }
-
-      // Load Logo
-      private void LogoSettings(XmlNode item) {
-         XmlNode n;
-         n = item.SelectSingleNode("Logo");
-         //p.LogoFilter = GetAttr(n, "Filter", 84);
-         //p.LogoReverseVideo = GetAttr(n, "ReverseVideo", false);
-         //p.LogoSource = GetAttr(n, "Source", "");
-         //p.LogoLength = GetAttr(n, "LogoLength", 1);
-         //p.LogoRegistration = GetAttr(n, "Registration", -1);
-         //p.LogoSource = GetAttr(n, "Source", "");
-         //p.ScaledImage = GetLogoScaledImage(p, n);
-         n = item.SelectSingleNode("Text");
-         //if (n == null) {
-         //   p.LogoItemText = string.Empty;
-         //} else {
-         //   string ItemText = GetValue(n, "<TEXT>");
-         //   string it = "";
-         //   if (ItemText.Length > 0) {
-         //      for (int i = 0; i < ItemText.Length; i += 4) {
-         //         it += (char)Convert.ToInt16(ItemText.Substring(i, 4), 16);
-         //      }
-         //      p.LogoItemText = it;
-         //   }
-         //}
-      }
-
-      // Load Calendar Block
-      private void CalendarSettings(XmlNode item) {
-         bool success = true;
-         XmlNode n;
-         n = item.SelectSingleNode("Date");
-         //p.RawText = GetAttr(n, "Format", item.SelectSingleNode("Text").InnerText);
-
-         n = item.SelectSingleNode("Date/Offset");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"), ref success);
-
-         n = item.SelectSingleNode("Date/ZeroSuppress");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
-
-         n = item.SelectSingleNode("Date/EnableSubstitution");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Calendar_Block_Number_In_Item, GetAttr(n, "SubstitutionRule"), ref success);
-      }
-
-      #endregion
-
       #region Send to Printer Routines
-
-      // Types of items in the message
-      private enum ItemTypes {
-         Text = 0,
-         Logo = 1,
-         Counter = 2,
-         Date = 3,
-         Link = 4,
-         Prompt = 5,
-         HalfSize = 6,
-         DateCode = 7
-      }
 
       // Send xlmDoc to printer
       private void SendToPrinter_Click(object sender, EventArgs e) {
@@ -801,9 +591,9 @@ namespace HitachiEIP {
                   SetAttribute(ClassCode.Print_specification, (byte)ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"), ref success);
                   break;
                case "EncoderSettings":
-                  //this.HighSpeedPrinting = GetAttr(c, "HighSpeedPrinting", "0");
-                  //this.Divisor = GetAttr(c, "Divisor", "001");
-                  //this.ExternalEncoder = GetAttr(c, "ExternalEncoder", false);
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"), ref success);
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"), ref success);
+                  SetAttribute(ClassCode.Print_specification, (byte)ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"), ref success);
                   break;
                case "InkStream":
                   SetAttribute(ClassCode.Print_specification, (byte)ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"), ref success);
@@ -823,7 +613,7 @@ namespace HitachiEIP {
       // Send the individual objects
       private void SendObjectSettings(XmlNodeList objs) {
          bool success = true;
-         ItemTypes type;
+         ItemType type;
          XmlNode n;
          int count = 1;
          int calendar = 1;
@@ -831,7 +621,7 @@ namespace HitachiEIP {
          foreach (XmlNode obj in objs) {
             if (!(obj is XmlWhitespace)) {
                // Get the item type
-               type = (ItemTypes)Enum.Parse(typeof(ItemTypes), GetAttr(obj, "Type"), true);
+               type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
                // Handle multiple line texts
                string[] text = GetValue(obj.SelectSingleNode("Text"), "").Split(new string[] { "\r\n" }, StringSplitOptions.None);
                for (int i = 0; i < text.Length; i++) {
@@ -843,9 +633,6 @@ namespace HitachiEIP {
 
                   // Point to the item
                   SetAttribute(ClassCode.Index, (byte)ccIDX.Item, item, ref success);
-
-                  // Set the text
-                  SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, text[i], ref success);
 
                   // Set the common parameters
                   n = obj.SelectSingleNode("Location");
@@ -870,25 +657,22 @@ namespace HitachiEIP {
                   //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
 
                   switch (type) {
-                     case ItemTypes.Text:
+                     case ItemType.Text:
+                        SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, text[i], ref success);
                         break;
-                     case ItemTypes.Logo:
+                     case ItemType.Logo:
                         break;
-                     case ItemTypes.Counter:
+                     case ItemType.Counter:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Count_Block, count++, ref success);
-                        SendCounterSettings(obj.SelectSingleNode("Counter"), ref success);
+                        SendCounterSettings(text[i], obj.SelectSingleNode("Counter"), ref success);
                         break;
-                     case ItemTypes.Date:
+                     case ItemType.Date:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, calendar++, ref success);
-                        SendDateSettings(obj.SelectSingleNode("Date"), ref success);
+                        SendDateSettings(text[i], obj.SelectSingleNode("Date"), ref success);
                         break;
-                     case ItemTypes.Link:
+                     case ItemType.Link:
                         break;
-                     case ItemTypes.Prompt:
-                        break;
-                     case ItemTypes.HalfSize:
-                        break;
-                     case ItemTypes.DateCode:
+                     case ItemType.Prompt:
                         break;
                      default:
                         break;
@@ -900,8 +684,12 @@ namespace HitachiEIP {
       }
 
       // Send Date related information
-      private void SendDateSettings(XmlNode d, ref bool success) {
-         XmlNode  n = d.SelectSingleNode("Offset");
+      private void SendDateSettings(string text, XmlNode d, ref bool success) {
+
+         // Send the text
+         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatDate(text), ref success);
+
+         XmlNode n = d.SelectSingleNode("Offset");
          SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
          SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
          SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
@@ -928,11 +716,12 @@ namespace HitachiEIP {
       }
 
       // Send counter related information
-      private void SendCounterSettings(XmlNode n, ref bool success) {
-         // Must set length before any other attribute
-         //string initValue = GetAttr(n, "InitialValue", "0000");
-         //p.CtWidth = initValue.Length;
-         //p.CtInitialValue = initValue;
+      private void SendCounterSettings(string text, XmlNode n, ref bool success) {
+
+         // Send the text
+         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatCounter(text), ref success);
+
+         SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, GetAttr(n, "InitialValue"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"), ref success);
@@ -940,12 +729,33 @@ namespace HitachiEIP {
          SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, GetAttr(n, "CountUp"), ref success);
+         string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
+         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
          SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+      }
+
+      private string FormatCounter(string text) {
+         string result = text;
+         int lBrace = text.IndexOf('{');
+         int rBrace = text.LastIndexOf('}');
+         if (lBrace >= 0 && rBrace > lBrace) {
+            result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace) + "}}" + text.Substring(rBrace + 1);
+         }
+         return result;
+      }
+
+      private string FormatDate(string text) {
+         string result = text;
+         int lBrace = text.IndexOf('{');
+         int rBrace = text.LastIndexOf('}');
+         if (lBrace >= 0 && rBrace > lBrace) {
+            result = text.Substring(0, lBrace) + "{{" + text.Substring(lBrace + 1, rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
+         }
+         return result;
       }
 
       #endregion
