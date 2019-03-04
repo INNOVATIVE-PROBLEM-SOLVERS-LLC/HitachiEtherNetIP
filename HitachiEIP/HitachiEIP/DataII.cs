@@ -30,6 +30,7 @@ namespace HitachiEIP {
       TargetSensorFilter = 18,
       UserPatternFont = 19,
       Messagelayout = 20,
+      ChargeRule = 21,
    }
 
    #endregion
@@ -272,9 +273,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
          new AttrData((byte)ccPS.Ink_Drop_Charge_Rule, GSS.GetSet, false, 7,    // Ink Drop Charge Rule 0x77
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule),           //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule)),          //   Set
          new AttrData((byte)ccPS.Print_Start_Position_Adjustment_Value, GSS.GetSet, false, 12, // Print Start Position Adjustment Value 0x78
             new Prop(2, DataFormats.Decimal, -50, 50, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -865,8 +866,9 @@ namespace HitachiEIP {
          new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
          new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
                         "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
-                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25", "QR29x29",
-                        "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)", "GS1 DataBar (Stacked)", "DM14x14", },
+                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25",
+                        "QR29x29", "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)",
+                        "GS1 DataBar (Stacked)", "DM14x14", },
                                                                       // 9 - Barcode Types
          new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
          new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
@@ -883,7 +885,8 @@ namespace HitachiEIP {
          new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
                         "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
                                                                       // 19 - User Pattern Font Types
-         new string[] { "Individual", "Overall", " Free Layout" }     // 20 - Message Layout
+         new string[] { "Individual", "Overall", "Free Layout" },     // 20 - Message Layout
+         new string[] { "Standard", "Mixed", "Dot Mixed" },           // 21 - Charge Rule
       };
 
       #endregion
