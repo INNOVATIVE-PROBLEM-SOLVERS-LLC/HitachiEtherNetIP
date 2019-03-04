@@ -957,11 +957,17 @@ namespace HitachiEIP {
          }
       }
 
+      // Format Output
+      public byte[] FormatOutput(int n, Prop prop) {
+         SetDecValue = n;
+         return ToBytes(n, prop.Len);
+      }
       // Format output
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
          if (attr.Data.DropDown != fmtDD.None && c.Visible) {
-            SetDataValue = (c.SelectedIndex + prop.Min).ToString();
-            return ToBytes((c.SelectedIndex + prop.Min), prop.Len);
+            long n = c.SelectedIndex + prop.Min;
+            SetDataValue = n.ToString();
+            return ToBytes(n, prop.Len);
          } else {
             return FormatOutput(t.Text, prop);
          }
@@ -980,15 +986,17 @@ namespace HitachiEIP {
          switch (prop.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.SDecimal:
+            case DataFormats.DecimalLE:
+            case DataFormats.SDecimalLE:
                if (int.TryParse(s, out val)) {
-                  result = ToBytes(val, prop.Len);
-                  SetDecValue = val;
-               } else if (bool.TryParse(s, out bool b)) {
-                  if(b) {
-                     result = ToBytes(1, prop.Len);
+                  if(prop.Fmt == DataFormats.Decimal || prop.Fmt == DataFormats.SDecimal) {
+                     result = ToBytes(val, prop.Len);
                   } else {
-                     result = ToBytes(0, prop.Len);
+                     result = ToBytes(val, prop.Len, mem.LittleEndian);
                   }
+               } else if (bool.TryParse(s, out bool b)) {
+                  val = b ? 1 : 0;
+                  result = ToBytes(val, prop.Len);
                } else {
                   // Translate dropdown back to a number
                   if(prop.DropDown != fmtDD.None) {
@@ -999,13 +1007,7 @@ namespace HitachiEIP {
                      }
                   }
                }
-               break;
-            case DataFormats.DecimalLE:
-            case DataFormats.SDecimalLE:
-               if (int.TryParse(s, out val)) {
-                  result = ToBytes(val, prop.Len, mem.LittleEndian);
-                  SetDecValue = val;
-               }
+               SetDecValue = val;
                break;
             case DataFormats.UTF8:
                result = encode.GetBytes($"{FromQuoted(s)}\x00");

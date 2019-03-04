@@ -308,7 +308,7 @@
          this.txtSaveFolder.ReadOnly = true;
          this.txtSaveFolder.Size = new System.Drawing.Size(65, 22);
          this.txtSaveFolder.TabIndex = 28;
-         this.txtSaveFolder.Text = "c:\\Temp";
+         this.txtSaveFolder.Text = "C:\\Temp";
          // 
          // btnBrowse
          // 

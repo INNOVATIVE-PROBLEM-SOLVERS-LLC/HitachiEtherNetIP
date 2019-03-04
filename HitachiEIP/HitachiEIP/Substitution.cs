@@ -12,7 +12,6 @@ namespace HitachiEIP {
       HitachiBrowser parent;
       EIP EIP;
       TabPage tab;
-      TextBox RuleNo;
 
       // Substitution Specific Controls
       GroupBox SubControls;
@@ -43,11 +42,10 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
-      public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab, TextBox RuleNo) {
+      public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab) {
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
-         this.RuleNo = RuleNo;
       }
 
       #endregion
@@ -129,7 +127,7 @@ namespace HitachiEIP {
       // Allow button clicke only if conditions allow it
       public void SetButtonEnables() {
          bool eipEnabled = parent.ComIsOn;
-         bool subEnabled = Rule > 0 && cbAttribute.SelectedIndex >= 0;
+         bool subEnabled = cbAttribute.SelectedIndex >= 0;
          subGet.Enabled = eipEnabled && subEnabled;
          subSet.Enabled = eipEnabled && subEnabled;
       }
@@ -241,16 +239,6 @@ namespace HitachiEIP {
          }
          Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);
          Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
-      }
-
-      // get the rule number from the Text Box
-      public uint Rule {
-         get {
-            if (uint.TryParse(RuleNo.Text, out uint n)) {
-               return n;
-            }
-            return 1;
-         }
       }
 
       #endregion
