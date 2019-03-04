@@ -110,6 +110,7 @@
          // 
          // txtIPAddress
          // 
+         this.txtIPAddress.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.txtIPAddress.Location = new System.Drawing.Point(141, 24);
          this.txtIPAddress.Name = "txtIPAddress";
          this.txtIPAddress.Size = new System.Drawing.Size(175, 22);
@@ -119,6 +120,7 @@
          // 
          // txtPort
          // 
+         this.txtPort.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtPort.Location = new System.Drawing.Point(141, 56);
          this.txtPort.Name = "txtPort";
          this.txtPort.Size = new System.Drawing.Size(175, 22);
@@ -148,6 +150,7 @@
          // 
          // txtSessionID
          // 
+         this.txtSessionID.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtSessionID.Location = new System.Drawing.Point(141, 90);
          this.txtSessionID.Name = "txtSessionID";
          this.txtSessionID.Size = new System.Drawing.Size(175, 22);
@@ -253,6 +256,7 @@
          // 
          // txtDataBytesOut
          // 
+         this.txtDataBytesOut.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtDataBytesOut.Location = new System.Drawing.Point(28, 455);
          this.txtDataBytesOut.Name = "txtDataBytesOut";
          this.txtDataBytesOut.ReadOnly = true;
@@ -262,6 +266,7 @@
          // 
          // txtStatus
          // 
+         this.txtStatus.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtStatus.Location = new System.Drawing.Point(26, 377);
          this.txtStatus.Name = "txtStatus";
          this.txtStatus.ReadOnly = true;
@@ -280,6 +285,7 @@
          // 
          // txtDataOut
          // 
+         this.txtDataOut.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtDataOut.Location = new System.Drawing.Point(87, 427);
          this.txtDataOut.Name = "txtDataOut";
          this.txtDataOut.Size = new System.Drawing.Size(229, 22);
@@ -500,6 +506,7 @@
          // lstErrors
          // 
          this.lstErrors.ContextMenuStrip = this.cmLog;
+         this.lstErrors.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.lstErrors.FormattingEnabled = true;
          this.lstErrors.ItemHeight = 16;
          this.lstErrors.Location = new System.Drawing.Point(26, 581);
@@ -624,6 +631,7 @@
          // 
          // txtDataBytesIn
          // 
+         this.txtDataBytesIn.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtDataBytesIn.Location = new System.Drawing.Point(25, 533);
          this.txtDataBytesIn.Name = "txtDataBytesIn";
          this.txtDataBytesIn.ReadOnly = true;
@@ -642,6 +650,7 @@
          // 
          // txtDataIn
          // 
+         this.txtDataIn.Font = new System.Drawing.Font("Courier New", 7.8F);
          this.txtDataIn.Location = new System.Drawing.Point(84, 505);
          this.txtDataIn.Name = "txtDataIn";
          this.txtDataIn.Size = new System.Drawing.Size(229, 22);

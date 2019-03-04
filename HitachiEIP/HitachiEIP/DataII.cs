@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HitachiEIP {
 
@@ -347,31 +343,31 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Year, GSS.GetSet, false, 21,  // Substitute Rule Year 0x74
+         new AttrData((byte)ccCal.Substitute_Year, GSS.GetSet, false, 21,       // Substitute Year 0x74
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Month, GSS.GetSet, false, 19, // Substitute Rule Month 0x75
+         new AttrData((byte)ccCal.Substitute_Month, GSS.GetSet, false, 19,      // Substitute Month 0x75
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Day, GSS.GetSet, false, 15,   // Substitute Rule Day 0x76
+         new AttrData((byte)ccCal.Substitute_Day, GSS.GetSet, false, 15,        // Substitute Day 0x76
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Hour, GSS.GetSet, false, 17,  // Substitute Rule Hour 0x77
+         new AttrData((byte)ccCal.Substitute_Hour, GSS.GetSet, false, 17,       // Substitute Hour 0x77
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Minute, GSS.GetSet, false, 18, // Substitute Rule Minute 0x78
+         new AttrData((byte)ccCal.Substitute_Minute, GSS.GetSet, false, 18,     // Substitute Minute 0x78
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Weeks, GSS.GetSet, false, 20, // Substitute Rule Weeks 0x79
+         new AttrData((byte)ccCal.Substitute_Weeks, GSS.GetSet, false, 20,      // Substitute Weeks 0x79
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Rule_Day_Of_Week, GSS.GetSet, false, 16, // Substitute Rule Day Of Week 0x7A
+         new AttrData((byte)ccCal.Substitute_Day_Of_Week, GSS.GetSet, false, 16, // Substitute Day Of Week 0x7A
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
