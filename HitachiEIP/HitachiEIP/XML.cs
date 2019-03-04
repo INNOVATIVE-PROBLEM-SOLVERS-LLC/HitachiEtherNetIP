@@ -555,12 +555,18 @@ namespace HitachiEIP {
                return;
             }
          }
-         // Set to only one item in printer
-         CleanUpDisplay();
-         // Send printer wide settings
-         SendPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
-         // Send the objects one at a time
-         SendObjectSettings(xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes);
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Set to only one item in printer
+               CleanUpDisplay();
+               // Send printer wide settings
+               SendPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
+               // Send the objects one at a time
+               SendObjectSettings(xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes);
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
       }
 
       // Send the Printer Wide Settings
@@ -604,6 +610,63 @@ namespace HitachiEIP {
                   //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
                   //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
                   break;
+               case "Substitution":
+                  SendSubstitution(c);
+                  break;
+            }
+         }
+      }
+
+      private void SendSubstitution(XmlNode p) {
+         AttrData attr;
+         byte[] data;
+         string rule = GetAttr(p, "Rule");
+         string startYear = GetAttr(p, "StartYear");
+         string delimeter = GetAttr(p, "Delimeter");
+         if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimeter.Length == 1) {
+
+            attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting);
+            data = EIP.FormatOutput(ruleNumber, attr.Set);
+            EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
+
+            attr = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)ccSR.Start_Year);
+            data = EIP.FormatOutput(year, attr.Set);
+            EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
+
+            foreach (XmlNode c in p.ChildNodes) {
+               switch (c.Name) {
+                  case "Year":
+                     SetSubValues(ccSR.Year, c, delimeter[0], 0);
+                     break;
+                  case "Month":
+                     SetSubValues(ccSR.Month, c, delimeter[0], 1);
+                     break;
+                  case "Day":
+                     SetSubValues(ccSR.Day, c, delimeter[0], 1);
+                     break;
+                  case "Hour":
+                     SetSubValues(ccSR.Hour, c, delimeter[0], 0);
+                     break;
+                  case "Minute":
+                     SetSubValues(ccSR.Minute, c, delimeter[0], 0);
+                     break;
+                  case "Week":
+                     SetSubValues(ccSR.Week, c, delimeter[0], 1);
+                     break;
+                  case "DayOfWeek":
+                     SetSubValues(ccSR.Day_Of_Week, c, delimeter[0], 1);
+                     break;
+               }
+            }
+         }
+      }
+
+      private void SetSubValues(ccSR attribute, XmlNode c, char delimeter, int n) {
+         if (int.TryParse(GetAttr(c, "Base"), out int b)) {
+            string[] s = GetValue(c).Split(delimeter);
+            for (int i = 0; i < s.Length; i++) {
+               byte[] data = EIP.Merge(EIP.ToBytes(n + b + i, 1), EIP.ToBytes(s[i] + "\x00"));
+               EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
             }
          }
       }
@@ -924,7 +987,7 @@ namespace HitachiEIP {
          return ItemType.Text;
       }
 
-      private string GetValue(XmlNode node, string DefaultValue) {
+      private string GetValue(XmlNode node, string DefaultValue = "") {
          try {
             return node.InnerText;
          } catch {
