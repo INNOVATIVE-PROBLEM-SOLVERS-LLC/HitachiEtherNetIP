@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace HitachiEIP {
 
@@ -65,6 +67,19 @@ namespace HitachiEIP {
       public const int AddSubstitution = 0x40;
       public const int AddAll = 0x7F;
 
+      Excel.Application excelApp = null;
+      Excel.Workbook wb = null;
+      Excel.Worksheet ws = null;
+      int wsRow;
+
+      string trafficHdrs = 
+         "Path\tCount OK\tData OK" + 
+         "\tAccess\tClass\tAttribute" + 
+         "\tEtherNet/IP Status" +
+         "\t#In\tDec In\tData In" + 
+         "\t#Out\tDec Out\tData Out" + 
+         "\tRaw In\tRaw Out";
+
       #endregion
 
       #region Constructors and Destructors
@@ -102,6 +117,7 @@ namespace HitachiEIP {
          }
 
          // Build traffic and log files
+         BuildExcelFile();
          BuildTrafficFile();
          BuildLogFile();
 
@@ -158,6 +174,7 @@ namespace HitachiEIP {
          EIP.Error -= EIP_Error;
 
          // Close traffic/log files
+         CloseExcelFile(false);
          CloseTrafficFile(false);
          CloseLogFile(false);
 
@@ -311,7 +328,9 @@ namespace HitachiEIP {
             // Open a path to the device
             if (EIP.ForwardOpen()) {
                // Blindly Set COM on and read it back
-               EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, new byte[] { 1 });
+               AttrData attr = DataII.GetAttrData(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline);
+               byte[] data = EIP.FormatOutput(1, attr.Set);
+               EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data);
                GetComSetting();
                if (ComIsOn) {
                   // Got it, Get the other critical settings
@@ -421,7 +440,8 @@ namespace HitachiEIP {
 
       // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
-         CloseTrafficFile(true);
+         CloseExcelFile(true);
+         //CloseTrafficFile(true);
       }
 
       // Cycle the Log file and bring it up in Notepad
@@ -458,11 +478,11 @@ namespace HitachiEIP {
       // Invert the com setting
       private void btnCom_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
-            // Conditionally open and stack the path to the printer
             if (EIP.ForwardOpen()) {
                // Get (guess at) the current state, invert it, and read it back
-               int val = ComIsOn ? 0 : 1;
-               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.ToBytes(val, 1))) {
+               AttrData attr = DataII.GetAttrData(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline);
+               byte[] data = EIP.FormatOutput(ComIsOn ? 0 : 1, attr.Set);
+               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
                   GetComSetting();
                   if (ComIsOn) {
                      // Update the other two major controls
@@ -482,8 +502,9 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Don't know what the "1" state means.  If it is off, issue the "2"
-               int val = MgmtIsOn ? 0 : 2;
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.ToBytes(val, 1))) {
+               AttrData attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag);
+               byte[] data = EIP.FormatOutput(MgmtIsOn ? 0 : 2, attr.Set);
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, data)) {
                   // Refresh the setting since "2" does not take but returns 0
                   GetMgmtSetting();
                }
@@ -498,8 +519,9 @@ namespace HitachiEIP {
       private void btnAutoReflection_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               int val = AutoReflIsOn ? 0 : 1;
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.ToBytes(val, 1))) {
+               AttrData attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Automatic_reflection);
+               byte[] data = EIP.FormatOutput(AutoReflIsOn ? 0 : 1, attr.Set);
+               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, data)) {
                   GetAutoReflectionSetting();
                }
             }
@@ -643,19 +665,27 @@ namespace HitachiEIP {
 
          // Record the operation in the Traffic file
          Type at = DataII.ClassCodeAttributes[Array.IndexOf(DataII.ClassCodes, e.Class)];
-         string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}\t";
-         trafficText += $"{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}\t";
+         string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}";
+         trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {
-            trafficText += $"{EIP.GetStatus}\t";
+            trafficText += $"\t{EIP.GetStatus}";
+            trafficText += $"\t{txtCountIn.Text}\t{EIP.GetDecValue}";
             if (txtDataIn.Text.Length > 20) {
-               trafficText += $"{txtCountIn.Text}\tSee=>\t{txtDataBytesIn.Text}\t";
+               trafficText += $"\tSee=>";
             } else {
-               trafficText += $"{txtCountIn.Text}\t{txtDataIn.Text}\t{EIP.GetDecValue}\t{txtDataBytesIn.Text}\t";
+               trafficText += $"\t{txtDataIn.Text}";
             }
-            trafficText += $"{txtCountOut.Text}\t{EIP.SetDecValue}\t{txtDataBytesOut.Text}";
-            if (trafficText.Length > 200) {
-               trafficText = trafficText.Substring(0, 200) + "...";
+            trafficText += $"\t{txtCountOut.Text}\t{EIP.SetDecValue}";
+            if (txtDataOut.Text.Length > 20) {
+               trafficText += $"\tSee=>";
+            } else {
+               trafficText += $"\t{txtDataOut.Text}";
             }
+            trafficText += $"\t{txtDataBytesIn.Text}\t{txtDataBytesOut.Text}";
+         }
+         FillInColData(trafficText);
+         if (trafficText.Length > 200) {
+            trafficText = trafficText.Substring(0, 200) + "...";
          }
          TrafficFileStream.WriteLine(trafficText);
 
@@ -724,9 +754,7 @@ namespace HitachiEIP {
       private void BuildTrafficFile() {
          TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
          TrafficFileStream = new StreamWriter(TrafficFilename, false, Encoding.UTF8);
-         TrafficFileStream.WriteLine(
-            "Path\tCount OK\tData OK\tAccess\tClass\tAttribute\tEtherNet/IP Status" +
-            "\t#I\tData In\tDec In\tRaw In\t#O\tDec Out\tRaw Out");
+         TrafficFileStream.WriteLine(trafficHdrs);
       }
 
       // Close the Traffic file and open it in Notepad if desired
@@ -756,11 +784,11 @@ namespace HitachiEIP {
       }
 
       // Create a unique file name by incorporating time into the filename
-      private string CreateFileName(string directory, string s) {
+      private string CreateFileName(string directory, string s, string ext = "csv") {
          if (Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
          }
-         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.csv");
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.{ext}");
       }
 
       // Get the com setting
@@ -922,6 +950,75 @@ namespace HitachiEIP {
             }
          }
 
+      }
+
+      #endregion
+
+      #region Excel traffic capture
+
+      private void BuildExcelFile() {
+         CreateExcelApp();
+      }
+
+      private void CreateExcelApp() {
+         excelApp = new Excel.Application();
+         excelApp.DisplayAlerts = false;
+         wb = excelApp.Workbooks.Add(Missing.Value);
+         ws = wb.ActiveSheet;
+         ws.Name = "HitachiBrowser";
+         wsRow = 1;
+         ExcelColNames(trafficHdrs);
+      }
+
+      private void ExcelColNames(string hdrs) {
+         string[] s = hdrs.Split('\t');
+         for (int i = 0; i < s.Length; i++) {
+            excelApp.Cells[wsRow, i + 1] = s[i];
+            switch (i) {
+               case 7:
+               case 8:
+               case 10:
+               case 11:
+                  break;
+               default:
+                  excelApp.Columns[i + 1].NumberFormat = "@";
+                  break;
+            }
+         }
+         wsRow = 2;
+      }
+
+      private void FillInColData(string data) {
+         string[] s = data.Split('\t');
+         for (int i = 0; i < s.Length; i++) {
+            if (s[i].Length > 50) {
+               excelApp.Cells[wsRow, i + 1] = s[i].Substring(0,50) + "...";
+            } else {
+               excelApp.Cells[wsRow, i + 1] = s[i];
+            }
+         }
+         wsRow++;
+      }
+
+      private void CloseExcelFile(bool view) {
+         FormatAsTable();
+         string ExcelFileName = CreateFileName(txtSaveFolder.Text, "Traffic", "xlsx");
+         excelApp.ActiveWorkbook.SaveAs(ExcelFileName);
+         wb.Close();
+         excelApp.Quit();
+         excelApp = null;
+         if (view) {
+            Process.Start(ExcelFileName);
+            BuildExcelFile();
+         }
+      }
+
+      public void FormatAsTable() {
+         Excel.Range SourceRange = (Excel.Range)ws.get_Range("A1", $"O{wsRow - 1}");
+         SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
+         SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
+         SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
+         ws.Columns.AutoFit();
       }
 
       #endregion

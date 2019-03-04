@@ -75,7 +75,7 @@ namespace HitachiEIP {
          // Substitution has extra controls
          if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
             // Assumes only one extra control
-            Substitution = new Substitution(parent, EIP, tab, texts[0]);
+            Substitution = new Substitution(parent, EIP, tab);
             Substitution.BuildSubstitutionControls();
          }
          // UserPattern has extra controls
