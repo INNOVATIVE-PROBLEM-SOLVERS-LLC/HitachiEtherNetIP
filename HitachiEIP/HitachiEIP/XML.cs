@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -706,13 +704,13 @@ namespace HitachiEIP {
          SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
 
          n = d.SelectSingleNode("EnableSubstitution");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Rule_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, GetAttr(n, "Year"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, GetAttr(n, "Month"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, GetAttr(n, "Day"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, GetAttr(n, "Hour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, GetAttr(n, "Minute"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, GetAttr(n, "Week"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
       }
 
       // Send counter related information
@@ -738,22 +736,28 @@ namespace HitachiEIP {
          SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
       }
 
+      // Convert from cijConnect format to Hitachi format
       private string FormatCounter(string text) {
          string result = text;
-         int lBrace = text.IndexOf('{');
-         int rBrace = text.LastIndexOf('}');
-         if (lBrace >= 0 && rBrace > lBrace) {
-            result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace) + "}}" + text.Substring(rBrace + 1);
+         if (text.IndexOf("{{") < 0) {
+            int lBrace = text.IndexOf('{');
+            int rBrace = text.LastIndexOf('}');
+            if (lBrace >= 0 && lBrace < rBrace) {
+               result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace) + "}}" + text.Substring(rBrace + 1);
+            }
          }
          return result;
       }
 
+      // Convert from cijConnect format to Hitachi format
       private string FormatDate(string text) {
          string result = text;
-         int lBrace = text.IndexOf('{');
-         int rBrace = text.LastIndexOf('}');
-         if (lBrace >= 0 && rBrace > lBrace) {
-            result = text.Substring(0, lBrace) + "{{" + text.Substring(lBrace + 1, rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
+         if (text.IndexOf("{{") < 0) {
+            int lBrace = text.IndexOf('{');
+            int rBrace = text.LastIndexOf('}');
+            if (lBrace >= 0 && lBrace < rBrace) {
+               result = text.Substring(0, lBrace) + "{{" + text.Substring(lBrace + 1, rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
+            }
          }
          return result;
       }

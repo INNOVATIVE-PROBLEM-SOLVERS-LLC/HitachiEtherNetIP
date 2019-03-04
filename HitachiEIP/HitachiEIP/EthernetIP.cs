@@ -4,9 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace HitachiEIP {
@@ -157,13 +155,13 @@ namespace HitachiEIP {
       Zero_Suppress_Minute = 0x71,
       Zero_Suppress_Weeks = 0x72,
       Zero_Suppress_Day_Of_Week = 0x73,
-      Substitute_Rule_Year = 0x74,
-      Substitute_Rule_Month = 0x75,
-      Substitute_Rule_Day = 0x76,
-      Substitute_Rule_Hour = 0x77,
-      Substitute_Rule_Minute = 0x78,
-      Substitute_Rule_Weeks = 0x79,
-      Substitute_Rule_Day_Of_Week = 0x7A,
+      Substitute_Year = 0x74,
+      Substitute_Month = 0x75,
+      Substitute_Day = 0x76,
+      Substitute_Hour = 0x77,
+      Substitute_Minute = 0x78,
+      Substitute_Weeks = 0x79,
+      Substitute_Day_Of_Week = 0x7A,
       Time_Count_Start_Value = 0x7B,
       Time_Count_End_Value = 0x7C,
       Time_Count_Reset_Value = 0x7D,
