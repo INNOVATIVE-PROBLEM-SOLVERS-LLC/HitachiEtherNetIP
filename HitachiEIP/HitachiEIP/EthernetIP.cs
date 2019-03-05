@@ -591,7 +591,7 @@ namespace HitachiEIP {
          if (stream != null) {
             try {
                // Allow for up to 2 seconds for a response
-               stream.ReadTimeout = 2000;
+               stream.ReadTimeout = 5000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {
@@ -958,14 +958,24 @@ namespace HitachiEIP {
       }
 
       // Format Output
+      public byte[] FormatOutput(int val, int n, string s, Prop prop) {
+         SetDecValue = val;
+         string t = FromQuoted(s);
+         SetDataValue = t.Substring(0, Math.Min(prop.Len, t.Length));
+         return Merge(ToBytes(val, n), ToBytes(SetDataValue + "\x00"));
+      }
+
+      // Format Output
       public byte[] FormatOutput(int n, Prop prop) {
          SetDecValue = n;
+         SetDataValue = n.ToString();
          return ToBytes(n, prop.Len);
       }
       // Format output
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
          if (attr.Data.DropDown != fmtDD.None && c.Visible) {
-            long n = c.SelectedIndex + prop.Min;
+            int n = (int)(c.SelectedIndex + prop.Min);
+            SetDecValue = n;
             SetDataValue = n.ToString();
             return ToBytes(n, prop.Len);
          } else {
@@ -1010,6 +1020,7 @@ namespace HitachiEIP {
                SetDecValue = val;
                break;
             case DataFormats.UTF8:
+               SetDataValue = s;
                result = encode.GetBytes($"{FromQuoted(s)}\x00");
                break;
             case DataFormats.Date:
