@@ -14,6 +14,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 namespace HitachiEIP {
    public class Traffic {
 
+      // Different steps in creating the traffic excel spreadsheet.
       public enum TaskType {
          Create = 0,
          Add = 1,
@@ -22,8 +23,11 @@ namespace HitachiEIP {
          Exit = 4,
       }
 
-      BlockingCollection<TrafficPkt> tasks = new BlockingCollection<TrafficPkt>();
-      string fileName = string.Empty;
+      // Do the work in the background
+      Thread t;
+
+      // First try at blocking collections
+      public BlockingCollection<TrafficPkt> Tasks = new BlockingCollection<TrafficPkt>();
 
       Excel.Application excelApp = null;
       Excel.Workbook wb = null;
@@ -31,54 +35,60 @@ namespace HitachiEIP {
       int wsRow;
 
       public Traffic() {
-
+         t = new Thread(processTasks);
+         t.Start();
       }
 
       private void processTasks() {
-         TrafficPkt n = tasks.Take();
-         switch (n.Type) {
-            case TaskType.Create:
-               excelApp = new Excel.Application();
-               excelApp.DisplayAlerts = false;
-               wb = excelApp.Workbooks.Add(Missing.Value);
-               ws = wb.ActiveSheet;
-               ws.Name = "HitachiBrowser";
-               wsRow = 1;
-               break;
-            case TaskType.Add:
-               string[] s = n.Data.Split('\t');
-               for (int i = 0; i < s.Length; i++) {
-                  excelApp.Cells[wsRow, i + 1] = s[i];
-                  switch (i) {
-                     case 7:
-                     case 8:
-                     case 10:
-                     case 11:
-                        break;
-                     default:
-                        excelApp.Columns[i + 1].NumberFormat = "@";
-                        break;
+         bool done = false;
+         TrafficPkt pkt;
+         while(!done) {
+            int z = 1;
+            pkt = Tasks.Take();
+            switch (pkt.Type) {
+               case TaskType.Create:
+                  excelApp = new Excel.Application();
+                  excelApp.DisplayAlerts = false;
+                  wb = excelApp.Workbooks.Add(Missing.Value);
+                  ws = wb.ActiveSheet;
+                  ws.Name = "HitachiBrowser";
+                  wsRow = 1;
+                  break;
+               case TaskType.Add:
+                  string[] s = pkt.Data.Split('\t');
+                  for (int i = 0; i < s.Length; i++) {
+                     excelApp.Cells[wsRow, i + 1] = s[i];
+                     switch (i) {
+                        case 7:
+                        case 8:
+                        case 10:
+                        case 11:
+                           // These columns are numbers
+                           break;
+                        default:
+                           // The rest are text
+                           excelApp.Columns[i + 1].NumberFormat = "@";
+                           break;
+                     }
                   }
-               }
-               wsRow = 2;
-               break;
-            case TaskType.Close:
-               FormatAsTable();
-               string ExcelFileName = n.Data;
-               excelApp.ActiveWorkbook.SaveAs(ExcelFileName);
-               wb.Close();
-               excelApp.Quit();
-               excelApp = null;
-               break;
-            case TaskType.View:
-               Process.Start(fileName);
-               break;
-            case TaskType.Exit:
-
-               break;
-            default:
-
-               break;
+                  wsRow++;
+                  break;
+               case TaskType.Close:
+                  FormatAsTable();
+                  excelApp.ActiveWorkbook.SaveAs(pkt.Data);
+                  wb.Close();
+                  excelApp.Quit();
+                  excelApp = null;
+                  break;
+               case TaskType.View:
+                  Process.Start(pkt.Data);
+                  break;
+               case TaskType.Exit:
+                  done = true;
+                  break;
+               default:
+                  return;
+            }
          }
       }
 

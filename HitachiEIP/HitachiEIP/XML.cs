@@ -534,7 +534,7 @@ namespace HitachiEIP {
       // Get the attributes associated with a node
       private string GetNameAttr(XmlNode n) {
          string result = n.Name;
-         if (n.Attributes.Count > 0) {
+         if (n.Attributes != null && n.Attributes.Count > 0) {
             foreach (XmlAttribute attribute in n.Attributes) {
                result += $" {attribute.Name}=\"{attribute.Value}\"";
             }
