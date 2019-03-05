@@ -72,13 +72,9 @@ namespace HitachiEIP {
       Excel.Worksheet ws = null;
       int wsRow;
 
-      string trafficHdrs = 
-         "Path\tCount OK\tData OK" + 
-         "\tAccess\tClass\tAttribute" + 
-         "\tEtherNet/IP Status" +
-         "\t#In\tDec In\tData In" + 
-         "\t#Out\tDec Out\tData Out" + 
-         "\tRaw In\tRaw Out";
+      string trafficHdrs =
+         "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" + 
+         "\t#In\tDec In\tData In\t#Out\tDec Out\tData Out\tRaw In\tRaw Out";
 
       #endregion
 
@@ -665,21 +661,28 @@ namespace HitachiEIP {
 
          // Record the operation in the Traffic file
          Type at = DataII.ClassCodeAttributes[Array.IndexOf(DataII.ClassCodes, e.Class)];
-         string trafficText = $"{EIP.LastIO}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}";
+         string trafficText = $"{EIP.GetStatus}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}";
          trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {
-            trafficText += $"\t{EIP.GetStatus}";
-            trafficText += $"\t{txtCountIn.Text}\t{EIP.GetDecValue}";
-            if (txtDataIn.Text.Length > 20) {
-               trafficText += $"\tSee=>";
+            if (EIP.GetDataLength == 0) {
+               trafficText += $"\t\t";
             } else {
-               trafficText += $"\t{txtDataIn.Text}";
+               trafficText += $"\t{EIP.GetDataLength}\t{EIP.GetDecValue}";
             }
-            trafficText += $"\t{txtCountOut.Text}\t{EIP.SetDecValue}";
-            if (txtDataOut.Text.Length > 20) {
+            if (!string.IsNullOrEmpty(EIP.GetDataValue) && EIP.GetDataValue.Length > 20) {
                trafficText += $"\tSee=>";
             } else {
-               trafficText += $"\t{txtDataOut.Text}";
+               trafficText += $"\t{EIP.GetDataValue}";
+            }
+            if (EIP.SetDataLength == 0) {
+               trafficText += $"\t\t";
+            } else {
+               trafficText += $"\t{EIP.SetDataLength}\t{EIP.SetDecValue}";
+            }
+            if (!string.IsNullOrEmpty(EIP.SetDataValue) && EIP.SetDataValue.Length > 20) {
+               trafficText += $"\tSee=>";
+            } else {
+               trafficText += $"\t{EIP.SetDataValue}";
             }
             trafficText += $"\t{txtDataBytesIn.Text}\t{txtDataBytesOut.Text}";
          }
@@ -1014,7 +1017,7 @@ namespace HitachiEIP {
       }
 
       public void FormatAsTable() {
-         Excel.Range SourceRange = (Excel.Range)ws.get_Range("A1", $"O{wsRow - 1}");
+         Excel.Range SourceRange = (Excel.Range)ws.get_Range("A1", $"N{wsRow - 1}");
          SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
          SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
          SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";

@@ -34,7 +34,8 @@ namespace HitachiEIP {
          ccSR.Day_Of_Week,
       };
 
-      int visibleCategory = -1;
+      // Visible Category
+      int vCat = -1;
 
       Font courier = new Font("Courier New", 9);
 
@@ -139,17 +140,17 @@ namespace HitachiEIP {
       // Get the substitution rule data
       private void SubGet_Click(object sender, EventArgs e) {
          byte[] data;
-         if (visibleCategory >= 0) {
+         if (vCat >= 0) {
             if (EIP.StartSession()) {
                // Save the state on entry
                if (EIP.ForwardOpen()) {
                   // The correct substitution rule is already set
                   //EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
-                  for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+                  for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Get the substitution all at once
-                     data = EIP.ToBytes((i + startWith[visibleCategory]), 1);
-                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data)) {
-                        subTexts[visibleCategory][i].Text = EIP.GetDataValue;
+                     data = EIP.ToBytes((i + startWith[vCat]), 1);
+                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
+                        subTexts[vCat][i].Text = EIP.GetDataValue;
                      }
                   }
                }
@@ -163,15 +164,15 @@ namespace HitachiEIP {
       // Set the substitution rule data
       private void SubSet_Click(object sender, EventArgs e) {
          byte[] data;
-         if (visibleCategory >= 0) {
+         if (vCat >= 0) {
             if (EIP.StartSession()) {
                if (EIP.ForwardOpen()) {
+                  Prop prop = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)at[vCat]).Set;
                   // The correct substitution rule is already set
-                  for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+                  for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Send the substitution data one at a time
-                     data = EIP.Merge(EIP.ToBytes((i + startWith[visibleCategory]), 1),
-                                      EIP.ToBytes(EIP.FromQuoted(subTexts[visibleCategory][i].Text) + "\x00"));
-                     EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], data);
+                     data = EIP.FormatOutput((i + startWith[vCat]), 1, subTexts[vCat][i].Text, prop);
+                     EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data);
                   }
                }
                EIP.ForwardClose();
@@ -184,17 +185,17 @@ namespace HitachiEIP {
       // Hide the old controls and make the new ones visible
       private void cbCategory_SelectedIndexChanged(object sender, EventArgs e) {
          // Hide the current set of controls
-         if (visibleCategory >= 0) {
-            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
-               subLabels[visibleCategory][i].Visible = false;
-               subTexts[visibleCategory][i].Visible = false;
+         if (vCat >= 0) {
+            for (int i = 0; i < subLabels[vCat].Length; i++) {
+               subLabels[vCat][i].Visible = false;
+               subTexts[vCat][i].Visible = false;
             }
          }
          // Show the new set of controls
-         visibleCategory = cbAttribute.SelectedIndex;
-         for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
-            subLabels[visibleCategory][i].Visible = true;
-            subTexts[visibleCategory][i].Visible = true;
+         vCat = cbAttribute.SelectedIndex;
+         for (int i = 0; i < subLabels[vCat].Length; i++) {
+            subLabels[vCat][i].Visible = true;
+            subTexts[vCat][i].Visible = true;
          }
          resizeSubstitutions(ref R);
          SetButtonEnables();
@@ -228,13 +229,13 @@ namespace HitachiEIP {
          Utils.ResizeObject(ref R, lblAttribute, 1, 1, 1.5f, 4);
          Utils.ResizeObject(ref R, cbAttribute, 1, 5, 1.5f, 4);
 
-         if (visibleCategory >= 0 && resizeNeeded[visibleCategory]) {
-            resizeNeeded[visibleCategory] = false;
-            for (int i = 0; i < subLabels[visibleCategory].Length; i++) {
+         if (vCat >= 0 && resizeNeeded[vCat]) {
+            resizeNeeded[vCat] = false;
+            for (int i = 0; i < subLabels[vCat].Length; i++) {
                float r = 3.5f + 2 * (int)(i / 15);
                float c = (i % 15) * 2.25f + 0.25f;
-               Utils.ResizeObject(ref R, subLabels[visibleCategory][i], r, c, 1.5f, 1);
-               Utils.ResizeObject(ref R, subTexts[visibleCategory][i], r, c + 1, 1.5f, 1.25f);
+               Utils.ResizeObject(ref R, subLabels[vCat][i], r, c, 1.5f, 1);
+               Utils.ResizeObject(ref R, subTexts[vCat][i], r, c + 1, 1.5f, 1.25f);
             }
          }
          Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);

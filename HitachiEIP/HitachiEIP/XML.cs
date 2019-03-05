@@ -617,56 +617,71 @@ namespace HitachiEIP {
          }
       }
 
+      // Set all the values for a single substitution rule
       private void SendSubstitution(XmlNode p) {
          AttrData attr;
          byte[] data;
+
+         // Get the standard attributes for substitution
          string rule = GetAttr(p, "Rule");
          string startYear = GetAttr(p, "StartYear");
          string delimeter = GetAttr(p, "Delimeter");
+
+         // Avoid user errors
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimeter.Length == 1) {
 
+            // Sub Substitution rule in Index class
             attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting);
             data = EIP.FormatOutput(ruleNumber, attr.Set);
             EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
 
+            // Set the start year in the substitution rule
             attr = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)ccSR.Start_Year);
             data = EIP.FormatOutput(year, attr.Set);
             EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
 
+            // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
                   case "Year":
-                     SetSubValues(ccSR.Year, c, delimeter[0], 0);
+                     SetSubValues(ccSR.Year, c, delimeter);
                      break;
                   case "Month":
-                     SetSubValues(ccSR.Month, c, delimeter[0], 1);
+                     SetSubValues(ccSR.Month, c, delimeter);
                      break;
                   case "Day":
-                     SetSubValues(ccSR.Day, c, delimeter[0], 1);
+                     SetSubValues(ccSR.Day, c, delimeter);
                      break;
                   case "Hour":
-                     SetSubValues(ccSR.Hour, c, delimeter[0], 0);
+                     SetSubValues(ccSR.Hour, c, delimeter);
                      break;
                   case "Minute":
-                     SetSubValues(ccSR.Minute, c, delimeter[0], 0);
+                     SetSubValues(ccSR.Minute, c, delimeter);
                      break;
                   case "Week":
-                     SetSubValues(ccSR.Week, c, delimeter[0], 1);
+                     SetSubValues(ccSR.Week, c, delimeter);
                      break;
                   case "DayOfWeek":
-                     SetSubValues(ccSR.Day_Of_Week, c, delimeter[0], 1);
+                     SetSubValues(ccSR.Day_Of_Week, c, delimeter);
                      break;
                }
             }
          }
       }
 
-      private void SetSubValues(ccSR attribute, XmlNode c, char delimeter, int n) {
+      // Set the substitution values for a class
+      private void SetSubValues(ccSR attribute, XmlNode c, string delimeter) {
+         // Avoid user errors
          if (int.TryParse(GetAttr(c, "Base"), out int b)) {
-            string[] s = GetValue(c).Split(delimeter);
+            Prop prop = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)attribute).Set;
+            string[] s = GetValue(c).Split(delimeter[0]);
             for (int i = 0; i < s.Length; i++) {
-               byte[] data = EIP.Merge(EIP.ToBytes(n + b + i, 1), EIP.ToBytes(s[i] + "\x00"));
-               EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
+               int n = b + i;
+               // Avoid user errors
+               if (n >= prop.Min && n <= prop.Max) {
+                  byte[] data = EIP.FormatOutput(n, 1, s[i], prop);
+                  EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
+               }
             }
          }
       }
@@ -1053,7 +1068,7 @@ namespace HitachiEIP {
       private void SetAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
          if (success) {
             AttrData attr = DataII.AttrDict[Class, Attribute];
-            byte[] data = EIP.ToBytes(n, attr.Set.Len);
+            byte[] data = EIP.FormatOutput(n, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
          }
       }

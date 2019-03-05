@@ -271,12 +271,12 @@ namespace HitachiEIP {
 
          // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Set.Len;
-         if (!long.TryParse(ExtraText[n].Text, out long val)) {
-            val = attr.Set.Min;
+         if (!int.TryParse(ExtraText[n].Text, out int val)) {
+            val = (int)attr.Set.Min;
          }
 
          // Write the value to the printer
-         byte[] data = EIP.ToBytes(val, len);
+         byte[] data = EIP.FormatOutput(val, attr.Set);
          if (EIP.WriteOneAttribute(cc, attr.Val, data)) {
             // It worked, set normal on the control and update the full display
             ExtraText[n].BackColor = Color.LightGreen;
