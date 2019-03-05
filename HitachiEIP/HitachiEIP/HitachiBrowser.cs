@@ -24,8 +24,6 @@ namespace HitachiEIP {
       AttrData attr;
 
       // Traffic/Log files
-      string TrafficFilename;
-      StreamWriter TrafficFileStream = null;
       string LogFilename;
       StreamWriter LogFileStream = null;
       string RFN;
@@ -67,10 +65,11 @@ namespace HitachiEIP {
       public const int AddSubstitution = 0x40;
       public const int AddAll = 0x7F;
 
-      Excel.Application excelApp = null;
-      Excel.Workbook wb = null;
-      Excel.Worksheet ws = null;
-      int wsRow;
+      Traffic Traffic = null;
+      //Excel.Application excelApp = null;
+      //Excel.Workbook wb = null;
+      //Excel.Worksheet ws = null;
+      //int wsRow;
 
       string trafficHdrs =
          "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" + 
@@ -113,8 +112,8 @@ namespace HitachiEIP {
          }
 
          // Build traffic and log files
-         BuildExcelFile();
-         BuildTrafficFile();
+         Traffic = new Traffic();
+         CreateExcelApp();
          BuildLogFile();
 
          // Load all the tabbed control data
@@ -171,7 +170,6 @@ namespace HitachiEIP {
 
          // Close traffic/log files
          CloseExcelFile(false);
-         CloseTrafficFile(false);
          CloseLogFile(false);
 
          // Save away the user's data
@@ -437,7 +435,6 @@ namespace HitachiEIP {
       // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
          CloseExcelFile(true);
-         //CloseTrafficFile(true);
       }
 
       // Cycle the Log file and bring it up in Notepad
@@ -687,10 +684,6 @@ namespace HitachiEIP {
             trafficText += $"\t{txtDataBytesIn.Text}\t{txtDataBytesOut.Text}";
          }
          FillInColData(trafficText);
-         if (trafficText.Length > 200) {
-            trafficText = trafficText.Substring(0, 200) + "...";
-         }
-         TrafficFileStream.WriteLine(trafficText);
 
          // Record the operation in the log
          EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
@@ -751,23 +744,6 @@ namespace HitachiEIP {
             IPAddress = IPAddress.Parse(txtIPAddress.Text);
          }
          this.IPAddress = IPAddress.ToString();
-      }
-
-      // Build a file to save items from Get/Set/Service requests
-      private void BuildTrafficFile() {
-         TrafficFilename = CreateFileName(txtSaveFolder.Text, "Traffic");
-         TrafficFileStream = new StreamWriter(TrafficFilename, false, Encoding.UTF8);
-         TrafficFileStream.WriteLine(trafficHdrs);
-      }
-
-      // Close the Traffic file and open it in Notepad if desired
-      private void CloseTrafficFile(bool view) {
-         TrafficFileStream.Flush();
-         TrafficFileStream.Close();
-         if (view) {
-            Process.Start("notepad.exe", TrafficFilename);
-            BuildTrafficFile();
-         }
       }
 
       // Build a file to save items in the log display
@@ -959,69 +935,25 @@ namespace HitachiEIP {
 
       #region Excel traffic capture
 
-      private void BuildExcelFile() {
-         CreateExcelApp();
-      }
-
       private void CreateExcelApp() {
-         excelApp = new Excel.Application();
-         excelApp.DisplayAlerts = false;
-         wb = excelApp.Workbooks.Add(Missing.Value);
-         ws = wb.ActiveSheet;
-         ws.Name = "HitachiBrowser";
-         wsRow = 1;
-         ExcelColNames(trafficHdrs);
-      }
-
-      private void ExcelColNames(string hdrs) {
-         string[] s = hdrs.Split('\t');
-         for (int i = 0; i < s.Length; i++) {
-            excelApp.Cells[wsRow, i + 1] = s[i];
-            switch (i) {
-               case 7:
-               case 8:
-               case 10:
-               case 11:
-                  break;
-               default:
-                  excelApp.Columns[i + 1].NumberFormat = "@";
-                  break;
-            }
-         }
-         wsRow = 2;
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, null));
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Add, trafficHdrs));
       }
 
       private void FillInColData(string data) {
-         string[] s = data.Split('\t');
-         for (int i = 0; i < s.Length; i++) {
-            if (s[i].Length > 50) {
-               excelApp.Cells[wsRow, i + 1] = s[i].Substring(0,50) + "...";
-            } else {
-               excelApp.Cells[wsRow, i + 1] = s[i];
-            }
-         }
-         wsRow++;
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Add, data));
       }
 
       private void CloseExcelFile(bool view) {
-         FormatAsTable();
-         string ExcelFileName = CreateFileName(txtSaveFolder.Text, "Traffic", "xlsx");
-         excelApp.ActiveWorkbook.SaveAs(ExcelFileName);
-         wb.Close();
-         excelApp.Quit();
-         excelApp = null;
-         if (view) {
-            Process.Start(ExcelFileName);
-            BuildExcelFile();
-         }
-      }
+         string filename = CreateFileName(txtSaveFolder.Text, "Traffic", "xlsx");
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Close, filename));
 
-      public void FormatAsTable() {
-         Excel.Range SourceRange = (Excel.Range)ws.get_Range("A1", $"N{wsRow - 1}");
-         SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
-         SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
-         SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
-         ws.Columns.AutoFit();
+         if (view) {
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.View, filename));
+            CreateExcelApp();
+         } else {
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Exit, null));
+         }
       }
 
       #endregion
