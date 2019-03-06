@@ -404,7 +404,7 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
-         new AttrData((byte)ccCal.Shift_Ene_Minute, GSS.GetSet, false, 12,      // Shift Ene Minute 0x83
+         new AttrData((byte)ccCal.Shift_End_Minute, GSS.GetSet, false, 12,      // Shift Ene Minute 0x83
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Set
