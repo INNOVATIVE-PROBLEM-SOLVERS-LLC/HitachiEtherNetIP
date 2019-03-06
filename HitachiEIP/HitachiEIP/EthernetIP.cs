@@ -170,7 +170,7 @@ namespace HitachiEIP {
       Shift_Start_Hour = 0x80,
       Shift_Start_Minute = 0x81,
       Shift_End_Hour = 0x82,
-      Shift_Ene_Minute = 0x83,
+      Shift_End_Minute = 0x83,
       Count_String_Value = 0x84,
    }
 

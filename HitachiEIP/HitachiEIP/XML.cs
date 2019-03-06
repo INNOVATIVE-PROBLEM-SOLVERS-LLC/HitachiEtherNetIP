@@ -611,14 +611,20 @@ namespace HitachiEIP {
                   //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
                   break;
                case "Substitution":
-                  SendSubstitution(c);
+                  SendSubstitution(c, ref success);
+                  break;
+               case "Calendar":
+                  SendCalendar(c, ref success);
+                  break;
+               case "Count":
+                  SendCounter(c, ref success);
                   break;
             }
          }
       }
 
       // Set all the values for a single substitution rule
-      private void SendSubstitution(XmlNode p) {
+      private void SendSubstitution(XmlNode p, ref bool success) {
          AttrData attr;
          byte[] data;
 
@@ -644,43 +650,110 @@ namespace HitachiEIP {
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
                   case "Year":
-                     SetSubValues(ccSR.Year, c, delimeter);
+                     SetSubValues(ccSR.Year, c, delimeter, ref success);
                      break;
                   case "Month":
-                     SetSubValues(ccSR.Month, c, delimeter);
+                     SetSubValues(ccSR.Month, c, delimeter, ref success);
                      break;
                   case "Day":
-                     SetSubValues(ccSR.Day, c, delimeter);
+                     SetSubValues(ccSR.Day, c, delimeter, ref success);
                      break;
                   case "Hour":
-                     SetSubValues(ccSR.Hour, c, delimeter);
+                     SetSubValues(ccSR.Hour, c, delimeter, ref success);
                      break;
                   case "Minute":
-                     SetSubValues(ccSR.Minute, c, delimeter);
+                     SetSubValues(ccSR.Minute, c, delimeter, ref success);
                      break;
                   case "Week":
-                     SetSubValues(ccSR.Week, c, delimeter);
+                     SetSubValues(ccSR.Week, c, delimeter, ref success);
                      break;
                   case "DayOfWeek":
-                     SetSubValues(ccSR.Day_Of_Week, c, delimeter);
+                     SetSubValues(ccSR.Day_Of_Week, c, delimeter, ref success);
+                     break;
+                  case "Skip":
+                     // Do not process these nodes
                      break;
                }
             }
          }
       }
 
+      // Send Date related information
+      private void SendCalendar(XmlNode d, ref bool success) {
+
+         XmlNode n = d.SelectSingleNode("Offset");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"), ref success);
+
+         n = d.SelectSingleNode("ZeroSuppress");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+
+         n = d.SelectSingleNode("EnableSubstitution");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, GetAttr(n, "Year"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, GetAttr(n, "Month"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, GetAttr(n, "Day"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, GetAttr(n, "Hour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, GetAttr(n, "Minute"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, GetAttr(n, "Week"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+
+         n = d.SelectSingleNode("TimeCount");
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Start_Value, GetAttr(n, "Start"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_End_Value, GetAttr(n, "End"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"), ref success);
+
+         n = d.SelectSingleNode("Shift");
+         SetAttribute(ClassCode.Index, (byte)ccIDX.Item, GetAttr(n, "Number"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, GetAttr(n, "EndHour"), ref success);
+         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"), ref success);
+      }
+
+      // Send counter related information
+      private void SendCounter(XmlNode c, ref bool success) {
+
+         XmlNode n = c.SelectSingleNode("Counter");
+         SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, GetAttr(n, "InitialValue"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"), ref success);
+         string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
+         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
+         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+      }
+
       // Set the substitution values for a class
-      private void SetSubValues(ccSR attribute, XmlNode c, string delimeter) {
+      private void SetSubValues(ccSR attribute, XmlNode c, string delimeter, ref bool success) {
          // Avoid user errors
          if (int.TryParse(GetAttr(c, "Base"), out int b)) {
             Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
             string[] s = GetValue(c).Split(delimeter[0]);
-            for (int i = 0; i < s.Length; i++) {
+            for (int i = 0; i < s.Length && success; i++) {
                int n = b + i;
                // Avoid user errors
                if (n >= prop.Min && n <= prop.Max) {
                   byte[] data = EIP.FormatOutput(n, 1, s[i], prop);
-                  EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
+                  success = EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
                }
             }
          }
@@ -740,11 +813,15 @@ namespace HitachiEIP {
                         break;
                      case ItemType.Counter:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Count_Block, count++, ref success);
-                        SendCounterSettings(text[i], obj.SelectSingleNode("Counter"), ref success);
+                        // Send the text
+                        SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatCounter(text[i]), ref success);
+
                         break;
                      case ItemType.Date:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, calendar++, ref success);
-                        SendDateSettings(text[i], obj.SelectSingleNode("Date"), ref success);
+                        // Send the text
+                        SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatDate(text[i]), ref success);
+
                         break;
                      case ItemType.Link:
                         break;
@@ -757,61 +834,6 @@ namespace HitachiEIP {
                }
             }
          }
-      }
-
-      // Send Date related information
-      private void SendDateSettings(string text, XmlNode d, ref bool success) {
-
-         // Send the text
-         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatDate(text), ref success);
-
-         XmlNode n = d.SelectSingleNode("Offset");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"), ref success);
-
-         n = d.SelectSingleNode("ZeroSuppress");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
-
-         n = d.SelectSingleNode("EnableSubstitution");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
-      }
-
-      // Send counter related information
-      private void SendCounterSettings(string text, XmlNode n, ref bool success) {
-
-         // Send the text
-         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatCounter(text), ref success);
-
-         SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, GetAttr(n, "InitialValue"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"), ref success);
-         string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
-         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
       }
 
       // Convert from cijConnect format to Hitachi format
