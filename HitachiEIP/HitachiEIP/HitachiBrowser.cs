@@ -23,9 +23,7 @@ namespace HitachiEIP {
       int[] ClassAttr;
       AttrData attr;
 
-      // Traffic/Log files
-      string LogFilename;
-      StreamWriter LogFileStream = null;
+      // Reformat files
       string RFN;
       StreamWriter RFS = null;
 
@@ -66,10 +64,6 @@ namespace HitachiEIP {
       public const int AddAll = 0x7F;
 
       Traffic Traffic = null;
-      //Excel.Application excelApp = null;
-      //Excel.Workbook wb = null;
-      //Excel.Worksheet ws = null;
-      //int wsRow;
 
       string trafficHdrs =
          "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" + 
@@ -115,7 +109,6 @@ namespace HitachiEIP {
          // Build traffic and log files
          Traffic = new Traffic();
          CreateExcelApp();
-         BuildLogFile();
 
          // Load all the tabbed control data
          indexAttr = new Attributes<ccIDX>
@@ -171,7 +164,6 @@ namespace HitachiEIP {
 
          // Close traffic/log files
          CloseExcelFile(false);
-         CloseLogFile(false);
 
          // Save away the user's data
          Properties.Settings.Default.IPAddress = txtIPAddress.Text;
@@ -290,10 +282,9 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
 
             Utils.ResizeObject(ref R, btnReformat, 46, 26, 2, 3);
-            Utils.ResizeObject(ref R, btnRefresh, 46, 26, 2, 3);
-            Utils.ResizeObject(ref R, btnStop, 46, 29.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 46, 33, 2, 3);
-            Utils.ResizeObject(ref R, btnViewLog, 46, 36.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnRefresh, 46, 29.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnStop, 46, 33, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 46, 36.5f, 2, 3);
             Utils.ResizeObject(ref R, btnReadAll, 46, 40, 2, 3);
             Utils.ResizeObject(ref R, btnExit, 46, 43.5f, 2, 3);
 
@@ -436,11 +427,6 @@ namespace HitachiEIP {
       // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
          CloseExcelFile(true);
-      }
-
-      // Cycle the Log file and bring it up in Notepad
-      private void btnViewLog_Click(object sender, EventArgs e) {
-         CloseLogFile(true);
       }
 
       // Step thru all classes and attributes with classes to issue Get requests
@@ -603,7 +589,7 @@ namespace HitachiEIP {
 
       // Log messages from EIP
       public void EIP_Log(EIP sender, string msg) {
-         LogFileStream.WriteLine(msg);
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          lstErrors.Items.Add(msg);
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
@@ -745,22 +731,6 @@ namespace HitachiEIP {
             IPAddress = IPAddress.Parse(txtIPAddress.Text);
          }
          this.IPAddress = IPAddress.ToString();
-      }
-
-      // Build a file to save items in the log display
-      private void BuildLogFile() {
-         LogFilename = CreateFileName(txtSaveFolder.Text, "Log");
-         LogFileStream = new StreamWriter(LogFilename, false, Encoding.UTF8);
-      }
-
-      // Close the log file and open it in Notepad if desired
-      private void CloseLogFile(bool view) {
-         LogFileStream.Flush();
-         LogFileStream.Close();
-         if (view) {
-            Process.Start("notepad.exe", LogFilename);
-            BuildLogFile();
-         }
       }
 
       // Create a unique file name by incorporating time into the filename
@@ -938,11 +908,12 @@ namespace HitachiEIP {
 
       private void CreateExcelApp() {
          Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, null));
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Add, trafficHdrs));
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, trafficHdrs));
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, "Events"));
       }
 
       private void FillInColData(string data) {
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Add, data));
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, data));
       }
 
       private void CloseExcelFile(bool view) {
