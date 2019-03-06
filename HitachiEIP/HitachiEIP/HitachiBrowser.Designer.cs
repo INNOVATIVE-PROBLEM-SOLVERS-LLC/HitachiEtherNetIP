@@ -50,7 +50,6 @@
          this.txtSaveFolder = new System.Windows.Forms.TextBox();
          this.btnBrowse = new System.Windows.Forms.Button();
          this.btnViewTraffic = new System.Windows.Forms.Button();
-         this.btnViewLog = new System.Windows.Forms.Button();
          this.btnReadAll = new System.Windows.Forms.Button();
          this.tclClasses = new System.Windows.Forms.TabControl();
          this.tabIndex = new System.Windows.Forms.TabPage();
@@ -329,16 +328,6 @@
          this.btnViewTraffic.Text = "View Traffic";
          this.btnViewTraffic.UseVisualStyleBackColor = true;
          this.btnViewTraffic.Click += new System.EventHandler(this.btnViewTraffic_Click);
-         // 
-         // btnViewLog
-         // 
-         this.btnViewLog.Location = new System.Drawing.Point(978, 565);
-         this.btnViewLog.Name = "btnViewLog";
-         this.btnViewLog.Size = new System.Drawing.Size(89, 52);
-         this.btnViewLog.TabIndex = 31;
-         this.btnViewLog.Text = "View Log";
-         this.btnViewLog.UseVisualStyleBackColor = true;
-         this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
          // 
          // btnReadAll
          // 
@@ -712,7 +701,6 @@
          this.Controls.Add(this.btnCom);
          this.Controls.Add(this.tclClasses);
          this.Controls.Add(this.btnReadAll);
-         this.Controls.Add(this.btnViewLog);
          this.Controls.Add(this.btnViewTraffic);
          this.Controls.Add(this.btnBrowse);
          this.Controls.Add(this.txtSaveFolder);
@@ -773,7 +761,6 @@
       private System.Windows.Forms.TextBox txtSaveFolder;
       private System.Windows.Forms.Button btnBrowse;
       private System.Windows.Forms.Button btnViewTraffic;
-      private System.Windows.Forms.Button btnViewLog;
       private System.Windows.Forms.Button btnReadAll;
       private System.Windows.Forms.Button btnCom;
       private System.Windows.Forms.ListBox lstErrors;
