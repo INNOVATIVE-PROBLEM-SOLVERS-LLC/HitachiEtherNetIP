@@ -631,12 +631,12 @@ namespace HitachiEIP {
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimeter.Length == 1) {
 
             // Sub Substitution rule in Index class
-            attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting);
+            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting];
             data = EIP.FormatOutput(ruleNumber, attr.Set);
             EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
 
             // Set the start year in the substitution rule
-            attr = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)ccSR.Start_Year);
+            attr = EIP.AttrDict[ClassCode.Substitution_rules, (byte)ccSR.Start_Year];
             data = EIP.FormatOutput(year, attr.Set);
             EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
 
@@ -673,7 +673,7 @@ namespace HitachiEIP {
       private void SetSubValues(ccSR attribute, XmlNode c, string delimeter) {
          // Avoid user errors
          if (int.TryParse(GetAttr(c, "Base"), out int b)) {
-            Prop prop = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)attribute).Set;
+            Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
             string[] s = GetValue(c).Split(delimeter[0]);
             for (int i = 0; i < s.Length; i++) {
                int n = b + i;
@@ -934,7 +934,7 @@ namespace HitachiEIP {
       // Get the contents of one attribute
       private string GetAttribute(ClassCode Class, byte Attribute) {
          string val = string.Empty;
-         AttrData attr = DataII.AttrDict[Class, Attribute];
+         AttrData attr = EIP.AttrDict[Class, Attribute];
          EIP.ReadOneAttribute(Class, Attribute, EIP.Nodata);
          if (attr.Data.Fmt == DataFormats.UTF8) {
             return EIP.FromQuoted(EIP.GetDataValue);
@@ -1055,7 +1055,7 @@ namespace HitachiEIP {
       // Get the contents of one attribute
       private int GetAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
          if (success) {
-            AttrData attr = DataII.AttrDict[Class, Attribute];
+            AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.ToBytes(n, attr.Get.Len);
             success = EIP.ReadOneAttribute(Class, Attribute, data);
             return EIP.GetDecValue;
@@ -1067,7 +1067,7 @@ namespace HitachiEIP {
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
          if (success) {
-            AttrData attr = DataII.AttrDict[Class, Attribute];
+            AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(n, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
          }
@@ -1076,7 +1076,7 @@ namespace HitachiEIP {
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, string s, ref bool success) {
          if (success) {
-            AttrData attr = DataII.AttrDict[Class, Attribute];
+            AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(s, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
          }
@@ -1085,7 +1085,7 @@ namespace HitachiEIP {
       // Service one attribute based on the Set Property
       private void ServiceAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
          if (success) {
-            AttrData attr = DataII.AttrDict[Class, Attribute];
+            AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.ToBytes(n, attr.Service.Len);
             success = EIP.ServiceAttribute(Class, Attribute, data);
          }

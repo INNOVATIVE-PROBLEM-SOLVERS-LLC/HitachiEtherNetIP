@@ -353,6 +353,64 @@ namespace HitachiEIP {
          Attribute = 0x30,
       }
 
+      // Lookup for getting attributes associated with a Class/Function
+      public Dictionary<ClassCode, byte, AttrData> AttrDict;
+
+      // Class Codes
+      public ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
+
+      // Class Codes to Attributes
+      public Type[] ClassCodeAttributes = new Type[] {
+            typeof(ccPDM),   // 0x66 Print data management function
+            typeof(ccPF),    // 0x67 Print format function
+            typeof(ccPS),    // 0x68 Print specification function
+            typeof(ccCal),   // 0x69 Calendar function
+            typeof(ccUP),    // 0x6B User pattern function
+            typeof(ccSR),    // 0x6C Substitution rules function
+            typeof(ccES),    // 0x71 Enviroment setting function
+            typeof(ccUI),    // 0x73 Unit Information function
+            typeof(ccOM),    // 0x74 Operation management function
+            typeof(ccIJP),   // 0x75 IJP operation function
+            typeof(ccCount), // 0x79 Count function
+            typeof(ccIDX),   // 0x7A Index function
+         };
+
+      // Attribute DropDown conversion
+      public string[][] DropDowns = new string[][] {
+         new string[] { },                                            // 0 - Just decimal values
+         new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
+         new string[] { "Disable", "Space Fill", "Character Fill" },  // 2 - Disable, space fill, character fill
+         new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
+         new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
+         new string[] { "Off Line", "On Line" },                      // 5 - Offline/Online
+         new string[] { "None", "Signal 1", "Signal 2" },             // 6 - None, Signal 1, Signal 2
+         new string[] { "Up", "Down" },                               // 7 - Up/Down
+         new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
+         new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
+                        "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
+                        "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25",
+                        "QR29x29", "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)",
+                        "GS1 DataBar (Stacked)", "DM14x14", },
+                                                                      // 9 - Barcode Types
+         new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
+         new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
+         new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
+         new string[] { "From Yesterday", "From Today" },             // 13 - From Yesterday/Today
+         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
+                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "QR33", "30x40", "36x48"  },
+                                                                      // 14 - Font Types
+         new string[] { "Normal/Forward", "Normal/Reverse",
+                         "Inverted/Forward", "Inverted/Reverse",},    // 15 - Orientation
+         new string[] { "None", "Encoder", "Auto" },                  // 16 - Product speed matching
+         new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
+         new string[] { "Time Setup", "Until End of Print" },         // 18 - Target Sensor Filter
+         new string[] { "4x5", "5x5", "5x8(5x7)", "9x8(9x7)", "7x10", "10x12", "12x16", "18x24", "24x32",
+                        "11x11", "5x3(Chimney)", "5x5(Chimney)", "7x5(Chimney)", "30x40", "36x48"  },
+                                                                      // 19 - User Pattern Font Types
+         new string[] { "Individual", "Overall", "Free Layout" },     // 20 - Message Layout
+         new string[] { "Standard", "Mixed", "Dot Mixed" },           // 21 - Charge Rule
+      };
+
       public Int32 port { get; set; }
       public string IPAddress { get; set; }
 
@@ -448,7 +506,7 @@ namespace HitachiEIP {
          this.port = port;
          IndexAttr = ((ccIDX[])Enum.GetValues(typeof(ccIDX))).Select(x => Convert.ToByte(x)).ToArray();
          IndexValue = new uint[IndexAttr.Length];
-         DataII.BuildAttributeDictionary();
+         BuildAttributeDictionary();
       }
 
       #endregion
@@ -1011,7 +1069,7 @@ namespace HitachiEIP {
                   // Translate dropdown back to a number
                   if(prop.DropDown != fmtDD.None) {
                      s = s.ToLower();
-                     val = Array.FindIndex(DataII.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     val = Array.FindIndex(DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
                      if (val >= 0) {
                         result = ToBytes(val + prop.Min, prop.Len);
                      }
@@ -1288,6 +1346,25 @@ namespace HitachiEIP {
 
       #region Service Routines
 
+      // Build the Attribute Dictionary
+      public void BuildAttributeDictionary() {
+         if (AttrDict == null) {
+            AttrDict = new Dictionary<ClassCode, byte, AttrData>();
+            for (int i = 0; i < ClassCodes.Length; i++) {
+               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
+               for (int j = 0; j < ClassAttr.Length; j++) {
+                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
+               }
+            }
+         }
+      }
+
+      // Get attribute data for an arbitrary class/attribute
+      AttrData GetAttrData(ClassCode Class, byte attr) {
+         AttrData[] tab = DataII.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
+         return Array.Find(tab, at => at.Val == attr);
+      }
+
       // Get the current setting of an index parameter
       private uint GetIndexSetting(ccIDX attr) {
          int i = Array.FindIndex(IndexAttr, x => x == (byte)attr);
@@ -1450,7 +1527,7 @@ namespace HitachiEIP {
          this.SetData = dataOut;
          this.SetDataLength = (byte)dataOut.Length;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
-         return DataII.AttrDict[Class, Attribute];
+         return AttrDict[Class, Attribute];
       }
 
       #endregion

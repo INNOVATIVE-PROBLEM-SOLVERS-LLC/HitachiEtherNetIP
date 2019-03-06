@@ -107,8 +107,9 @@ namespace HitachiEIP {
          Utils.PositionForm(this, 0.75f, 0.9f);
 
          // Create the ClassCode dropdown without the underscores 
-         for (int i = 0; i < DataII.ClassNames.Length; i++) {
-            cbClassCode.Items.Add($"{DataII.ClassNames[i].Replace('_', ' ')} (0x{(byte)DataII.ClassCodes[i]:X2})");
+         string[] ClassNames = Enum.GetNames(typeof(ClassCode));
+         for (int i = 0; i < ClassNames.Length; i++) {
+            cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)EIP.ClassCodes[i]:X2})");
          }
 
          // Build traffic and log files
@@ -322,7 +323,7 @@ namespace HitachiEIP {
             // Open a path to the device
             if (EIP.ForwardOpen()) {
                // Blindly Set COM on and read it back
-               AttrData attr = DataII.GetAttrData(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline);
+               AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
                byte[] data = EIP.FormatOutput(1, attr.Set);
                EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data);
                GetComSetting();
@@ -372,7 +373,7 @@ namespace HitachiEIP {
       // Issue a Get based on the Class Code and Function dropdowns
       private void btnIssueGet_Click(object sender, EventArgs e) {
          byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-         EIP.ReadOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+         EIP.ReadOneAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
       }
 
       // Issue a Set based on the Class Code and Function dropdowns
@@ -380,7 +381,7 @@ namespace HitachiEIP {
          bool Success = false;
          try {
             byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Set);
-            Success = EIP.WriteOneAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+            Success = EIP.WriteOneAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
          } catch {
             AllGood = false;
          }
@@ -391,7 +392,7 @@ namespace HitachiEIP {
          bool Success = false;
          try {
             byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Service);
-            Success = EIP.ServiceAttribute(DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+            Success = EIP.ServiceAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
          } catch {
             AllGood = false;
          }
@@ -408,8 +409,8 @@ namespace HitachiEIP {
 
          if (cbClassCode.SelectedIndex >= 0) {
             // Get all names associated with the enumeration
-            string[] names = DataII.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumNames();
-            ClassAttr = (int[])DataII.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumValues();
+            string[] names = EIP.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumNames();
+            ClassAttr = (int[])EIP.ClassCodeAttributes[cbClassCode.SelectedIndex].GetEnumValues();
             for (int i = 0; i < names.Length; i++) {
                cbFunction.Items.Add($"{names[i].Replace('_', ' ')}  (0x{ClassAttr[i]:X2})");
             }
@@ -420,7 +421,7 @@ namespace HitachiEIP {
       // The function drop changed.  Set the correct Get/Set/Service buttons visible
       private void cbFunction_SelectedIndexChanged(object sender, EventArgs e) {
          if (cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0) {
-            attr = DataII.AttrDict[DataII.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex]];
+            attr = EIP.AttrDict[EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex]];
             btnIssueGet.Visible = attr.HasGet;
             btnIssueSet.Visible = attr.HasSet;
             btnIssueService.Visible = attr.HasService;
@@ -448,16 +449,16 @@ namespace HitachiEIP {
          // Get is assumed for read all request
          AllGood = true;
          if (EIP.StartSession()) {
-            for (int i = 0; i < DataII.ClassCodeAttributes.Length && AllGood; i++) {
-               ClassAttr = (int[])DataII.ClassCodeAttributes[i].GetEnumValues();
+            for (int i = 0; i < EIP.ClassCodeAttributes.Length && AllGood; i++) {
+               ClassAttr = (int[])EIP.ClassCodeAttributes[i].GetEnumValues();
                if (EIP.ForwardOpen()) {
                   // Issue commands for this group
                   for (int j = 0; j < ClassAttr.Length && AllGood; j++) {
                      // Get attr for request
-                     attr = DataII.AttrDict[DataII.ClassCodes[i], (byte)ClassAttr[j]];
+                     attr = EIP.AttrDict[EIP.ClassCodes[i], (byte)ClassAttr[j]];
                      if (attr.HasGet && !attr.Ignore) {
                         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-                        EIP.ReadOneAttribute(DataII.ClassCodes[i], (byte)ClassAttr[j], data);
+                        EIP.ReadOneAttribute(EIP.ClassCodes[i], (byte)ClassAttr[j], data);
                      }
                   }
                }
@@ -473,7 +474,7 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get (guess at) the current state, invert it, and read it back
-               AttrData attr = DataII.GetAttrData(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline);
+               AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
                byte[] data = EIP.FormatOutput(ComIsOn ? 0 : 1, attr.Set);
                if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
                   GetComSetting();
@@ -495,7 +496,7 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Don't know what the "1" state means.  If it is off, issue the "2"
-               AttrData attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag);
+               AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag];
                byte[] data = EIP.FormatOutput(MgmtIsOn ? 0 : 2, attr.Set);
                if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, data)) {
                   // Refresh the setting since "2" does not take but returns 0
@@ -512,7 +513,7 @@ namespace HitachiEIP {
       private void btnAutoReflection_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               AttrData attr = DataII.GetAttrData(ClassCode.Index, (byte)ccIDX.Automatic_reflection);
+               AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Automatic_reflection];
                byte[] data = EIP.FormatOutput(AutoReflIsOn ? 0 : 1, attr.Set);
                if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, data)) {
                   GetAutoReflectionSetting();
@@ -657,7 +658,7 @@ namespace HitachiEIP {
          txtDataBytesIn.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
 
          // Record the operation in the Traffic file
-         Type at = DataII.ClassCodeAttributes[Array.IndexOf(DataII.ClassCodes, e.Class)];
+         Type at = EIP.ClassCodeAttributes[Array.IndexOf(EIP.ClassCodes, e.Class)];
          string trafficText = $"{EIP.GetStatus}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}";
          trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {

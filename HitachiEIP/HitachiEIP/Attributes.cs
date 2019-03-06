@@ -94,7 +94,7 @@ namespace HitachiEIP {
       private void Get_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = ((byte[])b.Tag)[0];
-         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
+         AttrData attr = EIP.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
             texts[tag].Text = "Ignored!";
@@ -115,7 +115,7 @@ namespace HitachiEIP {
       private void Set_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = ((byte[])b.Tag)[0];
-         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
+         AttrData attr = EIP.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
             texts[tag].Text = "Ignored!";
@@ -135,7 +135,7 @@ namespace HitachiEIP {
       private void Service_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
          int tag = ((byte[])b.Tag)[0];
-         AttrData attr = DataII.AttrDict[cc, ccAttribute[tag]];
+         AttrData attr = EIP.AttrDict[cc, ccAttribute[tag]];
          if (attr.Ignore) {
             // Avoid a printer hang
             texts[tag].Text = "Ignored!";
@@ -267,7 +267,7 @@ namespace HitachiEIP {
          byte n = ((byte[])b.Tag)[0];
          ClassCode cc = (ClassCode)((byte[])b.Tag)[1];
          byte at = ((byte[])b.Tag)[2];
-         AttrData attr = DataII.AttrDict[cc, at];
+         AttrData attr = EIP.AttrDict[cc, at];
 
          // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Set.Len;
@@ -310,7 +310,7 @@ namespace HitachiEIP {
          byte n = ((byte[])t.Tag)[0];
          ClassCode cc = (ClassCode)((byte[])t.Tag)[1];
          byte at = ((byte[])t.Tag)[2];
-         AttrData attr = DataII.AttrDict[cc, at];
+         AttrData attr = EIP.AttrDict[cc, at];
 
          // Only decimal values are allowed.  Set to Min if in error
          int len = attr.Data.Len;
@@ -372,7 +372,7 @@ namespace HitachiEIP {
 
          // Build the controls
          for (int i = 0; i < ccAttribute.Length; i++) {
-            AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
+            AttrData attr = EIP.AttrDict[cc, ccAttribute[i]];
             string s = Enum.GetName(typeof(t1), ccAttribute[i]);
             byte[] tag = new byte[] { (byte)i, (byte)cc, ccAttribute[i] };
             labels[i] = new Label() {
@@ -447,7 +447,7 @@ namespace HitachiEIP {
       // Get the names associated with the dropdown
       private string[] GetDropdownNames(AttrData attr) {
          if (attr.Data.DropDown == fmtDD.Decimal) {
-            // For decimal, just git the integer values from Min to Max
+            // For decimal, just get the integer values from Min to Max
             string[] names = new string[(int)(attr.Data.Max - attr.Data.Min + 1)];
             for (int i = 0; i < names.Length; i++) {
                names[i] = (i + attr.Data.Min).ToString();
@@ -455,7 +455,7 @@ namespace HitachiEIP {
             return names;
          } else {
             // Get the names from the translation table
-            return DataII.DropDowns[(int)attr.Data.DropDown];
+            return EIP.DropDowns[(int)attr.Data.DropDown];
          }
       }
 
@@ -622,7 +622,7 @@ namespace HitachiEIP {
          bool anySets = false;
          bool anyGets = false;
          for (int i = 0; i < ccAttribute.Length; i++) {
-            AttrData attr = DataII.AttrDict[cc, ccAttribute[i]];
+            AttrData attr = EIP.AttrDict[cc, ccAttribute[i]];
             if (attr.HasSet) {
                if (EIP.TextIsValid(texts[i].Text, attr.Set)) {
                   sets[i].Enabled = parent.ComIsOn;
@@ -663,7 +663,7 @@ namespace HitachiEIP {
          bool enabled = parent.ComIsOn;
          for (int i = 0; i < extrasUsed; i++) {
             byte at = ((byte[])ExtraSet[i].Tag)[2];
-            AttrData attr = DataII.AttrDict[ClassCode.Index, at];
+            AttrData attr = EIP.AttrDict[ClassCode.Index, at];
             ExtraGet[i].Enabled = enabled;
             ExtraSet[i].Enabled = enabled && int.TryParse(ExtraText[i].Text, out int val) &&
                val >= attr.Data.Min && val <= attr.Data.Max;

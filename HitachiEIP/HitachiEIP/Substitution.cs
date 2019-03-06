@@ -167,7 +167,7 @@ namespace HitachiEIP {
          if (vCat >= 0) {
             if (EIP.StartSession()) {
                if (EIP.ForwardOpen()) {
-                  Prop prop = DataII.GetAttrData(ClassCode.Substitution_rules, (byte)at[vCat]).Set;
+                  Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)at[vCat]].Set;
                   // The correct substitution rule is already set
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Send the substitution data one at a time
