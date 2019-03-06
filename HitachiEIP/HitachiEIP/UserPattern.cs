@@ -149,8 +149,8 @@ namespace HitachiEIP {
          ignoreChange = false;
 
          // Now fill in the controls
-         for (int i = 0; i < DataII.DropDowns[(int)fmtDD.UserPatternFont].Length; i++) {
-            cbUpFont.Items.Add(DataII.DropDowns[(int)fmtDD.UserPatternFont][i]);
+         for (int i = 0; i < EIP.DropDowns[(int)fmtDD.UserPatternFont].Length; i++) {
+            cbUpFont.Items.Add(EIP.DropDowns[(int)fmtDD.UserPatternFont][i]);
          }
          for (int i = 0; i < 200; i++) {
             cbUpPosition.Items.Add(i.ToString());
