@@ -308,10 +308,6 @@ namespace HitachiEIP {
       public event LogHandler Log;
       public delegate void LogHandler(EIP sender, string msg);
 
-      // In case of fatal error
-      public event ErrorHandler Error;
-      public delegate void ErrorHandler(EIP sender, string msg);
-
       // Read completion
       public event IOHandler IOComplete;
       public delegate void IOHandler(EIP sender, EIPEventArg e);

@@ -3,11 +3,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace HitachiEIP {
 
@@ -66,8 +63,8 @@ namespace HitachiEIP {
       Traffic Traffic = null;
 
       string trafficHdrs =
-         "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" + 
-         "\t#In\tDec In\tData In\t#Out\tDec Out\tData Out\tRaw In\tRaw Out";
+         "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" +
+         "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
 
       #endregion
 
@@ -85,7 +82,6 @@ namespace HitachiEIP {
 
          EIP = new EIP(txtIPAddress.Text, port);
          EIP.Log += EIP_Log;
-         EIP.Error += EIP_Error;
          EIP.IOComplete += EIP_IO_Complete;
          EIP.StateChanged += EIP_StateChanged;
 
@@ -107,7 +103,8 @@ namespace HitachiEIP {
          }
 
          // Build traffic and log files
-         Traffic = new Traffic();
+         Traffic = new Traffic(this);
+         Traffic.Log += Traffic_Log;
          CreateExcelApp();
 
          // Load all the tabbed control data
@@ -155,14 +152,20 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
+      private void Traffic_Log(string count) {
+         lblTraffic.Text = count;
+      }
+
       // Browser closing.  No un-managed memory so let the runtime environment clean most of it up
       private void HitachiBrowser_FormClosing(object sender, FormClosingEventArgs e) {
 
          // Stop logging
          EIP.Log -= EIP_Log;
-         EIP.Error -= EIP_Error;
+         EIP.IOComplete -= EIP_IO_Complete;
+         EIP.StateChanged -= EIP_StateChanged;
 
          // Close traffic/log files
+         Traffic.Log -= Traffic_Log;
          CloseExcelFile(false);
 
          // Save away the user's data
@@ -281,10 +284,10 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, btnAutoReflection, 45.5f, 15.5f, 3, 5);
             Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
 
-            Utils.ResizeObject(ref R, btnReformat, 46, 26, 2, 3);
-            Utils.ResizeObject(ref R, btnRefresh, 46, 29.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnStop, 46, 33, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 46, 36.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnRefresh, 46, 27, 2, 3);
+            Utils.ResizeObject(ref R, btnStop, 46, 31, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 46, 35, 2, 3);
+            Utils.ResizeObject(ref R, lblTraffic, 46, 38, 2, 2);
             Utils.ResizeObject(ref R, btnReadAll, 46, 40, 2, 3);
             Utils.ResizeObject(ref R, btnExit, 46, 43.5f, 2, 3);
 
@@ -445,6 +448,7 @@ namespace HitachiEIP {
                      if (attr.HasGet && !attr.Ignore) {
                         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
                         EIP.ReadOneAttribute(EIP.ClassCodes[i], (byte)ClassAttr[j], data);
+                        Application.DoEvents();
                      }
                   }
                }
@@ -581,12 +585,6 @@ namespace HitachiEIP {
          AllGood = false;
       }
 
-      // Respond to errors detected in EIP
-      private void EIP_Error(EIP sender, string msg) {
-         AllGood = false;
-         lstErrors.Items.Add(msg);
-      }
-
       // Log messages from EIP
       public void EIP_Log(EIP sender, string msg) {
          Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
@@ -649,26 +647,27 @@ namespace HitachiEIP {
          trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {
             if (EIP.GetDataLength == 0) {
-               trafficText += $"\t\t";
+               trafficText += $"\t";
             } else {
-               trafficText += $"\t{EIP.GetDataLength}\t{EIP.GetDecValue}";
+               trafficText += $"\t{EIP.GetDataLength}";
             }
             if (!string.IsNullOrEmpty(EIP.GetDataValue) && EIP.GetDataValue.Length > 20) {
                trafficText += $"\tSee=>";
             } else {
                trafficText += $"\t{EIP.GetDataValue}";
             }
+            trafficText += $"\t{EIP.GetBytes(EIP.GetData, 0, Math.Min(EIP.GetDataLength, 16))}";
             if (EIP.SetDataLength == 0) {
-               trafficText += $"\t\t";
+               trafficText += $"\t";
             } else {
-               trafficText += $"\t{EIP.SetDataLength}\t{EIP.SetDecValue}";
+               trafficText += $"\t{EIP.SetDataLength}";
             }
             if (!string.IsNullOrEmpty(EIP.SetDataValue) && EIP.SetDataValue.Length > 20) {
                trafficText += $"\tSee=>";
             } else {
                trafficText += $"\t{EIP.SetDataValue}";
             }
-            trafficText += $"\t{txtDataBytesIn.Text}\t{txtDataBytesOut.Text}";
+            trafficText += $"\t{EIP.GetBytes(EIP.SetData, 0, Math.Min(EIP.SetDataLength, 16))}";
          }
          FillInColData(trafficText);
 
@@ -907,9 +906,7 @@ namespace HitachiEIP {
       #region Excel traffic capture
 
       private void CreateExcelApp() {
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, null));
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, trafficHdrs));
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, "Events"));
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, trafficHdrs));
       }
 
       private void FillInColData(string data) {
