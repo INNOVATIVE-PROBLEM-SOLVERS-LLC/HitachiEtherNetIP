@@ -85,6 +85,7 @@
          this.lbldataIn = new System.Windows.Forms.Label();
          this.btnReformat = new System.Windows.Forms.Button();
          this.btnRefresh = new System.Windows.Forms.Button();
+         this.lblTraffic = new System.Windows.Forms.Label();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -676,11 +677,21 @@
          this.btnRefresh.UseVisualStyleBackColor = true;
          this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
          // 
+         // lblTraffic
+         // 
+         this.lblTraffic.Location = new System.Drawing.Point(972, 565);
+         this.lblTraffic.Name = "lblTraffic";
+         this.lblTraffic.Size = new System.Drawing.Size(95, 50);
+         this.lblTraffic.TabIndex = 50;
+         this.lblTraffic.Text = "Count";
+         this.lblTraffic.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         // 
          // HitachiBrowser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.lblTraffic);
          this.Controls.Add(this.btnRefresh);
          this.Controls.Add(this.btnReformat);
          this.Controls.Add(this.lblCountIn);
@@ -799,6 +810,7 @@
       private System.Windows.Forms.Label lbldataIn;
       private System.Windows.Forms.Button btnReformat;
       private System.Windows.Forms.Button btnRefresh;
+      private System.Windows.Forms.Label lblTraffic;
    }
 }
 
