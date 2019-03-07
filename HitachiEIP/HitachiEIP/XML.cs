@@ -53,6 +53,9 @@ namespace HitachiEIP {
       // Make things easier to read
       Font courier = new Font("Courier New", 9);
 
+      // Flag for Attribute Not Present
+      const string N_A = "N!A";
+
       #endregion
 
       #region Constructors and destructors
@@ -682,64 +685,76 @@ namespace HitachiEIP {
       private void SendCalendar(XmlNode d, ref bool success) {
 
          XmlNode n = d.SelectSingleNode("Offset");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, GetAttr(n, "Year"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, GetAttr(n, "Month"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, GetAttr(n, "Day"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, GetAttr(n, "Hour"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, GetAttr(n, "Minute"), ref success);
+         }
 
          n = d.SelectSingleNode("ZeroSuppress");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, GetAttr(n, "Year"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, GetAttr(n, "Month"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, GetAttr(n, "Day"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+         }
 
          n = d.SelectSingleNode("EnableSubstitution");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, GetAttr(n, "Year"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, GetAttr(n, "Month"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, GetAttr(n, "Day"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, GetAttr(n, "Hour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, GetAttr(n, "Minute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, GetAttr(n, "Week"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, GetAttr(n, "Year"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, GetAttr(n, "Month"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, GetAttr(n, "Day"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, GetAttr(n, "Hour"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, GetAttr(n, "Minute"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, GetAttr(n, "Week"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"), ref success);
+         }
 
          n = d.SelectSingleNode("TimeCount");
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Start_Value, GetAttr(n, "Start"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_End_Value, GetAttr(n, "End"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Start_Value, GetAttr(n, "Start"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_End_Value, GetAttr(n, "End"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"), ref success);
+         }
 
          n = d.SelectSingleNode("Shift");
-         SetAttribute(ClassCode.Index, (byte)ccIDX.Item, GetAttr(n, "Number"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, GetAttr(n, "EndHour"), ref success);
-         SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Index, (byte)ccIDX.Item, GetAttr(n, "Number"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, GetAttr(n, "EndHour"), ref success);
+            SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"), ref success);
+         }
       }
 
       // Send counter related information
       private void SendCounter(XmlNode c, ref bool success) {
 
          XmlNode n = c.SelectSingleNode("Counter");
-         SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, GetAttr(n, "InitialValue"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"), ref success);
-         string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
-         SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
-         SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+         if (n != null) {
+            SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, GetAttr(n, "InitialValue"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, GetAttr(n, "Range1"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, GetAttr(n, "Range2"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, GetAttr(n, "JumpFrom"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, GetAttr(n, "JumpTo"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, GetAttr(n, "Increment"), ref success);
+            string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
+            SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+         }
       }
 
       // Set the substitution values for a class
@@ -813,15 +828,16 @@ namespace HitachiEIP {
                         break;
                      case ItemType.Counter:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Count_Block, count++, ref success);
-                        // Send the text
+                        SendCounter(n, ref success);
                         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatCounter(text[i]), ref success);
-
                         break;
                      case ItemType.Date:
                         SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, calendar++, ref success);
-                        // Send the text
+                        n = obj.SelectSingleNode("Date");
+                        if (n != null) {
+                           SendCalendar(n, ref success);
+                        }
                         SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, FormatDate(text[i]), ref success);
-
                         break;
                      case ItemType.Link:
                         break;
@@ -1032,40 +1048,11 @@ namespace HitachiEIP {
          }
       }
 
-      private int GetAttr(XmlNode node, string AttrName, int DefaultValue) {
-         try {
-            return Convert.ToInt32(node.Attributes[AttrName].Value);
-         } catch {
-            return DefaultValue;
-         }
-      }
-
-      private bool GetAttr(XmlNode node, string AttrName, bool DefaultValue) {
-         bool result = DefaultValue;
-         string s;
-         try {
-            s = node.Attributes[AttrName].Value;
-            switch (s) {
-               case "0":
-                  result = false;
-                  break;
-               case "1":
-                  result = true;
-                  break;
-               default:
-                  result = bool.Parse(s);
-                  break;
-            }
-         } catch {
-
-         }
-         return result;
-      }
-
-      private string GetAttr(XmlNode node, string AttrName, string DefaultValue = "?") {
-         try {
-            return node.Attributes[AttrName].Value;
-         } catch {
+      private string GetAttr(XmlNode node, string AttrName, string DefaultValue = N_A) {
+         XmlNode n = node.Attributes[AttrName];
+         if (n != null) {
+            return n.Value;
+         } else {
             return DefaultValue;
          }
       }
@@ -1097,7 +1084,7 @@ namespace HitachiEIP {
 
       // Set one attribute based on the Set Property
       private void SetAttribute(ClassCode Class, byte Attribute, string s, ref bool success) {
-         if (success) {
+         if (success && s != N_A) {
             AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(s, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
