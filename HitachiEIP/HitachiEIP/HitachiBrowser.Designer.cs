@@ -303,12 +303,12 @@
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(26, 553);
+         this.txtSaveFolder.Location = new System.Drawing.Point(53, 533);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
          this.txtSaveFolder.Size = new System.Drawing.Size(65, 22);
          this.txtSaveFolder.TabIndex = 28;
-         this.txtSaveFolder.Text = "C:\\Temp";
+         this.txtSaveFolder.Text = "C:\\Temp\\EIP_Logs";
          // 
          // btnBrowse
          // 

@@ -78,6 +78,9 @@ namespace HitachiEIP {
          txtIPAddress.Text = Properties.Settings.Default.IPAddress;
          txtPort.Text = Properties.Settings.Default.IPPort;
          txtSaveFolder.Text = Properties.Settings.Default.LogFolder;
+         if (!Directory.Exists(txtSaveFolder.Text)) {
+            Directory.CreateDirectory(txtSaveFolder.Text);
+         }
          VerifyAddressAndPort();
 
          EIP = new EIP(txtIPAddress.Text, port);
@@ -96,16 +99,16 @@ namespace HitachiEIP {
          // Center the form on the screen
          Utils.PositionForm(this, 0.75f, 0.9f);
 
+         // Build traffic and log files
+         Traffic = new Traffic(this);
+         Traffic.Log += Traffic_Log;
+         CreateExcelApp();
+
          // Create the ClassCode dropdown without the underscores 
          string[] ClassNames = Enum.GetNames(typeof(ClassCode));
          for (int i = 0; i < ClassNames.Length; i++) {
             cbClassCode.Items.Add($"{ClassNames[i].Replace('_', ' ')} (0x{(byte)EIP.ClassCodes[i]:X2})");
          }
-
-         // Build traffic and log files
-         Traffic = new Traffic(this);
-         Traffic.Log += Traffic_Log;
-         CreateExcelApp();
 
          // Load all the tabbed control data
          indexAttr = new Attributes<ccIDX>
