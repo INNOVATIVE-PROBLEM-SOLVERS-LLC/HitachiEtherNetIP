@@ -9,7 +9,7 @@
       <Value Profile="(Default)">44818</Value>
     </Setting>
     <Setting Name="LogFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\Temp</Value>
+      <Value Profile="(Default)">C:\Temp\EIP_Logs</Value>
     </Setting>
   </Settings>
 </SettingsFile>

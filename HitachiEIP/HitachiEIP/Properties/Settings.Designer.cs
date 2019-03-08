@@ -49,7 +49,7 @@ namespace HitachiEIP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\Temp")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Temp\\EIP_Logs")]
         public string LogFolder {
             get {
                 return ((string)(this["LogFolder"]));

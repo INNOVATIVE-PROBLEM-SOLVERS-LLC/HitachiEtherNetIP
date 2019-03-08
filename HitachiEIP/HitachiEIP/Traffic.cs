@@ -71,11 +71,9 @@ namespace HitachiEIP {
          bool done = false;
          // Just one big loop
          while (!done) {
-            // Post the queue count
+            // Post the queue count and wait for the next request
             g.FillRectangle(brush, rect);
             g.DrawString(Tasks.Count.ToString(), parent.lblTraffic.Font, Brushes.Black, rect, sf);
-
-            // Wait for the next request
             pkt = Tasks.Take();
             switch (pkt.Type) {
                case TaskType.Create:
@@ -95,10 +93,13 @@ namespace HitachiEIP {
                   Process.Start(pkt.Data);
                   break;
                case TaskType.Resize:
+                  g.Dispose();
+                  g = null;
+                  g = parent.CreateGraphics();
                   rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
                   break;
                case TaskType.Exit:
-                  // That's all folks
+                  g.Dispose();
                   done = true;
                   break;
                default:

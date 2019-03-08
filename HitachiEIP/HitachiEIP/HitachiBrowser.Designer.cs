@@ -294,7 +294,7 @@
          // 
          // lblSaveFolder
          // 
-         this.lblSaveFolder.Location = new System.Drawing.Point(97, 554);
+         this.lblSaveFolder.Location = new System.Drawing.Point(164, 558);
          this.lblSaveFolder.Name = "lblSaveFolder";
          this.lblSaveFolder.Size = new System.Drawing.Size(76, 19);
          this.lblSaveFolder.TabIndex = 27;
@@ -303,16 +303,16 @@
          // 
          // txtSaveFolder
          // 
-         this.txtSaveFolder.Location = new System.Drawing.Point(53, 533);
+         this.txtSaveFolder.Location = new System.Drawing.Point(31, 553);
          this.txtSaveFolder.Name = "txtSaveFolder";
          this.txtSaveFolder.ReadOnly = true;
-         this.txtSaveFolder.Size = new System.Drawing.Size(65, 22);
+         this.txtSaveFolder.Size = new System.Drawing.Size(132, 22);
          this.txtSaveFolder.TabIndex = 28;
          this.txtSaveFolder.Text = "C:\\Temp\\EIP_Logs";
          // 
          // btnBrowse
          // 
-         this.btnBrowse.Location = new System.Drawing.Point(179, 554);
+         this.btnBrowse.Location = new System.Drawing.Point(246, 556);
          this.btnBrowse.Name = "btnBrowse";
          this.btnBrowse.Size = new System.Drawing.Size(66, 22);
          this.btnBrowse.TabIndex = 29;
@@ -622,7 +622,7 @@
          // txtDataBytesIn
          // 
          this.txtDataBytesIn.Font = new System.Drawing.Font("Courier New", 7.8F);
-         this.txtDataBytesIn.Location = new System.Drawing.Point(25, 533);
+         this.txtDataBytesIn.Location = new System.Drawing.Point(26, 528);
          this.txtDataBytesIn.Name = "txtDataBytesIn";
          this.txtDataBytesIn.ReadOnly = true;
          this.txtDataBytesIn.Size = new System.Drawing.Size(288, 22);
