@@ -18,7 +18,6 @@ namespace HitachiEIP {
 
       ClassCode cc;
       public byte[] ccAttribute;
-      ClassCode ccIndex = ClassCode.Index;
 
       // Headers
       Label[] hdrs;
@@ -157,7 +156,6 @@ namespace HitachiEIP {
                if (dropdowns[i] != null) {
                   dropdowns[i].Visible = false;
                   texts[i].Visible = true;
-
                }
                texts[i].Text = "Loading";
                texts[i].BackColor = SystemColors.Control;
@@ -170,6 +168,8 @@ namespace HitachiEIP {
                for (int i = 0; i < gets.Length && parent.AllGood; i++) {
                   if (gets[i] != null) {
                      Get_Click(gets[i], null);
+                     // Let the Cancel button event be processed
+                     Application.DoEvents();
                   }
                }
                if (!parent.AllGood) {

@@ -1048,12 +1048,12 @@ namespace HitachiEIP {
          }
       }
 
-      private string GetAttr(XmlNode node, string AttrName, string DefaultValue = N_A) {
-         XmlNode n = node.Attributes[AttrName];
-         if (n != null) {
+      private string GetAttr(XmlNode node, string AttrName) {
+         XmlNode n;
+         if (node != null && (n = node.Attributes[AttrName]) != null) {
             return n.Value;
          } else {
-            return DefaultValue;
+            return N_A;
          }
       }
 
