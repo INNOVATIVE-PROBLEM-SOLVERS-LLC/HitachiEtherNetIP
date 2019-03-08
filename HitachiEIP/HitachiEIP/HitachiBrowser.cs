@@ -101,7 +101,6 @@ namespace HitachiEIP {
 
          // Build traffic and log files
          Traffic = new Traffic(this);
-         Traffic.Log += Traffic_Log;
          CreateExcelApp();
 
          // Create the ClassCode dropdown without the underscores 
@@ -155,10 +154,6 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      private void Traffic_Log(string count) {
-         lblTraffic.Text = count;
-      }
-
       // Browser closing.  No un-managed memory so let the runtime environment clean most of it up
       private void HitachiBrowser_FormClosing(object sender, FormClosingEventArgs e) {
 
@@ -168,7 +163,6 @@ namespace HitachiEIP {
          EIP.StateChanged -= EIP_StateChanged;
 
          // Close traffic/log files
-         Traffic.Log -= Traffic_Log;
          CloseExcelFile(false);
 
          // Save away the user's data
@@ -287,17 +281,19 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, btnAutoReflection, 45.5f, 15.5f, 3, 5);
             Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
 
-            Utils.ResizeObject(ref R, btnRefresh, 46, 27, 2, 3);
-            Utils.ResizeObject(ref R, btnStop, 46, 31, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 46, 35, 2, 3);
-            Utils.ResizeObject(ref R, lblTraffic, 46, 38, 2, 2);
-            Utils.ResizeObject(ref R, btnReadAll, 46, 40, 2, 3);
+            Utils.ResizeObject(ref R, btnRefresh, 46, 26.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnStop, 46, 30, 2, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 46, 33.5f, 2, 3);
+            Utils.ResizeObject(ref R, lblTraffic, 46, 37, 2, 2);
+            Utils.ResizeObject(ref R, btnReadAll, 46, 39.5f, 2, 3);
             Utils.ResizeObject(ref R, btnExit, 46, 43.5f, 2, 3);
 
             #endregion
 
             //this.Refresh();
             this.ResumeLayout();
+
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Resize, null));
          }
       }
 
@@ -451,7 +447,6 @@ namespace HitachiEIP {
                      if (attr.HasGet && !attr.Ignore) {
                         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
                         EIP.ReadOneAttribute(EIP.ClassCodes[i], (byte)ClassAttr[j], data);
-                        Application.DoEvents();
                      }
                   }
                }

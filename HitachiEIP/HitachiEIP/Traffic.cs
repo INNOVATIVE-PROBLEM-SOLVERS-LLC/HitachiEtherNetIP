@@ -15,14 +15,6 @@ namespace HitachiEIP {
       // the Excel Application is implemented in C++ and uses marshalling.
       // So, run the saving in another thread
 
-      #region Events
-
-      // Event Logging
-      public event LogHandler Log;
-      public delegate void LogHandler(string msg);
-
-      #endregion
-
       #region Data Declarations
 
       // Different steps in creating the traffic excel spreadsheet.
@@ -32,7 +24,8 @@ namespace HitachiEIP {
          AddLog = 2,
          Close = 3,
          View = 4,
-         Exit = 5,
+         Resize = 5,
+         Exit = 6,
       }
 
       // Do the work in the background
@@ -56,7 +49,7 @@ namespace HitachiEIP {
       DateTime lastLog = DateTime.Now;
       TimeSpan elapsed;
 
-      #endregion
+     #endregion
 
       #region Constructon and service routines
 
@@ -70,14 +63,19 @@ namespace HitachiEIP {
 
       // Loop to process the Blocking Collection
       private void processTasks() {
+         StringFormat sf = new StringFormat() { LineAlignment = StringAlignment.Center , Alignment = StringAlignment.Center };
+         Graphics g = parent.CreateGraphics();
+         Brush brush = new SolidBrush(SystemColors.Control);
+         Rectangle rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
+
          bool done = false;
          // Just one big loop
          while (!done) {
             // Post the queue count
-            if (Log != null) {
-               parent.BeginInvoke(new EventHandler(delegate { Log(Tasks.Count.ToString()); }));
-            }
-            // Wait for the next packet to arrive
+            g.FillRectangle(brush, rect);
+            g.DrawString(Tasks.Count.ToString(), parent.lblTraffic.Font, Brushes.Black, rect, sf);
+
+            // Wait for the next request
             pkt = Tasks.Take();
             switch (pkt.Type) {
                case TaskType.Create:
@@ -95,6 +93,9 @@ namespace HitachiEIP {
                case TaskType.View:
                   // Open Excel
                   Process.Start(pkt.Data);
+                  break;
+               case TaskType.Resize:
+                  rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
                   break;
                case TaskType.Exit:
                   // That's all folks
