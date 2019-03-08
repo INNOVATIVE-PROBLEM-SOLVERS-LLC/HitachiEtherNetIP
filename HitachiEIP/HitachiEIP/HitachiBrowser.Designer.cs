@@ -685,6 +685,7 @@
          this.lblTraffic.TabIndex = 50;
          this.lblTraffic.Text = "Count";
          this.lblTraffic.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblTraffic.Visible = false;
          // 
          // HitachiBrowser
          // 
@@ -810,7 +811,7 @@
       private System.Windows.Forms.Label lbldataIn;
       private System.Windows.Forms.Button btnReformat;
       private System.Windows.Forms.Button btnRefresh;
-      private System.Windows.Forms.Label lblTraffic;
+      public System.Windows.Forms.Label lblTraffic;
    }
 }
 

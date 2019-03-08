@@ -170,7 +170,6 @@ namespace HitachiEIP {
                for (int i = 0; i < gets.Length && parent.AllGood; i++) {
                   if (gets[i] != null) {
                      Get_Click(gets[i], null);
-                     Application.DoEvents();
                   }
                }
                if (!parent.AllGood) {
@@ -194,8 +193,6 @@ namespace HitachiEIP {
                for (int i = 0; i < sets.Length && parent.AllGood; i++) {
                   if (sets[i] != null) {
                      Set_Click(sets[i], null);
-                     // Show the value immediately
-                     //parent.Refresh();
                      // Let the Cancel button event be processed
                      Application.DoEvents();
                   }
