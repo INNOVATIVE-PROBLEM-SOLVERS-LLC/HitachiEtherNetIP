@@ -564,7 +564,7 @@ namespace HitachiEIP {
             if (Connect()) {
                byte[] ed = EIP_Session(EIP_Type.RegisterSession);
                if (Write(ed, 0, ed.Length) && Read(out byte[] data, out int bytes) && bytes >= 8) {
-                  SessionID = Get(data, 4, 4, mem.LittleEndian);
+                  SessionID = (uint)Get(data, 4, 4, mem.LittleEndian);
                   LogIt("Session Started!");
                } else {
                   successful = false;
@@ -609,8 +609,8 @@ namespace HitachiEIP {
             T_O_ConnectionID = 0;
             byte[] ed = EIP_Wrapper(EIP_Type.SendRRData, EIP_Command.ForwardOpen);
             if (Write(ed, 0, ed.Length) && Read(out data, out bytes) && bytes >= 52) {
-               O_T_ConnectionID = Get(data, 44, 4, mem.LittleEndian);
-               T_O_ConnectionID = Get(data, 48, 4, mem.LittleEndian);
+               O_T_ConnectionID = (uint)Get(data, 44, 4, mem.LittleEndian);
+               T_O_ConnectionID = (uint)Get(data, 48, 4, mem.LittleEndian);
                LogIt("Forward Open!");
             } else {
                successful = false;
@@ -690,13 +690,13 @@ namespace HitachiEIP {
                // Write the request and read the response
                if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                   InterpretResult(ReadData, ReadDataLength);
-                  LengthIsValid = CountIsValid(GetData, attr);
+                  LengthIsValid = CountIsValid(GetData, attr.Data);
                   DataIsValid = TextIsValid(GetData, attr.Data);
                   GetDataValue = FormatResult(attr.Data.Fmt, GetData);
                   if (Class == ClassCode.Index) {
                      // reflect any changes back to the Index Function
                      int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                     IndexValue[i] = Get(GetData, 0, GetDataLength, mem.BigEndian);
+                     IndexValue[i] = (uint)Get(GetData, 0, GetDataLength, mem.BigEndian);
                   }
                   Successful = true;
                }
@@ -718,12 +718,12 @@ namespace HitachiEIP {
                // Write the request and read the response
                if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                   InterpretResult(ReadData, ReadDataLength);
-                  LengthIsValid = CountIsValid(SetData, attr);
+                  LengthIsValid = CountIsValid(SetData, attr.Set);
                   DataIsValid = TextIsValid(SetData, attr.Data);
                   if (Class == ClassCode.Index) {
                      // reflect any changes back to the Index Function
                      int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                     IndexValue[i] = Get(SetData, 0, SetDataLength, mem.BigEndian);
+                     IndexValue[i] = (uint)Get(SetData, 0, SetDataLength, mem.BigEndian);
                   }
                   Successful = true;
                }
@@ -745,7 +745,7 @@ namespace HitachiEIP {
                // Write the request and read the response
                if (Write(GetSetSrvPkt, 0, n) && Read(out ReadData, out ReadDataLength)) {
                   InterpretResult(ReadData, ReadDataLength);
-                  LengthIsValid = CountIsValid(SetData, attr);
+                  LengthIsValid = CountIsValid(SetData, attr.Service);
                   DataIsValid = TextIsValid(SetData, attr.Data);
                   Successful = true;
                }
@@ -928,7 +928,7 @@ namespace HitachiEIP {
       }
 
       // Get an unsigned int from up to 4 consecutive bytes
-      public uint Get(byte[] b, int start, int length, mem m) {
+      public long Get(byte[] b, int start, int length, mem m) {
          uint result = 0;
          switch (m) {
             case mem.BigEndian:
@@ -1025,6 +1025,7 @@ namespace HitachiEIP {
          SetDataValue = n.ToString();
          return ToBytes(n, prop.Len);
       }
+
       // Format output
       public byte[] FormatOutput(TextBox t, ComboBox c, AttrData attr, Prop prop) {
          if (attr.Data.DropDown != fmtDD.None && c.Visible) {
@@ -1157,9 +1158,9 @@ namespace HitachiEIP {
       }
 
       // Does count agree with Hitachi Document?
-      public bool CountIsValid(byte[] data, AttrData attr) {
+      public bool CountIsValid(byte[] data, Prop prop) {
          bool IsValid = false;
-         switch (attr.Data.Fmt) {
+         switch (prop.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.DecimalLE:
             case DataFormats.SDecimal:
@@ -1168,16 +1169,16 @@ namespace HitachiEIP {
             case DataFormats.Bytes:
             case DataFormats.XY:
             case DataFormats.N2N2:
-               IsValid = attr.Data.Len == data.Length;
+               IsValid = prop.Len == data.Length;
                break;
             case DataFormats.N2Char:
             case DataFormats.UTF8:
-               IsValid = attr.Data.Len >= data.Length;
+               IsValid = prop.Len >= data.Length;
                break;
             case DataFormats.ItemChar:
             case DataFormats.Item:
                int n = (int)GetIndexSetting(ccIDX.Item);
-               IsValid = n >= attr.Data.Min && n <= attr.Data.Max;
+               IsValid = n >= prop.Min && n <= prop.Max;
                break;
             default:
                break;
@@ -1192,15 +1193,25 @@ namespace HitachiEIP {
             case DataFormats.Decimal:
             case DataFormats.SDecimal:
                if (data.Length <= 8) {
-                  ulong dec = Get(data, 0, data.Length, mem.BigEndian);
-                  IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
+                  long dec = Get(data, 0, data.Length, mem.BigEndian);
+                  if (prop.Fmt == DataFormats.SDecimal) {
+                     // Sign extend the number
+                     dec <<= (64 - data.Length * 8);
+                     dec >>= (64 - data.Length * 8);
+                  }
+                  IsValid = prop.Max == 0 || dec >= prop.Min && dec <= prop.Max;
                }
                break;
             case DataFormats.DecimalLE:
             case DataFormats.SDecimalLE:
                if (data.Length <= 8) {
-                  ulong dec = Get(data, 0, data.Length, mem.LittleEndian);
-                  IsValid = prop.Max == 0 || dec >= (ulong)prop.Min && dec <= (ulong)prop.Max;
+                  long dec = (uint)Get(data, 0, data.Length, mem.LittleEndian);
+                  if (prop.Fmt == DataFormats.SDecimalLE) {
+                     // Sign extend the number
+                     dec <<= (64 - data.Length * 8);
+                     dec >>= (64 - data.Length * 8);
+                  }
+                  IsValid = prop.Max == 0 || dec >= prop.Min && dec <= prop.Max;
                }
                break;
             case DataFormats.UTF8:
@@ -1216,15 +1227,15 @@ namespace HitachiEIP {
                break;
             case DataFormats.XY:
                if (prop.Len == data.Length) {
-                  uint x = Get(data, 0, 2, mem.BigEndian);
-                  uint y = Get(data, 2, 1, mem.BigEndian);
+                  long x = Get(data, 0, 2, mem.BigEndian);
+                  long y = Get(data, 2, 1, mem.BigEndian);
                   IsValid = x <= 65535 && y <= 47;
                }
                break;
             case DataFormats.N2N2:
                if (prop.Len == data.Length) {
-                  uint n1 = Get(data, 0, 2, mem.LittleEndian);
-                  uint n2 = Get(data, 2, 2, mem.LittleEndian);
+                  long n1 = Get(data, 0, 2, mem.LittleEndian);
+                  long n2 = Get(data, 2, 2, mem.LittleEndian);
                   IsValid = n1 >= prop.Min && n1 <= prop.Max && n2 >= prop.Min && n2 <= prop.Max;
                }
                break;
@@ -1235,7 +1246,7 @@ namespace HitachiEIP {
                break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
-                  uint n = Get(data, 0, 2, mem.LittleEndian);
+                  long n = Get(data, 0, 2, mem.LittleEndian);
                   IsValid = n >= prop.Min && n <= prop.Max;
                }
                break;
