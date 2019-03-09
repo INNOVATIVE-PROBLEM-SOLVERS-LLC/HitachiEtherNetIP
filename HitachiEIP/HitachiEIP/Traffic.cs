@@ -9,11 +9,11 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace HitachiEIP {
 
-   public class Traffic {
+   // Saving data to an excel spreadsheet is time consuming since
+   // the Excel Application is implemented in C++ and uses marshalling.
+   // So, run the Traffic Capture in another thread
 
-      // Saving data to an excel spreadsheet is time consuming since
-      // the Excel Application is implemented in C++ and uses marshalling.
-      // So, run the saving in another thread
+   public class Traffic {
 
       #region Data Declarations
 
@@ -148,7 +148,6 @@ namespace HitachiEIP {
          wsTrafficRow = 2;
 
          // Create the second worksheet
-         //wsLog = excelApp.Worksheets.Add(Type.Missing, excelApp.Worksheets[excelApp.Worksheets.Count], 1, Excel.XlSheetType.xlWorksheet);
          wsLog = excelApp.Worksheets.Add(Type.Missing, wsTraffic, 1, Excel.XlSheetType.xlWorksheet);
          wsLog.Name = "Log";
          // Get the headers right for the first one
@@ -231,6 +230,8 @@ namespace HitachiEIP {
    // Packet for capturing Log/traffic entries
    public class TrafficPkt {
 
+      #region Constructors, Destructors, and Properties
+
       public Traffic.TaskType Type { get; set; }
       public string Data { get; set; }
       public DateTime When { get; set; }
@@ -241,6 +242,8 @@ namespace HitachiEIP {
          // Timestamp is time entry was placed on queue
          this.When = DateTime.Now;
       }
+
+      #endregion
 
    }
 

@@ -710,13 +710,13 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Update_Unit_Halfway, GSS.GetSet, false, 15, // Update Unit Halfway 0x6A
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Set
          new AttrData((byte)ccCount.Update_Unit_Unit, GSS.GetSet, false, 16,    // Update Unit Unit 0x6B
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Set
          new AttrData((byte)ccCount.Increment_Value, GSS.GetSet, false, 8,      // Increment Value 0x6C
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
