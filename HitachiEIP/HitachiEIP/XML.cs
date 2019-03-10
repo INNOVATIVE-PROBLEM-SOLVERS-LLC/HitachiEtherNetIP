@@ -274,7 +274,7 @@ namespace HitachiEIP {
          writer.WriteAttributeString("InitialValue", GetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value));
          //writer.WriteAttributeString("Format", p.RawText);
          writer.WriteAttributeString("Multiplier", GetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier));
-         writer.WriteAttributeString("ZeroSuppression", GetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression));
+         writer.WriteAttributeString("ZeroSuppression", GetAttribute(ClassCode.Count, (byte)ccCount.Zero_Suppression));
          writer.WriteEndElement(); //  End Counter
       }
 
@@ -751,9 +751,9 @@ namespace HitachiEIP {
             SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, s, ref success);
             SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
             SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, GetAttr(n, "Multiplier"), ref success);
-            SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.Zero_Suppression, GetAttr(n, "ZeroSuppression"), ref success);
             SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
-            SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+            SetAttribute(ClassCode.Count, (byte)ccCount.External_Count, GetAttr(n, "ExternalSignal"), ref success);
          }
       }
 
@@ -787,7 +787,7 @@ namespace HitachiEIP {
                // Get the item type
                type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
                // Handle multiple line texts
-               string[] text = GetValue(obj.SelectSingleNode("Text"), "").Split(new string[] { "\r\n" }, StringSplitOptions.None);
+               string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
                for (int i = 0; i < text.Length; i++) {
                   // Printer always has one item
                   if (item > 1) {
@@ -1040,11 +1040,11 @@ namespace HitachiEIP {
          return ItemType.Text;
       }
 
-      private string GetValue(XmlNode node, string DefaultValue = "") {
-         try {
+      private string GetValue(XmlNode node) {
+         if(node != null) {
             return node.InnerText;
-         } catch {
-            return DefaultValue;
+         } else {
+            return N_A;
          }
       }
 
@@ -1079,6 +1079,7 @@ namespace HitachiEIP {
             AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(n, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
+            GetComError(success);
          }
       }
 
@@ -1088,15 +1089,7 @@ namespace HitachiEIP {
             AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(s, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
-         }
-      }
-
-      // Service one attribute based on the Set Property
-      private void ServiceAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
-         if (success) {
-            AttrData attr = EIP.AttrDict[Class, Attribute];
-            byte[] data = EIP.ToBytes(n, attr.Service.Len);
-            success = EIP.ServiceAttribute(Class, Attribute, data);
+            GetComError(success);
          }
       }
 
@@ -1106,6 +1099,25 @@ namespace HitachiEIP {
             AttrData attr = EIP.AttrDict[Class, Attribute];
             byte[] data = EIP.FormatOutput(item, 1, s, attr.Set);
             success = EIP.WriteOneAttribute(Class, Attribute, data);
+            GetComError(success);
+         }
+      }
+
+      // Reset com error if there is an issue
+      private void GetComError(bool success) {
+         if (success) {
+            //if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata) && EIP.GetDecValue != 0) {
+            //   EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, new byte[] { 0 });
+            //}
+         }
+      }
+
+      // Service one attribute based on the Set Property
+      private void ServiceAttribute(ClassCode Class, byte Attribute, int n, ref bool success) {
+         if (success) {
+            AttrData attr = EIP.AttrDict[Class, Attribute];
+            byte[] data = EIP.ToBytes(n, attr.Service.Len);
+            success = EIP.ServiceAttribute(Class, Attribute, data);
          }
       }
 
@@ -1169,21 +1181,21 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "{{CCCC}}", ref success);
 
-               // Set <Counter Reset="0" ExternalSignal="0" ResetSignal="0" CountUp="False" Increment="02" JumpTo="0000"
-               //     JumpFrom ="9999" UpdateUnit="0001" UpdateIP="0000" Range2="9999" Range1="0000" InitialValue="0000"
-               //     Multiplier ="0001" ZeroSuppression="True" />
-               SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, "0000", ref success);
+               // Set <Counter Reset="0" ExternalSignal="0" ResetSignal="0" CountUp="True" Increment="10" JumpTo="7777"
+               //     JumpFrom ="6666" UpdateUnit="0002" UpdateIP="0003" Range2="9999" Range1="0000" InitialValue="0001"
+               //     Multiplier ="3.1400" ZeroSuppression="True" />
+               SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, "0001", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, "0000", ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, "FFFF", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, "9999", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, 2, ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, 3, ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, "BBBB", ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, "DDDD", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, "6666", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, "7777", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, 10, ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Direction_Value, "Up", ref success);
-               //SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, GetAttr(n, "Reset"), ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, "3.1415", ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_Zero_Suppression, "Enable", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, 0, ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, "3.1400", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Zero_Suppression, "Enable", ref success);
                //SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
                //SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
             }
@@ -1201,17 +1213,28 @@ namespace HitachiEIP {
                CleanUpDisplay();
                SetText();
 
+               #region Month/Day rules
+
+               // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
+               char delimeter = '/';
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, 1, ref success);
+               SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, 2010, ref success);
+
                // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
-               string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split('/');
+               string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimeter);
                for (int i = 0; i < months.Length; i++) {
                   SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Month, i + 1, months[i], ref success);
                }
 
                // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
-               string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split('/');
+               string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
                for (int i = 0; i < day.Length; i++) {
                   SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Day_Of_Week, i + 1, day[i], ref success);
                }
+
+               #endregion
+
+               #region Item #1
 
                // Select item #1
                SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 1, ref success);
@@ -1227,7 +1250,7 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}", ref success);
 
-               // Set <EnableSubstitution SubstitutionRule="01" DayOfWeek="False" Week="False" Minute="False" Hour="False" Day="False" Month="True" Year="False" />
+               // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" Hour="False" Minute="False" Week="False" DayOfWeek="False" />
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Year, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Month, "Enable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, "Disable", ref success);
@@ -1236,14 +1259,14 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, "Disable", ref success);
 
-               // Set <Offset Minute="-5" Hour="-4" Day="3" Month="2" Year="1" />
+               // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, 1, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Month, 2, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Day, 3, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, -4, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, -5, ref success);
 
-               // Set <ZeroSuppress DayOfWeek="True" Week="True" Minute="True" Hour="True" Day="True" Month="True" Year="True" />
+               // Set <ZeroSuppress Year="True" Month="True" Day="True" Hour="True" Minute="True" Week="True" DayOfWeek="True" />
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, "Space Fill", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, "Disable", ref success);
@@ -1251,6 +1274,10 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, "Character Fill", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, "Space Fill", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, "Disable", ref success);
+
+               #endregion
+
+               #region Item #2
 
                // Add and select item #2
                ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Add_Column, 0, ref success);
@@ -1270,12 +1297,38 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Reset_Time_Value, 6, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, 30, ref success);
 
-               // Set < Shift Number="1" StartHour = "00" StartMinute = "00" EndHour = "11" EndMinute = "59" />
-               //SetAttribute(ClassCode.Index, (byte)ccIDX.Item, GetAttr(n, "Number"), ref success);
-               //SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"), ref success);
-               //SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"), ref success);
-               //SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, GetAttr(n, "EndHour"), ref success);
-               //SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"), ref success);
+               #endregion
+
+               #region Item #3
+
+               // Add and select item #3
+               ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Add_Column, 0, ref success);
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 3, ref success);
+
+               // Point to calendar block #3
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, 3, ref success);
+
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, "5x8", ref success);
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "=>{{EE}}<=", ref success);
+
+               // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="11" EndMinute="59" Text="AA" />
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 1, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, 0, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, 0, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, 11, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, 59, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_String_Value, "AA", ref success);
+
+               // Set < Shift Number="2" StartHour="12" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 2, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, 12, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, 0, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, 23, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Minute, 59, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_String_Value, "BB", ref success);
+
+               #endregion
             }
             EIP.ForwardClose();
          }
@@ -1302,7 +1355,7 @@ namespace HitachiEIP {
                // Select column 0
                SetAttribute(ClassCode.Index, (byte)ccIDX.Column, 0, ref success);
                // Set line count to 1. (Need to find out how delete single item works.)
-               SetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Count, 1, ref success);
+               //SetAttribute(ClassCode.Print_format, (byte)ccPF.Line_Count, 1, ref success);
             }
             EIP.ForwardClose();
          }

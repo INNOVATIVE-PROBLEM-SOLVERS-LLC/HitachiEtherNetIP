@@ -171,7 +171,7 @@ namespace HitachiEIP {
       Shift_Start_Minute = 0x81,
       Shift_End_Hour = 0x82,
       Shift_End_Minute = 0x83,
-      Count_String_Value = 0x84,
+      Shift_String_Value = 0x84,
    }
 
    // Attributes within User Pattern class 0x6B
@@ -276,8 +276,8 @@ namespace HitachiEIP {
       Jump_To = 0x6F,
       Reset_Value = 0x70,
       Type_Of_Reset_Signal = 0x71,
-      Availibility_Of_External_Count = 0x72,
-      Availibility_Of_Zero_Suppression = 0x73,
+      External_Count = 0x72,
+      Zero_Suppression = 0x73,
       Count_Multiplier = 0x74,
       Count_Skip = 0x75,
    }

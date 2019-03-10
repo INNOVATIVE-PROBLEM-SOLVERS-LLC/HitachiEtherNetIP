@@ -113,7 +113,7 @@ namespace HitachiEIP {
          indexAttr = new Attributes<ccIDX>
             (this, EIP, tabIndex, ClassCode.Index);
          oprAttr = new Attributes<ccIJP>
-            (this, EIP, tabIJPOperation, ClassCode.IJP_operation);
+            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, AddItem);
          pdmAttr = new Attributes<ccPDM>
             (this, EIP, tabPrintManagement, ClassCode.Print_data_management);
          psAttr = new Attributes<ccPS>
@@ -649,7 +649,7 @@ namespace HitachiEIP {
             } else {
                trafficText += $"\t{EIP.GetDataLength}";
             }
-            if (!string.IsNullOrEmpty(EIP.GetDataValue) && EIP.GetDataValue.Length > 20) {
+            if (!string.IsNullOrEmpty(EIP.GetDataValue) && EIP.GetDataValue.Length > 50) {
                trafficText += $"\tSee=>";
             } else {
                trafficText += $"\t{EIP.GetDataValue}";
@@ -660,7 +660,7 @@ namespace HitachiEIP {
             } else {
                trafficText += $"\t{EIP.SetDataLength}";
             }
-            if (!string.IsNullOrEmpty(EIP.SetDataValue) && EIP.SetDataValue.Length > 20) {
+            if (!string.IsNullOrEmpty(EIP.SetDataValue) && EIP.SetDataValue.Length > 50) {
                trafficText += $"\tSee=>";
             } else {
                trafficText += $"\t{EIP.SetDataValue}";

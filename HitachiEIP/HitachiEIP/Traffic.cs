@@ -126,11 +126,17 @@ namespace HitachiEIP {
          for (int i = 0; i < s.Length; i++) {
             excelApp.Cells[1, i + 3] = s[i];
          }
+
+         // Set column formatting
          for (int i = 1; i < 15; i++) {
             switch (i) {
+               case 2:
+                  // Elapsed time to three decimal places
+                  excelApp.Columns[i].NumberFormat = "0.000";
+                  break;
                case 9:
                case 12:
-                  // Two columns and pure numbers
+                  // Two columns are pure numbers
                   excelApp.Columns[i].NumberFormat = "0";
                   break;
                case 10:
@@ -154,6 +160,8 @@ namespace HitachiEIP {
          excelApp.Cells[1, 1] = "Date/Time";
          excelApp.Cells[1, 2] = "Elapsed";
          excelApp.Cells[1, 3] = "Event";
+         excelApp.Columns[2].NumberFormat = "0.000";
+         excelApp.Columns[2].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
          wsLogRow = 2;
       }
 
@@ -165,7 +173,7 @@ namespace HitachiEIP {
          // Set the time and elapsed time
          excelApp.Cells[wsTrafficRow, 1] = pkt.When.ToString("yy/MM/dd HH:mm:ss.ffff");
          elapsed = pkt.When - lastTraffic;
-         excelApp.Cells[wsTrafficRow, 2] = (elapsed.Milliseconds / 1000f).ToString("0.000");
+         excelApp.Cells[wsTrafficRow, 2] = (elapsed.TotalMilliseconds / 1000f).ToString("0.000");
          lastTraffic = pkt.When;
          string[] s = pkt.Data.Split('\t');
          for (int i = 0; i < s.Length; i++) {
@@ -190,7 +198,7 @@ namespace HitachiEIP {
          // Set the time and elapsed time
          excelApp.Cells[wsLogRow, 1] = pkt.When.ToString("yy/MM/dd HH:mm:ss.ffff");
          elapsed = pkt.When - lastLog;
-         excelApp.Cells[wsLogRow, 2] = (elapsed.Milliseconds / 1000f).ToString("0.000");
+         excelApp.Cells[wsLogRow, 2] = (elapsed.TotalMilliseconds / 1000f).ToString("0.000");
          lastLog = pkt.When;
          excelApp.Cells[wsLogRow, 3] = pkt.Data;
          wsLogRow++;
