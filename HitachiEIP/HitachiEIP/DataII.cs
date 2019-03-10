@@ -381,9 +381,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccCal.Time_Count_Reset_Value, GSS.GetSet, false, 23, // Time Count Reset Value 0x7D
-            new Prop(3, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(3, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccCal.Reset_Time_Value, GSS.GetSet, false, 9,       // Reset Time Value 0x7E
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -408,7 +408,7 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Set
-         new AttrData((byte)ccCal.Count_String_Value, GSS.GetSet, false, 2,     // Count String Value 0x84
+         new AttrData((byte)ccCal.Shift_String_Value, GSS.GetSet, false, 2,     // Shift String Value 0x84
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
@@ -741,18 +741,18 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2),      //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),     //   Set
-         new AttrData((byte)ccCount.Availibility_Of_External_Count, GSS.GetSet, false, 1, // Availibility Of External Count 0x72
+         new AttrData((byte)ccCount.External_Count, GSS.GetSet, false, 1,       // External Count 0x72
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCount.Availibility_Of_Zero_Suppression, GSS.GetSet, false, 2, // Availibility Of Zero Suppression 0x73
+         new AttrData((byte)ccCount.Zero_Suppression, GSS.GetSet, false, 2,     // Zero Suppression 0x73
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCount.Count_Multiplier, GSS.GetSet, false, 3,     // Count Multiplier 0x74
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
+            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Get
+            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Skip, GSS.GetSet, false, 6,           // Count Skip 0x75
             new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -926,6 +926,7 @@ namespace HitachiEIP {
       #endregion
 
    }
+
 }
 
 
