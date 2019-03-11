@@ -30,14 +30,15 @@ namespace HitachiEIP {
       DecimalLE = 1,  // Unsigned Decimal numbers up to 8 digits (Little Endian)
       SDecimal = 2,   // Signed Decimal numbers up to 8 digits (Big Endian)
       SDecimalLE = 3, // Signed Decimal numbers up to 8 digits (Little Endian)
-      UTF8 = 4,       // UTF8 characters (Not ASCII or unicode)
-      Date = 5,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
-      Bytes = 6,      // Raw data in 2-digit hex notation
-      XY = 7,         // x = 2 bytes, y = 1 byte
-      N2N2 = 8,       // 2 2-byte numbers
-      N2Char = 9,     // 2-byte number + UTF8 String + 0x00
-      ItemChar = 10,  // 1-byte item number + UTF8 String + 0x00
-      Item = 11,      // 1-byte item number
+      UTF8 = 4,       // UTF8 characters followed by a Null character
+      UTF8N = 5,      // UTF8 characters without the null character
+      Date = 6,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
+      Bytes = 7,      // Raw data in 2-digit hex notation
+      XY = 8,         // x = 2 bytes, y = 1 byte
+      N2N2 = 9,       // 2 2-byte numbers
+      N2Char = 10,    // 2-byte number + UTF8 String + 0x00
+      ItemChar = 11,  // 1-byte item number + UTF8 String + 0x00
+      Item = 12,      // 1-byte item number
    }
 
    #endregion
@@ -349,6 +350,9 @@ namespace HitachiEIP {
          Attribute = 0x30,
       }
 
+      // Data Tablse describing Hitachi Model 161
+      public DataII M161 = new DataII();
+
       // Lookup for getting attributes associated with a Class/Function
       public Dictionary<ClassCode, byte, AttrData> AttrDict;
 
@@ -405,6 +409,8 @@ namespace HitachiEIP {
                                                                       // 19 - User Pattern Font Types
          new string[] { "Individual", "Overall", "Free Layout" },     // 20 - Message Layout
          new string[] { "Standard", "Mixed", "Dot Mixed" },           // 21 - Charge Rule
+         new string[] { "5 Minutes", "6 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes" },
+                                                                      // 22 - Time Count renewal period
       };
 
       public Int32 port { get; set; }
@@ -1078,6 +1084,10 @@ namespace HitachiEIP {
                SetDataValue = s;
                result = encode.GetBytes($"{FromQuoted(s)}\x00");
                break;
+            case DataFormats.UTF8N:
+               SetDataValue = s;
+               result = encode.GetBytes(FromQuoted(s));
+               break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
                   byte[] year = ToBytes(d.Year, 4, mem.LittleEndian);
@@ -1173,6 +1183,7 @@ namespace HitachiEIP {
                break;
             case DataFormats.N2Char:
             case DataFormats.UTF8:
+            case DataFormats.UTF8N:
                IsValid = prop.Len >= data.Length;
                break;
             case DataFormats.ItemChar:
@@ -1215,6 +1226,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.UTF8:
+            case DataFormats.UTF8N:
                IsValid = true;
                break;
             case DataFormats.Date:
@@ -1269,6 +1281,7 @@ namespace HitachiEIP {
                }
                break;
             case DataFormats.UTF8:
+            case DataFormats.UTF8N:
                IsValid = FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.Date:
@@ -1368,7 +1381,7 @@ namespace HitachiEIP {
 
       // Get attribute data for an arbitrary class/attribute
       AttrData GetAttrData(ClassCode Class, byte attr) {
-         AttrData[] tab = DataII.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
+         AttrData[] tab = M161.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
          return Array.Find(tab, at => at.Val == attr);
       }
 
@@ -1484,6 +1497,7 @@ namespace HitachiEIP {
                // Default will work
                break;
             case DataFormats.UTF8:
+            case DataFormats.UTF8N:
                // Convert bytes to characters using "UTF8"
                val = GetUTF8(data, 0, data.Length);
                break;

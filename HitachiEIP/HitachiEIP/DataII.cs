@@ -31,17 +31,36 @@ namespace HitachiEIP {
       UserPatternFont = 19,
       Messagelayout = 20,
       ChargeRule = 21,
+      TimeCount = 22,
    }
 
    #endregion
 
    // Completely describe the Hitachi Model 161 data
-   public static class DataII {
+   public class DataII {
+
+      public DataII() {
+         ClassCodeAttrData = new AttrData[][] {
+            ccPDM_Addrs,           // 0x66 Print data management function
+            ccPF_Addrs,            // 0x67 Print format function
+            ccPS_Addrs,            // 0x68 Print specification function
+            ccCal_Addrs,           // 0x69 Calendar function
+            ccUP_Addrs,            // 0x6B User pattern function
+            ccSR_Addrs,            // 0x6C Substitution rules function
+            ccES_Addrs,            // 0x71 Enviroment setting function
+            ccUI_Addrs,            // 0x73 Unit Information function
+            ccOM_Addrs,            // 0x74 Operation management function
+            ccIJP_Addrs,           // 0x75 IJP operation function
+            ccCount_Addrs,         // 0x79 Count function
+            ccIDX_Addrs,           // 0x7A Index function
+
+         };
+      }
 
       #region Data Tables
 
       // Print_data_management (Class Code 0x66)
-      private static AttrData[] ccPDM_Addrs = new AttrData[] {
+      private AttrData[] ccPDM_Addrs = new AttrData[] {
          new AttrData((byte)ccPDM.Select_Message, GSS.Service, false, 9,        // Select Message 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Service
@@ -84,7 +103,7 @@ namespace HitachiEIP {
       };
 
       // Print_format (Class Code 0x67)
-      private static AttrData[] ccPF_Addrs = new AttrData[] {
+      private AttrData[] ccPF_Addrs = new AttrData[] {
          new AttrData((byte)ccPF.Message_Name, GSS.Get, true, 20,               // Message Name 0x64
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -195,7 +214,7 @@ namespace HitachiEIP {
       };
 
       // Print_specification (Class Code 0x68)
-      private static AttrData[] ccPS_Addrs = new AttrData[] {
+      private AttrData[] ccPS_Addrs = new AttrData[] {
          new AttrData((byte)ccPS.Character_Height, GSS.GetSet, false, 2,        // Character Height 0x64
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -283,7 +302,7 @@ namespace HitachiEIP {
       };
 
       // Calendar (Class Code 0x69)
-      private static AttrData[] ccCal_Addrs = new AttrData[] {
+      private AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((byte)ccCal.Shift_Count_Condition, GSS.Get, false, 10,    // Shift Count Condition 0x65
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -389,9 +408,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
          new AttrData((byte)ccCal.Update_Interval_Value, GSS.GetSet, false, 25, // Update Interval Value 0x7F
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount)),           //   Set
          new AttrData((byte)ccCal.Shift_Start_Hour, GSS.GetSet, false, 13,      // Shift Start Hour 0x80
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -415,7 +434,7 @@ namespace HitachiEIP {
       };
 
       // User_pattern (Class Code 0x6B)
-      private static AttrData[] ccUP_Addrs = new AttrData[] {
+      private AttrData[] ccUP_Addrs = new AttrData[] {
          new AttrData((byte)ccUP.User_Pattern_Fixed, GSS.GetSet, true, 1,       // User Pattern Fixed 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -427,7 +446,7 @@ namespace HitachiEIP {
       };
 
       // Substitution_rules (Class Code 0x6C)
-      private static AttrData[] ccSR_Addrs = new AttrData[] {
+      private AttrData[] ccSR_Addrs = new AttrData[] {
          new AttrData((byte)ccSR.Number, GSS.GetSet, false, 3,                  // Number 0x64
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -471,7 +490,7 @@ namespace HitachiEIP {
       };
 
       // Enviroment_setting (Class Code 0x71)
-      private static AttrData[] ccES_Addrs = new AttrData[] {
+      private AttrData[] ccES_Addrs = new AttrData[] {
          new AttrData((byte)ccES.Current_Time, GSS.GetSet, false, 5,            // Current Time 0x65
             new Prop(12, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -507,7 +526,7 @@ namespace HitachiEIP {
       };
 
       // Unit_Information (Class Code 0x73)
-      private static AttrData[] ccUI_Addrs = new AttrData[] {
+      private AttrData[] ccUI_Addrs = new AttrData[] {
          new AttrData((byte)ccUI.Unit_Information, GSS.Get, false, 20,          // Unit Information 0x64
             new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -595,7 +614,7 @@ namespace HitachiEIP {
       };
 
       // Operation_management (Class Code 0x74)
-      private static AttrData[] ccOM_Addrs = new AttrData[] {
+      private AttrData[] ccOM_Addrs = new AttrData[] {
          new AttrData((byte)ccOM.Operating_Management, GSS.Get, false, 12,      // Operating Management 0x64
             new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -651,7 +670,7 @@ namespace HitachiEIP {
       };
 
       // IJP_operation (Class Code 0x75)
-      private static AttrData[] ccIJP_Addrs = new AttrData[] {
+      private AttrData[] ccIJP_Addrs = new AttrData[] {
          new AttrData((byte)ccIJP.Remote_operation_information, GSS.Get, false, 7, // Remote operation information 0x64
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -692,7 +711,7 @@ namespace HitachiEIP {
       };
 
       // Count (Class Code 0x79)
-      private static AttrData[] ccCount_Addrs = new AttrData[] {
+      private AttrData[] ccCount_Addrs = new AttrData[] {
          new AttrData((byte)ccCount.Number_Of_Count_Block, GSS.Get, false, 12,  // Number Of Count Block 0x66
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -760,7 +779,7 @@ namespace HitachiEIP {
       };
 
       // Index (Class Code 0x7A)
-      private static AttrData[] ccIDX_Addrs = new AttrData[] {
+      private AttrData[] ccIDX_Addrs = new AttrData[] {
          new AttrData((byte)ccIDX.Start_Stop_Management_Flag, GSS.GetSet, false, 10, // Start Stop Management Flag 0x64
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -816,27 +835,14 @@ namespace HitachiEIP {
       #region Class Codes => Attributes => Attribute Data lookup tables
 
       // Class Codes to Data Tables Conversion
-      public static AttrData[][] ClassCodeAttrData = new AttrData[][] {
-            ccPDM_Addrs,           // 0x66 Print data management function
-            ccPF_Addrs,            // 0x67 Print format function
-            ccPS_Addrs,            // 0x68 Print specification function
-            ccCal_Addrs,           // 0x69 Calendar function
-            ccUP_Addrs,            // 0x6B User pattern function
-            ccSR_Addrs,            // 0x6C Substitution rules function
-            ccES_Addrs,            // 0x71 Enviroment setting function
-            ccUI_Addrs,            // 0x73 Unit Information function
-            ccOM_Addrs,            // 0x74 Operation management function
-            ccIJP_Addrs,           // 0x75 IJP operation function
-            ccCount_Addrs,         // 0x79 Count function
-            ccIDX_Addrs,           // 0x7A Index function
-         };
+      public AttrData[][] ClassCodeAttrData;
 
       #endregion
 
       #region Data reformatting routines
 
       // Reformat the raw data tables in this module to make them easier to read and modify
-      public static void ReformatTables(StreamWriter RFS) {
+      public void ReformatTables(StreamWriter RFS) {
 
          DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
          DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
@@ -854,7 +860,7 @@ namespace HitachiEIP {
       }
 
       // Process the tables one at a time
-      private static void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
+      private void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
          string name = at.ToString();
          name = name.Substring(name.IndexOf('.') + 1);
 
@@ -868,7 +874,7 @@ namespace HitachiEIP {
 
          // Write out the table header
          RFS.WriteLine($"{t1}// {cc} (Class Code 0x{((int)cc).ToString("X2")})");
-         RFS.WriteLine($"{t1}private static AttrData[] {name}_Addrs = new AttrData[] {{");
+         RFS.WriteLine($"{t1}private AttrData[] {name}_Addrs = new AttrData[] {{");
 
          // Now process each attribute within the Class
          string[] attrNames = Enum.GetNames(at);

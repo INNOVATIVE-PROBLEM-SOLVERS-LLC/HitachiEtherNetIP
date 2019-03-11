@@ -691,7 +691,7 @@ namespace HitachiEIP {
          RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
          RFS = new StreamWriter(RFN, false, Encoding.UTF8);
 
-         DataII.ReformatTables(RFS);
+         EIP.M161.ReformatTables(RFS);
 
          RFS.Flush();
          RFS.Close();
