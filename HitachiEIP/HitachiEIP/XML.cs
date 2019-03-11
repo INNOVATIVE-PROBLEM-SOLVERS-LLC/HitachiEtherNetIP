@@ -1170,25 +1170,28 @@ namespace HitachiEIP {
                CleanUpDisplay();
                SetText();
 
-               // Select item #1
-               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 1, ref success);
+               // Set to first item
+               int item = 1;
 
-               // Point to first count block
-               SetAttribute(ClassCode.Index, (byte)ccIDX.Count_Block, 1, ref success);
+               // Select item #1
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, item, ref success);
+
+               // Set item number
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Count_Block, item, ref success);
 
                // Set font, ICS, and Text
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, "5x8", ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "{{CCCC}}", ref success);
 
-               // Set <Counter Reset="0" ExternalSignal="0" ResetSignal="0" CountUp="True" Increment="10" JumpTo="7777"
-               //     JumpFrom ="6666" UpdateUnit="0002" UpdateIP="0003" Range2="9999" Range1="0000" InitialValue="0001"
-               //     Multiplier ="3.1400" ZeroSuppression="True" />
+               // Set <Counter Reset="0" ExternalSignal="0" ResetSignal="0" CountUp="True" Increment="10" JumpFrom="6666"
+               //      JumpTo ="7777" UpdateUnit="0000" UpdateIP="0000" Range2="9999" Range1="0000" InitialValue="0001"
+               //      Multiplier ="3.1400" ZeroSuppression="True" CountSkip="0" />
                SetAttribute(ClassCode.Count, (byte)ccCount.Initial_Value, "0001", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_1, "0000", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Count_Range_2, "9999", ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, 2, ref success);
-               SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, 3, ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Halfway, 0, ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Update_Unit_Unit, 0, ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Jump_From, "6666", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Jump_To, "7777", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Increment_Value, 10, ref success);
@@ -1196,8 +1199,9 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Count, (byte)ccCount.Reset_Value, 0, ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Count_Multiplier, "3.1400", ref success);
                SetAttribute(ClassCode.Count, (byte)ccCount.Zero_Suppression, "Enable", ref success);
-               //SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"), ref success);
-               //SetAttribute(ClassCode.Count, (byte)ccCount.Availibility_Of_External_Count, GetAttr(n, "ExternalSignal"), ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Type_Of_Reset_Signal, "Signal 1", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.External_Count, "Disable", ref success);
+               SetAttribute(ClassCode.Count, (byte)ccCount.Count_Skip, "0", ref success);
             }
             EIP.ForwardClose();
          }
@@ -1256,8 +1260,6 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Hour, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Minute, "Disable", ref success);
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, "Disable", ref success);
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, "Disable", ref success);
 
                // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Year, 1, ref success);
@@ -1266,14 +1268,12 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Hour, -4, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Offset_Minute, -5, ref success);
 
-               // Set <ZeroSuppress Year="True" Month="True" Day="True" Hour="True" Minute="True" Week="True" DayOfWeek="True" />
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, "Space Fill", ref success);
+               // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" Hour="Space Fill" Minute="True" Week="Character Fill" />
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Year, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Month, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day, "Disable", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Hour, "Space Fill", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Minute, "Character Fill", ref success);
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, "Space Fill", ref success);
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, "Disable", ref success);
 
                #endregion
 
@@ -1290,12 +1290,12 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "=>{{FF}}<=", ref success);
 
-               // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30" />
+               // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30 Minutes" />
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Start_Value, "AA", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_End_Value, "KK", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Time_Count_Reset_Value, "AA", ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Reset_Time_Value, 6, ref success);
-               SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, 30, ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Update_Interval_Value, "30 Minutes", ref success);
 
                #endregion
 
@@ -1310,10 +1310,31 @@ namespace HitachiEIP {
 
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, "5x8", ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=", ref success);
+
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Weeks, "Enable", ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Substitute_Day_Of_Week, "Disable", ref success);
+
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Weeks, "Disable", ref success);
+               SetAttribute(ClassCode.Calendar, (byte)ccCal.Zero_Suppress_Day_Of_Week, "Character Fill", ref success);
+
+               #endregion
+
+               #region Item #4
+
+               // Add and select item #4
+               ServiceAttribute(ClassCode.Print_format, (byte)ccPF.Add_Column, 0, ref success);
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 4, ref success);
+
+               // Point to calendar block #4
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, 4, ref success);
+
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.Dot_Matrix, "5x8", ref success);
+               SetAttribute(ClassCode.Print_format, (byte)ccPF.InterCharacter_Space, 1, ref success);
                SetAttribute(ClassCode.Print_format, (byte)ccPF.Print_Character_String, "=>{{EE}}<=", ref success);
 
                // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="11" EndMinute="59" Text="AA" />
-               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 1, ref success);
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, 1, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, 0, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, 0, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, 11, ref success);
@@ -1321,7 +1342,7 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_String_Value, "AA", ref success);
 
                // Set < Shift Number="2" StartHour="12" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
-               SetAttribute(ClassCode.Index, (byte)ccIDX.Item, 2, ref success);
+               SetAttribute(ClassCode.Index, (byte)ccIDX.Calendar_Block, 2, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Hour, 12, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_Start_Minute, 0, ref success);
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_End_Hour, 23, ref success);
@@ -1329,6 +1350,7 @@ namespace HitachiEIP {
                SetAttribute(ClassCode.Calendar, (byte)ccCal.Shift_String_Value, "BB", ref success);
 
                #endregion
+
             }
             EIP.ForwardClose();
          }
