@@ -770,7 +770,7 @@ namespace HitachiEIP {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCount.Count_Multiplier, GSS.GetSet, false, 3,     // Count Multiplier 0x74
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Get
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Skip, GSS.GetSet, false, 6,           // Count Skip 0x75
             new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
