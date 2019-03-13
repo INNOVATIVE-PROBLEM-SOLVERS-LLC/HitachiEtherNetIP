@@ -969,12 +969,6 @@ namespace HitachiEIP {
          R.offset = 0;
       }
 
-      // Get the value of an attribute that is known to be a decimal number
-      private int GetDecimalAttribute<T>(T Attribute) {
-         GetAttribute(Convert.ToByte(Attribute));
-         return EIP.GetDecValue;
-      }
-
       // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
@@ -1055,8 +1049,7 @@ namespace HitachiEIP {
 
       // Get the contents of one attribute
       private string GetAttribute<T>(T Attribute) {
-         int n = Array.IndexOf(EIP.ClassCodeAttributes, typeof(T));
-         ClassCode cc = EIP.ClassCodes[n];
+         ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
          string val = string.Empty;
          AttrData attr = EIP.AttrDict[cc, at];
@@ -1067,7 +1060,13 @@ namespace HitachiEIP {
          return EIP.GetDataValue;
       }
 
-      // Get the contents of one attribute
+      // Get the value of an attribute that is known to be a decimal number
+      private int GetDecimalAttribute<T>(T Attribute) {
+         GetAttribute(Convert.ToByte(Attribute));
+         return EIP.GetDecValue;
+      }
+
+      // Get one attribute based on the Data Property
       private int GetAttribute<T>(T Attribute, int n) {
          ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
@@ -1076,19 +1075,6 @@ namespace HitachiEIP {
          EIP.GetAttribute(cc, at, EIP.Nodata);
          return EIP.GetDecValue;
       }
-
-      //private string GetAttribute<T>(T Attribute, string s) {
-      //   ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-      //   byte at = Convert.ToByte(Attribute);
-      //   if (success) {
-      //      AttrData attr = EIP.AttrDict[cc, at];
-      //      byte[] data = EIP.FormatOutput(s, attr.Get);
-      //      success = EIP.GetAttribute(cc, at, data);
-      //      return EIP.GetDataValue;
-      //   } else {
-      //      return "";
-      //   }
-      //}
 
       // Set one attribute based on the Set Property
       private void SetAttribute<T>(T Attribute, int n) {
@@ -1106,10 +1092,10 @@ namespace HitachiEIP {
          }
       }
 
+      // Set one attribute based on the Set Property
       private void SetAttribute<T>(T Attribute, string s) {
          if (success && s != N_A) {
-            int n = Array.IndexOf(EIP.ClassCodeAttributes, typeof(T));
-            ClassCode cc = EIP.ClassCodes[n];
+            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
             byte at = Convert.ToByte(Attribute);
             AttrData attr = EIP.AttrDict[cc, at];
             byte[] data = EIP.FormatOutput(s, attr.Set);
@@ -1120,8 +1106,7 @@ namespace HitachiEIP {
       // Set one attribute based on the Set Property
       private void SetAttribute<T>(T Attribute, int item, string s) {
          if (success) {
-            int n = Array.IndexOf(EIP.ClassCodeAttributes, typeof(T));
-            ClassCode cc = EIP.ClassCodes[n];
+            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
             byte at = Convert.ToByte(Attribute);
             AttrData attr = EIP.AttrDict[cc, at];
             byte[] data = EIP.FormatOutput(item, 1, s, attr.Set);
@@ -1132,8 +1117,7 @@ namespace HitachiEIP {
       // Service one attribute based on the Set Property
       private void ServiceAttribute<T>(T Attribute, int n) {
          if (success) {
-            int j = Array.IndexOf(EIP.ClassCodeAttributes, typeof(T));
-            ClassCode cc = EIP.ClassCodes[j];
+            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
             byte at = Convert.ToByte(Attribute);
             AttrData attr = EIP.AttrDict[cc, at];
             byte[] data = EIP.ToBytes(n, attr.Service.Len);
