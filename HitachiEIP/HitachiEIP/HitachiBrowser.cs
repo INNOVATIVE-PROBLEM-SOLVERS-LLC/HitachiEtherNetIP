@@ -318,7 +318,7 @@ namespace HitachiEIP {
                // Blindly Set COM on and read it back
                AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
                byte[] data = EIP.FormatOutput(1, attr.Set);
-               EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data);
+               EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data);
                GetComSetting();
                if (ComIsOn) {
                   // Got it, Get the other critical settings
@@ -366,7 +366,7 @@ namespace HitachiEIP {
       // Issue a Get based on the Class Code and Function dropdowns
       private void btnIssueGet_Click(object sender, EventArgs e) {
          byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-         EIP.ReadOneAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+         EIP.GetAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
       }
 
       // Issue a Set based on the Class Code and Function dropdowns
@@ -374,7 +374,7 @@ namespace HitachiEIP {
          bool Success = false;
          try {
             byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Set);
-            Success = EIP.WriteOneAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+            Success = EIP.SetAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
          } catch {
             AllGood = false;
          }
@@ -446,7 +446,7 @@ namespace HitachiEIP {
                      attr = EIP.AttrDict[EIP.ClassCodes[i], (byte)ClassAttr[j]];
                      if (attr.HasGet && !attr.Ignore) {
                         byte[] data = EIP.FormatOutput(txtDataOut.Text, attr.Get);
-                        EIP.ReadOneAttribute(EIP.ClassCodes[i], (byte)ClassAttr[j], data);
+                        EIP.GetAttribute(EIP.ClassCodes[i], (byte)ClassAttr[j], data);
                      }
                   }
                }
@@ -464,7 +464,7 @@ namespace HitachiEIP {
                // Get (guess at) the current state, invert it, and read it back
                AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
                byte[] data = EIP.FormatOutput(ComIsOn ? 0 : 1, attr.Set);
-               if (EIP.WriteOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
+               if (EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
                   GetComSetting();
                   if (ComIsOn) {
                      // Update the other two major controls
@@ -486,7 +486,7 @@ namespace HitachiEIP {
                // Don't know what the "1" state means.  If it is off, issue the "2"
                AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag];
                byte[] data = EIP.FormatOutput(MgmtIsOn ? 0 : 2, attr.Set);
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, data)) {
+               if (EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, data)) {
                   // Refresh the setting since "2" does not take but returns 0
                   GetMgmtSetting();
                }
@@ -503,7 +503,7 @@ namespace HitachiEIP {
             if (EIP.ForwardOpen()) {
                AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Automatic_reflection];
                byte[] data = EIP.FormatOutput(AutoReflIsOn ? 0 : 1, attr.Set);
-               if (EIP.WriteOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, data)) {
+               if (EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, data)) {
                   GetAutoReflectionSetting();
                }
             }
@@ -742,7 +742,7 @@ namespace HitachiEIP {
       private bool GetComSetting() {
          bool result;
          // Get the current setting == Com must be on for the printer to respond properly
-         if (EIP.ReadOneAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.Nodata)) {
+         if (EIP.GetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, EIP.Nodata)) {
             if (EIP.GetDataValue == "1") {
                // Com is on.  That is good
                btnCom.Text = "COM\n1";
@@ -770,7 +770,7 @@ namespace HitachiEIP {
       private bool GetMgmtSetting() {
          bool result;
          // Get the currevt setting
-         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata)) {
+         if (EIP.GetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata)) {
             if (EIP.GetDataValue != "0") {
                // Non-zero says requests are to be stacked.
                btnManagementFlag.Text = $"S/S Management\n{EIP.GetDataValue}";
@@ -798,7 +798,7 @@ namespace HitachiEIP {
       private bool GetAutoReflectionSetting() {
          bool result;
          // Read the value
-         if (EIP.ReadOneAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata)) {
+         if (EIP.GetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata)) {
             if (EIP.GetDataValue == "1") {
                // Do not know whet 1 means but I think it is bad
                btnAutoReflection.Text = "Auto Reflection\n1";
