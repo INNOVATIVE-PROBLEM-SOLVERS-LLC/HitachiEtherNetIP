@@ -137,12 +137,13 @@ namespace HitachiEIP {
                case 9:
                case 12:
                   // Two columns are pure numbers
+                  excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                   excelApp.Columns[i].NumberFormat = "0";
                   break;
                case 10:
                case 13:
                   // Two columns are numbers and text, right justify them
-                  excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
+                  excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                   excelApp.Columns[i].NumberFormat = "@";
                   break;
                default:

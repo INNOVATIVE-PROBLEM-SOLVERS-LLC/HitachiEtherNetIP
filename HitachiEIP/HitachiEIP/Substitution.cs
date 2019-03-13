@@ -145,11 +145,11 @@ namespace HitachiEIP {
                // Save the state on entry
                if (EIP.ForwardOpen()) {
                   // The correct substitution rule is already set
-                  //EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[visibleCategory], EIP.Nodata, out string dataIn);
+                  //EIP.ReadOneAttribute(at[visibleCategory], EIP.Nodata, out string dataIn);
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Get the substitution all at once
                      data = EIP.ToBytes((i + startWith[vCat]), 1);
-                     if (EIP.ReadOneAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
+                     if (EIP.GetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
                         subTexts[vCat][i].Text = EIP.GetDataValue;
                      }
                   }
@@ -172,7 +172,7 @@ namespace HitachiEIP {
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Send the substitution data one at a time
                      data = EIP.FormatOutput((i + startWith[vCat]), 1, subTexts[vCat][i].Text, prop);
-                     EIP.WriteOneAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data);
+                     EIP.SetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data);
                   }
                }
                EIP.ForwardClose();

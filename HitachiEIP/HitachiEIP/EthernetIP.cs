@@ -462,6 +462,9 @@ namespace HitachiEIP {
       public int SetDecValue { get; set; }
 
       public byte[] Nodata = new byte[0];
+      public byte[] DataZero = new byte[] { 0 };
+      public byte[] DataOne = new byte[] { 1 };
+      public byte[] DataTwo = new byte[] { 2 };
 
       public Encoding encode = Encoding.UTF8;
 
@@ -659,8 +662,8 @@ namespace HitachiEIP {
             }
          }
          if (!successful) {
-            LogIt("Read Failed. Connection Closed!");
-            Disconnect();
+            LogIt("Read Failed.");
+            //Disconnect();
          }
          return successful;
       }
@@ -684,7 +687,7 @@ namespace HitachiEIP {
       }
 
       // Read one attribute
-      public bool ReadOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
+      public bool GetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
@@ -705,6 +708,8 @@ namespace HitachiEIP {
                      IndexValue[i] = (uint)Get(GetData, 0, GetDataLength, mem.BigEndian);
                   }
                   Successful = true;
+               } else {
+                  Successful = false;
                }
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
@@ -715,7 +720,7 @@ namespace HitachiEIP {
       }
 
       // Write one attribute
-      public bool WriteOneAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
+      public bool SetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
@@ -746,6 +751,8 @@ namespace HitachiEIP {
          bool Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
+               GetDataValue = string.Empty;
+               SetDataValue = string.Empty;
                AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
                int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Service, Class, 0x01, Attribute, DataOut);
                // Write the request and read the response
