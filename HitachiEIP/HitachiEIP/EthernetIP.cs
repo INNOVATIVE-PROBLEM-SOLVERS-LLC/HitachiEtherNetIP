@@ -141,7 +141,7 @@ namespace HitachiEIP {
 
    // Attributes within Calendar class 0x69
    public enum ccCal {
-      Shift_Count_Condition = 0x65,
+      Shift_Code_Condition = 0x65,
       First_Calendar_Block_Number = 0x66,
       Calendar_Block_Number_In_Item = 0x67,
       Offset_Year = 0x68,
@@ -360,7 +360,7 @@ namespace HitachiEIP {
       public ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
 
       // Class Codes to Attributes
-      public Type[] ClassCodeAttributes = new Type[] {
+      public static Type[] ClassCodeAttributes = new Type[] {
             typeof(ccPDM),   // 0x66 Print data management function
             typeof(ccPF),    // 0x67 Print format function
             typeof(ccPS),    // 0x68 Print specification function
