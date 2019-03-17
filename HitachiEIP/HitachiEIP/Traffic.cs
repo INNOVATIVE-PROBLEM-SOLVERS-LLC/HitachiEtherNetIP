@@ -41,12 +41,13 @@ namespace HitachiEIP {
       Excel.Workbook wb = null;
       Excel.Worksheet wsTraffic = null;
       int wsTrafficRow;
-      Excel.Worksheet wsLog = null;
-      int wsLogRow;
 
       // Use for calculating elapsed time
       DateTime lastTraffic = DateTime.Now;
-      DateTime lastLog = DateTime.Now;
+      DateTime lastConnect = DateTime.Now;
+      DateTime lastSession = DateTime.Now;
+      DateTime lastForward = DateTime.Now;
+
       TimeSpan elapsed;
 
      #endregion
@@ -68,45 +69,55 @@ namespace HitachiEIP {
          Brush brush = new SolidBrush(SystemColors.Control);
          Rectangle rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
 
-         bool done = false;
-         // Just one big loop
-         while (!done) {
-            // Post the queue count and wait for the next request
-            g.FillRectangle(brush, rect);
-            g.DrawString(Tasks.Count.ToString(), parent.lblTraffic.Font, Brushes.Black, rect, sf);
-            pkt = Tasks.Take();
-            switch (pkt.Type) {
-               case TaskType.Create:
-                  CreateExcelApplication();
-                  break;
-               case TaskType.AddTraffic:
-                  AddTrafficEntry();
-                  break;
-               case TaskType.AddLog:
-                  AddLogEntry();
-                  break;
-               case TaskType.Close:
-                  CloseExcelApplication();
-                  break;
-               case TaskType.View:
-                  // Open Excel
-                  Process.Start(pkt.Data);
-                  break;
-               case TaskType.Resize:
-                  g.Dispose();
-                  g = null;
-                  g = parent.CreateGraphics();
-                  rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
-                  break;
-               case TaskType.Exit:
-                  g.Dispose();
-                  done = true;
-                  break;
-               default:
-                  return;
+         try {
+            bool done = false;
+            // Just one big loop
+            while (!done) {
+               // Post the queue count and wait for the next request
+               g.FillRectangle(brush, rect);
+               g.DrawString(Tasks.Count.ToString(), parent.lblTraffic.Font, Brushes.Black, rect, sf);
+               pkt = Tasks.Take();
+               switch (pkt.Type) {
+                  case TaskType.Create:
+                     CreateExcelApplication();
+                     break;
+                  case TaskType.AddTraffic:
+                     AddTrafficEntry();
+                     break;
+                  case TaskType.AddLog:
+                     AddLogEntry();
+                     break;
+                  case TaskType.Close:
+                     CloseExcelApplication();
+                     break;
+                  case TaskType.View:
+                     // Open Excel
+                     Process.Start(pkt.Data);
+                     break;
+                  case TaskType.Resize:
+                     g.Dispose();
+                     g = null;
+                     g = parent.CreateGraphics();
+                     rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
+                     break;
+                  case TaskType.Exit:
+                     done = true;
+                     break;
+                  default:
+                     return;
+               }
+            }
+         } catch {
+
+         } finally {
+            CloseExcelApplication();
+            if (g != null) {
+               g.Dispose();
+               g = null;
             }
          }
       }
+
 
       // Create an Excel application with two worksheets
       private void CreateExcelApplication() {
@@ -130,18 +141,18 @@ namespace HitachiEIP {
          // Set column formatting
          for (int i = 1; i < 15; i++) {
             switch (i) {
-               case 2:
-                  // Elapsed time to three decimal places
-                  excelApp.Columns[i].NumberFormat = "0.000";
+               case 2: // Elapsed time
+                  // Elapsed time to four decimal places
+                  excelApp.Columns[i].NumberFormat = "0.0000";
                   break;
-               case 9:
-               case 12:
+               case 9: // Input Length
+               case 12: // Output Length
                   // Two columns are pure numbers
                   excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                   excelApp.Columns[i].NumberFormat = "0";
                   break;
-               case 10:
-               case 13:
+               case 10: // Input formatted data
+               case 13: // Output formatted data
                   // Two columns are numbers and text, right justify them
                   excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                   excelApp.Columns[i].NumberFormat = "@";
@@ -153,17 +164,6 @@ namespace HitachiEIP {
             }
          }
          wsTrafficRow = 2;
-
-         // Create the second worksheet
-         wsLog = excelApp.Worksheets.Add(Type.Missing, wsTraffic, 1, Excel.XlSheetType.xlWorksheet);
-         wsLog.Name = "Log";
-         // Get the headers right for the first one
-         excelApp.Cells[1, 1] = "Date/Time";
-         excelApp.Cells[1, 2] = "Elapsed";
-         excelApp.Cells[1, 3] = "Event";
-         excelApp.Columns[2].NumberFormat = "0.000";
-         excelApp.Columns[2].HorizontalAlignment = Excel.XlHAlign.xlHAlignRight;
-         wsLogRow = 2;
       }
 
       // Add a traffic entry.  Flag entries that differ from the Hitachi Spec
@@ -193,43 +193,54 @@ namespace HitachiEIP {
 
       // Add a lod entry
       private void AddLogEntry() {
-         // Set the Log worksheet as active
-         wsLog.Activate();
+         // Set the Traffic worksheet as active
+         wsTraffic.Activate();
+         wsTraffic.Cells[wsTrafficRow, 1] = pkt.When.ToString("yy/MM/dd HH:mm:ss.ffff");
+         switch (pkt.Data[0]) {
+            case 'C':
+               elapsed = pkt.When - lastConnect;
+               lastConnect = pkt.When;
+               break;
+            case 'S':
+               elapsed = pkt.When - lastSession;
+               lastSession = pkt.When;
+               break;
+            case 'F':
+               elapsed = pkt.When - lastForward;
+               lastForward = pkt.When;
+               lastTraffic = pkt.When;
+               break;
+            default:
+               elapsed = pkt.When - lastTraffic;
+               lastTraffic = pkt.When;
+               break;
+         }
+         wsTraffic.Cells[wsTrafficRow, 2] = (elapsed.TotalMilliseconds / 1000f).ToString("0.0000");
+         wsTraffic.Cells[wsTrafficRow, 3] = "N/A";
+         wsTraffic.Cells[wsTrafficRow, 4] = "N/A";
+         wsTraffic.Cells[wsTrafficRow, 5] = pkt.Data;
 
-         // Set the time and elapsed time
-         excelApp.Cells[wsLogRow, 1] = pkt.When.ToString("yy/MM/dd HH:mm:ss.ffff");
-         elapsed = pkt.When - lastLog;
-         excelApp.Cells[wsLogRow, 2] = (elapsed.TotalMilliseconds / 1000f).ToString("0.000");
-         lastLog = pkt.When;
-         excelApp.Cells[wsLogRow, 3] = pkt.Data;
-         wsLogRow++;
+         wsTrafficRow++;
+
       }
 
       // Close out the application
       private void CloseExcelApplication() {
-         // Make a table for traffic
-         Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
-         SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
-         SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
-         SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
-         wsTraffic.Columns.AutoFit();
+         if (excelApp != null) {
+            // Make a table out of the traffic data
+            Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
+            SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
+            SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
+            SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
+            wsTraffic.Columns.AutoFit();
 
-         // Make a table for Log
-         SourceRange = (Excel.Range)wsLog.get_Range("A1", $"C{wsLogRow - 1}");
-         SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
-         SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Log";
-         SourceRange.Worksheet.ListObjects["Log"].TableStyle = "TableStyleMedium2";
-         wsLog.Columns.AutoFit();
-
-         // Make traffic visible when workbook opened
-         wsTraffic.Activate();
-
-         // Save it away
-         excelApp.ActiveWorkbook.SaveAs(pkt.Data);
-         wb.Close();
-         excelApp.Quit();
-         Marshal.ReleaseComObject(excelApp);
-         excelApp = null;
+            // Save it away
+            excelApp.ActiveWorkbook.SaveAs(pkt.Data);
+            wb.Close();
+            excelApp.Quit();
+            Marshal.ReleaseComObject(excelApp);
+            excelApp = null;
+         }
       }
 
       #endregion
