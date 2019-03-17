@@ -63,7 +63,7 @@ namespace HitachiEIP {
       Traffic Traffic = null;
 
       string trafficHdrs =
-         "Status/Path\tCount OK\tData OK\tAccess\tClass\tAttribute" +
+         "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
          "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
 
       #endregion
@@ -641,7 +641,7 @@ namespace HitachiEIP {
 
          // Record the operation in the Traffic file
          Type at = EIP.ClassCodeAttributes[Array.IndexOf(EIP.ClassCodes, e.Class)];
-         string trafficText = $"{EIP.GetStatus}\t{EIP.LengthIsValid}\t{EIP.DataIsValid}";
+         string trafficText = $"{EIP.LengthIsValid}\t{EIP.DataIsValid}\t{EIP.GetStatus}";
          trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {
             if (EIP.GetDataLength == 0) {
@@ -670,7 +670,8 @@ namespace HitachiEIP {
          FillInColData(trafficText);
 
          // Record the operation in the log
-         EIP_Log(sender, $"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
+         lstErrors.Items.Add($"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
+         lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 
       // A start to an idea that must be finished someday

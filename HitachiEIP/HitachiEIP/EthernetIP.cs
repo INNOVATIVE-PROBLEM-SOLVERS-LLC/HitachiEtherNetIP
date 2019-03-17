@@ -525,7 +525,7 @@ namespace HitachiEIP {
             client = new TcpClient(IPAddress, port);
             stream = client.GetStream();
             result = true;
-            LogIt("Connect Complete!");
+            LogIt("Connection Open!");
          } catch (Exception e) {
             LogIt(e.Message);
          }
@@ -556,7 +556,7 @@ namespace HitachiEIP {
                client = null;
             }
             result = true;
-            LogIt("Disconnect Complete!");
+            LogIt("Connection Close!");
          } catch (Exception e) {
             LogIt(e.Message);
          }
@@ -574,7 +574,7 @@ namespace HitachiEIP {
                byte[] ed = EIP_Session(EIP_Type.RegisterSession);
                if (Write(ed, 0, ed.Length) && Read(out byte[] data, out int bytes) && bytes >= 8) {
                   SessionID = (uint)Get(data, 4, 4, mem.LittleEndian);
-                  LogIt("Session Started!");
+                  LogIt("Session Open!");
                } else {
                   successful = false;
                }
@@ -599,7 +599,7 @@ namespace HitachiEIP {
                   byte[] ed = EIP_Session(EIP_Type.UnRegisterSession, SessionID);
                   Write(ed, 0, ed.Length);
                }
-               LogIt("Session Ended!");
+               LogIt("Session Close!");
                Disconnect();
                StateChanged?.Invoke(this, "Session Changed");
             }
@@ -1088,12 +1088,22 @@ namespace HitachiEIP {
                SetDecValue = val;
                break;
             case DataFormats.UTF8:
-               SetDataValue = s;
-               result = encode.GetBytes($"{FromQuoted(s)}\x00");
+               if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\"")) {
+                  SetDataValue = s;
+                  result = encode.GetBytes($"{FromQuoted(s)}\x00");
+               } else {
+                  SetDataValue = ToQuoted(s);
+                  result = encode.GetBytes($"{s}\x00");
+               }
                break;
             case DataFormats.UTF8N:
-               SetDataValue = s;
-               result = encode.GetBytes(FromQuoted(s));
+               if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\"")) {
+                  SetDataValue = s;
+                  result = encode.GetBytes(FromQuoted(s));
+               } else {
+                  SetDataValue = ToQuoted(s);
+                  result = encode.GetBytes(s);
+               }
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
