@@ -73,33 +73,33 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
          new AttrData((byte)ccPDM.Print_Data_Name, GSS.Set, false, 7,           // Print Data Name 0x69
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
+            new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(10, DataFormats.N2Char, 0, 14, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.List_of_Messages, GSS.Get, true, 6,           // List of Messages 0x6A
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Get
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None),              //   Data
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None),              //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccPDM.Print_Data_Number, GSS.Set, false, 8,         // Print Data Number 0x6B
             new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
+            new Prop(4, DataFormats.N2N2, 1, 2000, fmtDD.None)),                //   Set
          new AttrData((byte)ccPDM.Change_Create_Group_Name, GSS.Set, false, 1,  // Change Create Group Name 0x6C
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Set
+            new Prop(14, DataFormats.N1Char, 0, 14, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.Group_Deletion, GSS.Set, false, 4,            // Group Deletion 0x6D
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
-         new AttrData((byte)ccPDM.List_of_Groups, GSS.Get, true, 5,             // List of Groups 0x6F
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
+         new AttrData((byte)ccPDM.List_of_Groups, GSS.Get, false, 5,            // List of Groups 0x6F
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Get
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccPDM.Change_Group_Number, GSS.Set, false, 2,       // Change Group Number 0x70
             new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
+            new Prop(2, DataFormats.N1N1, 1, 99, fmtDD.None)),                  //   Set
       };
 
       // Print_format (Class Code 0x67)

@@ -39,6 +39,10 @@ namespace HitachiEIP {
       N2Char = 10,    // 2-byte number + UTF8 String + 0x00
       ItemChar = 11,  // 1-byte item number + UTF8 String + 0x00
       Item = 12,      // 1-byte item number
+      GroupChar = 13, // 1 byte group number + UTF8 String + 0x00
+      MsgChar = 14,   // 2 byte message number + UTF8 String + 0x00
+      N1Char = 15,    // 1-byte number + UTF8 String + 0x00
+      N1N1 = 16,      // 2 1-byte numbers
    }
 
    #endregion
@@ -654,7 +658,7 @@ namespace HitachiEIP {
          if (stream != null) {
             try {
                // Allow for up to 5 seconds for a response
-               stream.ReadTimeout = 5000;
+               stream.ReadTimeout = 15000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {
@@ -1141,6 +1145,14 @@ namespace HitachiEIP {
                   }
                }
                break;
+            case DataFormats.N1N1:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
+                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 1));
+                  }
+               }
+               break;
             case DataFormats.N2N2:
                sa = s.Split(',');
                if (sa.Length == 2) {
@@ -1152,11 +1164,25 @@ namespace HitachiEIP {
             case DataFormats.ItemChar:
                result = Merge(ToBytes(GetIndexSetting(ccIDX.Item), 1), encode.GetBytes(FromQuoted(s) + "\x00"));
                break;
+            case DataFormats.GroupChar:
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Print_Data_Group_Data), 1), encode.GetBytes(FromQuoted(s) + "\x00"));
+               break;
+            case DataFormats.MsgChar:
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Print_Data_Message_Number), 2), encode.GetBytes(FromQuoted(s) + "\x00"));
+               break;
             case DataFormats.N2Char:
-               sa = s.Split(new char[] { ',' }, 1);
+               sa = s.Split(new char[] { ',' }, 2);
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 2), encode.GetBytes(s + "\x00"));
+                     result = Merge(ToBytes(n, 2), encode.GetBytes(sa[1] + "\x00"));
+                  }
+               }
+               break;
+            case DataFormats.N1Char:
+               sa = s.Split(new char[] { ',' }, 2);
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
+                     result = Merge(ToBytes(n, 1), encode.GetBytes(sa[1] + "\x00"));
                   }
                }
                break;
@@ -1187,6 +1213,7 @@ namespace HitachiEIP {
       // Does count agree with Hitachi Document?
       public bool CountIsValid(byte[] data, Prop prop) {
          bool IsValid = false;
+         int n;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.DecimalLE:
@@ -1195,9 +1222,11 @@ namespace HitachiEIP {
             case DataFormats.Date:
             case DataFormats.Bytes:
             case DataFormats.XY:
+            case DataFormats.N1N1:
             case DataFormats.N2N2:
                IsValid = prop.Len == data.Length;
                break;
+            case DataFormats.N1Char:
             case DataFormats.N2Char:
             case DataFormats.UTF8:
             case DataFormats.UTF8N:
@@ -1205,7 +1234,15 @@ namespace HitachiEIP {
                break;
             case DataFormats.ItemChar:
             case DataFormats.Item:
-               int n = (int)GetIndexSetting(ccIDX.Item);
+               n = (int)GetIndexSetting(ccIDX.Item);
+               IsValid = n >= prop.Min && n <= prop.Max;
+               break;
+            case DataFormats.GroupChar:
+               n = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               IsValid = n >= prop.Min && n <= prop.Max;
+               break;
+            case DataFormats.MsgChar:
+               n = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
                IsValid = n >= prop.Min && n <= prop.Max;
                break;
             default:
@@ -1217,6 +1254,7 @@ namespace HitachiEIP {
       // Does text agree with Hitachi Document?
       public bool TextIsValid(byte[] data, Prop prop) {
          bool IsValid = false;
+         int i;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.SDecimal:
@@ -1261,6 +1299,13 @@ namespace HitachiEIP {
                   IsValid = x <= 65535 && y <= 47;
                }
                break;
+            case DataFormats.N1N1:
+               if (prop.Len == data.Length) {
+                  long n1 = Get(data, 0, 1, mem.LittleEndian);
+                  long n2 = Get(data, 1, 1, mem.LittleEndian);
+                  IsValid = n1 >= prop.Min && n1 <= prop.Max && n2 >= prop.Min && n2 <= prop.Max;
+               }
+               break;
             case DataFormats.N2N2:
                if (prop.Len == data.Length) {
                   long n1 = Get(data, 0, 2, mem.LittleEndian);
@@ -1270,8 +1315,22 @@ namespace HitachiEIP {
                break;
             case DataFormats.ItemChar:
             case DataFormats.Item:
-               int i = (int)GetIndexSetting(ccIDX.Item);
+               i = (int)GetIndexSetting(ccIDX.Item);
                IsValid = i >= prop.Min && i <= prop.Max;
+               break;
+            case DataFormats.GroupChar:
+               i = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               IsValid = i >= prop.Min && i <= prop.Max;
+               break;
+            case DataFormats.MsgChar:
+               i = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
+               IsValid = i >= prop.Min && i <= prop.Max;
+               break;
+            case DataFormats.N1Char:
+               if (data.Length > 1) {
+                  long n = Get(data, 0, 1, mem.LittleEndian);
+                  IsValid = n >= prop.Min && n <= prop.Max;
+               }
                break;
             case DataFormats.N2Char:
                if (data.Length > 1) {
@@ -1328,6 +1387,7 @@ namespace HitachiEIP {
                   IsValid = x <= 65535 && y <= 47;
                }
                break;
+            case DataFormats.N1N1:
             case DataFormats.N2N2:
                string[] n1n2 = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                if (n1n2.Length == 2) {
@@ -1344,8 +1404,17 @@ namespace HitachiEIP {
                i = (int)GetIndexSetting(ccIDX.Item);
                IsValid = i >= prop.Min && i <= prop.Max &&FromQuoted(s).Length <= prop.Len;
                break;
+            case DataFormats.GroupChar:
+               i = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
+               break;
+            case DataFormats.MsgChar:
+               i = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
+               IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
+               break;
+            case DataFormats.N1Char:
             case DataFormats.N2Char:
-               gp = s.Split(new char[] { ',' }, 1, StringSplitOptions.RemoveEmptyEntries);
+               gp = s.Split(new char[] { ',' }, 2, StringSplitOptions.RemoveEmptyEntries);
                if (gp.Length == 2) {
                   if (!int.TryParse(gp[0].Trim(), out int x)) {
                      break;
@@ -1399,7 +1468,14 @@ namespace HitachiEIP {
       // Get attribute data for an arbitrary class/attribute
       AttrData GetAttrData(ClassCode Class, byte attr) {
          AttrData[] tab = M161.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
-         return Array.Find(tab, at => at.Val == attr);
+         AttrData result = Array.Find(tab, at => at.Val == attr);
+         result.Class = Class;
+         return result;
+      }
+
+      // Get AttrData with just the Enum
+      public AttrData GetAttrData(Enum e) {
+         return AttrDict[ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, e.GetType())], Convert.ToByte(e)];
       }
 
       // Get the current setting of an index parameter
@@ -1535,6 +1611,12 @@ namespace HitachiEIP {
                   }
                }
                break;
+            case DataFormats.N1N1:
+               if (data.Length == 2) {
+                  // Shown an nn,nn
+                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {Get(data, 1, 1, mem.BigEndian)}";
+               }
+               break;
             case DataFormats.N2N2:
                if (data.Length == 4) {
                   // Shown an nn,nn
@@ -1546,10 +1628,26 @@ namespace HitachiEIP {
                   val = GetUTF8(data, 1, data.Length - 1);
                }
                break;
-            case DataFormats.N2Char:
+            case DataFormats.GroupChar:
+               if (data.Length > 1) {
+                  val = GetUTF8(data, 1, data.Length - 1);
+               }
+               break;
+            case DataFormats.MsgChar:
+               if (data.Length > 2) {
+                  val = GetUTF8(data, 2, data.Length - 2);
+               }
+               break;
+            case DataFormats.N1Char:
                if (data.Length > 1) {
                   // shown as nn, "UTF8 characters"
                   val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 1, data.Length - 1)}";
+               }
+               break;
+            case DataFormats.N2Char:
+               if (data.Length > 2) {
+                  // shown as nn, "UTF8 characters"
+                  val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 2, data.Length - 2)}";
                }
                break;
          }
