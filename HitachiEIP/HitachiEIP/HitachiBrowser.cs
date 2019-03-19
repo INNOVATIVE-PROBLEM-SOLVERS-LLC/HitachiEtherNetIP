@@ -58,7 +58,9 @@ namespace HitachiEIP {
       public const int AddCalendar = 0x10;
       public const int AddCount = 0x20;
       public const int AddSubstitution = 0x40;
-      public const int AddAll = 0x7F;
+      public const int AddGroupNumber = 0x80;
+      public const int AddMessageNumber = 0x100;
+      public const int AddAll = 0x1FF;
 
       Traffic Traffic = null;
 
@@ -115,7 +117,7 @@ namespace HitachiEIP {
          oprAttr = new Attributes<ccIJP>
             (this, EIP, tabIJPOperation, ClassCode.IJP_operation, AddItem);
          pdmAttr = new Attributes<ccPDM>
-            (this, EIP, tabPrintManagement, ClassCode.Print_data_management);
+            (this, EIP, tabPrintManagement, ClassCode.Print_data_management, AddGroupNumber | AddMessageNumber);
          psAttr = new Attributes<ccPS>
             (this, EIP, tabPrintSpec, ClassCode.Print_specification);
          pFmtAttr = new Attributes<ccPF>
@@ -585,9 +587,14 @@ namespace HitachiEIP {
 
       // Log messages from EIP
       public void EIP_Log(EIP sender, string msg) {
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          lstErrors.Items.Add(msg);
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
+         return;
+         //while (msg.Length > 30) {
+         //   Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg.Substring(0,30)));
+         //   msg = msg.Substring(30);
+         //}
+         //Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
       }
 
       // Respond to EIP change in success/fail state

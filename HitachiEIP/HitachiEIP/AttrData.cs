@@ -10,6 +10,7 @@ namespace HitachiEIP {
 
       #region Properties and Constructor
 
+      public ClassCode Class { get; set; }           // The class code is set when the dictionary is built
       public byte Val { get; set; } = 0;             // The Attribute (Makes the tables easier to read)
       public bool HasSet { get; set; } = false;      // Supports a Set Request
       public bool HasGet { get; set; } = false;      // Supports a Get Request

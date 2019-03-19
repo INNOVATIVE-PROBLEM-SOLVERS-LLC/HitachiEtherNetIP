@@ -485,6 +485,12 @@ namespace HitachiEIP {
          if ((Extras & HitachiBrowser.AddSubstitution) > 0) {
             AddExtras(ref n, ccIDX.Substitution_Rules_Setting);
          }
+         if ((Extras & HitachiBrowser.AddGroupNumber) > 0) {
+            AddExtras(ref n, ccIDX.Print_Data_Group_Data);
+         }
+         if ((Extras & HitachiBrowser.AddMessageNumber) > 0) {
+            AddExtras(ref n, ccIDX.Print_Data_Message_Number);
+         }
          if (n > 0) {
             ExtraControls = new GroupBox() { Text = "Index Functions" };
             ExtraControls.Paint += GroupBorder_Paint;

@@ -36,6 +36,8 @@ namespace HitachiEIP {
       Button cmdCreateText;
       Button cmdCreateDate;
       Button cmdCreateCounter;
+      Button cmdSaveToPrinter;
+      Button cmdTest;
 
       // XML Processing
       string XMLText = string.Empty;
@@ -926,12 +928,16 @@ namespace HitachiEIP {
          cmdCreateText = new Button() { Text = "Create Text" };
          cmdCreateDate = new Button() { Text = "Create Date" };
          cmdCreateCounter = new Button() { Text = "Create Counter" };
+         cmdSaveToPrinter = new Button() { Text = "Save In Printer" };
+         cmdTest = new Button() { Text = "Test" };
 
          cmdDeleteAll.Click += cmdDeleteAll_Click;
          cmdAddText.Click += cmdAddText_Click;
          cmdCreateText.Click += cmdCreateText_Click;
          cmdCreateDate.Click += cmdCreateDate_Click;
          cmdCreateCounter.Click += cmdCreateCounter_Click;
+         cmdSaveToPrinter.Click += cmdSaveToPrinter_Click;
+         cmdTest.Click += cmdTest_Click;
 
 
          tab.Controls.Add(cmdDeleteAll);
@@ -939,8 +945,15 @@ namespace HitachiEIP {
          tab.Controls.Add(cmdCreateText);
          tab.Controls.Add(cmdCreateDate);
          tab.Controls.Add(cmdCreateCounter);
+         tab.Controls.Add(cmdSaveToPrinter);
+         tab.Controls.Add(cmdTest);
       }
 
+      private void cmdTest_Click(object sender, EventArgs e) {
+
+      }
+
+      // Called from parent
       public void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int tclWidth = (int)(tab.ClientSize.Width / R.W);
@@ -954,17 +967,24 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2, 6);
-            Utils.ResizeObject(ref R, cmdAddText, tclHeight - 6, 8, 2, 6);
-            Utils.ResizeObject(ref R, cmdCreateText, tclHeight - 6, 15, 2, 6);
-            Utils.ResizeObject(ref R, cmdCreateDate, tclHeight - 6, 22, 2, 6);
-            Utils.ResizeObject(ref R, cmdCreateCounter, tclHeight - 6, 29, 2, 6);
+            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2, 5);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2, 5);
 
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2, 6);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 8, 2, 6);
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 15, 2, 6);
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 3, 22, 2, 6);
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 29, 2, 6);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 6.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 6.5f, 2, 5);
+
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 12, 2, 5);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 12, 2, 5);
+
+            Utils.ResizeObject(ref R, cmdAddText, tclHeight - 6, 17.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdCreateDate, tclHeight - 3, 17.5f, 2, 5);
+
+            Utils.ResizeObject(ref R, cmdCreateText, tclHeight - 6, 23, 2, 5);
+            Utils.ResizeObject(ref R, cmdCreateCounter, tclHeight - 3, 23, 2, 5);
+
+            Utils.ResizeObject(ref R, cmdSaveToPrinter, tclHeight - 6, 28.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdTest, tclHeight - 3, 28.5f, 2, 5);
+
          }
          R.offset = 0;
       }
@@ -1024,7 +1044,7 @@ namespace HitachiEIP {
       }
 
       private string GetValue(XmlNode node) {
-         if(node != null) {
+         if (node != null) {
             return node.InnerText;
          } else {
             return N_A;
@@ -1061,45 +1081,40 @@ namespace HitachiEIP {
       }
 
       // Get the value of an attribute that is known to be a decimal number
-      private int GetDecimalAttribute<T>(T Attribute) {
-         GetAttribute(Convert.ToByte(Attribute));
+      private int GetDecimalAttribute<T>(T Attribute) where T : Enum {
+         AttrData attr = EIP.GetAttrData(Attribute);
+         EIP.GetAttribute(attr.Class, attr.Val, EIP.Nodata);
          return EIP.GetDecValue;
       }
 
       // Get one attribute based on the Data Property
-      private int GetAttribute<T>(T Attribute, int n) {
-         ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-         byte at = Convert.ToByte(Attribute);
-         string val = string.Empty;
-         AttrData attr = EIP.AttrDict[cc, at];
-         EIP.GetAttribute(cc, at, EIP.Nodata);
+      private int GetAttribute<T>(T Attribute, int n) where T : Enum {
+         AttrData attr = EIP.GetAttrData(Attribute);
+         byte[] data = EIP.FormatOutput(n, attr.Get);
+         EIP.GetAttribute(attr.Class, attr.Val, data);
          return EIP.GetDecValue;
       }
 
       // Set one attribute based on the Set Property
-      private void SetAttribute<T>(T Attribute, int n) {
+      private void SetAttribute<T>(T Attribute, int n) where T : Enum {
          if (success) {
             byte[] data;
-            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-            byte at = Convert.ToByte(Attribute);
-            AttrData attr = EIP.AttrDict[cc, at];
+            AttrData attr = EIP.GetAttrData(Attribute);
             if (attr.Set.Fmt == DataFormats.UTF8) {
                data = EIP.FormatOutput(n.ToString(), attr.Set);
             } else {
                data = EIP.FormatOutput(n, attr.Set);
             }
-            success = EIP.SetAttribute(cc, at, data);
+            success = EIP.SetAttribute(attr.Class, attr.Val, data);
          }
       }
 
       // Set one attribute based on the Set Property
-      private void SetAttribute<T>(T Attribute, string s) {
+      private void SetAttribute<T>(T Attribute, string s) where T : Enum {
          if (success && s != N_A) {
-            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-            byte at = Convert.ToByte(Attribute);
-            AttrData attr = EIP.AttrDict[cc, at];
+            AttrData attr = EIP.GetAttrData(Attribute);
             byte[] data = EIP.FormatOutput(s, attr.Set);
-            success = EIP.SetAttribute(cc, at, data);
+            success = EIP.SetAttribute(attr.Class, attr.Val, data);
          }
       }
 
@@ -1207,6 +1222,19 @@ namespace HitachiEIP {
                //SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
                //SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1"); // Causes COM Error
                //SetAttribute(ccCount.External_Count, "Disable");        // Causes COM Error
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
+      }
+
+      private void cmdSaveToPrinter_Click(object sender, EventArgs e) {
+         success = true;
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               byte[] data = EIP.Merge(EIP.ToBytes(4, 2), EIP.ToBytes(2, 1), EIP.ToBytes("AAA" + "\x00"));
+               AttrData attr = EIP.GetAttrData(ccPDM.Store_Print_Data);
+               EIP.SetAttribute(attr.Class, attr.Val, data);
             }
             EIP.ForwardClose();
          }
@@ -1428,7 +1456,7 @@ namespace HitachiEIP {
                // Select column 0
                SetAttribute(ccIDX.Column, 0);
                // Set line count to 1. (Need to find out how delete single item works.)
-               //SetAttribute(ccPF.Line_Count, 1);
+               SetAttribute(ccPF.Line_Count, 1);
             }
             EIP.ForwardClose();
          }
