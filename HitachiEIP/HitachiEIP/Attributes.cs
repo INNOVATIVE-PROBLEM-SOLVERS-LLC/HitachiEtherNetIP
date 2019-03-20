@@ -491,6 +491,9 @@ namespace HitachiEIP {
          if ((Extras & HitachiBrowser.AddMessageNumber) > 0) {
             AddExtras(ref n, ccIDX.Print_Data_Message_Number);
          }
+         if ((Extras & HitachiBrowser.AddUserPatternSize) > 0) {
+            AddExtras(ref n, ccIDX.User_Pattern_Size);
+         }
          if (n > 0) {
             ExtraControls = new GroupBox() { Text = "Index Functions" };
             ExtraControls.Paint += GroupBorder_Paint;

@@ -156,10 +156,6 @@ namespace HitachiEIP {
             cbUpPosition.Items.Add(i.ToString());
             cbUpCount.Items.Add((i + 1).ToString());
          }
-         for (int i = 0; i < 13; i++) {
-            cbUpICS.Items.Add(i.ToString());
-         }
-
          SetButtonEnables();
 
       }
@@ -263,11 +259,11 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
-               int pos = cbUpPosition.SelectedIndex + 1;
+               int pos = cbUpPosition.SelectedIndex;
                int count = cbUpCount.SelectedIndex + 1;
                for (int i = 0; i < count; i++) {
                   // <TODO> Need Format Output routine
-                  byte[] data = EIP.Merge(EIP.ToBytes(cbUpFont.SelectedIndex, 1), EIP.ToBytes((pos + i), 1), b[i]);
+                  byte[] data = EIP.Merge(EIP.ToBytes(cbUpFont.SelectedIndex + 1, 1), EIP.ToBytes((pos + i), 1), b[i]);
                   EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                }
             }
@@ -291,7 +287,7 @@ namespace HitachiEIP {
 
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               for (int i = 0; i < cbUpCount.SelectedIndex + 1; i++) {
+               for (int i = 0; i <= cbUpCount.SelectedIndex; i++) {
                   byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
                   bool Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                   if (Success) {
@@ -409,11 +405,11 @@ namespace HitachiEIP {
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
          if (!ignoreChange) {
             CleanUpGrid();
-            GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-            cbUpICS.Items.Clear();
-            for (int i = 0; i < maxICS; i++) {
-               cbUpICS.Items.Add(i.ToString());
-            }
+            GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         }
+         cbUpICS.Items.Clear();
+         for (int i = 0; i <= maxICS; i++) {
+            cbUpICS.Items.Add(i.ToString());
          }
          SetButtonEnables();
       }
@@ -487,7 +483,7 @@ namespace HitachiEIP {
             BitMapToImage();
             // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
-            cbUpFont.SelectedIndex = dotMatrixCode;
+            cbUpFont.SelectedIndex = dotMatrixCode - 1;
             cbUpPosition.SelectedIndex = registration;
             cbUpICS.SelectedIndex = ics;
             cbUpCount.SelectedIndex = pattern.Length - 1;

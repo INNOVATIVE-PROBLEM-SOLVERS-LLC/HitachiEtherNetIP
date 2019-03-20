@@ -713,6 +713,8 @@ namespace HitachiEIP {
                   }
                   Successful = true;
                } else {
+                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  GetData = new byte[0];
                   Successful = false;
                }
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
@@ -741,6 +743,9 @@ namespace HitachiEIP {
                      IndexValue[i] = (uint)Get(SetData, 0, SetDataLength, mem.BigEndian);
                   }
                   Successful = true;
+               } else {
+                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  GetData = new byte[0];
                }
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
@@ -765,6 +770,9 @@ namespace HitachiEIP {
                   LengthIsValid = CountIsValid(SetData, attr.Service);
                   DataIsValid = TextIsValid(SetData, attr.Data);
                   Successful = true;
+               } else {
+                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  GetData = new byte[0];
                }
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
@@ -1111,21 +1119,13 @@ namespace HitachiEIP {
                break;
             case DataFormats.Date:
                if (DateTime.TryParse(s, out DateTime d)) {
-                  byte[] year = ToBytes(d.Year, 4, mem.LittleEndian);
+                  byte[] year = ToBytes(d.Year, 2, mem.LittleEndian);
                   byte[] month = ToBytes(d.Month, 2, mem.LittleEndian);
                   byte[] day = ToBytes(d.Day, 2, mem.LittleEndian);
                   byte[] hour = ToBytes(d.Hour, 2, mem.LittleEndian);
                   byte[] minute = ToBytes(d.Minute, 2, mem.LittleEndian);
-                  result = new byte[12];
-                  for (int i = 0; i < 4; i++) {
-                     result[i] = year[i];
-                     if (i < 2) {
-                        result[i + 4] = month[i];
-                        result[i + 6] = day[i];
-                        result[i + 7] = hour[i];
-                        result[i + 10] = minute[i];
-                     }
-                  }
+                  byte[] second = ToBytes(d.Second, 2, mem.LittleEndian);
+                  result = Merge(year, month, day, hour, minute, second); ;
                }
                break;
             case DataFormats.Bytes:

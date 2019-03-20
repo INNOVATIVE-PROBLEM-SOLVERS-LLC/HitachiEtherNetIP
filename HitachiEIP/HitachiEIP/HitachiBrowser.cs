@@ -60,7 +60,8 @@ namespace HitachiEIP {
       public const int AddSubstitution = 0x40;
       public const int AddGroupNumber = 0x80;
       public const int AddMessageNumber = 0x100;
-      public const int AddAll = 0x1FF;
+      public const int AddUserPatternSize = 0x200;
+      public const int AddAll = 0x3FF;
 
       Traffic Traffic = null;
 
@@ -135,7 +136,7 @@ namespace HitachiEIP {
          mgmtAttr = new Attributes<ccOM>
             (this, EIP, tabOpMgmt, ClassCode.Operation_management);
          userPatAttr = new Attributes<ccUP>
-            (this, EIP, tabUserPattern, ClassCode.User_pattern);
+            (this, EIP, tabUserPattern, ClassCode.User_pattern, AddUserPatternSize);
          processXML = new XML(this, EIP, tabXML);
 
          // Force a resize
