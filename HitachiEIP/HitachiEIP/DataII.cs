@@ -817,9 +817,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
          new AttrData((byte)ccIDX.User_Pattern_Size, GSS.GetSet, false, 12,     // User Pattern Size 0x6D
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.None)),               //   Set
+            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Set
          new AttrData((byte)ccIDX.Count_Block, GSS.GetSet, false, 5,            // Count Block 0x6E
             new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
