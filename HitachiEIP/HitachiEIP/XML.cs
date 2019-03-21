@@ -36,7 +36,7 @@ namespace HitachiEIP {
       Button cmdCreateText;
       Button cmdCreateDate;
       Button cmdCreateCounter;
-      Button cmdSaveToPrinter;
+      Button cmdSaveInPrinter;
       Button cmdTest;
 
       // XML Processing
@@ -928,7 +928,7 @@ namespace HitachiEIP {
          cmdCreateText = new Button() { Text = "Create Text" };
          cmdCreateDate = new Button() { Text = "Create Date" };
          cmdCreateCounter = new Button() { Text = "Create Counter" };
-         cmdSaveToPrinter = new Button() { Text = "Save In Printer" };
+         cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
          cmdTest = new Button() { Text = "Test" };
 
          cmdDeleteAll.Click += cmdDeleteAll_Click;
@@ -936,7 +936,7 @@ namespace HitachiEIP {
          cmdCreateText.Click += cmdCreateText_Click;
          cmdCreateDate.Click += cmdCreateDate_Click;
          cmdCreateCounter.Click += cmdCreateCounter_Click;
-         cmdSaveToPrinter.Click += cmdSaveToPrinter_Click;
+         cmdSaveInPrinter.Click += cmdSaveToPrinter_Click;
          cmdTest.Click += cmdTest_Click;
 
 
@@ -945,7 +945,7 @@ namespace HitachiEIP {
          tab.Controls.Add(cmdCreateText);
          tab.Controls.Add(cmdCreateDate);
          tab.Controls.Add(cmdCreateCounter);
-         tab.Controls.Add(cmdSaveToPrinter);
+         tab.Controls.Add(cmdSaveInPrinter);
          tab.Controls.Add(cmdTest);
       }
 
@@ -982,7 +982,7 @@ namespace HitachiEIP {
             Utils.ResizeObject(ref R, cmdCreateText, tclHeight - 6, 23, 2, 5);
             Utils.ResizeObject(ref R, cmdCreateCounter, tclHeight - 3, 23, 2, 5);
 
-            Utils.ResizeObject(ref R, cmdSaveToPrinter, tclHeight - 6, 28.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 6, 28.5f, 2, 5);
             Utils.ResizeObject(ref R, cmdTest, tclHeight - 3, 28.5f, 2, 5);
 
          }

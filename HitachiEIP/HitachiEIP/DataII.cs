@@ -117,9 +117,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Set
          new AttrData((byte)ccPF.Format_Type, GSS.Get, false, 14,               // Format Type 0x67
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Set
          new AttrData((byte)ccPF.Insert_Column, GSS.Service, false, 15,         // Insert Column 0x69
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
@@ -134,9 +134,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
          new AttrData((byte)ccPF.Format_Setup, GSS.Set, false, 13,              // Format Setup 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout),        //   Data
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.Messagelayout)),       //   Set
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Set
          new AttrData((byte)ccPF.Adding_Print_Items, GSS.Service, false, 3,     // Adding Print Items 0x6E
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
