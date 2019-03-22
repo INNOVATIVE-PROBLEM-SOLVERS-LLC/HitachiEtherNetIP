@@ -1125,7 +1125,7 @@ namespace HitachiEIP {
                   byte[] hour = ToBytes(d.Hour, 2, mem.LittleEndian);
                   byte[] minute = ToBytes(d.Minute, 2, mem.LittleEndian);
                   byte[] second = ToBytes(d.Second, 2, mem.LittleEndian);
-                  result = Merge(year, month, day, hour, minute, second); ;
+                  result = Merge(year, month, day, hour, minute, second);
                }
                break;
             case DataFormats.Bytes:
