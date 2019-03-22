@@ -31,6 +31,8 @@ namespace HitachiEIP {
       Button[] services;
       Button getAll;
       Button setAll;
+      Button setText;
+      Button cleanDisplay;
 
       // Data associated with extra Get/Set buttons
       int Extras = 0;
@@ -439,6 +441,20 @@ namespace HitachiEIP {
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
+         setText = new Button() { Text = "Add Text" };
+         tab.Controls.Add(setText);
+         setText.Click += addText_Click;
+         cleanDisplay = new Button() { Text = "Clear Disp" };
+         tab.Controls.Add(cleanDisplay);
+         cleanDisplay.Click += cleanDisplay_Click;
+      }
+
+      private void cleanDisplay_Click(object sender, EventArgs e) {
+         parent.processXML.CleanUpDisplay();
+      }
+
+      private void addText_Click(object sender, EventArgs e) {
+         parent.processXML.SetText();
       }
 
       // Get the names associated with the dropdown
@@ -570,6 +586,15 @@ namespace HitachiEIP {
             if (services[i] != null) {
                Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 3.25f);
             }
+         }
+         if(Equals(tab, parent.tabPrintFormat)) {
+            Utils.ResizeObject(ref R, cleanDisplay, tclHeight - 6, 27, 2.75f, 4);
+            Utils.ResizeObject(ref R, setText, tclHeight - 6, 31.5f, 2.75f, 4);
+            cleanDisplay.Visible = true;
+            setText.Visible = true;
+         } else {
+            cleanDisplay.Visible = false;
+            setText.Visible = false;
          }
          Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.75f, 4);
          Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.75f, 4);

@@ -42,7 +42,7 @@ namespace HitachiEIP {
       Attributes<ccES> envirAttr;      // 0x71
       Attributes<ccOM> mgmtAttr;       // 0x74
       Attributes<ccUP> userPatAttr;    // 0x6B
-      XML processXML;                  // xml processing
+      internal XML processXML;         // xml processing
 
 
       public bool ComIsOn = false;

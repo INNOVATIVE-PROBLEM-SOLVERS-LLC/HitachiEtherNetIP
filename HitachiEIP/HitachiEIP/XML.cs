@@ -1436,13 +1436,15 @@ namespace HitachiEIP {
          }
       }
 
-      private bool CleanUpDisplay() {
+      internal bool CleanUpDisplay() {
          int cols = 0;
          success = true;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of columns
                cols = GetAttribute(ccPF.Number_Of_Columns, 0);
+               // Make things faster
+               SetAttribute(ccIDX.Automatic_reflection, 1);
                // Column number is 0 origin
                while (success && cols > 1) {
                   // Select the column
@@ -1458,19 +1460,24 @@ namespace HitachiEIP {
                // Set line count to 1. (Need to find out how delete single item works.)
                SetAttribute(ccPF.Line_Count, 1);
             }
+            // Make things faster
+            SetAttribute(ccIDX.Automatic_reflection, 0);
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             EIP.ForwardClose();
          }
          EIP.EndSession();
          return success;
       }
 
-      private bool SetText() {
+      internal bool SetText() {
          int items = 0;
          success = true;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of items
                items = GetAttribute(ccPF.Number_Of_Items, 0);
+               // Make things faster
+               SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
                for (int i = 1; i <= items && success; i++) {
                   // Select the item
@@ -1482,6 +1489,9 @@ namespace HitachiEIP {
                   // Insert the text
                   SetAttribute(ccPF.Print_Character_String, $" {i} ");
                }
+               // Make things faster
+               SetAttribute(ccIDX.Automatic_reflection, 0);
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }

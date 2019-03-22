@@ -109,9 +109,9 @@ namespace HitachiEIP {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccPF.Number_Of_Items, GSS.Get, false, 25,           // Number Of Items 0x65
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Set
          new AttrData((byte)ccPF.Number_Of_Columns, GSS.Get, false, 21,         // Number Of Columns 0x66
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -158,7 +158,7 @@ namespace HitachiEIP {
          new AttrData((byte)ccPF.Dot_Matrix, GSS.GetSet, false, 11,             // Dot Matrix 0x74
             new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),          //   Set
+            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),           //   Set
          new AttrData((byte)ccPF.InterCharacter_Space, GSS.GetSet, false, 16,   // InterCharacter Space 0x75
             new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
