@@ -400,9 +400,19 @@ namespace HitachiEIP {
             }
 
             if (attr.Data.DropDown != fmtDD.None) {
-               dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
+               dropdowns[i] = new ComboBox() { Tag = tag, FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = !attr.HasGet };
                dropdowns[i].Items.AddRange(GetDropdownNames(attr));
+               if (dropdowns[i].Visible) {
+                  texts[i].Visible = false;
+                  dropdowns[i].BackColor = Color.LightGreen;
+                  dropdowns[i].SelectedIndex = 0;
+                  texts[i].Text = attr.Set.Min.ToString();
+                  dropdowns[i].SelectedIndexChanged += Attributes_SelectedIndexChanged;
+               }
                tab.Controls.Add(dropdowns[i]);
+            } else if(attr.HasSet && !attr.HasGet && attr.Set.Fmt == DataFormats.Decimal) {
+               texts[i].Text = attr.Set.Min.ToString();
+               texts[i].BackColor = Color.LightGreen;
             }
 
             if (attr.HasGet) {
@@ -447,6 +457,13 @@ namespace HitachiEIP {
          cleanDisplay = new Button() { Text = "Clear Disp" };
          tab.Controls.Add(cleanDisplay);
          cleanDisplay.Click += cleanDisplay_Click;
+      }
+
+      private void Attributes_SelectedIndexChanged(object sender, EventArgs e) {
+         ComboBox dd = (ComboBox)sender;
+         Byte[] tag = (byte[])dd.Tag;
+         AttrData attr = EIP.AttrDict[(ClassCode)tag[1], tag[2]];
+         texts[tag[0]].Text = (dd.SelectedIndex + attr.Set.Min).ToString();
       }
 
       private void cleanDisplay_Click(object sender, EventArgs e) {
