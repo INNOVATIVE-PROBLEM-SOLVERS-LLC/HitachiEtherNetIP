@@ -2,23 +2,14 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-#if Browser
 namespace HitachiEIP {
    class Substitution {
-#else
-namespace cijConnectBase {
-   class EIP_Substitution {
-#endif
 
 #region Data Declarations
 
       ResizeInfo R;
       int GroupWidth = 0;
-#if Browser
       HitachiBrowser parent;
-#else
-      EIP_Browser parent;
-#endif
       EIP EIP;
       TabPage tab;
 
@@ -52,11 +43,7 @@ namespace cijConnectBase {
 
       #region Constructors and destructors
 
-#if Browser
       public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab) {
-#else
-      public EIP_Substitution(EIP_Browser parent, EIP EIP, TabPage tab) {
-#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
