@@ -31,7 +31,7 @@ namespace HitachiEIP {
       Button[] services;
       Button getAll;
       Button setAll;
-      Button setText;
+      Button identify;
       Button cleanDisplay;
 
       // Data associated with extra Get/Set buttons
@@ -400,9 +400,19 @@ namespace HitachiEIP {
             }
 
             if (attr.Data.DropDown != fmtDD.None) {
-               dropdowns[i] = new ComboBox() { FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
+               dropdowns[i] = new ComboBox() { Tag = tag, FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = !attr.HasGet };
                dropdowns[i].Items.AddRange(GetDropdownNames(attr));
+               if (dropdowns[i].Visible) {
+                  texts[i].Visible = false;
+                  dropdowns[i].BackColor = Color.LightGreen;
+                  dropdowns[i].SelectedIndex = 0;
+                  texts[i].Text = attr.Set.Min.ToString();
+                  dropdowns[i].SelectedIndexChanged += Attributes_SelectedIndexChanged;
+               }
                tab.Controls.Add(dropdowns[i]);
+            } else if(attr.HasSet && !attr.HasGet && attr.Set.Fmt == DataFormats.Decimal) {
+               texts[i].Text = attr.Set.Min.ToString();
+               texts[i].BackColor = Color.LightGreen;
             }
 
             if (attr.HasGet) {
@@ -441,19 +451,26 @@ namespace HitachiEIP {
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
-         setText = new Button() { Text = "Add Text" };
-         tab.Controls.Add(setText);
-         setText.Click += addText_Click;
+         identify = new Button() { Text = "Identify" };
+         tab.Controls.Add(identify);
+         identify.Click += identify_Click;
          cleanDisplay = new Button() { Text = "Clear Disp" };
          tab.Controls.Add(cleanDisplay);
          cleanDisplay.Click += cleanDisplay_Click;
+      }
+
+      private void Attributes_SelectedIndexChanged(object sender, EventArgs e) {
+         ComboBox dd = (ComboBox)sender;
+         Byte[] tag = (byte[])dd.Tag;
+         AttrData attr = EIP.AttrDict[(ClassCode)tag[1], tag[2]];
+         texts[tag[0]].Text = (dd.SelectedIndex + attr.Set.Min).ToString();
       }
 
       private void cleanDisplay_Click(object sender, EventArgs e) {
          parent.processXML.CleanUpDisplay();
       }
 
-      private void addText_Click(object sender, EventArgs e) {
+      private void identify_Click(object sender, EventArgs e) {
          parent.processXML.SetText();
       }
 
@@ -589,12 +606,12 @@ namespace HitachiEIP {
          }
          if(Equals(tab, parent.tabPrintFormat)) {
             Utils.ResizeObject(ref R, cleanDisplay, tclHeight - 6, 27, 2.75f, 4);
-            Utils.ResizeObject(ref R, setText, tclHeight - 6, 31.5f, 2.75f, 4);
+            Utils.ResizeObject(ref R, identify, tclHeight - 6, 31.5f, 2.75f, 4);
             cleanDisplay.Visible = true;
-            setText.Visible = true;
+            identify.Visible = true;
          } else {
             cleanDisplay.Visible = false;
-            setText.Visible = false;
+            identify.Visible = false;
          }
          Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.75f, 4);
          Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.75f, 4);

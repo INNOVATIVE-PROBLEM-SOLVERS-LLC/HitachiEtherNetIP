@@ -2,14 +2,23 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+#if Browser
 namespace HitachiEIP {
    class Substitution {
+#else
+namespace cijConnectBase {
+   class EIP_Substitution {
+#endif
 
-      #region Data Declarations
+#region Data Declarations
 
       ResizeInfo R;
       int GroupWidth = 0;
+#if Browser
       HitachiBrowser parent;
+#else
+      EIP_Browser parent;
+#endif
       EIP EIP;
       TabPage tab;
 
@@ -43,15 +52,19 @@ namespace HitachiEIP {
 
       #region Constructors and destructors
 
+#if Browser
       public Substitution(HitachiBrowser parent, EIP EIP, TabPage tab) {
+#else
+      public EIP_Substitution(EIP_Browser parent, EIP EIP, TabPage tab) {
+#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
       }
 
-      #endregion
+#endregion
 
-      #region Routines called from parent
+#region Routines called from parent
 
       // Build all controls unique to this class
       public void BuildSubstitutionControls() {
@@ -133,9 +146,9 @@ namespace HitachiEIP {
          subSet.Enabled = eipEnabled && subEnabled;
       }
 
-      #endregion
+#endregion
 
-      #region Form Control routines
+#region Form Control routines
 
       // Get the substitution rule data
       private void SubGet_Click(object sender, EventArgs e) {
@@ -214,9 +227,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      #endregion
+#endregion
 
-      #region Service Routines
+#region Service Routines
 
       // Select all text when text box is entered
       private void TextBox_Enter(object sender, EventArgs e) {
@@ -242,7 +255,7 @@ namespace HitachiEIP {
          Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
       }
 
-      #endregion
+#endregion
 
    }
 }
