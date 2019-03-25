@@ -49,20 +49,6 @@ namespace HitachiEIP {
       public bool MgmtIsOn = false;
       public bool AutoReflIsOn = false;
 
-      // Flags for adding extra controls to set Index functions
-      public const int AddNone = 0;
-      public const int AddItem = 0x01;
-      public const int AddColumn = 0x02;
-      public const int AddLine = 0x04;
-      public const int AddPosition = 0x08;
-      public const int AddCalendar = 0x10;
-      public const int AddCount = 0x20;
-      public const int AddSubstitution = 0x40;
-      public const int AddGroupNumber = 0x80;
-      public const int AddMessageNumber = 0x100;
-      public const int AddUserPatternSize = 0x200;
-      public const int AddAll = 0x3FF;
-
       Traffic Traffic = null;
 
       string trafficHdrs =
@@ -116,19 +102,19 @@ namespace HitachiEIP {
          indexAttr = new Attributes<ccIDX>
             (this, EIP, tabIndex, ClassCode.Index);
          oprAttr = new Attributes<ccIJP>
-            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, AddItem);
+            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, EIP.AddItem);
          pdmAttr = new Attributes<ccPDM>
-            (this, EIP, tabPrintManagement, ClassCode.Print_data_management, AddGroupNumber | AddMessageNumber);
+            (this, EIP, tabPrintManagement, ClassCode.Print_data_management, EIP.AddGroupNumber | EIP.AddMessageNumber);
          psAttr = new Attributes<ccPS>
             (this, EIP, tabPrintSpec, ClassCode.Print_specification);
          pFmtAttr = new Attributes<ccPF>
-            (this, EIP, tabPrintFormat, ClassCode.Print_format, AddItem | AddPosition | AddColumn);
+            (this, EIP, tabPrintFormat, ClassCode.Print_format, EIP.AddItem | EIP.AddPosition | EIP.AddColumn);
          calAttr = new Attributes<ccCal>
-            (this, EIP, tabCalendar, ClassCode.Calendar, AddCalendar | AddItem);
+            (this, EIP, tabCalendar, ClassCode.Calendar, EIP.AddCalendar | EIP.AddItem);
          sRulesAttr = new Attributes<ccSR>
-            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddItem);
+            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, EIP.AddItem);
          countAttr = new Attributes<ccCount>
-            (this, EIP, tabCount, ClassCode.Count, AddItem | AddCount);
+            (this, EIP, tabCount, ClassCode.Count, EIP.AddItem | EIP.AddCount);
          unitInfoAttr = new Attributes<ccUI>
             (this, EIP, tabUnitInformation, ClassCode.Unit_Information);
          envirAttr = new Attributes<ccES>
@@ -136,7 +122,7 @@ namespace HitachiEIP {
          mgmtAttr = new Attributes<ccOM>
             (this, EIP, tabOpMgmt, ClassCode.Operation_management);
          userPatAttr = new Attributes<ccUP>
-            (this, EIP, tabUserPattern, ClassCode.User_pattern, AddUserPatternSize);
+            (this, EIP, tabUserPattern, ClassCode.User_pattern, EIP.AddUserPatternSize);
          processXML = new XML(this, EIP, tabXML);
 
          // Force a resize

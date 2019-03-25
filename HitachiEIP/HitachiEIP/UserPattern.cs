@@ -3,29 +3,17 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
-#if Browser
 namespace HitachiEIP {
-#else
-namespace cijConnectBase {
-#endif
 
    #region User Pattern processing
 
-#if Browser
    class UserPattern {
-#else
-   class EIP_UserPattern {
-#endif
 
 #region Data Declarations
 
       ResizeInfo R;
 
-#if Browser
       HitachiBrowser parent;
-#else
-      EIP_Browser parent;
-#endif
       EIP EIP;
       TabPage tab;
 
@@ -78,11 +66,7 @@ namespace cijConnectBase {
       #region Constructors and destructors
 
       // Just tuck away the calling parameters
-#if Browser
       public UserPattern(HitachiBrowser parent, EIP EIP, TabPage tab) {
-#else
-      public EIP_UserPattern(EIP_Browser parent, EIP EIP, TabPage tab) {
-#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;

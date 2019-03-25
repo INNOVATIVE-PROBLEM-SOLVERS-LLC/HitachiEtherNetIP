@@ -5,21 +5,12 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
-#if Browser
 namespace HitachiEIP {
    public class XML {
-#else
-namespace cijConnectBase {
-   public class EIP_XML {
-#endif
 
 #region Data Declarations
 
-#if Browser
       HitachiBrowser parent;
-#else
-      EIP_Browser parent;
-#endif
 
       EIP EIP;
       TabPage tab;
@@ -72,11 +63,7 @@ namespace cijConnectBase {
 #region Constructors and destructors
 
       // Create class
-#if Browser
       public XML(HitachiBrowser parent, EIP EIP, TabPage tab) {
-#else
-      public EIP_XML(EIP_Browser parent, EIP EIP, TabPage tab) {
-#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;

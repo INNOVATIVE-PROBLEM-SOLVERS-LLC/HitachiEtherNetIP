@@ -325,6 +325,20 @@ namespace HitachiEIP {
 
       #region Declarations/Properties
 
+      // Flags for adding extra controls to set Index functions
+      public const int AddNone = 0;
+      public const int AddItem = 0x01;
+      public const int AddColumn = 0x02;
+      public const int AddLine = 0x04;
+      public const int AddPosition = 0x08;
+      public const int AddCalendar = 0x10;
+      public const int AddCount = 0x20;
+      public const int AddSubstitution = 0x40;
+      public const int AddGroupNumber = 0x80;
+      public const int AddMessageNumber = 0x100;
+      public const int AddUserPatternSize = 0x200;
+      public const int AddAll = 0x3FF;
+
       enum Protocol {
          TCP = 6
       }
@@ -1079,7 +1093,7 @@ namespace HitachiEIP {
             case DataFormats.DecimalLE:
             case DataFormats.SDecimalLE:
                if (int.TryParse(s, out val)) {
-                  if(prop.Fmt == DataFormats.Decimal || prop.Fmt == DataFormats.SDecimal) {
+                  if (prop.Fmt == DataFormats.Decimal || prop.Fmt == DataFormats.SDecimal) {
                      result = ToBytes(val, prop.Len);
                   } else {
                      result = ToBytes(val, prop.Len, mem.LittleEndian);
@@ -1089,7 +1103,7 @@ namespace HitachiEIP {
                   result = ToBytes(val, prop.Len);
                } else {
                   // Translate dropdown back to a number
-                  if(prop.DropDown != fmtDD.None) {
+                  if (prop.DropDown != fmtDD.None) {
                      s = s.ToLower();
                      val = Array.FindIndex(DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
                      if (val >= 0) {
@@ -1198,7 +1212,7 @@ namespace HitachiEIP {
 
       // Convert string to quoted string
       public string ToQuoted(string s) {
-         return $"\"{s.Replace("\"","\"\"")}\"";
+         return $"\"{s.Replace("\"", "\"\"")}\"";
       }
 
       // Convert quoted string to string
@@ -1402,7 +1416,7 @@ namespace HitachiEIP {
                break;
             case DataFormats.ItemChar:
                i = (int)GetIndexSetting(ccIDX.Item);
-               IsValid = i >= prop.Min && i <= prop.Max &&FromQuoted(s).Length <= prop.Len;
+               IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.GroupChar:
                i = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);

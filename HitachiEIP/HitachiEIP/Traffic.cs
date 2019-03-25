@@ -50,7 +50,7 @@ namespace HitachiEIP {
 
       TimeSpan elapsed;
 
-     #endregion
+      #endregion
 
       #region Constructon and service routines
 
@@ -64,7 +64,7 @@ namespace HitachiEIP {
 
       // Loop to process the Blocking Collection
       private void processTasks() {
-         StringFormat sf = new StringFormat() { LineAlignment = StringAlignment.Center , Alignment = StringAlignment.Center };
+         StringFormat sf = new StringFormat() { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
          Graphics g = parent.CreateGraphics();
          Brush brush = new SolidBrush(SystemColors.Control);
          Rectangle rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
