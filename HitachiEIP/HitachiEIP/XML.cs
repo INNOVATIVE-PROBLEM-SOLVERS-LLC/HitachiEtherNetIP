@@ -5,13 +5,22 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
+#if Browser
 namespace HitachiEIP {
-
    public class XML {
+#else
+namespace cijConnectBase {
+   public class EIP_XML {
+#endif
 
-      #region Data Declarations
+#region Data Declarations
 
+#if Browser
       HitachiBrowser parent;
+#else
+      EIP_Browser parent;
+#endif
+
       EIP EIP;
       TabPage tab;
 
@@ -58,12 +67,16 @@ namespace HitachiEIP {
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
-      #endregion
+#endregion
 
-      #region Constructors and destructors
+#region Constructors and destructors
 
       // Create class
+#if Browser
       public XML(HitachiBrowser parent, EIP EIP, TabPage tab) {
+#else
+      public EIP_XML(EIP_Browser parent, EIP EIP, TabPage tab) {
+#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
@@ -73,9 +86,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      #endregion
+#endregion
 
-      #region Form Control Events
+#region Form Control Events
 
       // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
@@ -151,9 +164,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      #endregion
+#endregion
 
-      #region XML  Save Routines
+#region XML  Save Routines
 
       // Generate an XMP Doc form the current printer settings
       private string ConvertLayoutToXML() {
@@ -547,9 +560,9 @@ namespace HitachiEIP {
          return result;
       }
 
-      #endregion
+#endregion
 
-      #region Send to Printer Routines
+#region Send to Printer Routines
 
       // Send xlmDoc to printer
       private void SendToPrinter_Click(object sender, EventArgs e) {
@@ -880,9 +893,9 @@ namespace HitachiEIP {
          return result;
       }
 
-      #endregion
+#endregion
 
-      #region Service Routines
+#region Service Routines
 
       // Build XML page controls
       private void BuildControls() {
@@ -949,12 +962,8 @@ namespace HitachiEIP {
          tab.Controls.Add(cmdTest);
       }
 
-      private void cmdTest_Click(object sender, EventArgs e) {
-
-      }
-
       // Called from parent
-      public void ResizeControls(ref ResizeInfo R) {
+      internal void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int tclWidth = (int)(tab.ClientSize.Width / R.W);
          float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
@@ -1060,9 +1069,9 @@ namespace HitachiEIP {
          }
       }
 
-      #endregion
+#endregion
 
-      #region Test Routines
+#region Test Routines
 
       // Success is "Global" so the Get/Set/Service Attributes callers can avoid continuously testing it
       bool success = true;
@@ -1148,6 +1157,49 @@ namespace HitachiEIP {
       // Add text to all items
       private void cmdAddText_Click(object sender, EventArgs e) {
          SetText();
+      }
+
+      // Create a Hokey message
+      private void cmdTest_Click(object sender, EventArgs e) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Cleanup the display
+               CleanUpDisplay();
+               // Make things faster
+               SetAttribute(ccIDX.Automatic_reflection, 1);
+               // Add four more columns
+               for (int i = 2; i <= 5; i++) {
+                  ServiceAttribute(ccPF.Add_Column, 0);
+               }
+               // Stack two of the columns
+               SetAttribute(ccIDX.Item, 2);
+               SetAttribute(ccPF.Line_Count, 2);
+               SetAttribute(ccIDX.Item, 4);
+               SetAttribute(ccPF.Line_Count, 2);
+               // Set the font and text
+               for (int i = 1; i <= 7; i++) {
+                  // Select item
+                  SetAttribute(ccIDX.Item, i);
+                  switch (i) {
+                     case 1:
+                     case 4:
+                     case 7:
+                        SetAttribute(ccPF.Print_Character_String, $"{i}");
+                        SetAttribute(ccPF.Dot_Matrix, "12x16");
+                        break;
+                     default:
+                        SetAttribute(ccPF.Print_Character_String, $" {i} ");
+                        SetAttribute(ccPF.Dot_Matrix, "5x8");
+                        break;
+                  }
+               }
+               // Make things faster
+               SetAttribute(ccIDX.Automatic_reflection, 0);
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
       }
 
       // Create a message with text only
@@ -1445,18 +1497,19 @@ namespace HitachiEIP {
                cols = GetAttribute(ccPF.Number_Of_Columns, 0);
                // Make things faster
                SetAttribute(ccIDX.Automatic_reflection, 1);
-               // Column number is 0 origin
-               while (success && cols > 1) {
-                  // Select the column
-                  SetAttribute(ccIDX.Column, cols - 1);
-                  // Delete the column
-                  ServiceAttribute(ccPF.Delete_Column, 0);
-                  cols--;
+               // No need to delete columns if there is only one
+               if (cols > 1) {
+                  // Select to continuously delete column 2 (0 origin on deletes)
+                  SetAttribute(ccIDX.Column, 1);
+                  // Column number is 0 origin
+                  while (success && cols > 1) {
+                     // Delete the column
+                     ServiceAttribute(ccPF.Delete_Column, 0);
+                     cols--;
+                  }
                }
-               // Select item 1
+               // Select item 1 (1 origin on Line Count)
                SetAttribute(ccIDX.Item, 1);
-               // Select column 0
-               SetAttribute(ccIDX.Column, 0);
                // Set line count to 1. (Need to find out how delete single item works.)
                SetAttribute(ccPF.Line_Count, 1);
             }
@@ -1499,7 +1552,7 @@ namespace HitachiEIP {
          return success;
       }
 
-      #endregion
+#endregion
 
    }
 

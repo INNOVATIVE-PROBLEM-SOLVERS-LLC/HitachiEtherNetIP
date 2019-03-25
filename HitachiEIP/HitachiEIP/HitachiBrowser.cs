@@ -652,7 +652,7 @@ namespace HitachiEIP {
          string trafficText = $"{EIP.LengthIsValid}\t{EIP.DataIsValid}\t{EIP.GetStatus}";
          trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
          if (e.Successful) {
-            if (EIP.GetDataLength == 0) {
+            if (e.Access != AccessCode.Get) {
                trafficText += $"\t";
             } else {
                trafficText += $"\t{EIP.GetDataLength}";
@@ -663,7 +663,7 @@ namespace HitachiEIP {
                trafficText += $"\t{EIP.GetDataValue}";
             }
             trafficText += $"\t{EIP.GetBytes(EIP.GetData, 0, Math.Min(EIP.GetDataLength, 16))}";
-            if (EIP.SetDataLength == 0) {
+            if (e.Access != AccessCode.Set && e.Access != AccessCode.Service) {
                trafficText += $"\t";
             } else {
                trafficText += $"\t{EIP.SetDataLength}";

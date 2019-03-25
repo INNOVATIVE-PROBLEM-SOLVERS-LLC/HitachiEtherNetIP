@@ -3,17 +3,29 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
+#if Browser
 namespace HitachiEIP {
+#else
+namespace cijConnectBase {
+#endif
 
    #region User Pattern processing
 
+#if Browser
    class UserPattern {
+#else
+   class EIP_UserPattern {
+#endif
 
-      #region Data Declarations
+#region Data Declarations
 
       ResizeInfo R;
 
+#if Browser
       HitachiBrowser parent;
+#else
+      EIP_Browser parent;
+#endif
       EIP EIP;
       TabPage tab;
 
@@ -66,15 +78,19 @@ namespace HitachiEIP {
       #region Constructors and destructors
 
       // Just tuck away the calling parameters
+#if Browser
       public UserPattern(HitachiBrowser parent, EIP EIP, TabPage tab) {
+#else
+      public EIP_UserPattern(EIP_Browser parent, EIP EIP, TabPage tab) {
+#endif
          this.parent = parent;
          this.EIP = EIP;
          this.tab = tab;
       }
 
-      #endregion
+#endregion
 
-      #region Routines called from parent
+#region Routines called from parent
 
       // Dynamically build all the controls.
       public void BuildUserPatternControls() {
@@ -202,9 +218,9 @@ namespace HitachiEIP {
          UpSaveAs.Enabled = stripes != null;
       }
 
-      #endregion
+#endregion
 
-      #region Form control routines
+#region Form control routines
 
       // Allow all the image to be viewed
       private void HsbGrid_Scroll(object sender, ScrollEventArgs e) {
@@ -432,9 +448,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-      #endregion
+#endregion
 
-      #region Service Routines
+#region Service Routines
 
       // convert cijConnect logo file to stripes
       private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
@@ -805,11 +821,11 @@ namespace HitachiEIP {
          }
       }
 
-      #endregion
+#endregion
 
    }
 
-   #endregion
+#endregion
 
 }
 
