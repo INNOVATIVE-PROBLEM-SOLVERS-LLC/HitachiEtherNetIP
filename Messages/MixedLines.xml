@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Label ClockSystem="24-Hour" Registration="1" GroupNumber="" GroupName="" Name="" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
-  <Printer Model="RX-2" Make="Hitachi">
+  <Printer Model="UX" Make="Hitachi">
     <PrintHead Orientation="2" />
     <ContinuousPrinting RepeatInterval="0000" PrintsPerTrigger="0000" />
     <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
@@ -17,7 +17,7 @@
       <Text>1</Text>
     </Object>
     <Object Type="Text">
-      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5X8</Font>
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5X7</Font>
       <Location ItemNumber="2" Column="1" Row="1" Height="16" Width="18" Left="13" Top="16" />
       <Text> 2 
  3 </Text>
@@ -28,7 +28,7 @@
       <Text>4</Text>
     </Object>
     <Object Type="Text">
-      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5X8</Font>
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5X7</Font>
       <Location ItemNumber="4" Column="3" Row="1" Height="16" Width="18" Left="44" Top="16" />
       <Text> 5 
  6 </Text>

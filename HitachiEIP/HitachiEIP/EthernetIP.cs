@@ -739,6 +739,14 @@ namespace HitachiEIP {
          return Successful;
       }
 
+      // Get one attribute based on the Data Property
+      public int GetAttribute<T>(T Attribute, int n) where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
+         byte[] data = FormatOutput(n, attr.Get);
+         GetAttribute(attr.Class, attr.Val, data);
+         return GetDecValue;
+      }
+
       // Write one attribute
       public bool SetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
@@ -769,6 +777,34 @@ namespace HitachiEIP {
          return Successful;
       }
 
+      // Set one attribute based on the Set Property
+      public bool SetAttribute<T>(T Attribute, int n) where T : Enum {
+         byte[] data;
+         AttrData attr = GetAttrData(Attribute);
+         if (attr.Set.Fmt == DataFormats.UTF8) {
+            data = FormatOutput(n.ToString(), attr.Set);
+         } else {
+            data = FormatOutput(n, attr.Set);
+         }
+         return SetAttribute(attr.Class, attr.Val, data);
+      }
+
+      // Set one attribute based on the Set Property
+      public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
+         byte[] data = FormatOutput(s, attr.Set);
+         return SetAttribute(attr.Class, attr.Val, data);
+      }
+
+      // Set one attribute based on the Set Property
+      public bool SetAttribute<T>(T Attribute, int item, string s) {
+         ClassCode cc = ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
+         byte at = Convert.ToByte(Attribute);
+         AttrData attr = AttrDict[cc, at];
+         byte[] data = FormatOutput(item, 1, s, attr.Set);
+         return SetAttribute(cc, at, data);
+      }
+
       // Service one attribute
       public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          bool Successful = false;
@@ -794,6 +830,15 @@ namespace HitachiEIP {
          }
          EndSession();
          return Successful;
+      }
+
+      // Service one attribute based on the Set Property
+      public bool ServiceAttribute<T>(T Attribute, int n) {
+         ClassCode cc = ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
+         byte at = Convert.ToByte(Attribute);
+         AttrData attr = AttrDict[cc, at];
+         byte[] data = ToBytes(n, attr.Service.Len);
+         return ServiceAttribute(cc, at, data);
       }
 
       // Handles Hitachi Get, Set, and Service

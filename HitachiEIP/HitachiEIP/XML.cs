@@ -8,7 +8,7 @@ using System.Xml;
 namespace HitachiEIP {
    public class XML {
 
-#region Data Declarations
+      #region Data Declarations
 
       HitachiBrowser parent;
 
@@ -58,9 +58,9 @@ namespace HitachiEIP {
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
-#endregion
+      #endregion
 
-#region Constructors and destructors
+      #region Constructors and destructors
 
       // Create class
       public XML(HitachiBrowser parent, EIP EIP, TabPage tab) {
@@ -73,9 +73,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-#endregion
+      #endregion
 
-#region Form Control Events
+      #region Form Control Events
 
       // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
@@ -151,9 +151,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-#endregion
+      #endregion
 
-#region XML  Save Routines
+      #region XML  Save Routines
 
       // Generate an XMP Doc form the current printer settings
       private string ConvertLayoutToXML() {
@@ -190,7 +190,7 @@ namespace HitachiEIP {
                   if (EIP.StartSession()) {
                      if (EIP.ForwardOpen()) {
 
-                        SetAttribute(ccIDX.Item, i + 1);
+                        EIP.SetAttribute(ccIDX.Item, i + 1);
                         string text = GetAttribute(ccPF.Print_Character_String);
 
                         itemType = GetItemType(text);
@@ -547,9 +547,9 @@ namespace HitachiEIP {
          return result;
       }
 
-#endregion
+      #endregion
 
-#region Send to Printer Routines
+      #region Send to Printer Routines
 
       // Send xlmDoc to printer
       private void SendToPrinter_Click(object sender, EventArgs e) {
@@ -580,33 +580,33 @@ namespace HitachiEIP {
          foreach (XmlNode c in pr.ChildNodes) {
             switch (c.Name) {
                case "PrintHead":
-                  SetAttribute(ccPS.Character_Orientation, GetAttr(c, "Orientation"));
+                  EIP.SetAttribute(ccPS.Character_Orientation, GetAttr(c, "Orientation"));
                   break;
                case "ContinuousPrinting":
-                  SetAttribute(ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"));
-                  SetAttribute(ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"));
+                  EIP.SetAttribute(ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"));
+                  EIP.SetAttribute(ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"));
                   break;
                case "TargetSensor":
-                  SetAttribute(ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
-                  SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
-                  SetAttribute(ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
+                  EIP.SetAttribute(ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
+                  EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
+                  EIP.SetAttribute(ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
                   break;
                case "CharacterSize":
-                  SetAttribute(ccPS.Character_Width, GetAttr(c, "Width"));
-                  SetAttribute(ccPS.Character_Width, GetAttr(c, "Height"));
+                  EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Width"));
+                  EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Height"));
                   break;
                case "PrintStartDelay":
-                  SetAttribute(ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"));
-                  SetAttribute(ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"));
+                  EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"));
+                  EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"));
                   break;
                case "EncoderSettings":
-                  SetAttribute(ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"));
-                  SetAttribute(ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"));
-                  SetAttribute(ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"));
+                  EIP.SetAttribute(ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"));
+                  EIP.SetAttribute(ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"));
+                  EIP.SetAttribute(ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"));
                   break;
                case "InkStream":
-                  SetAttribute(ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"));
-                  SetAttribute(ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"));
+                  EIP.SetAttribute(ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"));
+                  EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"));
                   break;
                case "TwinNozzle":
                   // Not supported in EtherNet/IP
@@ -688,51 +688,51 @@ namespace HitachiEIP {
 
          XmlNode n = d.SelectSingleNode("Offset");
          if (n != null) {
-            SetAttribute(ccCal.Offset_Year, GetAttr(n, "Year"));
-            SetAttribute(ccCal.Offset_Month, GetAttr(n, "Month"));
-            SetAttribute(ccCal.Offset_Day, GetAttr(n, "Day"));
-            SetAttribute(ccCal.Offset_Hour, GetAttr(n, "Hour"));
-            SetAttribute(ccCal.Offset_Minute, GetAttr(n, "Minute"));
+            EIP.SetAttribute(ccCal.Offset_Year, GetAttr(n, "Year"));
+            EIP.SetAttribute(ccCal.Offset_Month, GetAttr(n, "Month"));
+            EIP.SetAttribute(ccCal.Offset_Day, GetAttr(n, "Day"));
+            EIP.SetAttribute(ccCal.Offset_Hour, GetAttr(n, "Hour"));
+            EIP.SetAttribute(ccCal.Offset_Minute, GetAttr(n, "Minute"));
          }
 
          n = d.SelectSingleNode("ZeroSuppress");
          if (n != null) {
-            SetAttribute(ccCal.Zero_Suppress_Year, GetAttr(n, "Year"));
-            SetAttribute(ccCal.Zero_Suppress_Month, GetAttr(n, "Month"));
-            SetAttribute(ccCal.Zero_Suppress_Day, GetAttr(n, "Day"));
-            SetAttribute(ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"));
-            SetAttribute(ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"));
-            SetAttribute(ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"));
-            SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Year, GetAttr(n, "Year"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Month, GetAttr(n, "Month"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Day, GetAttr(n, "Day"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"));
+            EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"));
          }
 
          n = d.SelectSingleNode("EnableSubstitution");
          if (n != null) {
-            SetAttribute(ccCal.Substitute_Year, GetAttr(n, "Year"));
-            SetAttribute(ccCal.Substitute_Month, GetAttr(n, "Month"));
-            SetAttribute(ccCal.Substitute_Day, GetAttr(n, "Day"));
-            SetAttribute(ccCal.Substitute_Hour, GetAttr(n, "Hour"));
-            SetAttribute(ccCal.Substitute_Minute, GetAttr(n, "Minute"));
-            SetAttribute(ccCal.Substitute_Weeks, GetAttr(n, "Week"));
-            SetAttribute(ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"));
+            EIP.SetAttribute(ccCal.Substitute_Year, GetAttr(n, "Year"));
+            EIP.SetAttribute(ccCal.Substitute_Month, GetAttr(n, "Month"));
+            EIP.SetAttribute(ccCal.Substitute_Day, GetAttr(n, "Day"));
+            EIP.SetAttribute(ccCal.Substitute_Hour, GetAttr(n, "Hour"));
+            EIP.SetAttribute(ccCal.Substitute_Minute, GetAttr(n, "Minute"));
+            EIP.SetAttribute(ccCal.Substitute_Weeks, GetAttr(n, "Week"));
+            EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"));
          }
 
          n = d.SelectSingleNode("TimeCount");
          if (n != null) {
-            SetAttribute(ccCal.Time_Count_Start_Value, GetAttr(n, "Start"));
-            SetAttribute(ccCal.Time_Count_End_Value, GetAttr(n, "End"));
-            SetAttribute(ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"));
-            SetAttribute(ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"));
-            SetAttribute(ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"));
+            EIP.SetAttribute(ccCal.Time_Count_Start_Value, GetAttr(n, "Start"));
+            EIP.SetAttribute(ccCal.Time_Count_End_Value, GetAttr(n, "End"));
+            EIP.SetAttribute(ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"));
+            EIP.SetAttribute(ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"));
+            EIP.SetAttribute(ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"));
          }
 
          n = d.SelectSingleNode("Shift");
          if (n != null) {
-            SetAttribute(ccIDX.Item, GetAttr(n, "Number"));
-            SetAttribute(ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"));
-            SetAttribute(ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"));
-            SetAttribute(ccCal.Shift_End_Hour, GetAttr(n, "EndHour"));
-            SetAttribute(ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"));
+            EIP.SetAttribute(ccIDX.Item, GetAttr(n, "Number"));
+            EIP.SetAttribute(ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"));
+            EIP.SetAttribute(ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"));
+            EIP.SetAttribute(ccCal.Shift_End_Hour, GetAttr(n, "EndHour"));
+            EIP.SetAttribute(ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"));
          }
       }
 
@@ -741,21 +741,21 @@ namespace HitachiEIP {
 
          XmlNode n = c.SelectSingleNode("Counter");
          if (n != null) {
-            SetAttribute(ccCount.Initial_Value, GetAttr(n, "InitialValue"));
-            SetAttribute(ccCount.Count_Range_1, GetAttr(n, "Range1"));
-            SetAttribute(ccCount.Count_Range_2, GetAttr(n, "Range2"));
-            SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"));
-            SetAttribute(ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"));
-            SetAttribute(ccCount.Jump_From, GetAttr(n, "JumpFrom"));
-            SetAttribute(ccCount.Jump_To, GetAttr(n, "JumpTo"));
-            SetAttribute(ccCount.Increment_Value, GetAttr(n, "Increment"));
+            EIP.SetAttribute(ccCount.Initial_Value, GetAttr(n, "InitialValue"));
+            EIP.SetAttribute(ccCount.Count_Range_1, GetAttr(n, "Range1"));
+            EIP.SetAttribute(ccCount.Count_Range_2, GetAttr(n, "Range2"));
+            EIP.SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"));
+            EIP.SetAttribute(ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"));
+            EIP.SetAttribute(ccCount.Jump_From, GetAttr(n, "JumpFrom"));
+            EIP.SetAttribute(ccCount.Jump_To, GetAttr(n, "JumpTo"));
+            EIP.SetAttribute(ccCount.Increment_Value, GetAttr(n, "Increment"));
             string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
-            SetAttribute(ccCount.Direction_Value, s);
-            SetAttribute(ccCount.Reset_Value, GetAttr(n, "Reset"));
-            SetAttribute(ccCount.Count_Multiplier, GetAttr(n, "Multiplier"));
-            SetAttribute(ccCount.Zero_Suppression, GetAttr(n, "ZeroSuppression"));
-            SetAttribute(ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"));
-            SetAttribute(ccCount.External_Count, GetAttr(n, "ExternalSignal"));
+            EIP.SetAttribute(ccCount.Direction_Value, s);
+            EIP.SetAttribute(ccCount.Reset_Value, GetAttr(n, "Reset"));
+            EIP.SetAttribute(ccCount.Count_Multiplier, GetAttr(n, "Multiplier"));
+            EIP.SetAttribute(ccCount.Zero_Suppression, GetAttr(n, "ZeroSuppression"));
+            EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"));
+            EIP.SetAttribute(ccCount.External_Count, GetAttr(n, "ExternalSignal"));
          }
       }
 
@@ -794,11 +794,11 @@ namespace HitachiEIP {
                   // Printer always has one item
                   if (item > 1) {
                      // Add an item <TODO> Need to add item, not column
-                     ServiceAttribute(ccPF.Add_Column, 0);
+                     EIP.ServiceAttribute(ccPF.Add_Column, 0);
                   }
 
                   // Point to the item
-                  SetAttribute(ccIDX.Item, item);
+                  EIP.SetAttribute(ccIDX.Item, item);
 
                   // Set the common parameters
                   n = obj.SelectSingleNode("Location");
@@ -808,10 +808,10 @@ namespace HitachiEIP {
                   //int c = GetAttr(n, "Column", -1);
 
                   n = obj.SelectSingleNode("Font");
-                  SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-                  SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-                  SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
-                  SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
+                  EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+                  EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+                  EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+                  EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
                   //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
 
@@ -824,22 +824,22 @@ namespace HitachiEIP {
 
                   switch (type) {
                      case ItemType.Text:
-                        SetAttribute(ccPF.Print_Character_String, text[i]);
+                        EIP.SetAttribute(ccPF.Print_Character_String, text[i]);
                         break;
                      case ItemType.Logo:
                         break;
                      case ItemType.Counter:
-                        SetAttribute(ccIDX.Count_Block, count++);
+                        EIP.SetAttribute(ccIDX.Count_Block, count++);
                         SendCounter(n);
-                        SetAttribute(ccPF.Print_Character_String, FormatCounter(text[i]));
+                        EIP.SetAttribute(ccPF.Print_Character_String, FormatCounter(text[i]));
                         break;
                      case ItemType.Date:
-                        SetAttribute(ccIDX.Calendar_Block, calendar++);
+                        EIP.SetAttribute(ccIDX.Calendar_Block, calendar++);
                         n = obj.SelectSingleNode("Date");
                         if (n != null) {
                            SendCalendar(n);
                         }
-                        SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
+                        EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
                         break;
                      case ItemType.Link:
                         break;
@@ -880,9 +880,9 @@ namespace HitachiEIP {
          return result;
       }
 
-#endregion
+      #endregion
 
-#region Service Routines
+      #region Service Routines
 
       // Build XML page controls
       private void BuildControls() {
@@ -1056,9 +1056,9 @@ namespace HitachiEIP {
          }
       }
 
-#endregion
+      #endregion
 
-#region Test Routines
+      #region Test Routines
 
       // Success is "Global" so the Get/Set/Service Attributes callers can avoid continuously testing it
       bool success = true;
@@ -1083,59 +1083,6 @@ namespace HitachiEIP {
          return EIP.GetDecValue;
       }
 
-      // Get one attribute based on the Data Property
-      private int GetAttribute<T>(T Attribute, int n) where T : Enum {
-         AttrData attr = EIP.GetAttrData(Attribute);
-         byte[] data = EIP.FormatOutput(n, attr.Get);
-         EIP.GetAttribute(attr.Class, attr.Val, data);
-         return EIP.GetDecValue;
-      }
-
-      // Set one attribute based on the Set Property
-      private void SetAttribute<T>(T Attribute, int n) where T : Enum {
-         if (success) {
-            byte[] data;
-            AttrData attr = EIP.GetAttrData(Attribute);
-            if (attr.Set.Fmt == DataFormats.UTF8) {
-               data = EIP.FormatOutput(n.ToString(), attr.Set);
-            } else {
-               data = EIP.FormatOutput(n, attr.Set);
-            }
-            success = EIP.SetAttribute(attr.Class, attr.Val, data);
-         }
-      }
-
-      // Set one attribute based on the Set Property
-      private void SetAttribute<T>(T Attribute, string s) where T : Enum {
-         if (success && s != N_A) {
-            AttrData attr = EIP.GetAttrData(Attribute);
-            byte[] data = EIP.FormatOutput(s, attr.Set);
-            success = EIP.SetAttribute(attr.Class, attr.Val, data);
-         }
-      }
-
-      // Set one attribute based on the Set Property
-      private void SetAttribute<T>(T Attribute, int item, string s) {
-         if (success) {
-            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-            byte at = Convert.ToByte(Attribute);
-            AttrData attr = EIP.AttrDict[cc, at];
-            byte[] data = EIP.FormatOutput(item, 1, s, attr.Set);
-            success = EIP.SetAttribute(cc, at, data);
-         }
-      }
-
-      // Service one attribute based on the Set Property
-      private void ServiceAttribute<T>(T Attribute, int n) {
-         if (success) {
-            ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-            byte at = Convert.ToByte(Attribute);
-            AttrData attr = EIP.AttrDict[cc, at];
-            byte[] data = EIP.ToBytes(n, attr.Service.Len);
-            success = EIP.ServiceAttribute(cc, at, data);
-         }
-      }
-
       // Delete all but 1
       private void cmdDeleteAll_Click(object sender, EventArgs e) {
          CleanUpDisplay();
@@ -1153,36 +1100,36 @@ namespace HitachiEIP {
                // Cleanup the display
                CleanUpDisplay();
                // Make things faster
-               SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Add four more columns
                for (int i = 2; i <= 5; i++) {
-                  ServiceAttribute(ccPF.Add_Column, 0);
+                  EIP.ServiceAttribute(ccPF.Add_Column, 0);
                }
                // Stack two of the columns
-               SetAttribute(ccIDX.Item, 2);
-               SetAttribute(ccPF.Line_Count, 2);
-               SetAttribute(ccIDX.Item, 4);
-               SetAttribute(ccPF.Line_Count, 2);
+               EIP.SetAttribute(ccIDX.Item, 2);
+               EIP.SetAttribute(ccPF.Line_Count, 2);
+               EIP.SetAttribute(ccIDX.Item, 4);
+               EIP.SetAttribute(ccPF.Line_Count, 2);
                // Set the font and text
                for (int i = 1; i <= 7; i++) {
                   // Select item
-                  SetAttribute(ccIDX.Item, i);
+                  EIP.SetAttribute(ccIDX.Item, i);
                   switch (i) {
                      case 1:
                      case 4:
                      case 7:
-                        SetAttribute(ccPF.Print_Character_String, $"{i}");
-                        SetAttribute(ccPF.Dot_Matrix, "12x16");
+                        EIP.SetAttribute(ccPF.Print_Character_String, $"{i}");
+                        EIP.SetAttribute(ccPF.Dot_Matrix, "12x16");
                         break;
                      default:
-                        SetAttribute(ccPF.Print_Character_String, $" {i} ");
-                        SetAttribute(ccPF.Dot_Matrix, "5x8");
+                        EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
+                        EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
                         break;
                   }
                }
                // Make things faster
-               SetAttribute(ccIDX.Automatic_reflection, 0);
-               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
@@ -1204,7 +1151,7 @@ namespace HitachiEIP {
                      case 1:
                         // Put in some items
                         for (int i = 0; i < 5; i++) {
-                           ServiceAttribute(ccPF.Add_Column, 0);
+                           EIP.ServiceAttribute(ccPF.Add_Column, 0);
                         }
                         break;
                      case 2:
@@ -1232,30 +1179,30 @@ namespace HitachiEIP {
                int item = 1;
 
                // Select item #1
-               SetAttribute(ccIDX.Item, item);
+               EIP.SetAttribute(ccIDX.Item, item);
 
                // Set item number in count block
-               SetAttribute(ccIDX.Count_Block, item);
+               EIP.SetAttribute(ccIDX.Count_Block, item);
 
                // Set font, ICS, and Text is a 4 digit counter
-               SetAttribute(ccPF.Dot_Matrix, "5x8");
-               SetAttribute(ccPF.InterCharacter_Space, 1);
-               SetAttribute(ccPF.Print_Character_String, "{{CCCC}}");
+               EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+               EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+               EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}}");
 
                // Set <Counter InitialValue="0001" Range1="0000" Range2="9999" JumpFrom="6666" JumpTo ="7777"
                //      Increment="1" Direction="Up" ZeroSuppression="Enable" UpdateIP="0" UpdateUnit="1"
                //      Multiplier ="2" CountSkip="0" Reset="0001" ExternalSignal="Disable" ResetSignal="Signal 1" />
-               SetAttribute(ccCount.Initial_Value, "0001");
-               SetAttribute(ccCount.Count_Range_1, "0000");
-               SetAttribute(ccCount.Count_Range_2, "9999");
-               SetAttribute(ccCount.Jump_From, "6666");
-               SetAttribute(ccCount.Jump_To, "7777");
-               SetAttribute(ccCount.Increment_Value, 1);
-               SetAttribute(ccCount.Direction_Value, "Up");
-               SetAttribute(ccCount.Zero_Suppression, "Enable");
-               SetAttribute(ccCount.Count_Multiplier, "2");
-               SetAttribute(ccCount.Reset_Value, "0001");
-               SetAttribute(ccCount.Count_Skip, "0");
+               EIP.SetAttribute(ccCount.Initial_Value, "0001");
+               EIP.SetAttribute(ccCount.Count_Range_1, "0000");
+               EIP.SetAttribute(ccCount.Count_Range_2, "9999");
+               EIP.SetAttribute(ccCount.Jump_From, "6666");
+               EIP.SetAttribute(ccCount.Jump_To, "7777");
+               EIP.SetAttribute(ccCount.Increment_Value, 1);
+               EIP.SetAttribute(ccCount.Direction_Value, "Up");
+               EIP.SetAttribute(ccCount.Zero_Suppression, "Enable");
+               EIP.SetAttribute(ccCount.Count_Multiplier, "2");
+               EIP.SetAttribute(ccCount.Reset_Value, "0001");
+               EIP.SetAttribute(ccCount.Count_Skip, "0");
 
                //SetAttribute(ccCount.Update_Unit_Halfway, 0);           // Causes COM Error
                //SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
@@ -1323,155 +1270,155 @@ namespace HitachiEIP {
       private void TryDayOfWeekEtc(int Item) {
          // Add the item if needed and select it
          if (Item != 1) {
-            ServiceAttribute(ccPF.Add_Column, 0);
+            EIP.ServiceAttribute(ccPF.Add_Column, 0);
          }
-         SetAttribute(ccIDX.Item, Item);
+         EIP.SetAttribute(ccIDX.Item, Item);
 
          // Set Item in Calendar Index
-         SetAttribute(ccIDX.Calendar_Block, Item);
+         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
 
-         SetAttribute(ccPF.Dot_Matrix, "5x8");
-         SetAttribute(ccPF.InterCharacter_Space, 1);
-         SetAttribute(ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=");
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+         EIP.SetAttribute(ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=");
 
-         SetAttribute(ccCal.Substitute_Weeks, "Disable");
-         SetAttribute(ccCal.Substitute_Day_Of_Week, "Ensable");
+         EIP.SetAttribute(ccCal.Substitute_Weeks, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Ensable");
 
-         SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
-         SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Character Fill");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Character Fill");
       }
 
       private void VerifyShifts(int Item) {
 
          // Select the Item
-         SetAttribute(ccIDX.Item, Item);
+         EIP.SetAttribute(ccIDX.Item, Item);
 
          // For testing purposes, try to read then back
-         SetAttribute(ccIDX.Calendar_Block, 1);
-         int sh1 = GetAttribute(ccCal.Shift_Start_Hour, 0);
-         int sm1 = GetAttribute(ccCal.Shift_Start_Minute, 0);
-         int eh1 = GetAttribute(ccCal.Shift_End_Hour, 11);
-         int em1 = GetAttribute(ccCal.Shift_End_Minute, 59);
+         EIP.SetAttribute(ccIDX.Calendar_Block, 1);
+         int sh1 = EIP.GetAttribute(ccCal.Shift_Start_Hour, 0);
+         int sm1 = EIP.GetAttribute(ccCal.Shift_Start_Minute, 0);
+         int eh1 = EIP.GetAttribute(ccCal.Shift_End_Hour, 11);
+         int em1 = EIP.GetAttribute(ccCal.Shift_End_Minute, 59);
          string sv1 = GetAttribute(ccCal.Shift_String_Value);
 
          // For testing putposes, try to read then back
-         SetAttribute(ccIDX.Calendar_Block, 2);
-         int sh2 = GetAttribute(ccCal.Shift_Start_Hour, 12);
-         int sm2 = GetAttribute(ccCal.Shift_Start_Minute, 0);
-         int eh2 = GetAttribute(ccCal.Shift_End_Hour, 23);
-         int em2 = GetAttribute(ccCal.Shift_End_Minute, 59);
+         EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+         int sh2 = EIP.GetAttribute(ccCal.Shift_Start_Hour, 12);
+         int sm2 = EIP.GetAttribute(ccCal.Shift_Start_Minute, 0);
+         int eh2 = EIP.GetAttribute(ccCal.Shift_End_Hour, 23);
+         int em2 = EIP.GetAttribute(ccCal.Shift_End_Minute, 59);
          string sv2 = GetAttribute(ccCal.Shift_String_Value);
       }
 
       private void BuildShifts(int Item) {
          // Add the item if needed and select it
          if (Item != 1) {
-            ServiceAttribute(ccPF.Add_Column, 0);
+            EIP.ServiceAttribute(ccPF.Add_Column, 0);
          }
-         SetAttribute(ccIDX.Item, Item);
+         EIP.SetAttribute(ccIDX.Item, Item);
 
          // Set Item in Calendar Index
-         SetAttribute(ccIDX.Calendar_Block, Item);
+         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
-         SetAttribute(ccPF.Dot_Matrix, "5x8");
-         SetAttribute(ccPF.InterCharacter_Space, 1);
-         SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+         EIP.SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
 
          // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="11" EndMinute="59" Text="AA" />
-         SetAttribute(ccIDX.Calendar_Block, 1);
-         SetAttribute(ccCal.Shift_Start_Hour, 0);
-         SetAttribute(ccCal.Shift_Start_Minute, 0);
-         SetAttribute(ccCal.Shift_String_Value, "AA");
+         EIP.SetAttribute(ccIDX.Calendar_Block, 1);
+         EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
+         EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+         EIP.SetAttribute(ccCal.Shift_String_Value, "AA");
 
          // Set < Shift Number="2" StartHour="12" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
-         SetAttribute(ccIDX.Calendar_Block, 2);
-         SetAttribute(ccCal.Shift_Start_Hour, 12);
-         SetAttribute(ccCal.Shift_Start_Minute, 0);
-         SetAttribute(ccCal.Shift_String_Value, "BB");
+         EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+         EIP.SetAttribute(ccCal.Shift_Start_Hour, 12);
+         EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+         EIP.SetAttribute(ccCal.Shift_String_Value, "BB");
       }
 
       private void BuildMDYhms(int Item, int Rule) {
          // Add the item if needed and select it
          if (Item != 1) {
-            ServiceAttribute(ccPF.Add_Column, 0);
+            EIP.ServiceAttribute(ccPF.Add_Column, 0);
          }
-         SetAttribute(ccIDX.Item, Item);
+         EIP.SetAttribute(ccIDX.Item, Item);
 
          // Point to first substitution rule
-         SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
 
          // Set Item in Calendar Index
-         SetAttribute(ccIDX.Calendar_Block, Item);
+         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
          // Set font, ICS, and Text
-         SetAttribute(ccPF.Dot_Matrix, "5x8");
-         SetAttribute(ccPF.InterCharacter_Space, 1);
-         SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+         EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
 
          // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
          //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
-         SetAttribute(ccCal.Substitute_Year, "Disable");
-         SetAttribute(ccCal.Substitute_Month, "Enable");
-         SetAttribute(ccCal.Substitute_Day, "Disable");
-         SetAttribute(ccCal.Substitute_Hour, "Disable");
-         SetAttribute(ccCal.Substitute_Minute, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_Year, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
+         EIP.SetAttribute(ccCal.Substitute_Day, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_Hour, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_Minute, "Disable");
 
          // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
-         SetAttribute(ccCal.Offset_Year, 1);
-         SetAttribute(ccCal.Offset_Month, 2);
-         SetAttribute(ccCal.Offset_Day, 3);
-         SetAttribute(ccCal.Offset_Hour, 4);
-         SetAttribute(ccCal.Offset_Minute, -5);
+         EIP.SetAttribute(ccCal.Offset_Year, 1);
+         EIP.SetAttribute(ccCal.Offset_Month, 2);
+         EIP.SetAttribute(ccCal.Offset_Day, 3);
+         EIP.SetAttribute(ccCal.Offset_Hour, 4);
+         EIP.SetAttribute(ccCal.Offset_Minute, -5);
 
          // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable"
          //      Hour ="Space Fill" Minute="Character Fill" />
-         SetAttribute(ccCal.Zero_Suppress_Year, "Disable");
-         SetAttribute(ccCal.Zero_Suppress_Month, "Disable");
-         SetAttribute(ccCal.Zero_Suppress_Day, "Disable");
-         SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
-         SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Year, "Disable");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Month, "Disable");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Disable");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
+         EIP.SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
       }
 
       private void BuildTimeCount(int Item) {
          // Add the item if needed and select it
          if (Item != 1) {
-            ServiceAttribute(ccPF.Add_Column, 0);
+            EIP.ServiceAttribute(ccPF.Add_Column, 0);
          }
-         SetAttribute(ccIDX.Item, Item);
+         EIP.SetAttribute(ccIDX.Item, Item);
 
          // Set Item in Calendar Index
-         SetAttribute(ccIDX.Calendar_Block, Item);
+         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
-         SetAttribute(ccPF.Dot_Matrix, "5x8");
-         SetAttribute(ccPF.InterCharacter_Space, 1);
-         SetAttribute(ccPF.Print_Character_String, "=>{{FF}}<=");
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+         EIP.SetAttribute(ccPF.Print_Character_String, "=>{{FF}}<=");
 
          // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30 Minutes" />
-         SetAttribute(ccCal.Time_Count_Start_Value, "AA");
-         SetAttribute(ccCal.Time_Count_End_Value, "KK");
-         SetAttribute(ccCal.Time_Count_Reset_Value, "AA");
-         SetAttribute(ccCal.Reset_Time_Value, 6);
-         SetAttribute(ccCal.Update_Interval_Value, "30 Minutes");
+         EIP.SetAttribute(ccCal.Time_Count_Start_Value, "AA");
+         EIP.SetAttribute(ccCal.Time_Count_End_Value, "KK");
+         EIP.SetAttribute(ccCal.Time_Count_Reset_Value, "AA");
+         EIP.SetAttribute(ccCal.Reset_Time_Value, 6);
+         EIP.SetAttribute(ccCal.Update_Interval_Value, "30 Minutes");
 
       }
 
       private void BuildMonthDaySR(int Rule) {
          // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
          char delimeter = '/';
-         SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
-         SetAttribute(ccSR.Start_Year, 2010);
+         EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         EIP.SetAttribute(ccSR.Start_Year, 2010);
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
          string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimeter);
          for (int i = 0; i < months.Length; i++) {
-            SetAttribute(ccSR.Month, i + 1, months[i]);
+            EIP.SetAttribute(ccSR.Month, i + 1, months[i]);
          }
 
          // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
          string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
          for (int i = 0; i < day.Length; i++) {
-            SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
+            EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
          }
       }
 
@@ -1481,28 +1428,28 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of columns
-               cols = GetAttribute(ccPF.Number_Of_Columns, 0);
+               cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Make things faster
-               SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
-                  SetAttribute(ccIDX.Column, 1);
+                  EIP.SetAttribute(ccIDX.Column, 1);
                   // Column number is 0 origin
                   while (success && cols > 1) {
                      // Delete the column
-                     ServiceAttribute(ccPF.Delete_Column, 0);
+                     EIP.ServiceAttribute(ccPF.Delete_Column, 0);
                      cols--;
                   }
                }
                // Select item 1 (1 origin on Line Count)
-               SetAttribute(ccIDX.Item, 1);
+               EIP.SetAttribute(ccIDX.Item, 1);
                // Set line count to 1. (Need to find out how delete single item works.)
-               SetAttribute(ccPF.Line_Count, 1);
+               EIP.SetAttribute(ccPF.Line_Count, 1);
             }
             // Make things faster
-            SetAttribute(ccIDX.Automatic_reflection, 0);
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+            EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             EIP.ForwardClose();
          }
          EIP.EndSession();
@@ -1515,23 +1462,23 @@ namespace HitachiEIP {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of items
-               items = GetAttribute(ccPF.Number_Of_Items, 0);
+               items = EIP.GetAttribute(ccPF.Number_Of_Items, 0);
                // Make things faster
-               SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
                for (int i = 1; i <= items && success; i++) {
                   // Select the item
-                  SetAttribute(ccIDX.Item, i);
+                  EIP.SetAttribute(ccIDX.Item, i);
                   // Set font
-                  SetAttribute(ccPF.Dot_Matrix, "5x8");
+                  EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
                   // Set ICS to 1
-                  SetAttribute(ccPF.InterCharacter_Space, 1);
+                  EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
                   // Insert the text
-                  SetAttribute(ccPF.Print_Character_String, $" {i} ");
+                  EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
                }
                // Make things faster
-               SetAttribute(ccIDX.Automatic_reflection, 0);
-               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
@@ -1539,7 +1486,7 @@ namespace HitachiEIP {
          return success;
       }
 
-#endregion
+      #endregion
 
    }
 
