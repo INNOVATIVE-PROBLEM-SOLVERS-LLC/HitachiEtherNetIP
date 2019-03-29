@@ -486,7 +486,7 @@ namespace HitachiEIP {
 
       public Encoding encode = Encoding.UTF8;
 
-      // Flag to avoid constant session open/close if alread open
+      // Flag to avoid constant session open/close if already open
       int OCS = 0;
       bool OpenCloseSession {
          get {
@@ -519,6 +519,9 @@ namespace HitachiEIP {
       // Save area for Index function values
       uint[] IndexValue;
       Byte[] IndexAttr;
+
+      // Status of last request
+      bool Successful = false;
 
       #endregion
 
@@ -706,7 +709,7 @@ namespace HitachiEIP {
 
       // Read one attribute
       public bool GetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
-         bool Successful = false;
+         Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
@@ -731,6 +734,9 @@ namespace HitachiEIP {
                   GetData = new byte[0];
                   Successful = false;
                }
+               // Record the operation in the Traffic file
+               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
@@ -749,7 +755,7 @@ namespace HitachiEIP {
 
       // Write one attribute
       public bool SetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
-         bool Successful = false;
+         Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
@@ -769,6 +775,9 @@ namespace HitachiEIP {
                   GetStatus = $"?? -- Unknown -- {LastIO}";
                   GetData = new byte[0];
                }
+               // Record the operation in the Traffic file
+               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
@@ -807,7 +816,7 @@ namespace HitachiEIP {
 
       // Service one attribute
       public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
-         bool Successful = false;
+         Successful = false;
          if (StartSession()) {
             if (ForwardOpen()) {
                GetDataValue = string.Empty;
@@ -824,6 +833,9 @@ namespace HitachiEIP {
                   GetStatus = $"?? -- Unknown -- {LastIO}";
                   GetData = new byte[0];
                }
+               // Record the operation in the Traffic file
+               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
             ForwardClose();
@@ -1507,6 +1519,36 @@ namespace HitachiEIP {
          return result;
       }
 
+      public string GetTraffic() {
+         Type at = EIP.ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
+         string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
+         trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
+         if (Successful) {
+            if (GetDataLength == 0) {
+               trafficText += $"\t";
+            } else {
+               trafficText += $"\t{GetDataLength}";
+            }
+            if (!string.IsNullOrEmpty(GetDataValue) && GetDataValue.Length > 50) {
+               trafficText += $"\tSee=>";
+            } else {
+               trafficText += $"\t{GetDataValue}";
+            }
+            trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
+            if (SetDataLength == 0) {
+               trafficText += $"\t";
+            } else {
+               trafficText += $"\t{SetDataLength}";
+            }
+            if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
+               trafficText += $"\tSee=>";
+            } else {
+               trafficText += $"\t{SetDataValue}";
+            }
+            trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
+         }
+         return trafficText;
+      }
       #endregion
 
       #region Service Routines
@@ -1583,6 +1625,7 @@ namespace HitachiEIP {
 
       // Register a message if someone is listening
       private void LogIt(string msg) {
+         HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          Log?.Invoke(this, msg);
       }
 
