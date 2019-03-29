@@ -49,7 +49,7 @@ namespace HitachiEIP {
       public bool MgmtIsOn = false;
       public bool AutoReflIsOn = false;
 
-      Traffic Traffic = null;
+      public static Traffic Traffic = null;
 
       string trafficHdrs =
          "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
@@ -576,12 +576,6 @@ namespace HitachiEIP {
       public void EIP_Log(EIP sender, string msg) {
          lstErrors.Items.Add(msg);
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
-         return;
-         //while (msg.Length > 30) {
-         //   Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg.Substring(0,30)));
-         //   msg = msg.Substring(30);
-         //}
-         //Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
       }
 
       // Respond to EIP change in success/fail state
@@ -635,35 +629,6 @@ namespace HitachiEIP {
 
          // Record the operation in the Traffic file
          Type at = EIP.ClassCodeAttributes[Array.IndexOf(EIP.ClassCodes, e.Class)];
-         string trafficText = $"{EIP.LengthIsValid}\t{EIP.DataIsValid}\t{EIP.GetStatus}";
-         trafficText += $"\t{e.Access}\t{e.Class}\t{EIP.GetAttributeName(at, e.Attribute)}";
-         if (e.Successful) {
-            if (e.Access != AccessCode.Get) {
-               trafficText += $"\t";
-            } else {
-               trafficText += $"\t{EIP.GetDataLength}";
-            }
-            if (!string.IsNullOrEmpty(EIP.GetDataValue) && EIP.GetDataValue.Length > 50) {
-               trafficText += $"\tSee=>";
-            } else {
-               trafficText += $"\t{EIP.GetDataValue}";
-            }
-            trafficText += $"\t{EIP.GetBytes(EIP.GetData, 0, Math.Min(EIP.GetDataLength, 16))}";
-            if (e.Access != AccessCode.Set && e.Access != AccessCode.Service) {
-               trafficText += $"\t";
-            } else {
-               trafficText += $"\t{EIP.SetDataLength}";
-            }
-            if (!string.IsNullOrEmpty(EIP.SetDataValue) && EIP.SetDataValue.Length > 50) {
-               trafficText += $"\tSee=>";
-            } else {
-               trafficText += $"\t{EIP.SetDataValue}";
-            }
-            trafficText += $"\t{EIP.GetBytes(EIP.SetData, 0, Math.Min(EIP.SetDataLength, 16))}";
-         }
-         FillInColData(trafficText);
-
-         // Record the operation in the log
          lstErrors.Items.Add($"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }

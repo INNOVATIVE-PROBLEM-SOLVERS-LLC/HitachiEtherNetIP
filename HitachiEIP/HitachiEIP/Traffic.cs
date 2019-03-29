@@ -118,7 +118,6 @@ namespace HitachiEIP {
          }
       }
 
-
       // Create an Excel application with two worksheets
       private void CreateExcelApplication() {
          // Create the Excel application with two work sheets

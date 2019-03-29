@@ -1097,10 +1097,25 @@ namespace HitachiEIP {
       private void cmdTest_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               // Cleanup the display
-               CleanUpDisplay();
+               // Get the number of columns
+               int cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Make things faster
                EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               // No need to delete columns if there is only one
+               if (cols > 1) {
+                  // Select to continuously delete column 2 (0 origin on deletes)
+                  EIP.SetAttribute(ccIDX.Column, 1);
+                  // Column number is 0 origin
+                  while (success && cols > 1) {
+                     // Delete the column
+                     EIP.ServiceAttribute(ccPF.Delete_Column, 0);
+                     cols--;
+                  }
+               }
+               // Select item 1 (1 origin on Line Count)
+               EIP.SetAttribute(ccIDX.Item, 1);
+               // Set line count to 1. (Need to find out how delete single item works.)
+               EIP.SetAttribute(ccPF.Line_Count, 1);
                // Add four more columns
                for (int i = 2; i <= 5; i++) {
                   EIP.ServiceAttribute(ccPF.Add_Column, 0);
@@ -1446,10 +1461,10 @@ namespace HitachiEIP {
                EIP.SetAttribute(ccIDX.Item, 1);
                // Set line count to 1. (Need to find out how delete single item works.)
                EIP.SetAttribute(ccPF.Line_Count, 1);
+               // Make things faster
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
-            // Make things faster
-            EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-            EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             EIP.ForwardClose();
          }
          EIP.EndSession();
