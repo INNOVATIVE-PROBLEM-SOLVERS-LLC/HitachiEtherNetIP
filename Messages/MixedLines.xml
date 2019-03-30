@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Label ClockSystem="24-Hour" Registration="1" GroupNumber="" GroupName="" Name="" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+<Label ClockSystem="24-Hour" Registration="4" GroupNumber="" GroupName="" Name="Hokey" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
   <Printer Model="UX" Make="Hitachi">
     <PrintHead Orientation="2" />
     <ContinuousPrinting RepeatInterval="0000" PrintsPerTrigger="0000" />

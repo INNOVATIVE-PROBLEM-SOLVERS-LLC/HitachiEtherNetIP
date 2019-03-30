@@ -24,12 +24,10 @@ namespace HitachiEIP {
          AddLog = 2,
          Close = 3,
          View = 4,
-         Resize = 5,
-         Exit = 6,
+         Exit = 5,
       }
 
       // Do the work in the background
-      HitachiBrowser parent;
       Thread t;
 
       // Use Blocking Collection to avoid spin waits
@@ -54,9 +52,7 @@ namespace HitachiEIP {
 
       #region Constructon and service routines
 
-      public Traffic(HitachiBrowser parent) {
-         // Needed to pass data back to the main form
-         this.parent = parent;
+      public Traffic() {
          // Set the time and elapsed time for the others
          t = new Thread(processTasks);
          t.Start();
@@ -64,18 +60,11 @@ namespace HitachiEIP {
 
       // Loop to process the Blocking Collection
       private void processTasks() {
-         StringFormat sf = new StringFormat() { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
-         Graphics g = parent.CreateGraphics();
-         Brush brush = new SolidBrush(SystemColors.Control);
-         Rectangle rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
-
          try {
             bool done = false;
             // Just one big loop
             while (!done) {
                // Post the queue count and wait for the next request
-               g.FillRectangle(brush, rect);
-               g.DrawString(Tasks.Count.ToString(), parent.lblTraffic.Font, Brushes.Black, rect, sf);
                pkt = Tasks.Take();
                switch (pkt.Type) {
                   case TaskType.Create:
@@ -94,12 +83,6 @@ namespace HitachiEIP {
                      // Open Excel
                      Process.Start(pkt.Data);
                      break;
-                  case TaskType.Resize:
-                     g.Dispose();
-                     g = null;
-                     g = parent.CreateGraphics();
-                     rect = new Rectangle(parent.lblTraffic.Location, parent.lblTraffic.Size);
-                     break;
                   case TaskType.Exit:
                      done = true;
                      break;
@@ -111,10 +94,6 @@ namespace HitachiEIP {
 
          } finally {
             CloseExcelApplication();
-            if (g != null) {
-               g.Dispose();
-               g = null;
-            }
          }
       }
 
@@ -234,7 +213,9 @@ namespace HitachiEIP {
             wsTraffic.Columns.AutoFit();
 
             // Save it away
-            excelApp.ActiveWorkbook.SaveAs(pkt.Data);
+            if (!string.IsNullOrEmpty(pkt.Data)) {
+               excelApp.ActiveWorkbook.SaveAs(pkt.Data);
+            }
             wb.Close();
             excelApp.Quit();
             Marshal.ReleaseComObject(excelApp);
