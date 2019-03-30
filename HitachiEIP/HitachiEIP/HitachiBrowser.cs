@@ -49,12 +49,6 @@ namespace HitachiEIP {
       public bool MgmtIsOn = false;
       public bool AutoReflIsOn = false;
 
-      public static Traffic Traffic = null;
-
-      string trafficHdrs =
-         "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
-         "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
-
       #endregion
 
       #region Constructors and Destructors
@@ -87,10 +81,6 @@ namespace HitachiEIP {
       private void HitachiBrowser_Load(object sender, EventArgs e) {
          // Center the form on the screen
          Utils.PositionForm(this, 0.75f, 0.9f);
-
-         // Build traffic and log files
-         Traffic = new Traffic(this);
-         CreateExcelApp();
 
          // Create the ClassCode dropdown without the underscores 
          string[] ClassNames = Enum.GetNames(typeof(ClassCode));
@@ -152,7 +142,7 @@ namespace HitachiEIP {
          EIP.StateChanged -= EIP_StateChanged;
 
          // Close traffic/log files
-         CloseExcelFile(false);
+         EIP.CloseExcelFile(false, string.Empty);
 
          // Save away the user's data
          Properties.Settings.Default.IPAddress = txtIPAddress.Text;
@@ -281,8 +271,6 @@ namespace HitachiEIP {
 
             //this.Refresh();
             this.ResumeLayout();
-
-            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Resize, null));
          }
       }
 
@@ -417,7 +405,7 @@ namespace HitachiEIP {
 
       // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
-         CloseExcelFile(true);
+         EIP.CloseExcelFile(true, txtSaveFolder.Text);
       }
 
       // Step thru all classes and attributes with classes to issue Get requests
@@ -690,14 +678,6 @@ namespace HitachiEIP {
          this.IPAddress = IPAddress.ToString();
       }
 
-      // Create a unique file name by incorporating time into the filename
-      private string CreateFileName(string directory, string s, string ext = "csv") {
-         if (Directory.Exists(directory)) {
-            Directory.CreateDirectory(directory);
-         }
-         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.{ext}");
-      }
-
       // Get the com setting
       private bool GetComSetting() {
          bool result;
@@ -859,28 +839,12 @@ namespace HitachiEIP {
 
       }
 
-      #endregion
-
-      #region Excel traffic capture
-
-      private void CreateExcelApp() {
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, trafficHdrs));
-      }
-
-      private void FillInColData(string data) {
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, data));
-      }
-
-      private void CloseExcelFile(bool view) {
-         string filename = CreateFileName(txtSaveFolder.Text, "Traffic", "xlsx");
-         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Close, filename));
-
-         if (view) {
-            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.View, filename));
-            CreateExcelApp();
-         } else {
-            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Exit, null));
+      // Create a unique file name by incorporating time into the filename
+      private string CreateFileName(string directory, string s, string ext = "csv") {
+         if (Directory.Exists(directory)) {
+            Directory.CreateDirectory(directory);
          }
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.{ext}");
       }
 
       #endregion

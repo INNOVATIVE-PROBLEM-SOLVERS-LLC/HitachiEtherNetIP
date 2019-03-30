@@ -523,15 +523,29 @@ namespace HitachiEIP {
       // Status of last request
       bool Successful = false;
 
+      public static Traffic Traffic = null;
+
+      string trafficHdrs =
+         "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
+         "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
+
       #endregion
 
       #region Constructors and Destructors
 
-      public EIP(string IPAddress, Int32 port) {
+      public EIP(string IPAddress, int port) {
+         // Save caller's parameters
          this.IPAddress = IPAddress;
          this.port = port;
+         // Build traffic file
+         if (Traffic == null) {
+            Traffic = new Traffic();
+            CreateExcelApp();
+         }
+         // Build save area for the ccIDX values
          IndexAttr = ((ccIDX[])Enum.GetValues(typeof(ccIDX))).Select(x => Convert.ToByte(x)).ToArray();
          IndexValue = new uint[IndexAttr.Length];
+         // Build Dictionary by ClassCode/Enum valus
          BuildAttributeDictionary();
       }
 
@@ -735,7 +749,7 @@ namespace HitachiEIP {
                   Successful = false;
                }
                // Record the operation in the Traffic file
-               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
@@ -750,6 +764,13 @@ namespace HitachiEIP {
          AttrData attr = GetAttrData(Attribute);
          byte[] data = FormatOutput(n, attr.Get);
          GetAttribute(attr.Class, attr.Val, data);
+         return GetDecValue;
+      }
+
+      // Get one attribute based on the Data Property
+      public int GetAttribute<T>(T Attribute) where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
+         GetAttribute(attr.Class, attr.Val, Nodata);
          return GetDecValue;
       }
 
@@ -776,7 +797,7 @@ namespace HitachiEIP {
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file
-               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
@@ -834,7 +855,7 @@ namespace HitachiEIP {
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file
-               HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
@@ -1625,7 +1646,7 @@ namespace HitachiEIP {
 
       // Register a message if someone is listening
       private void LogIt(string msg) {
-         HitachiBrowser.Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
+         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          Log?.Invoke(this, msg);
       }
 
@@ -1766,6 +1787,38 @@ namespace HitachiEIP {
          this.SetDataLength = (byte)dataOut.Length;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
          return AttrDict[Class, Attribute];
+      }
+
+      #endregion
+
+      #region Excel traffic capture
+
+      private void CreateExcelApp() {
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, trafficHdrs));
+      }
+
+      private void FillInColData(string data) {
+         Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, data));
+      }
+
+      public void CloseExcelFile(bool view, string folderName) {
+         if (view) {
+            string filename = CreateFileName(folderName, "Traffic", "xlsx");
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Close, filename));
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.View, filename));
+            CreateExcelApp();
+         } else {
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Close, string.Empty));
+            Traffic.Tasks.Add(new TrafficPkt(Traffic.TaskType.Exit, null));
+         }
+      }
+
+      // Create a unique file name by incorporating time into the filename
+      private string CreateFileName(string directory, string s, string ext = "csv") {
+         if (Directory.Exists(directory)) {
+            Directory.CreateDirectory(directory);
+         }
+         return Path.Combine(directory, $"{s}{DateTime.Now.ToString("yyMMdd-HHmmss")}.{ext}");
       }
 
       #endregion
