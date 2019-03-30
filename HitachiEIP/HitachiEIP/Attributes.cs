@@ -497,34 +497,34 @@ namespace HitachiEIP {
          ExtraGet = new Button[MaxExtras];
          ExtraSet = new Button[MaxExtras];
 
-         if ((Extras & EIP.AddItem) > 0) {
+         if ((Extras & HitachiBrowser.AddItem) > 0) {
             AddExtras(ref n, ccIDX.Item);
          }
-         if ((Extras & EIP.AddColumn) > 0) {
+         if ((Extras & HitachiBrowser.AddColumn) > 0) {
             AddExtras(ref n, ccIDX.Column);
          }
-         if ((Extras & EIP.AddLine) > 0) {
+         if ((Extras & HitachiBrowser.AddLine) > 0) {
             AddExtras(ref n, ccIDX.Line);
          }
-         if ((Extras & EIP.AddPosition) > 0) {
+         if ((Extras & HitachiBrowser.AddPosition) > 0) {
             AddExtras(ref n, ccIDX.Character_position);
          }
-         if ((Extras & EIP.AddCalendar) > 0) {
+         if ((Extras & HitachiBrowser.AddCalendar) > 0) {
             AddExtras(ref n, ccIDX.Calendar_Block);
          }
-         if ((Extras & EIP.AddCount) > 0) {
+         if ((Extras & HitachiBrowser.AddCount) > 0) {
             AddExtras(ref n, ccIDX.Count_Block);
          }
-         if ((Extras & EIP.AddSubstitution) > 0) {
+         if ((Extras & HitachiBrowser.AddSubstitution) > 0) {
             AddExtras(ref n, ccIDX.Substitution_Rules_Setting);
          }
-         if ((Extras & EIP.AddGroupNumber) > 0) {
+         if ((Extras & HitachiBrowser.AddGroupNumber) > 0) {
             AddExtras(ref n, ccIDX.Print_Data_Group_Data);
          }
-         if ((Extras & EIP.AddMessageNumber) > 0) {
+         if ((Extras & HitachiBrowser.AddMessageNumber) > 0) {
             AddExtras(ref n, ccIDX.Print_Data_Message_Number);
          }
-         if ((Extras & EIP.AddUserPatternSize) > 0) {
+         if ((Extras & HitachiBrowser.AddUserPatternSize) > 0) {
             AddExtras(ref n, ccIDX.User_Pattern_Size);
          }
          if (n > 0) {
