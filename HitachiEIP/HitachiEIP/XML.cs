@@ -1154,7 +1154,6 @@ namespace HitachiEIP {
       // Create a message with text only
       private void cmdCreateText_Click(object sender, EventArgs e) {
          success = true;
-         string s;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                for (int step = 0; step < 3 && success; step++) {
@@ -1246,7 +1245,6 @@ namespace HitachiEIP {
       private void cmdCreateDate_Click(object sender, EventArgs e) {
          success = true;
          int Item = 1;
-         int Rule = 2;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Clean up the display

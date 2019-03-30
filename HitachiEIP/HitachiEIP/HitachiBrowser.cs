@@ -12,6 +12,20 @@ namespace HitachiEIP {
 
       #region Data declarations
 
+      // Flags for adding extra controls to set Index functions
+      internal const int AddNone = 0;
+      internal const int AddItem = 0x01;
+      internal const int AddColumn = 0x02;
+      internal const int AddLine = 0x04;
+      internal const int AddPosition = 0x08;
+      internal const int AddCalendar = 0x10;
+      internal const int AddCount = 0x20;
+      internal const int AddSubstitution = 0x40;
+      internal const int AddGroupNumber = 0x80;
+      internal const int AddMessageNumber = 0x100;
+      internal const int AddUserPatternSize = 0x200;
+      internal const int AddAll = 0x3FF;
+
       string IPAddress;
       int port;
 
@@ -92,19 +106,19 @@ namespace HitachiEIP {
          indexAttr = new Attributes<ccIDX>
             (this, EIP, tabIndex, ClassCode.Index);
          oprAttr = new Attributes<ccIJP>
-            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, EIP.AddItem);
+            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, AddItem);
          pdmAttr = new Attributes<ccPDM>
-            (this, EIP, tabPrintManagement, ClassCode.Print_data_management, EIP.AddGroupNumber | EIP.AddMessageNumber);
+            (this, EIP, tabPrintManagement, ClassCode.Print_data_management, AddGroupNumber | AddMessageNumber);
          psAttr = new Attributes<ccPS>
             (this, EIP, tabPrintSpec, ClassCode.Print_specification);
          pFmtAttr = new Attributes<ccPF>
-            (this, EIP, tabPrintFormat, ClassCode.Print_format, EIP.AddItem | EIP.AddPosition | EIP.AddColumn);
+            (this, EIP, tabPrintFormat, ClassCode.Print_format, AddItem | AddPosition | AddColumn);
          calAttr = new Attributes<ccCal>
-            (this, EIP, tabCalendar, ClassCode.Calendar, EIP.AddCalendar | EIP.AddItem);
+            (this, EIP, tabCalendar, ClassCode.Calendar, AddCalendar | AddItem);
          sRulesAttr = new Attributes<ccSR>
-            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, EIP.AddItem);
+            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddItem);
          countAttr = new Attributes<ccCount>
-            (this, EIP, tabCount, ClassCode.Count, EIP.AddItem | EIP.AddCount);
+            (this, EIP, tabCount, ClassCode.Count, AddItem | AddCount);
          unitInfoAttr = new Attributes<ccUI>
             (this, EIP, tabUnitInformation, ClassCode.Unit_Information);
          envirAttr = new Attributes<ccES>
@@ -112,7 +126,7 @@ namespace HitachiEIP {
          mgmtAttr = new Attributes<ccOM>
             (this, EIP, tabOpMgmt, ClassCode.Operation_management);
          userPatAttr = new Attributes<ccUP>
-            (this, EIP, tabUserPattern, ClassCode.User_pattern, EIP.AddUserPatternSize);
+            (this, EIP, tabUserPattern, ClassCode.User_pattern, AddUserPatternSize);
          processXML = new XML(this, EIP, tabXML);
 
          // Force a resize
@@ -639,7 +653,7 @@ namespace HitachiEIP {
          RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
          RFS = new StreamWriter(RFN, false, Encoding.UTF8);
 
-         EIP.M161.ReformatTables(RFS);
+         //EIP.M161.ReformatTables(RFS);
 
          RFS.Flush();
          RFS.Close();

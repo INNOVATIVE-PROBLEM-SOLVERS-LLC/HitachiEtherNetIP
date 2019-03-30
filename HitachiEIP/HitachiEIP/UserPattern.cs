@@ -9,7 +9,7 @@ namespace HitachiEIP {
 
    class UserPattern {
 
-#region Data Declarations
+      #region Data Declarations
 
       ResizeInfo R;
 
@@ -72,9 +72,9 @@ namespace HitachiEIP {
          this.tab = tab;
       }
 
-#endregion
+      #endregion
 
-#region Routines called from parent
+      #region Routines called from parent
 
       // Dynamically build all the controls.
       public void BuildUserPatternControls() {
@@ -202,9 +202,9 @@ namespace HitachiEIP {
          UpSaveAs.Enabled = stripes != null;
       }
 
-#endregion
+      #endregion
 
-#region Form control routines
+      #region Form control routines
 
       // Allow all the image to be viewed
       private void HsbGrid_Scroll(object sender, ScrollEventArgs e) {
@@ -279,7 +279,7 @@ namespace HitachiEIP {
          GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          // Build the blank image
          stripes = new long[cbUpCount.SelectedIndex + 1][];
-         for(int i = 0; i < stripes.Length; i++) {
+         for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
          }
          bmGrid = StripesToBitMap(stripes);
@@ -432,9 +432,9 @@ namespace HitachiEIP {
          SetButtonEnables();
       }
 
-#endregion
+      #endregion
 
-#region Service Routines
+      #region Service Routines
 
       // convert cijConnect logo file to stripes
       private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
@@ -451,7 +451,7 @@ namespace HitachiEIP {
                      isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
                         int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
                      if (isValid && header.Length > 3) {
-                        if(!int.TryParse(header[3], out registration)) {
+                        if (!int.TryParse(header[3], out registration)) {
                            registration = -1;
                            isValid = false;
                         }
@@ -472,10 +472,10 @@ namespace HitachiEIP {
             } else {
                isValid = false;
             }
-         } catch (Exception e) {
+         } catch {
             isValid = false;
          }
-         if(isValid) {
+         if (isValid) {
             // Load the cijConnect logo into the printer browser
             CleanUpGrid();
             stripes = PatternToStripes(charHeight, charWidth, pattern);
@@ -519,7 +519,7 @@ namespace HitachiEIP {
             string s = string.Empty;
             for (int j = 0; j < stripes[i].Length; j++) {
                long n = stripes[i][j];
-               for (int k = 0; k < stride; k++)  {
+               for (int k = 0; k < stride; k++) {
                   s += (n & 0xFF).ToString("X2");
                   n >>= 8;
                }
@@ -805,11 +805,11 @@ namespace HitachiEIP {
          }
       }
 
-#endregion
+      #endregion
 
    }
 
-#endregion
+   #endregion
 
 }
 

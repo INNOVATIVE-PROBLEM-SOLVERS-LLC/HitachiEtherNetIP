@@ -24,7 +24,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>5.0.5.0</ApplicationVersion>
+    <ApplicationVersion>5.0.6.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -62,6 +62,10 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Hitachi_EIP, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Hitachi_EIP.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -80,10 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttrData.cs" />
     <Compile Include="Attributes.cs" />
-    <Compile Include="DataII.cs" />
-    <Compile Include="EthernetIP.cs" />
     <Compile Include="HitachiBrowser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,7 +94,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Substitution.cs" />
-    <Compile Include="Traffic.cs" />
     <Compile Include="UserPattern.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="XML.cs" />
