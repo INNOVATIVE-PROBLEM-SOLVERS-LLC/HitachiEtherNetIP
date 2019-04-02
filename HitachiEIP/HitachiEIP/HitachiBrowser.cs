@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
+using EIP_Base;
 
 namespace HitachiEIP {
 
@@ -80,7 +81,7 @@ namespace HitachiEIP {
          }
          VerifyAddressAndPort();
 
-         EIP = new EIP(txtIPAddress.Text, port);
+         EIP = new EIP(txtIPAddress.Text, port, txtSaveFolder.Text);
          EIP.Log += EIP_Log;
          EIP.IOComplete += EIP_IO_Complete;
          EIP.StateChanged += EIP_StateChanged;
@@ -156,7 +157,7 @@ namespace HitachiEIP {
          EIP.StateChanged -= EIP_StateChanged;
 
          // Close traffic/log files
-         EIP.CloseExcelFile(false, string.Empty);
+         EIP.CloseExcelFile(false);
 
          // Save away the user's data
          Properties.Settings.Default.IPAddress = txtIPAddress.Text;
@@ -419,7 +420,7 @@ namespace HitachiEIP {
 
       // Cycle the traffic file and bring it up in Notepad
       private void btnViewTraffic_Click(object sender, EventArgs e) {
-         EIP.CloseExcelFile(true, txtSaveFolder.Text);
+         EIP.CloseExcelFile(true);
       }
 
       // Step thru all classes and attributes with classes to issue Get requests

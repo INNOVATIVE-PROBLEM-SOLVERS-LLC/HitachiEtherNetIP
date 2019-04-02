@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using EIP_Base;
 
 namespace HitachiEIP {
    class Attributes<t1> {
@@ -394,8 +395,8 @@ namespace HitachiEIP {
             tab.Controls.Add(texts[i]);
             texts[i].ReadOnly = !(attr.HasSet || attr.HasGet && attr.Get.Len > 0 || attr.HasService && attr.Service.Len > 0);
             if (attr.HasSet && attr.Data.DropDown == fmtDD.None &&
-               (attr.Data.Fmt == DataFormats.Decimal || attr.Data.Fmt == DataFormats.DecimalLE ||
-                attr.Data.Fmt == DataFormats.SDecimal || attr.Data.Fmt == DataFormats.SDecimalLE)) {
+               (attr.Data.Fmt == EIP_Base.DataFormats.Decimal || attr.Data.Fmt == EIP_Base.DataFormats.DecimalLE ||
+                attr.Data.Fmt == EIP_Base.DataFormats.SDecimal || attr.Data.Fmt == EIP_Base.DataFormats.SDecimalLE)) {
                texts[i].MouseWheel += Text_MouseWheel;
             }
 
@@ -410,7 +411,7 @@ namespace HitachiEIP {
                   dropdowns[i].SelectedIndexChanged += Attributes_SelectedIndexChanged;
                }
                tab.Controls.Add(dropdowns[i]);
-            } else if(attr.HasSet && !attr.HasGet && attr.Set.Fmt == DataFormats.Decimal) {
+            } else if(attr.HasSet && !attr.HasGet && attr.Set.Fmt == EIP_Base.DataFormats.Decimal) {
                texts[i].Text = attr.Set.Min.ToString();
                texts[i].BackColor = Color.LightGreen;
             }
@@ -424,9 +425,9 @@ namespace HitachiEIP {
                sets[i] = new Button() { Tag = tag, Text = "Set" };
                sets[i].Click += Set_Click;
                tab.Controls.Add(sets[i]);
-               if (attr.Set.Fmt == DataFormats.Decimal || attr.Set.Fmt == DataFormats.DecimalLE) {
+               if (attr.Set.Fmt == EIP_Base.DataFormats.Decimal || attr.Set.Fmt == EIP_Base.DataFormats.DecimalLE) {
                   texts[i].KeyPress += NumbersOnly_KeyPress;
-               } else if (attr.Set.Fmt == DataFormats.SDecimal || attr.Set.Fmt == DataFormats.SDecimalLE) {
+               } else if (attr.Set.Fmt == EIP_Base.DataFormats.SDecimal || attr.Set.Fmt == EIP_Base.DataFormats.SDecimalLE) {
                   texts[i].KeyPress += SignedNumbersOnly_KeyPress;
                } else {
                   texts[i].KeyPress += Text_KeyPress;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
+using EIP_Base;
 
 namespace HitachiEIP {
    public class XML {
@@ -1070,7 +1071,7 @@ namespace HitachiEIP {
          string val = string.Empty;
          AttrData attr = EIP.AttrDict[cc, at];
          EIP.GetAttribute(cc, at, EIP.Nodata);
-         if (attr.Data.Fmt == DataFormats.UTF8) {
+         if (attr.Data.Fmt == EIP_Base.DataFormats.UTF8) {
             return EIP.FromQuoted(EIP.GetDataValue);
          }
          return EIP.GetDataValue;
