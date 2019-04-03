@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HitachiEIP", "HitachiEIP\HitachiEIP.csproj", "{58367572-F59A-41D5-BA0A-9C372E7A39DC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H_EIP", "..\Hitachi_Browser_Test\H_EIP\H_EIP.csproj", "{25148FD3-C997-47D4-BCC4-7D643339D935}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H_EIP", "H_EIP\H_EIP.csproj", "{25148FD3-C997-47D4-BCC4-7D643339D935}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{58367572-F59A-41D5-BA0A-9C372E7A39DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58367572-F59A-41D5-BA0A-9C372E7A39DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58367572-F59A-41D5-BA0A-9C372E7A39DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58367572-F59A-41D5-BA0A-9C372E7A39DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0114734A-58C7-497D-B2FE-29F10225EC86}
+		SolutionGuid = {A1194948-3F9D-49CB-86DF-6198B4FBAC78}
 	EndGlobalSection
 EndGlobal

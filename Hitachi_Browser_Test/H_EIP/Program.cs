@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using EIP_Base;
 
 namespace H_EIP {
    static class Program {
@@ -11,7 +13,7 @@ namespace H_EIP {
       static void Main() {
          Application.EnableVisualStyles();
          Application.SetCompatibleTextRenderingDefault(false);
-         Application.Run(new Browser("192.168.0.1", 44818, @"c:\Temp\EIP"));
+         Application.Run(new TestEIP());
       }
    }
 }
