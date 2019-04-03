@@ -27,6 +27,8 @@
          this.cmdViewTraffic = new System.Windows.Forms.Button();
          this.cmdStartBrowser = new System.Windows.Forms.Button();
          this.cmdExit = new System.Windows.Forms.Button();
+         this.lblFont = new System.Windows.Forms.Label();
+         this.cbFont = new System.Windows.Forms.ComboBox();
          this.SuspendLayout();
          // 
          // cmdSendToPrinter
@@ -69,11 +71,30 @@
          this.cmdExit.UseVisualStyleBackColor = true;
          this.cmdExit.Click += new System.EventHandler(this.cmdExit_Click);
          // 
+         // lblFont
+         // 
+         this.lblFont.Location = new System.Drawing.Point(12, 142);
+         this.lblFont.Name = "lblFont";
+         this.lblFont.Size = new System.Drawing.Size(173, 27);
+         this.lblFont.TabIndex = 4;
+         this.lblFont.Text = "Select A Font";
+         this.lblFont.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         // 
+         // cbFont
+         // 
+         this.cbFont.FormattingEnabled = true;
+         this.cbFont.Location = new System.Drawing.Point(15, 172);
+         this.cbFont.Name = "cbFont";
+         this.cbFont.Size = new System.Drawing.Size(173, 24);
+         this.cbFont.TabIndex = 5;
+         // 
          // TestEIP
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(394, 147);
+         this.ClientSize = new System.Drawing.Size(394, 236);
+         this.Controls.Add(this.cbFont);
+         this.Controls.Add(this.lblFont);
          this.Controls.Add(this.cmdExit);
          this.Controls.Add(this.cmdStartBrowser);
          this.Controls.Add(this.cmdViewTraffic);
@@ -92,6 +113,8 @@
       private System.Windows.Forms.Button cmdViewTraffic;
       private System.Windows.Forms.Button cmdStartBrowser;
       private System.Windows.Forms.Button cmdExit;
+      private System.Windows.Forms.Label lblFont;
+      private System.Windows.Forms.ComboBox cbFont;
    }
 }
 

@@ -20,6 +20,7 @@ namespace H_EIP {
          } else {
             EIP = browser.EIP;
          }
+         cbFont.Items.AddRange(EIP.DropDowns[(int)fmtDD.FontType]);
       }
 
       private void cmdViewTraffic_Click(object sender, EventArgs e) {
