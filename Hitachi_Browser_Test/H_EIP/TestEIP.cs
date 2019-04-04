@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using EIP_Base;
+using EIP_Lib;
 
 namespace H_EIP {
    public partial class TestEIP : Form {
@@ -41,21 +41,30 @@ namespace H_EIP {
          browser = null;
       }
 
+      private void Sample() {
+         AttrData attr = EIP.GetAttrData(ccPF.Print_Character_String);
+         byte[] data1 = EIP.Encode.GetBytes("Hello World");               // To UTF8 without a Null
+         byte[] data2 = EIP.FormatOutput(attr.Set, " and Hello Dolly");   // To UTF8 with a Null
+         EIP.SetAttribute(attr.Class, attr.Val, EIP.Merge(data1, data2)); // Merge the two arrays
+      }
+
       // Create a simple message
       private void cmdTest_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {    // Open a session
             if (EIP.ForwardOpen()) {  // open a data forwarding path
                int cols = EIP.GetAttribute(ccPF.Number_Of_Columns); // Get the number of columns
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 1); // Stack up all the operations
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);     // Stack up all the operations
                if (cols > 1) { // No need to delete columns if there is only one
                   EIP.SetAttribute(ccIDX.Column, 1); // Select column 2 (0 origin on deletes)
-                  for (int i = 2; i <= cols; i++)
+                  for (int i = 2; i <= cols; i++) {
                      EIP.ServiceAttribute(ccPF.Delete_Column); // Keep deleting column 2
+                  }
                }
                EIP.SetAttribute(ccIDX.Item, 1);      // Set column 1(1 origin on Line Count)
                EIP.SetAttribute(ccPF.Line_Count, 1); // Set to 1 line
-               for (int i = 2; i <= 5; i++)          // Add four more columns
+               for (int i = 2; i <= 5; i++) {        // Add four more columns
                   EIP.ServiceAttribute(ccPF.Add_Column);
+               }
                EIP.SetAttribute(ccIDX.Item, 2);      // Stack column 2
                EIP.SetAttribute(ccPF.Line_Count, 2);
                EIP.SetAttribute(ccIDX.Item, 4);      // Stack column 4
@@ -78,6 +87,5 @@ namespace H_EIP {
          }
          EIP.EndSession();      // Must be outside the StartSession if block
       }
-
    }
 }
