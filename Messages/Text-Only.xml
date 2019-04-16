@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Label ClockSystem="24-Hour" Registration="101" GroupNumber="00" GroupName="" Name="EthernetIP" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+  <Printer Model="UX" Make="Hitachi">
+    <PrintHead Orientation="1" />
+    <ContinuousPrinting RepeatInterval="03300" PrintsPerTrigger="0000" />
+    <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
+    <CharacterSize Height="60" Width="0008" />
+    <PrintStartDelay Reverse="0502" Forward="0502" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="005" ExternalEncoder="False" />
+    <InkStream InkDropUse="05" ChargeRule="Standard" />
+    <TwinNozzle LeadingCharControl="0" LeadingCharControlWidth1="20" LeadingCharControlWidth2="20" NozzleSpaceAlignment="0" />
+  </Printer>
+  <Objects>
+    <Object Type="Text">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5X8</Font>
+      <Location ItemNumber="1" Column="0" Row="2" Height="26" Width="162" Left="0" Top="26" />
+      <Text>P1267 02 {TTT} {hh}:{mm}
+BEST BY {MMM} {DD}, {YYYY} TXXXXX
+15077 BLUEBIRD ST NW</Text>
+    </Object>
+  </Objects>
+</Label>
