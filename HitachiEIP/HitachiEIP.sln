@@ -1,11 +1,26 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HitachiEIP", "HitachiEIP\HitachiEIP.csproj", "{58367572-F59A-41D5-BA0A-9C372E7A39DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitachi_Browser_Test", "HitachiEIP\Hitachi_Browser_Test.csproj", "{58367572-F59A-41D5-BA0A-9C372E7A39DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{97083701-AB25-4679-A9F2-A35B54BDF91A} = {97083701-AB25-4679-A9F2-A35B54BDF91A}
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2} = {76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H_EIP", "..\Hitachi_Browser_Test\H_EIP\H_EIP.csproj", "{25148FD3-C997-47D4-BCC4-7D643339D935}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitachi_EIP_Test", "..\Hitachi_Browser_Test\H_EIP\Hitachi_EIP_Test.csproj", "{25148FD3-C997-47D4-BCC4-7D643339D935}"
+	ProjectSection(ProjectDependencies) = postProject
+		{97083701-AB25-4679-A9F2-A35B54BDF91A} = {97083701-AB25-4679-A9F2-A35B54BDF91A}
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2} = {76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitachi_Browser_DLL", "..\Hitachi_Browser_DLL\HitachiBrowserDLL\Hitachi_Browser_DLL.csproj", "{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{97083701-AB25-4679-A9F2-A35B54BDF91A} = {97083701-AB25-4679-A9F2-A35B54BDF91A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitachi_EIP_DLL", "..\Hitachi_EIP_DLL\Hitachi_EIP\Hitachi_EIP_DLL.csproj", "{97083701-AB25-4679-A9F2-A35B54BDF91A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +36,14 @@ Global
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25148FD3-C997-47D4-BCC4-7D643339D935}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97083701-AB25-4679-A9F2-A35B54BDF91A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97083701-AB25-4679-A9F2-A35B54BDF91A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97083701-AB25-4679-A9F2-A35B54BDF91A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97083701-AB25-4679-A9F2-A35B54BDF91A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

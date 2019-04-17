@@ -24,8 +24,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>5.0.11.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -64,10 +64,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Browser">
-      <HintPath>..\..\HitachiEIP\HitachiEIP\Browser.dll</HintPath>
+      <HintPath>..\..\Hitachi_Browser_DLL\HitachiBrowserDLL\bin\Debug\Browser.dll</HintPath>
     </Reference>
     <Reference Include="EIP">
-      <HintPath>..\..\HitachiEIP\HitachiEIP\EIP.dll</HintPath>
+      <HintPath>..\..\..\GitHub\Hitachi_Browser_DLL\HitachiBrowserDLL\bin\Debug\EIP.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -103,7 +103,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="H_EIP_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
