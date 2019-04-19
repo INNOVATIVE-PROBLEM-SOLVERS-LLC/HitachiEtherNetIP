@@ -95,6 +95,7 @@ namespace EIP_Lib {
          EIP.Log -= EIP_Log;
          EIP.IOComplete -= EIP_IO_Complete;
          EIP.StateChanged -= EIP_StateChanged;
+         EIP.CleanUp();
       }
 
       private void InitializeData() {
@@ -163,16 +164,12 @@ namespace EIP_Lib {
       // Browser closing.  No un-managed memory so let the runtime environment clean most of it up
       private void HitachiBrowser_FormClosing(object sender, FormClosingEventArgs e) {
 
-         //// Stop logging
-         //EIP.Log -= EIP_Log;
-         //EIP.IOComplete -= EIP_IO_Complete;
-         //EIP.StateChanged -= EIP_StateChanged;
+         // Stop logging
+         EIP.Log -= EIP_Log;
+         EIP.IOComplete -= EIP_IO_Complete;
+         EIP.StateChanged -= EIP_StateChanged;
+         EIP.CleanUp();
 
-         // Save away the user's data
-         //Properties.Settings.Default.IPAddress = txtIPAddress.Text;
-         //Properties.Settings.Default.IPPort = txtIPAddress.Text;
-         //Properties.Settings.Default.LogFolder = txtSaveFolder.Text;
-         //Properties.Settings.Default.Save();
       }
 
       // Handle all screen resolutions

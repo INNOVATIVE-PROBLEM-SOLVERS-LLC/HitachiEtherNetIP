@@ -547,7 +547,7 @@ namespace EIP_Lib {
       }
 
       ~EIP() {
-         // Never gets called for some reason
+
       }
 
       public void CleanUp() {

@@ -60,9 +60,10 @@ namespace H_EIP {
                      EIP.ServiceAttribute(ccPF.Delete_Column); // Keep deleting column 2
                   }
                }
-               EIP.SetAttribute(ccIDX.Item, 1);      // Set column 1(1 origin on Line Count)
-               EIP.SetAttribute(ccPF.Line_Count, 1); // Set to 1 line
-               for (int i = 2; i <= 5; i++) {        // Add four more columns
+               EIP.SetAttribute(ccIDX.Item, 1);           // Set column 1(1 origin on Line Count)
+               EIP.SetAttribute(ccPF.Line_Count, 1);      // Set to 1 line
+               EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");  // Set the format to something small
+               for (int i = 2; i <= 5; i++) {             // Add four more columns
                   EIP.ServiceAttribute(ccPF.Add_Column);
                }
                EIP.SetAttribute(ccIDX.Item, 2);      // Stack column 2
