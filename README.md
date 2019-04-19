@@ -17,4 +17,6 @@ The solution is broken into four projects:
   <li>Hitachi_EIP_Test -- A starting point for developing an application that uses the "Browser" and "EIP" DLLs.</li>
 </ul>
 
+A record of all traffic to/from the printer is kept in an Excel Spreadsheet.  You will need Microsoft Office installed to execute the application as it is.
+
 It is still a work in progress so enjoy.
