@@ -1088,7 +1088,7 @@ namespace EIP_Lib {
       // Get data array as xx xx xx xx ...
       public string GetBytes(byte[] data, int start, int length) {
          string s = string.Empty;
-         for (int i = 0; i < length; i++) {
+         for (int i = 0; i < Math.Min(length, data.Length - start); i++) {
             s += $"{data[start + i]:X2} ";
          }
          return s;
