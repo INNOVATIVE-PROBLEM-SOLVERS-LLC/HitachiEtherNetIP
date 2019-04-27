@@ -761,7 +761,7 @@ namespace EIP_Lib {
                   Successful = false;
                }
                // Record the operation in the Traffic file
-               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic(attr)));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
@@ -809,7 +809,7 @@ namespace EIP_Lib {
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file
-               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic(attr)));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
@@ -867,7 +867,7 @@ namespace EIP_Lib {
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file
-               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic()));
+               Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, GetTraffic(attr)));
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
@@ -1561,7 +1561,7 @@ namespace EIP_Lib {
       }
 
       // Build the string to save in the traffic Excel Spreadsheet
-      public string GetTraffic() {
+      public string GetTraffic(AttrData attr) {
          Type at = ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
          string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
          trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
@@ -1574,7 +1574,17 @@ namespace EIP_Lib {
             if (!string.IsNullOrEmpty(GetDataValue) && GetDataValue.Length > 50) {
                trafficText += $"\tSee=>";
             } else {
-               trafficText += $"\t{GetDataValue}";
+               if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
+                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  long n = GetDecValue - attr.Data.Min;
+                  if (n >= 0 && n < dd.Length) {
+                     trafficText += $"\t{dd[n]}";
+                  } else {
+                     trafficText += $"\t{GetDataValue}";
+                  }
+               } else {
+                  trafficText += $"\t{GetDataValue}";
+               }
             }
             trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
             if (SetDataLength == 0) {
@@ -1585,7 +1595,17 @@ namespace EIP_Lib {
             if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
                trafficText += $"\tSee=>";
             } else {
-               trafficText += $"\t{SetDataValue}";
+               if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
+                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  long n = SetDecValue - attr.Data.Min;
+                  if (n >= 0 && n < dd.Length) {
+                     trafficText += $"\t{dd[n]}";
+                  } else {
+                     trafficText += $"\t{SetDataValue}";
+                  }
+               } else {
+                  trafficText += $"\t{SetDataValue}";
+               }
             }
             trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
          }
