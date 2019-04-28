@@ -550,7 +550,7 @@ namespace EIP_Lib {
 
       }
 
-      public void CleanUp() {
+      public void CleanUpTraffic() {
          lock (TrafficLock) {
             TrafficUsers -= 1;
             if (TrafficUsers == 0) {
