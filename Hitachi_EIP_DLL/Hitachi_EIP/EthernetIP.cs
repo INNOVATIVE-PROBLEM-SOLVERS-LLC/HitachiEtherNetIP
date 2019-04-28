@@ -504,7 +504,7 @@ namespace EIP_Lib {
       }
 
       // Save area for Index function values
-      uint[] IndexValue;
+      int[] IndexValue;
       Byte[] IndexAttr;
 
       // Status of last request
@@ -541,7 +541,7 @@ namespace EIP_Lib {
          }
          // Build save area for the ccIDX values
          IndexAttr = ((ccIDX[])Enum.GetValues(typeof(ccIDX))).Select(x => Convert.ToByte(x)).ToArray();
-         IndexValue = new uint[IndexAttr.Length];
+         IndexValue = new int[IndexAttr.Length];
          // Build Dictionary by ClassCode/Enum valus
          BuildAttributeDictionary();
       }
@@ -550,7 +550,7 @@ namespace EIP_Lib {
 
       }
 
-      public void CleanUp() {
+      public void CleanUpTraffic() {
          lock (TrafficLock) {
             TrafficUsers -= 1;
             if (TrafficUsers == 0) {
@@ -750,7 +750,7 @@ namespace EIP_Lib {
                   if (Class == ClassCode.Index) {
                      // reflect any changes back to the Index Function
                      int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                     IndexValue[i] = (uint)Get(GetData, 0, GetDataLength, mem.BigEndian);
+                     IndexValue[i] = (int)Get(GetData, 0, GetDataLength, mem.BigEndian);
                   }
                   Successful = true;
                } else {
@@ -799,7 +799,7 @@ namespace EIP_Lib {
                   if (Class == ClassCode.Index) {
                      // reflect any changes back to the Index Function
                      int i = Array.FindIndex(IndexAttr, x => x == Attribute);
-                     IndexValue[i] = (uint)Get(SetData, 0, SetDataLength, mem.BigEndian);
+                     IndexValue[i] = (int)Get(SetData, 0, SetDataLength, mem.BigEndian);
                   }
                   Successful = true;
                } else {
@@ -1641,7 +1641,7 @@ namespace EIP_Lib {
       }
 
       // Get the current setting of an index parameter
-      private uint GetIndexSetting(ccIDX attr) {
+      public int GetIndexSetting(ccIDX attr) {
          int i = Array.FindIndex(IndexAttr, x => x == (byte)attr);
          return IndexValue[i];
       }

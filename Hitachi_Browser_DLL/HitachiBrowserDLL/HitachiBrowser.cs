@@ -91,11 +91,7 @@ namespace EIP_Lib {
       }
 
       ~Browser() {
-         // Stop logging
-         EIP.Log -= EIP_Log;
-         EIP.IOComplete -= EIP_IO_Complete;
-         EIP.StateChanged -= EIP_StateChanged;
-         EIP.CleanUp();
+
       }
 
       private void InitializeData() {
@@ -168,8 +164,7 @@ namespace EIP_Lib {
          EIP.Log -= EIP_Log;
          EIP.IOComplete -= EIP_IO_Complete;
          EIP.StateChanged -= EIP_StateChanged;
-         EIP.CleanUp();
-
+         EIP.CleanUpTraffic();
       }
 
       // Handle all screen resolutions
