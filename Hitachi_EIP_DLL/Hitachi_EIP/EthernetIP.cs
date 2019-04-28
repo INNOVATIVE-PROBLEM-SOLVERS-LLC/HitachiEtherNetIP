@@ -653,8 +653,7 @@ namespace EIP_Lib {
          OCS >>= 1;
       }
 
-      //
-      //     Opens a Data Forwarding path to the printer.
+      // Opens a Data Forwarding path to the printer.
       public bool ForwardOpen() {
          bool successful = true;
          OCF <<= 1;
@@ -739,7 +738,6 @@ namespace EIP_Lib {
          if (StartSession()) {
             if (ForwardOpen()) {
                AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
-               SetDataValue = string.Empty;
                LengthIsValid = false;
                DataIsValid = false;
                int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Get, Class, 0x01, Attribute, DataOut);
@@ -1567,47 +1565,47 @@ namespace EIP_Lib {
          trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
          if (Successful) {
             if (GetDataLength == 0) {
-               trafficText += $"\t";
+               trafficText += $"\t\t\t";
             } else {
                trafficText += $"\t{GetDataLength}";
-            }
-            if (!string.IsNullOrEmpty(GetDataValue) && GetDataValue.Length > 50) {
-               trafficText += $"\tSee=>";
-            } else {
-               if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
-                  string[] dd = DropDowns[(int)attr.Data.DropDown];
-                  long n = GetDecValue - attr.Data.Min;
-                  if (n >= 0 && n < dd.Length) {
-                     trafficText += $"\t{dd[n]}";
+               if (attr.Data.Fmt == DataFormats.Bytes) {
+                  trafficText += $"\tSee=>";
+               } else {
+                  if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
+                     string[] dd = DropDowns[(int)attr.Data.DropDown];
+                     long n = GetDecValue - attr.Data.Min;
+                     if (n >= 0 && n < dd.Length) {
+                        trafficText += $"\t{dd[n]}";
+                     } else {
+                        trafficText += $"\t{GetDataValue}";
+                     }
                   } else {
                      trafficText += $"\t{GetDataValue}";
                   }
-               } else {
-                  trafficText += $"\t{GetDataValue}";
                }
+               trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
             }
-            trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
             if (SetDataLength == 0) {
-               trafficText += $"\t";
+               trafficText += $"\t\t\t";
             } else {
                trafficText += $"\t{SetDataLength}";
-            }
-            if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
-               trafficText += $"\tSee=>";
-            } else {
-               if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
-                  string[] dd = DropDowns[(int)attr.Data.DropDown];
-                  long n = SetDecValue - attr.Data.Min;
-                  if (n >= 0 && n < dd.Length) {
-                     trafficText += $"\t{dd[n]}";
+               if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
+                  trafficText += $"\tSee=>";
+               } else {
+                  if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
+                     string[] dd = DropDowns[(int)attr.Data.DropDown];
+                     long n = SetDecValue - attr.Data.Min;
+                     if (n >= 0 && n < dd.Length) {
+                        trafficText += $"\t{dd[n]}";
+                     } else {
+                        trafficText += $"\t{SetDataValue}";
+                     }
                   } else {
                      trafficText += $"\t{SetDataValue}";
                   }
-               } else {
-                  trafficText += $"\t{SetDataValue}";
                }
+               trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
             }
-            trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
          }
          return trafficText;
       }
