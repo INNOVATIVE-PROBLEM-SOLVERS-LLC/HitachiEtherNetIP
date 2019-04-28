@@ -93,7 +93,7 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.List_of_Groups, GSS.Get, false, 5,            // List of Groups 0x6F
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
+            new Prop(1, DataFormats.Bytes, 0, 99, fmtDD.None),                  //   Data
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccPDM.Change_Group_Number, GSS.Set, false, 2,       // Change Group Number 0x70
@@ -304,7 +304,7 @@ namespace EIP_Lib {
       // Calendar (Class Code 0x69)
       private AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, false, 10,     // Shift Code Condition 0x65
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccCal.First_Calendar_Block_Number, GSS.Get, false, 3, // First Calendar Block Number 0x66
@@ -508,11 +508,11 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.Hour12_24)),           //   Set
          new AttrData((byte)ccES.User_Environment_Information, GSS.Get, false, 8, // User Environment Information 0x69
-            new Prop(16, DataFormats.Decimal, 0, 0, fmtDD.None),                //   Data
+            new Prop(16, DataFormats.Bytes, 0, 0, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(16, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Set
          new AttrData((byte)ccES.Cirulation_Control_Setting_Value, GSS.Get, false, 3, // Cirulation Control Setting Value 0x6A
-            new Prop(12, DataFormats.Decimal, 0, 0, fmtDD.None),                //   Data
+            new Prop(12, DataFormats.Bytes, 0, 0, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(12, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Set
          new AttrData((byte)ccES.Usage_Time_Of_Circulation_Control, GSS.Set, false, 7, // Usage Time Of Circulation Control 0x6B
@@ -616,9 +616,9 @@ namespace EIP_Lib {
       // Operation_management (Class Code 0x74)
       private AttrData[] ccOM_Addrs = new AttrData[] {
          new AttrData((byte)ccOM.Operating_Management, GSS.Get, false, 12,      // Operating Management 0x64
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
+            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Get
+            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccOM.Ink_Operating_Time, GSS.GetSet, false, 9,      // Ink Operating Time 0x65
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -632,7 +632,7 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccOM.Communications_Environment, GSS.Get, false, 3, // Communications Environment 0x68
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccOM.Cumulative_Operation_Time, GSS.Get, false, 4,  // Cumulative Operation Time 0x69
@@ -672,29 +672,29 @@ namespace EIP_Lib {
       // IJP_operation (Class Code 0x75)
       private AttrData[] ccIJP_Addrs = new AttrData[] {
          new AttrData((byte)ccIJP.Remote_operation_information, GSS.Get, false, 7, // Remote operation information 0x64
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccIJP.Fault_and_warning_history, GSS.Get, false, 4, // Fault and warning history 0x66
             new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccIJP.Operating_condition, GSS.Get, false, 6,       // Operating condition 0x67
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccIJP.Warning_condition, GSS.Get, false, 10,        // Warning condition 0x68
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccIJP.Date_and_time_information, GSS.Get, false, 1, // Date and time information 0x6A
             new Prop(10, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(10, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccIJP.Error_code, GSS.Get, false, 3,                // Error code 0x6B
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccIJP.Start_Remote_Operation, GSS.Service, false, 8, // Start Remote Operation 0x6C
             new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
