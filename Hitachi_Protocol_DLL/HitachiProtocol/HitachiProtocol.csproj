@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{76D7BD64-37B1-4CE2-AC85-F50E39AE76C2}</ProjectGuid>
+    <ProjectGuid>{7613CF93-474B-4BED-86AB-F79B5C8EC7E4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EIP_Base</RootNamespace>
-    <AssemblyName>Browser</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>HitachiProtocol</RootNamespace>
+    <AssemblyName>HitachiProtocol</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,12 +29,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EIP">
-      <HintPath>..\..\Hitachi_EIP_DLL\Hitachi_EIP\bin\Debug\EIP.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -49,26 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes.cs" />
-    <Compile Include="HitachiBrowser.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HitachiBrowser.designer.cs">
-      <DependentUpon>HitachiBrowser.cs</DependentUpon>
-    </Compile>
+    <Compile Include="HitachiProtocol.cs" />
+    <Compile Include="HitachiProtocolDefs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Substitution.cs" />
-    <Compile Include="UserPattern.cs" />
-    <Compile Include="Utils.cs" />
-    <Compile Include="XML.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HitachiBrowser.resx">
-      <DependentUpon>HitachiBrowser.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
+    <Compile Include="HPEventArgs.cs" />
+    <Compile Include="HPStatus.cs" />
+    <Compile Include="HPRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
