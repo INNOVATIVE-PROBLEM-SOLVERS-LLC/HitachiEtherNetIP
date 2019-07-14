@@ -12,6 +12,8 @@ namespace HitachiProtocol {
 
    #region Namespace level definitions
 
+   // The enumerations in this section are Order and Value dependent.  Do not change.
+
    // Attributed Characters
    public enum AC {
       UserPattern = 0x1100, // Add User Pattern offset value
@@ -374,8 +376,6 @@ namespace HitachiProtocol {
 
          // Set as Simulator connection
          Connection = ConnectionType.Simulator;
-
-         LeaveInStandBy = false;
       }
 
       ~HitachiPrinter() {

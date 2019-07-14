@@ -100,8 +100,9 @@ namespace HitachiProtocol {
          }
 
          // Timer is a pain
-         RequestQueueTimer = new System.Windows.Forms.Timer();
-         RequestQueueTimer.Interval = 20;
+         RequestQueueTimer = new System.Windows.Forms.Timer {
+            Interval = 20
+         };
          RequestQueueTimer.Tick += ProcessRequestQueue;
          TimedDelay(100);
          RequestQueueTimer.Start();
@@ -203,9 +204,7 @@ namespace HitachiProtocol {
                   } else {
                      // Signaling Opertaion Timed Out == Retrying
                      BuildStatus(StateChange.TimeoutRetrying);
-                     if (Log != null) {
-                        Log(this, new HPEventArgs("Retrying Operation " + OperationName(mReq.Op, mReq.SubOp)));
-                     }
+                     Log?.Invoke(this, new HPEventArgs("Retrying Operation " + OperationName(mReq.Op, mReq.SubOp)));
                      // Retry the operation
                      mReq.Retries += 1;
                      PXROperationInProgress = false;
@@ -217,8 +216,8 @@ namespace HitachiProtocol {
             if (PartialLength > 0) {
                if (++PartialTimeoutCount > 10) {
                   string s = Extract(PartialLength);
-                  if ((EventLogging & HPEventLogging.Input) > 0 && Log != null) {
-                     Log(this, new HPEventArgs("Partial= " + s));
+                  if ((EventLogging & HPEventLogging.Input) > 0) {
+                     Log?.Invoke(this, new HPEventArgs("Partial= " + s));
                   }
                   ProcessReceive(s);
                }
@@ -265,9 +264,7 @@ namespace HitachiProtocol {
       void MoveToIdleQueue(HPRequest mReq) {
 
          // Update progress bar information
-         if (RequestCompleted != null) {
-            RequestCompleted(this);
-         }
+         RequestCompleted?.Invoke(this);
          // Remove it from the current list
          HP_Requests.Remove(mReq);
          // Add to the idle queue
@@ -389,9 +386,10 @@ namespace HitachiProtocol {
                break;
             case PrinterOps.Idle: // 17
                strMarker = mReq.Data1;
-               HPEventArgs ea = new HPEventArgs(PrinterOps.Idle, strMarker);
-               ea.nACKs = nACKs;
-               ea.nNAKs = nNAKs;
+               HPEventArgs ea = new HPEventArgs(PrinterOps.Idle, strMarker) {
+                  nACKs = nACKs,
+                  nNAKs = nNAKs
+               };
                PXROperationInProgress = true;
                CompleteOperation(mReq, strMarker);
                Complete?.Invoke(this, ea);
@@ -586,9 +584,7 @@ namespace HitachiProtocol {
 
          // Just log it
          if ((EventLogging & HPEventLogging.OperationComplete) > 0) {
-            if (Log != null) {
-               Log(this, new HPEventArgs(OperationName(intOp, intSubOp) + " Complete =>" + strResult + "<="));
-            }
+            Log?.Invoke(this, new HPEventArgs(OperationName(intOp, intSubOp) + " Complete =>" + strResult + "<="));
          }
          if (Connection == ConnectionType.Simulator) {
             parent.BeginInvoke(new EventHandler(delegate { ProcessRequestQueue(null, null); }));
@@ -598,9 +594,7 @@ namespace HitachiProtocol {
       HPRequest GetRequest(PrinterOps oP, int SubOp = 0) {
          HPRequest mReq;
 
-         if (RequestAdded != null) {
-            RequestAdded(this);
-         }
+         RequestAdded?.Invoke(this);
          // Is the idle request queue empty?
          if (HP_Idle.Count == 0) {
 
@@ -1706,62 +1700,17 @@ namespace HitachiProtocol {
                   return sESC + eRetrieveDistributorData + eRetrieveAdjustmentOperationalCheckout;
                case RetrieveOps.SolenoidValvePumpTest: // 25
                   return sESC + eRetrieveDistributorData + eRetrieveSolenoidValvePumpTest;
-               case RetrieveOps.SubstitutionRuleData: // 27
-                  return string.Empty;
-               case RetrieveOps.AdjustICS: // 28
-                  return string.Empty;
-               case RetrieveOps.VariousPrintSetup: // 29
-                  return string.Empty;
-               case RetrieveOps.CirculationSystemSetup: // 30
-                  return string.Empty;
-               case RetrieveOps.FreeLayoutCoordinates: // 31
-                  return string.Empty;
-               case RetrieveOps.MessageGroupNames: // 32
-                  return string.Empty;
                default:
                   return string.Empty;
             }
          }
       }
 
-      // Set Clock Codes
-      enum enuSetClock {
-         eSetClockCurrentDateTime = 0x72,
-         eSetClockCalendarTimeControl = 0x73,
-         eSetClockCalendarDateTime = 0x74,
-         eSetClockClockSystem = 0x75
-      }
-
       string BuildSetClockString(HPRequest mReq) {
-
-         // Fanout on Sub-type
-         switch ((SetClockOps)mReq.SubOp) {
-            case SetClockOps.CurrentDateTime:
-               if (rxClass) {
-                  return sSTX + sESC2 + (char)0x2e + (char)0x31 + mReq.Data1 + sETX;
-               } else {
-                  return sSTX + sESC + (char)0x72 + mReq.Data1 + sETX;
-               }
-            case SetClockOps.CalendarTimeControl:
-               if (rxClass) {
-                  return sSTX + sESC2 + (char)0x2e + (char)0x32 + mReq.Data1 + sETX;
-               } else {
-                  return sSTX + sESC + (char)0x73 + mReq.Data1 + sETX;
-               }
-            case SetClockOps.CalendarDateTime:
-               if (rxClass) {
-                  return sSTX + sESC2 + (char)0x2e + (char)0x33 + mReq.Data1 + sETX;
-               } else {
-                  return sSTX + sESC + (char)0x74 + mReq.Data1 + sETX;
-               }
-            case SetClockOps.TwelveTwentyFour:
-               if (rxClass) {
-                  return sSTX + sESC2 + (char)0x2e + (char)0x34 + mReq.Data1 + sETX;
-               } else {
-                  return sSTX + sESC + (char)0x75 + mReq.Data1 + sETX;
-               }
-            default:
-               return string.Empty;
+         if (rxClass) {
+            return sSTX + sESC2 + "\x2e" + (char)('1' + mReq.SubOp) + mReq.Data1 + sETX;
+         } else {
+            return sSTX + sESC + (char)('\x72' + mReq.SubOp) + mReq.Data1 + sETX;
          }
       }
 
@@ -1808,54 +1757,30 @@ namespace HitachiProtocol {
          }
       }
 
-      // Calendar Offset Types
-      enum enuCalendarOffsetTypes {
-         eYear = 0x30,
-         eMonth = 0x31,
-         eDay = 0x32,
-         eHour = 0x33,
-         eMinute = 0x34
-      }
-
       string BuildCalendarOffset(HPRequest mReq) {
-
-         const char eYear = (char)0x30;
-         const char eMonth = (char)0x31;
-         const char eDay = (char)0x32;
-         const char eHour = (char)0x33;
-         const char eMinute = (char)0x34;
-
          // Local Storage
          string strStart;
          string strResult;
 
          if (rxClass) {
             strStart = "\x1f\x28\x32" + (char)(mReq.BlockNo + 0x30);
-            strResult = strStart + eYear + mReq.Data1 + strStart + eMonth + mReq.Data2 + strStart + eDay + mReq.Data3 + strStart + eHour + mReq.Data4 + strStart + eMinute + mReq.Data5;
          } else {
             strStart = sESC + (char)0x76 + (char)(mReq.Item + 0x30);
-            strResult = strStart + eYear + mReq.Data1 + strStart + eMonth + mReq.Data2 + strStart + eDay + mReq.Data3 + strStart + eHour + mReq.Data4 + strStart + eMinute + mReq.Data5;
          }
+         strResult = strStart + "0" + mReq.Data1 // Year
+                   + strStart + "1" + mReq.Data2 // Month
+                   + strStart + "2" + mReq.Data3 // Day
+                   + strStart + "3" + mReq.Data4 // Hour
+                   + strStart + "4" + mReq.Data5; // Minute
 
          // Complete the string
          return sSTX + strResult + sETX;
       }
 
       string BuildCalendarSubRule(HPRequest mReq) {
-
-         const char eYear = (char)0x30;
-         const char eMonth = (char)0x31;
-         const char eDay = (char)0x32;
-         const char eHour = (char)0x33;
-         const char eMinute = (char)0x34;
-
-         if (rxClass) {
-            if (SubstitutionRules) {
-               return "\x02\x1f\x28\x31" + (char)(mReq.BlockNo + 0x30) + mReq.Data6 + "\x03";
-            }
+         if (rxClass && SubstitutionRules) {
+            return "\x02\x1f\x28\x31" + (char)(mReq.BlockNo + 0x30) + mReq.Data6 + "\x03";
          }
-
-         // Complete the string
          return "";
       }
 
@@ -1895,7 +1820,7 @@ namespace HitachiProtocol {
       }
 
       // Count Conditions
-      enum enuCount80 {
+      enum Count80 {
          eCtInitialValue = 0x30,
          eCtRange1 = 0x31,
          eCtRange2 = 0x32,
@@ -1905,13 +1830,13 @@ namespace HitachiProtocol {
       }
 
       // Count Conditions
-      enum enuCount81 {
+      enum Count81 {
          eCtUpdateInProgress = 0x30,
          eCtUpdateUnit = 0x31
       }
 
       // Count Conditions
-      enum enuCount82 {
+      enum Count82 {
          eCtDirection = 0x30,
          eCtExternalSignal = 0x31,
          eCtResetSignal = 0x32
@@ -1960,25 +1885,25 @@ namespace HitachiProtocol {
             // Build all conditions in a single write
             if (mReq.Data4.Length == 0) {
                result = sSTX +
-                   strStart80 + Chr(enuCount80.eCtRange1) + mReq.Data2 +
-                   strStart80 + Chr(enuCount80.eCtRange2) + mReq.Data3 +
-                   strStart80 + Chr(enuCount80.eCtInitialValue) + mReq.Data1 +
-                   strStart81 + Chr(enuCount81.eCtUpdateInProgress) + mReq.Data7 +
-                   strStart81 + Chr(enuCount81.eCtUpdateUnit) + mReq.Data8 +
-                   strStart82 + Chr(enuCount82.eCtDirection) + mReq.Data9 +
+                   strStart80 + Chr(Count80.eCtRange1) + mReq.Data2 +
+                   strStart80 + Chr(Count80.eCtRange2) + mReq.Data3 +
+                   strStart80 + Chr(Count80.eCtInitialValue) + mReq.Data1 +
+                   strStart81 + Chr(Count81.eCtUpdateInProgress) + mReq.Data7 +
+                   strStart81 + Chr(Count81.eCtUpdateUnit) + mReq.Data8 +
+                   strStart82 + Chr(Count82.eCtDirection) + mReq.Data9 +
                    strStart83 + mReq.Data12 +
                    sETX;
             } else {
                result = sSTX +
-                   strStart80 + Chr(enuCount80.eCtRange1) + mReq.Data2 +
-                   strStart80 + Chr(enuCount80.eCtRange2) + mReq.Data3 +
-                   strStart80 + Chr(enuCount80.eCtJumpFrom) + mReq.Data4 +
-                   strStart80 + Chr(enuCount80.eCtJumpTo) + mReq.Data5 +
-                   strStart80 + Chr(enuCount80.eCtInitialValue) + mReq.Data1 +
-                   strStart80 + Chr(enuCount80.eCtReset) + mReq.Data6 +
-                   strStart81 + Chr(enuCount81.eCtUpdateInProgress) + mReq.Data7 +
-                   strStart81 + Chr(enuCount81.eCtUpdateUnit) + mReq.Data8 +
-                   strStart82 + Chr(enuCount82.eCtDirection) + mReq.Data9 +
+                   strStart80 + Chr(Count80.eCtRange1) + mReq.Data2 +
+                   strStart80 + Chr(Count80.eCtRange2) + mReq.Data3 +
+                   strStart80 + Chr(Count80.eCtJumpFrom) + mReq.Data4 +
+                   strStart80 + Chr(Count80.eCtJumpTo) + mReq.Data5 +
+                   strStart80 + Chr(Count80.eCtInitialValue) + mReq.Data1 +
+                   strStart80 + Chr(Count80.eCtReset) + mReq.Data6 +
+                   strStart81 + Chr(Count81.eCtUpdateInProgress) + mReq.Data7 +
+                   strStart81 + Chr(Count81.eCtUpdateUnit) + mReq.Data8 +
+                   strStart82 + Chr(Count82.eCtDirection) + mReq.Data9 +
                    strStart83 + mReq.Data12 +
                    sETX;
             }
@@ -2015,7 +1940,7 @@ namespace HitachiProtocol {
                      PXROperationInProgress = true;
                      connectionState = ConnectionStates.Connecting;
                      soxPXR = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                     soxPXR.BeginConnect(IPAddress, IPPort, soxPXR_Connect, soxPXR);
+                     soxPXR.BeginConnect(IPAddress, IPPort, Sox_Connect, soxPXR);
                   }
                   break;
                case ConnectionType.Serial:
@@ -2023,9 +1948,10 @@ namespace HitachiProtocol {
                   // Set up the port and open it
                   if (string.IsNullOrEmpty(PortName))
                      PortName = "COM1";
-                  comPXR = new SerialPort(PortName, BaudRate, Parity, DataBits, StopBits);
-                  comPXR.Encoding = encode;
-                  comPXR.DataReceived += new SerialDataReceivedEventHandler(comPXR_DataReceived);
+                  comPXR = new SerialPort(PortName, BaudRate, Parity, DataBits, StopBits) {
+                     Encoding = encode
+                  };
+                  comPXR.DataReceived += new SerialDataReceivedEventHandler(PXR_DataReceived);
                   comPXR.Open();
 
                   // Set as connected before generating the event
@@ -2035,9 +1961,7 @@ namespace HitachiProtocol {
                   BuildStatus(StateChange.Connected);
 
                   // Let the user know
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(mReq.Op, mReq.SubOp, sACK));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(mReq.Op, mReq.SubOp, sACK));
 
                   // Throw away the request and issue the next request
                   CompleteOperation(mReq, string.Empty);
@@ -2054,9 +1978,7 @@ namespace HitachiProtocol {
                   BuildStatus(StateChange.Connected);
 
                   // Let the user know
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(mReq.Op, sACK));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(mReq.Op, sACK));
 
                   // Throw away the request and issue next request
                   CompleteOperation(mReq, string.Empty);
@@ -2068,9 +1990,7 @@ namespace HitachiProtocol {
                   BuildStatus(StateChange.ConnectFailed);
 
                   // Let the user know
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(mReq.Op, sNAK));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(mReq.Op, sNAK));
 
                   // Throw away the request and issue next request
                   CompleteOperation(mReq, string.Empty);
@@ -2089,9 +2009,7 @@ namespace HitachiProtocol {
             BuildStatus(StateChange.ConnectFailed);
 
             // Let the user know
-            if (Complete != null) {
-               Complete(this, new HPEventArgs(mReq.Op, sNAK));
-            }
+            Complete?.Invoke(this, new HPEventArgs(mReq.Op, sNAK));
 
             // Throw away the request and issue next request
             CompleteOperation(mReq, string.Empty);
@@ -2140,17 +2058,13 @@ namespace HitachiProtocol {
 
             // Do not report if terminating
             if (!blnTerminating) {
-               if (Complete != null) {
-                  Complete(this, new HPEventArgs(PrinterOps.Disconnect, sACK));
-               }
+               Complete?.Invoke(this, new HPEventArgs(PrinterOps.Disconnect, sACK));
             }
          } catch {
 
             // Do not report if terminating
             if (!blnTerminating) {
-               if (Complete != null) {
-                  Complete(this, new HPEventArgs(PrinterOps.Disconnect, sNAK));
-               }
+               Complete?.Invoke(this, new HPEventArgs(PrinterOps.Disconnect, sNAK));
             }
          }
       }
@@ -2159,11 +2073,11 @@ namespace HitachiProtocol {
 
       #region Callback Routines
 
-      void soxPXR_Connect(IAsyncResult ar) {
-         parent.BeginInvoke(new EventHandler(delegate { soxPXRConnect(ar); }));
-      }
-
-      void soxPXRConnect(IAsyncResult ar) {
+      void Sox_Connect(IAsyncResult ar) {
+         if(parent.InvokeRequired) {
+            parent.BeginInvoke(new EventHandler(delegate { Sox_Connect(ar); }));
+            return;
+         }
          try {
             // Local storage
             Socket client = (Socket)ar.AsyncState;
@@ -2186,9 +2100,10 @@ namespace HitachiProtocol {
                   CompleteOperation(mReq, $"OK to IP {IPAddress}({IPPort})!");
 
                   // Create a listener callback 
-                  StateObject state = new StateObject();
-                  state.workSocket = client;
-                  client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(soxPXR_DataArrival), state);
+                  StateObject state = new StateObject {
+                     workSocket = client
+                  };
+                  client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(Sox_DataArrival), state);
 
                } else {
 
@@ -2211,13 +2126,11 @@ namespace HitachiProtocol {
                client.EndConnect(ar);
             }
          } catch (Exception e) {
-            if (Log != null) {
-               Log(this, new HPEventArgs(PrinterOps.Nop, e.ToString()));
-            }
+            Log?.Invoke(this, new HPEventArgs(PrinterOps.Nop, e.ToString()));
          }
       }
 
-      void soxPXR_DataArrival(IAsyncResult ar) {
+      void Sox_DataArrival(IAsyncResult ar) {
          try {
 
             // can get here if socket closes
@@ -2225,9 +2138,7 @@ namespace HitachiProtocol {
                return;
             if (!soxPXR.Connected) {
                connectionState = ConnectionStates.Closed;
-               if (Log != null) {
-                  Log(this, new HPEventArgs("Connection Dropped!"));
-               }
+               Log?.Invoke(this, new HPEventArgs("Connection Dropped!"));
                return;
             }
 
@@ -2248,7 +2159,7 @@ namespace HitachiProtocol {
             }
             // Begin receiving the data from the remote device.
             ParseInput();
-            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(soxPXR_DataArrival), state);
+            client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(Sox_DataArrival), state);
          } catch (SocketException e) {
             if (Log != null) {
                parent.BeginInvoke(new EventHandler(delegate { Log(this, new HPEventArgs(PrinterOps.Nop, e.ToString())); }));
@@ -2256,7 +2167,7 @@ namespace HitachiProtocol {
          }
       }
 
-      void comPXR_DataReceived(object Sender, EventArgs e) {
+      void PXR_DataReceived(object Sender, EventArgs e) {
          int n = comPXR.BytesToRead;
          lock (PartialLock) {
             comPXR.Read(Partial, PartialLength, n);
@@ -2273,42 +2184,40 @@ namespace HitachiProtocol {
          try {
             if (parent.InvokeRequired) {
                parent.BeginInvoke(new EventHandler(delegate { ParseInput(); }));
-            } else {
-               string s;
-               int n;
-               while (PartialLength > 0) {
-                  switch ((char)Partial[0]) {
-                     case cACK:
-                     case cNAK:
-                        ProcessACK_NAK(Extract(1));
-                        break;
-                     case cENQ:
-                        ReceiveENQ(Extract(1));
-                        break;
-                     case cSTX:
-                        if (PartialLength >= RcvLength) {
-                           n = Math.Max(RcvLength - 1, 0);
-                           n = Array.IndexOf(Partial, (byte)cETX, n, PartialLength - n);
-                           if (n >= 0) {
-                              ProcessSTX(Extract(n + 1));
-                           } else
-                              return;
+               return;
+            }
+            string s;
+            int n;
+            while (PartialLength > 0) {
+               switch ((char)Partial[0]) {
+                  case cACK:
+                  case cNAK:
+                     ProcessACK_NAK(Extract(1));
+                     break;
+                  case cENQ:
+                     ReceiveENQ(Extract(1));
+                     break;
+                  case cSTX:
+                     if (PartialLength >= RcvLength) {
+                        n = Math.Max(RcvLength - 1, 0);
+                        n = Array.IndexOf(Partial, (byte)cETX, n, PartialLength - n);
+                        if (n >= 0) {
+                           ProcessSTX(Extract(n + 1));
                         } else
                            return;
-                        break;
-                     default:
-                        s = Extract(PartialLength);
-                        if (Log != null) {
-                           Log(this, new HPEventArgs("Partial= " + s));
-                        }
-                        break;
-                  }
-               }
-               if (!PXROperationInProgress) {
-                  TimedDelay(0);
+                     } else
+                        return;
+                     break;
+                  default:
+                     s = Extract(PartialLength);
+                     Log?.Invoke(this, new HPEventArgs("Partial= " + s));
+                     break;
                }
             }
-         } catch (Exception e) {
+            if (!PXROperationInProgress) {
+               TimedDelay(0);
+            }
+         } catch {
             // Avoid error on shutdown
          }
       }
@@ -2355,7 +2264,7 @@ namespace HitachiProtocol {
             Item = mReg.Item;
             switch (Op) {
 
-               // hConnect = 1, hDisconnect = 2,  hIdle = 17, hSetNozzle = 31 (Cannot get here)
+               // Connect = 1, Disconnect = 2, Idle = 17, SetNozzle = 31 (Cannot get here)
                case PrinterOps.IssueControl: // 3
 
                   // Assume no status to return
@@ -2383,9 +2292,7 @@ namespace HitachiProtocol {
 
                   // Complete the request
                   CompleteOperation(mReg, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
 
                   // Let the operator know
                   ProcessUnsolicited(strStatus, fakeStatus);
@@ -2410,18 +2317,14 @@ namespace HitachiProtocol {
                case PrinterOps.WriteCalendarSub: // 26
                case PrinterOps.WriteCalendarSubRule: // 27
                   CompleteOperation(mReg, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   break;
                case PrinterOps.WriteFormat: // 6
                case PrinterOps.WritePattern: // 11
 
                   // Complete the request
                   CompleteOperation(mReg, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, Item, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, Item, strIn));
                   break;
                case PrinterOps.RetrievePattern: // 15
 
@@ -2433,9 +2336,7 @@ namespace HitachiProtocol {
 
                   // Complete the request
                   CompleteOperation(mReg, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, 0, Font, CharSize, Page, KbType, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, 0, Font, CharSize, Page, KbType, strIn));
                   break;
                case PrinterOps.ENQ: // 19
 
@@ -2568,28 +2469,20 @@ namespace HitachiProtocol {
                      }
                   }
                   CompleteOperation(mReq, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   break;
                case PrinterOps.Retrieve:
                   if ((RetrieveOps)SubOp == RetrieveOps.PrintContentsNoAttributes) {
                      LastMessageText = strIn;
-                     if (StatusChanged != null) {
-                        StatusChanged(this, statusArea);
-                     }
+                     StatusChanged?.Invoke(this, statusArea);
                   }
                   CompleteOperation(mReq, strIn);
-                  if (Complete != null) {
-                     Complete(this, new HPEventArgs(Op, SubOp, strIn));
-                  }
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   break;
                case PrinterOps.PassThru:
                   if (mReq.ExpectTextResponse) {
                      CompleteOperation(mReq, strIn);
-                     if (Complete != null) {
-                        Complete(this, new HPEventArgs(Op, SubOp, strIn));
-                     }
+                     Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   } else {
                      ProcessUnsolicited(strIn);
                      // Need to avoid clearing PXROperationInProgress
@@ -2642,15 +2535,11 @@ namespace HitachiProtocol {
          // Log data completion (* for unsolicited)
          if (PXROperationInProgress) {
             if ((EventLogging & HPEventLogging.Input) > 0) {
-               if (Log != null) {
-                  Log(this, new HPEventArgs("Input  = " + strIn));
-               }
+               Log?.Invoke(this, new HPEventArgs("Input  = " + strIn));
             }
          } else {
             if ((EventLogging & HPEventLogging.Unsolicited) > 0) {
-               if (Log != null) {
-                  Log(this, new HPEventArgs("InputPR= " + strIn));
-               }
+               Log?.Invoke(this, new HPEventArgs("InputPR= " + strIn));
             }
          }
 
@@ -2714,9 +2603,7 @@ namespace HitachiProtocol {
                ReportRawData(false, sACK);
             }
             // Notify the user
-            if (Unsolicited != null) {
-               Unsolicited(this, new HPEventArgs(strIn));
-            }
+            Unsolicited?.Invoke(this, new HPEventArgs(strIn));
             // Most unsolicited info is status
             if (IsStatus(strIn)) {
                // Signaling unsolicited SOP-04 status
@@ -2808,9 +2695,7 @@ namespace HitachiProtocol {
                   break;
             }
          }
-         if (StatusChanged != null) {
-            StatusChanged(this, statusArea);
-         }
+         StatusChanged?.Invoke(this, statusArea);
       }
 
       void BuildStatus(string strStatus) {
@@ -2888,9 +2773,7 @@ namespace HitachiProtocol {
             }
 
          }
-         if (StatusChanged != null) {
-            StatusChanged(this, statusArea);
-         }
+         StatusChanged?.Invoke(this, statusArea);
       }
 
       string TranslateStatus(StatusAreas Area, char Value) {
@@ -3662,53 +3545,55 @@ namespace HitachiProtocol {
       }
 
       void BuildBarcodes() {
-         BCs = new List<BC>();
-         BCs.Add(new BC("Code39", true, true, 1, 0));
-         BCs.Add(new BC("ITF", true, true, 2, 1));
-         BCs.Add(new BC("NW-7", true, true, 3, 2));
-         BCs.Add(new BC("43478", true, true, -1, -1));
-         BCs.Add(new BC("DM16x16", true, true, 6, 4));
-         BCs.Add(new BC("DM8x32", true, true, 5, 5));
-         BCs.Add(new BC("Code 128(Code Set B)", true, true, 13, 6));
-         BCs.Add(new BC("Code 128(Code Set C)", true, true, 14, 6));
-         BCs.Add(new BC("DM16x36", true, true, 7, 7));
-         BCs.Add(new BC("DM16x48", true, true, 8, 8));
-         BCs.Add(new BC("DM18x18", true, true, 9, 9));
-         BCs.Add(new BC("DM20x20", true, true, 10, 10));
-         BCs.Add(new BC("DM22x22", true, true, 11, 11));
-         BCs.Add(new BC("DM24x24", true, true, 12, 12));
-         BCs.Add(new BC("UPC-A", true, false, 15, -1));
-         BCs.Add(new BC("UPC-B", true, false, 16, -1));
-         BCs.Add(new BC("EAN-8", true, false, 17, -1));
-         BCs.Add(new BC("QR21x21", true, false, 18, -1));
-         BCs.Add(new BC("QR25x25", true, false, 19, -1));
-         BCs.Add(new BC("QR29x29", true, false, 20, -1));
-         BCs.Add(new BC("GS1_Lim", true, false, 21, -1));
-         BCs.Add(new BC("GS1_Omn", true, false, 22, -1));
-         BCs.Add(new BC("GS1_Stk", true, false, 23, -1));
-         BCs.Add(new BC("EAN-13 AddOn 5", true, false, 25, -1));
-         BCs.Add(new BC("MicroQR15x15", true, false, 27, -1));
-         BCs.Add(new BC("EAN-13", true, true, 4, 3));
+         BCs = new List<BC> {
+            new BC("Code39", true, true, 1, 0),
+            new BC("ITF", true, true, 2, 1),
+            new BC("NW-7", true, true, 3, 2),
+            new BC("43478", true, true, -1, -1),
+            new BC("DM16x16", true, true, 6, 4),
+            new BC("DM8x32", true, true, 5, 5),
+            new BC("Code 128(Code Set B)", true, true, 13, 6),
+            new BC("Code 128(Code Set C)", true, true, 14, 6),
+            new BC("DM16x36", true, true, 7, 7),
+            new BC("DM16x48", true, true, 8, 8),
+            new BC("DM18x18", true, true, 9, 9),
+            new BC("DM20x20", true, true, 10, 10),
+            new BC("DM22x22", true, true, 11, 11),
+            new BC("DM24x24", true, true, 12, 12),
+            new BC("UPC-A", true, false, 15, -1),
+            new BC("UPC-B", true, false, 16, -1),
+            new BC("EAN-8", true, false, 17, -1),
+            new BC("QR21x21", true, false, 18, -1),
+            new BC("QR25x25", true, false, 19, -1),
+            new BC("QR29x29", true, false, 20, -1),
+            new BC("GS1_Lim", true, false, 21, -1),
+            new BC("GS1_Omn", true, false, 22, -1),
+            new BC("GS1_Stk", true, false, 23, -1),
+            new BC("EAN-13 AddOn 5", true, false, 25, -1),
+            new BC("MicroQR15x15", true, false, 27, -1),
+            new BC("EAN-13", true, true, 4, 3)
+         };
       }
 
       List<BC> FTs = null;
       void BuildFonts() {
-         FTs = new List<BC>();
-         FTs.Add(new BC("4X5", true, false, 0, -1));
-         FTs.Add(new BC("5X5", true, true, 1, 0));
-         FTs.Add(new BC("5X7", true, true, 2, 1));
-         FTs.Add(new BC("5X8", true, true, 2, 1));
-         FTs.Add(new BC("9X7", true, true, 3, 2));
-         FTs.Add(new BC("9X8", true, true, 3, 2));
-         FTs.Add(new BC("7X10", true, true, 4, 2));
-         FTs.Add(new BC("10X12", true, false, 5, -1));
-         FTs.Add(new BC("12X16", true, true, 6, 3));
-         FTs.Add(new BC("18X24", true, true, 7, 4));
-         FTs.Add(new BC("24X32", true, true, 8, 5));
-         FTs.Add(new BC("11X11", false, false, 9, -1));
-         FTs.Add(new BC("5X3(CHIMNEY)", true, false, 10, -1));
-         FTs.Add(new BC("5X5(CHIMNEY)", true, false, 11, -1));
-         FTs.Add(new BC("7X5(CHIMNEY)", true, false, 12, -1));
+         FTs = new List<BC> {
+            new BC("4X5", true, false, 0, -1),
+            new BC("5X5", true, true, 1, 0),
+            new BC("5X7", true, true, 2, 1),
+            new BC("5X8", true, true, 2, 1),
+            new BC("9X7", true, true, 3, 2),
+            new BC("9X8", true, true, 3, 2),
+            new BC("7X10", true, true, 4, 2),
+            new BC("10X12", true, false, 5, -1),
+            new BC("12X16", true, true, 6, 3),
+            new BC("18X24", true, true, 7, 4),
+            new BC("24X32", true, true, 8, 5),
+            new BC("11X11", false, false, 9, -1),
+            new BC("5X3(CHIMNEY)", true, false, 10, -1),
+            new BC("5X5(CHIMNEY)", true, false, 11, -1),
+            new BC("7X5(CHIMNEY)", true, false, 12, -1)
+         };
       }
 
       string PadLeftZeros(string Data, int Count) {

@@ -9,7 +9,6 @@ namespace HitachiProtocol {
       private string[] description;
       private Color[] severity;
       private StateChange state;
-      private Color stateColor;
       private int nACKs;
       private int nNAKs;
       private int ID;
@@ -36,48 +35,48 @@ namespace HitachiProtocol {
       }
       public string Response { get { return printerResponse; } set { printerResponse = value; } }
 
-      internal HPStatus(int ID) {
+      public HPStatus(int ID) {
          this.ID = ID;
          description = new string[4] { "N/A", "N/A", "N/A", "N/A" };
          severity = new Color[4] { Color.Gray, Color.Gray, Color.Gray, Color.Gray };
       }
 
-      internal string GetDescription(StatusAreas whichArea) {
+      public string GetDescription(StatusAreas whichArea) {
          return description[(int)whichArea];
       }
 
-      internal void SetDescription(StatusAreas whichArea, string description) {
+      public void SetDescription(StatusAreas whichArea, string description) {
          this.description[(int)whichArea] = description;
       }
 
-      internal void ResetDescriptions() {
+      public void ResetDescriptions() {
          this.description[(int)StatusAreas.Connection] = "N/A";
          this.description[(int)StatusAreas.Reception] = "N/A";
          this.description[(int)StatusAreas.Operation] = "N/A";
          this.description[(int)StatusAreas.Alarm] = "N/A";
       }
 
-      internal Color GetSeverity(StatusAreas whichArea) {
+      public Color GetSeverity(StatusAreas whichArea) {
          return severity[(int)whichArea];
       }
 
-      internal void SetSeverity(StatusAreas whichArea, Color severity) {
+      public void SetSeverity(StatusAreas whichArea, Color severity) {
          this.severity[(int)whichArea] = severity;
       }
 
-      internal void SetAllSeverity(Color severity) {
+      public void SetAllSeverity(Color severity) {
          this.severity[(int)StatusAreas.Connection] = severity;
          this.severity[(int)StatusAreas.Reception] = severity;
          this.severity[(int)StatusAreas.Operation] = severity;
          this.severity[(int)StatusAreas.Alarm] = severity;
       }
 
-      internal void SetCounts(int nACKs, int nNAKs) {
+      public void SetCounts(int nACKs, int nNAKs) {
          this.nACKs = nACKs;
          this.nNAKs = nNAKs;
       }
 
-      internal Color GetMergedSeverity() {
+      public Color GetMergedSeverity() {
          Color result = Color.LightGreen;
          if (state == StateChange.OffLine || state == StateChange.Disconnected) {
             result = Color.LightGray;
@@ -108,7 +107,7 @@ namespace HitachiProtocol {
             string nACK = $"ACKs {this.nACKs}";
             string nNAK = $"NAKs {this.nNAKs}";
             string state = GetState();
-            statusLine = $"{state} / {connection} / {reception} / {operation} / {alarm} /  {nACK} / {nNAK}";
+            statusLine = $"{state} / {connection} / {reception} / {operation} / {alarm} / {nACK} / {nNAK}";
             return statusLine;
          }
       }
@@ -130,6 +129,134 @@ namespace HitachiProtocol {
                break;
          }
          return result;
+      }
+
+      public string TranslateStatus(HitachiPrinter p, StatusAreas Area, char Value) {
+         if (Stats == null) {
+            BuildStatuscodes();
+         }
+         string Result;
+         if (!p.SOP4Enabled) {
+            Result = "N/A";
+         } else {
+            Result = "Unknown(" + Value + ")";
+         }
+         int i = Stats.FindIndex(x => x.Area == Area && x.Value == Value);
+         if (i >= 0) {
+            Result = Stats[i].Status;
+         }
+         return Result;
+      }
+
+      protected class Stat {
+         public Stat(StatusAreas Area, char Value, string Status) {
+            this.Area = Area;
+            this.Value = Value;
+            this.Status = Status;
+         }
+         public StatusAreas Area;
+         public char Value;
+         public string Status;
+      }
+
+      List<Stat> Stats = null;
+
+      void BuildStatuscodes() {
+         Stats = new List<Stat> {
+            new Stat(StatusAreas.Connection, '\x30', "Offline"),
+            new Stat(StatusAreas.Connection, '\x31', "Online"),
+            new Stat(StatusAreas.Reception, '\x30', "Reception not possible"),
+            new Stat(StatusAreas.Reception, '\x31', "Reception possible"),
+            new Stat(StatusAreas.Operation, '\x30', "Paused"),
+            new Stat(StatusAreas.Operation, '\x31', "Running - Not Ready"),
+            new Stat(StatusAreas.Operation, '\x32', "Ready"),
+            new Stat(StatusAreas.Operation, '\x33', "Deflection Voltage Fault"),
+            new Stat(StatusAreas.Operation, '\x34', "Main Ink Tank Too Full"),
+            new Stat(StatusAreas.Operation, '\x35', "Blank Print Items"),
+            new Stat(StatusAreas.Operation, '\x36', "Ink Drop Charge Too Low"),
+            new Stat(StatusAreas.Operation, '\x37', "Ink Drop Charge Too High"),
+            new Stat(StatusAreas.Operation, '\x38', "Print Head Cover Open"),
+            new Stat(StatusAreas.Operation, '\x39', "Target Sensor Fault"),
+            new Stat(StatusAreas.Operation, '\x3a', "System Operation Error C"),
+            new Stat(StatusAreas.Operation, '\x3b', "Target Spacing Too Close"),
+            new Stat(StatusAreas.Operation, '\x3c', "Improper Sensor Position"),
+            new Stat(StatusAreas.Operation, '\x3d', "System Operation Error M"),
+            new Stat(StatusAreas.Operation, '\x3e', "Charge Voltage Fault"),
+            new Stat(StatusAreas.Operation, '\x3f', "Barcode Short On Numbers"),
+            new Stat(StatusAreas.Operation, '\x41', "Multi DC Power Supply Fan Fault"),
+            new Stat(StatusAreas.Operation, '\x42', "Deflection Voltage Leakage"),
+            new Stat(StatusAreas.Operation, '\x43', "Print Overlap Fault"),
+            new Stat(StatusAreas.Operation, '\x44', "Ink Low Fault"),
+            new Stat(StatusAreas.Operation, '\x45', "Makeup Ink Low Fault"),
+            new Stat(StatusAreas.Operation, '\x46', "Print Data Changeover In Progress M"),
+            new Stat(StatusAreas.Operation, '\x47', "Excessive Format Count"),
+            new Stat(StatusAreas.Operation, '\x48', "Makeup Ink Replenishment Time-out"),
+            new Stat(StatusAreas.Operation, '\x49', "Stopping"),
+            new Stat(StatusAreas.Operation, '\x4a', "Ink Replenishment Time-out"),
+            new Stat(StatusAreas.Operation, '\x4b', "No Ink Drop Charge"),
+            new Stat(StatusAreas.Operation, '\x4c', "Ink Heating Unit Too High"),
+            new Stat(StatusAreas.Operation, '\x4d', "Ink Heating Unit Temperature Sensor Fault"),
+            new Stat(StatusAreas.Operation, '\x4e', "Ink Heating Unit Over Current"),
+            new Stat(StatusAreas.Operation, '\x4f', "Internal Communication Error C"),
+            new Stat(StatusAreas.Operation, '\x50', "Internal Communication Error M"),
+            new Stat(StatusAreas.Operation, '\x51', "Internal Communication Error S"),
+            new Stat(StatusAreas.Operation, '\x52', "System Operation Error S"),
+            new Stat(StatusAreas.Operation, '\x53', "Memory Fault C"),
+            new Stat(StatusAreas.Operation, '\x54', "Memory Fault M"),
+            new Stat(StatusAreas.Operation, '\x55', "Ambient Temperature Sensor Fault"),
+            new Stat(StatusAreas.Operation, '\x56', "Print Controller Cooling Fan Fault"),
+            new Stat(StatusAreas.Operation, '\x59', "Print Data Changeover In Progress S"),
+            new Stat(StatusAreas.Operation, '\x5a', "Print Data Changeover In Progress V"),
+            new Stat(StatusAreas.Operation, '\x5c', "Maint. Running"),
+            new Stat(StatusAreas.Operation, '\x5d', "Memory Fault S"),
+            new Stat(StatusAreas.Operation, '\x5e', "Pump Motor Fault"),
+            new Stat(StatusAreas.Operation, '\x5f', "Viscometer Ink Temperature Sensor Fault"),
+            new Stat(StatusAreas.Operation, '\x60', "External Communication Error"),
+            new Stat(StatusAreas.Operation, '\x61', "External Signal Error"),
+            new Stat(StatusAreas.Operation, '\x62', "Memory Fault OP"),
+            new Stat(StatusAreas.Operation, '\x63', "Ink Heating Unit Temperature Low"),
+            new Stat(StatusAreas.Operation, '\x64', "Model-key Fault"),
+            new Stat(StatusAreas.Operation, '\x65', "Language-key Fault"),
+            new Stat(StatusAreas.Operation, '\x66', "Communication Buffer Fault"),
+            new Stat(StatusAreas.Operation, '\x67', "Shutdown Fault"),
+            new Stat(StatusAreas.Operation, '\x68', "Count Overflow"),
+            new Stat(StatusAreas.Operation, '\x69', "Data changeover timing fault"),
+            new Stat(StatusAreas.Operation, '\x6a', "Count changeover timing fault"),
+            new Stat(StatusAreas.Operation, '\x6b', "Print start timing fault"),
+            new Stat(StatusAreas.Operation, '\x6c', "Ink Shelf Life Information"),
+            new Stat(StatusAreas.Operation, '\x6d', "Makeup Shelf Life Information"),
+            new Stat(StatusAreas.Operation, '\x71', "Print Data Changeover Error C"),
+            new Stat(StatusAreas.Operation, '\x72', "Print Data Changeover Error M"),
+            new Stat(StatusAreas.Alarm, '\x30', "No Alarm"),
+            new Stat(StatusAreas.Alarm, '\x31', "Ink Low Warning"),
+            new Stat(StatusAreas.Alarm, '\x32', "Makeup ink Low Warning"),
+            new Stat(StatusAreas.Alarm, '\x33', "Ink Shelf Life Exceeded"),
+            new Stat(StatusAreas.Alarm, '\x34', "Battery Low M"),
+            new Stat(StatusAreas.Alarm, '\x35', "Ink Pressure High"),
+            new Stat(StatusAreas.Alarm, '\x36', "Product Speed Matching Error"),
+            new Stat(StatusAreas.Alarm, '\x37', "External Communication Error nnn"),
+            new Stat(StatusAreas.Alarm, '\x38', "Ambient Temperature Too High"),
+            new Stat(StatusAreas.Alarm, '\x39', "Ambient Temperature Too Low"),
+            new Stat(StatusAreas.Alarm, '\x3a', "Ink heating failure"),
+            new Stat(StatusAreas.Alarm, '\x3b', "External Signal Error nnn"),
+            new Stat(StatusAreas.Alarm, '\x3c', "Ink Pressure Low"),
+            new Stat(StatusAreas.Alarm, '\x3d', "Excitation V-ref. Review"),
+            new Stat(StatusAreas.Alarm, '\x3e', "Viscosity Reading Instability"),
+            new Stat(StatusAreas.Alarm, '\x3f', "Viscosity Readings Out of Range"),
+            new Stat(StatusAreas.Alarm, '\x40', "High Ink Viscosity"),
+            new Stat(StatusAreas.Alarm, '\x41', "Low Ink Viscosity"),
+            new Stat(StatusAreas.Alarm, '\x42', "Excitation V-ref. Review 2"),
+            new Stat(StatusAreas.Alarm, '\x44', "Battery Low C"),
+            new Stat(StatusAreas.Alarm, '\x45', "Calendar Content Inaccurate"),
+            new Stat(StatusAreas.Alarm, '\x46', "Excitation V-ref. Char. height Review"),
+            new Stat(StatusAreas.Alarm, '\x47', "Ink Shelf Life Information"),
+            new Stat(StatusAreas.Alarm, '\x48', "Makeup Shelf Life Information"),
+            new Stat(StatusAreas.Alarm, '\x49', "Model-key Failure"),
+            new Stat(StatusAreas.Alarm, '\x4a', "Language-key Failure"),
+            new Stat(StatusAreas.Alarm, '\x4c', "Upgrade-Key Fault"),
+            new Stat(StatusAreas.Alarm, '\x50', "Circulation System Cooling Fan Fault"),
+            new Stat(StatusAreas.Alarm, '\x51', "Ink Tempurature Too High"),
+         };
       }
 
    }
