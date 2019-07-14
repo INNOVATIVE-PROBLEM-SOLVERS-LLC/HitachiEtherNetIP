@@ -131,23 +131,6 @@ namespace HitachiProtocol {
          return result;
       }
 
-      public string TranslateStatus(HitachiPrinter p, StatusAreas Area, char Value) {
-         if (Stats == null) {
-            BuildStatuscodes();
-         }
-         string Result;
-         if (!p.SOP4Enabled) {
-            Result = "N/A";
-         } else {
-            Result = "Unknown(" + Value + ")";
-         }
-         int i = Stats.FindIndex(x => x.Area == Area && x.Value == Value);
-         if (i >= 0) {
-            Result = Stats[i].Status;
-         }
-         return Result;
-      }
-
       protected class Stat {
          public Stat(StatusAreas Area, char Value, string Status) {
             this.Area = Area;
@@ -160,6 +143,20 @@ namespace HitachiProtocol {
       }
 
       List<Stat> Stats = null;
+
+      public string TranslateStatus(StatusAreas Area, char Value) {
+         if (Stats == null) {
+            BuildStatuscodes();
+         }
+         string Result;
+         int i = Stats.FindIndex(x => x.Area == Area && x.Value == Value);
+         if (i >= 0) {
+            Result = Stats[i].Status;
+         } else {
+            Result = $"Unknown({Area}/0x{(int)Value}:X2)";
+         }
+         return Result;
+      }
 
       void BuildStatuscodes() {
          Stats = new List<Stat> {
