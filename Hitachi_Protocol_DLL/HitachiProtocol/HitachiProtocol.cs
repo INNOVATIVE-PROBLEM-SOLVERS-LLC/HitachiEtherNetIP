@@ -16,6 +16,8 @@ namespace HitachiProtocol {
 
       #region Data Declarations
 
+      static List<Ops> OpNames;
+
       DateTime previous;
 
       Form parent;
@@ -3099,311 +3101,106 @@ namespace HitachiProtocol {
 
       #region Service Routines
 
-      // Convert Op/SubOp to human readable form
-      string OperationName(PrinterOps intOP, int intSubOp) {
-
-         // Convert the operation index to a printable string
-         switch (intOP) {
-            case PrinterOps.Nop: // 0
-               return "Nop";
-            case PrinterOps.Connect: // 1
-               return "Connect to Printer";
-            case PrinterOps.Disconnect: // 2
-               return "Disconnect from Printer";
-            case PrinterOps.IssueControl: // 3
-               switch ((ControlOps)intSubOp) {
-                  case ControlOps.ComOn: // 0
-                     return "Control(Com On)";
-                  case ControlOps.ComOff: // 1
-                     return "Control(Com Off)";
-                  case ControlOps.HydraulicsStart: // 2
-                     return "Control(Hydraulics Start)";
-                  case ControlOps.HydraulicsStop: // 3
-                     return "Control(Hydraulics Stop)";
-                  case ControlOps.Ready: // 4
-                     return "Control(Ready)";
-                  case ControlOps.Standby: // 5
-                     return "Control(Standby)";
-                  case ControlOps.ResetAlarm: // 6
-                     return "Control(Reset Alarm)";
-                  case ControlOps.DC2: // 7
-                     return "Control(DC2)";
-                  case ControlOps.DC3: // 8
-                     return "Control(DC3)";
-                  case ControlOps.Enquire: // 9
-                     return "Control(Enquire)";
-                  case ControlOps.ClearAll: // 10
-                     return "Control(Clear All)";
-                  case ControlOps.ClearAllByNozzle: // 11
-                     return "Control(Clear All By Nozzle)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.ColumnSetup: // 4
-               return "Column Setup";
-            case PrinterOps.WriteSpecification: // 5
-               switch ((SpecificationOps)intSubOp) {
-                  case SpecificationOps.CharacterHeight: // 0
-                     return "Specification(Character Height)";
-                  case SpecificationOps.CharacterWidth: // 1
-                     return "Specification(Character Width)";
-                  case SpecificationOps.CharacterOrientation: // 2
-                     return "Specification(Character Orientation)";
-                  case SpecificationOps.PrintStartDelay: // 3
-                     return "Specification(Print Start Delay)";
-                  case SpecificationOps.RepeatIntervals: // 4
-                     return "Specification(Repeat Intervals)";
-                  case SpecificationOps.RepeatCount: // 5
-                     return "Specification(Repeat Count)";
-                  case SpecificationOps.PrintStartDelayReverse: // 6
-                     return "Specification(Print Start Delay Reverse)";
-                  case SpecificationOps.TargetSensorTimer: // 7
-                     return "Specification(Target Sensor Timer)";
-                  case SpecificationOps.TargetSensorFilter: // 8
-                     return "Specification(Target Sensor Filter)";
-                  case SpecificationOps.TargetSensorFilterDivision: // 9
-                     return "Specification(Target Sensor Filter Division)";
-                  case SpecificationOps.HighSpeedPrinting: // 10
-                     return "Specification(High Speed Printing)";
-                  case SpecificationOps.ProductSpeedMatching: // 11
-                     return "Specification(Product Speed Matching)";
-                  case SpecificationOps.FrequencyDivisor: // 12
-                     return "Specification(Frequency Divisor)";
-                  case SpecificationOps.InkDropUsage: // 13
-                     return "Specification(Ink Drop Usage)";
-                  case SpecificationOps.OverallColumnSetup: // 14
-                     return "Specification(Overall Column Setup)";
-                  case SpecificationOps.PrintStartDelayAll: // 15
-                     return "Specification(Print Start Delay Forward/Reverse)";
-                  case SpecificationOps.InkDropChargeRule: // 16
-                     return "Specification(Ink Drop Charge Rule)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.WriteFormat: // 6
-               return "Format";
-            case PrinterOps.WriteText: // 7
-               return "WriteText";
-            case PrinterOps.WriteCalendarOffset: // 8
-               return "Calendar Offset";
-            case PrinterOps.WriteCalendarSubRule: // 27
-               return "Calendar Sub Rule";
-            case PrinterOps.WriteCalendarSubZS: // 9
-               switch ((CalendarSubTypes)intSubOp) {
-                  case CalendarSubTypes.Year: // 0
-                     return "Calendar Sub & ZS(Year)";
-                  case CalendarSubTypes.Month: // 1
-                     return "Calendar Sub & ZS(Month)";
-                  case CalendarSubTypes.Day: // 2
-                     return "Calendar Sub & ZS(Day)";
-                  case CalendarSubTypes.Hour: // 3
-                     return "Calendar Sub & ZS(Hour)";
-                  case CalendarSubTypes.Minute: // 4
-                     return "Calendar Sub & ZS(Minute)";
-                  case CalendarSubTypes.Week: // 5
-                     return "Calendar Sub & ZS(Week)";
-                  case CalendarSubTypes.DayOfWeek: // 6
-                     return "Calendar Sub & ZS(Day of Week)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.WriteCalendarZS: // 25
-               switch ((CalendarSubTypes)intSubOp) {
-                  case CalendarSubTypes.Year: // 0
-                     return "Calendar ZS(Year)";
-                  case CalendarSubTypes.Month: // 1
-                     return "Calendar ZS(Month)";
-                  case CalendarSubTypes.Day: // 2
-                     return "Calendar ZS(Day)";
-                  case CalendarSubTypes.Hour: // 3
-                     return "Calendar ZS(Hour)";
-                  case CalendarSubTypes.Minute: // 4
-                     return "Calendar ZS(Minute)";
-                  case CalendarSubTypes.Week: // 5
-                     return "Calendar ZS(Week)";
-                  case CalendarSubTypes.DayOfWeek: // 6
-                     return "Calendar ZS(Day of Week)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.WriteCalendarSub: // 26
-               switch ((CalendarSubTypes)intSubOp) {
-                  case CalendarSubTypes.Year: // 0
-                     return "Calendar Sub(Year)";
-                  case CalendarSubTypes.Month: // 1
-                     return "Calendar Sub(Month)";
-                  case CalendarSubTypes.Day: // 2
-                     return "Calendar Sub(Day)";
-                  case CalendarSubTypes.Hour: // 3
-                     return "Calendar Sub(Hour)";
-                  case CalendarSubTypes.Minute: // 4
-                     return "Calendar Sub(Minute)";
-                  case CalendarSubTypes.Week: // 5
-                     return "Calendar Sub(Week)";
-                  case CalendarSubTypes.DayOfWeek: // 6
-                     return "Calendar Sub(Day of Week)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.WriteCountCondition: // 10
-               return "Write Count Condition";
-            case PrinterOps.WritePattern: // 11
-               return $"Write Pattern({intSubOp})";
-            case PrinterOps.Message: // 12
-               switch ((MessageOps)intSubOp) {
-                  case MessageOps.MessageSave: // 0
-                     return "Message(Save)";
-                  case MessageOps.MessageRestore: // 1
-                     return "Message(Restore)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.Fetch: // 13
-               switch ((FetchOps)intSubOp) {
-                  case FetchOps.Status: // 0
-                     return "Fetch(status)";
-                  case FetchOps.Time: // 1
-                     return "Fetch(Time)";
-                  case FetchOps.PreviousMessage: // 2
-                     return "Fetch(Previous Message)";
-                  case FetchOps.Currentmessage: // 3
-                     return "Fetch(Current Message)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.Retrieve: // 14
-               switch ((RetrieveOps)intSubOp) {
-                  case RetrieveOps.LineSetting: // 0
-                     return "Retrieve(Line Setting)";
-                  case RetrieveOps.PrintContentsAttributes: // 1
-                     return "Retrieve(Print Contents Attributes)";
-                  case RetrieveOps.PrintContentsNoAttributes: // 2
-                     return "Retrieve(Print Contents No Attributes)";
-                  case RetrieveOps.CalendarCondition: // 3
-                     return "Retrieve(Calendar Condition)";
-                  case RetrieveOps.SubstitutionRule: // 4
-                     return "Retrieve(Substitution Rule)";
-                  case RetrieveOps.CountCondition: // 5
-                     return "Retrieve(Count Condition)";
-                  case RetrieveOps.PrintFormat: // 6
-                     return "Retrieve(Print Format Setting)";
-                  case RetrieveOps.PrintSpecifications: // 7
-                     return "Retrieve(Print Specification Setting)";
-                  case RetrieveOps.PrintData: // 8
-                     return "Retrieve(Print Data)";
-                  case RetrieveOps.UserEnvironmentSetup: // 9
-                     return "Retrieve(User Environment Setup)";
-                  case RetrieveOps.DateTimeSetup: // 10
-                     return "Retrieve(Date Time Setup)";
-                  case RetrieveOps.CommunicationsSetup: // 11
-                     return "Retrieve(Communications Setup)";
-                  case RetrieveOps.TouchScreenSetup: // 12
-                     return "Retrieve(Touch Screen Setup)";
-                  case RetrieveOps.OperationManagement: // 13
-                     return "Retrieve(Operation Management)";
-                  case RetrieveOps.AlarmHistory: // 14
-                     return "Retrieve(Alarm History)";
-                  case RetrieveOps.PartsUsageTime: // 15
-                     return "Retrieve(Parts Usage Time)";
-                  case RetrieveOps.SoftwareVersion: // 16
-                     return "Retrieve(Software Version)";
-                  case RetrieveOps.StirrerTest: // 17
-                     return "Retrieve(Stirrer Test)";
-                  case RetrieveOps.MonthSubstituteRule: // 18
-                     return "Retrieve(Month Substitute Rule)";
-                  case RetrieveOps.ShiftCodeSetup: // 19
-                     return "Retrieve(Shift Code Setup)";
-                  case RetrieveOps.TimeCountCondition: // 20
-                     return "Retrieve(Time Count Condition)";
-                  case RetrieveOps.UnitInformation: // 21
-                     return "Retrieve(Unit Information)";
-                  case RetrieveOps.ViscometerCalibration: // 22
-                     return "Retrieve(Viscometer Calibration)";
-                  case RetrieveOps.SystemEnvironmentSetup: // 23
-                     return "Retrieve(System Environment Setup)";
-                  case RetrieveOps.AdjustmentOperationalCheckout: // 24
-                     return "Retrieve(Adjust Operational Checkout)";
-                  case RetrieveOps.SolenoidValvePumpTest: // 25
-                     return "Retrieve(Solenoid Valve Pump Test)";
-                  case RetrieveOps.SubstitutionRuleData: // 27
-                     return "Retrieve(Substitution Rule Data)";
-                  case RetrieveOps.AdjustICS: // 28
-                     return "Retrieve(Adjust ICS)";
-                  case RetrieveOps.VariousPrintSetup: // 29
-                     return "Retrieve(Various Print Setup)";
-                  case RetrieveOps.CirculationSystemSetup: // 30
-                     return "Retrieve(Circulation System Setup)";
-                  case RetrieveOps.FreeLayoutCoordinates: // 31
-                     return "Retrieve(Free Layout Coordinates)";
-                  case RetrieveOps.MessageGroupNames: // 32
-                     return "Retrieve(Message Group Names)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.RetrievePattern: // 15
-               switch ((RetrievePatternOps)intSubOp) {
-                  case RetrievePatternOps.Standard: // 0
-                     return "Retrieve(Standard Character Pattern)";
-                  case RetrievePatternOps.User: // 1
-                     return "Retrieve(User Pattern)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.SetClock: // 16
-               switch ((SetClockOps)intSubOp) {
-                  case SetClockOps.CurrentDateTime: // 0
-                     return "Clock Initialization(Current Date Time)";
-                  case SetClockOps.CalendarTimeControl: // 1
-                     return "Clock Initialization(Calendar Time Control)";
-                  case SetClockOps.CalendarDateTime: // 2
-                     return "Clock Initialization(Calendar Date Time)";
-                  case SetClockOps.TwelveTwentyFour: // 3
-                     return "Clock Initialization(Clock System)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.Idle: // 17
-               return "Idle";
-            case PrinterOps.PassThru: // 18
-               return "Pass Thru";
-            case PrinterOps.ENQ: // 19
-               return "ENQ";
-            case PrinterOps.SOP16ClearBuffer: // 20
-               return "SOP16 Clear Buffer";
-            case PrinterOps.SOP16RestartPrinting: // 21
-               return "SOP16 Restart Printing";
-            case PrinterOps.ChangeInkDropRule: // 22
-               return "Change Ink Drop Rule";
-            case PrinterOps.ChangeMessageFormat: // 23
-               return "Change Message Format";
-            case PrinterOps.PositionItem: // 24
-               switch ((PositionOps)intSubOp) {
-                  case PositionOps.HorizontalVerticalPosition:
-                     return "Position Item(Horizontal Vertical Position)";
-                  case PositionOps.HorizontalPosition:
-                     return "Position Item(Horizontal Position)";
-                  case PositionOps.VerticalPosition:
-                     return "Position Item(Vertical Position)";
-                  case PositionOps.HorizontalVerticalMove:
-                     return "Position Item(Horizontal Vertical Move)";
-                  case PositionOps.HorizontalMove:
-                     return "Position Item(Horizontal Move)";
-                  case PositionOps.VerticalMove:
-                     return "Position Item(VerticalMove)";
-                  default:
-                     return "Unknown";
-               }
-            case PrinterOps.TimedDelay:
-               return "TimedDelay(Delay)";
-            case PrinterOps.CreateMessage:
-               return "Create Message";
-            case PrinterOps.SendMessage:
-               return "Send Message";
-            case PrinterOps.SetNozzle: // 31
-               return "Set Nozzle";
-            default:
-               return "Unknown";
+      protected class Ops {
+         public Ops(PrinterOps Op, string Desc) {
+            this.Op = Op;
+            this.Desc = Desc;
          }
+         public Ops(PrinterOps Op, int SubOp, string Desc, bool HasSubOps) {
+            this.Op = Op;
+            this.SubOp = SubOp;
+            this.Desc = Desc;
+            this.HasSubOps = HasSubOps;
+         }
+         public Ops(PrinterOps Op, ControlOps SubOp, string Desc) {
+            this.Op = Op;
+            this.SubOp = (int)SubOp;
+            this.Desc = Desc;
+         }
+         public Ops(PrinterOps Op, SpecificationOps SubOp, string Desc) {
+            this.Op = Op;
+            this.SubOp = (int)SubOp;
+            this.Desc = Desc;
+         }
+         public Ops(PrinterOps Op, CalendarSubTypes SubOp, string Desc) {
+            this.Op = Op;
+            this.SubOp = (int)SubOp;
+            this.Desc = Desc;
+         }
+         public Ops(PrinterOps Op, MessageOps SubOp, string Desc) {
+            this.Op = Op;
+            this.SubOp = (int)SubOp;
+            this.Desc = Desc;
+         }
+         public PrinterOps Op;
+         public int SubOp = 0;
+         public string Desc;
+         public bool HasSubOps = true;
+      }
+
+      void AddOpNames(PrinterOps Op, Enum SubOp) {
+         string[] names =  Enum.GetNames(SubOp.GetType());
+         int[] values = (int[])Enum.GetValues(SubOp.GetType());
+         string OpName = SpaceCaps(Op.ToString());
+         for (int i = 0; i < names.Length; i++) {
+            string Desc = $"{SpaceCaps(Op.ToString())}({SpaceCaps(names[i])})";
+            OpNames.Add(new Ops(Op, values[i], Desc, true));
+         }
+      }
+
+      void AddOpNames(Enum Op) {
+         string[] names = Enum.GetNames(Op.GetType());
+         int[] values = (int[])Enum.GetValues(Op.GetType());
+         for (int i = 0; i < names.Length; i++) {
+            if (OpNames.FindIndex(x => x.Op == (PrinterOps)values[i]) < 0) {
+               string Desc = $"{SpaceCaps(names[i])}";
+               OpNames.Add(new Ops((PrinterOps)values[i], 0, Desc, false));
+            }
+         }
+      }
+
+      private string SpaceCaps(string s) {
+         string result = s.Substring(0, 2);
+         for (int i = 2; i < s.Length; i++) {
+            if (s[i] >= 'A' && s[i] <= 'Z') {
+               result += " ";
+            }
+            result += s.Substring(i, 1);
+         }
+         return result;
+      }
+
+      void BuildOpNamescodes() {
+         OpNames = new List<Ops>();
+         AddOpNames(PrinterOps.IssueControl, new ControlOps());
+         AddOpNames(PrinterOps.WriteSpecification, new SpecificationOps());
+         AddOpNames(PrinterOps.WriteCalendarSubZS, new CalendarSubTypes());
+         AddOpNames(PrinterOps.WriteCalendarSub, new CalendarSubTypes());
+         AddOpNames(PrinterOps.WriteCalendarZS, new CalendarSubTypes());
+         AddOpNames(PrinterOps.Message, new MessageOps());
+         AddOpNames(PrinterOps.Fetch, new FetchOps());
+         AddOpNames(PrinterOps.Retrieve, new RetrieveOps());
+         AddOpNames(PrinterOps.RetrievePattern, new RetrievePatternOps());
+         AddOpNames(PrinterOps.SetClock, new SetClockOps());
+         AddOpNames(PrinterOps.PositionItem, new PositionOps());
+         AddOpNames(new PrinterOps());
+      }
+
+
+      // Convert Op/SubOp to human readable form
+      string OperationName(PrinterOps OP, int SubOp) {
+         int n;
+         string result = string.Empty;
+         if(OpNames == null) {
+            result = "OperationName not initialized";
+         } else if((n = OpNames.FindIndex(x => x.Op == OP && !x.HasSubOps)) >= 0) {
+            result = OpNames[n].Desc;
+         } else if((n = OpNames.FindIndex(x => x.Op == OP && x.SubOp == SubOp)) >= 0) {
+            result = OpNames[n].Desc;
+         } else {
+            result = $"{OP}/{SubOp:X2}";
+         }
+         return result;
       }
 
       string Chr(object c) {

@@ -366,6 +366,12 @@ namespace HitachiProtocol {
       // Class initialization for Simulated connection
       public HitachiPrinter(Form parent, int ID) {
 
+         if(OpNames == null) {
+            BuildOpNamescodes();
+         }
+
+         AddOpNames(PrinterOps.IssueControl, new ControlOps());
+
          previous = DateTime.Now;
 
          this.parent = parent;
