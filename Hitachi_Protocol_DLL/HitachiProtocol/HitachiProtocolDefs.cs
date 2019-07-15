@@ -370,8 +370,6 @@ namespace HitachiProtocol {
             BuildOpNamescodes();
          }
 
-         AddOpNames(PrinterOps.IssueControl, new ControlOps());
-
          previous = DateTime.Now;
 
          this.parent = parent;

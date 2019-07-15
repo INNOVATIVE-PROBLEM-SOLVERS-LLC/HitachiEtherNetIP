@@ -3102,35 +3102,11 @@ namespace HitachiProtocol {
       #region Service Routines
 
       protected class Ops {
-         public Ops(PrinterOps Op, string Desc) {
-            this.Op = Op;
-            this.Desc = Desc;
-         }
          public Ops(PrinterOps Op, int SubOp, string Desc, bool HasSubOps) {
             this.Op = Op;
             this.SubOp = SubOp;
             this.Desc = Desc;
             this.HasSubOps = HasSubOps;
-         }
-         public Ops(PrinterOps Op, ControlOps SubOp, string Desc) {
-            this.Op = Op;
-            this.SubOp = (int)SubOp;
-            this.Desc = Desc;
-         }
-         public Ops(PrinterOps Op, SpecificationOps SubOp, string Desc) {
-            this.Op = Op;
-            this.SubOp = (int)SubOp;
-            this.Desc = Desc;
-         }
-         public Ops(PrinterOps Op, CalendarSubTypes SubOp, string Desc) {
-            this.Op = Op;
-            this.SubOp = (int)SubOp;
-            this.Desc = Desc;
-         }
-         public Ops(PrinterOps Op, MessageOps SubOp, string Desc) {
-            this.Op = Op;
-            this.SubOp = (int)SubOp;
-            this.Desc = Desc;
          }
          public PrinterOps Op;
          public int SubOp = 0;
@@ -3185,7 +3161,6 @@ namespace HitachiProtocol {
          AddOpNames(PrinterOps.PositionItem, new PositionOps());
          AddOpNames(new PrinterOps());
       }
-
 
       // Convert Op/SubOp to human readable form
       string OperationName(PrinterOps OP, int SubOp) {
