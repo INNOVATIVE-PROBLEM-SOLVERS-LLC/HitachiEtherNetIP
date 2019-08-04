@@ -14,7 +14,7 @@ namespace EIP_Lib {
    // the Excel Application is implemented in C++ and uses marshalling.
    // So, run the Traffic Capture in another thread
 
-   internal class Traffic {
+   public class Traffic {
 
       #region Data Declarations
 
@@ -23,7 +23,7 @@ namespace EIP_Lib {
       string TrafficFileName = string.Empty;
 
       // Different steps in creating the traffic excel spreadsheet.
-      internal enum TaskType {
+      public enum TaskType {
          Create = 0,
          AddTraffic = 1,
          AddLog = 2,
@@ -36,7 +36,7 @@ namespace EIP_Lib {
       Thread t;
 
       // Use Blocking Collection to avoid spin waits
-      internal BlockingCollection<TrafficPkt> Tasks = new BlockingCollection<TrafficPkt>();
+      public BlockingCollection<TrafficPkt> Tasks = new BlockingCollection<TrafficPkt>();
       TrafficPkt pkt;
 
       // Declare the spreadsheet variables
@@ -57,7 +57,7 @@ namespace EIP_Lib {
 
       #region Constructon and service routines
 
-      internal Traffic(string TrafficFolder) {
+      public Traffic(string TrafficFolder) {
          // 
          this.TrafficFolder = TrafficFolder;
          // Set the time and elapsed time for the others
@@ -236,26 +236,26 @@ namespace EIP_Lib {
    }
 
    // Packet for capturing Log/traffic entries
-   internal class TrafficPkt {
+   public class TrafficPkt {
 
       #region Constructors, Destructors, and Properties
 
-      internal Traffic.TaskType Type { get; set; }
-      internal string Data { get; set; } = string.Empty;
-      internal DateTime When { get; set; } = DateTime.Now;
-      internal bool View { get; set; } = false;
+      public Traffic.TaskType Type { get; set; }
+      public string Data { get; set; } = string.Empty;
+      public DateTime When { get; set; } = DateTime.Now;
+      public bool View { get; set; } = false;
 
-      internal TrafficPkt(Traffic.TaskType Type, string Data) {
+      public TrafficPkt(Traffic.TaskType Type, string Data) {
          this.Type = Type;
          this.Data = Data;
       }
 
-      internal TrafficPkt(Traffic.TaskType Type, bool View) {
+      public TrafficPkt(Traffic.TaskType Type, bool View) {
          this.Type = Type;
          this.View = View;
       }
 
-      internal TrafficPkt(Traffic.TaskType Type) {
+      public TrafficPkt(Traffic.TaskType Type) {
          this.Type = Type;
       }
 

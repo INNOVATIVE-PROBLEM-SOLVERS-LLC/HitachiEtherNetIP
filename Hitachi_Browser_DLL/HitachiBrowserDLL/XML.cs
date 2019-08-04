@@ -950,7 +950,7 @@ namespace EIP_Lib {
       }
 
       // Called from parent
-      internal void ResizeControls(ref ResizeInfo R) {
+      public void ResizeControls(ref ResizeInfo R) {
          int tclHeight = (int)(tab.ClientSize.Height / R.H);
          int tclWidth = (int)(tab.ClientSize.Width / R.W);
          float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
@@ -1424,7 +1424,7 @@ namespace EIP_Lib {
          }
       }
 
-      internal bool CleanUpDisplay() {
+      public bool CleanUpDisplay() {
          int cols = 0;
          success = true;
          if (EIP.StartSession()) {
@@ -1458,7 +1458,7 @@ namespace EIP_Lib {
          return success;
       }
 
-      internal bool SetText() {
+      public bool SetText() {
          int items = 0;
          success = true;
          if (EIP.StartSession()) {

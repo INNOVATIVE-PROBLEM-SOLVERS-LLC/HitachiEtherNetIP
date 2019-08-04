@@ -37,9 +37,9 @@ namespace EIP_Lib {
    #endregion
 
    // Completely describe the Hitachi Model 161 data
-   internal class DataII {
+   public class DataII {
 
-      internal DataII() {
+      public DataII() {
          ClassCodeAttrData = new AttrData[][] {
             ccPDM_Addrs,           // 0x66 Print data management function
             ccPF_Addrs,            // 0x67 Print format function
@@ -835,14 +835,14 @@ namespace EIP_Lib {
       #region Class Codes => Attributes => Attribute Data lookup tables
 
       // Class Codes to Data Tables Conversion
-      internal AttrData[][] ClassCodeAttrData;
+      public AttrData[][] ClassCodeAttrData;
 
       #endregion
 
       #region Data reformatting routines
 
       // Reformat the raw data tables in this module to make them easier to read and modify
-      internal void ReformatTables(StreamWriter RFS) {
+      public void ReformatTables(StreamWriter RFS) {
 
          DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
          DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
