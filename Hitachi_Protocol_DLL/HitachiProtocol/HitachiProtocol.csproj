@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeResponses.cs" />
     <Compile Include="HitachiProtocol.cs" />
     <Compile Include="HitachiProtocolDefs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

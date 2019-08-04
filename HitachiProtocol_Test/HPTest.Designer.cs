@@ -49,16 +49,20 @@
          this.TrafficMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmTraffic = new System.Windows.Forms.ToolStripMenuItem();
          this.cmLoadInNotepad = new System.Windows.Forms.ToolStripMenuItem();
+         this.tabSimulated = new System.Windows.Forms.TabPage();
+         this.label1 = new System.Windows.Forms.Label();
          this.ConfigureConnection.SuspendLayout();
          this.tabEthernet.SuspendLayout();
          this.tabSerial.SuspendLayout();
          this.TrafficMenu.SuspendLayout();
+         this.tabSimulated.SuspendLayout();
          this.SuspendLayout();
          // 
          // ConfigureConnection
          // 
          this.ConfigureConnection.Controls.Add(this.tabEthernet);
          this.ConfigureConnection.Controls.Add(this.tabSerial);
+         this.ConfigureConnection.Controls.Add(this.tabSimulated);
          this.ConfigureConnection.Location = new System.Drawing.Point(21, 12);
          this.ConfigureConnection.Name = "ConfigureConnection";
          this.ConfigureConnection.SelectedIndex = 0;
@@ -339,21 +343,39 @@
             this.cmTraffic,
             this.cmLoadInNotepad});
          this.TrafficMenu.Name = "TrafficMenu";
-         this.TrafficMenu.Size = new System.Drawing.Size(211, 80);
+         this.TrafficMenu.Size = new System.Drawing.Size(189, 52);
          // 
          // cmTraffic
          // 
          this.cmTraffic.Name = "cmTraffic";
-         this.cmTraffic.Size = new System.Drawing.Size(210, 24);
+         this.cmTraffic.Size = new System.Drawing.Size(188, 24);
          this.cmTraffic.Text = "Clear";
          this.cmTraffic.Click += new System.EventHandler(this.cmTraffic_Click);
          // 
          // cmLoadInNotepad
          // 
          this.cmLoadInNotepad.Name = "cmLoadInNotepad";
-         this.cmLoadInNotepad.Size = new System.Drawing.Size(210, 24);
+         this.cmLoadInNotepad.Size = new System.Drawing.Size(188, 24);
          this.cmLoadInNotepad.Text = "Load In NotePad";
          this.cmLoadInNotepad.Click += new System.EventHandler(this.cmLoadInNotepad_Click);
+         // 
+         // tabSimulated
+         // 
+         this.tabSimulated.Controls.Add(this.label1);
+         this.tabSimulated.Location = new System.Drawing.Point(4, 25);
+         this.tabSimulated.Name = "tabSimulated";
+         this.tabSimulated.Size = new System.Drawing.Size(256, 170);
+         this.tabSimulated.TabIndex = 2;
+         this.tabSimulated.Text = "Simulated";
+         this.tabSimulated.UseVisualStyleBackColor = true;
+         // 
+         // label1
+         // 
+         this.label1.Location = new System.Drawing.Point(21, 22);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(217, 23);
+         this.label1.TabIndex = 6;
+         this.label1.Text = "No parameters needed!";
          // 
          // HPTest
          // 
@@ -375,6 +397,7 @@
          this.tabEthernet.PerformLayout();
          this.tabSerial.ResumeLayout(false);
          this.TrafficMenu.ResumeLayout(false);
+         this.tabSimulated.ResumeLayout(false);
          this.ResumeLayout(false);
 
       }
@@ -406,6 +429,8 @@
       private System.Windows.Forms.ContextMenuStrip TrafficMenu;
       private System.Windows.Forms.ToolStripMenuItem cmTraffic;
       private System.Windows.Forms.ToolStripMenuItem cmLoadInNotepad;
+      private System.Windows.Forms.TabPage tabSimulated;
+      private System.Windows.Forms.Label label1;
    }
 }
 

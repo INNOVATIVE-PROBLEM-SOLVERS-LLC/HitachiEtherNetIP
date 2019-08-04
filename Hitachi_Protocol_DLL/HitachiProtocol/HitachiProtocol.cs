@@ -26,7 +26,25 @@ namespace HitachiProtocol {
       HitachiPrinterType printerType;
       bool rxClass;
 
-      ConnectionType Connection = ConnectionType.OffLine;
+      //ConnectionType Connection = ConnectionType.OffLine;
+      // Connection type
+      ConnectionType connection;
+      internal FakeResponses FakeResponse = null;
+      public ConnectionType Connection {
+         get { return connection; }
+         set {
+            connection = value;
+            if (value == ConnectionType.Simulator) {
+               if (FakeResponse == null) {
+                  FakeResponse = new FakeResponses(this);
+               }
+            } else {
+               FakeResponse = null;
+            }
+
+         }
+      }
+
 
       // Serial Port and Connection data
       SerialPort comPXR;
@@ -52,7 +70,6 @@ namespace HitachiProtocol {
       List<HPRequest> HP_Idle;
 
       bool PXROperationInProgress;
-      bool LeaveInStandBy = false;
 
       // Printer Data
       int maxItems;
@@ -140,7 +157,7 @@ namespace HitachiProtocol {
       int CouponTimerInterval = -1;
       DateTime CouponTimerNextClick;
       bool PrintStartSent = false;
-      string LastMessageText = string.Empty;
+      public string LastMessageText = string.Empty;
       System.Windows.Forms.Timer RequestQueueTimer = null;
 
       // Process Hitachi Printer Request Queue
@@ -183,8 +200,7 @@ namespace HitachiProtocol {
                // Are we faking the completion?
                if (Connection == ConnectionType.Simulator) {
                   // Send back any command that is being simulated and try next operation
-                  Log?.Invoke(this, new HPEventArgs("Fake response not implemented"));
-                  //parent.BeginInvoke(new EventHandler(delegate { Sim_DataReceived(FakeResponse.BuildFakeCompletion(mReq, this)); }));
+                  parent.BeginInvoke(new EventHandler(delegate { Sim_DataReceived(FakeResponse.BuildFakeCompletion(mReq, this)); }));
                } else {
                   // Has this been retried?
                   if (mReq.Retries > 0 || mReq.Op == PrinterOps.Connect) {

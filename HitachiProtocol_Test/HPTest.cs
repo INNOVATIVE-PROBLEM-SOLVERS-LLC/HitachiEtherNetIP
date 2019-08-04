@@ -96,9 +96,11 @@ namespace HitachiProtocol_Test {
          if (ConfigureConnection.SelectedIndex == 0) {
             // Ethernet Connection
             HP.Connect(ipAddress, ipPort);
-         } else {
+         } else if (ConfigureConnection.SelectedIndex == 1) {
             // Serial connection
             HP.Connect(sPort, sBaudRate, sParity, sDataBits, sStopBits);
+         } else {
+            HP.Connect();
          }
       }
 
