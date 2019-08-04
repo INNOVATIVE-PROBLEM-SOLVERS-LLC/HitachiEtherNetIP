@@ -269,6 +269,8 @@ namespace HitachiProtocol {
          RequestCompleted?.Invoke(this);
          // Remove it from the current list
          HP_Requests.Remove(mReq);
+         // Clear out all old data
+         mReq.Clear();
          // Add to the idle queue
          HP_Idle.Add(mReq);
       }
@@ -2778,7 +2780,7 @@ namespace HitachiProtocol {
          StatusChanged?.Invoke(this, statusArea);
       }
 
-      string TranslateStatus(StatusAreas Area, char Value) {
+      public string TranslateStatus(StatusAreas Area, char Value) {
 
          string Result;
          if (!SOP4Enabled) {
@@ -3090,7 +3092,7 @@ namespace HitachiProtocol {
          return Result;
       }
 
-      bool IsStatus(string status) {
+      public bool IsStatus(string status) {
          return status.Length == 7
              && status[0] == cSTX
              && status[1] == '1'
@@ -3102,7 +3104,7 @@ namespace HitachiProtocol {
       #region Service Routines
 
       protected class Ops {
-         public Ops(PrinterOps Op, int SubOp, string Desc, bool HasSubOps) {
+         public Ops(PrinterOps Op, int SubOp, string Desc, bool HasSubOps = true) {
             this.Op = Op;
             this.SubOp = SubOp;
             this.Desc = Desc;
@@ -3117,10 +3119,8 @@ namespace HitachiProtocol {
       void AddOpNames(PrinterOps Op, Enum SubOp) {
          string[] names =  Enum.GetNames(SubOp.GetType());
          int[] values = (int[])Enum.GetValues(SubOp.GetType());
-         string OpName = SpaceCaps(Op.ToString());
          for (int i = 0; i < names.Length; i++) {
-            string Desc = $"{SpaceCaps(Op.ToString())}({SpaceCaps(names[i])})";
-            OpNames.Add(new Ops(Op, values[i], Desc, true));
+            OpNames.Add(new Ops(Op, values[i], $"{SpaceCaps(Op.ToString())}({SpaceCaps(names[i])})"));
          }
       }
 
@@ -3129,8 +3129,7 @@ namespace HitachiProtocol {
          int[] values = (int[])Enum.GetValues(Op.GetType());
          for (int i = 0; i < names.Length; i++) {
             if (OpNames.FindIndex(x => x.Op == (PrinterOps)values[i]) < 0) {
-               string Desc = $"{SpaceCaps(names[i])}";
-               OpNames.Add(new Ops((PrinterOps)values[i], 0, Desc, false));
+               OpNames.Add(new Ops((PrinterOps)values[i], 0, $"{SpaceCaps(names[i])}", false));
             }
          }
       }

@@ -51,8 +51,23 @@ namespace HitachiProtocol {
 
       }
 
-      #endregion
-
+      public void Clear() {
+       Data1 = string.Empty;
+       Data2 = string.Empty;
+       Data3 = string.Empty;
+       Data4 = string.Empty;
+       Data5 = string.Empty;
+       Data6 = string.Empty;
+       Data7 = string.Empty;
+       Data8 = string.Empty;
+       Data9 = string.Empty;
+       Data10 = string.Empty;
+       Data11 = string.Empty;
+       Data12 = string.Empty;
    }
+
+   #endregion
+
+}
 
 }

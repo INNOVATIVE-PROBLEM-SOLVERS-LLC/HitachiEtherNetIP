@@ -13,18 +13,18 @@ namespace EIP_Lib {
       #region Data declarations
 
       // Flags for adding extra controls to set Index functions
-      internal const int AddNone = 0;
-      internal const int AddItem = 0x01;
-      internal const int AddColumn = 0x02;
-      internal const int AddLine = 0x04;
-      internal const int AddPosition = 0x08;
-      internal const int AddCalendar = 0x10;
-      internal const int AddCount = 0x20;
-      internal const int AddSubstitution = 0x40;
-      internal const int AddGroupNumber = 0x80;
-      internal const int AddMessageNumber = 0x100;
-      internal const int AddUserPatternSize = 0x200;
-      internal const int AddAll = 0x3FF;
+      public const int AddNone = 0;
+      public const int AddItem = 0x01;
+      public const int AddColumn = 0x02;
+      public const int AddLine = 0x04;
+      public const int AddPosition = 0x08;
+      public const int AddCalendar = 0x10;
+      public const int AddCount = 0x20;
+      public const int AddSubstitution = 0x40;
+      public const int AddGroupNumber = 0x80;
+      public const int AddMessageNumber = 0x100;
+      public const int AddUserPatternSize = 0x200;
+      public const int AddAll = 0x3FF;
 
       string IPAddress;
       int port;
@@ -56,7 +56,7 @@ namespace EIP_Lib {
       Attributes<ccES> envirAttr;      // 0x71
       Attributes<ccOM> mgmtAttr;       // 0x74
       Attributes<ccUP> userPatAttr;    // 0x6B
-      internal XML processXML;              // xml processing
+      public XML processXML;              // xml processing
 
 
       public bool ComIsOn = false;

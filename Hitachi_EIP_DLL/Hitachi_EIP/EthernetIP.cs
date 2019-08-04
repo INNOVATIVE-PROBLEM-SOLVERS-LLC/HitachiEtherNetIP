@@ -355,7 +355,7 @@ namespace EIP_Lib {
       }
 
       // Data Tables describing Hitachi Model 161
-      static internal DataII M161 = new DataII();
+      static public DataII M161 = new DataII();
 
       // Lookup for getting attributes associated with a Class/Function
       static public Dictionary<ClassCode, byte, AttrData> AttrDict;
@@ -429,8 +429,8 @@ namespace EIP_Lib {
       public ClassCode Class { get; set; }
       public byte Instance { get; set; } = 1;
       public byte Attribute { get; set; } = 1;
-      internal uint O_T_ConnectionID { get; set; } = 0;
-      internal uint T_O_ConnectionID { get; set; } = 0;
+      public uint O_T_ConnectionID { get; set; } = 0;
+      public uint T_O_ConnectionID { get; set; } = 0;
 
       private bool IsConnected {
          get { return client != null && stream != null && client.Connected; }
@@ -510,9 +510,9 @@ namespace EIP_Lib {
       // Status of last request
       bool Successful = false;
 
-      internal static readonly object TrafficLock = new object();
-      internal static Traffic Traffic = null;
-      internal static int TrafficUsers = 0;
+      public static readonly object TrafficLock = new object();
+      public static Traffic Traffic = null;
+      public static int TrafficUsers = 0;
 
 
       #endregion
@@ -1859,7 +1859,7 @@ namespace EIP_Lib {
       }
 
       // Create a unique file name by incorporating time into the filename
-      internal static string CreateFileName(string directory, string s, string ext = "csv") {
+      public static string CreateFileName(string directory, string s, string ext = "csv") {
          if (Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
          }
