@@ -314,25 +314,25 @@ namespace HitachiProtocol {
             strData = mReq.Data1;
 
             // Just log it
-            if ((EventLogging & HPEventLogging.OperationStart) > 0 && Log != null) {
+            if ((EventLogging & HPEventLogging.OperationStart) > 0) {
                string opName = OperationName(mReq.Op, mReq.SubOp);
                if (mReq.Op == PrinterOps.Connect) {
                   switch (Connection) {
                      case ConnectionType.Serial:
-                        Log(this, new HPEventArgs($"{opName} Starting => {PortName},{BaudRate},{Parity},{DataBits},{StopBits}"));
+                        Log?.Invoke(this, new HPEventArgs($"{opName} Starting => {PortName},{BaudRate},{Parity},{DataBits},{StopBits}"));
                         break;
                      case ConnectionType.EthernetToSerial:
-                        Log(this, new HPEventArgs($"{opName} Starting => Ethernet {IPAddress}({IPPort})"));
+                        Log?.Invoke(this, new HPEventArgs($"{opName} Starting => Ethernet {IPAddress}({IPPort})"));
                         break;
                      case ConnectionType.Simulator:
-                        Log(this, new HPEventArgs($"{opName} Starting => In Simulated I/O mode"));
+                        Log?.Invoke(this, new HPEventArgs($"{opName} Starting => In Simulated I/O mode"));
                         break;
                      default:
-                        Log(this, new HPEventArgs($"{opName} Starting => Off Line"));
+                        Log?.Invoke(this, new HPEventArgs($"{opName} Starting => Off Line"));
                         break;
                   }
                } else {
-                  Log(this, new HPEventArgs($"{opName} Starting =>{strData}<="));
+                  Log?.Invoke(this, new HPEventArgs($"{opName} Starting =>{strData}<="));
                }
             }
             IssueSerialOperation(mReq);
@@ -503,7 +503,7 @@ namespace HitachiProtocol {
 
                      // Log output of data
                      if ((EventLogging & HPEventLogging.Output) > 0) {
-                        Log?.Invoke(this, new HPEventArgs("Output = " + strOutput));
+                        Log?.Invoke(this, new HPEventArgs($"Output = {strOutput}"));
                      }
                      ReportRawData(false, strOutput);
 
@@ -533,8 +533,8 @@ namespace HitachiProtocol {
                      TimedDelay(DelayTime); // intDelay
 
                      // Log output of data
-                     if ((EventLogging & HPEventLogging.Output) > 0 && Log != null) {
-                        Log(this, new HPEventArgs("Output = " + strOutput));
+                     if ((EventLogging & HPEventLogging.Output) > 0) {
+                        Log?.Invoke(this, new HPEventArgs($"Output = {strOutput}"));
                      }
                      ReportRawData(false, strOutput);
 
@@ -561,8 +561,8 @@ namespace HitachiProtocol {
                case ConnectionType.Simulator:
 
                   // Log output of data
-                  if ((EventLogging & HPEventLogging.Output) > 0 && Log != null) {
-                     Log(this, new HPEventArgs("Output = " + TranslateInput(strOutput)));
+                  if ((EventLogging & HPEventLogging.Output) > 0) {
+                     Log?.Invoke(this, new HPEventArgs($"Output = {TranslateInput(strOutput)}"));
                   }
                   ReportRawData(false, strOutput);
 
@@ -573,7 +573,7 @@ namespace HitachiProtocol {
                   TimedDelay(5); // intDelay
                   break;
                case ConnectionType.OffLine:
-                  Log(this, new HPEventArgs("Attempt to send data to offline printer."));
+                  Log?.Invoke(this, new HPEventArgs("Attempt to send data to offline printer."));
 
                   // Move the request to the idle queue
                   CompleteOperation(mReq, string.Empty);
@@ -2181,9 +2181,10 @@ namespace HitachiProtocol {
             ParseInput();
             client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(Sox_DataArrival), state);
          } catch (SocketException e) {
-            if (Log != null) {
-               parent.BeginInvoke(new EventHandler(delegate { Log(this, new HPEventArgs(PrinterOps.Nop, e.ToString())); }));
-            }
+            //if (Log != null) {
+            //   parent.BeginInvoke(new EventHandler(delegate { Log(this, new HPEventArgs(PrinterOps.Nop, e.ToString())); }));
+            //}
+            Log?.Invoke(this, new HPEventArgs(PrinterOps.Nop, e.ToString()));
          }
       }
 
@@ -2390,8 +2391,8 @@ namespace HitachiProtocol {
          HPRequest mReq;
          //
          // Tell the user it came in
-         if ((EventLogging & HPEventLogging.Input) > 0 && Log != null) {
-            Log(this, new HPEventArgs("InputPE = " + strIn));
+         if ((EventLogging & HPEventLogging.Input) > 0) {
+            Log?.Invoke(this, new HPEventArgs("InputPE = " + strIn));
          }
          //
          // The printer sends ENQ on Com Off to report status but goes silent before allowing a response
@@ -2436,8 +2437,8 @@ namespace HitachiProtocol {
                break;
          }
          // Log output of data
-         if ((EventLogging & HPEventLogging.Output) > 0 && Log != null) {
-            Log(this, new HPEventArgs("Output = " + sACK));
+         if ((EventLogging & HPEventLogging.Output) > 0) {
+            Log?.Invoke(this, new HPEventArgs($"Output = {sACK}"));
          }
 
       }
@@ -2615,8 +2616,8 @@ namespace HitachiProtocol {
                // Report the raw data
                ReportRawData(true, strIn);
                // Log output of data
-               if ((EventLogging & HPEventLogging.Output) > 0 && Log != null) {
-                  Log(this, new HPEventArgs("Output = " + sACK));
+               if ((EventLogging & HPEventLogging.Output) > 0) {
+                  Log?.Invoke(this, new HPEventArgs($"Output = {sACK}"));
                }
                //
                // Report the raw data
@@ -2633,11 +2634,11 @@ namespace HitachiProtocol {
       }
 
       void ReportRawData(bool input, string rawData) {
-         if ((EventLogging & HPEventLogging.RawData) > 0 && RawData != null) {
+         if ((EventLogging & HPEventLogging.RawData) > 0) {
             if (input) {
-               RawData(this, new HPEventArgs("Raw Data << " + rawData));
+               RawData?.Invoke(this, new HPEventArgs("Raw Data << " + rawData));
             } else {
-               RawData(this, new HPEventArgs("Raw Data >> " + rawData));
+               RawData?.Invoke(this, new HPEventArgs("Raw Data >> " + rawData));
             }
          }
       }
