@@ -73,7 +73,7 @@ namespace HitachiProtocol {
                FakeResult = sACK;
                switch ((FetchOps)intSubOp) {
                   case FetchOps.Status:
-                     FakeResult = AsciiToRawData("02313131323003");
+                     FakeResult = pxr.StatusArea.Status;
                      break;
                   case FetchOps.Time:
                      if (pxr.RXClass) {

@@ -21,7 +21,7 @@ namespace HitachiProtocol {
       DateTime previous;
 
       Form parent;
-      int ID;
+      public int ID;
 
       HitachiPrinterType printerType;
       bool rxClass;
@@ -81,6 +81,11 @@ namespace HitachiProtocol {
 
       int RcvLength = 0;
 
+      enum Direction {
+         Input,
+         Output,
+      }
+
       #endregion
 
       #region Constructors/Destructors
@@ -110,7 +115,7 @@ namespace HitachiProtocol {
          HP_Idle = new List<HPRequest>();
 
          // Status Area
-         statusArea = new HPStatus(ID);
+         StatusArea = new HPStatus(this);
          // Signaling new PXR object
          if (Connection == ConnectionType.OffLine) {
             BuildStatus(StateChange.OffLine);
@@ -144,7 +149,7 @@ namespace HitachiProtocol {
 
          // Release the timer and status area
          TimedDelay(0);
-         statusArea = null;
+         StatusArea = null;
       }
 
       #endregion
@@ -220,7 +225,7 @@ namespace HitachiProtocol {
                      // Reset the I/O queue
                      ResetPXRQueue();
                   } else {
-                     // Signaling Opertaion Timed Out == Retrying
+                     // Signaling Operation Timed Out == Retrying
                      BuildStatus(StateChange.TimeoutRetrying);
                      Log?.Invoke(this, new HPEventArgs("Retrying Operation " + OperationName(mReq.Op, mReq.SubOp)));
                      // Retry the operation
@@ -505,7 +510,7 @@ namespace HitachiProtocol {
                      if ((EventLogging & HPEventLogging.Output) > 0) {
                         Log?.Invoke(this, new HPEventArgs($"Output = {strOutput}"));
                      }
-                     ReportRawData(false, strOutput);
+                     ReportRawData(Direction.Output, strOutput);
 
                      // Issue the output
                      try {
@@ -536,7 +541,7 @@ namespace HitachiProtocol {
                      if ((EventLogging & HPEventLogging.Output) > 0) {
                         Log?.Invoke(this, new HPEventArgs($"Output = {strOutput}"));
                      }
-                     ReportRawData(false, strOutput);
+                     ReportRawData(Direction.Output, strOutput);
 
                      // Issue the output
                      try {
@@ -564,7 +569,7 @@ namespace HitachiProtocol {
                   if ((EventLogging & HPEventLogging.Output) > 0) {
                      Log?.Invoke(this, new HPEventArgs($"Output = {TranslateInput(strOutput)}"));
                   }
-                  ReportRawData(false, strOutput);
+                  ReportRawData(Direction.Output, strOutput);
 
                   // Mark Printer Busy and set delay
                   PXROperationInProgress = true;
@@ -952,42 +957,49 @@ namespace HitachiProtocol {
          // Fan out on Sub Operation
          switch ((ControlOps)mReq.SubOp) {
             case ControlOps.ComOn:
+               StatusArea.Connection = '1';
                if (rxClass) {
                   return sESC2 + "s";
                } else {
                   return sESC + "y";
                }
             case ControlOps.ComOff:
+               StatusArea.Connection = '0';
                if (rxClass) {
                   return sESC2 + "t";
                } else {
                   return sESC + "z";
                }
             case ControlOps.HydraulicsStart:
+               StatusArea.Operation = '2';
                if (rxClass) {
                   return sSTX + sESC2 + "r0" + sETX;
                } else {
                   return sSTX + sESC + "q0" + sETX;
                }
             case ControlOps.HydraulicsStop:
+               StatusArea.Operation = '0';
                if (rxClass) {
                   return sSTX + sESC2 + "r1" + sETX;
                } else {
                   return sSTX + sESC + "q1" + sETX;
                }
             case ControlOps.Ready:
+               StatusArea.Reception = '1';
                if (rxClass) {
                   return sSTX + sESC2 + "r2" + sETX;
                } else {
                   return sSTX + sESC + "q2" + sETX;
                }
             case ControlOps.Standby:
+               StatusArea.Reception = '0';
                if (rxClass) {
                   return sSTX + sESC2 + "r3" + sETX;
                } else {
                   return sSTX + sESC + "q3" + sETX;
                }
             case ControlOps.ResetAlarm:
+               StatusArea.Alarm = '0';
                nACKs = nNAKs = 0;
                if (SOP4Enabled || rxClass) {
                   if (rxClass) {
@@ -2254,7 +2266,6 @@ namespace HitachiProtocol {
          int CharSize;
          int Page;
          int KbType;
-         string strStatus;
          bool fakeStatus = false;
 
          if (strIn[0] == cACK) {
@@ -2288,35 +2299,23 @@ namespace HitachiProtocol {
                // Connect = 1, Disconnect = 2, Idle = 17, SetNozzle = 31 (Cannot get here)
                case PrinterOps.IssueControl: // 3
 
-                  // Assume no status to return
-                  strStatus = string.Empty;
-
-                  // If SOP4 is not on, no status will be returned.  Fake one
-                  if (!SOP4Enabled) {
-                     switch ((ControlOps)SubOp) {
-                        case ControlOps.ComOn:
-                           strStatus = sSTX + "11120" + sETX;
-                           fakeStatus = true;
-                           break;
-                        case ControlOps.ComOff:
-                           strStatus = sSTX + "10120" + sETX;
-                           fakeStatus = true;
-                           break;
-                        default:
-                           break;
-                     }
-                     if (strStatus != string.Empty) {
-                        // Signaling Fake SOP-04 status
-                        BuildStatus(strStatus);
-                     }
-                  }
-
                   // Complete the request
                   CompleteOperation(mReg, strIn);
                   Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
-
-                  // Let the operator know
-                  ProcessUnsolicited(strStatus, fakeStatus);
+                  // Now send back fake status
+                  if(Connection == ConnectionType.Simulator || !SOP4Enabled) {
+                     switch ((ControlOps)SubOp) {
+                        case ControlOps.ComOn:
+                        case ControlOps.ComOff:
+                        case ControlOps.HydraulicsStart:
+                        case ControlOps.HydraulicsStop:
+                        case ControlOps.Ready:
+                        case ControlOps.Standby:
+                        case ControlOps.ResetAlarm:
+                           ProcessUnsolicited(StatusArea.Status, fakeStatus);
+                           break;
+                     }
+                  }
                   break;
                case PrinterOps.ColumnSetup: // 4
                case PrinterOps.WriteSpecification: // 5
@@ -2325,7 +2324,6 @@ namespace HitachiProtocol {
                case PrinterOps.WriteCalendarSubZS: // 9
                case PrinterOps.WriteCountCondition: // 10
                case PrinterOps.Message: // 12
-               case PrinterOps.Fetch: // 13
                case PrinterOps.Retrieve: // 14
                case PrinterOps.SetClock: // 16
                case PrinterOps.PassThru: // 18
@@ -2346,6 +2344,13 @@ namespace HitachiProtocol {
                   // Complete the request
                   CompleteOperation(mReg, strIn);
                   Complete?.Invoke(this, new HPEventArgs(Op, SubOp, Item, strIn));
+                  break;
+               case PrinterOps.Fetch: // 13
+                  if (IsStatus(strIn) && Connection != ConnectionType.Simulator) {
+                     StatusArea.Status = strIn;
+                  }
+                  CompleteOperation(mReg, strIn);
+                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   break;
                case PrinterOps.RetrievePattern: // 15
 
@@ -2400,18 +2405,17 @@ namespace HitachiProtocol {
             Debug.Assert(HP_Requests.Count > 0, "PXR Operation In Progress but no request available!");
             mReq = HP_Requests[0];
             if (mReq.Op == PrinterOps.IssueControl && (ControlOps)mReq.SubOp == ControlOps.ComOff) {
-               if (Unsolicited != null) {
-                  string raw = sSTX + "1023B" + sETX;
-                  //
-                  // Let the user know it went away
-                  Unsolicited(this, new HPEventArgs(raw));
-                  //
-                  // Report the raw data
-                  ReportRawData(true, raw);
-                  //
-                  // No need to acknowledge it as the printer is no longer talking
-                  return;
-               }
+               StatusArea.Connection = '0';
+               string raw = StatusArea.Status;
+               //
+               // Let the user know it went away
+               Unsolicited?.Invoke(this, new HPEventArgs(raw));
+               //
+               // Report the raw data
+               ReportRawData(Direction.Input, raw);
+               //
+               // No need to acknowledge it as the printer is no longer talking
+               return;
             }
          }
          //
@@ -2419,7 +2423,7 @@ namespace HitachiProtocol {
          PendingENQ = true;
          //
          // Report the raw data
-         ReportRawData(false, sACK);
+         ReportRawData(Direction.Output, sACK);
          //
          // Acknowledge the ENQ request
          switch (Connection) {
@@ -2495,7 +2499,7 @@ namespace HitachiProtocol {
                case PrinterOps.Retrieve:
                   if ((RetrieveOps)SubOp == RetrieveOps.PrintContentsNoAttributes) {
                      LastMessageText = strIn;
-                     StatusChanged?.Invoke(this, statusArea);
+                     StatusChanged?.Invoke(this, StatusArea);
                   }
                   CompleteOperation(mReq, strIn);
                   Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
@@ -2614,31 +2618,37 @@ namespace HitachiProtocol {
                }
                //
                // Report the raw data
-               ReportRawData(true, strIn);
+               ReportRawData(Direction.Input, strIn);
                // Log output of data
                if ((EventLogging & HPEventLogging.Output) > 0) {
                   Log?.Invoke(this, new HPEventArgs($"Output = {sACK}"));
                }
                //
                // Report the raw data
-               ReportRawData(false, sACK);
+               ReportRawData(Direction.Output, sACK);
             }
-            // Notify the user
-            Unsolicited?.Invoke(this, new HPEventArgs(strIn));
             // Most unsolicited info is status
             if (IsStatus(strIn)) {
                // Signaling unsolicited SOP-04 status
+               StatusArea.Status = strIn;
                BuildStatus(strIn);
             }
+            // Notify the user
+            Unsolicited?.Invoke(this, new HPEventArgs(strIn));
          }
       }
 
-      void ReportRawData(bool input, string rawData) {
+      void ReportRawData(Direction direction, string rawData) {
          if ((EventLogging & HPEventLogging.RawData) > 0) {
-            if (input) {
-               RawData?.Invoke(this, new HPEventArgs("Raw Data << " + rawData));
-            } else {
-               RawData?.Invoke(this, new HPEventArgs("Raw Data >> " + rawData));
+            switch (direction) {
+               case Direction.Input:
+                  RawData?.Invoke(this, new HPEventArgs("Raw Data << " + rawData));
+                  break;
+               case Direction.Output:
+                  RawData?.Invoke(this, new HPEventArgs("Raw Data >> " + rawData));
+                  break;
+               default:
+                  break;
             }
          }
       }
@@ -2682,432 +2692,428 @@ namespace HitachiProtocol {
 
       #region Status Processing
 
-      // Status Area
-      HPStatus statusArea;
-
       void BuildStatus(StateChange newState) {
          if (Connection == ConnectionType.OffLine) {
-            statusArea.State = StateChange.OffLine;
-            statusArea.SetAllSeverity(Color.LightGray);
+            StatusArea.State = StateChange.OffLine;
+            StatusArea.SetAllSeverity(Color.LightGray);
          } else {
-            statusArea.State = newState;
+            StatusArea.State = newState;
             switch (newState) {
                case StateChange.Connected:
                case StateChange.Connecting:
-                  statusArea.SetAllSeverity(Color.LightGreen);
+                  StatusArea.SetAllSeverity(Color.LightGreen);
                   break;
                case StateChange.TimeoutRetrying:
                case StateChange.Initializing:
-                  statusArea.SetAllSeverity(Color.Yellow);
-                  statusArea.SetAllSeverity(Color.Yellow);
+                  StatusArea.SetAllSeverity(Color.Yellow);
+                  StatusArea.SetAllSeverity(Color.Yellow);
                   break;
                case StateChange.TimeoutAbort:
                case StateChange.ConnectFailed:
-                  statusArea.SetAllSeverity(Color.Pink);
+                  StatusArea.SetAllSeverity(Color.Pink);
                   break;
                case StateChange.UpdateACKNAK:
-                  statusArea.SetCounts(nACKs, nNAKs);
                   break;
                case StateChange.Disconnected:
                case StateChange.OffLine:
-                  statusArea.SetAllSeverity(Color.LightGray);
+                  StatusArea.SetAllSeverity(Color.LightGray);
                   break;
                default:
                   break;
             }
          }
-         StatusChanged?.Invoke(this, statusArea);
+         StatusChanged?.Invoke(this, StatusArea);
       }
 
       void BuildStatus(string strStatus) {
 
          // 
          if (IsStatus(strStatus)) {
-            statusArea.Response = strStatus;
+            StatusArea.Status = strStatus;
             // Connection
-            statusArea.SetDescription(StatusAreas.Connection, TranslateStatus(StatusAreas.Connection, strStatus[2]));
+            StatusArea.SetDescription(StatusAreas.Connection, StatusArea.TranslateStatus(StatusAreas.Connection, strStatus[2]));
             switch ((byte)strStatus[2]) {
                case 0x30:
-                  statusArea.SetSeverity(StatusAreas.Connection, Color.Yellow);
+                  StatusArea.SetSeverity(StatusAreas.Connection, Color.Yellow);
                   break;
                case 0x31:
-                  statusArea.SetSeverity(StatusAreas.Connection, Color.LightGreen);
+                  StatusArea.SetSeverity(StatusAreas.Connection, Color.LightGreen);
                   break;
                default:
-                  statusArea.SetSeverity(StatusAreas.Connection, Color.Pink);
+                  StatusArea.SetSeverity(StatusAreas.Connection, Color.Pink);
                   break;
             }
 
             // Reception
-            statusArea.SetDescription(StatusAreas.Reception, TranslateStatus(StatusAreas.Reception, strStatus[3]));
+            StatusArea.SetDescription(StatusAreas.Reception, StatusArea.TranslateStatus(StatusAreas.Reception, strStatus[3]));
             switch ((byte)strStatus[3]) {
                case 0x30:
-                  statusArea.SetSeverity(StatusAreas.Reception, Color.Yellow);
+                  StatusArea.SetSeverity(StatusAreas.Reception, Color.Yellow);
                   break;
                case 0x31:
-                  statusArea.SetSeverity(StatusAreas.Reception, Color.LightGreen);
+                  StatusArea.SetSeverity(StatusAreas.Reception, Color.LightGreen);
                   break;
                default:
                   if (!SOP4Enabled) {
-                     statusArea.SetSeverity(StatusAreas.Reception, Color.Gray);
+                     StatusArea.SetSeverity(StatusAreas.Reception, Color.Gray);
                   } else {
-                     statusArea.SetSeverity(StatusAreas.Reception, Color.Pink);
+                     StatusArea.SetSeverity(StatusAreas.Reception, Color.Pink);
                   }
                   break;
             }
 
             // Operation
-            statusArea.SetDescription(StatusAreas.Operation, TranslateStatus(StatusAreas.Operation, strStatus[4]));
+            StatusArea.SetDescription(StatusAreas.Operation, StatusArea.TranslateStatus(StatusAreas.Operation, strStatus[4]));
             switch ((byte)strStatus[4]) {
                case 0x30:
                case 0x31:
-                  statusArea.SetSeverity(StatusAreas.Operation, Color.Yellow);
+                  StatusArea.SetSeverity(StatusAreas.Operation, Color.Yellow);
                   break;
                case 0x32:
-                  statusArea.SetSeverity(StatusAreas.Operation, Color.LightGreen);
+                  StatusArea.SetSeverity(StatusAreas.Operation, Color.LightGreen);
                   break;
                default:
                   if (!SOP4Enabled) {
-                     statusArea.SetSeverity(StatusAreas.Operation, Color.Gray);
+                     StatusArea.SetSeverity(StatusAreas.Operation, Color.Gray);
                   } else {
-                     statusArea.SetSeverity(StatusAreas.Operation, Color.Pink);
+                     StatusArea.SetSeverity(StatusAreas.Operation, Color.Pink);
                   }
                   break;
             }
 
             // Alarm
-            statusArea.SetDescription(StatusAreas.Alarm, TranslateStatus(StatusAreas.Alarm, strStatus[5]));
+            StatusArea.SetDescription(StatusAreas.Alarm, StatusArea.TranslateStatus(StatusAreas.Alarm, strStatus[5]));
             switch ((byte)strStatus[5]) {
                case 0x30:
-                  statusArea.SetSeverity(StatusAreas.Alarm, Color.LightGreen);
+                  StatusArea.SetSeverity(StatusAreas.Alarm, Color.LightGreen);
                   break;
                case 0x31:
-                  statusArea.SetSeverity(StatusAreas.Alarm, Color.Yellow);
+                  StatusArea.SetSeverity(StatusAreas.Alarm, Color.Yellow);
                   break;
                default:
                   if (!SOP4Enabled) {
-                     statusArea.SetSeverity(StatusAreas.Alarm, Color.Gray);
+                     StatusArea.SetSeverity(StatusAreas.Alarm, Color.Gray);
                   } else {
-                     statusArea.SetSeverity(StatusAreas.Alarm, Color.Pink);
+                     StatusArea.SetSeverity(StatusAreas.Alarm, Color.Pink);
                   }
                   break;
             }
 
          }
-         StatusChanged?.Invoke(this, statusArea);
+         StatusChanged?.Invoke(this, StatusArea);
       }
 
-      public string TranslateStatus(StatusAreas Area, char Value) {
+      //public string TranslateStatus(StatusAreas Area, char Value) {
 
-         string Result;
-         if (!SOP4Enabled) {
-            Result = "N/A";
-         } else {
-            Result = "Unknown(" + Value + ")";
-         }
-         // Now translate it
-         switch (Area) {
-            case StatusAreas.Connection:
-               switch ((byte)Value) {
-                  case 0x30:
-                     Result = "Offline";
-                     break;
-                  case 0x31:
-                     Result = "Online";
-                     break;
-               }
-               break;
+      //   string Result;
+      //   if (!SOP4Enabled) {
+      //      Result = "N/A";
+      //   } else {
+      //      Result = "Unknown(" + Value + ")";
+      //   }
+      //   // Now translate it
+      //   switch (Area) {
+      //      case StatusAreas.Connection:
+      //         switch ((byte)Value) {
+      //            case 0x30:
+      //               Result = "Offline";
+      //               break;
+      //            case 0x31:
+      //               Result = "Online";
+      //               break;
+      //         }
+      //         break;
 
-            case StatusAreas.Reception:
-               switch ((byte)Value) {
-                  case 0x30:
-                     Result = "Reception not possible";
-                     break;
-                  case 0x31:
-                     Result = "Reception possible";
-                     break;
-               }
-               break;
+      //      case StatusAreas.Reception:
+      //         switch ((byte)Value) {
+      //            case 0x30:
+      //               Result = "Reception not possible";
+      //               break;
+      //            case 0x31:
+      //               Result = "Reception possible";
+      //               break;
+      //         }
+      //         break;
 
-            case StatusAreas.Operation:
-               switch ((byte)Value) {
-                  case 0x30:
-                     Result = "Paused";
-                     break;
-                  case 0x31:
-                     Result = "Running - Not Ready";
-                     break;
-                  case 0x32:
-                     Result = "Ready";
-                     break;
-                  case 0x49:
-                     Result = "Stopping";
-                     break;
-                  case 0x5c:
-                     Result = "Maint. Running";
-                     break;
-                  case 0x33:
-                     Result = "Deflection Voltage Fault";
-                     break;
-                  case 0x34:
-                     Result = "Main Ink Tank Too Full";
-                     break;
-                  case 0x35:
-                     Result = "Blank Print Items";
-                     break;
-                  case 0x36:
-                     Result = "Ink Drop Charge Too Low";
-                     break;
-                  case 0x37:
-                     Result = "Ink Drop Charge Too High";
-                     break;
-                  case 0x38:
-                     Result = "Print Head Cover Open";
-                     break;
-                  case 0x39:
-                     Result = "Target Sensor Fault";
-                     break;
-                  case 0x3a:
-                     Result = "System Operation Error C";
-                     break;
-                  case 0x3b:
-                     Result = "Target Spacing Too Close";
-                     break;
-                  case 0x3c:
-                     Result = "Improper Sensor Position";
-                     break;
-                  case 0x3d:
-                     Result = "System Operation Error M";
-                     break;
-                  case 0x3e:
-                     Result = "Charge Voltage Fault";
-                     break;
-                  case 0x3f:
-                     Result = "Barcode Short On Numbers";
-                     break;
-                  case 0x41:
-                     Result = "Multi DC Power Supply Fan Fault";
-                     break;
-                  case 0x42:
-                     Result = "Deflection Voltage Leakage";
-                     break;
-                  case 0x43:
-                     Result = "Print Overlap Fault";
-                     break;
-                  case 0x44:
-                     Result = "Ink Low Fault";
-                     break;
-                  case 0x45:
-                     Result = "Makeup Ink Low Fault";
-                     break;
-                  case 0x46:
-                     Result = "Print Data Changeover In Progress M";
-                     break;
-                  case 0x47:
-                     Result = "Excessive Format Count";
-                     break;
-                  case 0x48:
-                     Result = "Makeup Ink Replenishment Time-out";
-                     break;
-                  case 0x4a:
-                     Result = "Ink Replenishment Time-out";
-                     break;
-                  case 0x4b:
-                     Result = "No Ink Drop Charge";
-                     break;
-                  case 0x4c:
-                     Result = "Ink Heating Unit Too High";
-                     break;
-                  case 0x4d:
-                     Result = "Ink Heating Unit Temperature Sensor Fault";
-                     break;
-                  case 0x4e:
-                     Result = "Ink Heating Unit Over Current";
-                     break;
-                  case 0x4f:
-                     Result = "Internal Communication Error C";
-                     break;
-                  case 0x50:
-                     Result = "Internal Communication Error M";
-                     break;
-                  case 0x51:
-                     Result = "Internal Communication Error S";
-                     break;
-                  case 0x52:
-                     Result = "System Operation Error S";
-                     break;
-                  case 0x53:
-                     Result = "Memory Fault C";
-                     break;
-                  case 0x54:
-                     Result = "Memory Fault M";
-                     break;
-                  case 0x55:
-                     Result = "Ambient Temperature Sensor Fault";
-                     break;
-                  case 0x56:
-                     Result = "Print Controller Cooling Fan Fault";
-                     break;
-                  case 0x59:
-                     Result = "Print Data Changeover In Progress S";
-                     break;
-                  case 0x5a:
-                     Result = "Print Data Changeover In Progress V";
-                     break;
-                  case 0x5d:
-                     Result = "Memory Fault S";
-                     break;
-                  case 0x5e:
-                     Result = "Pump Motor Fault";
-                     break;
-                  case 0x5f:
-                     Result = "Viscometer Ink Temperature Sensor Fault";
-                     break;
-                  case 0x60:
-                     Result = "External Communication Error";
-                     break;
-                  case 0x61:
-                     Result = "External Signal Error";
-                     break;
-                  case 0x62:
-                     Result = "Memory Fault OP";
-                     break;
-                  case 0x63:
-                     Result = "Ink Heating Unit Temperature Low";
-                     break;
-                  case 0x64:
-                     Result = "Model-key Fault";
-                     break;
-                  case 0x65:
-                     Result = "Language-key Fault";
-                     break;
-                  case 0x66:
-                     Result = "Communication Buffer Fault";
-                     break;
-                  case 0x67:
-                     Result = "Shutdown Fault";
-                     break;
-                  case 0x68:
-                     Result = "Count Overflow";
-                     break;
-                  case 0x69:
-                     Result = "Data changeover timing fault";
-                     break;
-                  case 0x6a:
-                     Result = "Count changeover timing fault";
-                     break;
-                  case 0x6b:
-                     Result = "Print start timing fault";
-                     break;
-                  case 0x6c:
-                     Result = "Ink Shelf Life Information";
-                     break;
-                  case 0x6d:
-                     Result = "Makeup Shelf Life Information";
-                     break;
-                  case 0x71:
-                     Result = "Print Data Changeover Error C";
-                     break;
-                  case 0x72:
-                     Result = "Print Data Changeover Error M";
-                     break;
-               }
-               break;
+      //      case StatusAreas.Operation:
+      //         switch ((byte)Value) {
+      //            case 0x30:
+      //               Result = "Paused";
+      //               break;
+      //            case 0x31:
+      //               Result = "Running - Not Ready";
+      //               break;
+      //            case 0x32:
+      //               Result = "Ready";
+      //               break;
+      //            case 0x49:
+      //               Result = "Stopping";
+      //               break;
+      //            case 0x5c:
+      //               Result = "Maint. Running";
+      //               break;
+      //            case 0x33:
+      //               Result = "Deflection Voltage Fault";
+      //               break;
+      //            case 0x34:
+      //               Result = "Main Ink Tank Too Full";
+      //               break;
+      //            case 0x35:
+      //               Result = "Blank Print Items";
+      //               break;
+      //            case 0x36:
+      //               Result = "Ink Drop Charge Too Low";
+      //               break;
+      //            case 0x37:
+      //               Result = "Ink Drop Charge Too High";
+      //               break;
+      //            case 0x38:
+      //               Result = "Print Head Cover Open";
+      //               break;
+      //            case 0x39:
+      //               Result = "Target Sensor Fault";
+      //               break;
+      //            case 0x3a:
+      //               Result = "System Operation Error C";
+      //               break;
+      //            case 0x3b:
+      //               Result = "Target Spacing Too Close";
+      //               break;
+      //            case 0x3c:
+      //               Result = "Improper Sensor Position";
+      //               break;
+      //            case 0x3d:
+      //               Result = "System Operation Error M";
+      //               break;
+      //            case 0x3e:
+      //               Result = "Charge Voltage Fault";
+      //               break;
+      //            case 0x3f:
+      //               Result = "Barcode Short On Numbers";
+      //               break;
+      //            case 0x41:
+      //               Result = "Multi DC Power Supply Fan Fault";
+      //               break;
+      //            case 0x42:
+      //               Result = "Deflection Voltage Leakage";
+      //               break;
+      //            case 0x43:
+      //               Result = "Print Overlap Fault";
+      //               break;
+      //            case 0x44:
+      //               Result = "Ink Low Fault";
+      //               break;
+      //            case 0x45:
+      //               Result = "Makeup Ink Low Fault";
+      //               break;
+      //            case 0x46:
+      //               Result = "Print Data Changeover In Progress M";
+      //               break;
+      //            case 0x47:
+      //               Result = "Excessive Format Count";
+      //               break;
+      //            case 0x48:
+      //               Result = "Makeup Ink Replenishment Time-out";
+      //               break;
+      //            case 0x4a:
+      //               Result = "Ink Replenishment Time-out";
+      //               break;
+      //            case 0x4b:
+      //               Result = "No Ink Drop Charge";
+      //               break;
+      //            case 0x4c:
+      //               Result = "Ink Heating Unit Too High";
+      //               break;
+      //            case 0x4d:
+      //               Result = "Ink Heating Unit Temperature Sensor Fault";
+      //               break;
+      //            case 0x4e:
+      //               Result = "Ink Heating Unit Over Current";
+      //               break;
+      //            case 0x4f:
+      //               Result = "Internal Communication Error C";
+      //               break;
+      //            case 0x50:
+      //               Result = "Internal Communication Error M";
+      //               break;
+      //            case 0x51:
+      //               Result = "Internal Communication Error S";
+      //               break;
+      //            case 0x52:
+      //               Result = "System Operation Error S";
+      //               break;
+      //            case 0x53:
+      //               Result = "Memory Fault C";
+      //               break;
+      //            case 0x54:
+      //               Result = "Memory Fault M";
+      //               break;
+      //            case 0x55:
+      //               Result = "Ambient Temperature Sensor Fault";
+      //               break;
+      //            case 0x56:
+      //               Result = "Print Controller Cooling Fan Fault";
+      //               break;
+      //            case 0x59:
+      //               Result = "Print Data Changeover In Progress S";
+      //               break;
+      //            case 0x5a:
+      //               Result = "Print Data Changeover In Progress V";
+      //               break;
+      //            case 0x5d:
+      //               Result = "Memory Fault S";
+      //               break;
+      //            case 0x5e:
+      //               Result = "Pump Motor Fault";
+      //               break;
+      //            case 0x5f:
+      //               Result = "Viscometer Ink Temperature Sensor Fault";
+      //               break;
+      //            case 0x60:
+      //               Result = "External Communication Error";
+      //               break;
+      //            case 0x61:
+      //               Result = "External Signal Error";
+      //               break;
+      //            case 0x62:
+      //               Result = "Memory Fault OP";
+      //               break;
+      //            case 0x63:
+      //               Result = "Ink Heating Unit Temperature Low";
+      //               break;
+      //            case 0x64:
+      //               Result = "Model-key Fault";
+      //               break;
+      //            case 0x65:
+      //               Result = "Language-key Fault";
+      //               break;
+      //            case 0x66:
+      //               Result = "Communication Buffer Fault";
+      //               break;
+      //            case 0x67:
+      //               Result = "Shutdown Fault";
+      //               break;
+      //            case 0x68:
+      //               Result = "Count Overflow";
+      //               break;
+      //            case 0x69:
+      //               Result = "Data changeover timing fault";
+      //               break;
+      //            case 0x6a:
+      //               Result = "Count changeover timing fault";
+      //               break;
+      //            case 0x6b:
+      //               Result = "Print start timing fault";
+      //               break;
+      //            case 0x6c:
+      //               Result = "Ink Shelf Life Information";
+      //               break;
+      //            case 0x6d:
+      //               Result = "Makeup Shelf Life Information";
+      //               break;
+      //            case 0x71:
+      //               Result = "Print Data Changeover Error C";
+      //               break;
+      //            case 0x72:
+      //               Result = "Print Data Changeover Error M";
+      //               break;
+      //         }
+      //         break;
 
-            case StatusAreas.Alarm:
-               switch ((byte)Value) {
-                  case 0x30:
-                     Result = "No Alarm";
-                     break;
-                  case 0x31:
-                     Result = "Ink Low Warning";
-                     break;
-                  case 0x32:
-                     Result = "Makeup ink Low Warning";
-                     break;
-                  case 0x33:
-                     Result = "Ink Shelf Life Exceeded";
-                     break;
-                  case 0x34:
-                     Result = "Battery Low M";
-                     break;
-                  case 0x35:
-                     Result = "Ink Pressure High";
-                     break;
-                  case 0x36:
-                     Result = "Product Speed Matching Error";
-                     break;
-                  case 0x37:
-                     Result = "External Communication Error nnn";
-                     break;
-                  case 0x38:
-                     Result = "Ambient Temperature Too High";
-                     break;
-                  case 0x39:
-                     Result = "Ambient Temperature Too Low";
-                     break;
-                  case 0x3a:
-                     Result = "Ink heating failure";
-                     break;
-                  case 0x3b:
-                     Result = "External Signal Error nnn";
-                     break;
-                  case 0x3c:
-                     Result = "Ink Pressure Low";
-                     break;
-                  case 0x3d:
-                     Result = "Excitation V-ref. Review";
-                     break;
-                  case 0x3e:
-                     Result = "Viscosity Reading Instability";
-                     break;
-                  case 0x3f:
-                     Result = "Viscosity Readings Out of Range";
-                     break;
-                  case 0x40:
-                     Result = "High Ink Viscosity";
-                     break;
-                  case 0x41:
-                     Result = "Low Ink Viscosity";
-                     break;
-                  case 0x42:
-                     Result = "Excitation V-ref. Review 2";
-                     break;
-                  case 0x44:
-                     Result = "Battery Low C";
-                     break;
-                  case 0x45:
-                     Result = "Calendar Content Inaccurate";
-                     break;
-                  case 0x46:
-                     Result = "Excitation V-ref. Char. height Review";
-                     break;
-                  case 0x47:
-                     Result = "Ink Shelf Life Information";
-                     break;
-                  case 0x48:
-                     Result = "Makeup Shelf Life Information";
-                     break;
-                  case 0x49:
-                     Result = "Model-key Failure";
-                     break;
-                  case 0x4a:
-                     Result = "Language-key Failure";
-                     break;
-                  case 0x4c:
-                     Result = "Upgrade-Key Fault";
-                     break;
-                  case 0x50:
-                     Result = "Circulation System Cooling Fan Fault";
-                     break;
-                  case 0x51:
-                     Result = "Ink Tempurature Too High";
-                     break;
-               }
-               break;
-         }
-         return Result;
-      }
+      //      case StatusAreas.Alarm:
+      //         switch ((byte)Value) {
+      //            case 0x30:
+      //               Result = "No Alarm";
+      //               break;
+      //            case 0x31:
+      //               Result = "Ink Low Warning";
+      //               break;
+      //            case 0x32:
+      //               Result = "Makeup ink Low Warning";
+      //               break;
+      //            case 0x33:
+      //               Result = "Ink Shelf Life Exceeded";
+      //               break;
+      //            case 0x34:
+      //               Result = "Battery Low M";
+      //               break;
+      //            case 0x35:
+      //               Result = "Ink Pressure High";
+      //               break;
+      //            case 0x36:
+      //               Result = "Product Speed Matching Error";
+      //               break;
+      //            case 0x37:
+      //               Result = "External Communication Error nnn";
+      //               break;
+      //            case 0x38:
+      //               Result = "Ambient Temperature Too High";
+      //               break;
+      //            case 0x39:
+      //               Result = "Ambient Temperature Too Low";
+      //               break;
+      //            case 0x3a:
+      //               Result = "Ink heating failure";
+      //               break;
+      //            case 0x3b:
+      //               Result = "External Signal Error nnn";
+      //               break;
+      //            case 0x3c:
+      //               Result = "Ink Pressure Low";
+      //               break;
+      //            case 0x3d:
+      //               Result = "Excitation V-ref. Review";
+      //               break;
+      //            case 0x3e:
+      //               Result = "Viscosity Reading Instability";
+      //               break;
+      //            case 0x3f:
+      //               Result = "Viscosity Readings Out of Range";
+      //               break;
+      //            case 0x40:
+      //               Result = "High Ink Viscosity";
+      //               break;
+      //            case 0x41:
+      //               Result = "Low Ink Viscosity";
+      //               break;
+      //            case 0x42:
+      //               Result = "Excitation V-ref. Review 2";
+      //               break;
+      //            case 0x44:
+      //               Result = "Battery Low C";
+      //               break;
+      //            case 0x45:
+      //               Result = "Calendar Content Inaccurate";
+      //               break;
+      //            case 0x46:
+      //               Result = "Excitation V-ref. Char. height Review";
+      //               break;
+      //            case 0x47:
+      //               Result = "Ink Shelf Life Information";
+      //               break;
+      //            case 0x48:
+      //               Result = "Makeup Shelf Life Information";
+      //               break;
+      //            case 0x49:
+      //               Result = "Model-key Failure";
+      //               break;
+      //            case 0x4a:
+      //               Result = "Language-key Failure";
+      //               break;
+      //            case 0x4c:
+      //               Result = "Upgrade-Key Fault";
+      //               break;
+      //            case 0x50:
+      //               Result = "Circulation System Cooling Fan Fault";
+      //               break;
+      //            case 0x51:
+      //               Result = "Ink Tempurature Too High";
+      //               break;
+      //         }
+      //         break;
+      //   }
+      //   return Result;
+      //}
 
       public bool IsStatus(string status) {
          return status.Length == 7
