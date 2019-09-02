@@ -2127,6 +2127,9 @@ namespace HitachiProtocol {
                   // Signaling successful ethernet connection
                   BuildStatus(StateChange.Connected);
 
+                  // Let the user know
+                  Complete?.Invoke(this, new HPEventArgs(mReq.Op, mReq.SubOp, sACK));
+
                   // Complete the request, Mark Success
                   connectionState = ConnectionStates.Connected;
                   CompleteOperation(mReq, $"OK to IP {IPAddress}({IPPort})!");
