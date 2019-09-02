@@ -391,7 +391,7 @@ namespace HitachiProtocol {
 
       #endregion
 
-      #region Public Methods
+      #region Public Declarations, Properties and Methods
 
       public FormatSetup MessageStyle { get; set; } = FormatSetup.Individual;
 
@@ -436,8 +436,11 @@ namespace HitachiProtocol {
          get { return rxClass; }
       }
 
+      // Status Area
+      public HPStatus StatusArea;
+
       public HPStatus GetStatus() {
-         return statusArea;
+         return StatusArea;
       }
 
       public ConnectionStates ConnectionState {
@@ -456,7 +459,7 @@ namespace HitachiProtocol {
          // Connect to the printer, bring printer to an idle state and get the status
          if (t != ConnectionType.OffLine) {
             IssueRequest(GetRequest(PrinterOps.Connect));
-            IssueControl(ControlOps.ComOn);
+            //IssueControl(ControlOps.ComOn);
          }
       }
 

@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
 namespace HitachiProtocol {
+
    public class HPStatus {
+
+      #region Data declarations and Properties
+
+      private HitachiPrinter HP;
+
       private string[] description;
       private Color[] severity;
       private StateChange state;
-      private int nACKs;
-      private int nNAKs;
-      private int ID;
-      private string printerResponse;
-      public int ACKs { get { return nACKs; } set { nACKs = value; } }
-      public int NAKs { get { return nNAKs; } set { nNAKs = value; } }
+
       public StateChange State {
          get { return state; }
          set {
@@ -33,10 +32,13 @@ namespace HitachiProtocol {
             }
          }
       }
-      public string Response { get { return printerResponse; } set { printerResponse = value; } }
 
-      public HPStatus(int ID) {
-         this.ID = ID;
+      #endregion
+
+      #region ServiceRoutines
+
+      public HPStatus(HitachiPrinter hp) {
+         this.HP = hp;
          description = new string[4] { "N/A", "N/A", "N/A", "N/A" };
          severity = new Color[4] { Color.Gray, Color.Gray, Color.Gray, Color.Gray };
       }
@@ -71,27 +73,23 @@ namespace HitachiProtocol {
          this.severity[(int)StatusAreas.Alarm] = severity;
       }
 
-      public void SetCounts(int nACKs, int nNAKs) {
-         this.nACKs = nACKs;
-         this.nNAKs = nNAKs;
-      }
-
       public Color GetMergedSeverity() {
          Color result = Color.LightGreen;
          if (state == StateChange.OffLine || state == StateChange.Disconnected) {
             result = Color.LightGray;
          } else {
-            for (int i = 0; i < this.severity.Length; i++) {
-               if (this.severity[i].ToArgb() != Color.LightGreen.ToArgb()) {
-                  if (result == Color.Pink || this.severity[i] == Color.Pink) {
-                     result = Color.Pink;
-                  } else {
-                     result = Color.Yellow;
+            if (HP.nNAKs > 0) {
+               result = Color.Pink;
+            } else {
+               for (int i = 0; i < this.severity.Length; i++) {
+                  if (this.severity[i].ToArgb() != Color.LightGreen.ToArgb()) {
+                     if (result == Color.Pink || this.severity[i] == Color.Pink) {
+                        result = Color.Pink;
+                     } else {
+                        result = Color.Yellow;
+                     }
                   }
                }
-            }
-            if (nNAKs > 0) {
-               result = Color.Pink;
             }
          }
          return result;
@@ -104,8 +102,8 @@ namespace HitachiProtocol {
             string reception = GetDescription(StatusAreas.Reception);
             string operation = GetDescription(StatusAreas.Operation);
             string alarm = GetDescription(StatusAreas.Alarm);
-            string nACK = $"ACKs {this.nACKs}";
-            string nNAK = $"NAKs {this.nNAKs}";
+            string nACK = $"ACKs {HP.nACKs}";
+            string nNAK = $"NAKs {HP.nNAKs}";
             string state = GetState();
             statusLine = $"{state} / {connection} / {reception} / {operation} / {alarm} / {nACK} / {nNAK}";
             return statusLine;
@@ -131,19 +129,6 @@ namespace HitachiProtocol {
          return result;
       }
 
-      protected class Stat {
-         public Stat(StatusAreas Area, char Value, string Status) {
-            this.Area = Area;
-            this.Value = Value;
-            this.Status = Status;
-         }
-         public StatusAreas Area;
-         public char Value;
-         public string Status;
-      }
-
-      List<Stat> Stats = null;
-
       public string TranslateStatus(StatusAreas Area, char Value) {
          if (Stats == null) {
             BuildStatuscodes();
@@ -158,12 +143,69 @@ namespace HitachiProtocol {
          return Result;
       }
 
+      #endregion
+
+      #region Status Simulation
+
+      private char[] status = new char[] { HitachiPrinter.cSTX, '1', '0', '0', '2', '0', HitachiPrinter .cETX };
+
+      public char Connection {
+         set {
+            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
+               status[2] = value;
+            }
+         }
+      }
+      public char Reception {
+         set {
+            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
+               status[3] = value;
+            }
+         }
+      }
+      public char Operation {
+         set {
+            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
+               status[4] = value;
+            }
+         }
+      }
+      public char Alarm {
+         set {
+            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
+               status[5] = value;
+            }
+         }
+      }
+
+      public string Status { get { return new string(status); } set { status = value.ToCharArray(); } }
+
+      #endregion
+
+      #region Translation Tables
+
+      class Stat {
+         public Stat(StatusAreas Area, char Value, string Status) {
+            this.Area = Area;
+            this.Value = Value;
+            this.Status = Status;
+         }
+         public StatusAreas Area;
+         public char Value;
+         public string Status;
+      }
+
+      static List<Stat> Stats = null;
+
+
       void BuildStatuscodes() {
          Stats = new List<Stat> {
             new Stat(StatusAreas.Connection, '\x30', "Offline"),
             new Stat(StatusAreas.Connection, '\x31', "Online"),
+
             new Stat(StatusAreas.Reception, '\x30', "Reception not possible"),
             new Stat(StatusAreas.Reception, '\x31', "Reception possible"),
+
             new Stat(StatusAreas.Operation, '\x30', "Paused"),
             new Stat(StatusAreas.Operation, '\x31', "Running - Not Ready"),
             new Stat(StatusAreas.Operation, '\x32', "Ready"),
@@ -224,6 +266,7 @@ namespace HitachiProtocol {
             new Stat(StatusAreas.Operation, '\x6d', "Makeup Shelf Life Information"),
             new Stat(StatusAreas.Operation, '\x71', "Print Data Changeover Error C"),
             new Stat(StatusAreas.Operation, '\x72', "Print Data Changeover Error M"),
+
             new Stat(StatusAreas.Alarm, '\x30', "No Alarm"),
             new Stat(StatusAreas.Alarm, '\x31', "Ink Low Warning"),
             new Stat(StatusAreas.Alarm, '\x32', "Makeup ink Low Warning"),
@@ -255,6 +298,8 @@ namespace HitachiProtocol {
             new Stat(StatusAreas.Alarm, '\x51', "Ink Tempurature Too High"),
          };
       }
+
+      #endregion
 
    }
 
