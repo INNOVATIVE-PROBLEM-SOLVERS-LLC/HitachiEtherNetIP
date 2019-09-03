@@ -957,49 +957,42 @@ namespace HitachiProtocol {
          // Fan out on Sub Operation
          switch ((ControlOps)mReq.SubOp) {
             case ControlOps.ComOn:
-               StatusArea.Connection = '1';
                if (rxClass) {
                   return sESC2 + "s";
                } else {
                   return sESC + "y";
                }
             case ControlOps.ComOff:
-               StatusArea.Connection = '0';
                if (rxClass) {
                   return sESC2 + "t";
                } else {
                   return sESC + "z";
                }
             case ControlOps.HydraulicsStart:
-               StatusArea.Operation = '2';
                if (rxClass) {
                   return sSTX + sESC2 + "r0" + sETX;
                } else {
                   return sSTX + sESC + "q0" + sETX;
                }
             case ControlOps.HydraulicsStop:
-               StatusArea.Operation = '0';
                if (rxClass) {
                   return sSTX + sESC2 + "r1" + sETX;
                } else {
                   return sSTX + sESC + "q1" + sETX;
                }
             case ControlOps.Ready:
-               StatusArea.Reception = '1';
                if (rxClass) {
                   return sSTX + sESC2 + "r2" + sETX;
                } else {
                   return sSTX + sESC + "q2" + sETX;
                }
             case ControlOps.Standby:
-               StatusArea.Reception = '0';
                if (rxClass) {
                   return sSTX + sESC2 + "r3" + sETX;
                } else {
                   return sSTX + sESC + "q3" + sETX;
                }
             case ControlOps.ResetAlarm:
-               StatusArea.Alarm = '0';
                nACKs = nNAKs = 0;
                if (SOP4Enabled || rxClass) {
                   if (rxClass) {
@@ -2145,6 +2138,9 @@ namespace HitachiProtocol {
                   // Signaling failed ethernet connection
                   BuildStatus(StateChange.ConnectFailed);
 
+                  // Let the user know
+                  Complete?.Invoke(this, new HPEventArgs(mReq.Op, mReq.SubOp, sNAK));
+
                   // Complete the request, Mark Failure
                   connectionState = ConnectionStates.Closed;
                   CompleteOperation(mReq, "Failed to IP " + IPAddress + "(" + IPPort + ")!");
@@ -2269,7 +2265,6 @@ namespace HitachiProtocol {
          int CharSize;
          int Page;
          int KbType;
-         bool fakeStatus = false;
 
          if (strIn[0] == cACK) {
             nACKs++;
@@ -2290,7 +2285,6 @@ namespace HitachiProtocol {
          if (PXROperationInProgress) {
 
             // Get the requesting packet
-            Debug.Assert(HP_Requests.Count > 0, "PXR Operation In Progress but no request available!");
             mReg = HP_Requests[0];
 
             // Fanout on the request type
@@ -2305,18 +2299,38 @@ namespace HitachiProtocol {
                   // Complete the request
                   CompleteOperation(mReg, strIn);
                   Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
+
                   // Now send back fake status
+                  bool SendStatus = true;
                   if(Connection == ConnectionType.Simulator || !SOP4Enabled) {
                      switch ((ControlOps)SubOp) {
                         case ControlOps.ComOn:
-                        case ControlOps.ComOff:
-                        case ControlOps.HydraulicsStart:
-                        case ControlOps.HydraulicsStop:
-                        case ControlOps.Ready:
-                        case ControlOps.Standby:
-                        case ControlOps.ResetAlarm:
-                           ProcessUnsolicited(StatusArea.Status, fakeStatus);
+                           StatusArea.Connection = '1';
                            break;
+                        case ControlOps.ComOff:
+                           StatusArea.Connection = '0';
+                           break;
+                        case ControlOps.HydraulicsStart:
+                           StatusArea.Operation = '2';
+                           break;
+                        case ControlOps.HydraulicsStop:
+                           StatusArea.Operation = '0';
+                           break;
+                        case ControlOps.Ready:
+                           StatusArea.Reception = '1';
+                           break;
+                        case ControlOps.Standby:
+                           StatusArea.Reception = '0';
+                           break;
+                        case ControlOps.ResetAlarm:
+                           StatusArea.Alarm = '0';
+                           break;
+                        default:
+                           SendStatus = false;
+                           break;
+                     }
+                     if (SendStatus) {
+                        ProcessUnsolicited(StatusArea.Status, true);
                      }
                   }
                   break;
@@ -2327,6 +2341,7 @@ namespace HitachiProtocol {
                case PrinterOps.WriteCalendarSubZS: // 9
                case PrinterOps.WriteCountCondition: // 10
                case PrinterOps.Message: // 12
+               case PrinterOps.Fetch: // 13
                case PrinterOps.Retrieve: // 14
                case PrinterOps.SetClock: // 16
                case PrinterOps.PassThru: // 18
@@ -2343,17 +2358,8 @@ namespace HitachiProtocol {
                   break;
                case PrinterOps.WriteFormat: // 6
                case PrinterOps.WritePattern: // 11
-
-                  // Complete the request
                   CompleteOperation(mReg, strIn);
                   Complete?.Invoke(this, new HPEventArgs(Op, SubOp, Item, strIn));
-                  break;
-               case PrinterOps.Fetch: // 13
-                  if (IsStatus(strIn) && Connection != ConnectionType.Simulator) {
-                     StatusArea.Status = strIn;
-                  }
-                  CompleteOperation(mReg, strIn);
-                  Complete?.Invoke(this, new HPEventArgs(Op, SubOp, strIn));
                   break;
                case PrinterOps.RetrievePattern: // 15
 
@@ -2378,11 +2384,6 @@ namespace HitachiProtocol {
                      mReg.Retries += 1;
                      TimedDelay(50); // intDelay;
                   }
-                  break;
-               case PrinterOps.Nop: // 0
-
-                  // The operations queue has been corrupted, reset it
-                  ResetPXRQueue();
                   break;
                default:
                   ProcessUnsolicited(strIn);
@@ -2619,17 +2620,17 @@ namespace HitachiProtocol {
                      }
                      break;
                }
-               //
-               // Report the raw data
-               ReportRawData(Direction.Input, strIn);
-               // Log output of data
-               if ((EventLogging & HPEventLogging.Output) > 0) {
-                  Log?.Invoke(this, new HPEventArgs($"Output = {sACK}"));
-               }
-               //
-               // Report the raw data
-               ReportRawData(Direction.Output, sACK);
             }
+            //
+            // Report the raw data
+            ReportRawData(Direction.Input, strIn);
+            // Log output of data
+            if ((EventLogging & HPEventLogging.Output) > 0) {
+               Log?.Invoke(this, new HPEventArgs($"Output = {sACK}"));
+            }
+            //
+            // Report the raw data
+            ReportRawData(Direction.Output, sACK);
             // Most unsolicited info is status
             if (IsStatus(strIn)) {
                // Signaling unsolicited SOP-04 status

@@ -149,34 +149,10 @@ namespace HitachiProtocol {
 
       private char[] status = new char[] { HitachiPrinter.cSTX, '1', '0', '0', '2', '0', HitachiPrinter .cETX };
 
-      public char Connection {
-         set {
-            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
-               status[2] = value;
-            }
-         }
-      }
-      public char Reception {
-         set {
-            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
-               status[3] = value;
-            }
-         }
-      }
-      public char Operation {
-         set {
-            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
-               status[4] = value;
-            }
-         }
-      }
-      public char Alarm {
-         set {
-            if (HP.Connection == ConnectionType.Simulator || !HP.SOP4Enabled) {
-               status[5] = value;
-            }
-         }
-      }
+      public char Connection { set { status[2] = value; } }
+      public char Reception { set { status[3] = value; } }
+      public char Operation { set { status[4] = value; } }
+      public char Alarm { set { status[5] = value; } }
 
       public string Status { get { return new string(status); } set { status = value.ToCharArray(); } }
 

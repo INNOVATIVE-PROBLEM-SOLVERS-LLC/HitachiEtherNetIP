@@ -102,6 +102,7 @@ namespace HitachiProtocol_Test {
          } else {
             HP.Connect();
          }
+         HP.IssueControl(ControlOps.ComOn);
       }
 
       void cmdDisconnect_Click(object sender, EventArgs e) {
