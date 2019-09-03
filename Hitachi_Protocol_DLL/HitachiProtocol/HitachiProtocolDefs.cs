@@ -366,7 +366,7 @@ namespace HitachiProtocol {
       // Class initialization for Simulated connection
       public HitachiPrinter(Form parent, int ID) {
 
-         if(OpNames == null) {
+         if (OpNames == null) {
             BuildOpNamescodes();
          }
 
