@@ -115,7 +115,7 @@ namespace EIP_Lib {
          calAttr = new Attributes<ccCal>
             (this, EIP, tabCalendar, ClassCode.Calendar, AddCalendar | AddItem);
          sRulesAttr = new Attributes<ccSR>
-            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddItem);
+            (this, EIP, tabSubstitution, ClassCode.Substitution_rules, AddItem | AddSubstitution);
          countAttr = new Attributes<ccCount>
             (this, EIP, tabCount, ClassCode.Count, AddItem | AddCount);
          unitInfoAttr = new Attributes<ccUI>
@@ -565,7 +565,7 @@ namespace EIP_Lib {
          Process.Start("notepad.exe", ViewFilename);
       }
 
-      // Douple click triggers Copy/Display of the Log file
+      // Double click triggers Copy/Display of the Log file
       private void lstErrors_MouseDoubleClick(object sender, MouseEventArgs e) {
          cmLogView_Click(null, null);
       }
