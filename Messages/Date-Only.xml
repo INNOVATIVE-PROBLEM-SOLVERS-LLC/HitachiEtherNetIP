@@ -11,44 +11,34 @@
     <TwinNozzle LeadingCharControl="0" LeadingCharControlWidth1="20" LeadingCharControlWidth2="20" NozzleSpaceAlignment="0" />
 
     <Substitution Rule="01" StartYear="2019" Delimeter="/">
-      <?Ignore
         <Year Base="00">00/01/02/03/04/05/06/07/08/09</Year>
         <Year Base="10">10/11/12/13/14/15/16/17/18/19</Year>
         <Year Base="20">20/21/22/23</Year>
-      ?>
 
-      <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
+		<Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
 
-      <?Ignore
-        <Day Base="01">01/02/03/04/05/06/07/08/09/10</Day>
-        <Day Base="11">11/02/13/14/15/16/17/18/19/20</Day>
-        <Day Base="21">21/22/23/24/25/26/27/28/29/30/31</Day>
-      ?>
+		<Day Base="01">01/02/03/04/05/06/07/08/09/10</Day>
+		<Day Base="11">11/02/13/14/15/16/17/18/19/20</Day>
+		<Day Base="21">21/22/23/24/25/26/27/28/29/30/31</Day>
 
-      <?Ignore
         <Hour Base="00">00/01/02/03/04/05/06/07/08/09</Hour>
         <Hour Base="10">10/11/12/13/14/15/16/17/18/19</Hour>
         <Hour Base="20">20/21/22/23</Hour>
-      ?>
 
-      <?Ignore
         <Minute Base="00">00/01/02/03/04/05/06/07/08/09</Minute>
         <Minute Base="10">10/11/12/13/14/15/16/17/18/19</Minute>
         <Minute Base="20">20/21/22/23/24/25/26/27/28/29</Minute>
         <Minute Base="30">30/31/32/33/34/35/36/37/38/39</Minute>
         <Minute Base="40">40/41/42/43/44/45/46/47/48/49</Minute>
         <Minute Base="50">50/51/52/53/54/55/56/57/58/59</Minute>
-      ?>
 
-      <?Ignore
         <Week Base="01">01/02/03/04/05/06/07/08/09/10</Week>
         <Week Base="11">11/12/13/14/15/16/17/18/19/20</Week>
         <Week Base="21">21/22/23/24/25/26/27/28/29/30</Week>
         <Week Base="31">31/32/33/34/35/36/37/38/39/40</Week>
         <Week Base="41">41/42/43/44/45/46/47/48/49/50/51/52/53</Week>
-      ?>
 
-      <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
+		<DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
 
     </Substitution>
   </Printer>

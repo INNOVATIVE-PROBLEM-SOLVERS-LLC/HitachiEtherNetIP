@@ -83,7 +83,7 @@ namespace EIP_Lib {
          subSet.Click += SubSet_Click;
 
          subLabels = new Label[][] {
-               new Label[24],        // Year
+               new Label[25],        // Year
                new Label[12],        // Month
                new Label[31],        // Day
                new Label[24],        // Hour
@@ -92,7 +92,7 @@ namespace EIP_Lib {
                new Label[7],         // Day of week
             };
          subTexts = new TextBox[][] {
-               new TextBox[24],      // Year
+               new TextBox[25],      // Year
                new TextBox[12],      // Month
                new TextBox[31],      // Day
                new TextBox[24],      // Hour
@@ -149,6 +149,7 @@ namespace EIP_Lib {
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Get the substitution all at once
                      data = EIP.ToBytes((i + startWith[vCat]), 1);
+                     EIP.SetDataValue = data[0].ToString();
                      if (EIP.GetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
                         subTexts[vCat][i].Text = EIP.GetDataValue;
                      }

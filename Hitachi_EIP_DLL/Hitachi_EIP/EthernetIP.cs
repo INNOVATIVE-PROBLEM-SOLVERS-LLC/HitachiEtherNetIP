@@ -1298,6 +1298,7 @@ namespace EIP_Lib {
                break;
             case DataFormats.Item:
                result = ToBytes(GetIndexSetting(ccIDX.Item), 1);
+               SetDataValue = result[0].ToString();
                break;
          }
          if (result == null) {
