@@ -9,7 +9,7 @@ namespace EIP_Lib {
 
    class UserPattern {
 
-#region Data Declarations
+      #region Data Declarations
 
       ResizeInfo R;
 
@@ -72,9 +72,9 @@ namespace EIP_Lib {
          this.tab = tab;
       }
 
-#endregion
+      #endregion
 
-#region Routines called from parent
+      #region Routines called from parent
 
       // Dynamically build all the controls.
       public void BuildUserPatternControls() {
@@ -202,9 +202,9 @@ namespace EIP_Lib {
          UpSaveAs.Enabled = stripes != null;
       }
 
-#endregion
+      #endregion
 
-#region Form control routines
+      #region Form control routines
 
       // Allow all the image to be viewed
       private void HsbGrid_Scroll(object sender, ScrollEventArgs e) {
@@ -256,6 +256,7 @@ namespace EIP_Lib {
 
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
@@ -263,8 +264,11 @@ namespace EIP_Lib {
                int count = cbUpCount.SelectedIndex + 1;
                for (int i = 0; i < count; i++) {
                   // <TODO> Need Format Output routine
-                  byte[] data = EIP.Merge(EIP.ToBytes(cbUpFont.SelectedIndex + 1, 1), EIP.ToBytes((pos + i), 1), b[i]);
-                  EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
+                  byte[] data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes((pos + i), 1), b[i]);
+                  if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
+                     EIP.LogIt("User Pattern Download Failed.  Aborting Doenload!");
+                     break;
+                  }
                }
             }
             EIP.ForwardClose();
@@ -279,7 +283,7 @@ namespace EIP_Lib {
          GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          // Build the blank image
          stripes = new long[cbUpCount.SelectedIndex + 1][];
-         for(int i = 0; i < stripes.Length; i++) {
+         for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
          }
          bmGrid = StripesToBitMap(stripes);
@@ -288,7 +292,7 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                for (int i = 0; i <= cbUpCount.SelectedIndex; i++) {
-                  byte[] data = new byte[] { (byte)(cbUpFont.SelectedIndex + 1), (byte)(cbUpPosition.SelectedIndex + i) };
+                  byte[] data = new byte[] { (byte)(dotMatrixCode), (byte)(cbUpPosition.SelectedIndex + i) };
                   bool Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                   if (Success) {
                      if (EIP.GetDataLength == bytesPerCharacter) {
@@ -297,6 +301,7 @@ namespace EIP_Lib {
                         BitMapToImage();
                         grpGrid.Invalidate();
                      } else {
+                        EIP.LogIt("User Pattern Upload Failed.  Aborting Doenload!");
                         break;
                      }
                   }
@@ -432,9 +437,9 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-#endregion
+      #endregion
 
-#region Service Routines
+      #region Service Routines
 
       // convert cijConnect logo file to stripes
       private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
@@ -451,7 +456,7 @@ namespace EIP_Lib {
                      isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
                         int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
                      if (isValid && header.Length > 3) {
-                        if(!int.TryParse(header[3], out registration)) {
+                        if (!int.TryParse(header[3], out registration)) {
                            registration = -1;
                            isValid = false;
                         }
@@ -475,7 +480,7 @@ namespace EIP_Lib {
          } catch {
             isValid = false;
          }
-         if(isValid) {
+         if (isValid) {
             // Load the cijConnect logo into the printer browser
             CleanUpGrid();
             stripes = PatternToStripes(charHeight, charWidth, pattern);
@@ -519,7 +524,7 @@ namespace EIP_Lib {
             string s = string.Empty;
             for (int j = 0; j < stripes[i].Length; j++) {
                long n = stripes[i][j];
-               for (int k = 0; k < stride; k++)  {
+               for (int k = 0; k < stride; k++) {
                   s += (n & 0xFF).ToString("X2");
                   n >>= 8;
                }
@@ -550,23 +555,23 @@ namespace EIP_Lib {
       private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode, out int bytesPerCharacter) {
          bool IsValid = true;
          switch (font.Replace('X', 'x')) {
-            case "1":
+            case "0":
             case "4x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 4;
                bytesPerCharacter = 8;
-               dotmatrixCode = 1;
+               dotmatrixCode = 0;
                break;
-            case "2":
+            case "1":
             case "5x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               dotmatrixCode = 2;
+               dotmatrixCode = 1;
                break;
-            case "3":
+            case "2":
             case "5x8":
             case "5x7":
             case "5x8(5x7)":
@@ -574,9 +579,9 @@ namespace EIP_Lib {
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               dotmatrixCode = 3;
+               dotmatrixCode = 2;
                break;
-            case "4":
+            case "3":
             case "9x8":
             case "9x7":
             case "9x8(9x7)":
@@ -584,81 +589,81 @@ namespace EIP_Lib {
                charWidth = 16;
                maxICS = 7;
                bytesPerCharacter = 16;
-               dotmatrixCode = 4;
+               dotmatrixCode = 3;
                break;
-            case "5":
+            case "4":
             case "7x10":
                charHeight = 10;
                charWidth = 8;
                maxICS = 1;
                bytesPerCharacter = 16;
-               dotmatrixCode = 5;
+               dotmatrixCode = 4;
                break;
-            case "6":
+            case "5":
             case "10x12":
                charHeight = 12;
                charWidth = 16;
                maxICS = 6;
                bytesPerCharacter = 32;
-               dotmatrixCode = 6;
+               dotmatrixCode = 5;
                break;
-            case "7":
+            case "6":
             case "12x16":
                charHeight = 16;
                charWidth = 16;
                maxICS = 4;
                bytesPerCharacter = 32;
-               dotmatrixCode = 7;
+               dotmatrixCode = 6;
                break;
-            case "8":
+            case "7":
             case "18x24":
                charHeight = 24;
                charWidth = 24;
                maxICS = 6;
                bytesPerCharacter = 72;
-               dotmatrixCode = 8;
+               dotmatrixCode = 7;
                break;
-            case "9":
+            case "8":
             case "24x32":
                charHeight = 32;
                charWidth = 32;
                maxICS = 12;
                bytesPerCharacter = 128;
-               dotmatrixCode = 9;
+               dotmatrixCode = 8;
                break;
-            case "10":
+            case "9":
             case "11x11":
                charHeight = 11;
                charWidth = 16;
                maxICS = 5;
                bytesPerCharacter = 32;
-               dotmatrixCode = 10;
+               dotmatrixCode = 9;
                break;
-            case "11":
+            case "0x3A":
             case "5x3(Chimney)":
                charHeight = 3;
                charWidth = 5;
                maxICS = 0;
                bytesPerCharacter = 5;
-               dotmatrixCode = 11;
+               dotmatrixCode = 10;
                break;
-            case "12":
+            case "0x3B":
             case "5x5(Chimney)":
                charHeight = 5;
                charWidth = 5;
                maxICS = 0;
                bytesPerCharacter = 5;
-               dotmatrixCode = 12;
+               dotmatrixCode = 11;
                break;
-            case "13":
+            case "0x3C":
             case "7x5(Chimney)":
                charHeight = 5;
                charWidth = 7;
                maxICS = 0;
                bytesPerCharacter = 7;
-               dotmatrixCode = 13;
+               dotmatrixCode = 12;
                break;
-            case "14":
+            case "0x3E":
             case "30x40":
                charHeight = 40;
                charWidth = 40;
@@ -666,7 +671,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 200;
                dotmatrixCode = 14;
                break;
-            case "15":
+            case "0x3F":
             case "36x48":
                charHeight = 48;
                charWidth = 48;
@@ -805,11 +810,11 @@ namespace EIP_Lib {
          }
       }
 
-#endregion
+      #endregion
 
    }
 
-#endregion
+   #endregion
 
 }
 
