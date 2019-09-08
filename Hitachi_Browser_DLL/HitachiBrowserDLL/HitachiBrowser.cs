@@ -311,12 +311,13 @@ namespace EIP_Lib {
                // Blindly Set COM on and read it back
                AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
                byte[] data = EIP.FormatOutput(attr.Set, 1);
-               EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data);
-               GetComSetting();
-               if (ComIsOn) {
-                  // Got it, Get the other critical settings
-                  GetAutoReflectionSetting();
-                  GetMgmtSetting();
+               if (EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
+                  GetComSetting();
+                  if (ComIsOn) {
+                     // Got it, Get the other critical settings
+                     GetAutoReflectionSetting();
+                     GetMgmtSetting();
+                  }
                }
                // Close the forward to avoid a timeout
             }

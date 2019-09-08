@@ -47,6 +47,11 @@ namespace EIP_Lib {
       Button[] ExtraSet;
 
       int half;
+      public int Half {
+         get {
+            return cc == ClassCode.Substitution_rules ? 5 : 16;
+         }
+      }
 
       bool IsSubstitution = false;
       Substitution Substitution;
@@ -69,7 +74,6 @@ namespace EIP_Lib {
          this.Extras = Extras;
 
          extrasUsed = AddExtraControls();
-         half = 16;
 
          BuildControls();
 
@@ -341,7 +345,7 @@ namespace EIP_Lib {
       // Build all the controls for this attribute tab
       private void BuildControls() {
 
-         bool twoCols = ccAttribute.Length > half;
+         bool twoCols = ccAttribute.Length > Half;
          // build headers for one or two columns of attributes
          if (twoCols) {
             hdrs = new Label[8];
@@ -571,7 +575,7 @@ namespace EIP_Lib {
          Utils.ResizeObject(ref R, hdrs[1], 0.5f, 8.25f, 1.5f, 1f);
          Utils.ResizeObject(ref R, hdrs[2], 0.5f, 9.25f, 1.5f, 5);
          Utils.ResizeObject(ref R, hdrs[3], 0.5f, 14.25f, 1.5f, 3);
-         if (labels.Length > half) {
+         if (labels.Length > Half) {
             Utils.ResizeObject(ref R, hdrs[4], 0.5f, 0.25f + cw, 1.5f, 8);
             Utils.ResizeObject(ref R, hdrs[5], 0.5f, 8.25f + cw, 1.5f, 1f);
             Utils.ResizeObject(ref R, hdrs[6], 0.5f, 9.25f + cw, 1.5f, 5);
@@ -581,11 +585,11 @@ namespace EIP_Lib {
          for (int i = 0; i < labels.Length; i++) {
             int r;
             int c;
-            if (i < half) {
+            if (i < Half) {
                r = 2 + i * 2;
                c = 0;
             } else {
-               r = 2 + (i - half) * 2;
+               r = 2 + (i - Half) * 2;
                c = 1;
             }
             Utils.ResizeObject(ref R, labels[i], r, 0.25f + c * cw, 1.5f, 8);
@@ -635,7 +639,7 @@ namespace EIP_Lib {
          }
 
          // Tab specific controls
-         int groupStart = (labels.Length + 1) * 2;
+         int groupStart = cc == ClassCode.Substitution_rules ? (labels.Length / 2 + 1) * 2 : (labels.Length + 1) * 2;
          int groupHeight = tclHeight - groupStart - 5;
          Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
          UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight, tclWidth);

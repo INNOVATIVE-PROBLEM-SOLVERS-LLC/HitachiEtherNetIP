@@ -393,9 +393,9 @@ namespace EIP_Lib {
          new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
                         "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
                         "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25",
-                        "QR29x29", "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)",
-                        "GS1 DataBar (Stacked)", "DM14x14", },
-                                                                      // 9 - Barcode Types
+                        "QR29x29", "QR33x33", "EAN-13add-on5", "Micro QR (15 x 15)",
+                        "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)",
+                        "GS1 DataBar (Stacked)", "DM14x14", },        // 9 - Barcode Types
          new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
          new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
          new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
@@ -1149,10 +1149,10 @@ namespace EIP_Lib {
 
       // Format Output
       public byte[] FormatOutput(Prop prop, int val, int n, string s) {
-         SetDecValue = val;
          string t = FromQuoted(s);
-         SetDataValue = t.Substring(0, Math.Min(prop.Len, t.Length));
-         return Merge(ToBytes(val, n), ToBytes(SetDataValue + "\x00"));
+         t = t.Substring(0, Math.Min(prop.Len, t.Length));
+         SetDataValue = $"{val},{s}" ;
+         return Merge(ToBytes(val, n), ToBytes(t + "\x00"));
       }
 
       // Format Output
@@ -1204,7 +1204,8 @@ namespace EIP_Lib {
                      s = s.ToLower();
                      val = Array.FindIndex(DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
                      if (val >= 0) {
-                        result = ToBytes(val + prop.Min, prop.Len);
+                        val += (int)prop.Min;
+                        result = ToBytes(val, prop.Len);
                      }
                   }
                }
@@ -1274,6 +1275,7 @@ namespace EIP_Lib {
                break;
             case DataFormats.ItemChar:
                result = Merge(ToBytes(GetIndexSetting(ccIDX.Item), 1), Encode.GetBytes(FromQuoted(s) + "\x00"));
+               SetDataValue = $"{GetIndexSetting(ccIDX.Item)}, {s}";
                break;
             case DataFormats.GroupChar:
                result = Merge(ToBytes(GetIndexSetting(ccIDX.Print_Data_Group_Data), 1), Encode.GetBytes(FromQuoted(s) + "\x00"));
@@ -1531,7 +1533,7 @@ namespace EIP_Lib {
                   if (!int.TryParse(gp[0].Trim(), out int x)) {
                      break;
                   }
-                  IsValid = x >= prop.Min && x <= prop.Max;
+                  IsValid = gp[0].Length >= prop.Min && gp[0].Length <= prop.Max;
                }
                break;
             case DataFormats.Item:

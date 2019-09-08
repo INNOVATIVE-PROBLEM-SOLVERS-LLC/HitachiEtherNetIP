@@ -105,9 +105,9 @@ namespace EIP_Lib {
       // Print_format (Class Code 0x67)
       private AttrData[] ccPF_Addrs = new AttrData[] {
          new AttrData((byte)ccPF.Message_Name, GSS.Get, false, 20,              // Message Name 0x64
-            new Prop(1, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
+            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Get
-            new Prop(1, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Set
          new AttrData((byte)ccPF.Number_Of_Items, GSS.Get, false, 25,           // Number Of Items 0x65
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
