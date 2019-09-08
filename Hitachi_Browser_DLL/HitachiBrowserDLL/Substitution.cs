@@ -173,7 +173,10 @@ namespace EIP_Lib {
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Send the substitution data one at a time
                      data = EIP.FormatOutput(prop, i + startWith[vCat], 1, subTexts[vCat][i].Text);
-                     EIP.SetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data);
+                     if (!EIP.SetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
+                        EIP.LogIt("Error writing substitution data!  Aborting");
+                        break;
+                     }
                   }
                }
                EIP.ForwardClose();
@@ -228,15 +231,15 @@ namespace EIP_Lib {
       // Called on resize or category change
       private void resizeSubstitutions(ref ResizeInfo R) {
          Utils.ResizeObject(ref R, lblAttribute, 1, 1, 1.5f, 4);
-         Utils.ResizeObject(ref R, cbAttribute, 1, 5, 1.5f, 4);
+         Utils.ResizeObject(ref R, cbAttribute, 1, 5, 1.5f, 6);
 
          if (vCat >= 0 && resizeNeeded[vCat]) {
             resizeNeeded[vCat] = false;
             for (int i = 0; i < subLabels[vCat].Length; i++) {
-               float r = 3.5f + 2 * (int)(i / 15);
-               float c = (i % 15) * 2.25f + 0.25f;
+               float r = 3.5f + 3 * (int)(i / 10);
+               float c = (i % 10) * 3.25f + 0.25f;
                Utils.ResizeObject(ref R, subLabels[vCat][i], r, c, 1.5f, 1);
-               Utils.ResizeObject(ref R, subTexts[vCat][i], r, c + 1, 1.5f, 1.25f);
+               Utils.ResizeObject(ref R, subTexts[vCat][i], r, c + 1, 1.5f, 2.25f);
             }
          }
          Utils.ResizeObject(ref R, subGet, 1, GroupWidth - 9, 1.5f, 3);

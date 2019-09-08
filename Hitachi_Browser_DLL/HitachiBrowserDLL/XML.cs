@@ -1115,7 +1115,7 @@ namespace EIP_Lib {
                // Get the number of columns (must be outside Auto Reflection block)
                int cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Stack up all the operations
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1147,8 +1147,8 @@ namespace EIP_Lib {
                   }
                }
                // Execute all the operations
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose(); // Must be outside the ForwardOpen if block
          }
@@ -1268,7 +1268,7 @@ namespace EIP_Lib {
                         //BuildMDYhms(Item++, Rule);
                         break;
                      case 3:
-                        BuildShifts(Item++);
+                        //BuildShifts(Item++); // Hangs up the printer
                         break;
                      case 4:
                         //TryDayOfWeekEtc(Item++);
@@ -1335,12 +1335,14 @@ namespace EIP_Lib {
          }
          EIP.SetAttribute(ccIDX.Item, Item);
 
-         // Set Item in Calendar Index
-         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
+         //// Set Item in Calendar Index
+         //EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
          EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.Barcode_Type, "None");
          EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
          EIP.SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
+
 
          // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="11" EndMinute="59" Text="AA" />
          EIP.SetAttribute(ccIDX.Calendar_Block, 1);
@@ -1447,7 +1449,7 @@ namespace EIP_Lib {
                // Get the number of columns
                cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Make things faster
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1464,8 +1466,8 @@ namespace EIP_Lib {
                // Set line count to 1. (Need to find out how delete single item works.)
                EIP.SetAttribute(ccPF.Line_Count, 1);
                // Make things faster
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
@@ -1479,23 +1481,25 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of items
-               items = EIP.GetAttribute(ccPF.Number_Of_Items, 0);
+               items = EIP.GetAttribute(ccPF.Number_Of_Items);
                // Make things faster
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
                for (int i = 1; i <= items && success; i++) {
                   // Select the item
                   EIP.SetAttribute(ccIDX.Item, i);
                   // Set font
                   EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                  // Clear barcode
+                  EIP.SetAttribute(ccPF.Barcode_Type, "None");
                   // Set ICS to 1
                   EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
                   // Insert the text
                   EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
                }
                // Make things faster
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
