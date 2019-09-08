@@ -754,7 +754,8 @@ namespace EIP_Lib {
                   }
                   Successful = true;
                } else {
-                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+                  GetStatus = $"?? -- {status:X2} -- {LastIO}";
                   GetData = new byte[0];
                   Successful = false;
                }
@@ -1565,7 +1566,7 @@ namespace EIP_Lib {
          string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
          trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
          if (Successful) {
-            if (GetDataLength == 0) {
+            if (GetDataLength == 0 && Access != AccessCode.Get) {
                trafficText += $"\t\t\t";
             } else {
                trafficText += $"\t{GetDataLength}";
@@ -1686,7 +1687,7 @@ namespace EIP_Lib {
       }
 
       // Register a message if someone is listening
-      private void LogIt(string msg) {
+      public void LogIt(string msg) {
          Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          Log?.Invoke(this, msg);
       }

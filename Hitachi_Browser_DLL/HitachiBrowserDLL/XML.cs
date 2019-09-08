@@ -564,10 +564,25 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                // Set to only one item in printer
                CleanUpDisplay();
-               // Send printer wide settings
-               SendPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
-               // Send the objects one at a time
-               SendObjectSettings(xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes);
+               XmlNode lab = xmlDoc.SelectSingleNode("Label");
+               foreach (XmlNode l in lab.ChildNodes) {
+                  if (l is XmlWhitespace)
+                     continue;
+                  switch (l.Name) {
+                     case "Printer":
+                        // Send printer wide settings
+                        SendPrinterSettings(l);
+                        break;
+                     case "Objects":
+                        // Send the objects one at a time
+                        SendObjectSettings(l.ChildNodes);
+                        break;
+                  }
+                  //// Send printer wide settings
+                  //SendPrinterSettings(xmlDoc.SelectSingleNode("Label/Printer"));
+                  //// Send the objects one at a time
+                  //SendObjectSettings(xmlDoc.SelectNodes("Label/Objects")[0].ChildNodes);
+               }
             }
             EIP.ForwardClose();
          }
@@ -738,24 +753,23 @@ namespace EIP_Lib {
 
       // Send counter related information
       private void SendCounter(XmlNode c) {
-
-         XmlNode n = c.SelectSingleNode("Counter");
-         if (n != null) {
-            EIP.SetAttribute(ccCount.Initial_Value, GetAttr(n, "InitialValue"));
-            EIP.SetAttribute(ccCount.Count_Range_1, GetAttr(n, "Range1"));
-            EIP.SetAttribute(ccCount.Count_Range_2, GetAttr(n, "Range2"));
-            EIP.SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(n, "UpdateIP"));
-            EIP.SetAttribute(ccCount.Update_Unit_Unit, GetAttr(n, "UpdateUnit"));
-            EIP.SetAttribute(ccCount.Jump_From, GetAttr(n, "JumpFrom"));
-            EIP.SetAttribute(ccCount.Jump_To, GetAttr(n, "JumpTo"));
-            EIP.SetAttribute(ccCount.Increment_Value, GetAttr(n, "Increment"));
-            string s = bool.TryParse(GetAttr(n, "CountUp"), out bool b) && !b ? "DOWN" : "UP";
+         if (c != null) {
+            EIP.SetAttribute(ccCount.Initial_Value, GetAttr(c, "InitialValue"));
+            EIP.SetAttribute(ccCount.Count_Range_1, GetAttr(c, "Range1"));
+            EIP.SetAttribute(ccCount.Count_Range_2, GetAttr(c, "Range2"));
+            EIP.SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(c, "UpdateIP"));
+            EIP.SetAttribute(ccCount.Update_Unit_Unit, GetAttr(c, "UpdateUnit"));
+            EIP.SetAttribute(ccCount.Increment_Value, GetAttr(c, "Increment"));
+            string s = bool.TryParse(GetAttr(c, "CountUp"), out bool b) && !b ? "UP" : "DOWN";
             EIP.SetAttribute(ccCount.Direction_Value, s);
-            EIP.SetAttribute(ccCount.Reset_Value, GetAttr(n, "Reset"));
-            EIP.SetAttribute(ccCount.Count_Multiplier, GetAttr(n, "Multiplier"));
-            EIP.SetAttribute(ccCount.Zero_Suppression, GetAttr(n, "ZeroSuppression"));
-            EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, GetAttr(n, "ResetSignal"));
-            EIP.SetAttribute(ccCount.External_Count, GetAttr(n, "ExternalSignal"));
+            EIP.SetAttribute(ccCount.Jump_From, GetAttr(c, "JumpFrom"));
+            EIP.SetAttribute(ccCount.Jump_To, GetAttr(c, "JumpTo"));
+            EIP.SetAttribute(ccCount.Reset_Value, GetAttr(c, "Reset"));
+            EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, GetAttr(c, "ResetSignal"));
+            EIP.SetAttribute(ccCount.External_Count, GetAttr(c, "ExternalSignal"));
+            EIP.SetAttribute(ccCount.Zero_Suppression, GetAttr(c, "ZeroSuppression"));
+            EIP.SetAttribute(ccCount.Count_Multiplier, GetAttr(c, "Multiplier"));
+            EIP.SetAttribute(ccCount.Count_Skip, GetAttr(c, "Skip"));
          }
       }
 
@@ -785,71 +799,72 @@ namespace EIP_Lib {
          int calendar = 1;
          int item = 1;
          foreach (XmlNode obj in objs) {
-            if (!(obj is XmlWhitespace)) {
-               // Get the item type
-               type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               // Handle multiple line texts
-               string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-               for (int i = 0; i < text.Length; i++) {
-                  // Printer always has one item
-                  if (item > 1) {
-                     // Add an item <TODO> Need to add item, not column
-                     EIP.ServiceAttribute(ccPF.Add_Column, 0);
-                  }
-
-                  // Point to the item
-                  EIP.SetAttribute(ccIDX.Item, item);
-
-                  // Set the common parameters
-                  n = obj.SelectSingleNode("Location");
-                  //x = GetAttr(n, "Left", 0);
-                  //y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
-                  //int r = GetAttr(n, "Row", -1);
-                  //int c = GetAttr(n, "Column", -1);
-
-                  n = obj.SelectSingleNode("Font");
-                  EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-                  EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-                  EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
-                  EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
-
-                  //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
-
-                  //p.Row = r;
-                  //p.Column = c;
-
-                  //p.BarCode = GetAttr(n, "BarCode", "(None)");
-                  //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
-                  //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
-
-                  switch (type) {
-                     case ItemType.Text:
-                        EIP.SetAttribute(ccPF.Print_Character_String, text[i]);
-                        break;
-                     case ItemType.Logo:
-                        break;
-                     case ItemType.Counter:
-                        EIP.SetAttribute(ccIDX.Count_Block, count++);
-                        SendCounter(n);
-                        EIP.SetAttribute(ccPF.Print_Character_String, FormatCounter(text[i]));
-                        break;
-                     case ItemType.Date:
-                        EIP.SetAttribute(ccIDX.Calendar_Block, calendar++);
-                        n = obj.SelectSingleNode("Date");
-                        if (n != null) {
-                           SendCalendar(n);
-                        }
-                        EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
-                        break;
-                     case ItemType.Link:
-                        break;
-                     case ItemType.Prompt:
-                        break;
-                     default:
-                        break;
-                  }
-                  item++;
+            if (obj is XmlWhitespace)
+               continue;
+            // Get the item type
+            type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+            // Handle multiple line texts
+            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            for (int i = 0; i < text.Length; i++) {
+               // Printer always has one item
+               if (item > 1) {
+                  // Add an item <TODO> Need to add item, not column
+                  EIP.ServiceAttribute(ccPF.Add_Column, 0);
                }
+
+               // Point to the item
+               EIP.SetAttribute(ccIDX.Item, item);
+
+               // Set the common parameters
+               n = obj.SelectSingleNode("Location");
+               //x = GetAttr(n, "Left", 0);
+               //y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
+               //int r = GetAttr(n, "Row", -1);
+               //int c = GetAttr(n, "Column", -1);
+
+               n = obj.SelectSingleNode("Font");
+               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+               EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
+
+
+               //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
+
+               //p.Row = r;
+               //p.Column = c;
+
+               //p.BarCode = GetAttr(n, "BarCode", "(None)");
+               //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
+               //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
+
+               switch (type) {
+                  case ItemType.Text:
+                     EIP.SetAttribute(ccPF.Print_Character_String, text[i]);
+                     break;
+                  case ItemType.Counter:
+                     EIP.SetAttribute(ccIDX.Count_Block, count++);
+                     EIP.SetAttribute(ccPF.Print_Character_String, FormatCounter(text[i]));
+                     SendCounter(obj.SelectSingleNode("Counter"));
+                     break;
+                  case ItemType.Date:
+                     EIP.SetAttribute(ccIDX.Calendar_Block, calendar++);
+                     EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
+                     n = obj.SelectSingleNode("Date");
+                     if (n != null) {
+                        SendCalendar(n);
+                     }
+                     break;
+                  case ItemType.Logo:
+                     break;
+                  case ItemType.Link:
+                     break;
+                  case ItemType.Prompt:
+                     break;
+                  default:
+                     break;
+               }
+               item++;
             }
          }
       }
@@ -861,7 +876,7 @@ namespace EIP_Lib {
             int lBrace = text.IndexOf('{');
             int rBrace = text.LastIndexOf('}');
             if (lBrace >= 0 && lBrace < rBrace) {
-               result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace) + "}}" + text.Substring(rBrace + 1);
+               result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
             }
          }
          return result;
