@@ -1257,25 +1257,25 @@ namespace EIP_Lib {
                SetText();
 
                // Step thru parts of the test
-               for (int i = 0; i < 5; i++) {
+               for (int i = 0; i < 6 && success; i++) {
                   switch (i) {
                      case 0:
                         BuildMonthDaySR(Rule);
                         break;
                      case 1:
-                        //BuildTimeCount(Item++);
+                        BuildTimeCount(Item++);
                         break;
                      case 2:
-                        //BuildMDYhms(Item++, Rule);
+                        BuildMDYhms(Item++, Rule);
                         break;
                      case 3:
-                        //BuildShifts(Item++); // Hangs up the printer
+                        BuildShifts(Item++); // Hangs up the printer
                         break;
                      case 4:
-                        //TryDayOfWeekEtc(Item++);
+                        TryDayOfWeekEtc(Item++);
                         break;
                      case 5:
-                        //VerifyShifts(Item++);
+                        VerifyShifts(Item++);
                         break;
                   }
                }
@@ -1285,48 +1285,73 @@ namespace EIP_Lib {
          EIP.EndSession();
       }
 
-      private void TryDayOfWeekEtc(int Item) {
-         // Add the item if needed and select it
-         if (Item != 1) {
-            EIP.ServiceAttribute(ccPF.Add_Column, 0);
+      private bool TryDayOfWeekEtc(int Item) {
+         bool success = true;
+         int step = 0;
+         do {
+            step++;
+            switch (step) {
+               case 1: // Add the item if needed
+                  if (Item != 1) {
+                     success = EIP.ServiceAttribute(ccPF.Add_Column, 0);
+                  }
+                  break;
+               case 2: // Select the item
+                  success = EIP.SetAttribute(ccIDX.Item, Item);
+                  break;
+               case 3:  // Set Item in Calendar Index
+                  success = EIP.SetAttribute(ccIDX.Calendar_Block, Item);
+                  break;
+               case 4: // Set the dot matrix
+                  success = EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                  break;
+               case 5: // Set inter character space
+                  success = EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+                  break;
+               case 6: // Set text in message
+                  success = EIP.SetAttribute(ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=");
+                  break;
+               case 7: // Disable substitution for weeks
+                  success = EIP.SetAttribute(ccCal.Substitute_Weeks, "Disable");
+                  break;
+               case 8: // Disable Zero Suppress for weeks
+                  success = EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
+                  break;
+               case 9: // Enable substituition for Day-Of-Week
+                  success = EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
+                  break;
+               case 10: // Set 
+                  success = EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Disable");
+                  break;
+            }
+         } while (success);
+         // Let user know if error exists
+         if (!success) {
+            EIP.LogIt($"TryDayOfWeekEtc aborted after step {step}");
          }
-         EIP.SetAttribute(ccIDX.Item, Item);
-
-         // Set Item in Calendar Index
-         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
-
-
-         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
-         EIP.SetAttribute(ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=");
-
-         EIP.SetAttribute(ccCal.Substitute_Weeks, "Disable");
-         EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Ensable");
-
-         EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
-         EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Character Fill");
+         return success;
       }
 
       private void VerifyShifts(int Item) {
 
          // Select the Item
-         EIP.SetAttribute(ccIDX.Item, Item);
+         bool success = EIP.SetAttribute(ccIDX.Item, Item);
 
          // For testing purposes, try to read then back
-         EIP.SetAttribute(ccIDX.Calendar_Block, 1);
-         int sh1 = EIP.GetAttribute(ccCal.Shift_Start_Hour, 0);
-         int sm1 = EIP.GetAttribute(ccCal.Shift_Start_Minute, 0);
-         int eh1 = EIP.GetAttribute(ccCal.Shift_End_Hour, 11);
-         int em1 = EIP.GetAttribute(ccCal.Shift_End_Minute, 59);
-         string sv1 = GetAttribute(ccCal.Shift_String_Value);
+         success &= EIP.SetAttribute(ccIDX.Calendar_Block, 1);
+         success &= EIP.GetAttribute(ccCal.Shift_Start_Hour, out int sh1) && sh1 == 0;
+         success &= EIP.GetAttribute(ccCal.Shift_Start_Minute, out int sm1) && sm1 == 0;
+         success &= EIP.GetAttribute(ccCal.Shift_End_Hour, out int eh1) && eh1 == 11;
+         success &= EIP.GetAttribute(ccCal.Shift_End_Minute, out int em1) && em1 == 59;
+         success &= EIP.GetAttribute(ccCal.Shift_String_Value, out string sv1) && sv1 == "AA";
 
          // For testing putposes, try to read then back
-         EIP.SetAttribute(ccIDX.Calendar_Block, 2);
-         int sh2 = EIP.GetAttribute(ccCal.Shift_Start_Hour, 12);
-         int sm2 = EIP.GetAttribute(ccCal.Shift_Start_Minute, 0);
-         int eh2 = EIP.GetAttribute(ccCal.Shift_End_Hour, 23);
-         int em2 = EIP.GetAttribute(ccCal.Shift_End_Minute, 59);
-         string sv2 = GetAttribute(ccCal.Shift_String_Value);
+         success &= EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+         success &= EIP.GetAttribute(ccCal.Shift_Start_Hour, out int sh2) && sh1 == 12;
+         success &= EIP.GetAttribute(ccCal.Shift_Start_Minute, out int sm2) && sm2 == 0;
+         success &= EIP.GetAttribute(ccCal.Shift_End_Hour, out int eh2) && eh2 == 23;
+         success &= EIP.GetAttribute(ccCal.Shift_End_Minute, out int em2) && em2 == 59;
+         success &= EIP.GetAttribute(ccCal.Shift_String_Value, out string sv2) && sv2 == "BB";
       }
 
       private void BuildShifts(int Item) {
@@ -1483,12 +1508,11 @@ namespace EIP_Lib {
       }
 
       public bool SetText() {
-         int items = 0;
          success = true;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get the number of items
-               items = EIP.GetAttribute(ccPF.Number_Of_Items);
+               EIP.GetAttribute(ccPF.Number_Of_Items, out int items);
                // Make things faster
                EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity

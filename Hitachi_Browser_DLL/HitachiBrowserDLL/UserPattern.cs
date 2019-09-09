@@ -145,6 +145,8 @@ namespace EIP_Lib {
          pbGrid = new PictureBox();
          grpGrid.Controls.Add(pbGrid);
          pbGrid.MouseClick += pbGrid_MouseClick;
+         pbGrid.MouseMove += pbGrid_MouseMove;
+         pbGrid.MouseUp += pbGrid_MouseUp;
 
          ignoreChange = false;
 
@@ -197,7 +199,7 @@ namespace EIP_Lib {
          UpGet.Enabled = UpEnabled && eipEnabled;
          UpSet.Enabled = UpEnabled && eipEnabled;
          hsbGrid.Visible = pbGrid != null && pbGrid.Width > grpGrid.Width - 2 * (int)R.W;
-         UpNew.Enabled = UpEnabled;
+         UpNew.Enabled = cbUpFont.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
          UpClear.Enabled = stripes != null;
          UpSaveAs.Enabled = stripes != null;
       }
@@ -362,23 +364,63 @@ namespace EIP_Lib {
                   g.FillRectangle(Brushes.Black, rect);
                   bmGrid.SetPixel(col, row, Color.Black);
                }
-
-               // Redraw adjacent vertical lines to the left and right
-               Pen pen = new Pen(Color.CadetBlue, 1);
-               for (int i = col; i <= col + 2; i++) {
-                  pen.Color = (i % charWidth) == 0 ? Color.Red : Color.CadetBlue;
-                  g.DrawLine(pen, i * cellSize, 0, i * cellSize, pbGrid.Image.Height);
-               }
-
-               // Redraw adjacent horizontal lines above and below
-               pen.Color = Color.CadetBlue;
-               for (int i = row; i <= row + 2; i++) {
-                  g.DrawLine(pen, 0, i * cellSize, pbGrid.Image.Width, i * cellSize);
-               }
-
             }
             pbGrid.Invalidate(rect);
          }
+      }
+
+      internal void pbGrid_MouseMove(object sender, MouseEventArgs e) {
+         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         int columns = (charWidth + maxICS) * cbUpCount.SelectedIndex + 1;
+         int row;
+         int col;
+         int x;
+         int y;
+         Rectangle rect;
+
+         if (pbGrid.Image != null && e.Button == MouseButtons.Left &&
+                 ((Control.ModifierKeys & (Keys.Shift | Keys.Control)) != 0)) {
+            using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
+
+               // in range 0 to columns - 1
+               col = Math.Max(0, Math.Min(e.Location.X / (pbGrid.Width / columns), columns - 1));
+               // in range 0 to rows - 1
+               row = Math.Max(0, Math.Min(e.Location.Y / (pbGrid.Height / charHeight), charHeight - 1));
+
+               x = col * cellSize;
+               y = row * cellSize;
+               rect = new Rectangle(x, y, cellSize, cellSize);
+
+               if ((Control.ModifierKeys & Keys.Control) != 0) {
+                  // Erase the rectangle
+                  g.FillRectangle(Brushes.White, rect);
+                  bmGrid.SetPixel(col, row, Color.White);
+               } else {
+                  // Fill the rectangle
+                  g.FillRectangle(Brushes.Black, rect);
+                  bmGrid.SetPixel(col, row, Color.Black);
+               }
+            }
+            pbGrid.Invalidate();
+         }
+      }
+
+      internal void pbGrid_MouseUp(object sender, MouseEventArgs e) {
+         using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
+            // Redraw adjacent vertical lines to the left and right
+            Pen pen = new Pen(Color.CadetBlue, 1);
+            for (int i = 0; i <= pbGrid.Width / cellSize; i++) {
+               pen.Color = (i % charWidth) == 0 ? Color.Red : Color.CadetBlue;
+               g.DrawLine(pen, i * cellSize, 0, i * cellSize, pbGrid.Image.Height);
+            }
+
+            // Redraw adjacent horizontal lines above and below
+            pen.Color = Color.CadetBlue;
+            for (int i = 0; i <= pbGrid.Height / cellSize; i++) {
+               g.DrawLine(pen, 0, i * cellSize, pbGrid.Image.Width, i * cellSize);
+            }
+         }
+         pbGrid.Invalidate();
       }
 
       // Create an empty grid
