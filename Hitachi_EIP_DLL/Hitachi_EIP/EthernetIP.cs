@@ -390,7 +390,7 @@ namespace EIP_Lib {
          new string[] { "None", "Signal 1", "Signal 2" },             // 6 - None, Signal 1, Signal 2
          new string[] { "Up", "Down" },                               // 7 - Up/Down
          new string[] { "None", "5X5", "5X7" },                       // 8 - Readable Code 5X5 or 5X7
-         new string[] { "not used", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
+         new string[] { "None", "code 39", "ITF", "NW-7", "EAN-13", "DM8x32", "DM16x16", "DM16x36",
                         "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code 128 (Code set B)",
                         "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25",
                         "QR29x29", "QR33x33", "EAN-13add-on5", "Micro QR (15 x 15)",
@@ -804,7 +804,8 @@ namespace EIP_Lib {
                   }
                   Successful = true;
                } else {
-                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+                  GetStatus = $"?? -- {status:X2} -- {LastIO}";
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file
@@ -862,7 +863,8 @@ namespace EIP_Lib {
                   DataIsValid = TextIsValid(attr.Data, SetData);
                   Successful = true;
                } else {
-                  GetStatus = $"?? -- Unknown -- {LastIO}";
+                  int status = (int)Get(ReadData, 48, 2, mem.LittleEndian);
+                  GetStatus = $"?? -- {status:X2} -- {LastIO}";
                   GetData = new byte[0];
                }
                // Record the operation in the Traffic file

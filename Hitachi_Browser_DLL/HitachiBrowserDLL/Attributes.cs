@@ -46,7 +46,6 @@ namespace EIP_Lib {
       Button[] ExtraGet;
       Button[] ExtraSet;
 
-      int half;
       public int Half {
          get {
             return cc == ClassCode.Substitution_rules ? 5 : 16;
