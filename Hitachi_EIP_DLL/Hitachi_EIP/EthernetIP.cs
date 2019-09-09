@@ -779,10 +779,22 @@ namespace EIP_Lib {
       }
 
       // Get one attribute based on the Data Property
-      public int GetAttribute<T>(T Attribute) where T : Enum {
+      public bool GetAttribute<T>(T Attribute, out int value) where T : Enum {
          AttrData attr = GetAttrData(Attribute);
-         GetAttribute(attr.Class, attr.Val, Nodata);
-         return GetDecValue;
+         bool success = GetAttribute(attr.Class, attr.Val, Nodata);
+         value = GetDecValue;
+         return success;
+      }
+
+      // Get the contents of one attribute
+      public bool GetAttribute<T>(T Attribute, out string value) {
+         ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
+         byte at = Convert.ToByte(Attribute);
+         string val = string.Empty;
+         AttrData attr = EIP.AttrDict[cc, at];
+         bool success = GetAttribute(cc, at, Nodata);
+         value = attr.Data.Fmt == DataFormats.UTF8 ? FromQuoted(GetDataValue) : "";
+         return success;
       }
 
       // Write one attribute
