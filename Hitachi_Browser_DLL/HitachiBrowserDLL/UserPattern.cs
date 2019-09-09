@@ -300,10 +300,10 @@ namespace EIP_Lib {
                         bmGrid = StripesToBitMap(stripes);
                         BitMapToImage();
                         grpGrid.Invalidate();
-                     } else {
-                        EIP.LogIt("User Pattern Upload Failed.  Aborting Doenload!");
-                        break;
                      }
+                  } else {
+                     EIP.LogIt("User Pattern Upload Failed.  Aborting Doenload!");
+                     break;
                   }
                }
             }

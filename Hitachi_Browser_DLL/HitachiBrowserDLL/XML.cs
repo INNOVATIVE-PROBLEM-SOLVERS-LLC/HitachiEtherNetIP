@@ -1115,7 +1115,7 @@ namespace EIP_Lib {
                // Get the number of columns (must be outside Auto Reflection block)
                int cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Stack up all the operations
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1147,8 +1147,8 @@ namespace EIP_Lib {
                   }
                }
                // Execute all the operations
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose(); // Must be outside the ForwardOpen if block
          }
@@ -1456,7 +1456,7 @@ namespace EIP_Lib {
                // Get the number of columns
                cols = EIP.GetAttribute(ccPF.Number_Of_Columns, 0);
                // Make things faster
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1473,8 +1473,8 @@ namespace EIP_Lib {
                // Set line count to 1. (Need to find out how delete single item works.)
                EIP.SetAttribute(ccPF.Line_Count, 1);
                // Make things faster
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
@@ -1490,7 +1490,7 @@ namespace EIP_Lib {
                // Get the number of items
                items = EIP.GetAttribute(ccPF.Number_Of_Items);
                // Make things faster
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
                for (int i = 1; i <= items && success; i++) {
                   // Select the item
@@ -1505,8 +1505,8 @@ namespace EIP_Lib {
                   EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
                }
                // Make things faster
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
