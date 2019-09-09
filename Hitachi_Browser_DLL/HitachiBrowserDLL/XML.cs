@@ -1249,6 +1249,7 @@ namespace EIP_Lib {
       private void cmdCreateDate_Click(object sender, EventArgs e) {
          success = true;
          int Item = 1;
+         int Rule = 1;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Clean up the display
@@ -1259,7 +1260,7 @@ namespace EIP_Lib {
                for (int i = 0; i < 5; i++) {
                   switch (i) {
                      case 0:
-                        //BuildMonthDaySR(Rule);
+                        BuildMonthDaySR(Rule);
                         break;
                      case 1:
                         //BuildTimeCount(Item++);
@@ -1431,13 +1432,19 @@ namespace EIP_Lib {
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
          string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimeter);
          for (int i = 0; i < months.Length; i++) {
-            EIP.SetAttribute(ccSR.Month, i + 1, months[i]);
+            if (!EIP.SetAttribute(ccSR.Month, i + 1, months[i])) {
+               EIP.LogIt("Set Month Substitution Rule failed. Aborting!");
+               break;
+            }
          }
 
          // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
          string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
          for (int i = 0; i < day.Length; i++) {
-            EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
+            if (!EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i])) {
+               EIP.LogIt("Set Day of Week Substitution Rule failed. Aborting!");
+               break;
+            }
          }
       }
 

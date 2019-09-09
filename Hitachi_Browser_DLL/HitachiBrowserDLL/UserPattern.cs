@@ -292,7 +292,7 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                for (int i = 0; i <= cbUpCount.SelectedIndex; i++) {
-                  byte[] data = new byte[] { (byte)(dotMatrixCode), (byte)(cbUpPosition.SelectedIndex + i) };
+                  byte[] data = new byte[] { (byte)(dotMatrixCode ), (byte)(cbUpPosition.SelectedIndex + i) };
                   bool Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                   if (Success) {
                      if (EIP.GetDataLength == bytesPerCharacter) {
@@ -555,23 +555,23 @@ namespace EIP_Lib {
       private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode, out int bytesPerCharacter) {
          bool IsValid = true;
          switch (font.Replace('X', 'x')) {
-            case "0":
+            case "1":
             case "4x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 4;
                bytesPerCharacter = 8;
-               dotmatrixCode = 0;
+               dotmatrixCode = 1;
                break;
-            case "1":
+            case "2":
             case "5x5":
                charHeight = 5;
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               dotmatrixCode = 1;
+               dotmatrixCode = 2;
                break;
-            case "2":
+            case "3":
             case "5x8":
             case "5x7":
             case "5x8(5x7)":
@@ -579,9 +579,9 @@ namespace EIP_Lib {
                charWidth = 8;
                maxICS = 3;
                bytesPerCharacter = 8;
-               dotmatrixCode = 2;
+               dotmatrixCode = 3;
                break;
-            case "3":
+            case "4":
             case "9x8":
             case "9x7":
             case "9x8(9x7)":
@@ -589,79 +589,79 @@ namespace EIP_Lib {
                charWidth = 16;
                maxICS = 7;
                bytesPerCharacter = 16;
-               dotmatrixCode = 3;
+               dotmatrixCode = 4;
                break;
-            case "4":
+            case "5":
             case "7x10":
                charHeight = 10;
                charWidth = 8;
                maxICS = 1;
                bytesPerCharacter = 16;
-               dotmatrixCode = 4;
+               dotmatrixCode = 5;
                break;
-            case "5":
+            case "6":
             case "10x12":
                charHeight = 12;
                charWidth = 16;
                maxICS = 6;
                bytesPerCharacter = 32;
-               dotmatrixCode = 5;
+               dotmatrixCode = 6;
                break;
-            case "6":
+            case "7":
             case "12x16":
                charHeight = 16;
                charWidth = 16;
                maxICS = 4;
                bytesPerCharacter = 32;
-               dotmatrixCode = 6;
+               dotmatrixCode = 7;
                break;
-            case "7":
+            case "8":
             case "18x24":
                charHeight = 24;
                charWidth = 24;
                maxICS = 6;
                bytesPerCharacter = 72;
-               dotmatrixCode = 7;
+               dotmatrixCode = 8;
                break;
-            case "8":
+            case "9":
             case "24x32":
                charHeight = 32;
                charWidth = 32;
                maxICS = 12;
                bytesPerCharacter = 128;
-               dotmatrixCode = 8;
+               dotmatrixCode = 9;
                break;
-            case "9":
+            case "0x3A":
             case "11x11":
                charHeight = 11;
                charWidth = 16;
                maxICS = 5;
                bytesPerCharacter = 32;
-               dotmatrixCode = 9;
-               break;
-            case "0x3A":
-            case "5x3(Chimney)":
-               charHeight = 3;
-               charWidth = 5;
-               maxICS = 0;
-               bytesPerCharacter = 5;
                dotmatrixCode = 10;
                break;
             case "0x3B":
-            case "5x5(Chimney)":
-               charHeight = 5;
+            case "5x3(Chimney)":
+               charHeight = 3;
                charWidth = 5;
                maxICS = 0;
                bytesPerCharacter = 5;
                dotmatrixCode = 11;
                break;
             case "0x3C":
+            case "5x5(Chimney)":
+               charHeight = 5;
+               charWidth = 5;
+               maxICS = 0;
+               bytesPerCharacter = 5;
+               dotmatrixCode = 12;
+               break;
+            case "0x3D":
             case "7x5(Chimney)":
                charHeight = 5;
                charWidth = 7;
                maxICS = 0;
                bytesPerCharacter = 7;
-               dotmatrixCode = 12;
+               dotmatrixCode = 13;
                break;
             case "0x3E":
             case "30x40":
