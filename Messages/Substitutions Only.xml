@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Label ClockSystem="24-Hour" Registration="101" GroupNumber="00" GroupName="" Name="EthernetIP" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
-	  <Printer Model="RX-2" Make="Hitachi">
+<Label ClockSystem="24-Hour" Registration="101" GroupNumber="00" GroupName="" Name="EthernetIP" 
+       BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+	  <Printer Model="UX" Make="Hitachi">
 
 			<Substitution Rule="01" StartYear="2019" Delimeter="/">
 				<Year Base="00">00/01/02/03/04/05/06/07/08/09</Year>
