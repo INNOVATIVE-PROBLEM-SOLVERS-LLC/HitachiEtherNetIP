@@ -474,7 +474,7 @@ namespace EIP_Lib {
       }
 
       private void identify_Click(object sender, EventArgs e) {
-         parent.processXML.SetText();
+         parent.processXML.SetText("Hello World");
       }
 
       // Get the names associated with the dropdown
