@@ -1253,11 +1253,11 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                // Clean up the display
                success = success && CleanUpDisplay();
-               //success = success && BuildMonthDaySR(Rule);
+               success = success && BuildMonthDaySR(Rule);
                //success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}}");
                //success = success && BuildTimeCount(Item++);
                //success = success && BuildMDYhms(Item++, Rule);
-               //success = success && BuildShifts(Item++); // Hangs up the printer
+               success = success && BuildShifts(Item++); // Hangs up the printer
                //success = success && TryDayOfWeekEtc(Item++);
                //success = success && VerifyShifts(Item++);
             }
@@ -1327,13 +1327,13 @@ namespace EIP_Lib {
          success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "HH");
 
          // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="AA" />
-         //success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "II");
 
          // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
-         //success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
+         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "JJ");

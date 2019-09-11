@@ -303,7 +303,7 @@ namespace EIP_Lib {
 
       // Calendar (Class Code 0x69)
       private AttrData[] ccCal_Addrs = new AttrData[] {
-         new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, false, 10,     // Shift Code Condition 0x65
+         new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, true, 10,     // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
