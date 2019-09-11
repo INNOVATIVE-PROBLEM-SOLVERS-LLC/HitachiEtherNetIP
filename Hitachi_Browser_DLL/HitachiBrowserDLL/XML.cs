@@ -1190,42 +1190,41 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Clean up the display
-               CleanUpDisplay();
-               SetText("{{CCCC}}");
+               success = success && CleanUpDisplay();
 
                // Set to first item
                int item = 1;
 
                // Select item #1
-               EIP.SetAttribute(ccIDX.Item, item);
+               success = success && EIP.SetAttribute(ccIDX.Item, item);
 
                // Set item number in count block
-               EIP.SetAttribute(ccIDX.Count_Block, item);
+               success = success && EIP.SetAttribute(ccIDX.Count_Block, item);
 
                // Set font, ICS, and Text is a 4 digit counter
-               EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-               EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
-               EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}}");
+               success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+               success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+               success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}}");
 
                // Set <Counter InitialValue="0001" Range1="0000" Range2="9999" JumpFrom="6666" JumpTo ="7777"
                //      Increment="1" Direction="Up" ZeroSuppression="Enable" UpdateIP="0" UpdateUnit="1"
                //      Multiplier ="2" CountSkip="0" Reset="0001" ExternalSignal="Disable" ResetSignal="Signal 1" />
-               EIP.SetAttribute(ccCount.Initial_Value, "0001");
-               EIP.SetAttribute(ccCount.Count_Range_1, "0000");
-               EIP.SetAttribute(ccCount.Count_Range_2, "9999");
-               EIP.SetAttribute(ccCount.Jump_From, "6666");
-               EIP.SetAttribute(ccCount.Jump_To, "7777");
-               EIP.SetAttribute(ccCount.Increment_Value, 1);
-               EIP.SetAttribute(ccCount.Direction_Value, "Up");
-               EIP.SetAttribute(ccCount.Zero_Suppression, "Enable");
-               EIP.SetAttribute(ccCount.Count_Multiplier, "2");
-               EIP.SetAttribute(ccCount.Reset_Value, "0001");
-               EIP.SetAttribute(ccCount.Count_Skip, "0");
+               success = success && EIP.SetAttribute(ccCount.Initial_Value, "0001");
+               success = success && EIP.SetAttribute(ccCount.Count_Range_1, "0000");
+               success = success && EIP.SetAttribute(ccCount.Count_Range_2, "9999");
+               success = success && EIP.SetAttribute(ccCount.Jump_From, "6666");
+               success = success && EIP.SetAttribute(ccCount.Jump_To, "7777");
+               success = success && EIP.SetAttribute(ccCount.Increment_Value, 1);
+               success = success && EIP.SetAttribute(ccCount.Direction_Value, "Up");
+               success = success && EIP.SetAttribute(ccCount.Zero_Suppression, "Enable");
+               success = success && EIP.SetAttribute(ccCount.Count_Multiplier, "2");
+               success = success && EIP.SetAttribute(ccCount.Reset_Value, "0001");
+               success = success && EIP.SetAttribute(ccCount.Count_Skip, "0");
 
-               //SetAttribute(ccCount.Update_Unit_Halfway, 0);           // Causes COM Error
-               //SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
-               //SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1"); // Causes COM Error
-               //SetAttribute(ccCount.External_Count, "Disable");        // Causes COM Error
+               success = success && EIP.SetAttribute(ccCount.Update_Unit_Halfway, 0);           // Causes COM Error
+               success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
+               success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1"); // Causes COM Error
+               success = success && EIP.SetAttribute(ccCount.External_Count, "Disable");        // Causes COM Error
             }
             EIP.ForwardClose();
          }
@@ -1255,11 +1254,10 @@ namespace EIP_Lib {
                // Clean up the display
                success = success && CleanUpDisplay();
                //success = success && BuildMonthDaySR(Rule);
-               //success = success && SetText("=>{{EE}}<=>{{FF}}<= ");
                //success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}}");
                //success = success && BuildTimeCount(Item++);
                //success = success && BuildMDYhms(Item++, Rule);
-               success = success && BuildShifts(Item++); // Hangs up the printer
+               //success = success && BuildShifts(Item++); // Hangs up the printer
                //success = success && TryDayOfWeekEtc(Item++);
                //success = success && VerifyShifts(Item++);
             }
