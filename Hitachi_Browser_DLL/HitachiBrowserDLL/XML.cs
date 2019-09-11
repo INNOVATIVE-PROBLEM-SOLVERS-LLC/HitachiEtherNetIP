@@ -1254,12 +1254,12 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                // Clean up the display
                success = success && CleanUpDisplay();
-               success = success && BuildMonthDaySR(Rule);
+               //success = success && BuildMonthDaySR(Rule);
                //success = success && SetText("=>{{EE}}<=>{{FF}}<= ");
-               success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}} {{EE} {FF}}");
+               //success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}}");
                //success = success && BuildTimeCount(Item++);
                //success = success && BuildMDYhms(Item++, Rule);
-               //success = success && BuildShifts(Item++); // Hangs up the printer
+               success = success && BuildShifts(Item++); // Hangs up the printer
                //success = success && TryDayOfWeekEtc(Item++);
                //success = success && VerifyShifts(Item++);
             }
@@ -1269,7 +1269,6 @@ namespace EIP_Lib {
       }
 
       private bool TryDayOfWeekEtc(int Item) {
-         bool success = true;
          if (Item != 1) {
             success = success && EIP.ServiceAttribute(ccPF.Add_Column);
          }
@@ -1286,7 +1285,7 @@ namespace EIP_Lib {
       }
 
       private bool VerifyShifts(int Item) {
-
+         // Need to rethink this
          // Select the Item
          bool success = EIP.SetAttribute(ccIDX.Item, Item);
 
@@ -1309,7 +1308,6 @@ namespace EIP_Lib {
       }
 
       private bool BuildShifts(int Item) {
-         bool success = true;
          // Add the item if needed and select it
          if (Item != 1) {
             success = success && EIP.ServiceAttribute(ccPF.Add_Column, 0);
@@ -1317,29 +1315,34 @@ namespace EIP_Lib {
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
          //// Set Item in Calendar Index
-         //EIP.SetAttribute(ccIDX.Calendar_Block, Item);
+         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
          success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
          success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
          success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
          success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
 
-         // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="11" EndMinute="59" Text="AA" />
+         // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="7" EndMinute="59" Text="CC" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "AA");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "HH");
 
-         // Set < Shift Number="2" StartHour="12" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
-         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
-         success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 12);
+         // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="AA" />
+         //success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+         success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "BB");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "II");
+
+         // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
+         //success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
+         success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
+         success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "JJ");
          return success;
       }
 
       private bool BuildMDYhms(int Item, int Rule) {
-         bool success = true;
          // Add the item if needed and select it
          if (Item != 1) {
             success = success && EIP.ServiceAttribute(ccPF.Add_Column, 0);
@@ -1383,8 +1386,6 @@ namespace EIP_Lib {
       }
 
       private bool BuildTimeCount(int Item) {
-         success = true;
-
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
          // Set Item in Calendar Index
@@ -1406,7 +1407,7 @@ namespace EIP_Lib {
       private bool BuildMonthDaySR(int Rule) {
          // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
          char delimeter = '/';
-         bool success = EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
          success = success && EIP.SetAttribute(ccSR.Start_Year, 2010);
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
@@ -1466,20 +1467,18 @@ namespace EIP_Lib {
                // Make things faster
                success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
-               for (int i = 1; i <= s.Length && success; i++) {
-                  if (i != 1) {
-                     success = success && EIP.ServiceAttribute(ccPF.Add_Column);
-                  }
-                  // Select the item
-                  success = success && EIP.SetAttribute(ccIDX.Item, i);
-                  // Set font
-                  success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-                  // Clear barcode
-                  success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
-                  // Set ICS to 1
-                  success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
-                  // Insert the text
-                  success = success && EIP.SetAttribute(ccPF.Print_Character_String, s[i - 1]);
+               // Select the item
+               success = success && EIP.SetAttribute(ccIDX.Item, 1);
+               // Set font
+               success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+               // Clear barcode
+               success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
+               // Set ICS to 1
+               success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+               // Insert the text
+               success = success && EIP.SetAttribute(ccPF.Print_Character_String, s[0]);
+               for (int i = 1; i < s.Length; i++) {
+                  success = success && EIP.SetAttribute(ccPF.Add_To_End_Of_String, s[i]);
                }
                success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
                success = success && EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
