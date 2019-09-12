@@ -1865,6 +1865,12 @@ namespace EIP_Lib {
          }
       }
 
+      // Close out the Excel file.  If View is set, a save folder name must be supplied. 
+      public static void ResetExcelFile() {
+         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.Close, false));
+         CreateExcelApp();
+      }
+
       // Create a unique file name by incorporating time into the filename
       public static string CreateFileName(string directory, string s, string ext = "csv") {
          if (Directory.Exists(directory)) {
