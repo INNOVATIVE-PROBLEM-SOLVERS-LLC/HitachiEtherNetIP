@@ -10,7 +10,7 @@ namespace H_EIP {
       static void Main() {
          Application.EnableVisualStyles();
          Application.SetCompatibleTextRenderingDefault(false);
-         Application.Run(new EIP_Lib.Browser("10.0.0.100", 44818, @"c:\Temp\EIP"));
+         Application.Run(new EIP_Lib.Browser("98.240.191.166", 44818, @"c:\Temp\EIP"));
       }
    }
 }
