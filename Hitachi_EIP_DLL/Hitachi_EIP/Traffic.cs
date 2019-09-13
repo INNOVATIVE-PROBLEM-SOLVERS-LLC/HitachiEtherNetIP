@@ -212,16 +212,16 @@ namespace EIP_Lib {
       // Close out the application
       private void CloseExcelApplication(bool View) {
          if (excelApp != null) {
-            TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
-            // Make a table out of the traffic data
-            Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
-            SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
-            SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
-            SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
-            wsTraffic.Columns.AutoFit();
-
-            // Save it away
             if (View) {
+               // Save it away
+               TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
+               // Make a table out of the traffic data
+               Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
+               SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
+               SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
+               SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
+               wsTraffic.Columns.AutoFit();
+
                excelApp.ActiveWorkbook.SaveAs(TrafficFileName);
             }
             wb.Close();

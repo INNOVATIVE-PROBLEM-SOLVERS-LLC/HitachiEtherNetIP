@@ -84,6 +84,7 @@
          this.lbldataIn = new System.Windows.Forms.Label();
          this.btnReformat = new System.Windows.Forms.Button();
          this.btnRefresh = new System.Windows.Forms.Button();
+         this.btnResetTraffic = new System.Windows.Forms.Button();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
@@ -373,55 +374,55 @@
          // 
          // tabIJPOperation
          // 
-         this.tabIJPOperation.Location = new System.Drawing.Point(4, 25);
+         this.tabIJPOperation.Location = new System.Drawing.Point(4, 46);
          this.tabIJPOperation.Name = "tabIJPOperation";
          this.tabIJPOperation.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIJPOperation.Size = new System.Drawing.Size(895, 474);
+         this.tabIJPOperation.Size = new System.Drawing.Size(895, 453);
          this.tabIJPOperation.TabIndex = 1;
          this.tabIJPOperation.Text = "IJP Operation (0x75)";
          this.tabIJPOperation.UseVisualStyleBackColor = true;
          // 
          // tabPrintManagement
          // 
-         this.tabPrintManagement.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintManagement.Location = new System.Drawing.Point(4, 46);
          this.tabPrintManagement.Name = "tabPrintManagement";
-         this.tabPrintManagement.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintManagement.Size = new System.Drawing.Size(895, 453);
          this.tabPrintManagement.TabIndex = 4;
          this.tabPrintManagement.Text = "Print Management (066)";
          this.tabPrintManagement.UseVisualStyleBackColor = true;
          // 
          // tabPrintSpec
          // 
-         this.tabPrintSpec.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintSpec.Location = new System.Drawing.Point(4, 46);
          this.tabPrintSpec.Name = "tabPrintSpec";
-         this.tabPrintSpec.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintSpec.Size = new System.Drawing.Size(895, 453);
          this.tabPrintSpec.TabIndex = 2;
          this.tabPrintSpec.Text = "Print Spec (0x68)";
          this.tabPrintSpec.UseVisualStyleBackColor = true;
          // 
          // tabPrintFormat
          // 
-         this.tabPrintFormat.Location = new System.Drawing.Point(4, 25);
+         this.tabPrintFormat.Location = new System.Drawing.Point(4, 46);
          this.tabPrintFormat.Name = "tabPrintFormat";
-         this.tabPrintFormat.Size = new System.Drawing.Size(895, 474);
+         this.tabPrintFormat.Size = new System.Drawing.Size(895, 453);
          this.tabPrintFormat.TabIndex = 3;
          this.tabPrintFormat.Text = "Print Format (0x67)";
          this.tabPrintFormat.UseVisualStyleBackColor = true;
          // 
          // tabCalendar
          // 
-         this.tabCalendar.Location = new System.Drawing.Point(4, 25);
+         this.tabCalendar.Location = new System.Drawing.Point(4, 46);
          this.tabCalendar.Name = "tabCalendar";
-         this.tabCalendar.Size = new System.Drawing.Size(895, 474);
+         this.tabCalendar.Size = new System.Drawing.Size(895, 453);
          this.tabCalendar.TabIndex = 5;
          this.tabCalendar.Text = "Calendar (0x69)";
          this.tabCalendar.UseVisualStyleBackColor = true;
          // 
          // tabSubstitution
          // 
-         this.tabSubstitution.Location = new System.Drawing.Point(4, 25);
+         this.tabSubstitution.Location = new System.Drawing.Point(4, 46);
          this.tabSubstitution.Name = "tabSubstitution";
-         this.tabSubstitution.Size = new System.Drawing.Size(895, 474);
+         this.tabSubstitution.Size = new System.Drawing.Size(895, 453);
          this.tabSubstitution.TabIndex = 6;
          this.tabSubstitution.Text = "Substitution (0x6C)";
          this.tabSubstitution.UseVisualStyleBackColor = true;
@@ -675,11 +676,22 @@
          this.btnRefresh.UseVisualStyleBackColor = true;
          this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
          // 
-         // HitachiBrowser
+         // btnResetTraffic
+         // 
+         this.btnResetTraffic.Location = new System.Drawing.Point(978, 565);
+         this.btnResetTraffic.Name = "btnResetTraffic";
+         this.btnResetTraffic.Size = new System.Drawing.Size(89, 52);
+         this.btnResetTraffic.TabIndex = 50;
+         this.btnResetTraffic.Text = "Reset Traffic";
+         this.btnResetTraffic.UseVisualStyleBackColor = true;
+         this.btnResetTraffic.Click += new System.EventHandler(this.btnResetTraffic_Click);
+         // 
+         // Browser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.btnResetTraffic);
          this.Controls.Add(this.btnRefresh);
          this.Controls.Add(this.btnReformat);
          this.Controls.Add(this.lblCountIn);
@@ -724,7 +736,7 @@
          this.Controls.Add(this.txtIPAddress);
          this.Controls.Add(this.lblPort);
          this.Controls.Add(this.lblIPAddress);
-         this.Name = "HitachiBrowser";
+         this.Name = "Browser";
          this.Text = "Browse thru the Hitachi Printer";
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HitachiBrowser_FormClosing);
          this.Load += new System.EventHandler(this.HitachiBrowser_Load);
@@ -797,6 +809,7 @@
       internal System.Windows.Forms.TabPage tabOpMgmt;
       internal System.Windows.Forms.TabPage tabUserPattern;
       internal System.Windows.Forms.TabPage tabXML;
+      private System.Windows.Forms.Button btnResetTraffic;
    }
 }
 

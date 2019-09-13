@@ -31,11 +31,10 @@ namespace EIP_Lib {
       Button cmdSendToPrinter;
 
       // Testing Buttons
+      Label lblSelectText;
+      ComboBox cbAvailableTests;
       Button cmdDeleteAll;
-      Button cmdCreateShift;
-      Button cmdCreateText;
-      Button cmdCreateDate;
-      Button cmdCreateCounter;
+      Button cmdBrowse;
       Button cmdSaveInPrinter;
       Button cmdTest;
 
@@ -69,6 +68,8 @@ namespace EIP_Lib {
          this.tab = tab;
 
          BuildControls();
+
+         BuildTestFileList();
 
          SetButtonEnables();
       }
@@ -760,7 +761,7 @@ namespace EIP_Lib {
             EIP.SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(c, "UpdateIP"));
             EIP.SetAttribute(ccCount.Update_Unit_Unit, GetAttr(c, "UpdateUnit"));
             EIP.SetAttribute(ccCount.Increment_Value, GetAttr(c, "Increment"));
-            string s = bool.TryParse(GetAttr(c, "CountUp"), out bool b) && !b ? "UP" : "DOWN";
+            string s = bool.TryParse(GetAttr(c, "CountUp"), out bool b) && !b ? "Down" : "Up";
             EIP.SetAttribute(ccCount.Direction_Value, s);
             EIP.SetAttribute(ccCount.Jump_From, GetAttr(c, "JumpFrom"));
             EIP.SetAttribute(ccCount.Jump_To, GetAttr(c, "JumpTo"));
@@ -938,30 +939,33 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSendToPrinter);
 
          // Testing controls
+         lblSelectText = new Label() { Text = "Select Test", TextAlign = ContentAlignment.BottomCenter };
+         cbAvailableTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         cmdBrowse = new Button() { Text = "Browse" };
          cmdDeleteAll = new Button() { Text = "Delete All" };
-         cmdCreateShift = new Button() { Text = "Create Shift Code" };
-         cmdCreateText = new Button() { Text = "Create Text" };
-         cmdCreateDate = new Button() { Text = "Create Date" };
-         cmdCreateCounter = new Button() { Text = "Create Counter" };
          cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
          cmdTest = new Button() { Text = "Test" };
 
+         cbAvailableTests.SelectedIndexChanged += cbAvailableTests_SelectedIndexChanged;
          cmdDeleteAll.Click += cmdDeleteAll_Click;
-         cmdCreateShift.Click += cmdAddText_Click;
-         cmdCreateText.Click += cmdCreateText_Click;
-         cmdCreateDate.Click += cmdCreateDate_Click;
-         cmdCreateCounter.Click += cmdCreateCounter_Click;
+         cmdBrowse.Click += cmdBrowse_Click;
          cmdSaveInPrinter.Click += cmdSaveToPrinter_Click;
          cmdTest.Click += cmdTest_Click;
 
-
+         tab.Controls.Add(lblSelectText);
+         tab.Controls.Add(cbAvailableTests);
          tab.Controls.Add(cmdDeleteAll);
-         tab.Controls.Add(cmdCreateShift);
-         tab.Controls.Add(cmdCreateText);
-         tab.Controls.Add(cmdCreateDate);
-         tab.Controls.Add(cmdCreateCounter);
+         tab.Controls.Add(cmdBrowse);
          tab.Controls.Add(cmdSaveInPrinter);
          tab.Controls.Add(cmdTest);
+      }
+
+      private void cbAvailableTests_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbAvailableTests.SelectedIndex >= 0) {
+            string fileName = Path.Combine(parent.MessageFolder, cbAvailableTests.Text + ".XML");
+            ProcessLabel(File.ReadAllText(fileName));
+            SetButtonEnables();
+         }
       }
 
       // Called from parent
@@ -978,23 +982,21 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2, 5);
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2, 5);
+            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 5);
 
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 6.5f, 2, 5);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 6.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 6.5f, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 6.5f, 2.5f, 5);
 
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 12, 2, 5);
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 3, 12, 2, 5);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 12, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 12, 2.5f, 5);
 
-            Utils.ResizeObject(ref R, cmdCreateShift, tclHeight - 6, 17.5f, 2, 5);
-            Utils.ResizeObject(ref R, cmdCreateDate, tclHeight - 3, 17.5f, 2, 5);
+            Utils.ResizeObject(ref R, lblSelectText, tclHeight - 6, 17.5f, 1, 7);
+            Utils.ResizeObject(ref R, cbAvailableTests, tclHeight - 5, 17.5f, 2, 7);
+            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 17.5f, 2.5f, 7);
 
-            Utils.ResizeObject(ref R, cmdCreateText, tclHeight - 6, 23, 2, 5);
-            Utils.ResizeObject(ref R, cmdCreateCounter, tclHeight - 3, 23, 2, 5);
-
-            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 6, 28.5f, 2, 5);
-            Utils.ResizeObject(ref R, cmdTest, tclHeight - 3, 28.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 25, 5.5f, 5);
+            Utils.ResizeObject(ref R, cmdTest, tclHeight - 6, 30.5f, 5.5f, 4.5f);
 
          }
          R.offset = 0;
@@ -1071,6 +1073,16 @@ namespace EIP_Lib {
          }
       }
 
+      private void BuildTestFileList() {
+         cbAvailableTests.Items.Clear();
+         string[] FileNames = Directory.GetFiles(parent.MessageFolder, "*.XML");
+         Array.Sort(FileNames);
+         for (int i = 0; i < FileNames.Length; i++) {
+            cbAvailableTests.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
+         }
+
+      }
+
       #endregion
 
       #region Test Routines
@@ -1103,7 +1115,7 @@ namespace EIP_Lib {
          CleanUpDisplay();
       }
 
-      // Add text to all items
+      // Add text to all items (Control Deleted)
       private void cmdAddText_Click(object sender, EventArgs e) {
          // Add new logic here
       }
@@ -1155,7 +1167,7 @@ namespace EIP_Lib {
          EIP.EndSession();      // Must be outside the StartSession if block
       }
 
-      // Create a message with text only
+      // Create a message with text only (Control Deleted)
       private void cmdCreateText_Click(object sender, EventArgs e) {
          success = true;
          if (EIP.StartSession()) {
@@ -1184,7 +1196,7 @@ namespace EIP_Lib {
          EIP.EndSession();
       }
 
-      // Create a message containing a counter
+      // Create a message containing a counter (Control Deleted)
       private void cmdCreateCounter_Click(object sender, EventArgs e) {
          success = true;
          if (EIP.StartSession()) {
@@ -1244,7 +1256,18 @@ namespace EIP_Lib {
          EIP.EndSession();
       }
 
-      // Create a message containing a date
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         using (FolderBrowserDialog dlg = new FolderBrowserDialog()) {
+            dlg.ShowNewFolderButton = true;
+            dlg.SelectedPath = parent.MessageFolder;
+            if (dlg.ShowDialog() == DialogResult.OK) {
+               parent.MessageFolder = dlg.SelectedPath;
+               BuildTestFileList();
+            }
+         }
+      }
+
+      // Create a message containing a date (Control Deleted)
       private void cmdCreateDate_Click(object sender, EventArgs e) {
          success = true;
          int Item = 1;

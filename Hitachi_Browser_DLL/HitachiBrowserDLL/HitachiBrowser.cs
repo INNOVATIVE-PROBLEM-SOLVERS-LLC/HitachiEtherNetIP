@@ -26,7 +26,11 @@ namespace EIP_Lib {
       public const int AddUserPatternSize = 0x200;
       public const int AddAll = 0x3FF;
 
-      string IPAddress;
+      public string IPAddress;
+      public int IPPort;
+      public string TrafficFolder;
+      public string MessageFolder;
+
       int port;
 
       public EIP EIP;
@@ -56,7 +60,7 @@ namespace EIP_Lib {
       Attributes<ccES> envirAttr;      // 0x71
       Attributes<ccOM> mgmtAttr;       // 0x74
       Attributes<ccUP> userPatAttr;    // 0x6B
-      public XML processXML;              // xml processing
+      public XML processXML;           // xml processing
 
 
       public bool ComIsOn = false;
@@ -67,10 +71,15 @@ namespace EIP_Lib {
 
       #region Constructors and Destructors
 
-      public Browser(string IPAddress, int IPPort, string TrafficFolder) {
+      public Browser(string IPAddress, int IPPort, string TrafficFolder, string MessageFolder) {
          InitializeComponent();
 
          this.Text += " - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+         this.IPAddress = IPAddress;
+         this.IPPort = IPPort;
+         this.TrafficFolder = TrafficFolder;
+         this.MessageFolder = MessageFolder;
 
          txtIPAddress.Text = IPAddress;
          txtPort.Text = IPPort.ToString();
@@ -159,6 +168,12 @@ namespace EIP_Lib {
 
       // Browser closing.  No un-managed memory so let the runtime environment clean most of it up
       private void HitachiBrowser_FormClosing(object sender, FormClosingEventArgs e) {
+
+         // Put the data back so it can be saved
+         IPAddress = txtIPAddress.Text;
+         IPPort = Convert.ToInt32(txtPort.Text);
+         //TrafficFolder = TrafficFolder; // No way to change it.
+         //MessageFolder = MessageFolder; // Stored back here if changed.
 
          // Stop logging
          EIP.Log -= EIP_Log;
@@ -272,15 +287,16 @@ namespace EIP_Lib {
 
             #region Bottom Row
 
-            Utils.ResizeObject(ref R, btnCom, 45.5f, 10, 3, 5);
-            Utils.ResizeObject(ref R, btnAutoReflection, 45.5f, 15.5f, 3, 5);
-            Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 21, 3, 5);
+            Utils.ResizeObject(ref R, btnCom, 45.5f, 10, 3, 4);
+            Utils.ResizeObject(ref R, btnAutoReflection, 45.5f, 14.5f, 3, 5);
+            Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 20, 3, 5);
 
-            Utils.ResizeObject(ref R, btnRefresh, 46, 26.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnStop, 46, 30, 2, 3);
-            Utils.ResizeObject(ref R, btnViewTraffic, 46, 33.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnReadAll, 46, 39.5f, 2, 3);
-            Utils.ResizeObject(ref R, btnExit, 46, 43.5f, 2, 3);
+            Utils.ResizeObject(ref R, btnRefresh, 45.5f, 25.5f, 3, 3);
+            Utils.ResizeObject(ref R, btnStop, 45.5f, 29, 3, 3);
+            Utils.ResizeObject(ref R, btnViewTraffic, 45.5f, 32.5f, 3, 3);
+            Utils.ResizeObject(ref R, btnResetTraffic, 45.5f, 36, 3, 3);
+            Utils.ResizeObject(ref R, btnReadAll, 45.5f, 39.5f, 3, 3);
+            Utils.ResizeObject(ref R, btnExit, 45.5f, 43, 3, 3);
 
             #endregion
 
@@ -424,6 +440,12 @@ namespace EIP_Lib {
       private void btnViewTraffic_Click(object sender, EventArgs e) {
          EIP.CloseExcelFile(true);
       }
+
+      // Cycle the traffic file to have a clean slate but do not view it
+      private void btnResetTraffic_Click(object sender, EventArgs e) {
+         EIP.ResetExcelFile();
+      }
+
       // Step thru all classes and attributes with classes to issue Get requests
       private void btnReadAll_Click(object sender, EventArgs e) {
          EIP_Log(null, "Read All Starting");
@@ -864,6 +886,7 @@ namespace EIP_Lib {
       }
 
       #endregion
+
    }
 }
 
