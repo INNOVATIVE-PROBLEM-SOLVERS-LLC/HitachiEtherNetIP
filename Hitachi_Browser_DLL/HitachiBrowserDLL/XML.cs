@@ -939,7 +939,7 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSendToPrinter);
 
          // Testing controls
-         lblSelectText = new Label() { Text = "Select Test", TextAlign = ContentAlignment.BottomCenter };
+         lblSelectText = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
          cbAvailableTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          cmdBrowse = new Button() { Text = "Browse" };
          cmdDeleteAll = new Button() { Text = "Delete All" };
@@ -982,21 +982,21 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 6.5f, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 6.5f, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 5.5f, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 12, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 12, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 10, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 10, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, lblSelectText, tclHeight - 6, 17.5f, 1, 7);
-            Utils.ResizeObject(ref R, cbAvailableTests, tclHeight - 5, 17.5f, 2, 7);
-            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 17.5f, 2.5f, 7);
+            Utils.ResizeObject(ref R, lblSelectText, tclHeight - 6, 14.5f, 1, 6);
+            Utils.ResizeObject(ref R, cbAvailableTests, tclHeight - 5, 14.5f, 2, 6);
+            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 14.5f, 2.5f, 6);
 
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 25, 5.5f, 5);
-            Utils.ResizeObject(ref R, cmdTest, tclHeight - 6, 30.5f, 5.5f, 4.5f);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 26.5f, 5.5f, 4);
+            Utils.ResizeObject(ref R, cmdTest, tclHeight - 6, 31, 5.5f, 4);
 
          }
          R.offset = 0;
