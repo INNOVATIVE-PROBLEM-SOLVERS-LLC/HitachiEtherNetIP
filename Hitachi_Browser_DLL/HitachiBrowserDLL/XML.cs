@@ -28,15 +28,18 @@ namespace EIP_Lib {
       Button cmdClear;
       Button cmdGenerate;
       Button cmdSaveAs;
-      Button cmdSendToPrinter;
+      Button cmdDeleteAll;
+      Button cmdSaveInPrinter;
 
       // Testing Buttons
-      Label lblSelectText;
-      ComboBox cbAvailableTests;
-      Button cmdDeleteAll;
+      Label lblSelectXmlTest;
+      ComboBox cbAvailableXmlTests;
       Button cmdBrowse;
-      Button cmdSaveInPrinter;
-      Button cmdTest;
+      Button cmdSendToPrinter;
+
+      Label lblSelectHardTest;
+      ComboBox cbAvailableHardTests;
+      Button cmdRunHardTest;
 
       // XML Processing
       string XMLText = string.Empty;
@@ -939,30 +942,42 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSendToPrinter);
 
          // Testing controls
-         lblSelectText = new Label() { Text = "Select Test", TextAlign = ContentAlignment.BottomCenter };
-         cbAvailableTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         lblSelectXmlTest = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
+         cbAvailableXmlTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         cbAvailableXmlTests.SelectedIndexChanged += cbAvailableTests_SelectedIndexChanged;
          cmdBrowse = new Button() { Text = "Browse" };
+         cmdBrowse.Click += cmdBrowse_Click;
+
+         lblSelectHardTest = new Label() { Text = "Select Hard Test", TextAlign = ContentAlignment.BottomCenter };
+         cbAvailableHardTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         cbAvailableHardTests.Items.AddRange(new string[] { "Shift Code", "Month Day SR", "Time Count", "Day of Week etc" });
+         cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
+         cmdRunHardTest = new Button() { Text = "Run Test" };
+         cmdRunHardTest.Click += cmdRunHardTest_Click;
+
          cmdDeleteAll = new Button() { Text = "Delete All" };
          cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
-         cmdTest = new Button() { Text = "Test" };
 
-         cbAvailableTests.SelectedIndexChanged += cbAvailableTests_SelectedIndexChanged;
          cmdDeleteAll.Click += cmdDeleteAll_Click;
-         cmdBrowse.Click += cmdBrowse_Click;
          cmdSaveInPrinter.Click += cmdSaveToPrinter_Click;
-         cmdTest.Click += cmdTest_Click;
 
-         tab.Controls.Add(lblSelectText);
-         tab.Controls.Add(cbAvailableTests);
+         tab.Controls.Add(lblSelectXmlTest);
+         tab.Controls.Add(lblSelectHardTest);
+         tab.Controls.Add(cbAvailableXmlTests);
+         tab.Controls.Add(cbAvailableHardTests);
          tab.Controls.Add(cmdDeleteAll);
          tab.Controls.Add(cmdBrowse);
          tab.Controls.Add(cmdSaveInPrinter);
-         tab.Controls.Add(cmdTest);
+         tab.Controls.Add(cmdRunHardTest);
+      }
+
+      private void CbAvailableHardTests_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
       }
 
       private void cbAvailableTests_SelectedIndexChanged(object sender, EventArgs e) {
-         if (cbAvailableTests.SelectedIndex >= 0) {
-            string fileName = Path.Combine(parent.MessageFolder, cbAvailableTests.Text + ".XML");
+         if (cbAvailableXmlTests.SelectedIndex >= 0) {
+            string fileName = Path.Combine(parent.MessageFolder, cbAvailableXmlTests.Text + ".XML");
             ProcessLabel(File.ReadAllText(fileName));
             SetButtonEnables();
          }
@@ -982,21 +997,24 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 6.5f, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 6.5f, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 5.5f, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 12, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 12, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 10, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 10, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, lblSelectText, tclHeight - 6, 17.5f, 1, 7);
-            Utils.ResizeObject(ref R, cbAvailableTests, tclHeight - 5, 17.5f, 2, 7);
-            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 17.5f, 2.5f, 7);
+            Utils.ResizeObject(ref R, lblSelectXmlTest, tclHeight - 6, 14.5f, 1, 6);
+            Utils.ResizeObject(ref R, cbAvailableXmlTests, tclHeight - 5, 14.5f, 2, 6);
+            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 14.5f, 2.5f, 6);
 
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 25, 5.5f, 5);
-            Utils.ResizeObject(ref R, cmdTest, tclHeight - 6, 30.5f, 5.5f, 4.5f);
+            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 21, 5.5f, 4);
+
+            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 25.5f, 1, 5);
+            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 25.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 6, 31, 5.5f, 4);
 
          }
          R.offset = 0;
@@ -1006,6 +1024,7 @@ namespace EIP_Lib {
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
          cmdSendToPrinter.Enabled = xmlDoc != null;
+         cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;
       }
 
       // Examine the contents of a print message to determine its type
@@ -1074,11 +1093,11 @@ namespace EIP_Lib {
       }
 
       private void BuildTestFileList() {
-         cbAvailableTests.Items.Clear();
+         cbAvailableXmlTests.Items.Clear();
          string[] FileNames = Directory.GetFiles(parent.MessageFolder, "*.XML");
          Array.Sort(FileNames);
          for (int i = 0; i < FileNames.Length; i++) {
-            cbAvailableTests.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
+            cbAvailableXmlTests.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
          }
 
       }
@@ -1267,8 +1286,8 @@ namespace EIP_Lib {
          }
       }
 
-      // Create a message containing a date (Control Deleted)
-      private void cmdCreateDate_Click(object sender, EventArgs e) {
+      // Run hard coded test
+      private void cmdRunHardTest_Click(object sender, EventArgs e) {
          success = true;
          int Item = 1;
          int Rule = 1;
@@ -1276,12 +1295,23 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                // Clean up the display
                success = success && CleanUpDisplay();
-               success = success && BuildMonthDaySR(Rule);
+               // Run selected test
+               switch (cbAvailableHardTests.SelectedIndex) {
+                  case 0:
+                     success = success && BuildShifts(Item++);
+                     break;
+                  case 1:
+                     success = success && BuildMonthDaySR(Rule);
+                     break;
+                  case 2:
+                     success = success && BuildTimeCount(Item++);
+                     break;
+                  case 3:
+                     success = success && TryDayOfWeekEtc(Item++);
+                     break;
+               }
                //success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}}");
-               //success = success && BuildTimeCount(Item++);
                //success = success && BuildMDYhms(Item++, Rule);
-               success = success && BuildShifts(Item++); // Hangs up the printer
-               //success = success && TryDayOfWeekEtc(Item++);
                //success = success && VerifyShifts(Item++);
             }
             EIP.ForwardClose();
@@ -1338,28 +1368,25 @@ namespace EIP_Lib {
          //// Set Item in Calendar Index
          EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
-         success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
-         success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
          success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
 
          // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="7" EndMinute="59" Text="CC" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "HH");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "A");
 
          // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="AA" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "II");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "B");
 
          // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "JJ");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "C");
          return success;
       }
 
@@ -1412,8 +1439,6 @@ namespace EIP_Lib {
          // Set Item in Calendar Index
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
-         success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
          success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{FF}}<=");
 
          // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30 Minutes" />
@@ -1468,6 +1493,11 @@ namespace EIP_Lib {
                success = EIP.SetAttribute(ccIDX.Item, 1);
                // Set line count to 1. (Need to find out how delete single item works.)
                success = success && EIP.SetAttribute(ccPF.Line_Count, 1);
+               // Test item size
+               success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+               success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
+               // Set simple text in case Calendar or Counter was used
+               success = success && EIP.SetAttribute(ccPF.Print_Character_String, "1");
                // Make things faster
                success = EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
                success = EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
