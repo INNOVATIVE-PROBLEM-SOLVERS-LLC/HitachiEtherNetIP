@@ -125,7 +125,7 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
          new AttrData((byte)ccPF.Delete_Column, GSS.Service, false, 8,          // Delete Column 0x6A
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
          new AttrData((byte)ccPF.Add_Column, GSS.Service, false, 1,             // Add Column 0x6B
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
@@ -138,11 +138,11 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Set
          new AttrData((byte)ccPF.Adding_Print_Items, GSS.Service, false, 3,     // Adding Print Items 0x6E
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
          new AttrData((byte)ccPF.Deleting_Print_Items, GSS.Service, false, 9,   // Deleting Print Items 0x6F
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Service
          new AttrData((byte)ccPF.Print_Character_String, GSS.GetSet, false, 24, // Print Character String 0x71
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -307,11 +307,11 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((byte)ccCal.First_Calendar_Block_Number, GSS.Get, false, 3, // First Calendar Block Number 0x66
+         new AttrData((byte)ccCal.First_Calendar_Block, GSS.Get, false, 3,      // First Calendar Block 0x66
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
-         new AttrData((byte)ccCal.Calendar_Block_Number_In_Item, GSS.Get, false, 1, // Calendar Block Number In Item 0x67
+         new AttrData((byte)ccCal.Number_of_Calendar_Blocks, GSS.Get, false, 1, // Number of Calendar Blocks 0x67
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set

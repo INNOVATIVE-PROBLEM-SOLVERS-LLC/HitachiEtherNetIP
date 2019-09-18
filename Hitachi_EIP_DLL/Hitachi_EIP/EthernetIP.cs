@@ -146,8 +146,8 @@ namespace EIP_Lib {
    // Attributes within Calendar class 0x69
    public enum ccCal {
       Shift_Code_Condition = 0x65,
-      First_Calendar_Block_Number = 0x66,
-      Calendar_Block_Number_In_Item = 0x67,
+      First_Calendar_Block = 0x66,
+      Number_of_Calendar_Blocks = 0x67,
       Offset_Year = 0x68,
       Offset_Month = 0x69,
       Offset_Day = 0x6A,

@@ -170,91 +170,92 @@ namespace EIP_Lib {
                if (EIP.StartSession()) {
                   if (EIP.ForwardOpen()) {
                      writer.WriteStartElement("Label"); // Start Label
+                     {
+                        //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
+                        //writer.WriteAttributeString("Registration", this.Registration.ToString());
+                        //writer.WriteAttributeString("GroupNumber", this.MessageGroupNumber);
+                        //writer.WriteAttributeString("GroupName", this.MessageGroup);
+                        //writer.WriteAttributeString("Name", this.MessageName);
+                        //writer.WriteAttributeString("BeRestrictive", this.BeRestrictive.ToString());
+                        //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
+                        //writer.WriteAttributeString("Format", MessageStyle.ToString());
+                        writer.WriteAttributeString("Version", "1");
+                        WritePrinterSettings(writer);
+                        writer.WriteStartElement("Objects"); // Start Objects
+                        {
+                           int item = 0;
+                           int colCount = GetDecimalAttribute(ccPF.Number_Of_Columns);
+                           for (int col = 1; col <= colCount; col++) {
+                              success = success && EIP.SetAttribute(ccIDX.Column, col);
+                              int LineCount = GetDecimalAttribute(ccPF.Line_Count);
+                              for (int row = LineCount; row > 0; row--) {
+                                 success = success && EIP.SetAttribute(ccIDX.Item, ++item);
+                                 string text = GetAttribute(ccPF.Print_Character_String);
+                                 itemType = GetItemType(text);
+                                 writer.WriteStartElement("Object"); // Start Object
+                                 {
+                                    writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
-                     //writer.WriteAttributeString("ClockSystem", this.ClockSystem);
-                     //writer.WriteAttributeString("Registration", this.Registration.ToString());
-                     //writer.WriteAttributeString("GroupNumber", this.MessageGroupNumber);
-                     //writer.WriteAttributeString("GroupName", this.MessageGroup);
-                     //writer.WriteAttributeString("Name", this.MessageName);
-                     //writer.WriteAttributeString("BeRestrictive", this.BeRestrictive.ToString());
-                     //writer.WriteAttributeString("UseHalfSpace", this.UseHalfSpace.ToString());
-                     //writer.WriteAttributeString("Format", MessageStyle.ToString());
+                                    writer.WriteStartElement("Font"); // Start Font
+                                    {
+                                       string BarCode = "None";
+                                       if (BarCode == EIP.DropDowns[(int)fmtDD.BarcodeType][0]) {
+                                          writer.WriteAttributeString("HumanReadableFont", "None");
+                                          writer.WriteAttributeString("EANPrefix", "0");
+                                          writer.WriteAttributeString("BarCode", BarCode);
+                                       } else {
+                                          writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
+                                          writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
+                                          writer.WriteAttributeString("BarCode", GetAttribute(ccPF.Barcode_Type));
+                                       }
+                                       writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
+                                       writer.WriteAttributeString("InterLineSpace", GetAttribute(ccPF.Line_Spacing));
+                                       writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
+                                       writer.WriteString(GetAttribute(ccPF.Dot_Matrix));
+                                    }
+                                    writer.WriteEndElement(); // End Font
 
-                     writer.WriteAttributeString("Version", "1");
-                     WritePrinterSettings(writer);
+                                    writer.WriteStartElement("Location"); // Start Location
+                                    {
+                                       writer.WriteAttributeString("ItemNumber", item.ToString());
+                                       writer.WriteAttributeString("Column", col.ToString());
+                                       writer.WriteAttributeString("Row", row.ToString());
+                                       //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
+                                       //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
+                                       //   writer.WriteAttributeString("Left", p.X.ToString());
+                                       //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
+                                    }
+                                    writer.WriteEndElement(); // End Location
 
-                     writer.WriteStartElement("Objects"); // Start Objects
+                                    switch (itemType) {
+                                       case ItemType.Text:
+                                          break;
+                                       case ItemType.Date:
+                                          WriteCalendarSettings(writer);
+                                          break;
+                                       case ItemType.Counter:
+                                          WriteCounterSettings(writer);
+                                          break;
+                                       case ItemType.Logo:
+                                          WriteUserPatternSettings(writer);
+                                          break;
+                                       default:
+                                          break;
+                                    }
+
+                                    writer.WriteElementString("Text", text);
+                                 }
+                                 writer.WriteEndElement(); // End Object
+                              }
+                           }
+                        }
+                        writer.WriteEndElement(); // End Objects
+                     }
+                     writer.WriteEndElement(); // End Label
                   }
                   EIP.ForwardClose();
                }
                EIP.EndSession();
-
-               int itemCount = GetDecimalAttribute(ccPF.Number_Of_Items);
-               for (int i = 0; i < itemCount; i++) {
-                  if (EIP.StartSession()) {
-                     if (EIP.ForwardOpen()) {
-
-                        EIP.SetAttribute(ccIDX.Item, i + 1);
-                        string text = GetAttribute(ccPF.Print_Character_String);
-
-                        itemType = GetItemType(text);
-
-                        writer.WriteStartElement("Object"); // Start Object
-
-                        writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
-
-                        writer.WriteStartElement("Font"); // Start Font
-                        {
-                           writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
-                           writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
-                           writer.WriteAttributeString("BarCode", GetAttribute(ccPF.Barcode_Type));
-                           writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
-                           writer.WriteAttributeString("InterLineSpace", GetAttribute(ccPF.Line_Spacing));
-                           writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
-                           writer.WriteString(GetAttribute(ccPF.Dot_Matrix));
-                        }
-                        writer.WriteEndElement(); // End Font
-
-                        writer.WriteStartElement("Location"); // Start Location
-                        {
-                           writer.WriteAttributeString("ItemNumber", (i + 1).ToString());
-                           //   writer.WriteAttributeString("Column", p.Column.ToString());
-                           //   writer.WriteAttributeString("Row", p.Row.ToString());
-                           //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
-                           //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
-                           //   writer.WriteAttributeString("Left", p.X.ToString());
-                           //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
-                        }
-                        writer.WriteEndElement(); // End Location
-
-                        switch (itemType) {
-                           case ItemType.Text:
-                              break;
-                           case ItemType.Date:
-                              WriteCalendarSettings(writer);
-                              break;
-                           case ItemType.Counter:
-                              WriteCounterSettings(writer);
-                              break;
-                           case ItemType.Logo:
-                              WriteUserPatternSettings(writer);
-                              break;
-                           default:
-                              break;
-                        }
-
-                        writer.WriteElementString("Text", text);
-                        writer.WriteEndElement(); // End Object
-
-                     }
-                     EIP.ForwardClose();
-                  }
-                  EIP.EndSession();
-               }
-
-               writer.WriteEndElement(); // End Objects
-               writer.WriteEndElement(); // End Label
-
                writer.WriteEndDocument();
                writer.Flush();
                ms.Position = 0;
@@ -288,8 +289,6 @@ namespace EIP_Lib {
       private void WriteCalendarSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Date"); // Start Date
          {
-            //writer.WriteAttributeString("Format", p.RawText);
-
             writer.WriteStartElement("Offset"); // Start Offset
             {
                writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
@@ -324,9 +323,8 @@ namespace EIP_Lib {
                writer.WriteAttributeString("Year", GetAttribute(ccSR.Year));
             }
             writer.WriteEndElement(); // End EnableSubstitution
-
-            writer.WriteEndElement(); // End Date
          }
+         writer.WriteEndElement(); // End Date
       }
 
       // Output the User Pattern Settings
@@ -951,7 +949,7 @@ namespace EIP_Lib {
          lblSelectHardTest = new Label() { Text = "Select Hard Test", TextAlign = ContentAlignment.BottomCenter };
          cbAvailableHardTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          cbAvailableHardTests.Items.AddRange(
-            new string[] { "Shift Code", "Month Day SR", "Time Count", "Day of Week etc", "MDY hms", "???" }
+            new string[] { "Reset", "Shift Code", "Month Day SR", "Time Count", "Day of Week etc", "MDY hms", "Multi-Line", "???" }
             );
          cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
          cmdRunHardTest = new Button() { Text = "Run Test" };
@@ -1113,15 +1111,23 @@ namespace EIP_Lib {
 
       // Get the contents of one attribute
       private string GetAttribute<T>(T Attribute) {
+         string val = string.Empty;
          ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
-         string val = string.Empty;
          AttrData attr = EIP.AttrDict[cc, at];
-         EIP.GetAttribute(cc, at, EIP.Nodata);
-         if (attr.Data.Fmt == DataFormats.UTF8) {
-            return EIP.FromQuoted(EIP.GetDataValue);
+         if (EIP.GetAttribute(cc, at, EIP.Nodata)) {
+            val = EIP.GetDataValue;
+            if (attr.Data.Fmt == DataFormats.UTF8) {
+               val = EIP.FromQuoted(EIP.GetDataValue);
+            } else if (attr.Data.DropDown != fmtDD.None) {
+               string[] dd = EIP.DropDowns[(int)attr.Data.DropDown];
+               long n = EIP.GetDecValue - attr.Data.Min;
+               if (n >= 0 && n < dd.Length) {
+                  val = dd[n];
+               }
+            }
          }
-         return EIP.GetDataValue;
+         return val;
       }
 
       // Get the value of an attribute that is known to be a decimal number
@@ -1142,50 +1148,39 @@ namespace EIP_Lib {
       }
 
       // Create a simple message
-      private void cmdTest_Click(object sender, EventArgs e) {
+      private bool MultiLine() {
+         success = true;
          if (EIP.StartSession()) {    // Open a session
             if (EIP.ForwardOpen()) {  // open a data forwarding path
-               // Get the number of columns (must be outside Auto Reflection block)
-               EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
-               // Stack up all the operations
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
-               // No need to delete columns if there is only one
-               if (cols > 1) {
-                  // Select to continuously delete column 2 (0 origin on deletes)
-                  EIP.SetAttribute(ccIDX.Column, 1);
-                  for (int i = 2; i <= cols; i++) {
-                     EIP.ServiceAttribute(ccPF.Delete_Column, 0);
-                  }
-               }
+               // Be sure we are in Individual Layout
+               success = success && EIP.SetAttribute(ccPF.Format_Setup, "Individual");
                // Select item 1 and set to 1 line (1 origin on Line Count)
-               EIP.SetAttribute(ccIDX.Item, 1);
-               EIP.SetAttribute(ccPF.Line_Count, 1);
+               success = success && EIP.SetAttribute(ccIDX.Item, 1);
+               success = success && EIP.SetAttribute(ccPF.Line_Count, 1);
                // Add four more columns
-               for (int i = 2; i <= 5; i++) {
-                  EIP.ServiceAttribute(ccPF.Add_Column, 0);
+               for (int i = 2; success && i <= 5; i++) {
+                  success = success && EIP.ServiceAttribute(ccPF.Add_Column, 0);
                }
                // Stack columns 2 and 4 (1 origin on Line Count)
-               EIP.SetAttribute(ccIDX.Item, 2);
-               EIP.SetAttribute(ccPF.Line_Count, 2);
-               EIP.SetAttribute(ccIDX.Item, 4);
-               EIP.SetAttribute(ccPF.Line_Count, 2);
+               success = success && EIP.SetAttribute(ccIDX.Item, 2);
+               success = success && EIP.SetAttribute(ccPF.Line_Count, 2);
+               success = success && EIP.SetAttribute(ccIDX.Item, 4);
+               success = success && EIP.SetAttribute(ccPF.Line_Count, 2);
                for (int i = 1; i <= 7; i++) {
-                  EIP.SetAttribute(ccIDX.Item, i);  // Select item
+                  success = success && EIP.SetAttribute(ccIDX.Item, i);  // Select item
                   if (i == 1 || i == 4 || i == 7) { // Set the font and text
-                     EIP.SetAttribute(ccPF.Print_Character_String, $"{i}");
-                     EIP.SetAttribute(ccPF.Dot_Matrix, "12x16");
+                     success = success && EIP.SetAttribute(ccPF.Print_Character_String, $"{i}");
+                     success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "12x16");
                   } else {
-                     EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
-                     EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                     success = success && EIP.SetAttribute(ccPF.Print_Character_String, $" {i} ");
+                     success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
                   }
                }
-               // Execute all the operations
-               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose(); // Must be outside the ForwardOpen if block
          }
          EIP.EndSession();      // Must be outside the StartSession if block
+         return success;
       }
 
       // Create a message with text only (Control Deleted)
@@ -1300,22 +1295,28 @@ namespace EIP_Lib {
                // Run selected test
                switch (cbAvailableHardTests.SelectedIndex) {
                   case 0:
-                     success = success && BuildShifts(Item++);
+                     // Gets us down to a single item
                      break;
                   case 1:
-                     success = success && BuildMonthDaySR(Rule);
+                     success = success && BuildShifts(Item++);
                      break;
                   case 2:
-                     success = success && BuildTimeCount(Item++);
+                     success = success && BuildMonthDaySR(Rule);
                      break;
                   case 3:
-                     success = success && TryDayOfWeekEtc(Item++);
+                     success = success && BuildTimeCount(Item++);
                      break;
                   case 4:
-                     success = success && BuildMDYhms(Item++, Rule);
+                     success = success && TryDayOfWeekEtc(Item++);
                      break;
                   case 5:
-                     success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
+                     success = success && BuildMDYhms(Item++, Rule);
+                     break;
+                  case 6:
+                     success = success && MultiLine();
+                     break;
+                  case 7:
+                     success = success && SetText("{{MMM}/{DD}/{YY}}\n {{hh}:{mm}:{ss}}");
                      break;
                }
                //success = success && VerifyShifts(Item++);
@@ -1512,31 +1513,29 @@ namespace EIP_Lib {
 
       public bool SetText(string text) {
          success = true;
+         int calNo = 0;
          string[] s = text.Split('\n');
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               // Make things faster
-               success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
-               // Place item number in all of the items for identity
                // Select the item
                success = success && EIP.SetAttribute(ccIDX.Item, 1);
-               // Set font
-               success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-               // Clear barcode
-               success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
-               // Set ICS to 1
-               success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
                // Insert the text
                success = success && EIP.SetAttribute(ccPF.Print_Character_String, s[0]);
                for (int i = 1; i < s.Length; i++) {
-                  success = success && EIP.SetAttribute(ccPF.Add_To_End_Of_String, s[i]);
+                  success = success && EIP.ServiceAttribute(ccPF.Add_Column);
+                  success = success && EIP.SetAttribute(ccIDX.Item, i + 1);
+                  success = success && EIP.SetAttribute(ccPF.Print_Character_String, s[i]);
                }
-               success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
-               success = success && EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
-               success = success && EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
-               // Make things faster
-               success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               // Set info in first Calendar Block
+               success = success && EIP.SetAttribute(ccIDX.Item, 1);
+               success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out calNo);
+               success = success && EIP.SetAttribute(ccIDX.Calendar_Block, calNo);
+               success = success && EIP.SetAttribute(ccCal.Offset_Month, 1);
+               // Set info in Second Calendar Block
+               success = success && EIP.SetAttribute(ccIDX.Item, 2);
+               success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out calNo);
+               success = success && EIP.SetAttribute(ccIDX.Calendar_Block, calNo);
+               success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
             }
             EIP.ForwardClose();
          }
