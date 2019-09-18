@@ -950,7 +950,9 @@ namespace EIP_Lib {
 
          lblSelectHardTest = new Label() { Text = "Select Hard Test", TextAlign = ContentAlignment.BottomCenter };
          cbAvailableHardTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-         cbAvailableHardTests.Items.AddRange(new string[] { "Shift Code", "Month Day SR", "Time Count", "Day of Week etc" });
+         cbAvailableHardTests.Items.AddRange(
+            new string[] { "Shift Code", "Month Day SR", "Time Count", "Day of Week etc", "MDY hms", "???" }
+            );
          cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
          cmdRunHardTest = new Button() { Text = "Run Test" };
          cmdRunHardTest.Click += cmdRunHardTest_Click;
@@ -1146,7 +1148,7 @@ namespace EIP_Lib {
                // Get the number of columns (must be outside Auto Reflection block)
                EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
                // Stack up all the operations
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1178,8 +1180,8 @@ namespace EIP_Lib {
                   }
                }
                // Execute all the operations
-               EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               //EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               //EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose(); // Must be outside the ForwardOpen if block
          }
@@ -1309,9 +1311,13 @@ namespace EIP_Lib {
                   case 3:
                      success = success && TryDayOfWeekEtc(Item++);
                      break;
+                  case 4:
+                     success = success && BuildMDYhms(Item++, Rule);
+                     break;
+                  case 5:
+                     success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
+                     break;
                }
-               //success = success && SetText("{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}} {{TTT} {WW} {777}}");
-               //success = success && BuildMDYhms(Item++, Rule);
                //success = success && VerifyShifts(Item++);
             }
             EIP.ForwardClose();
@@ -1374,39 +1380,34 @@ namespace EIP_Lib {
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "A");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "D");
 
          // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="AA" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "B");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "E");
 
          // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
-         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "C");
+         success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "F");
          return success;
       }
 
       private bool BuildMDYhms(int Item, int Rule) {
          // Add the item if needed and select it
-         if (Item != 1) {
-            success = success && EIP.ServiceAttribute(ccPF.Add_Column, 0);
-         }
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
-         // Point to first substitution rule
-         success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         // Set Text
+         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
 
          // Set Item in Calendar Index
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, Item);
 
-         // Set font, ICS, and Text
-         success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
-         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
+         // Point to first substitution rule
+         success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
 
          // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
          //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
@@ -1430,6 +1431,7 @@ namespace EIP_Lib {
          success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Disable");
          success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
          success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
+
          return success;
       }
 
@@ -1477,7 +1479,7 @@ namespace EIP_Lib {
                // Get the number of columns
                success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
                // Make things faster
-               success = EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+               //success = EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // No need to delete columns if there is only one
                if (cols > 1) {
                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -1499,8 +1501,8 @@ namespace EIP_Lib {
                // Set simple text in case Calendar or Counter was used
                success = success && EIP.SetAttribute(ccPF.Print_Character_String, "1");
                // Make things faster
-               success = EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-               success = EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               //success = EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+               //success = EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
             EIP.ForwardClose();
          }
@@ -1513,8 +1515,6 @@ namespace EIP_Lib {
          string[] s = text.Split('\n');
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               // Get the number of items
-               success = EIP.GetAttribute(ccPF.Number_Of_Items, out int items);
                // Make things faster
                success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
                // Place item number in all of the items for identity
