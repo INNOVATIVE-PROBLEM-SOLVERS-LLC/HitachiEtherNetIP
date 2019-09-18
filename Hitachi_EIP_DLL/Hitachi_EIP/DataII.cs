@@ -303,7 +303,7 @@ namespace EIP_Lib {
 
       // Calendar (Class Code 0x69)
       private AttrData[] ccCal_Addrs = new AttrData[] {
-         new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, true, 10,     // Shift Code Condition 0x65
+         new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, true, 10,      // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
@@ -423,14 +423,14 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
-         new AttrData((byte)ccCal.Shift_End_Minute, GSS.GetSet, false, 12,      // Shift End Minute 0x83
+         new AttrData((byte)ccCal.Shift_End_Minute, GSS.Get, false, 12,         // Shift End Minute 0x83
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Set
          new AttrData((byte)ccCal.Shift_String_Value, GSS.GetSet, false, 2,     // Shift String Value 0x84
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
+            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
+            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Set
       };
 
       // User_pattern (Class Code 0x6B)
