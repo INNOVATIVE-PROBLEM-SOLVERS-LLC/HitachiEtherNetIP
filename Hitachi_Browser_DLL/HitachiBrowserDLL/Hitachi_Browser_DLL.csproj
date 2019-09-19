@@ -61,6 +61,7 @@
     <Compile Include="UserPattern.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="XML.cs" />
+    <Compile Include="XML_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HitachiBrowser.resx">

@@ -712,7 +712,11 @@ namespace EIP_Lib {
 
       // Count (Class Code 0x79)
       private AttrData[] ccCount_Addrs = new AttrData[] {
-         new AttrData((byte)ccCount.Number_Of_Count_Block, GSS.Get, false, 12,  // Number Of Count Block 0x66
+         new AttrData((byte)ccCount.First_Count_Block, GSS.Get, false, 12,      // First Count Block 0x65
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
+         new AttrData((byte)ccCount.Number_Of_Count_Blocks, GSS.Get, false, 12, // Number Of Count Blocks 0x66
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set

@@ -269,7 +269,8 @@ namespace EIP_Lib {
 
    // Attributes within Count class 0x79
    public enum ccCount {
-      Number_Of_Count_Block = 0x66,
+      First_Count_Block = 0x65,
+      Number_Of_Count_Blocks = 0x66,
       Initial_Value = 0x67,
       Count_Range_1 = 0x68,
       Count_Range_2 = 0x69,
