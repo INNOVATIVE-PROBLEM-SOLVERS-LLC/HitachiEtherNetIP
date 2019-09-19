@@ -1,0 +1,9 @@
+Attributes.cs	728
+HitachiBrowser.cs	892
+HitachiBrowser.Designer.cs	815
+Substitution.cs	252
+UserPattern.cs	862
+Utils.cs	204
+XML.cs	405
+XML_SaveLoad.cs	893
+XML_Tests.cs	361
