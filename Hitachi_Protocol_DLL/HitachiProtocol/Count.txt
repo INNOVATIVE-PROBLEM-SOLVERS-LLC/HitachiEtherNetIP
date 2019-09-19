@@ -1,0 +1,6 @@
+FakeResponses.cs	366
+HitachiProtocol.cs	3129
+HitachiProtocolDefs.cs	875
+HPEventArgs.cs	79
+HPRequest.cs	73
+HPStatus.cs	282
