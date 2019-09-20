@@ -125,7 +125,7 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
          new AttrData((byte)ccPF.Delete_Column, GSS.Service, false, 8,          // Delete Column 0x6A
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
          new AttrData((byte)ccPF.Add_Column, GSS.Service, false, 1,             // Add Column 0x6B
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service

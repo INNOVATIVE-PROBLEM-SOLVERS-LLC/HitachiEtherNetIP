@@ -13,7 +13,7 @@ namespace EIP_Lib {
 
       // Braced Characters (count, date, half-size, logos
       char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
-      
+
       // Attributes of braced characters
       enum ba {
          Count = 1 << 0,
@@ -93,6 +93,8 @@ namespace EIP_Lib {
                         success = success && SendPrinterSettings(l);
                         break;
                      case "Objects":
+                        // Allocate rows and columns
+                        success = success && AllocateRowsColumns(l.ChildNodes);
                         // Send the objects one at a time
                         success = success && SendObjectSettings(l.ChildNodes);
                         break;
@@ -102,6 +104,38 @@ namespace EIP_Lib {
             EIP.ForwardClose();
          }
          EIP.EndSession();
+      }
+
+      private bool AllocateRowsColumns(XmlNodeList objs) {
+         bool success = true;
+         int[] columns = new int[100];
+         int maxCol = 0;
+         // Collect information about rows and columns (both 1-origin)
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+            XmlNode n = obj.SelectSingleNode("Location");
+            if (int.TryParse(GetAttr(n, "Row"), out int row) && int.TryParse(GetAttr(n, "Column"), out int col)) {
+               columns[col] = Math.Max(columns[col], row);
+               maxCol = Math.Max(maxCol, col);
+            } else {
+               return false;
+            }
+         }
+         // Allocate the rows and columns
+         for (int i = 1; i <= maxCol && success; i++) {
+            if (columns[i] == 0) {
+               return false;
+            }
+            if (i > 1) {
+               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
+            }
+            // Should this be Column and not Item?
+            success = success && EIP.SetAttribute(ccIDX.Item, i);
+            success = success && EIP.SetAttribute(ccPF.Line_Count, columns[i]);
+
+         }
+         return success;
       }
 
       // Send the Printer Wide Settings
@@ -316,34 +350,24 @@ namespace EIP_Lib {
       // Send the individual objects
       private bool SendObjectSettings(XmlNodeList objs) {
          success = true;
-         ItemType type;
          XmlNode n;
-         int count = 1;
-         int calendar = 1;
-         int item = 1;
          foreach (XmlNode obj in objs) {
             if (obj is XmlWhitespace)
                continue;
-            // Get the item type
-            type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+
+            // Get the item number of the object
+            n = obj.SelectSingleNode("Location");
+            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
+               return false;
+            }
+
             // Handle multiple line texts
             string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
             for (int i = 0; i < text.Length; i++) {
-               // Printer always has one item
-               if (item > 1) {
-                  // Add an item <TODO> Need to add item, not column
-                  EIP.ServiceAttribute(ccPF.Add_Column, 0);
-               }
-
                // Point to the item
-               EIP.SetAttribute(ccIDX.Item, item);
-
-               // Set the common parameters
-               n = obj.SelectSingleNode("Location");
-               //x = GetAttr(n, "Left", 0);
-               //y = GetAttr(n, "Top", 0) - GetAttr(n, "Height", 0);
-               //int r = GetAttr(n, "Row", -1);
-               //int c = GetAttr(n, "Column", -1);
+               EIP.SetAttribute(ccIDX.Item, item + i);
+               // Load the text
+               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
 
                n = obj.SelectSingleNode("Font");
                EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
@@ -351,43 +375,21 @@ namespace EIP_Lib {
                EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
                EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
-
-               //p = new TPB(this, type, x, y, F, ICS, ILS, IW);
-
-               //p.Row = r;
-               //p.Column = c;
-
-               //p.BarCode = GetAttr(n, "BarCode", "(None)");
-               //p.HumanReadableFont = GetAttr(n, "HumanReadableFont", "(None)");
-               //p.EANPrefix = GetAttr(n, "EANPrefix", "00");
-
+               // Get the item type
+               ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
                switch (type) {
                   case ItemType.Text:
-                     EIP.SetAttribute(ccPF.Print_Character_String, text[i]);
                      break;
                   case ItemType.Counter:
-                     EIP.SetAttribute(ccIDX.Count_Block, count++);
-                     EIP.SetAttribute(ccPF.Print_Character_String, FormatCounter(text[i]));
                      SendCounter(obj.SelectSingleNode("Counter"));
                      break;
                   case ItemType.Date:
-                     EIP.SetAttribute(ccIDX.Calendar_Block, calendar++);
-                     EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
                      n = obj.SelectSingleNode("Date");
                      if (n != null) {
                         SendCalendar(n);
                      }
                      break;
-                  case ItemType.Logo:
-                     break;
-                  case ItemType.Link:
-                     break;
-                  case ItemType.Prompt:
-                     break;
-                  default:
-                     break;
                }
-               item++;
             }
          }
          return success;
