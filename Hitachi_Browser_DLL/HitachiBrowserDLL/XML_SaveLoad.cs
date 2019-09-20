@@ -69,8 +69,15 @@ namespace EIP_Lib {
 
       #region Send to Printer Routines
 
+      private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
+         xmlDoc = new XmlDocument();
+         xmlDoc.PreserveWhitespace = true;
+         xmlDoc.LoadXml(txtIndentedView.Text);
+         SendFileToPrinter_Click(null, null);
+      }
+
       // Send xlmDoc to printer
-      private void SendToPrinter_Click(object sender, EventArgs e) {
+      private void SendFileToPrinter_Click(object sender, EventArgs e) {
          bool success = true;
          // Need a XMP Document to continue
          if (xmlDoc == null) {
@@ -82,7 +89,7 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Set to only one item in printer
-               success = success && CleanUpDisplay();
+               success = success && CleanDisplay();
                XmlNode lab = xmlDoc.SelectSingleNode("Label");
                foreach (XmlNode l in lab.ChildNodes) {
                   if (l is XmlWhitespace)
@@ -95,8 +102,17 @@ namespace EIP_Lib {
                      case "Objects":
                         // Allocate rows and columns
                         success = success && AllocateRowsColumns(l.ChildNodes);
+
                         // Send the objects one at a time
-                        success = success && SendObjectSettings(l.ChildNodes);
+                        success = success && LoadObjectSettings(l.ChildNodes);
+
+                        // Let printer allocate Calendar and Count blocks
+                        success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+                        success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+                        // Send the objects one at a time
+                        //success = success && LoadCalendarCountSettings(l.ChildNodes);
+
                         break;
                   }
                }
@@ -106,11 +122,40 @@ namespace EIP_Lib {
          EIP.EndSession();
       }
 
+      public bool CleanDisplay() {
+         success = true;
+         // Get the number of columns
+         success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
+         // Make things faster
+         success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+         //No need to delete columns if there is only one
+         if (cols > 1) {
+            // Select to continuously delete column 2 (0 origin on deletes)
+            success = success && EIP.SetAttribute(ccIDX.Column, 1);
+            // Column number is 0 origin
+            while (success && cols > 1) {
+               // Delete the column
+               success = success && EIP.ServiceAttribute(ccPF.Delete_Column, 0);
+               cols--;
+            }
+         }
+         // Select item 1 (1 origin on Line Count)
+         success = success && EIP.SetAttribute(ccIDX.Item, 1);
+         // Set line count to 1. (In case column 1 has multiple lines)
+         success = success && EIP.SetAttribute(ccPF.Line_Count, 1);
+         // Clear any barcodes
+         success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
+         // Set simple text in case Calendar or Counter was used
+         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "1");
+         return success;
+      }
+
       private bool AllocateRowsColumns(XmlNodeList objs) {
          bool success = true;
          int[] columns = new int[100];
          int maxCol = 0;
-         // Collect information about rows and columns (both 1-origin)
+         // Collect information about rows and columns (both 1-origin in XML file)
          foreach (XmlNode obj in objs) {
             if (obj is XmlWhitespace)
                continue;
@@ -133,6 +178,10 @@ namespace EIP_Lib {
             // Should this be Column and not Item?
             success = success && EIP.SetAttribute(ccIDX.Item, i);
             success = success && EIP.SetAttribute(ccPF.Line_Count, columns[i]);
+            //if(columns[i] > 1) {
+            //   success = success && EIP.SetAttribute(ccIDX.Column, i);
+            //   success = success && EIP.SetAttribute(ccPF.Line_Spacing, 1);
+            //}
 
          }
          return success;
@@ -347,8 +396,8 @@ namespace EIP_Lib {
          return success;
       }
 
-      // Send the individual objects
-      private bool SendObjectSettings(XmlNodeList objs) {
+      // Load object settings
+      private bool LoadObjectSettings(XmlNodeList objs) {
          success = true;
          XmlNode n;
          foreach (XmlNode obj in objs) {
@@ -375,21 +424,69 @@ namespace EIP_Lib {
                EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
                EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
-               // Get the item type
-               ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               switch (type) {
-                  case ItemType.Text:
-                     break;
-                  case ItemType.Counter:
-                     SendCounter(obj.SelectSingleNode("Counter"));
-                     break;
-                  case ItemType.Date:
-                     n = obj.SelectSingleNode("Date");
-                     if (n != null) {
-                        SendCalendar(n);
-                     }
-                     break;
-               }
+               //// Get the item type
+               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+               //switch (type) {
+               //   case ItemType.Text:
+               //      break;
+               //   case ItemType.Counter:
+               //      SendCounter(obj.SelectSingleNode("Counter"));
+               //      break;
+               //   case ItemType.Date:
+               //      n = obj.SelectSingleNode("Date");
+               //      if (n != null) {
+               //         SendCalendar(n);
+               //      }
+               //      break;
+               //}
+            }
+         }
+         return success;
+      }
+
+      // Load object settings
+      private bool LoadCalendarCountSettings(XmlNodeList objs) {
+         success = true;
+         XmlNode n;
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+
+            // Get the item number of the object
+            n = obj.SelectSingleNode("Location");
+            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
+               return false;
+            }
+
+            // Handle multiple line texts
+            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            for (int i = 0; i < text.Length; i++) {
+               // Point to the item
+               EIP.SetAttribute(ccIDX.Item, item + i);
+               // Load the text
+               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
+
+               n = obj.SelectSingleNode("Font");
+               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+               EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
+
+               //// Get the item type
+               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+               //switch (type) {
+               //   case ItemType.Text:
+               //      break;
+               //   case ItemType.Counter:
+               //      SendCounter(obj.SelectSingleNode("Counter"));
+               //      break;
+               //   case ItemType.Date:
+               //      n = obj.SelectSingleNode("Date");
+               //      if (n != null) {
+               //         SendCalendar(n);
+               //      }
+               //      break;
+               //}
             }
          }
          return success;

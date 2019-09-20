@@ -31,11 +31,14 @@ namespace EIP_Lib {
       Button cmdDeleteAll;
       Button cmdSaveInPrinter;
 
+
+
       // Testing Buttons
       Label lblSelectXmlTest;
       ComboBox cbAvailableXmlTests;
       Button cmdBrowse;
-      Button cmdSendToPrinter;
+      Button cmdSendFileToPrinter;
+      Button cmdSendDisplayToPrinter;
 
       Label lblSelectHardTest;
       ComboBox cbAvailableHardTests;
@@ -173,8 +176,11 @@ namespace EIP_Lib {
          cmdSaveAs = new Button() { Text = "Save As" };
          cmdSaveAs.Click += SaveAs_Click;
 
-         cmdSendToPrinter = new Button() { Text = "Send To Printer" };
-         cmdSendToPrinter.Click += SendToPrinter_Click;
+         cmdSendFileToPrinter = new Button() { Text = "File To Printer" };
+         cmdSendFileToPrinter.Click += SendFileToPrinter_Click;
+
+         cmdSendDisplayToPrinter = new Button() { Text = "Display To Printer" };
+         cmdSendDisplayToPrinter.Click += SendDisplayToPrinter_Click;
 
          tab.Controls.Add(tclViewXML);
 
@@ -188,7 +194,8 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdClear);
          tab.Controls.Add(cmdGenerate);
          tab.Controls.Add(cmdSaveAs);
-         tab.Controls.Add(cmdSendToPrinter);
+         tab.Controls.Add(cmdSendFileToPrinter);
+         tab.Controls.Add(cmdSendDisplayToPrinter);
 
          // Testing controls
          lblSelectXmlTest = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
@@ -253,11 +260,12 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, cbAvailableXmlTests, tclHeight - 5, 14.5f, 2, 6);
             Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 14.5f, 2.5f, 6);
 
-            Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 21, 5.5f, 4);
+            Utils.ResizeObject(ref R, cmdSendFileToPrinter, tclHeight - 6, 21, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSendDisplayToPrinter, tclHeight - 3, 21, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 30, 1, 5);
-            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 30, 2, 5);
-            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 3, 30, 2.5f, 5);
+            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 25.5f, 1, 5);
+            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 25.5f, 2, 5);
+            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 6, 31, 5.5f, 4);
 
          }
          R.offset = 0;
@@ -266,7 +274,8 @@ namespace EIP_Lib {
       // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
-         cmdSendToPrinter.Enabled = xmlDoc != null;
+         cmdSendFileToPrinter.Enabled = xmlDoc != null;
+         cmdSendDisplayToPrinter.Enabled = xmlDoc != null;
          cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;
       }
 

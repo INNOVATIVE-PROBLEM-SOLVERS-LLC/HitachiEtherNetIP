@@ -12,12 +12,12 @@
   </Printer>
   <Objects>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="1" Row="2" Column="1" />
       <Text> 1 </Text>
     </Object>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="2" Row="1" Column="1" />
       <Text> 2 </Text>
     </Object>
@@ -27,12 +27,12 @@
       <Text>3</Text>
     </Object>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="4" Row="2" Column="3" />
       <Text> 4 </Text>
     </Object>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="5" Row="1" Column="3" />
       <Text> 5 </Text>
     </Object>
@@ -42,12 +42,12 @@
       <Text>6</Text>
     </Object>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="7" Row="2" Column="5" />
       <Text> 7 </Text>
     </Object>
     <Object Type="Text">
-      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="8" Row="1" Column="5" />
       <Text> 8 </Text>
     </Object>
