@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Label Version="1">
+  <Printer Model="UX-D161W" Make="Hitachi">
+    <PrintHead Orientation="Normal/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time Setup" SetupValue="50" Timer="0" />
+    <CharacterSize Height="2" Width="90" />
+    <PrintStartDelay Reverse="0" Forward="0" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="3" ChargeRule="Standard" />
+    <TwinNozzle />
+  </Printer>
+  <Objects>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="1" Row="2" Column="1" />
+      <Text> 1 </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="2" Row="1" Column="1" />
+      <Text> 2 </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">12x16</Font>
+      <Location ItemNumber="3" Row="1" Column="2" />
+      <Text>3</Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="4" Row="2" Column="3" />
+      <Text> 4 </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="5" Row="1" Column="3" />
+      <Text> 5 </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">12x16</Font>
+      <Location ItemNumber="6" Row="1" Column="4" />
+      <Text>6</Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="7" Row="2" Column="5" />
+      <Text> 7 </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="8" Row="1" Column="5" />
+      <Text> 8 </Text>
+    </Object>
+  </Objects>
+</Label>

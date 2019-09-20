@@ -255,9 +255,9 @@ namespace EIP_Lib {
 
             Utils.ResizeObject(ref R, cmdSendToPrinter, tclHeight - 6, 21, 5.5f, 4);
 
-            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 25.5f, 1, 5);
-            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 25.5f, 2, 5);
-            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 6, 31, 5.5f, 4);
+            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 30, 1, 5);
+            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 30, 2, 5);
+            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 3, 30, 2.5f, 5);
 
          }
          R.offset = 0;
