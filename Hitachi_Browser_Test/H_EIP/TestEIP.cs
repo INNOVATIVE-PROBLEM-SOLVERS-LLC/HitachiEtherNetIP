@@ -14,10 +14,10 @@ namespace H_EIP {
 
       private void TestEIP_Load(object sender, EventArgs e) {
          // Comment out next line if browser not needed
-         browser = new Browser("192.168.0.1", 44818, @"C:\Temp\EIP");
+         browser = new Browser("10.0.0.100", 44818, @"C:\Temp\EIP", @"C:\GitHubEtherNetIP\Messages");
          if (browser == null) {
             // Get a new EtherNet/IP instance
-            EIP = new EIP("192.168.0.1", 44818, @"C:\Temp\EIP");
+            EIP = new EIP("10.0.0.100", 44818, @"C:\Temp\EIP");
          } else {
             // Use the instance from the browser
             EIP = browser.EIP;
@@ -55,7 +55,7 @@ namespace H_EIP {
       private void cmdTest_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {    // Open a session
             if (EIP.ForwardOpen()) {  // open a data forwarding path
-               int cols = EIP.GetAttribute(ccPF.Number_Of_Columns); // Get the number of columns
+               EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols); // Get the number of columns
                EIP.SetAttribute(ccIDX.Automatic_reflection, 1);     // Stack up all the operations
                if (cols > 1) { // No need to delete columns if there is only one
                   EIP.SetAttribute(ccIDX.Column, 1);                // Select column 2 (0 origin on deletes)
