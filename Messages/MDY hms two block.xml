@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Label Version="1">
+  <Printer Model="UX-D161W" Make="Hitachi">
+    <PrintHead Orientation="Normal/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time Setup" SetupValue="50" Timer="0" />
+    <CharacterSize Height="2" Width="90" />
+    <PrintStartDelay Reverse="0" Forward="0" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="3" ChargeRule="Standard" />
+    <TwinNozzle />
+  </Printer>
+  <Objects>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="1" Row="1" Column="1" />
+      <Date Block="1">
+        <Offset Year="1" Month="2" Day="3" />
+        <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
+        <EnableSubstitution Year="Disable" Month="Disable" Day="Disable" />
+      </Date>
+      <Date Block="2">
+        <Offset Hour="0" Minute="0" />
+        <ZeroSuppress Hour="Space Fill" Minute="Character Fill" />
+        <EnableSubstitution Hour="Disable" Minute="Disable" />
+      </Date>
+      <Text>{{MMM}/{DD}/{YY}} {{hh}:{mm}:{ss}}</Text>
+    </Object>
+  </Objects>
+</Label>
