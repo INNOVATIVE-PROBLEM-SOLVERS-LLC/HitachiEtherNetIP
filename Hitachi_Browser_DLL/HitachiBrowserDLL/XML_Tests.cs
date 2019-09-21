@@ -185,38 +185,55 @@ namespace EIP_Lib {
       }
 
       private bool BuildMDYhms(int Item, int Rule) {
+         int firstBlock = 1;
+         int blockCount = 1;
          // Add the item if needed and select it
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
          // Set Text
-         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}");
+         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY}} {{hh}:{mm}:{ss}}");
+
+         // Get first block and Substitution Rule
+         success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+         success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out blockCount);
 
          // Set Item in Calendar Index
-         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, Item);
+         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
 
-         // Point to first substitution rule
-         success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         //// Point to first substitution rule
+         //success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
 
-         // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
-         //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
+         // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" />
          success = success && EIP.SetAttribute(ccCal.Substitute_Year, "Disable");
          success = success && EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
          success = success && EIP.SetAttribute(ccCal.Substitute_Day, "Disable");
+
+         // Set <Offset Year="1" Month="2" Day="3" />
+         success = success && EIP.SetAttribute(ccCal.Offset_Year, 1);
+         success = success && EIP.SetAttribute(ccCal.Offset_Month, 2);
+         success = success && EIP.SetAttribute(ccCal.Offset_Day, 3);
+
+         // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
+         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Year, "Disable");
+         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Month, "Disable");
+         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Disable");
+
+         // Set Item in Calendar Index
+         if (blockCount > 1) {
+            success = success && EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + 1);
+         }
+
+         // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
+         //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
          success = success && EIP.SetAttribute(ccCal.Substitute_Hour, "Disable");
          success = success && EIP.SetAttribute(ccCal.Substitute_Minute, "Disable");
 
          // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
-         success = success && EIP.SetAttribute(ccCal.Offset_Year, 1);
-         success = success && EIP.SetAttribute(ccCal.Offset_Month, 2);
-         success = success && EIP.SetAttribute(ccCal.Offset_Day, 3);
          success = success && EIP.SetAttribute(ccCal.Offset_Hour, 4);
          success = success && EIP.SetAttribute(ccCal.Offset_Minute, -5);
 
          // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable"
          //      Hour ="Space Fill" Minute="Character Fill" />
-         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Year, "Disable");
-         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Month, "Disable");
-         success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Disable");
          success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
          success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
 
@@ -260,6 +277,8 @@ namespace EIP_Lib {
 
       private bool CreateCounter() {
          success = true;
+         int firstBlock = 1;
+         int blockCount = 1;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Set to first item
@@ -268,15 +287,20 @@ namespace EIP_Lib {
                // Select item #1
                success = success && EIP.SetAttribute(ccIDX.Item, item);
 
-               // Set item number in count block
-               success = success && EIP.SetAttribute(ccIDX.Count_Block, item);
-
                // Set Text as a 4 digit counter
-               success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}} {{CCCC}}");
+               success = success && EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}} {{CCC}}");
+
+               // Now retrieve the counter block allocations
+               success = success && EIP.GetAttribute(ccCount.First_Count_Block, out firstBlock);
+               success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out blockCount);
 
                // Set <Counter InitialValue="0001" Range1="0000" Range2="9999" JumpFrom="6666" JumpTo ="7777"
                //      Increment="1" Direction="Up" ZeroSuppression="Enable" UpdateIP="0" UpdateUnit="1"
                //      Multiplier ="2" CountSkip="0" Reset="0001" ExternalSignal="Disable" ResetSignal="Signal 1" />
+
+               // Set item number in count block
+               success = success && EIP.SetAttribute(ccIDX.Count_Block, firstBlock);
+
                success = success && EIP.SetAttribute(ccCount.Initial_Value, "0001");
                success = success && EIP.SetAttribute(ccCount.Count_Range_1, "0000");
                success = success && EIP.SetAttribute(ccCount.Count_Range_2, "9999");
@@ -284,7 +308,7 @@ namespace EIP_Lib {
                success = success && EIP.SetAttribute(ccCount.Jump_To, "7777");
                success = success && EIP.SetAttribute(ccCount.Increment_Value, 1);
                success = success && EIP.SetAttribute(ccCount.Direction_Value, "Up");
-               success = success && EIP.SetAttribute(ccCount.Zero_Suppression, "Enable");
+               success = success && EIP.SetAttribute(ccCount.Zero_Suppression, "Disable");
                success = success && EIP.SetAttribute(ccCount.Count_Multiplier, "2");
                success = success && EIP.SetAttribute(ccCount.Reset_Value, "0001");
                success = success && EIP.SetAttribute(ccCount.Count_Skip, "0");
@@ -293,6 +317,28 @@ namespace EIP_Lib {
                success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
                success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1"); // Causes COM Error
                success = success && EIP.SetAttribute(ccCount.External_Count, "Disable");        // Causes COM Error
+
+               // In case it is the two counter test
+               if (blockCount > 1) {
+                  success = success && EIP.SetAttribute(ccIDX.Count_Block, firstBlock + 1);
+                  success = success && EIP.SetAttribute(ccCount.Initial_Value, "001");
+                  success = success && EIP.SetAttribute(ccCount.Count_Range_1, "000");
+                  success = success && EIP.SetAttribute(ccCount.Count_Range_2, "999");
+                  success = success && EIP.SetAttribute(ccCount.Jump_From, "199");
+                  success = success && EIP.SetAttribute(ccCount.Jump_To, "300");
+                  success = success && EIP.SetAttribute(ccCount.Increment_Value, 2);
+                  success = success && EIP.SetAttribute(ccCount.Direction_Value, "Down");
+                  success = success && EIP.SetAttribute(ccCount.Zero_Suppression, "Disable");
+                  success = success && EIP.SetAttribute(ccCount.Count_Multiplier, "2");
+                  success = success && EIP.SetAttribute(ccCount.Reset_Value, "001");
+                  success = success && EIP.SetAttribute(ccCount.Count_Skip, "0");
+
+                  success = success && EIP.SetAttribute(ccCount.Update_Unit_Halfway, 0);           // Causes COM Error
+                  success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, 1);              // Causes COM Error
+                  success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1"); // Causes COM Error
+                  success = success && EIP.SetAttribute(ccCount.External_Count, "Disable");        // Causes COM Error
+
+               }
             }
             EIP.ForwardClose();
          }
