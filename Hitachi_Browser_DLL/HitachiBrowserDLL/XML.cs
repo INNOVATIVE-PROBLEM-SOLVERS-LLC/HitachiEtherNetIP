@@ -247,13 +247,13 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 6, 1, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 3, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 5.5f, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 6, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 3, 5.5f, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 10, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 10, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 10, 2.5f, 4);
 
             Utils.ResizeObject(ref R, lblSelectXmlTest, tclHeight - 6, 14.5f, 1, 6);

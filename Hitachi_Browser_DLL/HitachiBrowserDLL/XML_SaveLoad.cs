@@ -178,10 +178,10 @@ namespace EIP_Lib {
             // Should this be Column and not Item?
             success = success && EIP.SetAttribute(ccIDX.Item, i);
             success = success && EIP.SetAttribute(ccPF.Line_Count, columns[i]);
-            //if(columns[i] > 1) {
-            //   success = success && EIP.SetAttribute(ccIDX.Column, i);
-            //   success = success && EIP.SetAttribute(ccPF.Line_Spacing, 1);
-            //}
+            if (columns[i] > 1) {
+               success = success && EIP.SetAttribute(ccIDX.Column, i);
+               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 2);
+            }
 
          }
          return success;
@@ -421,7 +421,7 @@ namespace EIP_Lib {
                n = obj.SelectSingleNode("Font");
                EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
                EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-               EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+               //EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
                EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
                //// Get the item type
