@@ -106,24 +106,21 @@ namespace EIP_Lib {
          }
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
-         //// Set Item in Calendar Index
-         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
+         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{E}}<=");
 
-         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{EE}}<=");
-
-         // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="7" EndMinute="59" Text="CC" />
+         // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="7" EndMinute="59" Text="D" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 1);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "D");
 
-         // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="AA" />
+         // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="E" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 2);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
          success = success && EIP.SetAttribute(ccCal.Shift_String_Value, "E");
 
-         // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="BB" />
+         // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="F" />
          success = success && EIP.SetAttribute(ccIDX.Calendar_Block, 3);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
          success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
@@ -152,19 +149,19 @@ namespace EIP_Lib {
       }
 
       private bool BuildTimeCount(int Item) {
+         int block = 1;
          success = success && EIP.SetAttribute(ccIDX.Item, Item);
 
-         // Set Item in Calendar Index
-         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, Item);
-
          success = success && EIP.SetAttribute(ccPF.Print_Character_String, "=>{{FF}}<=");
+         success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out block);
+         success = success && EIP.SetAttribute(ccIDX.Calendar_Block, block);
 
          // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30 Minutes" />
-         success = success && EIP.SetAttribute(ccCal.Time_Count_Start_Value, "AA");
-         success = success && EIP.SetAttribute(ccCal.Time_Count_End_Value, "KK");
-         success = success && EIP.SetAttribute(ccCal.Time_Count_Reset_Value, "AA");
-         success = success && EIP.SetAttribute(ccCal.Reset_Time_Value, 6);
          success = success && EIP.SetAttribute(ccCal.Update_Interval_Value, "30 Minutes");
+         success = success && EIP.SetAttribute(ccCal.Time_Count_Start_Value, "A1");
+         success = success && EIP.SetAttribute(ccCal.Time_Count_End_Value, "X2");
+         success = success && EIP.SetAttribute(ccCal.Reset_Time_Value, 6);
+         success = success && EIP.SetAttribute(ccCal.Time_Count_Reset_Value, "A1");
          return success;
       }
 
