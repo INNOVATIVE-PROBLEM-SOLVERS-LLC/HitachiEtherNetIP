@@ -69,6 +69,7 @@ namespace EIP_Lib {
 
       #region Send to Printer Routines
 
+      // Send xlmDoc from display to printer
       private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
          xmlDoc = new XmlDocument();
          xmlDoc.PreserveWhitespace = true;
@@ -76,7 +77,7 @@ namespace EIP_Lib {
          SendFileToPrinter_Click(null, null);
       }
 
-      // Send xlmDoc to printer
+      // Send xlmDoc from file to printer
       private void SendFileToPrinter_Click(object sender, EventArgs e) {
          bool success = true;
          // Need a XMP Document to continue
@@ -100,28 +101,51 @@ namespace EIP_Lib {
                         success = success && SendPrinterSettings(l);
                         break;
                      case "Objects":
+                        // Dynamically allocated by printer
+                        int FirstCalBlock = 1;
+                        int CalBlockCount = 1;
+                        int FirstCountBlock = 1;
+                        int CountBlockCount = 1;
+
                         // Allocate rows and columns
                         success = success && AllocateRowsColumns(l.ChildNodes);
 
                         // Send the objects one at a time
-                        success = success && LoadObjectSettings(l.ChildNodes);
+                        success = success && LoadObjects(l.ChildNodes);
 
-                        // Let printer allocate Calendar and Count blocks
+                        // Let the printer catch up
                         success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
                         success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
+                        // Get data assigned by the printer
+                        success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
+                        success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
+
+                        // Get data assigned by the printer
+                        success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
+                        success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
+
+                        // Go back to stacking operations
+                        success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+
                         // Send the objects one at a time
-                        //success = success && LoadCalendarCountSettings(l.ChildNodes);
+                        success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
 
                         break;
                   }
                }
             }
+            // That's all folks
+            success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+            success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
             EIP.ForwardClose();
          }
          EIP.EndSession();
+         SetButtonEnables();
       }
 
+      // Simulate Delete All But One
       public bool CleanDisplay() {
          success = true;
          // Get the number of columns
@@ -148,42 +172,6 @@ namespace EIP_Lib {
          success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
          // Set simple text in case Calendar or Counter was used
          success = success && EIP.SetAttribute(ccPF.Print_Character_String, "1");
-         return success;
-      }
-
-      private bool AllocateRowsColumns(XmlNodeList objs) {
-         bool success = true;
-         int[] columns = new int[100];
-         int maxCol = 0;
-         // Collect information about rows and columns (both 1-origin in XML file)
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-            XmlNode n = obj.SelectSingleNode("Location");
-            if (int.TryParse(GetAttr(n, "Row"), out int row) && int.TryParse(GetAttr(n, "Column"), out int col)) {
-               columns[col] = Math.Max(columns[col], row);
-               maxCol = Math.Max(maxCol, col);
-            } else {
-               return false;
-            }
-         }
-         // Allocate the rows and columns
-         for (int i = 1; i <= maxCol && success; i++) {
-            if (columns[i] == 0) {
-               return false;
-            }
-            if (i > 1) {
-               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
-            }
-            // Should this be Column and not Item?
-            success = success && EIP.SetAttribute(ccIDX.Item, i);
-            success = success && EIP.SetAttribute(ccPF.Line_Count, columns[i]);
-            if (columns[i] > 1) {
-               success = success && EIP.SetAttribute(ccIDX.Column, i);
-               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 2);
-            }
-
-         }
          return success;
       }
 
@@ -231,12 +219,346 @@ namespace EIP_Lib {
                case "Substitution":
                   success = success && SendSubstitution(c);
                   break;
-               case "Calendar":
-                  success = success && SendCalendar(c);
-                  break;
-               case "Count":
-                  success = success && SendCounter(c);
-                  break;
+            }
+         }
+         return success;
+      }
+
+      // Allocate rows, columns, and inner-line spacing 
+      private bool AllocateRowsColumns(XmlNodeList objs) {
+         bool success = true;
+         int[] columns = new int[100];
+         int[] ILS = new int[100];
+         int maxCol = 0;
+         // Collect information about rows and columns (both 1-origin in XML file)
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+            XmlNode l = obj.SelectSingleNode("Location");
+            if (int.TryParse(GetAttr(l, "Row"), out int row) 
+               && int.TryParse(GetAttr(l, "Column"), out int col)
+               && int.TryParse(GetAttr(obj.SelectSingleNode("Font"), "InterLineSpace"), out int ils)) {
+               columns[col] = Math.Max(columns[col], row);
+               ILS[col] = Math.Max(ILS[col], ils);
+               maxCol = Math.Max(maxCol, col);
+            } else {
+               return false;
+            }
+         }
+         // Allocate the rows and columns
+         for (int col = 1; col <= maxCol && success; col++) {
+            if (columns[col] == 0) {
+               return false;
+            }
+            if (col > 1) {
+               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
+            }
+            // Should this be Column and not Item?
+            success = success && EIP.SetAttribute(ccIDX.Item, col);
+            success = success && EIP.SetAttribute(ccPF.Line_Count, columns[col]);
+            if (columns[col] > 1) {
+               success = success && EIP.SetAttribute(ccIDX.Column, col);
+               success = success && EIP.SetAttribute(ccPF.Line_Spacing, ILS[col]);
+            }
+
+         }
+         return success;
+      }
+
+      // Load objects
+      private bool LoadObjects(XmlNodeList objs) {
+         success = true;
+         XmlNode n;
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+
+            // Get the item number of the object
+            n = obj.SelectSingleNode("Location");
+            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
+               return false;
+            }
+
+            // Handle multiple line texts
+            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            for (int i = 0; i < text.Length; i++) {
+               // Point to the item
+               EIP.SetAttribute(ccIDX.Item, item + i);
+               // Load the text
+               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
+
+               n = obj.SelectSingleNode("Font");
+               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+               //EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
+               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
+
+               //// Get the item type
+               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+               //switch (type) {
+               //   case ItemType.Text:
+               //      break;
+               //   case ItemType.Counter:
+               //      SendCounter(obj.SelectSingleNode("Counter"));
+               //      break;
+               //   case ItemType.Date:
+               //      n = obj.SelectSingleNode("Date");
+               //      if (n != null) {
+               //         SendCalendar(n);
+               //      }
+               //      break;
+               //}
+            }
+         }
+         return success;
+      }
+
+      // Load object settings
+      private bool LoadCalendarCount(XmlNodeList objs, int FirstCalBlock, int CalBlockCount, int FirstCountBlock, int CountBlockCount) {
+         success = true;
+         XmlNode n;
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+
+            // Get the item number of the object
+            n = obj.SelectSingleNode("Location");
+            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
+               return false;
+            }
+
+            // Handle multiple line texts
+            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            for (int i = 0; i < text.Length; i++) {
+               // Point to the item
+               success = success && EIP.SetAttribute(ccIDX.Item, item + i);
+               // Get the item type
+               ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+               switch (type) {
+                  case ItemType.Counter:
+                     success = success && LoadCount(obj, FirstCountBlock, CountBlockCount);
+                     break;
+                  case ItemType.Date:
+                     success = success && LoadCalendar(obj, FirstCalBlock, CalBlockCount);
+                     break;
+               }
+            }
+         }
+         return success;
+      }
+
+      // Send counter related information
+      private bool LoadCount(XmlNode obj, int firstBlock, int blockCount) {
+         bool success = true;
+
+         for (int block = 0; block < blockCount && success; block++) {
+            foreach (XmlNode c in obj) {
+               if (c is XmlWhitespace)
+                  continue;
+               if (c.Name == "Counter") {
+                  if (int.TryParse(GetAttr(c, "Block"), out int b)) {
+                     if (b == block + 1) {
+                        success = success && EIP.SetAttribute(ccIDX.Count_Block, firstBlock + block);
+                        foreach (XmlAttribute a in c.Attributes) {
+                           switch (a.Name) {
+                               case "InitialValue":
+                                 success = success && EIP.SetAttribute(ccCount.Initial_Value, a.Value);
+                                 break;
+                              case "Range1":
+                                 success = success && EIP.SetAttribute(ccCount.Count_Range_1, a.Value);
+                                 break;
+                              case "Range2":
+                                 success = success && EIP.SetAttribute(ccCount.Count_Range_2, a.Value);
+                                 break;
+                              case "UpdateIP":
+                                 success = success && EIP.SetAttribute(ccCount.Update_Unit_Halfway, a.Value);
+                                 break;
+                              case "UpdateUnit":
+                                 success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, a.Value);
+                                 break;
+                              case "Increment":
+                                 success = success && EIP.SetAttribute(ccCount.Increment_Value, a.Value);
+                                 break;
+                              case "CountUp":
+                                 string s = bool.TryParse(a.Value, out bool dir) && dir ? "Up" : "Down";
+                                 success = success && EIP.SetAttribute(ccCount.Direction_Value, s);
+                                 break;
+                              case "JumpFrom":
+                                 success = success && EIP.SetAttribute(ccCount.Jump_From, a.Value);
+                                 break;
+                              case "JumpTo":
+                                 success = success && EIP.SetAttribute(ccCount.Jump_To, a.Value);
+                                 break;
+                              case "Reset":
+                                 success = success && EIP.SetAttribute(ccCount.Reset_Value, a.Value);
+                                 break;
+                              case "ResetSignal":
+                                 success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, a.Value);
+                                 break;
+                              case "ExternalSignal":
+                                 success = success && EIP.SetAttribute(ccCount.External_Count, a.Value);
+                                 break;
+                              case "ZeroSuppression":
+                                 success = success && EIP.SetAttribute(ccCount.Zero_Suppression, a.Value);
+                                 break;
+                              case "Multiplier":
+                                 success = success && EIP.SetAttribute(ccCount.Count_Multiplier, a.Value);
+                                 break;
+                              case "Skip":
+                                 success = success && EIP.SetAttribute(ccCount.Count_Skip, a.Value);
+                                 break;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         return success;
+      }
+
+      // Send Calendar related information
+      private bool LoadCalendar(XmlNode obj, int firstBlock, int blockCount) {
+         bool success = true;
+         XmlNode n;
+
+         for (int block = 0; block < blockCount && success; block++) {
+            foreach (XmlNode d in obj) {
+               if (d is XmlWhitespace)
+                  continue;
+               if (d.Name == "Date") {
+                  if (int.TryParse(GetAttr(d, "Block"), out int b)) {
+                     if (b == block + 1) {
+                        success = success && EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + block);
+                        n = d.SelectSingleNode("Offset");
+                        if (n != null) {
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    success = success && EIP.SetAttribute(ccCal.Offset_Year, a.Value);
+                                    break;
+                                 case "Month":
+                                    success = success && EIP.SetAttribute(ccCal.Offset_Month, a.Value);
+                                    break;
+                                 case "Day":
+                                    success = success && EIP.SetAttribute(ccCal.Offset_Day, a.Value);
+                                    break;
+                                 case "Hour":
+                                    success = success && EIP.SetAttribute(ccCal.Offset_Hour, a.Value);
+                                    break;
+                                 case "Minute":
+                                    success = success && EIP.SetAttribute(ccCal.Offset_Minute, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+
+                        n = d.SelectSingleNode("ZeroSuppress");
+                        if (n != null) {
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
+                                    break;
+                                 case "Month":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
+                                    break;
+                                 case "Day":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
+                                    break;
+                                 case "Hour":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
+                                    break;
+                                 case "Minute":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
+                                    break;
+                                 case "Week":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
+                                    break;
+                                 case "DayOfWeek":
+                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+
+                        n = d.SelectSingleNode("EnableSubstitution");
+                        if (n != null) {
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Year, a.Value);
+                                    break;
+                                 case "Month":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Month, a.Value);
+                                    break;
+                                 case "Day":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Day, a.Value);
+                                    break;
+                                 case "Hour":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Hour, a.Value);
+                                    break;
+                                 case "Minute":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Minute, a.Value);
+                                    break;
+                                 case "Week":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Weeks, a.Value);
+                                    break;
+                                 case "DayOfWeek":
+                                    success = success && EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+
+                        n = d.SelectSingleNode("TimeCount");
+                        if (n != null) {
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "Start":
+                                    success = success && EIP.SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
+                                    break;
+                                 case "End":
+                                    success = success && EIP.SetAttribute(ccCal.Time_Count_End_Value, a.Value);
+                                    break;
+                                 case "Reset":
+                                    success = success && EIP.SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
+                                    break;
+                                 case "ResetTime":
+                                    success = success && EIP.SetAttribute(ccCal.Reset_Time_Value, a.Value);
+                                    break;
+                                 case "RenewalPeriod":
+                                    success = success && EIP.SetAttribute(ccCal.Update_Interval_Value, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+
+                        n = d.SelectSingleNode("Shift");
+                        if (n != null) {
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "Number":
+                                    success = success && EIP.SetAttribute(ccIDX.Item, a.Value);
+                                    break;
+                                 case "StartHour":
+                                    success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, a.Value);
+                                    break;
+                                 case "StartMinute":
+                                    success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, a.Value);
+                                    break;
+                                 case "EndHour":
+                                    //success = success && EIP.SetAttribute(ccCal.Shift_End_Hour, a.Value);
+                                    break;
+                                 case "EndMinute":
+                                    //success = success && EIP.SetAttribute(ccCal.Shift_End_Minute, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
             }
          }
          return success;
@@ -299,84 +621,6 @@ namespace EIP_Lib {
          return success;
       }
 
-      // Send Date related information
-      private bool SendCalendar(XmlNode d) {
-         bool success = true;
-         XmlNode n = d.SelectSingleNode("Offset");
-         if (n != null) {
-            success = success && EIP.SetAttribute(ccCal.Offset_Year, GetAttr(n, "Year"));
-            success = success && EIP.SetAttribute(ccCal.Offset_Month, GetAttr(n, "Month"));
-            success = success && EIP.SetAttribute(ccCal.Offset_Day, GetAttr(n, "Day"));
-            success = success && EIP.SetAttribute(ccCal.Offset_Hour, GetAttr(n, "Hour"));
-            success = success && EIP.SetAttribute(ccCal.Offset_Minute, GetAttr(n, "Minute"));
-         }
-
-         n = d.SelectSingleNode("ZeroSuppress");
-         if (n != null) {
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Year, GetAttr(n, "Year"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Month, GetAttr(n, "Month"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, GetAttr(n, "Day"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, GetAttr(n, "Hour"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Minute, GetAttr(n, "Minute"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, GetAttr(n, "Week"));
-            success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, GetAttr(n, "DayOfWeek"));
-         }
-
-         n = d.SelectSingleNode("EnableSubstitution");
-         if (n != null) {
-            success = success && EIP.SetAttribute(ccCal.Substitute_Year, GetAttr(n, "Year"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Month, GetAttr(n, "Month"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Day, GetAttr(n, "Day"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Hour, GetAttr(n, "Hour"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Minute, GetAttr(n, "Minute"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Weeks, GetAttr(n, "Week"));
-            success = success && EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, GetAttr(n, "DayOfWeek"));
-         }
-
-         n = d.SelectSingleNode("TimeCount");
-         if (n != null) {
-            success = success && EIP.SetAttribute(ccCal.Time_Count_Start_Value, GetAttr(n, "Start"));
-            success = success && EIP.SetAttribute(ccCal.Time_Count_End_Value, GetAttr(n, "End"));
-            success = success && EIP.SetAttribute(ccCal.Time_Count_Reset_Value, GetAttr(n, "Reset"));
-            success = success && EIP.SetAttribute(ccCal.Reset_Time_Value, GetAttr(n, "ResetTime"));
-            success = success && EIP.SetAttribute(ccCal.Update_Interval_Value, GetAttr(n, "RenewalPeriod"));
-         }
-
-         n = d.SelectSingleNode("Shift");
-         if (n != null) {
-            success = success && EIP.SetAttribute(ccIDX.Item, GetAttr(n, "Number"));
-            success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, GetAttr(n, "StartHour"));
-            success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, GetAttr(n, "StartMinute"));
-            success = success && EIP.SetAttribute(ccCal.Shift_End_Hour, GetAttr(n, "EndHour"));
-            success = success && EIP.SetAttribute(ccCal.Shift_End_Minute, GetAttr(n, "EndMinute"));
-         }
-         return success;
-      }
-
-      // Send counter related information
-      private bool SendCounter(XmlNode c) {
-         bool success = true;
-         if (c != null) {
-            success = success && EIP.SetAttribute(ccCount.Initial_Value, GetAttr(c, "InitialValue"));
-            success = success && EIP.SetAttribute(ccCount.Count_Range_1, GetAttr(c, "Range1"));
-            success = success && EIP.SetAttribute(ccCount.Count_Range_2, GetAttr(c, "Range2"));
-            success = success && EIP.SetAttribute(ccCount.Update_Unit_Halfway, GetAttr(c, "UpdateIP"));
-            success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, GetAttr(c, "UpdateUnit"));
-            success = success && EIP.SetAttribute(ccCount.Increment_Value, GetAttr(c, "Increment"));
-            string s = bool.TryParse(GetAttr(c, "CountUp"), out bool b) && !b ? "Down" : "Up";
-            success = success && EIP.SetAttribute(ccCount.Direction_Value, s);
-            success = success && EIP.SetAttribute(ccCount.Jump_From, GetAttr(c, "JumpFrom"));
-            success = success && EIP.SetAttribute(ccCount.Jump_To, GetAttr(c, "JumpTo"));
-            success = success && EIP.SetAttribute(ccCount.Reset_Value, GetAttr(c, "Reset"));
-            success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, GetAttr(c, "ResetSignal"));
-            success = success && EIP.SetAttribute(ccCount.External_Count, GetAttr(c, "ExternalSignal"));
-            success = success && EIP.SetAttribute(ccCount.Zero_Suppression, GetAttr(c, "ZeroSuppression"));
-            success = success && EIP.SetAttribute(ccCount.Count_Multiplier, GetAttr(c, "Multiplier"));
-            success = success && EIP.SetAttribute(ccCount.Count_Skip, GetAttr(c, "Skip"));
-         }
-         return success;
-      }
-
       // Set the substitution values for a class
       private bool SetSubValues(ccSR attribute, XmlNode c, string delimeter) {
          bool success = true;
@@ -391,102 +635,6 @@ namespace EIP_Lib {
                   byte[] data = EIP.FormatOutput(prop, n, 1, s[i]);
                   success = success && EIP.SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
                }
-            }
-         }
-         return success;
-      }
-
-      // Load object settings
-      private bool LoadObjectSettings(XmlNodeList objs) {
-         success = true;
-         XmlNode n;
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-
-            // Handle multiple line texts
-            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-            for (int i = 0; i < text.Length; i++) {
-               // Point to the item
-               EIP.SetAttribute(ccIDX.Item, item + i);
-               // Load the text
-               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
-
-               n = obj.SelectSingleNode("Font");
-               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-               //EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
-               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
-
-               //// Get the item type
-               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               //switch (type) {
-               //   case ItemType.Text:
-               //      break;
-               //   case ItemType.Counter:
-               //      SendCounter(obj.SelectSingleNode("Counter"));
-               //      break;
-               //   case ItemType.Date:
-               //      n = obj.SelectSingleNode("Date");
-               //      if (n != null) {
-               //         SendCalendar(n);
-               //      }
-               //      break;
-               //}
-            }
-         }
-         return success;
-      }
-
-      // Load object settings
-      private bool LoadCalendarCountSettings(XmlNodeList objs) {
-         success = true;
-         XmlNode n;
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-
-            // Handle multiple line texts
-            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-            for (int i = 0; i < text.Length; i++) {
-               // Point to the item
-               EIP.SetAttribute(ccIDX.Item, item + i);
-               // Load the text
-               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
-
-               n = obj.SelectSingleNode("Font");
-               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-               EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
-               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
-
-               //// Get the item type
-               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               //switch (type) {
-               //   case ItemType.Text:
-               //      break;
-               //   case ItemType.Counter:
-               //      SendCounter(obj.SelectSingleNode("Counter"));
-               //      break;
-               //   case ItemType.Date:
-               //      n = obj.SelectSingleNode("Date");
-               //      if (n != null) {
-               //         SendCalendar(n);
-               //      }
-               //      break;
-               //}
             }
          }
          return success;
