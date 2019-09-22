@@ -38,9 +38,16 @@ namespace EIP_Lib {
          FixedPattern = 1 << 19,
          FreePattern = 1 << 20,
          Unknown = 1 << 21,
-         DateCode = (1 << 12) - 2, // All the date codes combined
-
+         //DateCode = (1 << 12) - 2, // All the date codes combined
       }
+
+      const int DateCode =
+         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
+         (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
+
+      const int DateSubZS =
+         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
+         (int)ba.Week | (int)ba.DayOfWeek;
 
       #endregion
 
@@ -290,24 +297,8 @@ namespace EIP_Lib {
                n = obj.SelectSingleNode("Font");
                EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
                EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-               //EIP.SetAttribute(ccPF.Line_Spacing, GetAttr(n, "InterLineSpace"));
                EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
-               //// Get the item type
-               //ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               //switch (type) {
-               //   case ItemType.Text:
-               //      break;
-               //   case ItemType.Counter:
-               //      SendCounter(obj.SelectSingleNode("Counter"));
-               //      break;
-               //   case ItemType.Date:
-               //      n = obj.SelectSingleNode("Date");
-               //      if (n != null) {
-               //         SendCalendar(n);
-               //      }
-               //      break;
-               //}
             }
          }
          return success;
@@ -536,23 +527,26 @@ namespace EIP_Lib {
 
                         n = d.SelectSingleNode("Shift");
                         if (n != null) {
-                           foreach (XmlAttribute a in n.Attributes) {
-                              switch (a.Name) {
-                                 case "Number":
-                                    success = success && EIP.SetAttribute(ccIDX.Item, a.Value);
-                                    break;
-                                 case "StartHour":
-                                    success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, a.Value);
-                                    break;
-                                 case "StartMinute":
-                                    success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, a.Value);
-                                    break;
-                                 case "EndHour":
-                                    //success = success && EIP.SetAttribute(ccCal.Shift_End_Hour, a.Value);
-                                    break;
-                                 case "EndMinute":
-                                    //success = success && EIP.SetAttribute(ccCal.Shift_End_Minute, a.Value);
-                                    break;
+                           if (int.TryParse(GetAttr(n, "Shift"), out int shift)) {
+                              EIP.SetAttribute(ccIDX.Calendar_Block, shift);
+                              foreach (XmlAttribute a in n.Attributes) {
+                                 switch (a.Name) {
+                                    case "StartHour":
+                                       success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, a.Value);
+                                       break;
+                                    case "StartMinute":
+                                       success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, a.Value);
+                                       break;
+                                    case "EndHour": // Read Only
+                                       //success = success && EIP.SetAttribute(ccCal.Shift_End_Hour, a.Value);
+                                       break;
+                                    case "EndMinute": // Read Only
+                                       //success = success && EIP.SetAttribute(ccCal.Shift_End_Minute, a.Value);
+                                       break;
+                                    case "ShiftCode":
+                                       success = success && EIP.SetAttribute(ccCal.Shift_Code_Condition, a.Value);
+                                       break;
+                                 }
                               }
                            }
                         }
@@ -841,7 +835,7 @@ namespace EIP_Lib {
          // Calendar and Count cannot appear in the same item
          if ((mask[0] & (int)ba.Count) > 0) {
             return ItemType.Counter;
-         } else if ((mask[0] & (int)ba.DateCode) > 0) {
+         } else if ((mask[0] & DateCode) > 0) {
             return ItemType.Date;
          } else {
             return ItemType.Text;
@@ -879,6 +873,7 @@ namespace EIP_Lib {
          writer.WriteEndElement(); // End Location
       }
 
+
       // Output the Calendar Settings
       private void WriteCalendarSettings(XmlTextWriter writer, int[] mask) {
          bool success = true;
@@ -891,58 +886,87 @@ namespace EIP_Lib {
             writer.WriteStartElement("Date"); // Start Date
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
+               // Offsets are always required
                writer.WriteStartElement("Offset"); // Start Offset
                {
-                  if ((mask[i] & (int)ba.Year) > 0)
-                     writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
-                  if ((mask[i] & (int)ba.Month) > 0)
-                     writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
-                  if ((mask[i] & (int)ba.Day) > 0)
-                     writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
-                  if ((mask[i] & (int)ba.Hour) > 0)
-                     writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
-                  if ((mask[i] & (int)ba.Minute) > 0)
-                     writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
+                  writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
+                  writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
+                  writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
+                  writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
+                  writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
                }
                writer.WriteEndElement(); // End Offset
 
-               writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
-               {
-                  if ((mask[i] & (int)ba.Year) > 0)
-                     writer.WriteAttributeString("Year", GetAttribute(ccCal.Zero_Suppress_Year));
-                  if ((mask[i] & (int)ba.Month) > 0)
-                     writer.WriteAttributeString("Month", GetAttribute(ccCal.Zero_Suppress_Month));
-                  if ((mask[i] & (int)ba.Day) > 0)
-                     writer.WriteAttributeString("Day", GetAttribute(ccCal.Zero_Suppress_Day));
-                  if ((mask[i] & (int)ba.Hour) > 0)
-                     writer.WriteAttributeString("Hour", GetAttribute(ccCal.Zero_Suppress_Hour));
-                  if ((mask[i] & (int)ba.Minute) > 0)
-                     writer.WriteAttributeString("Minute", GetAttribute(ccCal.Zero_Suppress_Minute));
-                  if ((mask[i] & (int)ba.Week) > 0)
-                     writer.WriteAttributeString("Week", GetAttribute(ccCal.Zero_Suppress_Weeks));
-                  if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                     writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Zero_Suppress_Day_Of_Week));
-               }
-               writer.WriteEndElement(); // End ZeroSuppress
+               if ((mask[i] & DateSubZS) > 0) {
+                  writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
+                  {
+                     if ((mask[i] & (int)ba.Year) > 0)
+                        writer.WriteAttributeString("Year", GetAttribute(ccCal.Zero_Suppress_Year));
+                     if ((mask[i] & (int)ba.Month) > 0)
+                        writer.WriteAttributeString("Month", GetAttribute(ccCal.Zero_Suppress_Month));
+                     if ((mask[i] & (int)ba.Day) > 0)
+                        writer.WriteAttributeString("Day", GetAttribute(ccCal.Zero_Suppress_Day));
+                     if ((mask[i] & (int)ba.Hour) > 0)
+                        writer.WriteAttributeString("Hour", GetAttribute(ccCal.Zero_Suppress_Hour));
+                     if ((mask[i] & (int)ba.Minute) > 0)
+                        writer.WriteAttributeString("Minute", GetAttribute(ccCal.Zero_Suppress_Minute));
+                     if ((mask[i] & (int)ba.Week) > 0)
+                        writer.WriteAttributeString("Week", GetAttribute(ccCal.Zero_Suppress_Weeks));
+                     if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Zero_Suppress_Day_Of_Week));
+                  }
+                  writer.WriteEndElement(); // End ZeroSuppress
 
-               writer.WriteStartElement("EnableSubstitution"); // Start EnableSubstitution
-               {
-                  if ((mask[i] & (int)ba.Year) > 0)
-                     writer.WriteAttributeString("Year", GetAttribute(ccCal.Substitute_Year));
-                  if ((mask[i] & (int)ba.Month) > 0)
-                     writer.WriteAttributeString("Month", GetAttribute(ccCal.Substitute_Month));
-                  if ((mask[i] & (int)ba.Day) > 0)
-                     writer.WriteAttributeString("Day", GetAttribute(ccCal.Substitute_Day));
-                  if ((mask[i] & (int)ba.Hour) > 0)
-                     writer.WriteAttributeString("Hour", GetAttribute(ccCal.Substitute_Hour));
-                  if ((mask[i] & (int)ba.Minute) > 0)
-                     writer.WriteAttributeString("Minute", GetAttribute(ccCal.Substitute_Minute));
-                  if ((mask[i] & (int)ba.Week) > 0)
-                     writer.WriteAttributeString("Week", GetAttribute(ccCal.Substitute_Weeks));
-                  if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                     writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Substitute_Day_Of_Week));
+                  writer.WriteStartElement("EnableSubstitution"); // Start EnableSubstitution
+                  {
+                     if ((mask[i] & (int)ba.Year) > 0)
+                        writer.WriteAttributeString("Year", GetAttribute(ccCal.Substitute_Year));
+                     if ((mask[i] & (int)ba.Month) > 0)
+                        writer.WriteAttributeString("Month", GetAttribute(ccCal.Substitute_Month));
+                     if ((mask[i] & (int)ba.Day) > 0)
+                        writer.WriteAttributeString("Day", GetAttribute(ccCal.Substitute_Day));
+                     if ((mask[i] & (int)ba.Hour) > 0)
+                        writer.WriteAttributeString("Hour", GetAttribute(ccCal.Substitute_Hour));
+                     if ((mask[i] & (int)ba.Minute) > 0)
+                        writer.WriteAttributeString("Minute", GetAttribute(ccCal.Substitute_Minute));
+                     if ((mask[i] & (int)ba.Week) > 0)
+                        writer.WriteAttributeString("Week", GetAttribute(ccCal.Substitute_Weeks));
+                     if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Substitute_Day_Of_Week));
+                  }
+                  writer.WriteEndElement(); // End EnableSubstitution
                }
-               writer.WriteEndElement(); // End EnableSubstitution
+
+               if ((mask[i] & (int)ba.Shift) > 0) {
+                  string endHour = "0";
+                  string endMinute = "0";
+                  int shift = 1;
+                  do {
+                     writer.WriteStartElement("ShiftCode"); // Start ShiftCode
+                     {
+                        EIP.SetAttribute(ccIDX.Item, shift);
+                        writer.WriteAttributeString("Shift", shift.ToString());
+                        writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
+                        writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
+                        writer.WriteAttributeString("EndHour", endHour = GetAttribute(ccCal.Shift_End_Hour));
+                        writer.WriteAttributeString("EndMinute", endMinute = GetAttribute(ccCal.Shift_End_Minute));
+                        writer.WriteAttributeString("ShiftCode", EIP.FromQuoted(GetAttribute(ccCal.Shift_String_Value)));
+                     }
+                     writer.WriteEndElement(); // End ShiftCode
+                     shift++;
+                  } while (endHour != "23" || endMinute != "59");
+               }
+               if ((mask[i] & (int)ba.TimeCount) > 0) {
+                  writer.WriteStartElement("TimeCount"); // Start TimeCount
+                  {
+                     writer.WriteAttributeString("Interval", GetAttribute(ccCal.Update_Interval_Value));
+                     writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
+                     writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
+                     writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
+                     writer.WriteAttributeString("ResetValue", EIP.FromQuoted(GetAttribute(ccCal.Time_Count_Reset_Value)));
+                  }
+                  writer.WriteEndElement(); // End TimeCount
+               }
             }
             writer.WriteEndElement(); // End Date
          }
