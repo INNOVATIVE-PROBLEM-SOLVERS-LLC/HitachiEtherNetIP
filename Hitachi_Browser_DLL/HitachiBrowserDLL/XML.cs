@@ -317,21 +317,32 @@ namespace EIP_Lib {
       bool success = true;
 
       // Get the contents of one attribute
-      private string GetAttribute<T>(T Attribute) {
+      private string GetAttribute<T>(T Attribute) where T : Enum {
          string val = string.Empty;
-         ClassCode cc = EIP.ClassCodes[Array.IndexOf(EIP.ClassCodeAttributes, typeof(T))];
-         byte at = Convert.ToByte(Attribute);
-         AttrData attr = EIP.AttrDict[cc, at];
-         if (EIP.GetAttribute(cc, at, EIP.Nodata)) {
+         AttrData attr = EIP.GetAttrData(Attribute);
+         if (EIP.GetAttribute(attr.Class, attr.Val, EIP.Nodata)) {
             val = EIP.GetDataValue;
-            if (attr.Data.Fmt == DataFormats.UTF8) {
-               val = EIP.FromQuoted(EIP.GetDataValue);
+            if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
+               val = EIP.FromQuoted(val);
             } else if (attr.Data.DropDown != fmtDD.None) {
                string[] dd = EIP.DropDowns[(int)attr.Data.DropDown];
                long n = EIP.GetDecValue - attr.Data.Min;
                if (n >= 0 && n < dd.Length) {
                   val = dd[n];
                }
+            }
+         }
+         return val;
+      }
+
+      // Get the contents of one attribute
+      private string GetAttribute<T>(T Attribute, int n) where T : Enum {
+         string val = string.Empty;
+         AttrData attr = EIP.GetAttrData(Attribute);
+         if (EIP.GetAttribute(attr.Class, attr.Val, EIP.FormatOutput(attr.Get, n))) {
+            val = EIP.GetDataValue;
+            if (attr.Data.Fmt == DataFormats.UTF8) {
+               val = EIP.FromQuoted(val);
             }
          }
          return val;

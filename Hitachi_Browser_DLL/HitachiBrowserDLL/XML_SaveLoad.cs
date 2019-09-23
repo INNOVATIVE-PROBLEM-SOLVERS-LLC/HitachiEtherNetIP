@@ -121,8 +121,8 @@ namespace EIP_Lib {
                         success = success && LoadObjects(l.ChildNodes);
 
                         // Let the printer catch up
-                        success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-                        success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                        //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+                        //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                         // Get data assigned by the printer
                         success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
@@ -133,7 +133,7 @@ namespace EIP_Lib {
                         success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
 
                         // Go back to stacking operations
-                        success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+                        //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
 
                         // Send the objects one at a time
                         success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
@@ -143,8 +143,8 @@ namespace EIP_Lib {
                }
             }
             // That's all folks
-            success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-            success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+            //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
             EIP.ForwardClose();
          }
@@ -158,7 +158,7 @@ namespace EIP_Lib {
          // Get the number of columns
          success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
          // Make things faster
-         success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+         //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
          //No need to delete columns if there is only one
          if (cols > 1) {
             // Select to continuously delete column 2 (0 origin on deletes)
@@ -678,6 +678,7 @@ namespace EIP_Lib {
                      {
                         writer.WriteAttributeString("Version", "1");
                         WritePrinterSettings(writer);
+                        WriteSubstitutions(writer);
                         writer.WriteStartElement("Objects"); // Start Objects
                         {
                            int item = 0;
@@ -739,7 +740,7 @@ namespace EIP_Lib {
          }
       }
 
-      // Write the global printyer settings
+      // Write the global printer settings
       private void WritePrinterSettings(XmlTextWriter writer) {
 
          writer.WriteStartElement("Printer");
@@ -811,6 +812,41 @@ namespace EIP_Lib {
          writer.WriteEndElement(); // Printer
       }
 
+      // This is a work in progress
+      private void WriteSubstitutions(XmlTextWriter writer) {
+         // We need to figure out what substitution rules are being used
+         // and which substitutions within the rule are needed.
+         //writer.WriteStartElement("Substitution");
+         //{
+         //   writer.WriteAttributeString("Delimiter", "/");
+         //   writer.WriteAttributeString("StartYear", "2019");
+         //   writer.WriteAttributeString("Rule", "1");
+         //   WriteSubstitutions(writer, ccSR.Year, 0, 23);
+         //   WriteSubstitutions(writer, ccSR.Month, 1, 12);
+         //   WriteSubstitutions(writer, ccSR.Day, 1, 31);
+         //   WriteSubstitutions(writer, ccSR.Hour, 0, 23);
+         //   WriteSubstitutions(writer, ccSR.Minute, 0, 59);
+         //   WriteSubstitutions(writer, ccSR.Week, 1, 53);
+         //   WriteSubstitutions(writer, ccSR.Day_Of_Week, 1, 7);
+         //}
+         //writer.WriteEndElement(); // Substitution
+      }
+
+      // Write a single rule
+      private void WriteSubstitutions(XmlTextWriter writer, ccSR attr, int start, int end) {
+         int n = end - start + 1;
+         string[] subCode = new string[n];
+         for (int i = 0; i < n; i++) {
+            subCode[i] = GetAttribute(attr, i + start);
+         }
+         for (int i = 0; i < n; i += 10) {
+            writer.WriteStartElement(attr.ToString().Replace("_", ""));
+            writer.WriteAttributeString("Base", (i + start).ToString());
+            writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
+            writer.WriteEndElement(); // Element
+         }
+      }
+
       // Examine the contents of a print message to determine its type
       private ItemType GetItemType(string text, ref int[] mask) {
          int l = 0;
@@ -842,6 +878,7 @@ namespace EIP_Lib {
          }
       }
 
+      // Write the Font XML
       private void WriteFont(XmlTextWriter writer) {
          writer.WriteStartElement("Font"); // Start Font
          {
@@ -865,14 +902,9 @@ namespace EIP_Lib {
             writer.WriteAttributeString("ItemNumber", item.ToString());
             writer.WriteAttributeString("Row", row.ToString());
             writer.WriteAttributeString("Column", col.ToString());
-            //   writer.WriteAttributeString("Height", p.ItemHeight.ToString());
-            //   writer.WriteAttributeString("Width", (p.ItemWidth * p.IncreasedWidth).ToString());
-            //   writer.WriteAttributeString("Left", p.X.ToString());
-            //   writer.WriteAttributeString("Top", (p.Y + p.ScaledImage.Height).ToString());
          }
          writer.WriteEndElement(); // End Location
       }
-
 
       // Output the Calendar Settings
       private void WriteCalendarSettings(XmlTextWriter writer, int[] mask) {
@@ -950,7 +982,7 @@ namespace EIP_Lib {
                         writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
                         writer.WriteAttributeString("EndHour", endHour = GetAttribute(ccCal.Shift_End_Hour));
                         writer.WriteAttributeString("EndMinute", endMinute = GetAttribute(ccCal.Shift_End_Minute));
-                        writer.WriteAttributeString("ShiftCode", EIP.FromQuoted(GetAttribute(ccCal.Shift_String_Value)));
+                        writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
                      }
                      writer.WriteEndElement(); // End ShiftCode
                      shift++;
@@ -963,7 +995,7 @@ namespace EIP_Lib {
                      writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
                      writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
                      writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
-                     writer.WriteAttributeString("ResetValue", EIP.FromQuoted(GetAttribute(ccCal.Time_Count_Reset_Value)));
+                     writer.WriteAttributeString("ResetValue", GetAttribute(ccCal.Time_Count_Reset_Value));
                   }
                   writer.WriteEndElement(); // End TimeCount
                }
