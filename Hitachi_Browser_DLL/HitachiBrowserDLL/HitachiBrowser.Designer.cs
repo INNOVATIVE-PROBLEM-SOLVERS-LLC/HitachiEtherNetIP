@@ -24,6 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
+         System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Browser));
          this.lblIPAddress = new System.Windows.Forms.Label();
          this.lblPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
@@ -736,6 +737,7 @@
          this.Controls.Add(this.txtIPAddress);
          this.Controls.Add(this.lblPort);
          this.Controls.Add(this.lblIPAddress);
+         this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "Browser";
          this.Text = "Browse thru the Hitachi Printer";
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HitachiBrowser_FormClosing);
