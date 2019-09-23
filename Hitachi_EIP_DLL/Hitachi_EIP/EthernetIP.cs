@@ -700,8 +700,8 @@ namespace EIP_Lib {
          bytes = -1;
          if (stream != null) {
             try {
-               // Allow for up to 5 seconds for a response
-               stream.ReadTimeout = 15000;
+               // Allow for up to 2 seconds for a response
+               stream.ReadTimeout = 2000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {

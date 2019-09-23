@@ -31,8 +31,6 @@ namespace EIP_Lib {
       Button cmdDeleteAll;
       Button cmdSaveInPrinter;
 
-
-
       // Testing Buttons
       Label lblSelectXmlTest;
       ComboBox cbAvailableXmlTests;
