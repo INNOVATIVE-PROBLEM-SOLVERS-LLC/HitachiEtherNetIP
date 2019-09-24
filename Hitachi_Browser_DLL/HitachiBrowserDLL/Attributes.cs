@@ -483,20 +483,18 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                EIP.GetAttribute(cc, (byte)ccIJP.Fault_and_warning_history, EIP.Nodata);
-               try {
-                  byte[] d = EIP.GetData;
-                  lbErrors.Items.Clear();
-                  if (d.Length > 3) {
-                     long count = EIP.Get(d, 0, 4, mem.LittleEndian);
-                     txtErrorCount.Text = count.ToString();
-                     for (int i = 0; i < Math.Min(count, (d.Length - 4) / 10); i++) {
-                        int n = i * 10 + 4;
-                        lbErrors.Items.Add($"{i + 1:00} | {(d[n + 1] << 8) + d[n]:0000}/{d[n + 2]:00}/{d[n + 3]:00} {d[n + 4]:00}:{d[n + 5]:00}:{d[n + 6]:00} | {d[n + 7]:00} | {d[n + 8]:00} | {d[n + 9]:00}");
-                     }
+               byte[] d = EIP.GetData;
+               lbErrors.Items.Clear();
+               long count = 0;
+               if (d.Length > 3) {
+                  count = EIP.Get(d, 0, 4, mem.LittleEndian);
+                  for (int i = 0; i < Math.Min(count, (d.Length - 4) / 10); i++) {
+                     int n = i * 10 + 4;
+                     long year = EIP.Get(d, n, 2, mem.LittleEndian);
+                     lbErrors.Items.Add($"{i + 1:00} | {year:0000}/{d[n + 2]:00}/{d[n + 3]:00} {d[n + 4]:00}:{d[n + 5]:00}:{d[n + 6]:00} | {d[n + 7]:00} | {d[n + 8]:00} | {d[n + 9]:00}");
                   }
-               } catch {
-
                }
+               txtErrorCount.Text = count.ToString();
             }
             EIP.ForwardClose();
          }
