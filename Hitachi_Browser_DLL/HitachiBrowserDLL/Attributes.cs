@@ -31,8 +31,6 @@ namespace EIP_Lib {
       Button[] services;
       Button getAll;
       Button setAll;
-      Button identify;
-      Button cleanDisplay;
 
       // Data associated with extra Get/Set buttons
       int Extras = 0;
@@ -45,6 +43,13 @@ namespace EIP_Lib {
       TextBox[] ExtraText;
       Button[] ExtraGet;
       Button[] ExtraSet;
+
+      // For IJP Operations only
+      GroupBox grpErrors;
+      ListBox lbErrors;
+      Button cmdGetErrors;
+      Label lblErrorCount;
+      TextBox txtErrorCount;
 
       public int Half {
          get {
@@ -447,6 +452,24 @@ namespace EIP_Lib {
          tab.Controls.AddRange(labels);
          tab.Controls.AddRange(counts);
 
+         if (cc == ClassCode.IJP_operation) {
+            grpErrors = new GroupBox() { Text = "Printer Errors" };
+            tab.Controls.Add(grpErrors);
+            grpErrors.Paint += GroupBorder_Paint;
+
+            lbErrors = new ListBox() { ScrollAlwaysVisible = true };
+            grpErrors.Controls.Add(lbErrors);
+
+            lblErrorCount = new Label() { Text = "Count", TextAlign = ContentAlignment.BottomCenter };
+            grpErrors.Controls.Add(lblErrorCount);
+
+            txtErrorCount = new TextBox() { TextAlign = HorizontalAlignment.Center, ReadOnly = true };
+            grpErrors.Controls.Add(txtErrorCount);
+
+            cmdGetErrors = new Button() { Text = "Get Errors" };
+            grpErrors.Controls.Add(cmdGetErrors);
+            cmdGetErrors.Click += CmdGetErrors_Click;
+         }
 
          getAll = new Button() { Text = "Get All" };
          getAll.Click += GetAll_Click;
@@ -454,12 +477,28 @@ namespace EIP_Lib {
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
-         identify = new Button() { Text = "Identify" };
-         tab.Controls.Add(identify);
-         identify.Click += identify_Click;
-         cleanDisplay = new Button() { Text = "Clear Disp" };
-         tab.Controls.Add(cleanDisplay);
-         cleanDisplay.Click += cleanDisplay_Click;
+      }
+
+      private void CmdGetErrors_Click(object sender, EventArgs e) {
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               EIP.GetAttribute(cc, (byte)ccIJP.Fault_and_warning_history, EIP.Nodata);
+               byte[] d = EIP.GetData;
+               lbErrors.Items.Clear();
+               long count = 0;
+               if (d.Length > 3) {
+                  count = EIP.Get(d, 0, 4, mem.LittleEndian);
+                  for (int i = 0; i < Math.Min(count, (d.Length - 4) / 10); i++) {
+                     int n = i * 10 + 4;
+                     long year = EIP.Get(d, n, 2, mem.LittleEndian);
+                     lbErrors.Items.Add($"{i + 1:00} | {year:0000}/{d[n + 2]:00}/{d[n + 3]:00} {d[n + 4]:00}:{d[n + 5]:00}:{d[n + 6]:00} | {d[n + 7]:00} | {d[n + 8]:00} | {d[n + 9]:00}");
+                  }
+               }
+               txtErrorCount.Text = count.ToString();
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
       }
 
       private void Attributes_SelectedIndexChanged(object sender, EventArgs e) {
@@ -467,14 +506,6 @@ namespace EIP_Lib {
          Byte[] tag = (byte[])dd.Tag;
          AttrData attr = EIP.AttrDict[(ClassCode)tag[1], tag[2]];
          texts[tag[0]].Text = (dd.SelectedIndex + attr.Set.Min).ToString();
-      }
-
-      private void cleanDisplay_Click(object sender, EventArgs e) {
-         parent.processXML.CleanUpDisplay();
-      }
-
-      private void identify_Click(object sender, EventArgs e) {
-         parent.processXML.SetText("Hello World");
       }
 
       // Get the names associated with the dropdown
@@ -607,17 +638,19 @@ namespace EIP_Lib {
                Utils.ResizeObject(ref R, services[i], r, 14.5f + c * cw, 1.5f, 3.25f);
             }
          }
-         if(Equals(tab, parent.tabPrintFormat)) {
-            Utils.ResizeObject(ref R, cleanDisplay, tclHeight - 6, 27, 2.75f, 4);
-            Utils.ResizeObject(ref R, identify, tclHeight - 6, 31.5f, 2.75f, 4);
-            cleanDisplay.Visible = true;
-            identify.Visible = true;
-         } else {
-            cleanDisplay.Visible = false;
-            identify.Visible = false;
+
+         if (cc == ClassCode.IJP_operation) {
+            Utils.ResizeObject(ref R, grpErrors, tclHeight - 18, 1, 13, 34.5f);
+            {
+               Utils.ResizeObject(ref R, lbErrors, 1, 1, 11, 28, 1.5f);
+               Utils.ResizeObject(ref R, lblErrorCount, 1, 30, 2, 4);
+               Utils.ResizeObject(ref R, txtErrorCount, 3, 30, 2, 4);
+               Utils.ResizeObject(ref R, cmdGetErrors, 9, 30, 3, 4);
+            }
          }
-         Utils.ResizeObject(ref R, getAll, tclHeight - 3, 27, 2.75f, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 3, 31.5f, 2.75f, 4);
+
+         Utils.ResizeObject(ref R, getAll, tclHeight - 4, 27, 2.75f, 4);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 4, 31.5f, 2.75f, 4);
 
          if (extrasUsed > 0) {
             Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
