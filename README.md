@@ -1,7 +1,7 @@
 # HitachiEtherNetIP
 EthetNet/IP interface to Hitachi EtherNet/IP enabled printers. And, Hitachi Protocol (Serial) for Hitachi Model PH thru Model UX-161 printers.
 
-Warning:  This is my first attempt at EtherNet/IP programming.  Please verfy, then try.
+Warning:  This is my first attempt at EtherNet/IP programming.  Please verfy, then try.  <b>That said, anyone who would like to join the development should contact me.</b>
 
 The EtherNet/IP implementation is based on Revision 4 of Hitachi's EtherNet/IP implementation.  The document "<b>EtherNetIP_UsersManual_4th.pdf</b>" is included.
 
