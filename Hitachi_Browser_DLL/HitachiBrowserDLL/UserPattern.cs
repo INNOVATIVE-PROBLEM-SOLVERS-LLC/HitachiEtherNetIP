@@ -163,7 +163,7 @@ namespace EIP_Lib {
       }
 
       // Refit the controls based on the new space requirem,ents
-      public void ResizeUserPatternControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
+      public void ResizeUserPatternControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
          this.R = R;
 
          Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);

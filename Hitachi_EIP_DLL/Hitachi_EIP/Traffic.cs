@@ -165,8 +165,8 @@ namespace EIP_Lib {
          for (int i = 0; i < s.Length; i++) {
             excelApp.Cells[wsTrafficRow, i + 3] = s[i];
             switch (i) {
+               case 0:
                case 1:
-               case 2:
                   if (s[i] == "False") {
                      excelApp.Cells[wsTrafficRow, i + 3].Interior.Color = Color.LightYellow;
                   }

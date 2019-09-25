@@ -114,7 +114,7 @@ namespace EIP_Lib {
          indexAttr = new Attributes<ccIDX>
             (this, EIP, tabIndex, ClassCode.Index);
          oprAttr = new Attributes<ccIJP>
-            (this, EIP, tabIJPOperation, ClassCode.IJP_operation, AddItem);
+            (this, EIP, tabIJPOperation, ClassCode.IJP_operation);
          pdmAttr = new Attributes<ccPDM>
             (this, EIP, tabPrintManagement, ClassCode.Print_data_management, AddGroupNumber | AddMessageNumber);
          psAttr = new Attributes<ccPS>

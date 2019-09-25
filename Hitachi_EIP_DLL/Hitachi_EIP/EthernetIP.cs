@@ -1155,7 +1155,7 @@ namespace EIP_Lib {
       public byte[] FormatOutput(Prop prop, int val, int n, string s) {
          string t = FromQuoted(s);
          t = t.Substring(0, Math.Min(prop.Len, t.Length));
-         SetDataValue = $"{val},{s}" ;
+         SetDataValue = $"{val},{s}";
          return Merge(ToBytes(val, n), ToBytes(t + "\x00"));
       }
 
@@ -1694,8 +1694,11 @@ namespace EIP_Lib {
 
       // Register a message if someone is listening
       public void LogIt(string msg) {
-         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
          Log?.Invoke(this, msg);
+         if (msg.Length > 30) {
+            msg = msg.Substring(0, 30) + " ...";
+         }
+         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddLog, msg));
       }
 
       // Interpret the CIP Status and EtherNet/IP Status
