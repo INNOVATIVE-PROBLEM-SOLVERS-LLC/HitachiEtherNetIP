@@ -519,7 +519,7 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((byte)ccES.Reset_Usage_Time_Of_Citculation_Control, GSS.Set, false, 6, // Reset Usage Time Of Citculation Control 0x6C
+         new AttrData((byte)ccES.Reset_Usage_Time_Of_Circulation_Control, GSS.Set, false, 6, // Reset Usage Time Of Circulation Control 0x6C
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
