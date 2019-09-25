@@ -624,7 +624,18 @@ namespace EIP_Lib {
                      case AccessCode.Set:
                         // reflect any changes back to the Index Function
                         int n = Array.FindIndex(indexAttr.ccAttribute, x => x == e.Attribute);
+                        AttrData attr = EIP.GetAttrData((ccIDX)e.Attribute);
                         indexAttr.texts[n].Text = EIP.SetDataValue;
+                        indexAttr.dropdowns[n].Visible = false;
+                        indexAttr.texts[n].Visible = true;
+                        if (attr.Set.DropDown != fmtDD.None) {
+                           int i = EIP.SetDecValue - (int)attr.Set.Min;
+                           if (i >= 0 && i < indexAttr.dropdowns[n].Items.Count) {
+                              indexAttr.dropdowns[n].SelectedIndex = i;
+                              indexAttr.texts[n].Visible = false;
+                              indexAttr.dropdowns[n].Visible = true;
+                           }
+                        }
                         break;
                   }
                   break;

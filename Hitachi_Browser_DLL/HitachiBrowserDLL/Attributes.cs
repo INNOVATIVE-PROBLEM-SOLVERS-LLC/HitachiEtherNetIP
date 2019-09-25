@@ -24,7 +24,7 @@ namespace EIP_Lib {
 
       Label[] labels;
       public TextBox[] texts;
-      ComboBox[] dropdowns;
+      public ComboBox[] dropdowns;
       TextBox[] counts;
       Button[] gets;
       Button[] sets;
@@ -41,6 +41,7 @@ namespace EIP_Lib {
       GroupBox ExtraControls;
       Label[] ExtraLabel;
       TextBox[] ExtraText;
+      public ComboBox[] ExtraDropdowns;
       Button[] ExtraGet;
       Button[] ExtraSet;
 
@@ -686,7 +687,7 @@ namespace EIP_Lib {
          }
 
          Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
-         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight - 1, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
@@ -696,11 +697,14 @@ namespace EIP_Lib {
       public void RefreshExtras() {
          bool reloadTab = !attributesLoaded;
          for (int i = 0; i < extrasUsed; i++) {
-            string s = EIP.GetIndexSetting((ccIDX)((byte[])ExtraGet[i].Tag)[2]).ToString();
+            ccIDX n = (ccIDX)((byte[])ExtraGet[i].Tag)[2];
+            string s = EIP.GetIndexSetting(n).ToString();
+            // Missing Logic Here for Index attributes that are dropdowns
             if (ExtraText[i].Text != s) {
                ExtraText[i].Text = s;
                reloadTab = true;
             }
+            ExtraText[i].BackColor = Color.LightGreen;
          }
          if (reloadTab && parent.ComIsOn) {
             GetAll_Click(null, null);
