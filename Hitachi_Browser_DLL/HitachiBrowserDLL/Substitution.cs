@@ -112,7 +112,7 @@ namespace EIP_Lib {
       }
 
       // Adjust for screen resolution
-      public void ResizeSubstitutionControls(ref ResizeInfo R, int GroupStart, int GroupHeight, int GroupWidth) {
+      public void ResizeSubstitutionControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
          this.R = R;
          this.GroupWidth = GroupWidth;
 

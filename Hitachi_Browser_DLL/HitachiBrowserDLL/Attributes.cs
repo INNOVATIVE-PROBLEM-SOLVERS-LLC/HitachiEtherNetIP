@@ -24,7 +24,7 @@ namespace EIP_Lib {
 
       Label[] labels;
       public TextBox[] texts;
-      ComboBox[] dropdowns;
+      public ComboBox[] dropdowns;
       TextBox[] counts;
       Button[] gets;
       Button[] sets;
@@ -41,6 +41,7 @@ namespace EIP_Lib {
       GroupBox ExtraControls;
       Label[] ExtraLabel;
       TextBox[] ExtraText;
+      public ComboBox[] ExtraDropdowns;
       Button[] ExtraGet;
       Button[] ExtraSet;
 
@@ -48,6 +49,7 @@ namespace EIP_Lib {
       GroupBox grpErrors;
       ListBox lbErrors;
       Button cmdGetErrors;
+      Button cmdClearErrors;
       Label lblErrorCount;
       TextBox txtErrorCount;
 
@@ -461,14 +463,18 @@ namespace EIP_Lib {
             grpErrors.Controls.Add(lbErrors);
 
             lblErrorCount = new Label() { Text = "Count", TextAlign = ContentAlignment.BottomCenter };
-            grpErrors.Controls.Add(lblErrorCount);
+            tab.Controls.Add(lblErrorCount);
 
             txtErrorCount = new TextBox() { TextAlign = HorizontalAlignment.Center, ReadOnly = true };
-            grpErrors.Controls.Add(txtErrorCount);
+            tab.Controls.Add(txtErrorCount);
 
             cmdGetErrors = new Button() { Text = "Get Errors" };
-            grpErrors.Controls.Add(cmdGetErrors);
+            tab.Controls.Add(cmdGetErrors);
             cmdGetErrors.Click += CmdGetErrors_Click;
+
+            cmdClearErrors = new Button() { Text = "Clear Errors" };
+            tab.Controls.Add(cmdClearErrors);
+            cmdClearErrors.Click += CmdClearErrors_Click;
          }
 
          getAll = new Button() { Text = "Get All" };
@@ -499,6 +505,10 @@ namespace EIP_Lib {
             EIP.ForwardClose();
          }
          EIP.EndSession();
+      }
+
+      private void CmdClearErrors_Click(object sender, EventArgs e) {
+
       }
 
       private void Attributes_SelectedIndexChanged(object sender, EventArgs e) {
@@ -600,6 +610,7 @@ namespace EIP_Lib {
          float offset = (int)(tab.ClientSize.Height - tclHeight * R.H);
          R.offset = offset;
          float cw = 17.5f;
+         float ExtraGroupHeight = 0;
 
          Utils.ResizeObject(ref R, hdrs[0], 0.5f, 0.25f, 1.5f, 8);
          Utils.ResizeObject(ref R, hdrs[1], 0.5f, 8.25f, 1.5f, 1f);
@@ -639,21 +650,12 @@ namespace EIP_Lib {
             }
          }
 
-         if (cc == ClassCode.IJP_operation) {
-            Utils.ResizeObject(ref R, grpErrors, tclHeight - 18, 1, 13, 34.5f);
-            {
-               Utils.ResizeObject(ref R, lbErrors, 1, 1, 11, 28, 1.5f);
-               Utils.ResizeObject(ref R, lblErrorCount, 1, 30, 2, 4);
-               Utils.ResizeObject(ref R, txtErrorCount, 3, 30, 2, 4);
-               Utils.ResizeObject(ref R, cmdGetErrors, 9, 30, 3, 4);
-            }
-         }
-
          Utils.ResizeObject(ref R, getAll, tclHeight - 4, 27, 2.75f, 4);
          Utils.ResizeObject(ref R, setAll, tclHeight - 4, 31.5f, 2.75f, 4);
 
          if (extrasUsed > 0) {
-            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, (2 * ((extrasUsed + 1) / 2)) + 1.25f, 25);
+            ExtraGroupHeight = (2 * ((extrasUsed + 1) / 2)) + 1.25f;
+            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, ExtraGroupHeight, 25);
             int r = -1;
             int c = 0;
             for (int i = 0; i < extrasUsed; i++) {
@@ -671,10 +673,21 @@ namespace EIP_Lib {
          }
 
          // Tab specific controls
-         int groupStart = cc == ClassCode.Substitution_rules ? (labels.Length / 2 + 1) * 2 : (labels.Length + 1) * 2;
-         int groupHeight = tclHeight - groupStart - 5;
+         float groupStart = cc == ClassCode.Substitution_rules ? (labels.Length / 2 + 1) * 2 : (labels.Length + 1) * 2;
+         float groupHeight = tclHeight - groupStart - ExtraGroupHeight - 1;
+         if (cc == ClassCode.IJP_operation) {
+            Utils.ResizeObject(ref R, grpErrors, groupStart, 1, groupHeight, 25);
+            {
+               Utils.ResizeObject(ref R, lbErrors, 1, 1, groupHeight - 2, 23, 1.5f);
+            }
+            Utils.ResizeObject(ref R, lblErrorCount, tclHeight - 11, 31.5f, 2, 4);
+            Utils.ResizeObject(ref R, txtErrorCount, tclHeight - 9, 31.5f, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetErrors, tclHeight - 7, 27, 2.75f, 4);
+            Utils.ResizeObject(ref R, cmdClearErrors, tclHeight - 7, 31.5f, 2.75f, 4);
+         }
+
          Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
-         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight - 1, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
@@ -684,11 +697,14 @@ namespace EIP_Lib {
       public void RefreshExtras() {
          bool reloadTab = !attributesLoaded;
          for (int i = 0; i < extrasUsed; i++) {
-            string s = EIP.GetIndexSetting((ccIDX)((byte[])ExtraGet[i].Tag)[2]).ToString();
+            ccIDX n = (ccIDX)((byte[])ExtraGet[i].Tag)[2];
+            string s = EIP.GetIndexSetting(n).ToString();
+            // Missing Logic Here for Index attributes that are dropdowns
             if (ExtraText[i].Text != s) {
                ExtraText[i].Text = s;
                reloadTab = true;
             }
+            ExtraText[i].BackColor = Color.LightGreen;
          }
          if (reloadTab && parent.ComIsOn) {
             GetAll_Click(null, null);
