@@ -208,7 +208,7 @@ namespace EIP_Lib {
       User_Environment_Information = 0x69,
       Cirulation_Control_Setting_Value = 0x6A,
       Usage_Time_Of_Circulation_Control = 0x6B,
-      Reset_Usage_Time_Of_Citculation_Control = 0x6C,
+      Reset_Usage_Time_Of_Circulation_Control = 0x6C,
    }
 
    // Attributes within Unit Information class 0x73
@@ -700,8 +700,8 @@ namespace EIP_Lib {
          bytes = -1;
          if (stream != null) {
             try {
-               // Allow for up to 2 seconds for a response
-               stream.ReadTimeout = 2000;
+               // Allow for up to 5 seconds for a response
+               stream.ReadTimeout = 5000;
                bytes = stream.Read(data, 0, data.Length);
                successful = bytes >= 0;
             } catch (IOException e) {
@@ -1848,11 +1848,6 @@ namespace EIP_Lib {
            "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
 
          Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.Create, trafficHdrs));
-      }
-
-      // Send a new traffic line to the Excel spreadsheet
-      public static void FillInColData(string data) {
-         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddTraffic, data));
       }
 
       // Close out the Excel file.  If View is set, a save folder name must be supplied. 

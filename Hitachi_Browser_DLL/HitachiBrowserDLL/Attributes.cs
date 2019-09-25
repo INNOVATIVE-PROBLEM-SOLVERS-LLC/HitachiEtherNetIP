@@ -36,7 +36,7 @@ namespace EIP_Lib {
       int Extras = 0;
       const int MaxExtras = 7;
       int extrasUsed = 0;
-      bool extrasLoaded = false;
+      bool attributesLoaded = false;
 
       GroupBox ExtraControls;
       Label[] ExtraLabel;
@@ -238,7 +238,7 @@ namespace EIP_Lib {
                }
             }
          }
-         if(!e.Handled) {
+         if (!e.Handled) {
             t.BackColor = Color.LightYellow;                           // Indicate that it has changed
          }
       }
@@ -418,7 +418,7 @@ namespace EIP_Lib {
                   dropdowns[i].SelectedIndexChanged += Attributes_SelectedIndexChanged;
                }
                tab.Controls.Add(dropdowns[i]);
-            } else if(attr.HasSet && !attr.HasGet && attr.Set.Fmt == DataFormats.Decimal) {
+            } else if (attr.HasSet && !attr.HasGet && attr.Set.Fmt == DataFormats.Decimal) {
                texts[i].Text = attr.Set.Min.ToString();
                texts[i].BackColor = Color.LightGreen;
             }
@@ -682,22 +682,19 @@ namespace EIP_Lib {
 
       // Reload the extra controls from the printer
       public void RefreshExtras() {
-         if (!extrasLoaded && parent.ComIsOn) {
-            if (extrasUsed > 0) {
-               if (EIP.StartSession()) {
-                  if (EIP.ForwardOpen()) {
-                     for (int i = 0; i < extrasUsed; i++) {
-                        GetExtras_Click(ExtraGet[i], null);
-                     }
-                     extrasLoaded = true;
-                  }
-                  EIP.ForwardClose();
-               }
-               EIP.EndSession();
+         bool reloadTab = !attributesLoaded;
+         for (int i = 0; i < extrasUsed; i++) {
+            string s = EIP.GetIndexSetting((ccIDX)((byte[])ExtraGet[i].Tag)[2]).ToString();
+            if (ExtraText[i].Text != s) {
+               ExtraText[i].Text = s;
+               reloadTab = true;
             }
-            GetAll_Click(null, null);
-            SetExtraButtonEnables(null, null);
          }
+         if (reloadTab && parent.ComIsOn) {
+            GetAll_Click(null, null);
+            attributesLoaded = true;
+         }
+         SetExtraButtonEnables(null, null);
       }
 
       // Enable appropriate buttons based on conditions
