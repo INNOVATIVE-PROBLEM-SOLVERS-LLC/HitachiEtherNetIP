@@ -248,23 +248,8 @@ namespace EIP_Lib {
       // Get the value associated with an extra control
       private void GetExtras_Click(object sender, EventArgs e) {
          Button b = (Button)sender;
-
-         // Tag contains control number and attribute
-         byte n = ((byte[])b.Tag)[0];
-         ClassCode cc = (ClassCode)((byte[])b.Tag)[1];
-         byte at = ((byte[])b.Tag)[2];
-
-         // Mark as loading
-         ExtraText[n].Text = "Loading";
-         if (EIP.GetAttribute(cc, at, EIP.Nodata)) {
-            // Success, post the new value
-            ExtraText[n].Text = EIP.GetDataValue;
-            ExtraText[n].BackColor = Color.LightGreen;
-         } else {
-            // Failure, indicate so.
-            ExtraText[n].Text = "#Error";
-            ExtraText[n].BackColor = Color.Pink;
-         }
+         byte[] tag = (byte[])b.Tag;
+         RefreshOneExtra(tag[0]);
          SetButtonEnables();
       }
 
@@ -334,6 +319,15 @@ namespace EIP_Lib {
          }
          t.Text = val.ToString();
          t.BackColor = Color.LightYellow;
+      }
+
+      // Keep ExtraText up to date if dropdown changes
+      private void ExtraDropdownIndexChanged(object sender, EventArgs e) {
+         ComboBox cb = (ComboBox)sender;
+         byte[] tag = (byte[])cb.Tag;
+         int n = tag[0];
+         AttrData attr = EIP.GetAttrData((ccIDX)tag[2]);
+         ExtraText[n].Text = (cb.SelectedIndex + attr.Data.Min).ToString();
       }
 
       // Make the group box more visible
@@ -538,6 +532,7 @@ namespace EIP_Lib {
          byte n = 0;
          ExtraLabel = new Label[MaxExtras];
          ExtraText = new TextBox[MaxExtras];
+         ExtraDropdowns = new ComboBox[MaxExtras];
          ExtraGet = new Button[MaxExtras];
          ExtraSet = new Button[MaxExtras];
 
@@ -580,6 +575,9 @@ namespace EIP_Lib {
                ExtraControls.Controls.Add(ExtraText[i]);
                ExtraControls.Controls.Add(ExtraGet[i]);
                ExtraControls.Controls.Add(ExtraSet[i]);
+               if (ExtraDropdowns[i] != null) {
+                  ExtraControls.Controls.Add(ExtraDropdowns[i]);
+               }
             }
          }
          return n;
@@ -598,6 +596,12 @@ namespace EIP_Lib {
          ExtraSet[n].Click += SetExtras_Click;
          ExtraText[n].KeyPress += Text_KeyPress;
          ExtraText[n].MouseWheel += Text_MouseWheel;
+         AttrData attr = EIP.GetAttrData(function);
+         if (attr.Data.DropDown != fmtDD.None) {
+            ExtraDropdowns[n] = new ComboBox() { Tag = tag, FlatStyle = FlatStyle.Flat, DropDownStyle = ComboBoxStyle.DropDownList, Visible = false };
+            ExtraDropdowns[n].Items.AddRange(GetDropdownNames(attr));
+            ExtraDropdowns[n].SelectedIndexChanged += ExtraDropdownIndexChanged;
+         }
          n++;
       }
 
@@ -666,9 +670,12 @@ namespace EIP_Lib {
                   c = 12;
                }
                Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4);
-               Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 2);
-               Utils.ResizeObject(ref R, ExtraGet[i], r, 7 + c, 1.5f, 2);
-               Utils.ResizeObject(ref R, ExtraSet[i], r, 9.5f + c, 1.5f, 2);
+               Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 3);
+               if(ExtraDropdowns[i] != null) {
+                  Utils.ResizeObject(ref R, ExtraDropdowns[i], r, 4.5f + c, 1.5f, 3);
+               }
+               Utils.ResizeObject(ref R, ExtraGet[i], r, 8 + c, 1.5f, 2);
+               Utils.ResizeObject(ref R, ExtraSet[i], r, 10.5f + c, 1.5f, 2);
             }
          }
 
@@ -697,20 +704,39 @@ namespace EIP_Lib {
       public void RefreshExtras() {
          bool reloadTab = !attributesLoaded;
          for (int i = 0; i < extrasUsed; i++) {
-            ccIDX n = (ccIDX)((byte[])ExtraGet[i].Tag)[2];
-            string s = EIP.GetIndexSetting(n).ToString();
-            // Missing Logic Here for Index attributes that are dropdowns
-            if (ExtraText[i].Text != s) {
-               ExtraText[i].Text = s;
-               reloadTab = true;
-            }
-            ExtraText[i].BackColor = Color.LightGreen;
+            reloadTab |= RefreshOneExtra(i);
          }
          if (reloadTab && parent.ComIsOn) {
             GetAll_Click(null, null);
             attributesLoaded = true;
          }
          SetExtraButtonEnables(null, null);
+      }
+
+      private bool RefreshOneExtra(int i) {
+         bool reloadTab = false;
+         int at = ((byte[])ExtraGet[i].Tag)[2];
+         int n = EIP.GetIndexSetting((ccIDX)at);
+         string s = n.ToString();
+         AttrData attr = EIP.GetAttrData((ccIDX)at);
+         if (ExtraText[i].Text != s) {
+            ExtraText[i].Text = s;
+            reloadTab = true;
+         }
+         ExtraText[i].Visible = true;
+         if (attr.Data.DropDown != fmtDD.None) {
+            n -= (int)attr.Data.Min;
+            if (n >= 0 && n < ExtraDropdowns[i].Items.Count) {
+               ExtraDropdowns[i].SelectedIndex = n;
+               ExtraText[i].Visible = false;
+               ExtraDropdowns[i].Visible = true;
+               ExtraDropdowns[i].BackColor = Color.LightGreen;
+            } else {
+               ExtraDropdowns[i].Visible = false;
+            }
+         }
+         ExtraText[i].BackColor = Color.LightGreen;
+         return reloadTab;
       }
 
       // Enable appropriate buttons based on conditions
