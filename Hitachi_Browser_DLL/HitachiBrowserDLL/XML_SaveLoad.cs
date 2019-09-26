@@ -573,9 +573,9 @@ namespace EIP_Lib {
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimeter.Length == 1) {
 
             // Sub Substitution rule in Index class
-            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting];
+            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
             data = EIP.FormatOutput(attr.Set, ruleNumber);
-            success = success && EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rules_Setting, data);
+            success = success && EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
 
             // Set the start year in the substitution rule
             attr = EIP.AttrDict[ClassCode.Index, (byte)ccSR.Start_Year];

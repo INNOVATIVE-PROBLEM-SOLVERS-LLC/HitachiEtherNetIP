@@ -816,7 +816,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
-         new AttrData((byte)ccIDX.Substitution_Rules_Setting, GSS.GetSet, false, 11, // Substitution Rules Setting 0x6C
+         new AttrData((byte)ccIDX.Substitution_Rule, GSS.GetSet, false, 11,     // Substitution Rule 0x6C
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set

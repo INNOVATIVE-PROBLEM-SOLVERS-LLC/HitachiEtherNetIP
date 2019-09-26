@@ -298,7 +298,7 @@ namespace EIP_Lib {
       Character_position = 0x69,
       Print_Data_Message_Number = 0x6A,
       Print_Data_Group_Data = 0x6B,
-      Substitution_Rules_Setting = 0x6C,
+      Substitution_Rule = 0x6C,
       User_Pattern_Size = 0x6D,
       Count_Block = 0x6E,
       Calendar_Block = 0x6F,

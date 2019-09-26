@@ -19,14 +19,16 @@ namespace EIP_Lib {
 
       // User Pattern Specific Controls
       GroupBox UpControls;
+      Label lblLayout;
+      ComboBox cbLayout;
       Label lblUpFont;
       ComboBox cbUpFont;
-      Label lblUpPosition;
-      ComboBox cbUpPosition;
       Label lblUpCount;
       ComboBox cbUpCount;
       Label lblUpICS;
       ComboBox cbUpICS;
+      Label lblUpPosition;
+      ComboBox cbUpPosition;
       Button UpGet;
       Button UpSet;
 
@@ -61,6 +63,12 @@ namespace EIP_Lib {
       int cellSize;
       int maxScrollColumn = 0;
 
+      enum Layout {
+         Fixed = 0,
+         Free = 1,
+      }
+
+
       #endregion
 
       #region Constructors and destructors
@@ -81,6 +89,13 @@ namespace EIP_Lib {
          UpControls = new GroupBox() { Text = "User Pattern Rules" };
          tab.Controls.Add(UpControls);
          UpControls.Paint += GroupBorder_Paint;
+
+         lblLayout = new Label() { Text = "Layout", TextAlign = ContentAlignment.TopRight };
+         UpControls.Controls.Add(lblLayout);
+
+         cbLayout = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbLayout);
+         cbLayout.SelectedIndexChanged += cbLayout_SelectedIndexChanged;
 
          lblUpFont = new Label() { Text = "Font", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpFont);
@@ -150,14 +165,8 @@ namespace EIP_Lib {
 
          ignoreChange = false;
 
-         // Now fill in the controls
-         for (int i = 0; i < EIP.DropDowns[(int)fmtDD.UserPatternFont].Length; i++) {
-            cbUpFont.Items.Add(EIP.DropDowns[(int)fmtDD.UserPatternFont][i]);
-         }
-         for (int i = 0; i < 200; i++) {
-            cbUpPosition.Items.Add(i.ToString());
-            cbUpCount.Items.Add((i + 1).ToString());
-         }
+         cbLayout_SelectedIndexChanged(null, null);
+
          SetButtonEnables();
 
       }
@@ -168,16 +177,23 @@ namespace EIP_Lib {
 
          Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
          {
-            Utils.ResizeObject(ref R, lblUpFont, 2, 1, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpFont, 2, 4, 1.5f, 3);
-            Utils.ResizeObject(ref R, lblUpPosition, 2, 7, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpPosition, 2, 10, 1.5f, 3);
-            Utils.ResizeObject(ref R, lblUpICS, 2, 13, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpICS, 2, 16, 1.5f, 3);
-            Utils.ResizeObject(ref R, lblUpCount, 2, 19, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpCount, 2, 22, 1.5f, 3);
-            Utils.ResizeObject(ref R, UpGet, 1.75f, GroupWidth - 9, 2, 3);
-            Utils.ResizeObject(ref R, UpSet, 1.75f, GroupWidth - 5, 2, 3);
+            Utils.ResizeObject(ref R, lblLayout, 2, 1, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbLayout, 2, 3, 1.5f, 4);
+
+            Utils.ResizeObject(ref R, lblUpFont, 2, 7, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbUpFont, 2, 9, 1.5f, 3);
+
+            Utils.ResizeObject(ref R, lblUpICS, 2, 12, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbUpICS, 2, 14, 1.5f, 3);
+
+            Utils.ResizeObject(ref R, lblUpCount, 2, 17, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbUpCount, 2, 19, 1.5f, 3);
+
+            Utils.ResizeObject(ref R, lblUpPosition, 2, 22, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbUpPosition, 2, 24, 1.5f, 3);
+
+            Utils.ResizeObject(ref R, UpGet, 1.75f, 27.5f, 2, 3);
+            Utils.ResizeObject(ref R, UpSet, 1.75f, 31, 2, 3);
 
             Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 10, GroupWidth - 2);
             {
@@ -448,8 +464,63 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
+      private void cbLayout_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbLayout.Items.Count == 0) {
+            cbLayout.Items.AddRange(new string[] { "Fixed Pattern", "Free Layout"});
+            cbLayout.SelectedIndex = 0;
+            return;
+         }
+         switch ((Layout)cbLayout.SelectedIndex) {
+            case Layout.Fixed:
+               lblUpFont.Text = "Font";
+               string[] dd = EIP.DropDowns[(int)fmtDD.UserPatternFont];
+               cbUpFont.Items.Clear();
+               cbUpFont.Items.AddRange(dd);
+
+               cbUpICS.Items.Clear();
+               lblUpICS.Text = "ICS";
+
+               cbUpCount.Items.Clear();
+               cbUpPosition.Items.Clear();
+               for (int i = 0; i < 200; i++) {
+                  cbUpCount.Items.Add((i + 1).ToString());
+                  cbUpPosition.Items.Add(i.ToString());
+               }
+               break;
+            case Layout.Free:
+               lblUpFont.Text = "Rows";
+               cbUpFont.Items.Clear();
+               for (int i = 0; i < 32; i++) {
+                  cbUpFont.Items.Add((i + 1).ToString());
+               }
+
+               lblUpICS.Text = "Columns";
+               cbUpICS.Items.Clear();
+               for (int i = 0; i < 320; i++) {
+                  cbUpICS.Items.Add((i + 1).ToString());
+               }
+
+               cbUpCount.Items.Clear();
+               cbUpCount.Items.AddRange(new string[] { "1" });
+
+               cbUpPosition.Items.Clear();
+               for (int i = 0; i < 49; i++) {
+                  cbUpPosition.Items.Add(i.ToString());
+               }
+               break;
+         }
+         SetButtonEnables();
+      }
+
       // The selected font changed, get info about new font.
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
+         switch ((Layout)cbLayout.SelectedIndex) {
+            case Layout.Fixed:
+               break;
+            case Layout.Free:
+
+               break;
+         }
          if (!ignoreChange) {
             CleanUpGrid();
             GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
@@ -673,7 +744,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 128;
                dotmatrixCode = 9;
                break;
-            case "0x3A":
+            case "\x3A":
             case "11x11":
                charHeight = 11;
                charWidth = 16;
@@ -681,7 +752,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 32;
                dotmatrixCode = 10;
                break;
-            case "0x3B":
+            case "\x3B":
             case "5x3(Chimney)":
                charHeight = 3;
                charWidth = 5;
@@ -689,7 +760,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 5;
                dotmatrixCode = 11;
                break;
-            case "0x3C":
+            case "\x3C":
             case "5x5(Chimney)":
                charHeight = 5;
                charWidth = 5;
@@ -697,7 +768,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 5;
                dotmatrixCode = 12;
                break;
-            case "0x3D":
+            case "\x3D":
             case "7x5(Chimney)":
                charHeight = 5;
                charWidth = 7;
@@ -705,7 +776,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 7;
                dotmatrixCode = 13;
                break;
-            case "0x3E":
+            case "\x3E":
             case "30x40":
                charHeight = 40;
                charWidth = 40;
@@ -713,7 +784,7 @@ namespace EIP_Lib {
                bytesPerCharacter = 200;
                dotmatrixCode = 14;
                break;
-            case "0x3F":
+            case "\x3F":
             case "36x48":
                charHeight = 48;
                charWidth = 48;

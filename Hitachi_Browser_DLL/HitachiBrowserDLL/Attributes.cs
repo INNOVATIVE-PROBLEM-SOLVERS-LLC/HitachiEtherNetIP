@@ -555,7 +555,7 @@ namespace EIP_Lib {
             AddExtras(ref n, ccIDX.Count_Block);
          }
          if ((Extras & Browser.AddSubstitution) > 0) {
-            AddExtras(ref n, ccIDX.Substitution_Rules_Setting);
+            AddExtras(ref n, ccIDX.Substitution_Rule);
          }
          if ((Extras & Browser.AddGroupNumber) > 0) {
             AddExtras(ref n, ccIDX.Print_Data_Group_Data);
@@ -654,12 +654,12 @@ namespace EIP_Lib {
             }
          }
 
-         Utils.ResizeObject(ref R, getAll, tclHeight - 4, 27, 2.75f, 4);
-         Utils.ResizeObject(ref R, setAll, tclHeight - 4, 31.5f, 2.75f, 4);
+         Utils.ResizeObject(ref R, getAll, tclHeight - 4, 27.5f, 2.75f, 3.5f);
+         Utils.ResizeObject(ref R, setAll, tclHeight - 4, 31.5f, 2.75f, 3.5f);
 
          if (extrasUsed > 0) {
             ExtraGroupHeight = (2 * ((extrasUsed + 1) / 2)) + 1.25f;
-            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 1, ExtraGroupHeight, 25);
+            Utils.ResizeObject(ref R, ExtraControls, tclHeight - 2 - 2 * ((extrasUsed + 1) / 2), 0.5f, ExtraGroupHeight, 26.5f);
             int r = -1;
             int c = 0;
             for (int i = 0; i < extrasUsed; i++) {
@@ -667,15 +667,15 @@ namespace EIP_Lib {
                   c = 0;
                   r += 2;
                } else {
-                  c = 12;
+                  c = 13;
                }
-               Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4);
-               Utils.ResizeObject(ref R, ExtraText[i], r, 4.5f + c, 1.5f, 3);
+               Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4.5f);
+               Utils.ResizeObject(ref R, ExtraText[i], r, 5 + c, 1.5f, 3);
                if(ExtraDropdowns[i] != null) {
-                  Utils.ResizeObject(ref R, ExtraDropdowns[i], r, 4.5f + c, 1.5f, 3);
+                  Utils.ResizeObject(ref R, ExtraDropdowns[i], r, 5 + c, 1.5f, 3);
                }
-               Utils.ResizeObject(ref R, ExtraGet[i], r, 8 + c, 1.5f, 2);
-               Utils.ResizeObject(ref R, ExtraSet[i], r, 10.5f + c, 1.5f, 2);
+               Utils.ResizeObject(ref R, ExtraGet[i], r, 8.5f + c, 1.5f, 2);
+               Utils.ResizeObject(ref R, ExtraSet[i], r, 11 + c, 1.5f, 2);
             }
          }
 
