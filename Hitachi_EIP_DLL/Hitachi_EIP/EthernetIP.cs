@@ -43,6 +43,7 @@ namespace EIP_Lib {
       MsgChar = 14,   // 2 byte message number + UTF8 String + 0x00
       N1Char = 15,    // 1-byte number + UTF8 String + 0x00
       N1N1 = 16,      // 2 1-byte numbers
+      N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
    }
 
    #endregion
@@ -1307,6 +1308,16 @@ namespace EIP_Lib {
                result = ToBytes(GetIndexSetting(ccIDX.Item), 1);
                SetDataValue = result[0].ToString();
                break;
+            case DataFormats.N1N2N1:
+               sa = s.Split(',');
+               if (sa.Length == 3) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) && 
+                     uint.TryParse(sa[1].Trim(), out uint n2) &&
+                     uint.TryParse(sa[2].Trim(), out uint n3)) {
+                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 2), ToBytes(n3, 1));
+                  }
+               }
+               break;
          }
          if (result == null) {
             result = new byte[0];
@@ -1362,6 +1373,17 @@ namespace EIP_Lib {
             case DataFormats.MsgChar:
                n = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
                IsValid = n >= prop.Min && n <= prop.Max;
+               break;
+            case DataFormats.N1N2N1:
+               if(data.Length > 4) {
+                  int rows = data[0];
+                  int cols = (data[1] << 8) + data[2];
+                  int pos = data[3];
+                  if (rows >= 1 && rows <= 32 && cols >= 1 && cols <= 320 && pos < 50) {
+                     int total = ((rows + 7) / 8) * cols + 4;
+                     IsValid = data.Length == total;
+                  }
+               }
                break;
             default:
                break;
@@ -1456,6 +1478,17 @@ namespace EIP_Lib {
                   IsValid = n >= prop.Min && n <= prop.Max;
                }
                break;
+            case DataFormats.N1N2N1:
+               if (data.Length > 4) {
+                  int rows = data[0];
+                  int cols = (data[1] << 8) + data[2];
+                  int pos = data[3];
+                  if (rows >= 1 && rows <= 32 && cols >= 1 && cols <= 320 && pos < 50) {
+                     int total = ((rows + 7) / 8) * cols + 4;
+                     IsValid = data.Length == total;
+                  }
+               }
+               break;
          }
          return IsValid;
       }
@@ -1544,6 +1577,10 @@ namespace EIP_Lib {
                i = (int)GetIndexSetting(ccIDX.Item);
                IsValid = i >= prop.Min && i <= prop.Max;
                break;
+            case DataFormats.N1N2N1:
+               // Need work here
+               IsValid = true;
+               break;
          }
          return IsValid;
       }
@@ -1571,49 +1608,47 @@ namespace EIP_Lib {
          Type at = ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
          string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
          trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
-         if (Successful) {
-            if (GetDataLength == 0 && Access != AccessCode.Get) {
-               trafficText += $"\t\t\t";
+         if (GetDataLength == 0 && Access != AccessCode.Get) {
+            trafficText += $"\t\t\t";
+         } else {
+            trafficText += $"\t{GetDataLength}";
+            if (attr.Data.Fmt == DataFormats.Bytes || attr.Data.Fmt == DataFormats.N1N2N1) {
+               trafficText += $"\tSee=>";
             } else {
-               trafficText += $"\t{GetDataLength}";
-               if (attr.Data.Fmt == DataFormats.Bytes) {
-                  trafficText += $"\tSee=>";
-               } else {
-                  if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
-                     string[] dd = DropDowns[(int)attr.Data.DropDown];
-                     long n = GetDecValue - attr.Data.Min;
-                     if (n >= 0 && n < dd.Length) {
-                        trafficText += $"\t{dd[n]}";
-                     } else {
-                        trafficText += $"\t{GetDataValue}";
-                     }
+               if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
+                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  long n = GetDecValue - attr.Data.Min;
+                  if (n >= 0 && n < dd.Length) {
+                     trafficText += $"\t{dd[n]}";
                   } else {
                      trafficText += $"\t{GetDataValue}";
                   }
-               }
-               trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
-            }
-            if (SetDataLength == 0) {
-               trafficText += $"\t\t\t";
-            } else {
-               trafficText += $"\t{SetDataLength}";
-               if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
-                  trafficText += $"\tSee=>";
                } else {
-                  if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
-                     string[] dd = DropDowns[(int)attr.Data.DropDown];
-                     long n = SetDecValue - attr.Data.Min;
-                     if (n >= 0 && n < dd.Length) {
-                        trafficText += $"\t{dd[n]}";
-                     } else {
-                        trafficText += $"\t{SetDataValue}";
-                     }
+                  trafficText += $"\t{GetDataValue}";
+               }
+            }
+            trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
+         }
+         if (SetDataLength == 0) {
+            trafficText += $"\t\t\t";
+         } else {
+            trafficText += $"\t{SetDataLength}";
+            if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
+               trafficText += $"\tSee=>";
+            } else {
+               if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
+                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  long n = SetDecValue - attr.Data.Min;
+                  if (n >= 0 && n < dd.Length) {
+                     trafficText += $"\t{dd[n]}";
                   } else {
                      trafficText += $"\t{SetDataValue}";
                   }
+               } else {
+                  trafficText += $"\t{SetDataValue}";
                }
-               trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
             }
+            trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
          }
          return trafficText;
       }
@@ -1822,6 +1857,12 @@ namespace EIP_Lib {
                if (data.Length > 2) {
                   // shown as nn, "UTF8 characters"
                   val = $"{Get(data, 0, 1, mem.BigEndian)}, {GetUTF8(data, 2, data.Length - 2)}";
+               }
+               break;
+            case DataFormats.N1N2N1:
+               if (data.Length > 3) {
+                  // shown as nn, "UTF8 characters"
+                  val = $"{data[0]}, {Get(data, 1, 2, mem.BigEndian)}, {data[2]}";
                }
                break;
          }

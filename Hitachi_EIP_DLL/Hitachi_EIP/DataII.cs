@@ -437,12 +437,12 @@ namespace EIP_Lib {
       private AttrData[] ccUP_Addrs = new AttrData[] {
          new AttrData((byte)ccUP.User_Pattern_Fixed, GSS.GetSet, true, 1,       // User Pattern Fixed 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(2, DataFormats.N1N1, 0, 0, fmtDD.None),                    //   Get
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccUP.User_Pattern_Free, GSS.GetSet, true, 2,        // User Pattern Free 0x65
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+            new Prop(0, DataFormats.N1N2N1, 0, 0, fmtDD.None),                  //   Data
+            new Prop(4, DataFormats.N1N2N1, 0, 0, fmtDD.None),                  //   Get
+            new Prop(4, DataFormats.N1N2N1, 0, 0, fmtDD.None)),                 //   Set
       };
 
       // Substitution_rules (Class Code 0x6C)

@@ -625,7 +625,6 @@ namespace EIP_Lib {
                         // reflect any changes back to the Index Function
                         int n = Array.FindIndex(indexAttr.ccAttribute, x => x == e.Attribute);
                         indexAttr.texts[n].Text = EIP.SetDataValue;
-                        indexAttr.dropdowns[n].Visible = false;
                         indexAttr.texts[n].Visible = true;
                         AttrData attr = EIP.GetAttrData((ccIDX)e.Attribute);
                         if (attr.Data.DropDown != fmtDD.None) {
@@ -634,6 +633,8 @@ namespace EIP_Lib {
                               indexAttr.dropdowns[n].SelectedIndex = i;
                               indexAttr.texts[n].Visible = false;
                               indexAttr.dropdowns[n].Visible = true;
+                           } else {
+                              indexAttr.dropdowns[n].Visible = false;
                            }
                         }
                         break;

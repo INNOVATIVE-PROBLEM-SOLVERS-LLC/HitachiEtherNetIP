@@ -19,34 +19,34 @@ namespace EIP_Lib {
 
       // User Pattern Specific Controls
       GroupBox UpControls;
-      Label lblLayout;
+      Label lblLayout;         // Fixed or Free
       ComboBox cbLayout;
-      Label lblUpFont;
-      ComboBox cbUpFont;
-      Label lblUpCount;
+      Label lblFontRows;       // Font for Fixed, Rows for Free (1 to 32)
+      ComboBox cbFontRows;
+      Label lblIcsCols;        // ICS for Fixed, Cols for Free (1 to 320)
+      ComboBox cbdIcsCols;
+      Label lblUpCount;        // Character count for Fixed, "1" for Free
       ComboBox cbUpCount;
-      Label lblUpICS;
-      ComboBox cbUpICS;
-      Label lblUpPosition;
+      Label lblUpPosition;     // 0 to 199 for Fixed, 0 to 49 for Free
       ComboBox cbUpPosition;
-      Button UpGet;
-      Button UpSet;
+      Button UpGet;            // Retrieve from printer
+      Button UpSet;            // Send to printer
 
-      Button UpClear;
-      Button UpNew;
-      Button UpBrowse;
-      Button UpSaveAs;
+      Button UpClear;          // Clear the Grid
+      Button UpNew;            // Create a new grid
+      Button UpBrowse;         // Find Logo File to load
+      Button UpSaveAs;         // Save the grid to a Logo File
 
       // Grid objects
-      GroupBox grpGrid;
-      PictureBox pbGrid;
-      Bitmap bmGrid = null;
-      HScrollBar hsbGrid;
+      GroupBox grpGrid;        // Group box to hold the grid
+      PictureBox pbGrid;       // The grid
+      Bitmap bmGrid = null;    // Bitmap for loading the grid
+      HScrollBar hsbGrid;      // Horizontal Scroll Bar if the grid is large
 
-      int blackPixel = Color.Black.ToArgb();
+      int blackPixel = Color.Black.ToArgb(); // Pixel colors
       int whitePixel = Color.White.ToArgb();
 
-      bool ignoreChange = true;
+      bool ignoreChange = true; // Ignore change if setup is in progress
 
       //
       string font;
@@ -97,12 +97,12 @@ namespace EIP_Lib {
          UpControls.Controls.Add(cbLayout);
          cbLayout.SelectedIndexChanged += cbLayout_SelectedIndexChanged;
 
-         lblUpFont = new Label() { Text = "Font", TextAlign = ContentAlignment.TopRight };
-         UpControls.Controls.Add(lblUpFont);
+         lblFontRows = new Label() { Text = "Font", TextAlign = ContentAlignment.TopRight };
+         UpControls.Controls.Add(lblFontRows);
 
-         cbUpFont = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-         UpControls.Controls.Add(cbUpFont);
-         cbUpFont.SelectedIndexChanged += cbUpFont_SelectedIndexChanged;
+         cbFontRows = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbFontRows);
+         cbFontRows.SelectedIndexChanged += cbUpFont_SelectedIndexChanged;
 
          lblUpPosition = new Label() { Text = "Position", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpPosition);
@@ -111,12 +111,12 @@ namespace EIP_Lib {
          UpControls.Controls.Add(cbUpPosition);
          cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
 
-         lblUpICS = new Label() { Text = "ICS", TextAlign = ContentAlignment.TopRight };
-         UpControls.Controls.Add(lblUpICS);
+         lblIcsCols = new Label() { Text = "ICS", TextAlign = ContentAlignment.TopRight };
+         UpControls.Controls.Add(lblIcsCols);
 
-         cbUpICS = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-         UpControls.Controls.Add(cbUpICS);
-         cbUpICS.SelectedIndexChanged += cbUpICS_SelectedIndexChanged;
+         cbdIcsCols = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbdIcsCols);
+         cbdIcsCols.SelectedIndexChanged += cbUpICS_SelectedIndexChanged;
 
          lblUpCount = new Label() { Text = "Count", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpCount);
@@ -180,11 +180,11 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, lblLayout, 2, 1, 1.5f, 2);
             Utils.ResizeObject(ref R, cbLayout, 2, 3, 1.5f, 4);
 
-            Utils.ResizeObject(ref R, lblUpFont, 2, 7, 1.5f, 2);
-            Utils.ResizeObject(ref R, cbUpFont, 2, 9, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblFontRows, 2, 7, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbFontRows, 2, 9, 1.5f, 3);
 
-            Utils.ResizeObject(ref R, lblUpICS, 2, 12, 1.5f, 2);
-            Utils.ResizeObject(ref R, cbUpICS, 2, 14, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblIcsCols, 2, 12, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbdIcsCols, 2, 14, 1.5f, 3);
 
             Utils.ResizeObject(ref R, lblUpCount, 2, 17, 1.5f, 2);
             Utils.ResizeObject(ref R, cbUpCount, 2, 19, 1.5f, 3);
@@ -210,12 +210,12 @@ namespace EIP_Lib {
 
       // Enable buttons only when they can be used
       public void SetButtonEnables() {
-         bool UpEnabled = cbUpFont.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
+         bool UpEnabled = cbFontRows.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
          bool eipEnabled = parent.ComIsOn;
          UpGet.Enabled = UpEnabled && eipEnabled;
          UpSet.Enabled = UpEnabled && eipEnabled;
          hsbGrid.Visible = pbGrid != null && pbGrid.Width > grpGrid.Width - 2 * (int)R.W;
-         UpNew.Enabled = cbUpFont.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
+         UpNew.Enabled = cbFontRows.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
          UpClear.Enabled = stripes != null;
          UpSaveAs.Enabled = stripes != null;
       }
@@ -242,7 +242,11 @@ namespace EIP_Lib {
             if (sfd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(sfd.FileName)) {
                TextWriter tw = new StreamWriter(sfd.FileName);
                // Load from controls
-               tw.WriteLine($"{cbUpFont.Text},{0},{count},{registration}");
+               if((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                  tw.WriteLine($"{cbFontRows.Text},{0},{count},{registration}");
+               } else {
+                  tw.WriteLine($"Free,{cbFontRows.SelectedIndex + 1},{cbdIcsCols.SelectedIndex + 1},{registration}");
+               }
                // Need Bitmap not stripes
                string[] pattern = StripesToPattern(charHeight, BitMapToStripes(bmGrid, charWidth));
                for (int i = 0; i < pattern.Length; i++) {
@@ -274,18 +278,26 @@ namespace EIP_Lib {
 
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
+               byte[] data;
                int pos = cbUpPosition.SelectedIndex;
                int count = cbUpCount.SelectedIndex + 1;
                for (int i = 0; i < count; i++) {
-                  // <TODO> Need Format Output routine
-                  byte[] data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes((pos + i), 1), b[i]);
-                  if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
-                     EIP.LogIt("User Pattern Download Failed.  Aborting Doenload!");
-                     break;
+                  if((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                     data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes(pos + i, 1), b[i]);
+                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
+                        EIP.LogIt("Fixed Pattern Download Failed.  Aborting Download!");
+                        break;
+                     }
+                  } else {
+                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(pos + i, 1), b[i]);
+                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data)) {
+                        EIP.LogIt("Free Pattern Download Failed.  Aborting Download!");
+                        break;
+                     }
                   }
                }
             }
@@ -297,8 +309,11 @@ namespace EIP_Lib {
 
       // Get characters from the printer
       private void UpGet_Click(object sender, EventArgs e) {
+         bool Success;
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         int pos = cbUpPosition.SelectedIndex;
+         int count = cbUpCount.SelectedIndex + 1;
          // Build the blank image
          stripes = new long[cbUpCount.SelectedIndex + 1][];
          for (int i = 0; i < stripes.Length; i++) {
@@ -309,9 +324,16 @@ namespace EIP_Lib {
 
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               for (int i = 0; i <= cbUpCount.SelectedIndex; i++) {
-                  byte[] data = new byte[] { (byte)(dotMatrixCode ), (byte)(cbUpPosition.SelectedIndex + i) };
-                  bool Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
+               byte[] data;
+               for (int i = 0; i <= count; i++) {
+                  if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                     data = new byte[] { (byte)(dotMatrixCode), (byte)(pos + i) };
+                     Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
+                  } else {
+                     //data = new byte[] { (byte)(cbUpPosition.SelectedIndex + i) };
+                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(pos + i, 1));
+                     Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data);
+                  }
                   if (Success) {
                      if (EIP.GetDataLength == bytesPerCharacter) {
                         stripes[i] = BytesToStripe(charHeight, EIP.GetData);
@@ -320,7 +342,7 @@ namespace EIP_Lib {
                         grpGrid.Invalidate();
                      }
                   } else {
-                     EIP.LogIt("User Pattern Upload Failed.  Aborting Doenload!");
+                     EIP.LogIt("User Pattern Upload Failed.  Aborting Upload!");
                      break;
                   }
                }
@@ -386,8 +408,8 @@ namespace EIP_Lib {
       }
 
       internal void pbGrid_MouseMove(object sender, MouseEventArgs e) {
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-         int columns = (charWidth + maxICS) * cbUpCount.SelectedIndex + 1;
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         int columns = (charWidth + maxICS) * (cbUpCount.SelectedIndex + 1);
          int row;
          int col;
          int x;
@@ -442,7 +464,7 @@ namespace EIP_Lib {
       // Create an empty grid
       private void UpNew_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          stripes = new long[cbUpCount.SelectedIndex + 1][];
          for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
@@ -470,15 +492,16 @@ namespace EIP_Lib {
             cbLayout.SelectedIndex = 0;
             return;
          }
+         ignoreChange = true;
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
-               lblUpFont.Text = "Font";
+               lblFontRows.Text = "Font";
                string[] dd = EIP.DropDowns[(int)fmtDD.UserPatternFont];
-               cbUpFont.Items.Clear();
-               cbUpFont.Items.AddRange(dd);
+               cbFontRows.Items.Clear();
+               cbFontRows.Items.AddRange(dd);
 
-               cbUpICS.Items.Clear();
-               lblUpICS.Text = "ICS";
+               cbdIcsCols.Items.Clear();
+               lblIcsCols.Text = "ICS";
 
                cbUpCount.Items.Clear();
                cbUpPosition.Items.Clear();
@@ -488,27 +511,28 @@ namespace EIP_Lib {
                }
                break;
             case Layout.Free:
-               lblUpFont.Text = "Rows";
-               cbUpFont.Items.Clear();
+               lblFontRows.Text = "Rows";
+               cbFontRows.Items.Clear();
                for (int i = 0; i < 32; i++) {
-                  cbUpFont.Items.Add((i + 1).ToString());
+                  cbFontRows.Items.Add((i + 1).ToString());
                }
 
-               lblUpICS.Text = "Columns";
-               cbUpICS.Items.Clear();
+               lblIcsCols.Text = "Columns";
+               cbdIcsCols.Items.Clear();
                for (int i = 0; i < 320; i++) {
-                  cbUpICS.Items.Add((i + 1).ToString());
+                  cbdIcsCols.Items.Add((i + 1).ToString());
                }
 
                cbUpCount.Items.Clear();
                cbUpCount.Items.AddRange(new string[] { "1" });
 
                cbUpPosition.Items.Clear();
-               for (int i = 0; i < 49; i++) {
+               for (int i = 0; i < 50; i++) {
                   cbUpPosition.Items.Add(i.ToString());
                }
                break;
          }
+         ignoreChange = false;
          SetButtonEnables();
       }
 
@@ -516,18 +540,18 @@ namespace EIP_Lib {
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
+               if (!ignoreChange) {
+                  CleanUpGrid();
+                  GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+               }
+               cbdIcsCols.Items.Clear();
+               for (int i = 0; i <= maxICS; i++) {
+                  cbdIcsCols.Items.Add(i.ToString());
+               }
                break;
             case Layout.Free:
 
                break;
-         }
-         if (!ignoreChange) {
-            CleanUpGrid();
-            GetFontInfo(cbUpFont.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-         }
-         cbUpICS.Items.Clear();
-         for (int i = 0; i <= maxICS; i++) {
-            cbUpICS.Items.Add(i.ToString());
          }
          SetButtonEnables();
       }
@@ -565,9 +589,18 @@ namespace EIP_Lib {
                   // Process the header
                   string[] header = sr.ReadLine().Split(',');
                   if (header.Length > 2) {
-                     font = header[0];
-                     isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
-                        int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
+                     if (header[0].ToUpper() == "FREE") {
+                        cbLayout.SelectedIndex = (int)Layout.Free;
+                        isValid = int.TryParse(header[1], out charHeight) && int.TryParse(header[2], out charWidth);
+                        count = 1;
+                        ics = 0;
+                        maxICS = 0;
+                     } else {
+                        cbLayout.SelectedIndex = (int)Layout.Fixed;
+                        font = header[0];
+                        isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
+                           int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
+                     }
                      if (isValid && header.Length > 3) {
                         if (!int.TryParse(header[3], out registration)) {
                            registration = -1;
@@ -601,10 +634,22 @@ namespace EIP_Lib {
             BitMapToImage();
             // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
-            cbUpFont.SelectedIndex = dotMatrixCode - 1;
-            cbUpPosition.SelectedIndex = registration;
-            cbUpICS.SelectedIndex = ics;
-            cbUpCount.SelectedIndex = pattern.Length - 1;
+            switch ((Layout)cbLayout.SelectedIndex) {
+               case Layout.Fixed:
+                  cbFontRows.SelectedIndex = dotMatrixCode - 1;
+                  cbUpPosition.SelectedIndex = registration;
+                  cbdIcsCols.SelectedIndex = ics;
+                  cbUpCount.SelectedIndex = pattern.Length - 1;
+                  break;
+               case Layout.Free:
+                  cbFontRows.SelectedIndex = charHeight - 1;
+                  cbdIcsCols.SelectedIndex = charWidth - 1;
+                  cbUpCount.SelectedIndex = count - 1;
+                  cbUpPosition.SelectedIndex = registration;
+                  break;
+               default:
+                  break;
+            }
             ignoreChange = false;
          }
       }
@@ -667,139 +712,148 @@ namespace EIP_Lib {
       // get information about the selected font
       private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode, out int bytesPerCharacter) {
          bool IsValid = true;
-         switch (font.Replace('X', 'x')) {
-            case "1":
-            case "4x5":
-               charHeight = 5;
-               charWidth = 8;
-               maxICS = 4;
-               bytesPerCharacter = 8;
-               dotmatrixCode = 1;
-               break;
-            case "2":
-            case "5x5":
-               charHeight = 5;
-               charWidth = 8;
-               maxICS = 3;
-               bytesPerCharacter = 8;
-               dotmatrixCode = 2;
-               break;
-            case "3":
-            case "5x8":
-            case "5x7":
-            case "5x8(5x7)":
-               charHeight = 8;
-               charWidth = 8;
-               maxICS = 3;
-               bytesPerCharacter = 8;
-               dotmatrixCode = 3;
-               break;
-            case "4":
-            case "9x8":
-            case "9x7":
-            case "9x8(9x7)":
-               charHeight = 8;
-               charWidth = 16;
-               maxICS = 7;
-               bytesPerCharacter = 16;
-               dotmatrixCode = 4;
-               break;
-            case "5":
-            case "7x10":
-               charHeight = 10;
-               charWidth = 8;
-               maxICS = 1;
-               bytesPerCharacter = 16;
-               dotmatrixCode = 5;
-               break;
-            case "6":
-            case "10x12":
-               charHeight = 12;
-               charWidth = 16;
-               maxICS = 6;
-               bytesPerCharacter = 32;
-               dotmatrixCode = 6;
-               break;
-            case "7":
-            case "12x16":
-               charHeight = 16;
-               charWidth = 16;
-               maxICS = 4;
-               bytesPerCharacter = 32;
-               dotmatrixCode = 7;
-               break;
-            case "8":
-            case "18x24":
-               charHeight = 24;
-               charWidth = 24;
-               maxICS = 6;
-               bytesPerCharacter = 72;
-               dotmatrixCode = 8;
-               break;
-            case "9":
-            case "24x32":
-               charHeight = 32;
-               charWidth = 32;
-               maxICS = 12;
-               bytesPerCharacter = 128;
-               dotmatrixCode = 9;
-               break;
-            case "\x3A":
-            case "11x11":
-               charHeight = 11;
-               charWidth = 16;
-               maxICS = 5;
-               bytesPerCharacter = 32;
-               dotmatrixCode = 10;
-               break;
-            case "\x3B":
-            case "5x3(Chimney)":
-               charHeight = 3;
-               charWidth = 5;
-               maxICS = 0;
-               bytesPerCharacter = 5;
-               dotmatrixCode = 11;
-               break;
-            case "\x3C":
-            case "5x5(Chimney)":
-               charHeight = 5;
-               charWidth = 5;
-               maxICS = 0;
-               bytesPerCharacter = 5;
-               dotmatrixCode = 12;
-               break;
-            case "\x3D":
-            case "7x5(Chimney)":
-               charHeight = 5;
-               charWidth = 7;
-               maxICS = 0;
-               bytesPerCharacter = 7;
-               dotmatrixCode = 13;
-               break;
-            case "\x3E":
-            case "30x40":
-               charHeight = 40;
-               charWidth = 40;
-               maxICS = 10;
-               bytesPerCharacter = 200;
-               dotmatrixCode = 14;
-               break;
-            case "\x3F":
-            case "36x48":
-               charHeight = 48;
-               charWidth = 48;
-               maxICS = 12;
-               bytesPerCharacter = 288;
-               dotmatrixCode = 15;
-               break;
-            default:
-               charHeight = -1;
-               charWidth = -1;
-               maxICS = -1;
-               bytesPerCharacter = -1;
-               dotmatrixCode = -1;
-               IsValid = false;
-               break;
+         if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+            switch (font.Replace('X', 'x')) {
+               case "1":
+               case "4x5":
+                  charHeight = 5;
+                  charWidth = 8;
+                  maxICS = 4;
+                  bytesPerCharacter = 8;
+                  dotmatrixCode = 1;
+                  break;
+               case "2":
+               case "5x5":
+                  charHeight = 5;
+                  charWidth = 8;
+                  maxICS = 3;
+                  bytesPerCharacter = 8;
+                  dotmatrixCode = 2;
+                  break;
+               case "3":
+               case "5x8":
+               case "5x7":
+               case "5x8(5x7)":
+                  charHeight = 8;
+                  charWidth = 8;
+                  maxICS = 3;
+                  bytesPerCharacter = 8;
+                  dotmatrixCode = 3;
+                  break;
+               case "4":
+               case "9x8":
+               case "9x7":
+               case "9x8(9x7)":
+                  charHeight = 8;
+                  charWidth = 16;
+                  maxICS = 7;
+                  bytesPerCharacter = 16;
+                  dotmatrixCode = 4;
+                  break;
+               case "5":
+               case "7x10":
+                  charHeight = 10;
+                  charWidth = 8;
+                  maxICS = 1;
+                  bytesPerCharacter = 16;
+                  dotmatrixCode = 5;
+                  break;
+               case "6":
+               case "10x12":
+                  charHeight = 12;
+                  charWidth = 16;
+                  maxICS = 6;
+                  bytesPerCharacter = 32;
+                  dotmatrixCode = 6;
+                  break;
+               case "7":
+               case "12x16":
+                  charHeight = 16;
+                  charWidth = 16;
+                  maxICS = 4;
+                  bytesPerCharacter = 32;
+                  dotmatrixCode = 7;
+                  break;
+               case "8":
+               case "18x24":
+                  charHeight = 24;
+                  charWidth = 24;
+                  maxICS = 6;
+                  bytesPerCharacter = 72;
+                  dotmatrixCode = 8;
+                  break;
+               case "9":
+               case "24x32":
+                  charHeight = 32;
+                  charWidth = 32;
+                  maxICS = 12;
+                  bytesPerCharacter = 128;
+                  dotmatrixCode = 9;
+                  break;
+               case "\x3A":
+               case "11x11":
+                  charHeight = 11;
+                  charWidth = 16;
+                  maxICS = 5;
+                  bytesPerCharacter = 32;
+                  dotmatrixCode = 10;
+                  break;
+               case "\x3B":
+               case "5x3(Chimney)":
+                  charHeight = 3;
+                  charWidth = 5;
+                  maxICS = 0;
+                  bytesPerCharacter = 5;
+                  dotmatrixCode = 11;
+                  break;
+               case "\x3C":
+               case "5x5(Chimney)":
+                  charHeight = 5;
+                  charWidth = 5;
+                  maxICS = 0;
+                  bytesPerCharacter = 5;
+                  dotmatrixCode = 12;
+                  break;
+               case "\x3D":
+               case "7x5(Chimney)":
+                  charHeight = 5;
+                  charWidth = 7;
+                  maxICS = 0;
+                  bytesPerCharacter = 7;
+                  dotmatrixCode = 13;
+                  break;
+               case "\x3E":
+               case "30x40":
+                  charHeight = 40;
+                  charWidth = 40;
+                  maxICS = 10;
+                  bytesPerCharacter = 200;
+                  dotmatrixCode = 14;
+                  break;
+               case "\x3F":
+               case "36x48":
+                  charHeight = 48;
+                  charWidth = 48;
+                  maxICS = 12;
+                  bytesPerCharacter = 288;
+                  dotmatrixCode = 15;
+                  break;
+               default:
+                  charHeight = -1;
+                  charWidth = -1;
+                  maxICS = -1;
+                  bytesPerCharacter = -1;
+                  dotmatrixCode = -1;
+                  IsValid = false;
+                  break;
+            }
+         } else {
+            charHeight = cbFontRows.SelectedIndex + 1;
+            charWidth = cbdIcsCols.SelectedIndex + 1;
+            ics = 0;
+            maxICS = 0;
+            bytesPerCharacter = 8;
+            dotmatrixCode = -1;
          }
          return IsValid;
       }
