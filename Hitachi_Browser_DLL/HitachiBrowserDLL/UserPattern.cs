@@ -24,7 +24,7 @@ namespace EIP_Lib {
       Label lblFontRows;       // Font for Fixed, Rows for Free (1 to 32)
       ComboBox cbFontRows;
       Label lblIcsCols;        // ICS for Fixed, Cols for Free (1 to 320)
-      ComboBox cbdIcsCols;
+      ComboBox cbIcsCols;
       Label lblUpCount;        // Character count for Fixed, "1" for Free
       ComboBox cbUpCount;
       Label lblUpPosition;     // 0 to 199 for Fixed, 0 to 49 for Free
@@ -48,16 +48,41 @@ namespace EIP_Lib {
 
       bool ignoreChange = true; // Ignore change if setup is in progress
 
-      //
+      // Parameters returned by GetFontInfo
       string font;
       int dotMatrixCode;
       int charHeight = 0;
       int charWidth = 0;
-      int ics;
       int maxICS;
-      int bytesPerCharacter;
-      int count = 0;
-      int registration;
+      int bytesPerCharacter; // (charHeight + 7) / 8 * (charWidth + maxICS) for Fixed, (Rows + 7) / 8 * Columns for Free
+
+      // Hide the controls as much as possinle
+      public int Count {
+         get {
+            return cbUpCount.SelectedIndex + 1;
+         }
+         set {
+            if (value > 0 && value <= cbUpCount.Items.Count) {
+               cbUpCount.SelectedIndex = value - 1;
+            } else {
+               cbUpCount.SelectedIndex = -1;
+            }
+         }
+      }
+      public int Registration {
+         get {
+            return cbUpPosition.SelectedIndex;
+         }
+         set {
+            if (value >= 0 && value < cbUpPosition.Items.Count) {
+               cbUpPosition.SelectedIndex = value;
+            } else {
+               cbUpPosition.SelectedIndex = -1;
+            }
+         }
+      }
+
+      int ics;
       long[][] stripes;
 
       int cellSize;
@@ -114,9 +139,9 @@ namespace EIP_Lib {
          lblIcsCols = new Label() { Text = "ICS", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblIcsCols);
 
-         cbdIcsCols = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
-         UpControls.Controls.Add(cbdIcsCols);
-         cbdIcsCols.SelectedIndexChanged += cbUpICS_SelectedIndexChanged;
+         cbIcsCols = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbIcsCols);
+         cbIcsCols.SelectedIndexChanged += cbUpICS_SelectedIndexChanged;
 
          lblUpCount = new Label() { Text = "Count", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpCount);
@@ -184,7 +209,7 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, cbFontRows, 2, 9, 1.5f, 3);
 
             Utils.ResizeObject(ref R, lblIcsCols, 2, 12, 1.5f, 2);
-            Utils.ResizeObject(ref R, cbdIcsCols, 2, 14, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbIcsCols, 2, 14, 1.5f, 3);
 
             Utils.ResizeObject(ref R, lblUpCount, 2, 17, 1.5f, 2);
             Utils.ResizeObject(ref R, cbUpCount, 2, 19, 1.5f, 3);
@@ -210,12 +235,12 @@ namespace EIP_Lib {
 
       // Enable buttons only when they can be used
       public void SetButtonEnables() {
-         bool UpEnabled = cbFontRows.SelectedIndex >= 0 && cbUpPosition.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
+         bool UpEnabled = cbFontRows.SelectedIndex >= 0 && Registration >= 0 && Count > 0;
          bool eipEnabled = parent.ComIsOn;
          UpGet.Enabled = UpEnabled && eipEnabled;
          UpSet.Enabled = UpEnabled && eipEnabled;
          hsbGrid.Visible = pbGrid != null && pbGrid.Width > grpGrid.Width - 2 * (int)R.W;
-         UpNew.Enabled = cbFontRows.SelectedIndex >= 0 && cbUpCount.SelectedIndex >= 0;
+         UpNew.Enabled = cbFontRows.SelectedIndex >= 0 && Count > 0;
          UpClear.Enabled = stripes != null;
          UpSaveAs.Enabled = stripes != null;
       }
@@ -231,7 +256,7 @@ namespace EIP_Lib {
 
       // Save the bitmap in cijConnect format
       private void UpSaveAs_Click(object sender, EventArgs e) {
-         string filename = "Logo" + String.Format("{0:yyyyMMddHHmm}", DateTime.Now);
+         string filename = $"Logo{DateTime.Now:yyyyMMddHHmm}";
          using (SaveFileDialog sfd = new SaveFileDialog()) {
             sfd.DefaultExt = "txt";
             sfd.Filter = "Text|*.txt";
@@ -242,10 +267,10 @@ namespace EIP_Lib {
             if (sfd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(sfd.FileName)) {
                TextWriter tw = new StreamWriter(sfd.FileName);
                // Load from controls
-               if((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
-                  tw.WriteLine($"{cbFontRows.Text},{0},{count},{registration}");
+               if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                  tw.WriteLine($"{cbFontRows.Text},{0},{Count},{Registration}");
                } else {
-                  tw.WriteLine($"Free,{cbFontRows.SelectedIndex + 1},{cbdIcsCols.SelectedIndex + 1},{registration}");
+                  tw.WriteLine($"Free,{cbFontRows.SelectedIndex + 1},{cbIcsCols.SelectedIndex + 1},{Registration}");
                }
                // Need Bitmap not stripes
                string[] pattern = StripesToPattern(charHeight, BitMapToStripes(bmGrid, charWidth));
@@ -283,18 +308,22 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
                byte[] data;
-               int pos = cbUpPosition.SelectedIndex;
-               int count = cbUpCount.SelectedIndex + 1;
-               for (int i = 0; i < count; i++) {
-                  if((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
-                     data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes(pos + i, 1), b[i]);
-                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
+               for (int i = 0; i < Count; i++) {
+                  if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                     // Font ID, Position, and Bit Map
+                     data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes(Registration + i, 1), b[i]);
+                     if (EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
+                        // Should return nothing.  Need to see what we get to know how to process it
+                     } else {
                         EIP.LogIt("Fixed Pattern Download Failed.  Aborting Download!");
                         break;
                      }
                   } else {
-                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(pos + i, 1), b[i]);
-                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data)) {
+                     // Vertical Size (charHeigth), Horizontol Size (charWidth), Position, Bit Map
+                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(Registration + i, 1), b[i]);
+                     if (EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data)) {
+                        // Should return nothing.  Need to see what we get to know how to process it
+                     } else {
                         EIP.LogIt("Free Pattern Download Failed.  Aborting Download!");
                         break;
                      }
@@ -312,10 +341,8 @@ namespace EIP_Lib {
          bool Success;
          CleanUpGrid();
          GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-         int pos = cbUpPosition.SelectedIndex;
-         int count = cbUpCount.SelectedIndex + 1;
          // Build the blank image
-         stripes = new long[cbUpCount.SelectedIndex + 1][];
+         stripes = new long[Count][];
          for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
          }
@@ -325,17 +352,16 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                byte[] data;
-               for (int i = 0; i <= count; i++) {
+               for (int i = 0; i <= Count; i++) {
                   if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
-                     data = new byte[] { (byte)(dotMatrixCode), (byte)(pos + i) };
+                     data = new byte[] { (byte)(dotMatrixCode), (byte)(Registration + i) };
                      Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                   } else {
-                     //data = new byte[] { (byte)(cbUpPosition.SelectedIndex + i) };
-                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(pos + i, 1));
+                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(Registration + i, 1));
                      Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data);
                   }
                   if (Success) {
-                     if (EIP.GetDataLength == bytesPerCharacter) {
+                     if (EIP.GetDataLength == bytesPerCharacter + (cbLayout.SelectedIndex == (int)Layout.Fixed ? 2 : 4)) {
                         stripes[i] = BytesToStripe(charHeight, EIP.GetData);
                         bmGrid = StripesToBitMap(stripes);
                         BitMapToImage();
@@ -356,17 +382,13 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-      // Build a stripe from a single character
+      // Build the stripes from a single character
       private long[] BytesToStripe(int charHeight, byte[] b) {
          int stride = (charHeight + 7) / 8;
          int count = b.Length / stride;
          long[] stripe = new long[count];
          for (int i = 0; i < b.Length; i += stride) {
-            long val = 0;
-            for (int j = 0; j < stride; j++) {
-               val += b[i + j] << (8 * j);
-            }
-            stripe[i / stride] = val;
+            stripe[i / stride] = EIP.Get(b, i, stride, mem.BigEndian);
          }
          return stripe;
       }
@@ -407,9 +429,10 @@ namespace EIP_Lib {
          }
       }
 
+      // Use MouseDown+shift to set multiple pixels, MouseDown+ctrl to clear multiple pixels
       internal void pbGrid_MouseMove(object sender, MouseEventArgs e) {
          GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-         int columns = (charWidth + maxICS) * (cbUpCount.SelectedIndex + 1);
+         int columns = charWidth * Count;
          int row;
          int col;
          int x;
@@ -443,6 +466,7 @@ namespace EIP_Lib {
          }
       }
 
+      // Redraw the horizontal and vertical grid lines
       internal void pbGrid_MouseUp(object sender, MouseEventArgs e) {
          using (Graphics g = Graphics.FromImage(pbGrid.Image)) {
             // Redraw adjacent vertical lines to the left and right
@@ -465,7 +489,7 @@ namespace EIP_Lib {
       private void UpNew_Click(object sender, EventArgs e) {
          CleanUpGrid();
          GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-         stripes = new long[cbUpCount.SelectedIndex + 1][];
+         stripes = new long[Count][];
          for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
          }
@@ -486,13 +510,15 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
+      // Switch between Fixed and Free Logo layout
       private void cbLayout_SelectedIndexChanged(object sender, EventArgs e) {
+         // If first call, initialize it.  Setting SelectedIndex will cause another call
          if (cbLayout.Items.Count == 0) {
-            cbLayout.Items.AddRange(new string[] { "Fixed Pattern", "Free Layout"});
+            cbLayout.Items.AddRange(new string[] { "Fixed Pattern", "Free Layout" });
             cbLayout.SelectedIndex = 0;
             return;
          }
-         ignoreChange = true;
+         ignoreChange = true; // Ignore changes during transition
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
                lblFontRows.Text = "Font";
@@ -500,7 +526,7 @@ namespace EIP_Lib {
                cbFontRows.Items.Clear();
                cbFontRows.Items.AddRange(dd);
 
-               cbdIcsCols.Items.Clear();
+               cbIcsCols.Items.Clear();
                lblIcsCols.Text = "ICS";
 
                cbUpCount.Items.Clear();
@@ -518,9 +544,9 @@ namespace EIP_Lib {
                }
 
                lblIcsCols.Text = "Columns";
-               cbdIcsCols.Items.Clear();
+               cbIcsCols.Items.Clear();
                for (int i = 0; i < 320; i++) {
-                  cbdIcsCols.Items.Add((i + 1).ToString());
+                  cbIcsCols.Items.Add((i + 1).ToString());
                }
 
                cbUpCount.Items.Clear();
@@ -536,17 +562,18 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-      // The selected font changed, get info about new font.
+      // The Font/Rows changed
       private void cbUpFont_SelectedIndexChanged(object sender, EventArgs e) {
+         if (ignoreChange) {
+            return;
+         }
+         CleanUpGrid();
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
-               if (!ignoreChange) {
-                  CleanUpGrid();
-                  GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
-               }
-               cbdIcsCols.Items.Clear();
+               cbIcsCols.Items.Clear();
                for (int i = 0; i <= maxICS; i++) {
-                  cbdIcsCols.Items.Add(i.ToString());
+                  cbIcsCols.Items.Add(i.ToString());
                }
                break;
             case Layout.Free:
@@ -556,21 +583,34 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-      // The location in the printer changed
-      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
-         SetButtonEnables();
-      }
-
-      // The inter-character space changed
+      // The ICS/Cols changed
       private void cbUpICS_SelectedIndexChanged(object sender, EventArgs e) {
+         if (ignoreChange) {
+            return;
+         }
+         switch ((Layout)cbLayout.SelectedIndex) {
+            case Layout.Fixed:
+
+               break;
+            case Layout.Free:
+               CleanUpGrid();
+               GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+               break;
+         }
          SetButtonEnables();
       }
 
       // The number of characters changed
       private void cbUpCount_SelectedIndexChanged(object sender, EventArgs e) {
-         if (!ignoreChange) {
-            CleanUpGrid();
+         if (ignoreChange) {
+            return;
          }
+         CleanUpGrid();
+         SetButtonEnables();
+      }
+
+      // The location in the printer changed
+      private void cbUpPosition_SelectedIndexChanged(object sender, EventArgs e) {
          SetButtonEnables();
       }
 
@@ -581,6 +621,8 @@ namespace EIP_Lib {
       // convert cijConnect logo file to stripes
       private void ReadLogoFromFile(string fullFileName, out long[][] stripes) {
          bool isValid = true;
+         int count = 0;
+         int reg = 0;
          string[] pattern = null;
          stripes = null;
          try {
@@ -590,24 +632,24 @@ namespace EIP_Lib {
                   string[] header = sr.ReadLine().Split(',');
                   if (header.Length > 2) {
                      if (header[0].ToUpper() == "FREE") {
-                        cbLayout.SelectedIndex = (int)Layout.Free;
+                        cbLayout.SelectedIndex = (int)Layout.Free; // "FREE, Rows, Columns, Registration
                         isValid = int.TryParse(header[1], out charHeight) && int.TryParse(header[2], out charWidth);
                         count = 1;
                         ics = 0;
                         maxICS = 0;
                      } else {
-                        cbLayout.SelectedIndex = (int)Layout.Fixed;
+                        cbLayout.SelectedIndex = (int)Layout.Fixed; // Font, ICS, Count, Registration
                         font = header[0];
                         isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
                            int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
                      }
                      if (isValid && header.Length > 3) {
-                        if (!int.TryParse(header[3], out registration)) {
-                           registration = -1;
+                        if (!int.TryParse(header[3], out reg)) {
+                           reg = -1;
                            isValid = false;
                         }
                      } else {
-                        registration = -1;
+                        reg = -1;
                      }
                   }
                   // Retrieve the pattern
@@ -627,30 +669,30 @@ namespace EIP_Lib {
             isValid = false;
          }
          if (isValid) {
-            // Load the cijConnect logo into the printer browser
-            CleanUpGrid();
-            stripes = PatternToStripes(charHeight, charWidth, pattern);
-            bmGrid = StripesToBitMap(stripes);
-            BitMapToImage();
             // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
             switch ((Layout)cbLayout.SelectedIndex) {
                case Layout.Fixed:
                   cbFontRows.SelectedIndex = dotMatrixCode - 1;
-                  cbUpPosition.SelectedIndex = registration;
-                  cbdIcsCols.SelectedIndex = ics;
-                  cbUpCount.SelectedIndex = pattern.Length - 1;
+                  Registration = reg;
+                  cbIcsCols.SelectedIndex = ics;
+                  Count = pattern.Length;
                   break;
                case Layout.Free:
                   cbFontRows.SelectedIndex = charHeight - 1;
-                  cbdIcsCols.SelectedIndex = charWidth - 1;
-                  cbUpCount.SelectedIndex = count - 1;
-                  cbUpPosition.SelectedIndex = registration;
+                  cbIcsCols.SelectedIndex = charWidth - 1;
+                  Count = count;
+                  Registration = reg;
                   break;
                default:
                   break;
             }
             ignoreChange = false;
+            // Load the cijConnect logo into the printer browser
+            CleanUpGrid();
+            stripes = PatternToStripes(charHeight, charWidth, pattern);
+            bmGrid = StripesToBitMap(stripes);
+            BitMapToImage();
          }
       }
 
@@ -714,7 +756,6 @@ namespace EIP_Lib {
          bool IsValid = true;
          if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
             switch (font.Replace('X', 'x')) {
-               case "1":
                case "4x5":
                   charHeight = 5;
                   charWidth = 8;
@@ -722,7 +763,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 8;
                   dotmatrixCode = 1;
                   break;
-               case "2":
                case "5x5":
                   charHeight = 5;
                   charWidth = 8;
@@ -730,7 +770,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 8;
                   dotmatrixCode = 2;
                   break;
-               case "3":
                case "5x8":
                case "5x7":
                case "5x8(5x7)":
@@ -740,7 +779,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 8;
                   dotmatrixCode = 3;
                   break;
-               case "4":
                case "9x8":
                case "9x7":
                case "9x8(9x7)":
@@ -750,7 +788,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 16;
                   dotmatrixCode = 4;
                   break;
-               case "5":
                case "7x10":
                   charHeight = 10;
                   charWidth = 8;
@@ -758,7 +795,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 16;
                   dotmatrixCode = 5;
                   break;
-               case "6":
                case "10x12":
                   charHeight = 12;
                   charWidth = 16;
@@ -766,7 +802,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 32;
                   dotmatrixCode = 6;
                   break;
-               case "7":
                case "12x16":
                   charHeight = 16;
                   charWidth = 16;
@@ -774,7 +809,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 32;
                   dotmatrixCode = 7;
                   break;
-               case "8":
                case "18x24":
                   charHeight = 24;
                   charWidth = 24;
@@ -782,7 +816,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 72;
                   dotmatrixCode = 8;
                   break;
-               case "9":
                case "24x32":
                   charHeight = 32;
                   charWidth = 32;
@@ -790,7 +823,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 128;
                   dotmatrixCode = 9;
                   break;
-               case "\x3A":
                case "11x11":
                   charHeight = 11;
                   charWidth = 16;
@@ -798,7 +830,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 32;
                   dotmatrixCode = 10;
                   break;
-               case "\x3B":
                case "5x3(Chimney)":
                   charHeight = 3;
                   charWidth = 5;
@@ -806,7 +837,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 5;
                   dotmatrixCode = 11;
                   break;
-               case "\x3C":
                case "5x5(Chimney)":
                   charHeight = 5;
                   charWidth = 5;
@@ -814,7 +844,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 5;
                   dotmatrixCode = 12;
                   break;
-               case "\x3D":
                case "7x5(Chimney)":
                   charHeight = 5;
                   charWidth = 7;
@@ -822,7 +851,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 7;
                   dotmatrixCode = 13;
                   break;
-               case "\x3E":
                case "30x40":
                   charHeight = 40;
                   charWidth = 40;
@@ -830,7 +858,6 @@ namespace EIP_Lib {
                   bytesPerCharacter = 200;
                   dotmatrixCode = 14;
                   break;
-               case "\x3F":
                case "36x48":
                   charHeight = 48;
                   charWidth = 48;
@@ -849,10 +876,10 @@ namespace EIP_Lib {
             }
          } else {
             charHeight = cbFontRows.SelectedIndex + 1;
-            charWidth = cbdIcsCols.SelectedIndex + 1;
+            charWidth = cbIcsCols.SelectedIndex + 1;
             ics = 0;
             maxICS = 0;
-            bytesPerCharacter = 8;
+            bytesPerCharacter = (charHeight + 7) / 8 * charWidth;
             dotmatrixCode = -1;
          }
          return IsValid;
