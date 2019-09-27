@@ -131,7 +131,7 @@ namespace EIP_Lib {
       private bool BuildMonthDaySR(int Rule) {
          // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
          char delimeter = '/';
-         success = success && EIP.SetAttribute(ccIDX.Substitution_Rules_Setting, Rule);
+         success = success && EIP.SetAttribute(ccIDX.Substitution_Rule, Rule);
          success = success && EIP.SetAttribute(ccSR.Start_Year, 2010);
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
