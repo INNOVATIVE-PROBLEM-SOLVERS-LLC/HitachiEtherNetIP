@@ -808,11 +808,11 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Set
-         new AttrData((byte)ccIDX.Print_Data_Message_Number, GSS.GetSet, false, 9, // Print Data Message Number 0x6A
+         new AttrData((byte)ccIDX.Message_Number, GSS.GetSet, false, 9,         // Message Number 0x6A
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
-         new AttrData((byte)ccIDX.Print_Data_Group_Data, GSS.GetSet, false, 8,  // Print Data Group Data 0x6B
+         new AttrData((byte)ccIDX.Group_Number, GSS.GetSet, false, 8,           // Group Number 0x6B
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set

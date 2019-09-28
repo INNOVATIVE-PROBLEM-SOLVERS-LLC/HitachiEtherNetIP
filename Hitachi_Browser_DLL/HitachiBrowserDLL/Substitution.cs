@@ -5,7 +5,7 @@ using System.Windows.Forms;
 namespace EIP_Lib {
    class Substitution {
 
-#region Data Declarations
+      #region Data Declarations
 
       ResizeInfo R;
       int GroupWidth = 0;
@@ -49,12 +49,12 @@ namespace EIP_Lib {
          this.tab = tab;
       }
 
-#endregion
+      #endregion
 
-#region Routines called from parent
+      #region Routines called from parent
 
       // Build all controls unique to this class
-      public void BuildSubstitutionControls() {
+      public void BuildControls() {
          string[] attributeNames = (string[])typeof(ccSR).GetEnumNames();
          ccSR[] attributeValues = (ccSR[])typeof(ccSR).GetEnumValues();
 
@@ -112,7 +112,7 @@ namespace EIP_Lib {
       }
 
       // Adjust for screen resolution
-      public void ResizeSubstitutionControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
+      public void ResizeControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
          this.R = R;
          this.GroupWidth = GroupWidth;
 
@@ -133,9 +133,9 @@ namespace EIP_Lib {
          subSet.Enabled = eipEnabled && subEnabled;
       }
 
-#endregion
+      #endregion
 
-#region Form Control routines
+      #region Form Control routines
 
       // Get the substitution rule data
       private void SubGet_Click(object sender, EventArgs e) {
@@ -218,9 +218,9 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-#endregion
+      #endregion
 
-#region Service Routines
+      #region Service Routines
 
       // Select all text when text box is entered
       private void TextBox_Enter(object sender, EventArgs e) {
@@ -246,7 +246,7 @@ namespace EIP_Lib {
          Utils.ResizeObject(ref R, subSet, 1, GroupWidth - 5, 1.5f, 3);
       }
 
-#endregion
+      #endregion
 
    }
 }

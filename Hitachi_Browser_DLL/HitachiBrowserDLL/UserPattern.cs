@@ -54,7 +54,6 @@ namespace EIP_Lib {
       int charHeight = 0;
       int charWidth = 0;
       int maxICS;
-      int bytesPerCharacter; // (charHeight + 7) / 8 * (charWidth + maxICS) for Fixed, (Rows + 7) / 8 * Columns for Free
 
       // Hide the controls as much as possinle
       public int Count {
@@ -110,7 +109,7 @@ namespace EIP_Lib {
       #region Routines called from parent
 
       // Dynamically build all the controls.
-      public void BuildUserPatternControls() {
+      public void BuildControls() {
          UpControls = new GroupBox() { Text = "User Pattern Rules" };
          tab.Controls.Add(UpControls);
          UpControls.Paint += GroupBorder_Paint;
@@ -197,7 +196,7 @@ namespace EIP_Lib {
       }
 
       // Refit the controls based on the new space requirem,ents
-      public void ResizeUserPatternControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
+      public void ResizeControls(ref ResizeInfo R, float GroupStart, float GroupHeight, int GroupWidth) {
          this.R = R;
 
          Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
@@ -220,7 +219,7 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, UpGet, 1.75f, 27.5f, 2, 3);
             Utils.ResizeObject(ref R, UpSet, 1.75f, 31, 2, 3);
 
-            Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 10, GroupWidth - 2);
+            Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 8, GroupWidth - 2);
             {
                BitMapToImage();
             }
@@ -303,7 +302,6 @@ namespace EIP_Lib {
 
       // Send characters to the printer
       private void UpSet_Click(object sender, EventArgs e) {
-         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                byte[][] b = StripesToBytes(charHeight, BitMapToStripes(bmGrid, charWidth));
@@ -339,8 +337,9 @@ namespace EIP_Lib {
       // Get characters from the printer
       private void UpGet_Click(object sender, EventArgs e) {
          bool Success;
+         int bytesPerCharacter = (charHeight + 7) / 8 * charWidth;
+
          CleanUpGrid();
-         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          // Build the blank image
          stripes = new long[Count][];
          for (int i = 0; i < stripes.Length; i++) {
@@ -431,7 +430,6 @@ namespace EIP_Lib {
 
       // Use MouseDown+shift to set multiple pixels, MouseDown+ctrl to clear multiple pixels
       internal void pbGrid_MouseMove(object sender, MouseEventArgs e) {
-         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          int columns = charWidth * Count;
          int row;
          int col;
@@ -488,7 +486,6 @@ namespace EIP_Lib {
       // Create an empty grid
       private void UpNew_Click(object sender, EventArgs e) {
          CleanUpGrid();
-         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
          stripes = new long[Count][];
          for (int i = 0; i < stripes.Length; i++) {
             stripes[i] = new long[charWidth];
@@ -518,6 +515,7 @@ namespace EIP_Lib {
             cbLayout.SelectedIndex = 0;
             return;
          }
+         CleanUpGrid();
          ignoreChange = true; // Ignore changes during transition
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
@@ -568,7 +566,7 @@ namespace EIP_Lib {
             return;
          }
          CleanUpGrid();
-         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+         GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode);
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
                cbIcsCols.Items.Clear();
@@ -594,7 +592,7 @@ namespace EIP_Lib {
                break;
             case Layout.Free:
                CleanUpGrid();
-               GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter);
+               GetFontInfo(cbFontRows.Text, out charHeight, out charWidth, out maxICS, out dotMatrixCode);
                break;
          }
          SetButtonEnables();
@@ -637,10 +635,11 @@ namespace EIP_Lib {
                         count = 1;
                         ics = 0;
                         maxICS = 0;
+                        dotMatrixCode = -1;
                      } else {
                         cbLayout.SelectedIndex = (int)Layout.Fixed; // Font, ICS, Count, Registration
                         font = header[0];
-                        isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode, out bytesPerCharacter) &&
+                        isValid = GetFontInfo(font, out charHeight, out charWidth, out maxICS, out dotMatrixCode) &&
                            int.TryParse(header[1], out ics) && int.TryParse(header[2], out count);
                      }
                      if (isValid && header.Length > 3) {
@@ -671,23 +670,22 @@ namespace EIP_Lib {
          if (isValid) {
             // Set the dropdowns to reflect the loaded image
             ignoreChange = true;
+            Count = count;
+            Registration = reg;
             switch ((Layout)cbLayout.SelectedIndex) {
                case Layout.Fixed:
+                  ignoreChange = false; // Need to set ICS dropdown
                   cbFontRows.SelectedIndex = dotMatrixCode - 1;
-                  Registration = reg;
                   cbIcsCols.SelectedIndex = ics;
-                  Count = pattern.Length;
                   break;
                case Layout.Free:
                   cbFontRows.SelectedIndex = charHeight - 1;
                   cbIcsCols.SelectedIndex = charWidth - 1;
-                  Count = count;
-                  Registration = reg;
+                  ignoreChange = false;
                   break;
                default:
                   break;
             }
-            ignoreChange = false;
             // Load the cijConnect logo into the printer browser
             CleanUpGrid();
             stripes = PatternToStripes(charHeight, charWidth, pattern);
@@ -752,7 +750,7 @@ namespace EIP_Lib {
       }
 
       // get information about the selected font
-      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode, out int bytesPerCharacter) {
+      private bool GetFontInfo(string font, out int charHeight, out int charWidth, out int maxICS, out int dotmatrixCode) {
          bool IsValid = true;
          if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
             switch (font.Replace('X', 'x')) {
@@ -760,14 +758,12 @@ namespace EIP_Lib {
                   charHeight = 5;
                   charWidth = 8;
                   maxICS = 4;
-                  bytesPerCharacter = 8;
                   dotmatrixCode = 1;
                   break;
                case "5x5":
                   charHeight = 5;
                   charWidth = 8;
                   maxICS = 3;
-                  bytesPerCharacter = 8;
                   dotmatrixCode = 2;
                   break;
                case "5x8":
@@ -776,7 +772,6 @@ namespace EIP_Lib {
                   charHeight = 8;
                   charWidth = 8;
                   maxICS = 3;
-                  bytesPerCharacter = 8;
                   dotmatrixCode = 3;
                   break;
                case "9x8":
@@ -785,91 +780,78 @@ namespace EIP_Lib {
                   charHeight = 8;
                   charWidth = 16;
                   maxICS = 7;
-                  bytesPerCharacter = 16;
                   dotmatrixCode = 4;
                   break;
                case "7x10":
                   charHeight = 10;
                   charWidth = 8;
                   maxICS = 1;
-                  bytesPerCharacter = 16;
                   dotmatrixCode = 5;
                   break;
                case "10x12":
                   charHeight = 12;
                   charWidth = 16;
                   maxICS = 6;
-                  bytesPerCharacter = 32;
                   dotmatrixCode = 6;
                   break;
                case "12x16":
                   charHeight = 16;
                   charWidth = 16;
                   maxICS = 4;
-                  bytesPerCharacter = 32;
                   dotmatrixCode = 7;
                   break;
                case "18x24":
                   charHeight = 24;
                   charWidth = 24;
                   maxICS = 6;
-                  bytesPerCharacter = 72;
                   dotmatrixCode = 8;
                   break;
                case "24x32":
                   charHeight = 32;
                   charWidth = 32;
                   maxICS = 12;
-                  bytesPerCharacter = 128;
                   dotmatrixCode = 9;
                   break;
                case "11x11":
                   charHeight = 11;
                   charWidth = 16;
                   maxICS = 5;
-                  bytesPerCharacter = 32;
                   dotmatrixCode = 10;
                   break;
                case "5x3(Chimney)":
                   charHeight = 3;
                   charWidth = 5;
                   maxICS = 0;
-                  bytesPerCharacter = 5;
                   dotmatrixCode = 11;
                   break;
                case "5x5(Chimney)":
                   charHeight = 5;
                   charWidth = 5;
                   maxICS = 0;
-                  bytesPerCharacter = 5;
                   dotmatrixCode = 12;
                   break;
                case "7x5(Chimney)":
                   charHeight = 5;
                   charWidth = 7;
                   maxICS = 0;
-                  bytesPerCharacter = 7;
                   dotmatrixCode = 13;
                   break;
                case "30x40":
                   charHeight = 40;
                   charWidth = 40;
                   maxICS = 10;
-                  bytesPerCharacter = 200;
                   dotmatrixCode = 14;
                   break;
                case "36x48":
                   charHeight = 48;
                   charWidth = 48;
                   maxICS = 12;
-                  bytesPerCharacter = 288;
                   dotmatrixCode = 15;
                   break;
                default:
                   charHeight = -1;
                   charWidth = -1;
                   maxICS = -1;
-                  bytesPerCharacter = -1;
                   dotmatrixCode = -1;
                   IsValid = false;
                   break;
@@ -879,7 +861,6 @@ namespace EIP_Lib {
             charWidth = cbIcsCols.SelectedIndex + 1;
             ics = 0;
             maxICS = 0;
-            bytesPerCharacter = (charHeight + 7) / 8 * charWidth;
             dotmatrixCode = -1;
          }
          return IsValid;
