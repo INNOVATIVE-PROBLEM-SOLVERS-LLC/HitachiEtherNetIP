@@ -297,8 +297,8 @@ namespace EIP_Lib {
       Column = 0x67,
       Line = 0x68,
       Character_position = 0x69,
-      Print_Data_Message_Number = 0x6A,
-      Print_Data_Group_Data = 0x6B,
+      Message_Number = 0x6A,
+      Group_Number = 0x6B,
       Substitution_Rule = 0x6C,
       User_Pattern_Size = 0x6D,
       Count_Block = 0x6E,
@@ -1283,10 +1283,10 @@ namespace EIP_Lib {
                SetDataValue = $"{GetIndexSetting(ccIDX.Item)}, {s}";
                break;
             case DataFormats.GroupChar:
-               result = Merge(ToBytes(GetIndexSetting(ccIDX.Print_Data_Group_Data), 1), Encode.GetBytes(FromQuoted(s) + "\x00"));
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Group_Number), 1), Encode.GetBytes(FromQuoted(s) + "\x00"));
                break;
             case DataFormats.MsgChar:
-               result = Merge(ToBytes(GetIndexSetting(ccIDX.Print_Data_Message_Number), 2), Encode.GetBytes(FromQuoted(s) + "\x00"));
+               result = Merge(ToBytes(GetIndexSetting(ccIDX.Message_Number), 2), Encode.GetBytes(FromQuoted(s) + "\x00"));
                break;
             case DataFormats.N2Char:
                sa = s.Split(new char[] { ',' }, 2);
@@ -1367,11 +1367,11 @@ namespace EIP_Lib {
                IsValid = n >= prop.Min && n <= prop.Max;
                break;
             case DataFormats.GroupChar:
-               n = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               n = (int)GetIndexSetting(ccIDX.Group_Number);
                IsValid = n >= prop.Min && n <= prop.Max;
                break;
             case DataFormats.MsgChar:
-               n = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
+               n = (int)GetIndexSetting(ccIDX.Message_Number);
                IsValid = n >= prop.Min && n <= prop.Max;
                break;
             case DataFormats.N1N2N1:
@@ -1459,11 +1459,11 @@ namespace EIP_Lib {
                IsValid = i >= prop.Min && i <= prop.Max;
                break;
             case DataFormats.GroupChar:
-               i = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               i = (int)GetIndexSetting(ccIDX.Group_Number);
                IsValid = i >= prop.Min && i <= prop.Max;
                break;
             case DataFormats.MsgChar:
-               i = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
+               i = (int)GetIndexSetting(ccIDX.Message_Number);
                IsValid = i >= prop.Min && i <= prop.Max;
                break;
             case DataFormats.N1Char:
@@ -1556,11 +1556,11 @@ namespace EIP_Lib {
                IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.GroupChar:
-               i = (int)GetIndexSetting(ccIDX.Print_Data_Group_Data);
+               i = (int)GetIndexSetting(ccIDX.Group_Number);
                IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.MsgChar:
-               i = (int)GetIndexSetting(ccIDX.Print_Data_Message_Number);
+               i = (int)GetIndexSetting(ccIDX.Message_Number);
                IsValid = i >= prop.Min && i <= prop.Max && FromQuoted(s).Length <= prop.Len;
                break;
             case DataFormats.N1Char:

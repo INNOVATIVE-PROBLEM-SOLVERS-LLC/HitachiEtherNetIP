@@ -45,25 +45,16 @@ namespace EIP_Lib {
       Button[] ExtraGet;
       Button[] ExtraSet;
 
-      // For IJP Operations only
-      GroupBox grpErrors;
-      ListBox lbErrors;
-      Button cmdGetErrors;
-      Button cmdClearErrors;
-      Label lblErrorCount;
-      TextBox txtErrorCount;
-
       public int Half {
          get {
-            return cc == ClassCode.Substitution_rules ? 5 : 16;
+            return (cc == ClassCode.Substitution_rules || cc == ClassCode.IJP_operation || cc == ClassCode.Print_data_management) ? 5 : 16;
          }
       }
 
-      bool IsSubstitution = false;
       Substitution Substitution;
-
-      bool IsUserPattern = false;
       UserPattern UserPattern;
+      Errors Errors;
+      PrintManagement PrintManagement;
 
       Font courier = new Font("Courier New", 9);
 
@@ -84,17 +75,29 @@ namespace EIP_Lib {
          BuildControls();
 
          // Substitution has extra controls
-         if (IsSubstitution = Equals(tab, parent.tabSubstitution)) {
+         if (cc == ClassCode.Substitution_rules) {
             // Assumes only one extra control
             Substitution = new Substitution(parent, EIP, tab);
-            Substitution.BuildSubstitutionControls();
-         }
-         // UserPattern has extra controls
-         if (IsUserPattern = Equals(tab, parent.tabUserPattern)) {
-            UserPattern = new UserPattern(parent, EIP, tab);
-            UserPattern.BuildUserPatternControls();
+            Substitution.BuildControls();
          }
 
+         // UserPattern has extra controls
+         if (cc == ClassCode.User_pattern) {
+            UserPattern = new UserPattern(parent, EIP, tab);
+            UserPattern.BuildControls();
+         }
+
+         // IJP operation has extra controls
+         if (cc == ClassCode.IJP_operation) {
+            Errors = new Errors(parent, EIP, tab);
+            Errors.BuildControls();
+         }
+
+         // Print data management has extra controls
+         if (cc == ClassCode.Print_data_management) {
+            PrintManagement = new PrintManagement(parent, EIP, tab);
+            PrintManagement.BuildControls();
+         }
       }
 
       #endregion
@@ -448,61 +451,12 @@ namespace EIP_Lib {
          tab.Controls.AddRange(labels);
          tab.Controls.AddRange(counts);
 
-         if (cc == ClassCode.IJP_operation) {
-            grpErrors = new GroupBox() { Text = "Printer Errors" };
-            tab.Controls.Add(grpErrors);
-            grpErrors.Paint += GroupBorder_Paint;
-
-            lbErrors = new ListBox() { ScrollAlwaysVisible = true };
-            grpErrors.Controls.Add(lbErrors);
-
-            lblErrorCount = new Label() { Text = "Count", TextAlign = ContentAlignment.BottomCenter };
-            tab.Controls.Add(lblErrorCount);
-
-            txtErrorCount = new TextBox() { TextAlign = HorizontalAlignment.Center, ReadOnly = true };
-            tab.Controls.Add(txtErrorCount);
-
-            cmdGetErrors = new Button() { Text = "Get Errors" };
-            tab.Controls.Add(cmdGetErrors);
-            cmdGetErrors.Click += CmdGetErrors_Click;
-
-            cmdClearErrors = new Button() { Text = "Clear Errors" };
-            tab.Controls.Add(cmdClearErrors);
-            cmdClearErrors.Click += CmdClearErrors_Click;
-         }
-
          getAll = new Button() { Text = "Get All" };
          getAll.Click += GetAll_Click;
          tab.Controls.Add(getAll);
          setAll = new Button() { Text = "Set All" };
          tab.Controls.Add(setAll);
          setAll.Click += SetAll_Click;
-      }
-
-      private void CmdGetErrors_Click(object sender, EventArgs e) {
-         if (EIP.StartSession()) {
-            if (EIP.ForwardOpen()) {
-               EIP.GetAttribute(cc, (byte)ccIJP.Fault_and_warning_history, EIP.Nodata);
-               byte[] d = EIP.GetData;
-               lbErrors.Items.Clear();
-               long count = 0;
-               if (d.Length > 3) {
-                  count = EIP.Get(d, 0, 4, mem.LittleEndian);
-                  for (int i = 0; i < Math.Min(count, (d.Length - 4) / 10); i++) {
-                     int n = i * 10 + 4;
-                     long year = EIP.Get(d, n, 2, mem.LittleEndian);
-                     lbErrors.Items.Add($"{i + 1:00} | {year:0000}/{d[n + 2]:00}/{d[n + 3]:00} {d[n + 4]:00}:{d[n + 5]:00}:{d[n + 6]:00} | {d[n + 7]:00} | {d[n + 8]:00} | {d[n + 9]:00}");
-                  }
-               }
-               txtErrorCount.Text = count.ToString();
-            }
-            EIP.ForwardClose();
-         }
-         EIP.EndSession();
-      }
-
-      private void CmdClearErrors_Click(object sender, EventArgs e) {
-
       }
 
       private void Attributes_SelectedIndexChanged(object sender, EventArgs e) {
@@ -558,10 +512,10 @@ namespace EIP_Lib {
             AddExtras(ref n, ccIDX.Substitution_Rule);
          }
          if ((Extras & Browser.AddGroupNumber) > 0) {
-            AddExtras(ref n, ccIDX.Print_Data_Group_Data);
+            AddExtras(ref n, ccIDX.Group_Number);
          }
          if ((Extras & Browser.AddMessageNumber) > 0) {
-            AddExtras(ref n, ccIDX.Print_Data_Message_Number);
+            AddExtras(ref n, ccIDX.Message_Number);
          }
          if ((Extras & Browser.AddUserPatternSize) > 0) {
             AddExtras(ref n, ccIDX.User_Pattern_Size);
@@ -671,7 +625,7 @@ namespace EIP_Lib {
                }
                Utils.ResizeObject(ref R, ExtraLabel[i], r, 0.25f + c, 2, 4.5f);
                Utils.ResizeObject(ref R, ExtraText[i], r, 5 + c, 1.5f, 3);
-               if(ExtraDropdowns[i] != null) {
+               if (ExtraDropdowns[i] != null) {
                   Utils.ResizeObject(ref R, ExtraDropdowns[i], r, 5 + c, 1.5f, 3);
                }
                Utils.ResizeObject(ref R, ExtraGet[i], r, 8.5f + c, 1.5f, 2);
@@ -680,21 +634,15 @@ namespace EIP_Lib {
          }
 
          // Tab specific controls
-         float groupStart = cc == ClassCode.Substitution_rules ? (labels.Length / 2 + 1) * 2 : (labels.Length + 1) * 2;
-         float groupHeight = tclHeight - groupStart - ExtraGroupHeight - 1;
-         if (cc == ClassCode.IJP_operation) {
-            Utils.ResizeObject(ref R, grpErrors, groupStart, 1, groupHeight, 25);
-            {
-               Utils.ResizeObject(ref R, lbErrors, 1, 1, groupHeight - 2, 23, 1.5f);
-            }
-            Utils.ResizeObject(ref R, lblErrorCount, tclHeight - 11, 31.5f, 2, 4);
-            Utils.ResizeObject(ref R, txtErrorCount, tclHeight - 9, 31.5f, 2, 4);
-            Utils.ResizeObject(ref R, cmdGetErrors, tclHeight - 7, 27, 2.75f, 4);
-            Utils.ResizeObject(ref R, cmdClearErrors, tclHeight - 7, 31.5f, 2.75f, 4);
-         }
+         float groupStart =
+            (cc == ClassCode.Substitution_rules || cc == ClassCode.IJP_operation || cc == ClassCode.Print_data_management)
+            ? (labels.Length / 2 + 1) * 2 : (labels.Length + 1) * 2;
+         float groupHeight = tclHeight - groupStart - Math.Max(ExtraGroupHeight, 3.5f) - 1;
 
-         Substitution?.ResizeSubstitutionControls(ref R, groupStart, groupHeight, tclWidth);
-         UserPattern?.ResizeUserPatternControls(ref R, groupStart, groupHeight - 1, tclWidth);
+         Substitution?.ResizeControls(ref R, groupStart, groupHeight, tclWidth);
+         UserPattern?.ResizeControls(ref R, groupStart, groupHeight - 1, tclWidth);
+         Errors?.ResizeControls(ref R, groupStart, groupHeight - 1, tclWidth);
+         PrintManagement?.ResizeControls(ref R, groupStart, groupHeight - 1, tclWidth);
 
          R.offset = 0;
          parent.tclClasses.Visible = true;
