@@ -784,7 +784,15 @@ namespace EIP_Lib {
       public bool GetAttribute<T>(T Attribute, out string value) where T : Enum {
          AttrData attr = GetAttrData(Attribute);
          bool success = GetAttribute(attr.Class, attr.Val, Nodata);
-         value = attr.Data.Fmt == DataFormats.UTF8 ? FromQuoted(GetDataValue) : "";
+         value = (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) ? FromQuoted(GetDataValue) : "";
+         return success;
+      }
+
+      // Get the contents of one attribute
+      public bool GetAttribute<T>(T Attribute, int n, out byte[] value) where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
+         bool success = GetAttribute(attr.Class, attr.Val, FormatOutput(attr.Get, n));
+         value = GetData;
          return success;
       }
 
@@ -1100,7 +1108,7 @@ namespace EIP_Lib {
 
       // Get data as UTF8 characters
       public string GetUTF8(byte[] data, int start, int length) {
-         return ToQuoted(Encode.GetString(data, 0, length));
+         return ToQuoted(Encode.GetString(data, start, length));
       }
 
       // Convert unsigned integer to byte array
@@ -1292,7 +1300,7 @@ namespace EIP_Lib {
                sa = s.Split(new char[] { ',' }, 2);
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 2), Encode.GetBytes(sa[1] + "\x00"));
+                     result = Merge(ToBytes(n, 2), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
                   }
                }
                break;
@@ -1300,7 +1308,7 @@ namespace EIP_Lib {
                sa = s.Split(new char[] { ',' }, 2);
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 1), Encode.GetBytes(sa[1] + "\x00"));
+                     result = Merge(ToBytes(n, 1), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
                   }
                }
                break;
@@ -1570,7 +1578,7 @@ namespace EIP_Lib {
                   if (!int.TryParse(gp[0].Trim(), out int x)) {
                      break;
                   }
-                  IsValid = gp[0].Length >= prop.Min && gp[0].Length <= prop.Max;
+                  IsValid = gp[1].Length >= prop.Min && gp[1].Length <= prop.Max;
                }
                break;
             case DataFormats.Item:
@@ -1608,6 +1616,7 @@ namespace EIP_Lib {
          Type at = ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
          string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
          trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
+         trafficText = trafficText.Replace("_", " ");
          if (GetDataLength == 0 && Access != AccessCode.Get) {
             trafficText += $"\t\t\t";
          } else {
