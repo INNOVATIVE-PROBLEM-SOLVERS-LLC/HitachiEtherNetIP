@@ -47,6 +47,9 @@ namespace EIP_Lib {
                      success = success && CreateCounter();
                      break;
                   case 8:
+                     success = success && Comprehensive();
+                     break;
+                  case 9:
                      success = success && SetText("{{MMM}/{DD}/{YY}}\n {{hh}:{mm}:{ss}}");
                      break;
                }
@@ -342,6 +345,49 @@ namespace EIP_Lib {
          EIP.EndSession();
          return success;
       }
+
+      // Create a message with three rows and two columns that contains one of everything
+      private bool Comprehensive() {
+         string[] itemText = new string[] {
+            "SELL BY {{MMM}/{DD}/{YY}}  ",
+            "USE BY  {{MMM}/{DD}/{YY}}  ",
+            "PACKED  {{TTT} {777}} ",
+            "Shift {{E}}", "Time Count {{FF}}", "{{CCC},{CCC}} "
+         };
+         bool success = true;
+         int firstBlock = 1;
+         int blockCount = 1;
+         if (EIP.StartSession()) {
+            if (EIP.ForwardOpen()) {
+               // Clean up the display
+               success = success && CleanUpDisplay();
+               // First column is already there, just create the second column
+               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
+               // Allocate the items in each column (Should this be Column and not Item?)
+               success = success && EIP.SetAttribute(ccIDX.Item, 1);
+               success = success && EIP.SetAttribute(ccPF.Line_Count, 3);
+               success = success && EIP.SetAttribute(ccIDX.Item, 2);
+               success = success && EIP.SetAttribute(ccPF.Line_Count, 3);
+               // Set the Interline Spacing
+               success = success && EIP.SetAttribute(ccIDX.Column, 1);
+               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 1);
+               success = success && EIP.SetAttribute(ccIDX.Column, 2);
+               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 2);
+               // Set the format consistant for all six items
+               for (int i = 1; i <= 6; i++) {
+                  success = success && EIP.SetAttribute(ccIDX.Item, i);
+                  success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                  success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+                  success = success && EIP.SetAttribute(ccPF.Print_Character_String, itemText[i - 1]);
+               }
+            }
+            EIP.ForwardClose();
+         }
+         EIP.EndSession();
+
+         return success;
+      }
+
 
       public bool SetText(string text) {
          success = true;

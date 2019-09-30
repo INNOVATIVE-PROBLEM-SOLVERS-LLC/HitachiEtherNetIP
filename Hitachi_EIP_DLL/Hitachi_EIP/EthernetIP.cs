@@ -1333,6 +1333,38 @@ namespace EIP_Lib {
          return result;
       }
 
+      // Format output
+      public byte[] FormatOutput(Prop prop, int[] n) {
+         byte[] result = null;
+         switch (prop.Fmt) {
+            case DataFormats.XY:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 2), ToBytes(n[1], 1));
+               break;
+            case DataFormats.N2N2:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 2), ToBytes(n[1], 2));
+               break;
+            case DataFormats.N1N1:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 1), ToBytes(n[1], 1));
+               break;
+            case DataFormats.N1N2N1:
+               SetDataValue = $"{n[0]},{n[1]},{n[2]}";
+               result = Merge(ToBytes(n[0], 1), ToBytes(n[1], 2), ToBytes(n[2], 1));
+               break;
+         }
+         SetDecValue = -1;
+         return result;
+      }
+
+      // Format output
+      public byte[] FormatOutput(Prop prop, int[] n, byte[] b) {
+         byte[] result = Merge(FormatOutput(prop, n), b);
+         SetDataValue += ",...";
+         return result;
+      }
+
       // Convert string to quoted string
       public string ToQuoted(string s) {
          return $"\"{s.Replace("\"", "\"\"")}\"";

@@ -3,7 +3,7 @@
        BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
 	  <Printer Model="UX" Make="Hitachi">
 
-			<Substitution Rule="01" StartYear="2019" Delimeter="/">
+			<Substitution Rule="01" StartYear="2019" Delimiter="/">
 				<Year Base="00">00/01/02/03/04/05/06/07/08/09</Year>
 				<Year Base="10">10/11/12/13/14/15/16/17/18/19</Year>
 				<Year Base="20">20/21/22/23</Year>

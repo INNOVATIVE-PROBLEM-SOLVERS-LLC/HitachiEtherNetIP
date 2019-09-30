@@ -205,7 +205,10 @@ namespace EIP_Lib {
          lblSelectHardTest = new Label() { Text = "Select Hard Test", TextAlign = ContentAlignment.BottomCenter };
          cbAvailableHardTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          cbAvailableHardTests.Items.AddRange(
-            new string[] { "Reset", "Shift Code", "Month Day SR", "Time Count", "Day of Week etc", "MDY hms", "Multi-Line", "Counter", "???" }
+            new string[] {
+               "Reset", "Shift Code", "Month Day SR", "Time Count",
+               "Day of Week etc", "MDY hms", "Multi-Line", "Counter",
+               "Comprehensive", "???" }
             );
          cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
          cmdRunHardTest = new Button() { Text = "Run Test" };
