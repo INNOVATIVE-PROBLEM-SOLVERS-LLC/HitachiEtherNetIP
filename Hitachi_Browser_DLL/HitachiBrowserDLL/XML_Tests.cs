@@ -354,7 +354,7 @@ namespace EIP_Lib {
       "Shift {{E}}", "TCount {{FF}} ", "# {{CCCCCC}} ", "{X/0}"
    };
          int firstBlock = 1;
-         if (EIP.StartSession()) {
+         if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
                   // Clean up the display
@@ -374,6 +374,21 @@ namespace EIP_Lib {
                      EIP.SetAttribute(ccPF.Print_Character_String, "1");
                   }
 
+                  // Load the message properties
+                  {
+                     EIP.SetAttribute(ccPF.Format_Setup, "Individual");
+                     EIP.SetAttribute(ccPS.Character_Orientation, "Normal/Forward");
+                     EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Time Setup");
+                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
+                     EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
+                     EIP.SetAttribute(ccPS.Character_Height, 99);
+                     EIP.SetAttribute(ccPS.Character_Width, 10);
+                     EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, 55);
+                     EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, 45);
+                     EIP.SetAttribute(ccPS.Ink_Drop_Use, 2);
+                     EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, "Mixed");
+                     EIP.SetAttribute(ccPS.Product_Speed_Matching, "Auto");
+                  }
                   // Set up the rows and columns
                   {
                      // First column is already there, just create the second and third columns
@@ -492,7 +507,7 @@ namespace EIP_Lib {
                      EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1");
                      EIP.SetAttribute(ccCount.External_Count, "Disable");
                   }
-               } catch {
+               } catch (Exception e) {
                   success = false;
                }
             }

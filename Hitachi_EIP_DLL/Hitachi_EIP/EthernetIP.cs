@@ -475,8 +475,7 @@ namespace EIP_Lib {
 
       public Encoding Encode = Encoding.UTF8;
 
-      // Flag to avoid constant session open/close if already open
-      int OCS = 0;
+      ulong OCS = 0; // Flag to avoid constant session open/close if already open
       bool OpenCloseSession {
          get {
             return (OCS & 1) > 0;
@@ -485,13 +484,12 @@ namespace EIP_Lib {
             if (value) {
                OCS |= 1;
             } else {
-               OCS &= ~1;
+               OCS &= ~1UL;
             }
          }
       }
 
-      int OCF = 0;
-      // Flag to avoid constant forward open/close if alread open
+      ulong OCF = 0; // Flag to avoid constant forward open/close if alread open
       bool OpenCloseForward {
          get {
             return (OCF & 1) > 0;
@@ -500,7 +498,21 @@ namespace EIP_Lib {
             if (value) {
                OCF |= 1;
             } else {
-               OCF &= ~1;
+               OCF &= ~1UL;
+            }
+         }
+      }
+
+      ulong RE = 0; // Flag for reporting errors
+      bool ReportErrors {
+         get {
+            return RE > 0;
+         }
+         set {
+            if (value) {
+               RE |= 1;
+            } else {
+               RE &= ~1UL;
             }
          }
       }
@@ -613,10 +625,13 @@ namespace EIP_Lib {
       }
 
       // Start EtherNet/IP Session
-      public bool StartSession() {
+      public bool StartSession(bool report = false) {
          bool successful = true;
          OCS <<= 1;
-         if (OpenCloseSession = !SessionIsOpen) {
+         OpenCloseSession = !SessionIsOpen;
+         RE <<= 1;
+         ReportErrors = report;
+         if (OpenCloseSession) {
             SessionID = 1;
             if (Connect()) {
                byte[] ed = EIP_Session(EIP_Type.RegisterSession);
@@ -653,6 +668,7 @@ namespace EIP_Lib {
             }
          }
          OCS >>= 1;
+         RE >>= 1;
       }
 
       // Opens a Data Forwarding path to the printer.
@@ -768,7 +784,11 @@ namespace EIP_Lib {
             }
             ForwardClose();
          }
+         bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();
+         if (report) {
+            throw new EIPIOException("EIP I/O Failed", AccessCode.Get, Class, Attribute);
+         }
          return Successful;
       }
 
@@ -826,7 +846,11 @@ namespace EIP_Lib {
             }
             ForwardClose();
          }
+         bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();
+         if (report) {
+            throw new EIPIOException("EIP I/O Failed", AccessCode.Set, Class, Attribute);
+         }
          return Successful;
       }
 
@@ -885,7 +909,11 @@ namespace EIP_Lib {
             }
             ForwardClose();
          }
+         bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();
+         if (report) {
+            throw new EIPIOException("EIP I/O Failed", AccessCode.Service, Class, Attribute);
+         }
          return Successful;
       }
 
@@ -1319,7 +1347,7 @@ namespace EIP_Lib {
             case DataFormats.N1N2N1:
                sa = s.Split(',');
                if (sa.Length == 3) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n1) && 
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) &&
                      uint.TryParse(sa[1].Trim(), out uint n2) &&
                      uint.TryParse(sa[2].Trim(), out uint n3)) {
                      result = Merge(ToBytes(n1, 1), ToBytes(n2, 2), ToBytes(n3, 1));
@@ -1415,7 +1443,7 @@ namespace EIP_Lib {
                IsValid = n >= prop.Min && n <= prop.Max;
                break;
             case DataFormats.N1N2N1:
-               if(data.Length > 4) {
+               if (data.Length > 4) {
                   int rows = data[0];
                   int cols = (data[1] << 8) + data[2];
                   int pos = data[3];
@@ -1984,6 +2012,28 @@ namespace EIP_Lib {
       }
 
       #endregion
+
+   }
+
+   public class EIPIOException : Exception {
+
+      public AccessCode AccessCode;
+      public ClassCode ClassCode;
+      public byte Attribute;
+
+      public EIPIOException() : base() {
+
+      }
+
+      public EIPIOException(string message) : base(message) {
+
+      }
+
+      public EIPIOException(string message, AccessCode AccessCode, ClassCode ClassCode, byte Attribute) : base(message) {
+         this.AccessCode = AccessCode;
+         this.ClassCode = ClassCode;
+         this.Attribute = Attribute;
+      }
 
    }
 
