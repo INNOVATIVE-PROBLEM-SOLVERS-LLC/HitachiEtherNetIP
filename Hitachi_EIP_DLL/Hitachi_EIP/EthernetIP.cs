@@ -39,8 +39,8 @@ namespace EIP_Lib {
       N2Char = 10,    // 2-byte number + UTF8 String + 0x00
       ItemChar = 11,  // 1-byte item number + UTF8 String + 0x00
       Item = 12,      // 1-byte item number
-      GroupChar = 13, // 1 byte group number + UTF8 String + 0x00
-      MsgChar = 14,   // 2 byte message number + UTF8 String + 0x00
+      GroupChar = 13, // 1-byte group number + UTF8 String + 0x00
+      MsgChar = 14,   // 2-byte message number + UTF8 String + 0x00
       N1Char = 15,    // 1-byte number + UTF8 String + 0x00
       N1N1 = 16,      // 2 1-byte numbers
       N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte

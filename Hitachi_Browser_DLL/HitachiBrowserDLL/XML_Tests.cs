@@ -346,45 +346,159 @@ namespace EIP_Lib {
          return success;
       }
 
-      // Create a message with three rows and two columns that contains one of everything
+      // Create a message with three rows, two columns,and a Logo that contains one of everything
       private bool Comprehensive() {
-         string[] itemText = new string[] {
-            "SELL BY {{MMM}/{DD}/{YY}}  ",
-            "USE BY  {{MMM}/{DD}/{YY}}  ",
-            "PACKED  {{TTT} {777}} ",
-            "Shift {{E}}", "Time Count {{FF}}", "{{CCC},{CCC}} "
-         };
          bool success = true;
+         string[] itemText = new string[] {
+      "SELL BY {{MMM}/{DD}/{YY}}  ", "USE BY  {{MMM}/{DD}/{YY}}  ", "PACKED  {{TTT} {777}} ",
+      "Shift {{E}}", "TCount {{FF}} ", "# {{CCCCCC}} ", "{X/0}"
+   };
          int firstBlock = 1;
-         int blockCount = 1;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               // Clean up the display
-               success = success && CleanUpDisplay();
-               // First column is already there, just create the second column
-               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
-               // Allocate the items in each column (Should this be Column and not Item?)
-               success = success && EIP.SetAttribute(ccIDX.Item, 1);
-               success = success && EIP.SetAttribute(ccPF.Line_Count, 3);
-               success = success && EIP.SetAttribute(ccIDX.Item, 2);
-               success = success && EIP.SetAttribute(ccPF.Line_Count, 3);
-               // Set the Interline Spacing
-               success = success && EIP.SetAttribute(ccIDX.Column, 1);
-               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 1);
-               success = success && EIP.SetAttribute(ccIDX.Column, 2);
-               success = success && EIP.SetAttribute(ccPF.Line_Spacing, 2);
-               // Set the format consistant for all six items
-               for (int i = 1; i <= 6; i++) {
-                  success = success && EIP.SetAttribute(ccIDX.Item, i);
-                  success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-                  success = success && EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
-                  success = success && EIP.SetAttribute(ccPF.Print_Character_String, itemText[i - 1]);
+               try {
+                  // Clean up the display
+                  {
+                     EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
+                     if (cols > 1) {
+                        EIP.SetAttribute(ccIDX.Column, 1); // Actually column 2
+                        while (--cols > 0) {
+                           EIP.ServiceAttribute(ccPF.Delete_Column);
+                        }
+                     }
+                     EIP.SetAttribute(ccIDX.Item, 1);
+                     EIP.SetAttribute(ccPF.Line_Count, 1);
+                     // Avoid issues with add columns
+                     EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                     EIP.SetAttribute(ccPF.Barcode_Type, "None");
+                     EIP.SetAttribute(ccPF.Print_Character_String, "1");
+                  }
+
+                  // Set up the rows and columns
+                  {
+                     // First column is already there, just create the second and third columns
+                     EIP.ServiceAttribute(ccPF.Add_Column);
+                     EIP.ServiceAttribute(ccPF.Add_Column);
+                     // Allocate the items in each column (Should this be Column and not Item?)
+                     EIP.SetAttribute(ccIDX.Item, 1);
+                     EIP.SetAttribute(ccPF.Line_Count, 3);
+                     EIP.SetAttribute(ccIDX.Item, 2);
+                     EIP.SetAttribute(ccPF.Line_Count, 3);
+                     EIP.SetAttribute(ccIDX.Item, 3);
+                     EIP.SetAttribute(ccPF.Line_Count, 1);
+                     // Set the Interline Spacing
+                     EIP.SetAttribute(ccIDX.Column, 1);
+                     EIP.SetAttribute(ccPF.Line_Spacing, 1);
+                     EIP.SetAttribute(ccIDX.Column, 2);
+                     EIP.SetAttribute(ccPF.Line_Spacing, 2);
+                  }
+
+                  // Format the items
+                  {
+                     // Set the format consistant for all six items
+                     for (int i = 1; i <= 6; i++) {
+                        EIP.SetAttribute(ccIDX.Item, i);
+                        EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+                        EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+                        EIP.SetAttribute(ccPF.Print_Character_String, itemText[i - 1]);
+                     }
+                     // Set a logo into the seventh item
+                     EIP.SetAttribute(ccIDX.Item, 7);
+                     EIP.SetAttribute(ccPF.Dot_Matrix, "18x24");
+                     EIP.SetAttribute(ccPF.InterCharacter_Space, 2);
+                     EIP.SetAttribute(ccPF.Print_Character_String, itemText[6]);
+                  }
+
+                  // Set up the clock for item 1
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 1);
+                     EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
+                     EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
+                  }
+                  // Set up the clock for item 2
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 2);
+                     EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
+                     EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
+                     EIP.SetAttribute(ccCal.Offset_Day, 30);
+                     EIP.SetAttribute(ccPF.Calendar_Offset, "From Yesterday");
+                  }
+                  // Set up the clock for item 3
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 3);
+                     EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
+                     EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
+                  }
+                  // Set up the clock for item 4
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 4);
+                     EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
+
+                     // Set < Shift Number="1" StartHour="00" StartMinute="00" EndHour="7" EndMinute="59" Text="D" />
+                     EIP.SetAttribute(ccIDX.Calendar_Block, 1);
+                     EIP.SetAttribute(ccCal.Shift_Start_Hour, 0);
+                     EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+                     EIP.SetAttribute(ccCal.Shift_String_Value, "D");
+
+                     // Set < Shift Number="2" StartHour="8" StartMinute="00" EndHour="15" EndMinute="59" Text="E" />
+                     EIP.SetAttribute(ccIDX.Calendar_Block, 2);
+                     EIP.SetAttribute(ccCal.Shift_Start_Hour, 8);
+                     EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+                     EIP.SetAttribute(ccCal.Shift_String_Value, "E");
+
+                     // Set < Shift Number="2" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" Text="F" />
+                     EIP.SetAttribute(ccIDX.Calendar_Block, 3);
+                     EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
+                     EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
+                     EIP.SetAttribute(ccCal.Shift_String_Value, "F");
+                  }
+                  // Set up the clock for item 5
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 5);
+                     EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
+
+                     // Set <TimeCount Start="A1" End="X2" Reset="A1" ResetTime="6" RenewalPeriod="30 Minutes" />
+                     EIP.SetAttribute(ccCal.Update_Interval_Value, "30 Minutes");
+                     EIP.SetAttribute(ccCal.Time_Count_Start_Value, "A1");
+                     EIP.SetAttribute(ccCal.Time_Count_End_Value, "X2");
+                     EIP.SetAttribute(ccCal.Reset_Time_Value, 6);
+                     EIP.SetAttribute(ccCal.Time_Count_Reset_Value, "A1");
+                  }
+                  // Set up the counter for item 6
+                  {
+                     EIP.SetAttribute(ccIDX.Item, 6);
+                     EIP.GetAttribute(ccCount.First_Count_Block, out firstBlock);
+                     EIP.SetAttribute(ccIDX.Count_Block, firstBlock);
+
+                     EIP.SetAttribute(ccCount.Initial_Value, "000001");
+                     EIP.SetAttribute(ccCount.Count_Range_1, "000000");
+                     EIP.SetAttribute(ccCount.Count_Range_2, "999999");
+                     EIP.SetAttribute(ccCount.Jump_From, "000199");
+                     EIP.SetAttribute(ccCount.Jump_To, "000300");
+                     EIP.SetAttribute(ccCount.Increment_Value, 2);
+                     EIP.SetAttribute(ccCount.Direction_Value, "Down");
+                     EIP.SetAttribute(ccCount.Zero_Suppression, "Disable");
+                     EIP.SetAttribute(ccCount.Count_Multiplier, "2");
+                     EIP.SetAttribute(ccCount.Reset_Value, "000001");
+                     EIP.SetAttribute(ccCount.Count_Skip, "0");
+
+                     EIP.SetAttribute(ccCount.Update_Unit_Halfway, 0);
+                     EIP.SetAttribute(ccCount.Update_Unit_Unit, 1);
+                     EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, "Signal 1");
+                     EIP.SetAttribute(ccCount.External_Count, "Disable");
+                  }
+               } catch {
+                  success = false;
                }
             }
             EIP.ForwardClose();
          }
          EIP.EndSession();
-
          return success;
       }
 
