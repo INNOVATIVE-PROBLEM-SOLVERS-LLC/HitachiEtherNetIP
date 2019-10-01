@@ -379,7 +379,7 @@ namespace EIP_Lib {
                      EIP.SetAttribute(ccPF.Format_Setup, "Individual");
                      EIP.SetAttribute(ccPS.Character_Orientation, "Normal/Forward");
                      EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Time Setup");
-                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
+                     EIP.SetAttribute(ccPS.Target_Sensor_Filter_Value, 50);
                      EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
                      EIP.SetAttribute(ccPS.Character_Height, 99);
                      EIP.SetAttribute(ccPS.Character_Width, 10);

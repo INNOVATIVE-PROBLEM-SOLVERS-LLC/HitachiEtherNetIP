@@ -196,7 +196,7 @@ namespace EIP_Lib {
                   break;
                case "TargetSensor":
                   success = success && EIP.SetAttribute(ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
-                  success = success && EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
+                  success = success && EIP.SetAttribute(ccPS.Target_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
                   success = success && EIP.SetAttribute(ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
                   break;
                case "CharacterSize":
@@ -768,7 +768,7 @@ namespace EIP_Lib {
             writer.WriteStartElement("TargetSensor");
             {
                writer.WriteAttributeString("Filter", GetAttribute(ccPS.Target_Sensor_Filter));
-               writer.WriteAttributeString("SetupValue", GetAttribute(ccPS.Targer_Sensor_Filter_Value));
+               writer.WriteAttributeString("SetupValue", GetAttribute(ccPS.Target_Sensor_Filter_Value));
                writer.WriteAttributeString("Timer", GetAttribute(ccPS.Target_Sensor_Timer));
             }
             writer.WriteEndElement(); // TargetSensor

@@ -139,7 +139,7 @@ namespace EIP_Lib {
       Repeat_Interval = 0x73,
       Target_Sensor_Timer = 0x74,
       Target_Sensor_Filter = 0x75,
-      Targer_Sensor_Filter_Value = 0x76,
+      Target_Sensor_Filter_Value = 0x76,
       Ink_Drop_Charge_Rule = 0x77,
       Print_Start_Position_Adjustment_Value = 0x78,
    }
