@@ -19,16 +19,18 @@ namespace EIP_Lib {
       TabControl tclViewXML;
       TabPage tabTreeView;
       TabPage tabIndented;
+      TabPage tabVerify;
 
       TreeView tvXML;
       TextBox txtIndentedView;
+      TextBox txtVerify;
 
       // Operating Buttons
       Button cmdOpen;
       Button cmdClear;
       Button cmdGenerate;
       Button cmdSaveAs;
-      Button cmdDeleteAll;
+      Button cmdVerify;
       Button cmdSaveInPrinter;
 
       // Testing Buttons
@@ -158,9 +160,11 @@ namespace EIP_Lib {
          tclViewXML = new TabControl() { Name = "tclViewXML", Font = courier };
          tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
          tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
+         tabVerify = new TabPage() { Name = "tabVerify", Text = "Verify View" };
 
          tvXML = new TreeView() { Name = "tvXML", Font = courier };
-         txtIndentedView = new TextBox() { Name = "txtIndentedView", Multiline = true, ScrollBars = ScrollBars.Both };
+         txtIndentedView = new TextBox() { Name = "txtIndentedView", Font = courier, Multiline = true, ScrollBars = ScrollBars.Both };
+         txtVerify = new TextBox() { Name = "txtVerify", Font = courier, Multiline = true, ScrollBars = ScrollBars.Both };
 
          cmdOpen = new Button() { Text = "Open" };
          cmdOpen.Click += Open_Click;
@@ -184,9 +188,11 @@ namespace EIP_Lib {
 
          tclViewXML.Controls.Add(tabTreeView);
          tclViewXML.Controls.Add(tabIndented);
+         tclViewXML.Controls.Add(tabVerify);
 
          tabTreeView.Controls.Add(tvXML);
          tabIndented.Controls.Add(txtIndentedView);
+         tabVerify.Controls.Add(txtVerify);
 
          tab.Controls.Add(cmdOpen);
          tab.Controls.Add(cmdClear);
@@ -205,23 +211,26 @@ namespace EIP_Lib {
          lblSelectHardTest = new Label() { Text = "Select Hard Test", TextAlign = ContentAlignment.BottomCenter };
          cbAvailableHardTests = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          cbAvailableHardTests.Items.AddRange(
-            new string[] { "Reset", "Shift Code", "Month Day SR", "Time Count", "Day of Week etc", "MDY hms", "Multi-Line", "Counter", "???" }
+            new string[] {
+               "Reset", "Shift Code", "Month Day SR", "Time Count",
+               "Day of Week etc", "MDY hms", "Multi-Line", "Counter",
+               "Comprehensive", "???" }
             );
          cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
          cmdRunHardTest = new Button() { Text = "Run Test" };
          cmdRunHardTest.Click += cmdRunHardTest_Click;
 
-         cmdDeleteAll = new Button() { Text = "Delete All" };
-         cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
+         cmdVerify = new Button() { Text = "Verify" };
+         cmdVerify.Click += cmdVerify_Click;
 
-         cmdDeleteAll.Click += cmdDeleteAll_Click;
+         cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
          cmdSaveInPrinter.Click += cmdSaveToPrinter_Click;
 
          tab.Controls.Add(lblSelectXmlTest);
          tab.Controls.Add(lblSelectHardTest);
          tab.Controls.Add(cbAvailableXmlTests);
          tab.Controls.Add(cbAvailableHardTests);
-         tab.Controls.Add(cmdDeleteAll);
+         tab.Controls.Add(cmdVerify);
          tab.Controls.Add(cmdBrowse);
          tab.Controls.Add(cmdSaveInPrinter);
          tab.Controls.Add(cmdRunHardTest);
@@ -244,12 +253,13 @@ namespace EIP_Lib {
          {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
+            Utils.ResizeObject(ref R, txtVerify, 1, 1, tclHeight - 12, tclWidth - 3);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 1, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 6, 5.5f, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdDeleteAll, tclHeight - 3, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdVerify, tclHeight - 3, 5.5f, 2.5f, 4);
 
             Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 10, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 10, 2.5f, 4);
@@ -353,9 +363,9 @@ namespace EIP_Lib {
          return EIP.GetDecValue;
       }
 
-      // Delete all but 1
-      private void cmdDeleteAll_Click(object sender, EventArgs e) {
-         CleanUpDisplay();
+      // Verify send vs received
+      private void cmdVerify_Click(object sender, EventArgs e) {
+
       }
 
       // Add text to all items (Control Deleted)

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Label Version="1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Inverted/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Until End of Print" SetupValue="50" Timer="0" />
+    <CharacterSize Height="0" Width="90" />
+    <PrintStartDelay Reverse="96" Forward="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <TwinNozzle />
+  </Printer>
+  <Substitution Delimiter="/" StartYear="2019" Rule="1">
+    <Year Base="0">  /  /  /  /  /  /  /  /  /  </Year>
+    <Year Base="10">  /  /  /  /  /  /  /  /  /  </Year>
+    <Year Base="20">  /  /  /  </Year>
+    <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Month>
+    <Month Base="11">NOV/DEC</Month>
+    <Day Base="1">   /   /   /   /   /   /   /   /   /   </Day>
+    <Day Base="11">   /   /   /   /   /   /   /   /   /   </Day>
+    <Day Base="21">   /   /   /   /   /   /   /   /   /   </Day>
+    <Day Base="31">   </Day>
+    <Hour Base="0">  /  /  /  /  /  /  /  /  /  </Hour>
+    <Hour Base="10">  /  /  /  /  /  /  /  /  /  </Hour>
+    <Hour Base="20">  /  /  /  </Hour>
+    <Minute Base="0">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Minute Base="10">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Minute Base="20">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Minute Base="30">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Minute Base="40">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Minute Base="50">  /  /  /  /  /  /  /  /  /  </Minute>
+    <Week Base="1">   /   /   /   /   /   /   /   /   /   </Week>
+    <Week Base="11">   /   /   /   /   /   /   /   /   /   </Week>
+    <Week Base="21">   /   /   /   /   /   /   /   /   /   </Week>
+    <Week Base="31">   /   /   /   /   /   /   /   /   /   </Week>
+    <Week Base="41">   /   /   /   /   /   /   /   /   /   </Week>
+    <Week Base="51">   /   /   </Week>
+    <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
+  </Substitution>
+  <Objects>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="1" Row="3" Column="1" />
+      <Date Block="1">
+        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+        <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
+        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
+      </Date>
+      <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+    </Object>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="2" Row="2" Column="1" />
+      <Date Block="1">
+        <Offset Year="0" Month="0" Day="30" Hour="0" Minute="0" />
+        <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
+        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
+      </Date>
+      <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+    </Object>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="3" Row="1" Column="1" />
+      <Date Block="1">
+        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+        <ZeroSuppress DayOfWeek="Disable" />
+        <EnableSubstitution DayOfWeek="Disable" />
+      </Date>
+      <Text>PACKED  {{TTT} {777}} </Text>
+    </Object>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="4" Row="3" Column="2" />
+      <Date Block="1">
+        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+        <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+        <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+        <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+      </Date>
+      <Text>Shift {E}}</Text>
+    </Object>
+    <Object Type="Date">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="5" Row="2" Column="2" />
+      <Date Block="1">
+        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+        <TimeCount Interval="-1200116811" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+      </Date>
+      <Text>TCount {{FF}} </Text>
+    </Object>
+    <Object Type="Counter">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
+      <Location ItemNumber="6" Row="1" Column="2" />
+      <Counter Block="1" Reset="      " CountUp="Up" Increment="1" JumpTo="      " JumpFrom="      " UpdateUnit="1" UpdateIP="0" Range2="999999" Range1="000000" InitialValue="000000" Multiplier="" ZeroSuppression="Enable" />
+      <Text># {{CCCCCC}} </Text>
+    </Object>
+    <Object Type="Text">
+      <Font BarCode="None" IncreasedWidth="1" InterLineSpace="0" InterCharacterSpace="2">18x24</Font>
+      <Location ItemNumber="7" Row="1" Column="3" />
+      <Text>{X/000}</Text>
+    </Object>
+  </Objects>
+</Label>

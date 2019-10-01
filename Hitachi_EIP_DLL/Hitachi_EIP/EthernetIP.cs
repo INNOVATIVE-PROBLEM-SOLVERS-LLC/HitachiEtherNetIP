@@ -39,8 +39,8 @@ namespace EIP_Lib {
       N2Char = 10,    // 2-byte number + UTF8 String + 0x00
       ItemChar = 11,  // 1-byte item number + UTF8 String + 0x00
       Item = 12,      // 1-byte item number
-      GroupChar = 13, // 1 byte group number + UTF8 String + 0x00
-      MsgChar = 14,   // 2 byte message number + UTF8 String + 0x00
+      GroupChar = 13, // 1-byte group number + UTF8 String + 0x00
+      MsgChar = 14,   // 2-byte message number + UTF8 String + 0x00
       N1Char = 15,    // 1-byte number + UTF8 String + 0x00
       N1N1 = 16,      // 2 1-byte numbers
       N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
@@ -1330,6 +1330,38 @@ namespace EIP_Lib {
          if (result == null) {
             result = new byte[0];
          }
+         return result;
+      }
+
+      // Format output
+      public byte[] FormatOutput(Prop prop, int[] n) {
+         byte[] result = null;
+         switch (prop.Fmt) {
+            case DataFormats.XY:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 2), ToBytes(n[1], 1));
+               break;
+            case DataFormats.N2N2:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 2), ToBytes(n[1], 2));
+               break;
+            case DataFormats.N1N1:
+               SetDataValue = $"{n[0]},{n[1]}";
+               result = Merge(ToBytes(n[0], 1), ToBytes(n[1], 1));
+               break;
+            case DataFormats.N1N2N1:
+               SetDataValue = $"{n[0]},{n[1]},{n[2]}";
+               result = Merge(ToBytes(n[0], 1), ToBytes(n[1], 2), ToBytes(n[2], 1));
+               break;
+         }
+         SetDecValue = -1;
+         return result;
+      }
+
+      // Format output
+      public byte[] FormatOutput(Prop prop, int[] n, byte[] b) {
+         byte[] result = Merge(FormatOutput(prop, n), b);
+         SetDataValue += ",...";
          return result;
       }
 

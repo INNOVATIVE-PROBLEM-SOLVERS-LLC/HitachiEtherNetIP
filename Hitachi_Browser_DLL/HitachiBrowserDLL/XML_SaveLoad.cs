@@ -267,7 +267,6 @@ namespace EIP_Lib {
                success = success && EIP.SetAttribute(ccIDX.Column, col);
                success = success && EIP.SetAttribute(ccPF.Line_Spacing, ILS[col]);
             }
-
          }
          return success;
       }
@@ -746,9 +745,9 @@ namespace EIP_Lib {
          writer.WriteStartElement("Printer");
          {
             {
+               writer.WriteAttributeString("Make", "Hitachi");
                writer.WriteAttributeString("Model", GetAttribute(ccUI.Model_Name));
             }
-            writer.WriteAttributeString("Make", "Hitachi");
 
             writer.WriteStartElement("PrintHead");
             {
@@ -816,20 +815,20 @@ namespace EIP_Lib {
       private void WriteSubstitutions(XmlTextWriter writer) {
          // We need to figure out what substitution rules are being used
          // and which substitutions within the rule are needed.
-         //writer.WriteStartElement("Substitution");
-         //{
-         //   writer.WriteAttributeString("Delimiter", "/");
-         //   writer.WriteAttributeString("StartYear", "2019");
-         //   writer.WriteAttributeString("Rule", "1");
-         //   WriteSubstitutions(writer, ccSR.Year, 0, 23);
-         //   WriteSubstitutions(writer, ccSR.Month, 1, 12);
-         //   WriteSubstitutions(writer, ccSR.Day, 1, 31);
-         //   WriteSubstitutions(writer, ccSR.Hour, 0, 23);
-         //   WriteSubstitutions(writer, ccSR.Minute, 0, 59);
-         //   WriteSubstitutions(writer, ccSR.Week, 1, 53);
-         //   WriteSubstitutions(writer, ccSR.Day_Of_Week, 1, 7);
-         //}
-         //writer.WriteEndElement(); // Substitution
+         writer.WriteStartElement("Substitution");
+         {
+            writer.WriteAttributeString("Delimiter", "/");
+            writer.WriteAttributeString("StartYear", "2019");
+            writer.WriteAttributeString("Rule", "1");
+            WriteSubstitutions(writer, ccSR.Year, 0, 23);
+            WriteSubstitutions(writer, ccSR.Month, 1, 12);
+            WriteSubstitutions(writer, ccSR.Day, 1, 31);
+            WriteSubstitutions(writer, ccSR.Hour, 0, 23);
+            WriteSubstitutions(writer, ccSR.Minute, 0, 59);
+            WriteSubstitutions(writer, ccSR.Week, 1, 53);
+            WriteSubstitutions(writer, ccSR.Day_Of_Week, 1, 7);
+         }
+         writer.WriteEndElement(); // Substitution
       }
 
       // Write a single rule

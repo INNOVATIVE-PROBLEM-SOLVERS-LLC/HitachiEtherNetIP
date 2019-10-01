@@ -308,20 +308,18 @@ namespace EIP_Lib {
                byte[] data;
                for (int i = 0; i < Count; i++) {
                   if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+                     AttrData attr = EIP.GetAttrData(ccUP.User_Pattern_Fixed);
                      // Font ID, Position, and Bit Map
-                     data = EIP.Merge(EIP.ToBytes(dotMatrixCode, 1), EIP.ToBytes(Registration + i, 1), b[i]);
-                     if (EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
-                        // Should return nothing.  Need to see what we get to know how to process it
-                     } else {
+                     data = EIP.FormatOutput(attr.Set, new int[] { dotMatrixCode, Registration + i }, b[i]);
+                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data)) {
                         EIP.LogIt("Fixed Pattern Download Failed.  Aborting Download!");
                         break;
                      }
                   } else {
+                     AttrData attr = EIP.GetAttrData(ccUP.User_Pattern_Free);
                      // Vertical Size (charHeigth), Horizontol Size (charWidth), Position, Bit Map
-                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(Registration + i, 1), b[i]);
-                     if (EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data)) {
-                        // Should return nothing.  Need to see what we get to know how to process it
-                     } else {
+                     data = EIP.FormatOutput(attr.Set, new int[] { charHeight, charWidth, Registration + i }, b[i]);
+                     if (!EIP.SetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data)) {
                         EIP.LogIt("Free Pattern Download Failed.  Aborting Download!");
                         break;
                      }
@@ -353,15 +351,18 @@ namespace EIP_Lib {
                byte[] data;
                for (int i = 0; i <= Count; i++) {
                   if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
-                     data = new byte[] { (byte)(dotMatrixCode), (byte)(Registration + i) };
+                     AttrData attr = EIP.GetAttrData(ccUP.User_Pattern_Fixed);
+                     data = EIP.FormatOutput(attr.Get, new int[] { dotMatrixCode, Registration + i });
                      Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Fixed, data);
                   } else {
-                     data = EIP.Merge(EIP.ToBytes(charHeight, 1), EIP.ToBytes(charWidth, 2), EIP.ToBytes(Registration + i, 1));
+                     AttrData attr = EIP.GetAttrData(ccUP.User_Pattern_Free);
+                     data = EIP.FormatOutput(attr.Get, new int[] { charHeight, charWidth, Registration + i });
                      Success = EIP.GetAttribute(ClassCode.User_pattern, (byte)ccUP.User_Pattern_Free, data);
                   }
                   if (Success) {
-                     if (EIP.GetDataLength == bytesPerCharacter + (cbLayout.SelectedIndex == (int)Layout.Fixed ? 2 : 4)) {
-                        stripes[i] = BytesToStripe(charHeight, EIP.GetData);
+                     int hdrLen = cbLayout.SelectedIndex == (int)Layout.Fixed ? 2 : 4;
+                     if (EIP.GetDataLength == bytesPerCharacter + hdrLen) {
+                        stripes[i] = BytesToStripe(charHeight, EIP.GetData, hdrLen);
                         bmGrid = StripesToBitMap(stripes);
                         BitMapToImage();
                         grpGrid.Invalidate();
@@ -382,11 +383,11 @@ namespace EIP_Lib {
       }
 
       // Build the stripes from a single character
-      private long[] BytesToStripe(int charHeight, byte[] b) {
+      private long[] BytesToStripe(int charHeight, byte[] b, int start = 0) {
          int stride = (charHeight + 7) / 8;
-         int count = b.Length / stride;
+         int count = (b.Length - start) / stride;
          long[] stripe = new long[count];
-         for (int i = 0; i < b.Length; i += stride) {
+         for (int i = start; i < b.Length; i += stride) {
             stripe[i / stride] = EIP.Get(b, i, stride, mem.BigEndian);
          }
          return stripe;
