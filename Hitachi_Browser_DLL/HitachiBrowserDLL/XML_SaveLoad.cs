@@ -665,68 +665,71 @@ namespace EIP_Lib {
 
       // Generate an XMP Doc form the current printer settings
       private string ConvertLayoutToXML() {
-         success = true;
+         bool success = true;
          ItemType itemType = ItemType.Text;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
-               if (EIP.StartSession()) {
+               if (EIP.StartSession(true)) {
                   if (EIP.ForwardOpen()) {
-                     writer.WriteStartElement("Label"); // Start Label
-                     {
-                        writer.WriteAttributeString("Version", "1");
-                        WritePrinterSettings(writer);
-                        WriteSubstitutions(writer);
-                        writer.WriteStartElement("Objects"); // Start Objects
+                     try {
+                        writer.WriteStartElement("Label"); // Start Label
                         {
-                           int item = 0;
-                           int colCount = GetDecimalAttribute(ccPF.Number_Of_Columns);
-                           for (int col = 1; col <= colCount; col++) {
-                              success = success && EIP.SetAttribute(ccIDX.Column, col);
-                              int LineCount = GetDecimalAttribute(ccPF.Line_Count);
-                              for (int row = LineCount; row > 0; row--) {
-                                 success = success && EIP.SetAttribute(ccIDX.Item, ++item);
-                                 string text = GetAttribute(ccPF.Print_Character_String);
-                                 int[] mask = new int[1 + Math.Max(
-                                       GetDecimalAttribute(ccCal.Number_of_Calendar_Blocks),
-                                       GetDecimalAttribute(ccCount.Number_Of_Count_Blocks))];
-                                 itemType = GetItemType(text, ref mask);
-                                 writer.WriteStartElement("Object"); // Start Object
-                                 {
-                                    writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
+                           writer.WriteAttributeString("Version", "1");
+                           WritePrinterSettings(writer);
+                           writer.WriteStartElement("Objects"); // Start Objects
+                           {
+                              int item = 0;
+                              int colCount = GetDecimalAttribute(ccPF.Number_Of_Columns);
+                              for (int col = 1; col <= colCount; col++) {
+                                 success = success && EIP.SetAttribute(ccIDX.Column, col);
+                                 int LineCount = GetDecimalAttribute(ccPF.Line_Count);
+                                 for (int row = LineCount; row > 0; row--) {
+                                    success = success && EIP.SetAttribute(ccIDX.Item, ++item);
+                                    string text = GetAttribute(ccPF.Print_Character_String);
+                                    int[] mask = new int[1 + Math.Max(
+                                          GetDecimalAttribute(ccCal.Number_of_Calendar_Blocks),
+                                          GetDecimalAttribute(ccCount.Number_Of_Count_Blocks))];
+                                    itemType = GetItemType(text, ref mask);
+                                    writer.WriteStartElement("Object"); // Start Object
+                                    {
+                                       writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
-                                    WriteFont(writer);
+                                       WriteFont(writer);
 
-                                    WriteLocation(writer, item, row, col);
+                                       WriteLocation(writer, item, row, col);
 
-                                    switch (itemType) {
-                                       case ItemType.Text:
-                                          break;
-                                       case ItemType.Date:
-                                          // Missing multiple calendar block logic
-                                          WriteCalendarSettings(writer, mask);
-                                          break;
-                                       case ItemType.Counter:
-                                          // Missing multiple counter block logic
-                                          WriteCounterSettings(writer);
-                                          break;
-                                       case ItemType.Logo:
-                                          WriteUserPatternSettings(writer);
-                                          break;
-                                       default:
-                                          break;
+                                       switch (itemType) {
+                                          case ItemType.Text:
+                                             break;
+                                          case ItemType.Date:
+                                             // Missing multiple calendar block logic
+                                             WriteCalendarSettings(writer, mask);
+                                             break;
+                                          case ItemType.Counter:
+                                             // Missing multiple counter block logic
+                                             WriteCounterSettings(writer);
+                                             break;
+                                          case ItemType.Logo:
+                                             WriteUserPatternSettings(writer);
+                                             break;
+                                          default:
+                                             break;
+                                       }
+
+                                       writer.WriteElementString("Text", text);
                                     }
-
-                                    writer.WriteElementString("Text", text);
+                                    writer.WriteEndElement(); // End Object
                                  }
-                                 writer.WriteEndElement(); // End Object
                               }
                            }
+                           writer.WriteEndElement(); // End Objects
                         }
-                        writer.WriteEndElement(); // End Objects
+                        writer.WriteEndElement(); // End Label
+                     } catch(Exception e) {
+                        success = false;
                      }
-                     writer.WriteEndElement(); // End Label
                   }
                   EIP.ForwardClose();
                }
@@ -807,6 +810,8 @@ namespace EIP_Lib {
                //writer.WriteAttributeString("NozzleSpaceAlignment", this.NozzleSpaceAlignment.ToString());
             }
             writer.WriteEndElement(); // TwinNozzle
+
+            WriteSubstitutions(writer);
          }
          writer.WriteEndElement(); // Printer
       }
@@ -820,19 +825,19 @@ namespace EIP_Lib {
             writer.WriteAttributeString("Delimiter", "/");
             writer.WriteAttributeString("StartYear", "2019");
             writer.WriteAttributeString("Rule", "1");
-            WriteSubstitutions(writer, ccSR.Year, 0, 23);
-            WriteSubstitutions(writer, ccSR.Month, 1, 12);
-            WriteSubstitutions(writer, ccSR.Day, 1, 31);
-            WriteSubstitutions(writer, ccSR.Hour, 0, 23);
-            WriteSubstitutions(writer, ccSR.Minute, 0, 59);
-            WriteSubstitutions(writer, ccSR.Week, 1, 53);
-            WriteSubstitutions(writer, ccSR.Day_Of_Week, 1, 7);
+            //WriteSubstitution(writer, ccSR.Year, 0, 23);
+            WriteSubstitution(writer, ccSR.Month, 1, 12);
+            //WriteSubstitution(writer, ccSR.Day, 1, 31);
+            //WriteSubstitution(writer, ccSR.Hour, 0, 23);
+            //WriteSubstitution(writer, ccSR.Minute, 0, 59);
+            //WriteSubstitution(writer, ccSR.Week, 1, 53);
+            WriteSubstitution(writer, ccSR.Day_Of_Week, 1, 7);
          }
          writer.WriteEndElement(); // Substitution
       }
 
       // Write a single rule
-      private void WriteSubstitutions(XmlTextWriter writer, ccSR attr, int start, int end) {
+      private void WriteSubstitution(XmlTextWriter writer, ccSR attr, int start, int end) {
          int n = end - start + 1;
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
