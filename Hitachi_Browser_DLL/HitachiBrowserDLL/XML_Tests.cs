@@ -13,7 +13,6 @@ namespace EIP_Lib {
 
       // Run hard coded test
       private void cmdRunHardTest_Click(object sender, EventArgs e) {
-         success = true;
          int Item = 1;
          int Rule = 1;
          if (EIP.StartSession(true)) {
@@ -74,14 +73,12 @@ namespace EIP_Lib {
       #region Test Routines
 
       public bool CleanUpDisplay() {
-         success = true;
+         bool success = true;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
                   // Get the number of columns
-                  success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
-                  // Make things faster
-                  //success = EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+                  EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
                   // No need to delete columns if there is only one
                   if (cols > 1) {
                      // Select to continuously delete column 2 (0 origin on deletes)
@@ -101,14 +98,12 @@ namespace EIP_Lib {
                   EIP.SetAttribute(ccPF.Barcode_Type, "None");
                   // Set simple text in case Calendar or Counter was used
                   EIP.SetAttribute(ccPF.Print_Character_String, "1");
-                  // Make things faster
-                  //success = EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-                  //success = EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+                  success = false;
                } catch (Exception e2) {
                   // You are on your own here
                }
@@ -145,7 +140,7 @@ namespace EIP_Lib {
          EIP.SetAttribute(ccCal.Shift_Start_Hour, 16);
          EIP.SetAttribute(ccCal.Shift_Start_Minute, 0);
          EIP.SetAttribute(ccCal.Shift_String_Value, "F");
-         return success;
+         return true;
       }
 
       private bool BuildMonthDaySR(int Rule) {
@@ -156,16 +151,16 @@ namespace EIP_Lib {
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
          string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimeter);
-         for (int i = 0; i < months.Length && success; i++) {
-            success = EIP.SetAttribute(ccSR.Month, i + 1, months[i]);
+         for (int i = 0; i < months.Length; i++) {
+            EIP.SetAttribute(ccSR.Month, i + 1, months[i]);
          }
 
          // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
          string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
-         for (int i = 0; i < day.Length && success; i++) {
-            success = EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
+         for (int i = 0; i < day.Length; i++) {
+            EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
          }
-         return success;
+         return true;
       }
 
       private bool BuildTimeCount(int Item) {
@@ -182,7 +177,7 @@ namespace EIP_Lib {
          EIP.SetAttribute(ccCal.Time_Count_End_Value, "X2");
          EIP.SetAttribute(ccCal.Reset_Time_Value, 6);
          EIP.SetAttribute(ccCal.Time_Count_Reset_Value, "A1");
-         return success;
+         return true;
       }
 
       private bool TryDayOfWeekEtc(int Item) {
@@ -198,10 +193,11 @@ namespace EIP_Lib {
          EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
          EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
          EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Disable");
-         return success;
+         return true;
       }
 
       private bool BuildMDYhms(int Item, int Rule) {
+         bool success = true;
          try {
             int firstBlock = 1;
             int blockCount = 1;
@@ -268,7 +264,7 @@ namespace EIP_Lib {
       }
 
       private bool MultiLine() {
-         success = true;
+         bool success = true;
          if (EIP.StartSession(true)) {    // Open a session
             if (EIP.ForwardOpen()) {  // open a data forwarding path
                try {
@@ -278,7 +274,7 @@ namespace EIP_Lib {
                   EIP.SetAttribute(ccIDX.Item, 1);
                   EIP.SetAttribute(ccPF.Line_Count, 1);
                   // Add four more columns
-                  for (int i = 2; success && i <= 5; i++) {
+                  for (int i = 2; i <= 5; i++) {
                      EIP.ServiceAttribute(ccPF.Add_Column, 0);
                   }
                   // Stack columns 2 and 4 (1 origin on Line Count)
@@ -313,7 +309,7 @@ namespace EIP_Lib {
       }
 
       private bool CreateCounter() {
-         success = true;
+         bool success = true;
          int firstBlock = 1;
          int blockCount = 1;
          if (EIP.StartSession(true)) {
@@ -568,6 +564,7 @@ namespace EIP_Lib {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+                  success = false;
                } catch (Exception e2) {
                   // You are on your own here
                }
@@ -579,7 +576,7 @@ namespace EIP_Lib {
       }
 
       public bool SetText(string text) {
-         success = true;
+         bool success = true;
          int calNo = 0;
          string[] s = text.Split('\n');
          if (EIP.StartSession(true)) {
@@ -609,6 +606,7 @@ namespace EIP_Lib {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+                  success = false;
                } catch (Exception e2) {
                   // You are on your own here
                }
@@ -616,39 +614,6 @@ namespace EIP_Lib {
             EIP.ForwardClose();
          }
          EIP.EndSession();
-         return success;
-      }
-
-      private bool VerifyShifts(int Item) {
-         // Need to rethink this
-         try {
-            // Select the Item
-            bool success = EIP.SetAttribute(ccIDX.Item, Item);
-
-            // For testing purposes, try to read then back
-            success &= EIP.SetAttribute(ccIDX.Calendar_Block, 1);
-            success &= EIP.GetAttribute(ccCal.Shift_Start_Hour, out int sh1) && sh1 == 0;
-            success &= EIP.GetAttribute(ccCal.Shift_Start_Minute, out int sm1) && sm1 == 0;
-            success &= EIP.GetAttribute(ccCal.Shift_End_Hour, out int eh1) && eh1 == 11;
-            success &= EIP.GetAttribute(ccCal.Shift_End_Minute, out int em1) && em1 == 59;
-            success &= EIP.GetAttribute(ccCal.Shift_String_Value, out string sv1) && sv1 == "AA";
-
-            // For testing putposes, try to read then back
-            success &= EIP.SetAttribute(ccIDX.Calendar_Block, 2);
-            success &= EIP.GetAttribute(ccCal.Shift_Start_Hour, out int sh2) && sh1 == 12;
-            success &= EIP.GetAttribute(ccCal.Shift_Start_Minute, out int sm2) && sm2 == 0;
-            success &= EIP.GetAttribute(ccCal.Shift_End_Hour, out int eh2) && eh2 == 23;
-            success &= EIP.GetAttribute(ccCal.Shift_End_Minute, out int em2) && em2 == 59;
-            success &= EIP.GetAttribute(ccCal.Shift_String_Value, out string sv2) && sv2 == "BB";
-         } catch (EIPIOException e1) {
-            // In case of an EIP I/O error
-            string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
-            string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
-            MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-            success = false;
-         } catch (Exception e2) {
-            // You are on your own here
-         }
          return success;
       }
 
