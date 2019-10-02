@@ -8,22 +8,22 @@ namespace H_EIP {
       Browser browser = null;
       EIP EIP = null;
 
-      public TestEIP() {
+      public TestEIP(string IPAddress, string Port) {
          InitializeComponent();
+         txtIPAddress.Text = IPAddress;
+         txtPort.Text = Port;
       }
 
       private void TestEIP_Load(object sender, EventArgs e) {
          // Comment out next line if browser not needed
-         browser = new Browser("10.0.0.100", 44818, @"C:\Temp\EIP", @"C:\GitHubEtherNetIP\Messages");
+         browser = new Browser(txtIPAddress.Text, 44818, @"C:\Temp\EIP", @"C:\GitHubEtherNetIP\Messages");
          if (browser == null) {
             // Get a new EtherNet/IP instance
-            EIP = new EIP("10.0.0.100", 44818, @"C:\Temp\EIP");
+            EIP = new EIP(txtIPAddress.Text, 44818, @"C:\Temp\EIP");
          } else {
             // Use the instance from the browser
             EIP = browser.EIP;
          }
-         // Sample of using pre-defined dropdowns
-         cbFont.Items.AddRange(EIP.DropDowns[(int)fmtDD.FontType]);
       }
 
       private void cmdViewTraffic_Click(object sender, EventArgs e) {
@@ -44,17 +44,11 @@ namespace H_EIP {
          browser = null;
       }
 
-      private void Sample() {
-         AttrData attr = EIP.GetAttrData(ccPF.Print_Character_String);
-         byte[] data1 = EIP.Encode.GetBytes("Hello World");               // To UTF8 without a Null
-         byte[] data2 = EIP.FormatOutput(attr.Set, " and Hello Dolly");   // To UTF8 with a Null
-         EIP.SetAttribute(attr.Class, attr.Val, EIP.Merge(data1, data2)); // Merge the two arrays
-      }
-
       // Create a simple message
       private void cmdTest_Click(object sender, EventArgs e) {
-         if (EIP.StartSession()) {    // Open a session
+         if (EIP.StartSession(true)) {    // Open a session
             if (EIP.ForwardOpen()) {  // open a data forwarding path
+               try { 
                EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols); // Get the number of columns
                EIP.SetAttribute(ccIDX.Automatic_reflection, 1);     // Stack up all the operations
                if (cols > 1) { // No need to delete columns if there is only one
@@ -87,6 +81,14 @@ namespace H_EIP {
                // Execute all the operations
                EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
                EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               } catch (EIPIOException e1) {
+                  // In case of an EIP I/O error
+                  string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                  string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
+                  MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+               } catch (Exception e2) {
+                  // You are on your own here
+               }
             }
             EIP.ForwardClose(); // Must be outside the ForwardOpen if block
          }

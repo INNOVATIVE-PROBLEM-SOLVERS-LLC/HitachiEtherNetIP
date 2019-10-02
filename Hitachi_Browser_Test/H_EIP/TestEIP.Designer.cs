@@ -27,13 +27,15 @@
          this.cmdViewTraffic = new System.Windows.Forms.Button();
          this.cmdStartBrowser = new System.Windows.Forms.Button();
          this.cmdExit = new System.Windows.Forms.Button();
-         this.lblFont = new System.Windows.Forms.Label();
-         this.cbFont = new System.Windows.Forms.ComboBox();
+         this.lblIPAddress = new System.Windows.Forms.Label();
+         this.lblPort = new System.Windows.Forms.Label();
+         this.txtIPAddress = new System.Windows.Forms.TextBox();
+         this.txtPort = new System.Windows.Forms.TextBox();
          this.SuspendLayout();
          // 
          // cmdSendToPrinter
          // 
-         this.cmdSendToPrinter.Location = new System.Drawing.Point(12, 12);
+         this.cmdSendToPrinter.Location = new System.Drawing.Point(21, 61);
          this.cmdSendToPrinter.Name = "cmdSendToPrinter";
          this.cmdSendToPrinter.Size = new System.Drawing.Size(173, 45);
          this.cmdSendToPrinter.TabIndex = 0;
@@ -43,7 +45,7 @@
          // 
          // cmdViewTraffic
          // 
-         this.cmdViewTraffic.Location = new System.Drawing.Point(12, 77);
+         this.cmdViewTraffic.Location = new System.Drawing.Point(21, 112);
          this.cmdViewTraffic.Name = "cmdViewTraffic";
          this.cmdViewTraffic.Size = new System.Drawing.Size(173, 45);
          this.cmdViewTraffic.TabIndex = 1;
@@ -53,7 +55,7 @@
          // 
          // cmdStartBrowser
          // 
-         this.cmdStartBrowser.Location = new System.Drawing.Point(200, 12);
+         this.cmdStartBrowser.Location = new System.Drawing.Point(209, 61);
          this.cmdStartBrowser.Name = "cmdStartBrowser";
          this.cmdStartBrowser.Size = new System.Drawing.Size(173, 45);
          this.cmdStartBrowser.TabIndex = 2;
@@ -63,7 +65,7 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(200, 77);
+         this.cmdExit.Location = new System.Drawing.Point(209, 112);
          this.cmdExit.Name = "cmdExit";
          this.cmdExit.Size = new System.Drawing.Size(173, 45);
          this.cmdExit.TabIndex = 3;
@@ -71,30 +73,52 @@
          this.cmdExit.UseVisualStyleBackColor = true;
          this.cmdExit.Click += new System.EventHandler(this.cmdExit_Click);
          // 
-         // lblFont
+         // lblIPAddress
          // 
-         this.lblFont.Location = new System.Drawing.Point(12, 142);
-         this.lblFont.Name = "lblFont";
-         this.lblFont.Size = new System.Drawing.Size(173, 27);
-         this.lblFont.TabIndex = 4;
-         this.lblFont.Text = "Select A Font";
-         this.lblFont.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+         this.lblIPAddress.Location = new System.Drawing.Point(24, 8);
+         this.lblIPAddress.Name = "lblIPAddress";
+         this.lblIPAddress.Size = new System.Drawing.Size(170, 22);
+         this.lblIPAddress.TabIndex = 4;
+         this.lblIPAddress.Text = "IP Address";
+         this.lblIPAddress.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
-         // cbFont
+         // lblPort
          // 
-         this.cbFont.FormattingEnabled = true;
-         this.cbFont.Location = new System.Drawing.Point(15, 172);
-         this.cbFont.Name = "cbFont";
-         this.cbFont.Size = new System.Drawing.Size(173, 24);
-         this.cbFont.TabIndex = 5;
+         this.lblPort.Location = new System.Drawing.Point(209, 8);
+         this.lblPort.Name = "lblPort";
+         this.lblPort.Size = new System.Drawing.Size(173, 22);
+         this.lblPort.TabIndex = 5;
+         this.lblPort.Text = "Port";
+         this.lblPort.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // txtIPAddress
+         // 
+         this.txtIPAddress.Location = new System.Drawing.Point(24, 33);
+         this.txtIPAddress.Name = "txtIPAddress";
+         this.txtIPAddress.Size = new System.Drawing.Size(170, 22);
+         this.txtIPAddress.TabIndex = 6;
+         this.txtIPAddress.Text = "10.0.0.100";
+         this.txtIPAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // txtPort
+         // 
+         this.txtPort.Location = new System.Drawing.Point(209, 33);
+         this.txtPort.Name = "txtPort";
+         this.txtPort.ReadOnly = true;
+         this.txtPort.Size = new System.Drawing.Size(173, 22);
+         this.txtPort.TabIndex = 7;
+         this.txtPort.Text = "44818";
+         this.txtPort.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // TestEIP
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(394, 236);
-         this.Controls.Add(this.cbFont);
-         this.Controls.Add(this.lblFont);
+         this.ClientSize = new System.Drawing.Size(394, 175);
+         this.Controls.Add(this.txtPort);
+         this.Controls.Add(this.txtIPAddress);
+         this.Controls.Add(this.lblPort);
+         this.Controls.Add(this.lblIPAddress);
          this.Controls.Add(this.cmdExit);
          this.Controls.Add(this.cmdStartBrowser);
          this.Controls.Add(this.cmdViewTraffic);
@@ -104,6 +128,7 @@
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TestEIP_FormClosing);
          this.Load += new System.EventHandler(this.TestEIP_Load);
          this.ResumeLayout(false);
+         this.PerformLayout();
 
       }
 
@@ -113,8 +138,10 @@
       private System.Windows.Forms.Button cmdViewTraffic;
       private System.Windows.Forms.Button cmdStartBrowser;
       private System.Windows.Forms.Button cmdExit;
-      private System.Windows.Forms.Label lblFont;
-      private System.Windows.Forms.ComboBox cbFont;
+      private System.Windows.Forms.Label lblIPAddress;
+      private System.Windows.Forms.Label lblPort;
+      public System.Windows.Forms.TextBox txtIPAddress;
+      public System.Windows.Forms.TextBox txtPort;
    }
 }
 

@@ -579,7 +579,6 @@ namespace EIP_Lib {
          return success;
       }
 
-
       public bool SetText(string text) {
          success = true;
          int calNo = 0;
