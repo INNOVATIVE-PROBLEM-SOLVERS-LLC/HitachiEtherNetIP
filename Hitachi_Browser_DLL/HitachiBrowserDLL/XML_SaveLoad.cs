@@ -121,10 +121,6 @@ namespace EIP_Lib {
                            // Send the objects one at a time
                            success = success && LoadObjects(l.ChildNodes);
 
-                           // Let the printer catch up
-                           //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-                           //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
                            // Get data assigned by the printer
                            success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
                            success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
@@ -132,9 +128,6 @@ namespace EIP_Lib {
                            // Get data assigned by the printer
                            success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
                            success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
-
-                           // Go back to stacking operations
-                           //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
 
                            // Send the objects one at a time
                            success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
@@ -152,10 +145,6 @@ namespace EIP_Lib {
                   // You are on your own here
                }
             }
-            // That's all folks
-            //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-            //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
             EIP.ForwardClose();
          }
          EIP.EndSession();
