@@ -1099,8 +1099,9 @@ namespace EIP_Lib {
       }
 
       // get the human readable name
-      public string GetAttributeName(Type cc, int v) {
-         string result = Enum.GetName(cc, v);
+      public string GetAttributeName(ClassCode Class, int v) {
+         Type at = ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
+         string result = Enum.GetName(at, v);
          return result;
       }
 
@@ -1673,9 +1674,8 @@ namespace EIP_Lib {
 
       // Build the string to save in the traffic Excel Spreadsheet
       public string GetTraffic(AttrData attr) {
-         Type at = ClassCodeAttributes[Array.IndexOf(ClassCodes, Class)];
          string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
-         trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(at, Attribute)}";
+         trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(Class, Attribute)}";
          trafficText = trafficText.Replace("_", " ");
          if (GetDataLength == 0 && Access != AccessCode.Get) {
             trafficText += $"\t\t\t";

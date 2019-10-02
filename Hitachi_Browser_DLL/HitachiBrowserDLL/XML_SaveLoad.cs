@@ -96,50 +96,60 @@ namespace EIP_Lib {
          }
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               // Set to only one item in printer
-               success = success && CleanDisplay();
-               XmlNode lab = xmlDoc.SelectSingleNode("Label");
-               foreach (XmlNode l in lab.ChildNodes) {
-                  if (l is XmlWhitespace)
-                     continue;
-                  switch (l.Name) {
-                     case "Printer":
-                        // Send printer wide settings
-                        success = success && SendPrinterSettings(l);
-                        break;
-                     case "Objects":
-                        // Dynamically allocated by printer
-                        int FirstCalBlock = 1;
-                        int CalBlockCount = 1;
-                        int FirstCountBlock = 1;
-                        int CountBlockCount = 1;
+               try {
+                  // Set to only one item in printer
+                  success = success && CleanDisplay();
+                  XmlNode lab = xmlDoc.SelectSingleNode("Label");
+                  foreach (XmlNode l in lab.ChildNodes) {
+                     if (l is XmlWhitespace)
+                        continue;
+                     switch (l.Name) {
+                        case "Printer":
+                           // Send printer wide settings
+                           success = success && SendPrinterSettings(l);
+                           break;
+                        case "Objects":
+                           // Dynamically allocated by printer
+                           int FirstCalBlock = 1;
+                           int CalBlockCount = 1;
+                           int FirstCountBlock = 1;
+                           int CountBlockCount = 1;
 
-                        // Allocate rows and columns
-                        success = success && AllocateRowsColumns(l.ChildNodes);
+                           // Allocate rows and columns
+                           success = success && AllocateRowsColumns(l.ChildNodes);
 
-                        // Send the objects one at a time
-                        success = success && LoadObjects(l.ChildNodes);
+                           // Send the objects one at a time
+                           success = success && LoadObjects(l.ChildNodes);
 
-                        // Let the printer catch up
-                        //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
-                        //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                           // Let the printer catch up
+                           //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 0);
+                           //success = success && EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-                        // Get data assigned by the printer
-                        success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
-                        success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
+                           // Get data assigned by the printer
+                           success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
+                           success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
 
-                        // Get data assigned by the printer
-                        success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
-                        success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
+                           // Get data assigned by the printer
+                           success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
+                           success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
 
-                        // Go back to stacking operations
-                        //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+                           // Go back to stacking operations
+                           //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
 
-                        // Send the objects one at a time
-                        success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
+                           // Send the objects one at a time
+                           success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
 
-                        break;
+                           break;
+                     }
                   }
+               } catch (EIPIOException e1) {
+                  // In case of an EIP I/O error
+                  string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                  string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
+                  MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+                  success = false;
+               } catch (Exception e2) {
+                  // You are on your own here
                }
             }
             // That's all folks
@@ -727,8 +737,14 @@ namespace EIP_Lib {
                            writer.WriteEndElement(); // End Objects
                         }
                         writer.WriteEndElement(); // End Label
-                     } catch(Exception e) {
+                     } catch (EIPIOException e1) {
+                        // In case of an EIP I/O error
+                        string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                        string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
+                        MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                         success = false;
+                     } catch (Exception e2) {
+                        // You are on your own here
                      }
                   }
                   EIP.ForwardClose();
