@@ -922,16 +922,14 @@ namespace EIP_Lib {
          ClassCode cc = ClassCodes[Array.IndexOf(ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
          AttrData attr = AttrDict[cc, at];
-         byte[] data = ToBytes(n, attr.Service.Len);
-         return ServiceAttribute(cc, at, data);
+         return ServiceAttribute(cc, at, ToBytes(n, attr.Service.Len));
       }
 
       // Service one attribute based on the Set Property
       public bool ServiceAttribute<T>(T Attribute) {
          ClassCode cc = ClassCodes[Array.IndexOf(ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
-         AttrData attr = AttrDict[cc, at];
-         return ServiceAttribute(cc, at, DataZero);
+         return ServiceAttribute(cc, at, Nodata);
       }
 
       // Handles Hitachi Get, Set, and Service

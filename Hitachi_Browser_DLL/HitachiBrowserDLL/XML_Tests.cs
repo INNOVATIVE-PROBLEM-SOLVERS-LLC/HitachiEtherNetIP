@@ -85,16 +85,15 @@ namespace EIP_Lib {
                   // No need to delete columns if there is only one
                   if (cols > 1) {
                      // Select to continuously delete column 2 (0 origin on deletes)
-                     success = EIP.SetAttribute(ccIDX.Column, 1);
+                     EIP.SetAttribute(ccIDX.Column, 1);
                      // Column number is 0 origin
-                     while (success && cols > 1) {
+                     while (--cols > 0) {
                         // Delete the column
-                        success = EIP.ServiceAttribute(ccPF.Delete_Column, 0);
-                        cols--;
+                        EIP.ServiceAttribute(ccPF.Delete_Column);
                      }
                   }
                   // Select item 1 (1 origin on Line Count)
-                  success = EIP.SetAttribute(ccIDX.Item, 1);
+                  EIP.SetAttribute(ccIDX.Item, 1);
                   // Set line count to 1. (Need to find out how delete single item works.)
                   EIP.SetAttribute(ccPF.Line_Count, 1);
                   // Test item size
