@@ -34,9 +34,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EIP">
-      <HintPath>..\..\Hitachi_EIP_DLL\Hitachi_EIP\bin\Debug\EIP.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -73,6 +70,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Hitachi_EIP_DLL\Hitachi_EIP\Hitachi_EIP_DLL.csproj">
+      <Project>{97083701-ab25-4679-a9f2-a35b54bdf91a}</Project>
+      <Name>Hitachi_EIP_DLL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

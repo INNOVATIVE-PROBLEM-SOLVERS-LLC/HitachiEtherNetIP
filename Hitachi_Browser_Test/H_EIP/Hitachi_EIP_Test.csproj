@@ -63,13 +63,6 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Browser">
-      <HintPath>..\..\Hitachi_Browser_DLL\HitachiBrowserDLL\bin\Debug\Browser.dll</HintPath>
-    </Reference>
-    <Reference Include="EIP, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Hitachi_EIP_DLL\Hitachi_EIP\bin\Debug\EIP.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -123,6 +116,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Hitachi_Browser_DLL\HitachiBrowserDLL\Hitachi_Browser_DLL.csproj">
+      <Project>{76d7bd64-37b1-4ce2-ac85-f50e39ae76c2}</Project>
+      <Name>Hitachi_Browser_DLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Hitachi_EIP_DLL\Hitachi_EIP\Hitachi_EIP_DLL.csproj">
+      <Project>{97083701-ab25-4679-a9f2-a35b54bdf91a}</Project>
+      <Name>Hitachi_EIP_DLL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
