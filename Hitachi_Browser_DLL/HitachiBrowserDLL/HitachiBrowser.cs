@@ -666,8 +666,7 @@ namespace EIP_Lib {
          txtDataBytesIn.Text = EIP.GetBytes(EIP.GetData, 0, EIP.GetDataLength);
 
          // Record the operation in the log
-         Type at = EIP.ClassCodeAttributes[Array.IndexOf(EIP.ClassCodes, e.Class)];
-         lstErrors.Items.Add($"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(at, e.Attribute)} Complete");
+         lstErrors.Items.Add($"{EIP.LastIO} -- {e.Access}/{e.Class}/{EIP.GetAttributeName(e.Class, e.Attribute)} Complete");
          lstErrors.SelectedIndex = lstErrors.Items.Count - 1;
       }
 

@@ -22,7 +22,7 @@
       <Date Block="1">
         <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
         <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
-        <EnableSubstitution Year="Disable" Month="Disable" Day="Disable" />
+        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
       </Date>
       <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
     </Object>
@@ -31,8 +31,8 @@
       <Location ItemNumber="2" Row="2" Column="1" />
       <Date Block="1">
         <Offset Year="0" Month="0" Day="30" Hour="0" Minute="0" />
-        <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
-        <EnableSubstitution Year="Disable" Month="Disable" Day="Disable" />
+        <ZeroSuppress Year="Disable" Month="Disable" Day="Enable" />
+        <EnableSubstitution Year="Disable" Month="Enaable" Day="Ensable" />
       </Date>
       <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
     </Object>
@@ -42,7 +42,7 @@
       <Date Block="1">
         <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
         <ZeroSuppress DayOfWeek="Disable" />
-        <EnableSubstitution DayOfWeek="Disable" />
+        <EnableSubstitution DayOfWeek="Enable" />
       </Date>
       <Text>PACKED  {{TTT} {777}} </Text>
     </Object>
@@ -55,21 +55,22 @@
         <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
         <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
       </Date>
-      <Text>Shift {E}}</Text>
+      <Text>Shift {{E}}</Text>
     </Object>
     <Object Type="Date">
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="5" Row="2" Column="2" />
       <Date Block="1">
         <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
-        <TimeCount Interval="-1206410059" Start="00" End="99" ResetTime="0" ResetValue="00" />
+        <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
       </Date>
       <Text>TCount {{FF}} </Text>
     </Object>
     <Object Type="Counter">
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="6" Row="1" Column="2" />
-      <Counter Block="1" Reset="      " CountUp="Up" Increment="1" JumpTo="      " JumpFrom="      " UpdateUnit="1" UpdateIP="0" Range2="999999" Range1="000000" InitialValue="000000" Multiplier="" ZeroSuppression="Disable" />
+      <Counter Block="1" Reset="000001" CountUp="Down" Increment="2" JumpTo="000300" JumpFrom="000199"
+        UpdateUnit="1" UpdateIP="0" Range2="999999" Range1="000000" InitialValue="000001" Multiplier="" ZeroSuppression="Enable" />
       <Text># {{CCCCCC}} </Text>
     </Object>
     <Object Type="Text">
