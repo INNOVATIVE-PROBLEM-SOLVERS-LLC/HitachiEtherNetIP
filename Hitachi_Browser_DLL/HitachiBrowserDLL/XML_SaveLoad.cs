@@ -98,7 +98,7 @@ namespace EIP_Lib {
             if (EIP.ForwardOpen()) {
                try {
                   // Set to only one item in printer
-                  success = success && CleanDisplay();
+                  CleanDisplay();
                   XmlNode lab = xmlDoc.SelectSingleNode("Label");
                   foreach (XmlNode l in lab.ChildNodes) {
                      if (l is XmlWhitespace)
@@ -106,7 +106,7 @@ namespace EIP_Lib {
                      switch (l.Name) {
                         case "Printer":
                            // Send printer wide settings
-                           success = success && SendPrinterSettings(l);
+                           SendPrinterSettings(l);
                            break;
                         case "Objects":
                            // Dynamically allocated by printer
@@ -116,21 +116,21 @@ namespace EIP_Lib {
                            int CountBlockCount = 1;
 
                            // Allocate rows and columns
-                           success = success && AllocateRowsColumns(l.ChildNodes);
+                           AllocateRowsColumns(l.ChildNodes);
 
                            // Send the objects one at a time
-                           success = success && LoadObjects(l.ChildNodes);
+                           LoadObjects(l.ChildNodes);
 
                            // Get data assigned by the printer
-                           success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
-                           success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
+                           EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
+                           EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
 
                            // Get data assigned by the printer
-                           success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
-                           success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
+                           EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
+                           EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
 
                            // Send the objects one at a time
-                           success = success && LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
+                           LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
 
                            break;
                      }
@@ -153,67 +153,67 @@ namespace EIP_Lib {
 
       // Simulate Delete All But One
       public bool CleanDisplay() {
-         success = true;
+         bool success = true;
          // Get the number of columns
          success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
          // Make things faster
-         //success = success && EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
+         //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
          //No need to delete columns if there is only one
          if (cols > 1) {
             // Select to continuously delete column 2 (0 origin on deletes)
-            success = success && EIP.SetAttribute(ccIDX.Column, 1);
+            EIP.SetAttribute(ccIDX.Column, 1);
             // Column number is 0 origin
             while (success && cols > 1) {
                // Delete the column
-               success = success && EIP.ServiceAttribute(ccPF.Delete_Column, 0);
+               EIP.ServiceAttribute(ccPF.Delete_Column, 0);
                cols--;
             }
          }
          // Select item 1 (1 origin on Line Count)
-         success = success && EIP.SetAttribute(ccIDX.Item, 1);
+         EIP.SetAttribute(ccIDX.Item, 1);
          // Set line count to 1. (In case column 1 has multiple lines)
-         success = success && EIP.SetAttribute(ccPF.Line_Count, 1);
+         EIP.SetAttribute(ccPF.Line_Count, 1);
          // Clear any barcodes
-         success = success && EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         success = success && EIP.SetAttribute(ccPF.Barcode_Type, "None");
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccPF.Barcode_Type, "None");
          // Set simple text in case Calendar or Counter was used
-         success = success && EIP.SetAttribute(ccPF.Print_Character_String, "1");
+         EIP.SetAttribute(ccPF.Print_Character_String, "1");
          return success;
       }
 
       // Send the Printer Wide Settings
       private bool SendPrinterSettings(XmlNode pr) {
-         success = true;
+         bool success = true;
          foreach (XmlNode c in pr.ChildNodes) {
             switch (c.Name) {
                case "PrintHead":
-                  success = success && EIP.SetAttribute(ccPS.Character_Orientation, GetAttr(c, "Orientation"));
+                  EIP.SetAttribute(ccPS.Character_Orientation, GetAttr(c, "Orientation"));
                   break;
                case "ContinuousPrinting":
-                  success = success && EIP.SetAttribute(ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"));
-                  success = success && EIP.SetAttribute(ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"));
+                  EIP.SetAttribute(ccPS.Repeat_Interval, GetAttr(c, "RepeatInterval"));
+                  EIP.SetAttribute(ccPS.Repeat_Count, GetAttr(c, "PrintsPerTrigger"));
                   break;
                case "TargetSensor":
-                  success = success && EIP.SetAttribute(ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
-                  success = success && EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
-                  success = success && EIP.SetAttribute(ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
+                  EIP.SetAttribute(ccPS.Target_Sensor_Filter, GetAttr(c, "Filter"));
+                  EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetAttr(c, "SetupValue"));
+                  EIP.SetAttribute(ccPS.Target_Sensor_Timer, GetAttr(c, "Timer"));
                   break;
                case "CharacterSize":
-                  success = success && EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Width"));
-                  success = success && EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Height"));
+                  EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Width"));
+                  EIP.SetAttribute(ccPS.Character_Width, GetAttr(c, "Height"));
                   break;
                case "PrintStartDelay":
-                  success = success && EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"));
-                  success = success && EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"));
+                  EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, GetAttr(c, "Reverse"));
+                  EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, GetAttr(c, "Forward"));
                   break;
                case "EncoderSettings":
-                  success = success && EIP.SetAttribute(ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"));
-                  success = success && EIP.SetAttribute(ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"));
-                  success = success && EIP.SetAttribute(ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"));
+                  EIP.SetAttribute(ccPS.High_Speed_Print, GetAttr(c, "HighSpeedPrinting"));
+                  EIP.SetAttribute(ccPS.Pulse_Rate_Division_Factor, GetAttr(c, "Divisor"));
+                  EIP.SetAttribute(ccPS.Product_Speed_Matching, GetAttr(c, "ExternalEncoder"));
                   break;
                case "InkStream":
-                  success = success && EIP.SetAttribute(ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"));
-                  success = success && EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"));
+                  EIP.SetAttribute(ccPS.Ink_Drop_Use, GetAttr(c, "InkDropUse"));
+                  EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, GetAttr(c, "ChargeRule"));
                   break;
                case "TwinNozzle":
                   // Not supported in EtherNet/IP
@@ -223,7 +223,7 @@ namespace EIP_Lib {
                   //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
                   break;
                case "Substitution":
-                  success = success && SendSubstitution(c);
+                  SendSubstitution(c);
                   break;
             }
          }
@@ -257,14 +257,14 @@ namespace EIP_Lib {
                return false;
             }
             if (col > 1) {
-               success = success && EIP.ServiceAttribute(ccPF.Add_Column);
+               EIP.ServiceAttribute(ccPF.Add_Column);
             }
             // Should this be Column and not Item?
-            success = success && EIP.SetAttribute(ccIDX.Item, col);
-            success = success && EIP.SetAttribute(ccPF.Line_Count, columns[col]);
+            EIP.SetAttribute(ccIDX.Item, col);
+            EIP.SetAttribute(ccPF.Line_Count, columns[col]);
             if (columns[col] > 1) {
-               success = success && EIP.SetAttribute(ccIDX.Column, col);
-               success = success && EIP.SetAttribute(ccPF.Line_Spacing, ILS[col]);
+               EIP.SetAttribute(ccIDX.Column, col);
+               EIP.SetAttribute(ccPF.Line_Spacing, ILS[col]);
             }
          }
          return success;
@@ -272,7 +272,7 @@ namespace EIP_Lib {
 
       // Load objects
       private bool LoadObjects(XmlNodeList objs) {
-         success = true;
+         bool success = true;
          XmlNode n;
          foreach (XmlNode obj in objs) {
             if (obj is XmlWhitespace)
@@ -304,7 +304,7 @@ namespace EIP_Lib {
 
       // Load object settings
       private bool LoadCalendarCount(XmlNodeList objs, int FirstCalBlock, int CalBlockCount, int FirstCountBlock, int CountBlockCount) {
-         success = true;
+         bool success = true;
          XmlNode n;
          foreach (XmlNode obj in objs) {
             if (obj is XmlWhitespace)
@@ -320,15 +320,15 @@ namespace EIP_Lib {
             string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
             for (int i = 0; i < text.Length; i++) {
                // Point to the item
-               success = success && EIP.SetAttribute(ccIDX.Item, item + i);
+               EIP.SetAttribute(ccIDX.Item, item + i);
                // Get the item type
                ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
                switch (type) {
                   case ItemType.Counter:
-                     success = success && LoadCount(obj, FirstCountBlock, CountBlockCount);
+                     LoadCount(obj, FirstCountBlock, CountBlockCount);
                      break;
                   case ItemType.Date:
-                     success = success && LoadCalendar(obj, FirstCalBlock, CalBlockCount);
+                     LoadCalendar(obj, FirstCalBlock, CalBlockCount);
                      break;
                }
             }
@@ -347,54 +347,54 @@ namespace EIP_Lib {
                if (c.Name == "Counter") {
                   if (int.TryParse(GetAttr(c, "Block"), out int b)) {
                      if (b == block + 1) {
-                        success = success && EIP.SetAttribute(ccIDX.Count_Block, firstBlock + block);
+                        EIP.SetAttribute(ccIDX.Count_Block, firstBlock + block);
                         foreach (XmlAttribute a in c.Attributes) {
                            switch (a.Name) {
                                case "InitialValue":
-                                 success = success && EIP.SetAttribute(ccCount.Initial_Value, a.Value);
+                                 EIP.SetAttribute(ccCount.Initial_Value, a.Value);
                                  break;
                               case "Range1":
-                                 success = success && EIP.SetAttribute(ccCount.Count_Range_1, a.Value);
+                                 EIP.SetAttribute(ccCount.Count_Range_1, a.Value);
                                  break;
                               case "Range2":
-                                 success = success && EIP.SetAttribute(ccCount.Count_Range_2, a.Value);
+                                 EIP.SetAttribute(ccCount.Count_Range_2, a.Value);
                                  break;
                               case "UpdateIP":
-                                 success = success && EIP.SetAttribute(ccCount.Update_Unit_Halfway, a.Value);
+                                 EIP.SetAttribute(ccCount.Update_Unit_Halfway, a.Value);
                                  break;
                               case "UpdateUnit":
-                                 success = success && EIP.SetAttribute(ccCount.Update_Unit_Unit, a.Value);
+                                 EIP.SetAttribute(ccCount.Update_Unit_Unit, a.Value);
                                  break;
                               case "Increment":
-                                 success = success && EIP.SetAttribute(ccCount.Increment_Value, a.Value);
+                                 EIP.SetAttribute(ccCount.Increment_Value, a.Value);
                                  break;
                               case "CountUp":
                                  string s = bool.TryParse(a.Value, out bool dir) && dir ? "Up" : "Down";
-                                 success = success && EIP.SetAttribute(ccCount.Direction_Value, s);
+                                 EIP.SetAttribute(ccCount.Direction_Value, s);
                                  break;
                               case "JumpFrom":
-                                 success = success && EIP.SetAttribute(ccCount.Jump_From, a.Value);
+                                 EIP.SetAttribute(ccCount.Jump_From, a.Value);
                                  break;
                               case "JumpTo":
-                                 success = success && EIP.SetAttribute(ccCount.Jump_To, a.Value);
+                                 EIP.SetAttribute(ccCount.Jump_To, a.Value);
                                  break;
                               case "Reset":
-                                 success = success && EIP.SetAttribute(ccCount.Reset_Value, a.Value);
+                                 EIP.SetAttribute(ccCount.Reset_Value, a.Value);
                                  break;
                               case "ResetSignal":
-                                 success = success && EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, a.Value);
+                                 EIP.SetAttribute(ccCount.Type_Of_Reset_Signal, a.Value);
                                  break;
                               case "ExternalSignal":
-                                 success = success && EIP.SetAttribute(ccCount.External_Count, a.Value);
+                                 EIP.SetAttribute(ccCount.External_Count, a.Value);
                                  break;
                               case "ZeroSuppression":
-                                 success = success && EIP.SetAttribute(ccCount.Zero_Suppression, a.Value);
+                                 EIP.SetAttribute(ccCount.Zero_Suppression, a.Value);
                                  break;
                               case "Multiplier":
-                                 success = success && EIP.SetAttribute(ccCount.Count_Multiplier, a.Value);
+                                 EIP.SetAttribute(ccCount.Count_Multiplier, a.Value);
                                  break;
                               case "Skip":
-                                 success = success && EIP.SetAttribute(ccCount.Count_Skip, a.Value);
+                                 EIP.SetAttribute(ccCount.Count_Skip, a.Value);
                                  break;
                            }
                         }
@@ -418,25 +418,25 @@ namespace EIP_Lib {
                if (d.Name == "Date") {
                   if (int.TryParse(GetAttr(d, "Block"), out int b)) {
                      if (b == block + 1) {
-                        success = success && EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + block);
+                        EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + block);
                         n = d.SelectSingleNode("Offset");
                         if (n != null) {
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "Year":
-                                    success = success && EIP.SetAttribute(ccCal.Offset_Year, a.Value);
+                                    EIP.SetAttribute(ccCal.Offset_Year, a.Value);
                                     break;
                                  case "Month":
-                                    success = success && EIP.SetAttribute(ccCal.Offset_Month, a.Value);
+                                    EIP.SetAttribute(ccCal.Offset_Month, a.Value);
                                     break;
                                  case "Day":
-                                    success = success && EIP.SetAttribute(ccCal.Offset_Day, a.Value);
+                                    EIP.SetAttribute(ccCal.Offset_Day, a.Value);
                                     break;
                                  case "Hour":
-                                    success = success && EIP.SetAttribute(ccCal.Offset_Hour, a.Value);
+                                    EIP.SetAttribute(ccCal.Offset_Hour, a.Value);
                                     break;
                                  case "Minute":
-                                    success = success && EIP.SetAttribute(ccCal.Offset_Minute, a.Value);
+                                    EIP.SetAttribute(ccCal.Offset_Minute, a.Value);
                                     break;
                               }
                            }
@@ -447,25 +447,25 @@ namespace EIP_Lib {
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "Year":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
                                     break;
                                  case "Month":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
                                     break;
                                  case "Day":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
                                     break;
                                  case "Hour":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
                                     break;
                                  case "Minute":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
                                     break;
                                  case "Week":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
                                     break;
                                  case "DayOfWeek":
-                                    success = success && EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
+                                    EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
                                     break;
                               }
                            }
@@ -476,25 +476,25 @@ namespace EIP_Lib {
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "Year":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Year, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Year, a.Value);
                                     break;
                                  case "Month":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Month, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Month, a.Value);
                                     break;
                                  case "Day":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Day, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Day, a.Value);
                                     break;
                                  case "Hour":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Hour, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Hour, a.Value);
                                     break;
                                  case "Minute":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Minute, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Minute, a.Value);
                                     break;
                                  case "Week":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Weeks, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Weeks, a.Value);
                                     break;
                                  case "DayOfWeek":
-                                    success = success && EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
+                                    EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
                                     break;
                               }
                            }
@@ -505,19 +505,19 @@ namespace EIP_Lib {
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "Start":
-                                    success = success && EIP.SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
+                                    EIP.SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
                                     break;
                                  case "End":
-                                    success = success && EIP.SetAttribute(ccCal.Time_Count_End_Value, a.Value);
+                                    EIP.SetAttribute(ccCal.Time_Count_End_Value, a.Value);
                                     break;
                                  case "Reset":
-                                    success = success && EIP.SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
+                                    EIP.SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
                                     break;
                                  case "ResetTime":
-                                    success = success && EIP.SetAttribute(ccCal.Reset_Time_Value, a.Value);
+                                    EIP.SetAttribute(ccCal.Reset_Time_Value, a.Value);
                                     break;
                                  case "RenewalPeriod":
-                                    success = success && EIP.SetAttribute(ccCal.Update_Interval_Value, a.Value);
+                                    EIP.SetAttribute(ccCal.Update_Interval_Value, a.Value);
                                     break;
                               }
                            }
@@ -530,19 +530,19 @@ namespace EIP_Lib {
                               foreach (XmlAttribute a in n.Attributes) {
                                  switch (a.Name) {
                                     case "StartHour":
-                                       success = success && EIP.SetAttribute(ccCal.Shift_Start_Hour, a.Value);
+                                       EIP.SetAttribute(ccCal.Shift_Start_Hour, a.Value);
                                        break;
                                     case "StartMinute":
-                                       success = success && EIP.SetAttribute(ccCal.Shift_Start_Minute, a.Value);
+                                       EIP.SetAttribute(ccCal.Shift_Start_Minute, a.Value);
                                        break;
                                     case "EndHour": // Read Only
-                                       //success = success && EIP.SetAttribute(ccCal.Shift_End_Hour, a.Value);
+                                       //EIP.SetAttribute(ccCal.Shift_End_Hour, a.Value);
                                        break;
                                     case "EndMinute": // Read Only
-                                       //success = success && EIP.SetAttribute(ccCal.Shift_End_Minute, a.Value);
+                                       //EIP.SetAttribute(ccCal.Shift_End_Minute, a.Value);
                                        break;
                                     case "ShiftCode":
-                                       success = success && EIP.SetAttribute(ccCal.Shift_Code_Condition, a.Value);
+                                       EIP.SetAttribute(ccCal.Shift_Code_Condition, a.Value);
                                        break;
                                  }
                               }
@@ -565,44 +565,44 @@ namespace EIP_Lib {
          // Get the standard attributes for substitution
          string rule = GetAttr(p, "Rule");
          string startYear = GetAttr(p, "StartYear");
-         string delimeter = GetAttr(p, "Delimeter");
+         string delimiter = GetAttr(p, "Delimiter");
 
          // Avoid user errors
-         if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimeter.Length == 1) {
+         if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimiter.Length == 1) {
 
             // Sub Substitution rule in Index class
             attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
             data = EIP.FormatOutput(attr.Set, ruleNumber);
-            success = success && EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
+            EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
 
             // Set the start year in the substitution rule
             attr = EIP.AttrDict[ClassCode.Index, (byte)ccSR.Start_Year];
             data = EIP.FormatOutput(attr.Set, year);
-            success = success && EIP.SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
+            EIP.SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
 
             // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
                   case "Year":
-                     success = success && SetSubValues(ccSR.Year, c, delimeter);
+                     SetSubValues(ccSR.Year, c, delimiter);
                      break;
                   case "Month":
-                     success = success && SetSubValues(ccSR.Month, c, delimeter);
+                     SetSubValues(ccSR.Month, c, delimiter);
                      break;
                   case "Day":
-                     success = success && SetSubValues(ccSR.Day, c, delimeter);
+                     SetSubValues(ccSR.Day, c, delimiter);
                      break;
                   case "Hour":
-                     success = success && SetSubValues(ccSR.Hour, c, delimeter);
+                     SetSubValues(ccSR.Hour, c, delimiter);
                      break;
                   case "Minute":
-                     success = success && SetSubValues(ccSR.Minute, c, delimeter);
+                     SetSubValues(ccSR.Minute, c, delimiter);
                      break;
                   case "Week":
-                     success = success && SetSubValues(ccSR.Week, c, delimeter);
+                     SetSubValues(ccSR.Week, c, delimiter);
                      break;
                   case "DayOfWeek":
-                     success = success && SetSubValues(ccSR.Day_Of_Week, c, delimeter);
+                     SetSubValues(ccSR.Day_Of_Week, c, delimiter);
                      break;
                   case "Skip":
                      // Do not process these nodes
@@ -625,7 +625,7 @@ namespace EIP_Lib {
                // Avoid user errors
                if (n >= prop.Min && n <= prop.Max) {
                   byte[] data = EIP.FormatOutput(prop, n, 1, s[i]);
-                  success = success && EIP.SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
+                  EIP.SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
                }
             }
          }
@@ -682,10 +682,10 @@ namespace EIP_Lib {
                               int item = 0;
                               int colCount = GetDecimalAttribute(ccPF.Number_Of_Columns);
                               for (int col = 1; col <= colCount; col++) {
-                                 success = success && EIP.SetAttribute(ccIDX.Column, col);
+                                 EIP.SetAttribute(ccIDX.Column, col);
                                  int LineCount = GetDecimalAttribute(ccPF.Line_Count);
                                  for (int row = LineCount; row > 0; row--) {
-                                    success = success && EIP.SetAttribute(ccIDX.Item, ++item);
+                                    EIP.SetAttribute(ccIDX.Item, ++item);
                                     string text = GetAttribute(ccPF.Print_Character_String);
                                     int[] mask = new int[1 + Math.Max(
                                           GetDecimalAttribute(ccCal.Number_of_Calendar_Blocks),
@@ -920,10 +920,10 @@ namespace EIP_Lib {
          bool success = true;
          int FirstBlock = 0;
          int BlockCount = 0;
-         success = success && EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstBlock);
-         success = success && EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out BlockCount);
+         EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstBlock);
+         EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out BlockCount);
          for (int i = 0; success && i < BlockCount; i++) {
-            success = success && EIP.SetAttribute(ccIDX.Calendar_Block, FirstBlock + i);
+            EIP.SetAttribute(ccIDX.Calendar_Block, FirstBlock + i);
             writer.WriteStartElement("Date"); // Start Date
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
@@ -1018,10 +1018,10 @@ namespace EIP_Lib {
          bool success = true;
          int FirstBlock = 0;
          int BlockCount = 0;
-         success = success && EIP.GetAttribute(ccCount.First_Count_Block, out FirstBlock);
-         success = success && EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out BlockCount);
+         EIP.GetAttribute(ccCount.First_Count_Block, out FirstBlock);
+         EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out BlockCount);
          for (int i = 0; success && i < BlockCount; i++) {
-            success = success && EIP.SetAttribute(ccIDX.Count_Block, FirstBlock + i);
+            EIP.SetAttribute(ccIDX.Count_Block, FirstBlock + i);
             writer.WriteStartElement("Counter"); // Start Counter
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());

@@ -321,9 +321,6 @@ namespace EIP_Lib {
 
       #region Test Routines
 
-      // Success is "Global" so the Get/Set/Service Attributes callers can avoid continuously testing it
-      bool success = true;
-
       // Get the contents of one attribute
       private string GetAttribute<T>(T Attribute) where T : Enum {
          string val = string.Empty;
@@ -375,26 +372,34 @@ namespace EIP_Lib {
 
       // Create a message with text only (Control Deleted)
       private void cmdCreateText_Click(object sender, EventArgs e) {
-         success = true;
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               for (int step = 0; step < 3 && success; step++) {
-                  switch (step) {
-                     case 0:
-                        // Cleanup the display
-                        CleanUpDisplay();
-                        break;
-                     case 1:
-                        // Put in some items
-                        for (int i = 0; i < 5; i++) {
-                           EIP.ServiceAttribute(ccPF.Add_Column, 0);
-                        }
-                        break;
-                     case 2:
-                        // Set the text
-                        SetText("Hello World");
-                        break;
+               try {
+                  for (int step = 0; step < 3; step++) {
+                     switch (step) {
+                        case 0:
+                           // Cleanup the display
+                           CleanUpDisplay();
+                           break;
+                        case 1:
+                           // Put in some items
+                           for (int i = 0; i < 5; i++) {
+                              EIP.ServiceAttribute(ccPF.Add_Column, 0);
+                           }
+                           break;
+                        case 2:
+                           // Set the text
+                           SetText("Hello World");
+                           break;
+                     }
                   }
+               } catch (EIPIOException e1) {
+                  // In case of an EIP I/O error
+                  string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                  string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
+                  MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+               } catch (Exception e2) {
+                  // You are on your own here
                }
             }
             EIP.ForwardClose();
@@ -403,16 +408,10 @@ namespace EIP_Lib {
       }
 
       private void cmdSaveToPrinter_Click(object sender, EventArgs e) {
-         success = true;
-         if (EIP.StartSession()) {
-            if (EIP.ForwardOpen()) {
-               byte[] data = EIP.Merge(EIP.ToBytes(4, 2), EIP.ToBytes(2, 1), EIP.ToBytes("AAA\x00"));
-               AttrData attr = EIP.GetAttrData(ccPDM.Store_Print_Data);
-               EIP.SetAttribute(attr.Class, attr.Val, data);
-            }
-            EIP.ForwardClose();
-         }
-         EIP.EndSession();
+         // A single command, no need to open/close the connection here
+         byte[] data = EIP.Merge(EIP.ToBytes(4, 2), EIP.ToBytes(2, 1), EIP.ToBytes("AAA\x00"));
+         AttrData attr = EIP.GetAttrData(ccPDM.Store_Print_Data);
+         EIP.SetAttribute(attr.Class, attr.Val, data);
       }
 
       private void cmdBrowse_Click(object sender, EventArgs e) {
