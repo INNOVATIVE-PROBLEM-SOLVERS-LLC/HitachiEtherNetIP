@@ -59,10 +59,10 @@ namespace EIP_Lib {
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
          (int)ba.Week | (int)ba.DayOfWeek;
 
-      #endregion
-
       // Flag for Attribute Not Present
       const string N_A = "N!A";
+
+      #endregion
 
       #region Send XML to Printer
 
@@ -151,7 +151,7 @@ namespace EIP_Lib {
                   break;
                case "CharacterSize":
                   SetAttribute(ccPS.Character_Width, GetXmlAttr(c, "Width"));
-                  SetAttribute(ccPS.Character_Width, GetXmlAttr(c, "Height"));
+                  SetAttribute(ccPS.Character_Height, GetXmlAttr(c, "Height"));
                   break;
                case "PrintStartDelay":
                   SetAttribute(ccPS.Print_Start_Delay_Reverse, GetXmlAttr(c, "Reverse"));
@@ -311,12 +311,12 @@ namespace EIP_Lib {
                return false;
             }
             SetAttribute(ccIDX.Item, item);
-            SetAttribute(ccPF.Print_Character_String, GetXmlValue(obj.SelectSingleNode("Text"))); // Load the text
 
             n = obj.SelectSingleNode("Font");
             SetAttribute(ccPF.Dot_Matrix, n.InnerText);
             SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
             SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
+            SetAttribute(ccPF.Print_Character_String, GetXmlValue(obj.SelectSingleNode("Text"))); // Load the text last
 
             ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(obj, "Type"), true);
             switch (type) {
@@ -561,7 +561,7 @@ namespace EIP_Lib {
 
       #endregion
 
-      #region Retrieve XML from the printer
+      #region Retrieve XML from printer
 
       // Generate an XMP Doc form the current printer settings
       public string ConvertLayoutToXML() {
@@ -981,6 +981,131 @@ namespace EIP_Lib {
          //   LogoText += ((short)p.ItemText[j]).ToString("X4");
          //}
       }
+
+      #endregion
+
+      #region Verify Load was Successful
+
+      public bool VerifyXmlVsPrinter(string FileName) {
+         XmlDocument xmlDoc = new XmlDocument();
+         xmlDoc.PreserveWhitespace = true;
+         xmlDoc.Load(FileName);
+         return VerifyXmlVsPrinter(xmlDoc);
+      }
+
+      // Send xlmDoc from file to printer
+      public bool VerifyXmlVsPrinter(XmlDocument xmlDoc) {
+         // Need a XMP Document to continue
+         if (xmlDoc == null) {
+            return false;
+         }
+         bool success = true;
+         if (StartSession()) {
+            if (ForwardOpen()) {
+               try {
+                  XmlNode lab = xmlDoc.SelectSingleNode("Label");
+                  foreach (XmlNode l in lab.ChildNodes) {
+                     if (l is XmlWhitespace)
+                        continue;
+                     switch (l.Name) {
+                        case "Printer":
+                           VerifyPrinterSettings(l);            // Send printer wide settings
+                           break;
+                        case "Objects":
+                           VerifyRowsColumns(l.ChildNodes); // Allocate rows and columns
+                           VerifyObjects(l.ChildNodes);         // Send the objects one at a time
+                           break;
+                     }
+                  }
+               } catch (EIPIOException e1) {
+                  // In case of an EIP I/O error
+                  string name = $"{GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                  string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
+                  MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
+                  success = false;
+               } catch (Exception e2) {
+                  // You are on your own here
+               }
+            }
+            ForwardClose();
+         }
+         EndSession();
+         return success;
+      }
+
+      private void VerifyPrinterSettings(XmlNode pr) {
+         string sent = string.Empty;
+         string back = string.Empty;
+         foreach (XmlNode c in pr.ChildNodes) {
+            switch (c.Name) {
+               case "PrintHead":
+                  VerifyXml(c, "Orientation", ccPS.Character_Orientation);
+                  break;
+               case "ContinuousPrinting":
+                  VerifyXml(c, "RepeatInterval", ccPS.Repeat_Interval);
+                  VerifyXml(c, "PrintsPerTrigger", ccPS.Repeat_Count);
+                  break;
+               case "TargetSensor":
+                  VerifyXml(c, "Filter", ccPS.Target_Sensor_Filter);
+                  VerifyXml(c, "SetupValue", ccPS.Targer_Sensor_Filter_Value);
+                  VerifyXml(c, "Timer", ccPS.Target_Sensor_Timer);
+                  break;
+               case "CharacterSize":
+                  VerifyXml(c, "Width", ccPS.Character_Width);
+                  VerifyXml(c, "Height", ccPS.Character_Height);
+                  break;
+               case "PrintStartDelay":
+                  VerifyXml(c, "Forward", ccPS.Print_Start_Delay_Forward);
+                  VerifyXml(c, "Reverse", ccPS.Print_Start_Delay_Reverse);
+                  break;
+               case "EncoderSettings":
+                  VerifyXml(c, "HighSpeedPrinting", ccPS.High_Speed_Print);
+                  VerifyXml(c, "Divisor", ccPS.Pulse_Rate_Division_Factor);
+                  VerifyXml(c, "ExternalEncoder", ccPS.Product_Speed_Matching);
+                  break;
+               case "InkStream":
+                  VerifyXml(c, "InkDropUse", ccPS.Ink_Drop_Use);
+                  VerifyXml(c, "ChargeRule", ccPS.Ink_Drop_Charge_Rule);
+                  break;
+               case "TwinNozzle":
+                  // Not supported in EtherNet/IP
+                  //this.LeadingCharacterControl = GetAttr(c, "LeadingCharControl", 0);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth1", 32);
+                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
+                  //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
+                  break;
+               case "Substitution":
+                  VerifySubstitution(c);
+                  break;
+            }
+         }
+      }
+
+      private void VerifySubstitution(XmlNode c) {
+
+      }
+
+      private void VerifyRowsColumns(XmlNodeList childNodes) {
+
+      }
+
+      private void VerifyObjects(XmlNodeList childNodes) {
+
+      }
+
+      private void VerifyXml<T>(XmlNode n, string xmlName, T Attribute, string Item = "N/A", string CalBlock = "N/A", string CntBlock = "N/A") where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
+         string sent = GetXmlAttr(n, xmlName);
+         string back = GetAttribute(Attribute);
+         string msg = $"{xmlName}\t{attr.Class}\t{Attribute}\t{Item}\t{CalBlock}\t{CntBlock}\t{sent}\t{back}";
+         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg));
+      }
+
+      //private void LogVerify(ClassCode cc, string at, string item, string cal, string count, string sent, string back) {
+      //   // Record the operation in the Traffic file
+      //   string msg = $"{cc}\t{at}\t{item}\t{cal}\t{count}\t{sent}\t{back}";
+      //   Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg));
+      //}
 
       #endregion
 
