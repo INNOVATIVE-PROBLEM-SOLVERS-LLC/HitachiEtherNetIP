@@ -477,7 +477,7 @@ namespace EIP_Lib {
                      EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
                      EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
                      EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
-                     EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Enable");
+                     EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Space Fill");
                   }
                   // Set up the clock for item 2
                   {
@@ -485,7 +485,7 @@ namespace EIP_Lib {
                      EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
                      EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
                      EIP.SetAttribute(ccCal.Substitute_Month, "Enable");
-                     EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Enable");
+                     EIP.SetAttribute(ccCal.Zero_Suppress_Day, "Space Fill");
                      EIP.SetAttribute(ccCal.Offset_Day, 30);
                      EIP.SetAttribute(ccPF.Calendar_Offset, "From Yesterday");
                   }
