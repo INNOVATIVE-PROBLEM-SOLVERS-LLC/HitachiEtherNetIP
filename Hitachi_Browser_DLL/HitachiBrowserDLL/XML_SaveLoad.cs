@@ -86,7 +86,6 @@ namespace EIP_Lib {
 
       // Send xlmDoc from file to printer
       private void SendFileToPrinter_Click(object sender, EventArgs e) {
-         bool success = true;
          // Need a XMP Document to continue
          if (xmlDoc == null) {
             Open_Click(null, null);
@@ -105,33 +104,11 @@ namespace EIP_Lib {
                         continue;
                      switch (l.Name) {
                         case "Printer":
-                           // Send printer wide settings
-                           SendPrinterSettings(l);
+                           SendPrinterSettings(l);            // Send printer wide settings
                            break;
                         case "Objects":
-                           // Dynamically allocated by printer
-                           int FirstCalBlock = 1;
-                           int CalBlockCount = 1;
-                           int FirstCountBlock = 1;
-                           int CountBlockCount = 1;
-
-                           // Allocate rows and columns
-                           AllocateRowsColumns(l.ChildNodes);
-
-                           // Send the objects one at a time
-                           LoadObjects(l.ChildNodes);
-
-                           // Get data assigned by the printer
-                           EIP.GetAttribute(ccCount.First_Count_Block, out FirstCountBlock);
-                           EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out CountBlockCount);
-
-                           // Get data assigned by the printer
-                           EIP.GetAttribute(ccCal.First_Calendar_Block, out FirstCalBlock);
-                           EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out CalBlockCount);
-
-                           // Send the objects one at a time
-                           LoadCalendarCount(l.ChildNodes, FirstCalBlock, CalBlockCount, FirstCountBlock, CountBlockCount);
-
+                           AllocateRowsColumns(l.ChildNodes); // Allocate rows and columns
+                           LoadObjects(l.ChildNodes);         // Send the objects one at a time
                            break;
                      }
                   }
@@ -140,7 +117,6 @@ namespace EIP_Lib {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-                  success = false;
                } catch (Exception e2) {
                   // You are on your own here
                }
@@ -153,32 +129,19 @@ namespace EIP_Lib {
 
       // Simulate Delete All But One
       public bool CleanDisplay() {
-         bool success = true;
-         // Get the number of columns
-         success = EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
-         // Make things faster
-         //EIP.SetAttribute(ccIDX.Automatic_reflection, 1);
-         //No need to delete columns if there is only one
-         if (cols > 1) {
-            // Select to continuously delete column 2 (0 origin on deletes)
-            EIP.SetAttribute(ccIDX.Column, 1);
-            // Column number is 0 origin
-            while (success && cols > 1) {
-               // Delete the column
+         EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols); // Get the number of columns
+         if (cols > 1) {                                         // No need to delete columns if there is only one
+            EIP.SetAttribute(ccIDX.Column, 1);                   // Select to continuously delete column 2 (0 origin on deletes)
+            while (--cols > 0) {                                 // Delete all but one column
                EIP.ServiceAttribute(ccPF.Delete_Column, 0);
-               cols--;
             }
          }
-         // Select item 1 (1 origin on Line Count)
-         EIP.SetAttribute(ccIDX.Item, 1);
-         // Set line count to 1. (In case column 1 has multiple lines)
-         EIP.SetAttribute(ccPF.Line_Count, 1);
-         // Clear any barcodes
-         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
+         EIP.SetAttribute(ccIDX.Item, 1);                    // Select item 1 (1 origin on Line Count)
+         EIP.SetAttribute(ccPF.Line_Count, 1);               // Set line count to 1. (In case column 1 has multiple lines)
+         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");           // Clear any barcodes
          EIP.SetAttribute(ccPF.Barcode_Type, "None");
-         // Set simple text in case Calendar or Counter was used
-         EIP.SetAttribute(ccPF.Print_Character_String, "1");
-         return success;
+         EIP.SetAttribute(ccPF.Print_Character_String, "1"); // Set simple text in case Calendar or Counter was used
+         return true;
       }
 
       // Send the Printer Wide Settings
@@ -283,71 +246,44 @@ namespace EIP_Lib {
             if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
                return false;
             }
+            EIP.SetAttribute(ccIDX.Item, item);
+            EIP.SetAttribute(ccPF.Print_Character_String, GetValue(obj.SelectSingleNode("Text"))); // Load the text
 
-            // Handle multiple line texts
-            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-            for (int i = 0; i < text.Length; i++) {
-               // Point to the item
-               EIP.SetAttribute(ccIDX.Item, item + i);
-               // Load the text
-               EIP.SetAttribute(ccPF.Print_Character_String, FormatDate(text[i]));
+            n = obj.SelectSingleNode("Font");
+            EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+            EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
+            EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
 
-               n = obj.SelectSingleNode("Font");
-               EIP.SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-               EIP.SetAttribute(ccPF.InterCharacter_Space, GetAttr(n, "InterCharacterSpace"));
-               EIP.SetAttribute(ccPF.Character_Bold, GetAttr(n, "IncreasedWidth"));
-
+            ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
+            switch (type) {
+               case ItemType.Counter:
+                  LoadCount(obj);
+                  break;
+               case ItemType.Date:
+                  LoadCalendar(obj);
+                  break;
             }
          }
          return success;
       }
 
-      // Load object settings
-      private bool LoadCalendarCount(XmlNodeList objs, int FirstCalBlock, int CalBlockCount, int FirstCountBlock, int CountBlockCount) {
-         bool success = true;
-         XmlNode n;
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-
-            // Handle multiple line texts
-            string[] text = GetValue(obj.SelectSingleNode("Text")).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-            for (int i = 0; i < text.Length; i++) {
-               // Point to the item
-               EIP.SetAttribute(ccIDX.Item, item + i);
-               // Get the item type
-               ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetAttr(obj, "Type"), true);
-               switch (type) {
-                  case ItemType.Counter:
-                     LoadCount(obj, FirstCountBlock, CountBlockCount);
-                     break;
-                  case ItemType.Date:
-                     LoadCalendar(obj, FirstCalBlock, CalBlockCount);
-                     break;
-               }
-            }
-         }
-         return success;
-      }
 
       // Send counter related information
-      private bool LoadCount(XmlNode obj, int firstBlock, int blockCount) {
+      private bool LoadCount(XmlNode obj) {
          bool success = true;
 
-         for (int block = 0; block < blockCount && success; block++) {
+         // Get data assigned by the printer
+         EIP.GetAttribute(ccCount.First_Count_Block, out int FirstCountBlock);
+         EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out int CountBlockCount);
+
+         for (int block = 0; block < FirstCountBlock && success; block++) {
             foreach (XmlNode c in obj) {
                if (c is XmlWhitespace)
                   continue;
                if (c.Name == "Counter") {
                   if (int.TryParse(GetAttr(c, "Block"), out int b)) {
                      if (b == block + 1) {
-                        EIP.SetAttribute(ccIDX.Count_Block, firstBlock + block);
+                        EIP.SetAttribute(ccIDX.Count_Block, CountBlockCount + block);
                         foreach (XmlAttribute a in c.Attributes) {
                            switch (a.Name) {
                                case "InitialValue":
@@ -407,18 +343,22 @@ namespace EIP_Lib {
       }
 
       // Send Calendar related information
-      private bool LoadCalendar(XmlNode obj, int firstBlock, int blockCount) {
+      private bool LoadCalendar(XmlNode obj) {
          bool success = true;
          XmlNode n;
 
-         for (int block = 0; block < blockCount && success; block++) {
+         // Get data assigned by the printer
+         EIP.GetAttribute(ccCal.First_Calendar_Block, out int FirstCalBlock);
+         EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out int CalBlockCount);
+
+         for (int block = 0; block < CalBlockCount && success; block++) {
             foreach (XmlNode d in obj) {
                if (d is XmlWhitespace)
                   continue;
                if (d.Name == "Date") {
                   if (int.TryParse(GetAttr(d, "Block"), out int b)) {
                      if (b == block + 1) {
-                        EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + block);
+                        EIP.SetAttribute(ccIDX.Calendar_Block, FirstCalBlock + block);
                         n = d.SelectSingleNode("Offset");
                         if (n != null) {
                            foreach (XmlAttribute a in n.Attributes) {
@@ -630,32 +570,6 @@ namespace EIP_Lib {
             }
          }
          return success;
-      }
-
-      // Convert from cijConnect format to Hitachi format
-      private string FormatCounter(string text) {
-         string result = text;
-         if (text.IndexOf("{{") < 0) {
-            int lBrace = text.IndexOf('{');
-            int rBrace = text.LastIndexOf('}');
-            if (lBrace >= 0 && lBrace < rBrace) {
-               result = text.Substring(0, lBrace) + "{{" + new string('C', rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
-            }
-         }
-         return result;
-      }
-
-      // Convert from cijConnect format to Hitachi format
-      private string FormatDate(string text) {
-         string result = text;
-         if (text.IndexOf("{{") < 0) {
-            int lBrace = text.IndexOf('{');
-            int rBrace = text.LastIndexOf('}');
-            if (lBrace >= 0 && lBrace < rBrace) {
-               result = text.Substring(0, lBrace) + "{{" + text.Substring(lBrace + 1, rBrace - lBrace - 1) + "}}" + text.Substring(rBrace + 1);
-            }
-         }
-         return result;
       }
 
       #endregion

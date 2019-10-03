@@ -31,8 +31,8 @@
       <Location ItemNumber="2" Row="2" Column="1" />
       <Date Block="1">
         <Offset Year="0" Month="0" Day="30" Hour="0" Minute="0" />
-        <ZeroSuppress Year="Disable" Month="Disable" Day="Enable" />
-        <EnableSubstitution Year="Disable" Month="Enaable" Day="Ensable" />
+        <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
+        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
       </Date>
       <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
     </Object>
