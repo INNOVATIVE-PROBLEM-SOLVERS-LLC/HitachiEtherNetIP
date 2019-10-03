@@ -307,7 +307,7 @@ namespace EIP_Lib {
 
    #endregion
 
-   public class EIP {
+   public partial class EIP {
 
       #region Events
 

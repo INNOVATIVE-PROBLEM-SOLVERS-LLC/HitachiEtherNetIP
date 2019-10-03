@@ -87,9 +87,6 @@ namespace EIP_Lib {
       // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
          // Clear out any currently loaded file
-         Clear_Click(null, null);
-         DialogResult dlgResult = DialogResult.Retry;
-         string fileName = String.Empty;
          using (OpenFileDialog dlg = new OpenFileDialog()) {
             dlg.AutoUpgradeEnabled = true;
             dlg.CheckFileExists = true;
@@ -98,9 +95,7 @@ namespace EIP_Lib {
             dlg.ValidateNames = true;
             dlg.Title = "Select XML formatted file!";
             dlg.Filter = "XML (*.xml)|*.xml|All (*.*)|*.*";
-            dlg.DefaultExt = "txt";
-            dlg.FilterIndex = 1;
-            dlgResult = DialogResult.Retry;
+            DialogResult dlgResult = DialogResult.Retry;
             while (dlgResult == DialogResult.Retry) {
                dlgResult = dlg.ShowDialog();
                if (dlgResult == DialogResult.OK) {
@@ -287,23 +282,6 @@ namespace EIP_Lib {
          cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;
       }
 
-      private string GetValue(XmlNode node) {
-         if (node != null) {
-            return node.InnerText;
-         } else {
-            return N_A;
-         }
-      }
-
-      private string GetAttr(XmlNode node, string AttrName) {
-         XmlNode n;
-         if (node != null && (n = node.Attributes[AttrName]) != null) {
-            return n.Value;
-         } else {
-            return N_A;
-         }
-      }
-
       private void BuildTestFileList() {
          cbAvailableXmlTests.Items.Clear();
          try {
@@ -346,18 +324,11 @@ namespace EIP_Lib {
          AttrData attr = EIP.GetAttrData(Attribute);
          if (EIP.GetAttribute(attr.Class, attr.Val, EIP.FormatOutput(attr.Get, n))) {
             val = EIP.GetDataValue;
-            if (attr.Data.Fmt == DataFormats.UTF8) {
+            if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
                val = EIP.FromQuoted(val);
             }
          }
          return val;
-      }
-
-      // Get the value of an attribute that is known to be a decimal number
-      private int GetDecimalAttribute<T>(T Attribute) where T : Enum {
-         AttrData attr = EIP.GetAttrData(Attribute);
-         EIP.GetAttribute(attr.Class, attr.Val, EIP.Nodata);
-         return EIP.GetDecValue;
       }
 
       // Verify send vs received
