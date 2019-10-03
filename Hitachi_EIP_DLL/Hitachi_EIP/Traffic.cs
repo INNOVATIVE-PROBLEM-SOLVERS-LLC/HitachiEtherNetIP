@@ -22,14 +22,21 @@ namespace EIP_Lib {
       string TrafficFolder;
       string TrafficFileName = string.Empty;
 
+      string trafficHdrs =
+              "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
+              "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
+      string VerifycHdrs =
+              "XML Name\tClass\tAttribute\tItem\tCalendar\tCount\tData Out\tData In";
+
       // Different steps in creating the traffic excel spreadsheet.
       public enum TaskType {
          Create = 0,
          AddTraffic = 1,
          AddLog = 2,
-         Close = 3,
-         View = 4,
-         Exit = 5,
+         AddVerify = 3,
+         Close = 4,
+         View = 5,
+         Exit = 6,
       }
 
       // Do the work in the background
@@ -44,6 +51,9 @@ namespace EIP_Lib {
       Excel.Workbook wb = null;
       Excel.Worksheet wsTraffic = null;
       int wsTrafficRow;
+      Excel.Worksheet wsVerify = null;
+      int wsVerifyRow;
+
 
       // Use for calculating elapsed time
       DateTime lastTraffic = DateTime.Now;
@@ -83,6 +93,9 @@ namespace EIP_Lib {
                   case TaskType.AddLog:
                      AddLogEntry();
                      break;
+                  case TaskType.AddVerify:
+                     AddVerifyEntry();
+                     break;
                   case TaskType.Close:
                      CloseExcelApplication(pkt.View);
                      break;
@@ -114,14 +127,16 @@ namespace EIP_Lib {
          // One worksheet is free
          wsTraffic = wb.Sheets[1];
          wsTraffic.Name = "Traffic";
-
          // Get the headers right for the first one
-         string[] s = pkt.Data.Split('\t');
+         string[] s = trafficHdrs.Split('\t');
          excelApp.Cells[1, 1] = "Date/Time";
          excelApp.Cells[1, 2] = "Elapsed";
          for (int i = 0; i < s.Length; i++) {
             excelApp.Cells[1, i + 3] = s[i];
          }
+
+         // Set the Traffic worksheet as active
+         wsTraffic.Activate();
 
          // Set column formatting
          for (int i = 1; i < 15; i++) {
@@ -149,6 +164,22 @@ namespace EIP_Lib {
             }
          }
          wsTrafficRow = 2;
+
+         // Add Verify worksheet
+         wsVerify = wb.Sheets.Add(wb.Sheets[1], Type.Missing, Type.Missing, Type.Missing);
+         wsVerify.Name = "Verify";
+
+         // Set the Traffic worksheet as active
+         wsVerify.Activate();
+
+         s = VerifycHdrs.Split('\t');
+         wsVerify.Cells[1, 1] = "Date/Time";
+         wsVerify.Cells[1, 2] = "Valid";
+         for (int i = 0; i < s.Length; i++) {
+            excelApp.Cells[1, i + 3] = s[i];
+         }
+         wsVerifyRow = 2;
+
       }
 
       // Add a traffic entry.  Flag entries that differ from the Hitachi Spec
@@ -209,12 +240,32 @@ namespace EIP_Lib {
 
       }
 
+      // Add the results of a verify operation
+      private void AddVerifyEntry() {
+         // Set the Traffic worksheet as active
+         wsVerify.Activate();
+         wsVerify.Cells[wsVerifyRow, 1] = pkt.When.ToString("yy/MM/dd HH:mm:ss.ffff");
+         string[] s = pkt.Data.Split('\t');
+         for (int i = 0; i < s.Length; i++) {
+            wsVerify.Cells[wsVerifyRow, i + 3] = s[i];
+         }
+         if(s[s.Length - 2] == s[s.Length - 1]) {
+            wsVerify.Cells[wsVerifyRow, 2] = "True";
+         } else {
+            wsVerify.Cells[wsVerifyRow, 2] = "False";
+            wsVerify.Cells[wsVerifyRow, 2].Interior.Color = Color.LightYellow;
+         }
+
+         wsVerifyRow++;
+      }
+
+
       // Close out the application
       private void CloseExcelApplication(bool View) {
          if (excelApp != null) {
             if (View) {
-               // Save it away
-               TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
+               // Set the Traffic worksheet as active
+               wsTraffic.Activate();
                // Make a table out of the traffic data
                Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
                SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
@@ -222,6 +273,17 @@ namespace EIP_Lib {
                SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
                wsTraffic.Columns.AutoFit();
 
+               // Set the Traffic worksheet as active
+               wsVerify.Activate();
+               // Make a table out of the Verify data
+               SourceRange = (Excel.Range)wsVerify.get_Range("A1", $"J{wsVerifyRow - 1}");
+               SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
+               SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Verify";
+               SourceRange.Worksheet.ListObjects["Verify"].TableStyle = "TableStyleMedium2";
+               wsVerify.Columns.AutoFit();
+
+               // Save it away
+               TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
                excelApp.ActiveWorkbook.SaveAs(TrafficFileName);
             }
             wb.Close();

@@ -333,7 +333,9 @@ namespace EIP_Lib {
 
       // Verify send vs received
       private void cmdVerify_Click(object sender, EventArgs e) {
-
+         if (xmlDoc != null) {
+            EIP.VerifyXmlVsPrinter(xmlDoc);
+         }
       }
 
       // Add text to all items (Control Deleted)

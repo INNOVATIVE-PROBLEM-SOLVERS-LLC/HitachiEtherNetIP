@@ -53,13 +53,6 @@ namespace EIP_Lib {
 
       #region XML Driver Routines
 
-      // Generate an XML Doc from the printer contents
-      private void Generate_Click(object sender, EventArgs e) {
-         XMLText = EIP.ConvertLayoutToXML();
-         ProcessLabel(XMLText);
-         SetButtonEnables();
-      }
-
       private void cbAvailableTests_SelectedIndexChanged(object sender, EventArgs e) {
          if (cbAvailableXmlTests.SelectedIndex >= 0) {
             try {
@@ -74,7 +67,7 @@ namespace EIP_Lib {
 
       #endregion
 
-      #region Send to Printer Routines
+      #region XML to/from Printer Routines
 
       // Send xlmDoc from display to printer
       private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
@@ -92,6 +85,13 @@ namespace EIP_Lib {
                EIP.SendXmlToPrinter(xmlDoc);
             }
          }
+      }
+
+      // Generate an XML Doc from the printer contents
+      private void Generate_Click(object sender, EventArgs e) {
+         XMLText = EIP.ConvertLayoutToXML();
+         ProcessLabel(XMLText);
+         SetButtonEnables();
       }
 
       #endregion
