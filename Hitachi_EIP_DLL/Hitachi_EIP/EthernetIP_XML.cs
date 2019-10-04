@@ -986,15 +986,19 @@ namespace EIP_Lib {
 
       #region Verify Load was Successful
 
-      public bool VerifyXmlVsPrinter(string FileName) {
+      bool ReportAll = true;
+
+      // Verify the printer settings vs the XML File
+      public bool VerifyXmlVsPrinter(string FileName, bool ReportAll = true) {
          XmlDocument xmlDoc = new XmlDocument();
          xmlDoc.PreserveWhitespace = true;
          xmlDoc.Load(FileName);
-         return VerifyXmlVsPrinter(xmlDoc);
+         return VerifyXmlVsPrinter(xmlDoc, ReportAll);
       }
 
-      // Send xlmDoc from file to printer
-      public bool VerifyXmlVsPrinter(XmlDocument xmlDoc) {
+      // Verify the printer settings vs the XML Document
+      public bool VerifyXmlVsPrinter(XmlDocument xmlDoc, bool ReportAll = true) {
+         this.ReportAll = ReportAll;
          // Need a XMP Document to continue
          if (xmlDoc == null) {
             return false;
@@ -1081,8 +1085,80 @@ namespace EIP_Lib {
          }
       }
 
-      private void VerifySubstitution(XmlNode c) {
+      private void VerifySubstitution(XmlNode p) {
+         AttrData attr;
+         byte[] data;
 
+         // Get the standard attributes for substitution
+         string rule = GetXmlAttr(p, "Rule");
+         string startYear = GetXmlAttr(p, "StartYear");
+         string delimiter = GetXmlAttr(p, "Delimiter");
+
+         // Avoid user errors
+         if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimiter.Length == 1) {
+
+            // Sub Substitution rule in Index class
+            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
+            data = FormatOutput(attr.Set, ruleNumber);
+            SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
+
+            // Validate the start year in the substitution rule
+            VerifyXml(p, "StartYear", ccSR.Start_Year, SubRule: ruleNumber);
+
+            // Load the individual rules
+            foreach (XmlNode c in p.ChildNodes) {
+               switch (c.Name) {
+                  case "Year":
+                     VerifySubValues(ccSR.Year, c, delimiter);
+                     break;
+                  case "Month":
+                     VerifySubValues(ccSR.Month, c, delimiter);
+                     break;
+                  case "Day":
+                     VerifySubValues(ccSR.Day, c, delimiter);
+                     break;
+                  case "Hour":
+                     VerifySubValues(ccSR.Hour, c, delimiter);
+                     break;
+                  case "Minute":
+                     VerifySubValues(ccSR.Minute, c, delimiter);
+                     break;
+                  case "Week":
+                     VerifySubValues(ccSR.Week, c, delimiter);
+                     break;
+                  case "DayOfWeek":
+                     VerifySubValues(ccSR.Day_Of_Week, c, delimiter);
+                     break;
+                  case "Skip":
+                     // Do not process these nodes
+                     break;
+               }
+            }
+         }
+      }
+
+      // Set the substitution values for a class
+      private bool VerifySubValues(ccSR attribute, XmlNode c, string delimeter) {
+         bool success = true;
+         // Avoid user errors
+         if (int.TryParse(GetXmlAttr(c, "Base"), out int b)) {
+            Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
+            string[] s = GetXmlValue(c).Split(delimeter[0]);
+            for (int i = 0; i < s.Length; i++) {
+               int n = b + i;
+               // Avoid user errors
+               if (n >= prop.Min && n <= prop.Max) {
+                  string sent = s[i];
+                  string back = GetAttribute(attribute, n);
+                  if (ReportAll || sent != back) {
+                     string msg = $"{c.Name}\t{GetAttrData(attribute).Class}\t{attribute}\t{n}"
+                             + $"\t{"N/A"}\t{GetIndexSetting(ccIDX.Item)}\t{sent}\t{back}";
+                     Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg.Replace('_', ' ')));
+                  }
+               }
+            }
+         }
+         return success;
       }
 
       private void VerifyRowsColumns(XmlNodeList childNodes) {
@@ -1330,24 +1406,28 @@ namespace EIP_Lib {
          }
       }
 
+      #endregion
+
+      #region Service Routines
+
       private void VerifyXml<T>(XmlNode n, string xmlName, T Attribute, int Item = int.MinValue, int Block = int.MinValue, int SubRule = int.MinValue) where T : Enum {
          string sent;
+         string back;
          if (n.Name == xmlName) {
             sent = GetXmlValue(n);
          } else {
             sent = GetXmlAttr(n, xmlName);
          }
-         string back = GetAttribute(Attribute);
-         string sItem = Item == int.MinValue ? "N/A" : Item.ToString();
-         string sBlock = Block == int.MinValue ? "N/A" : Block.ToString();
-         string sSubRule = SubRule == int.MinValue ? "N/A" : SubRule.ToString();
-         string msg = $"{xmlName}\t{GetAttrData(Attribute).Class}\t{Attribute}\t{sItem}\t{sBlock}\t{sSubRule}\t{sent}\t{back}";
-         Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg));
+         back = GetAttribute(Attribute);
+         if (ReportAll || sent != back) {
+            string sItem = Item == int.MinValue ? "N/A" : Item.ToString();
+            string sBlock = Block == int.MinValue ? "N/A" : Block.ToString();
+            string sSubRule = SubRule == int.MinValue ? "N/A" : SubRule.ToString();
+            string msg = $"{xmlName}\t{GetAttrData(Attribute).Class}\t{Attribute}\t{sItem}"
+                       + $"\t{sBlock}\t{sSubRule}\t{sent}\t{back}";
+            Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg.Replace('_', ' ')));
+         }
       }
-
-      #endregion
-
-      #region Service Routines
 
       // Get XML Text
       private string GetXmlValue(XmlNode node) {
