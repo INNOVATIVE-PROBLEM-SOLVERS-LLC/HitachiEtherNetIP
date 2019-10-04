@@ -81,11 +81,12 @@ namespace EIP_Lib {
          // Need a XMP Document to continue
          if (xmlDoc == null) {
             Open_Click(null, null);
-            if (xmlDoc == null) {
-               EIP.SendXmlToPrinter(xmlDoc);
-            }
+         }
+         if (xmlDoc != null) {
+            EIP.SendXmlToPrinter(xmlDoc);
          }
       }
+
 
       // Generate an XML Doc from the printer contents
       private void Generate_Click(object sender, EventArgs e) {
