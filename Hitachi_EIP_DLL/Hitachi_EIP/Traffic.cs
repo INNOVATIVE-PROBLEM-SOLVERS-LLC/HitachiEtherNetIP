@@ -26,7 +26,7 @@ namespace EIP_Lib {
               "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
               "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
       string VerifycHdrs =
-              "XML Name\tClass\tAttribute\tItem\tCalendar\tCount\tData Out\tData In";
+              "XML Name\tClass\tAttribute\tItem\tBlock\tSub Rule\tData Out\tData In";
 
       // Different steps in creating the traffic excel spreadsheet.
       public enum TaskType {
@@ -153,7 +153,7 @@ namespace EIP_Lib {
                   break;
                case 10: // Input formatted data
                case 13: // Output formatted data
-                  // Two columns are numbers and text, right justify them
+                  // Two columns are numbers and text, center them
                   excelApp.Columns[i].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                   excelApp.Columns[i].NumberFormat = "@";
                   break;
@@ -176,7 +176,12 @@ namespace EIP_Lib {
          wsVerify.Cells[1, 1] = "Date/Time";
          wsVerify.Cells[1, 2] = "Valid";
          for (int i = 0; i < s.Length; i++) {
-            excelApp.Cells[1, i + 3] = s[i];
+            wsVerify.Cells[1, i + 3] = s[i];
+            // Two columns are numbers and text, center them
+            if (i >= s.Length - 4) {
+               wsVerify.Columns[i + 3].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+               wsVerify.Columns[i + 3].NumberFormat = "@";
+            }
          }
          wsVerifyRow = 2;
 
