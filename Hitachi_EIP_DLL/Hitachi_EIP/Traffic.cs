@@ -178,7 +178,7 @@ namespace EIP_Lib {
          for (int i = 0; i < s.Length; i++) {
             wsVerify.Cells[1, i + 3] = s[i];
             // Two columns are numbers and text, center them
-            if (i >= s.Length - 4) {
+            if (i >= s.Length - 5) {
                wsVerify.Columns[i + 3].HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
                wsVerify.Columns[i + 3].NumberFormat = "@";
             }

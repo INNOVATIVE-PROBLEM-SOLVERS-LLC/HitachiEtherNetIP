@@ -333,6 +333,10 @@ namespace EIP_Lib {
 
       // Verify send vs received
       private void cmdVerify_Click(object sender, EventArgs e) {
+         // Need a XMP Document to continue
+         if (xmlDoc == null) {
+            Open_Click(null, null);
+         }
          if (xmlDoc != null) {
             EIP.VerifyXmlVsPrinter(xmlDoc);
          }
