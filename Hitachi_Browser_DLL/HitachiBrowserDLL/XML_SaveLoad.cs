@@ -90,7 +90,7 @@ namespace EIP_Lib {
 
       // Generate an XML Doc from the printer contents
       private void Generate_Click(object sender, EventArgs e) {
-         XMLText = EIP.ConvertLayoutToXML();
+         XMLText = EIP.RetrieveXML();
          ProcessLabel(XMLText);
          SetButtonEnables();
       }

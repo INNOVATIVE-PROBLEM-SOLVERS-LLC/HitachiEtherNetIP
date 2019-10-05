@@ -417,7 +417,8 @@ namespace EIP_Lib {
          new string[] { "Standard", "Mixed", "Dot Mixed" },           // 21 - Charge Rule
          new string[] { "5 Minutes", "6 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes" },
                                                                       // 22 - Time Count renewal period
-      };
+          new string[] { "Off", "On" },                               // 23 - On/Off for Auto Reflection
+     };
 
       public int port { get; set; }
       public string IPAddress { get; set; }

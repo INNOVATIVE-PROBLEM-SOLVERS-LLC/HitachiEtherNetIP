@@ -389,17 +389,21 @@ namespace EIP_Lib {
          return success;
       }
 
-      // Create a message with three rows, two columns,and a Logo that contains one of everything
+      // Create a Individual layout message with three rows, two columns,and a Logo that contains one of everything
       private bool Comprehensive() {
          bool success = true;
          string[] itemText = new string[] {
-            "SELLBY {{MMM}/{DD}/{YY}}  ", "USE BY {{MMM}/{DD}/{YY}}  ", "PACKED {{TTT} {777}} ",
-            "Shift {{E}}", "T-Ct {{FF}} ", "#{{CCCCCC}} ", "{X/0}"
-         };
+      "SELLBY {{MMM}/{DD}/{YY}}  ", "USE BY {{MMM}/{DD}/{YY}}  ", "PACKED {{TTT} {777}} ",
+      "Shift {{E}}", "T-Ct {{FF}} ", "#{{CCCCCC}} ", "{X/0}"
+   };
          int firstBlock = 1;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
+                  // Load the message type
+                  {
+                     EIP.SetAttribute(ccPF.Format_Setup, "Individual");
+                  }
                   // Clean up the display
                   {
                      EIP.GetAttribute(ccPF.Number_Of_Columns, out int cols);
@@ -417,21 +421,6 @@ namespace EIP_Lib {
                      EIP.SetAttribute(ccPF.Print_Character_String, "1");
                   }
 
-                  // Load the message properties
-                  {
-                     EIP.SetAttribute(ccPF.Format_Setup, "Individual");
-                     EIP.SetAttribute(ccPS.Character_Orientation, "Normal/Forward");
-                     EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Time Setup");
-                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
-                     EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
-                     EIP.SetAttribute(ccPS.Character_Height, 99);
-                     EIP.SetAttribute(ccPS.Character_Width, 10);
-                     EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, 55);
-                     EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, 45);
-                     EIP.SetAttribute(ccPS.Ink_Drop_Use, 2);
-                     EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, "Mixed");
-                     EIP.SetAttribute(ccPS.Product_Speed_Matching, "Auto");
-                  }
                   // Set up the rows and columns
                   {
                      // First column is already there, just create the second and third columns
@@ -559,9 +548,23 @@ namespace EIP_Lib {
                   {
                      // Once logo processing works in the printer, loading of the logo will be added here.
                   }
+                  // Load the message properties
+                  {
+                     EIP.SetAttribute(ccPS.Character_Orientation, "Inverted/Forward");
+                     EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Until End of Print");
+                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
+                     EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
+                     EIP.SetAttribute(ccPS.Character_Height, 99);
+                     EIP.SetAttribute(ccPS.Character_Width, 10);
+                     EIP.SetAttribute(ccPS.Print_Start_Delay_Forward, 96);
+                     EIP.SetAttribute(ccPS.Print_Start_Delay_Reverse, 96);
+                     EIP.SetAttribute(ccPS.Ink_Drop_Use, 2);
+                     EIP.SetAttribute(ccPS.Ink_Drop_Charge_Rule, "Mixed");
+                     EIP.SetAttribute(ccPS.Product_Speed_Matching, "None");
+                  }
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error
-                  string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
+                  string name = EIP.GetAttributeName(e1.ClassCode, e1.Attribute);
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;

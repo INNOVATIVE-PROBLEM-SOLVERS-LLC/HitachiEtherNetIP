@@ -325,9 +325,7 @@ namespace EIP_Lib {
             // Open a path to the device
             if (EIP.ForwardOpen()) {
                // Blindly Set COM on and read it back
-               AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
-               byte[] data = EIP.FormatOutput(attr.Set, 1);
-               if (EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
+               if (EIP.SetAttribute(ccIJP.Online_Offline, "On Line")) {
                   GetComSetting();
                   if (ComIsOn) {
                      // Got it, Get the other critical settings
@@ -477,9 +475,7 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Get (guess at) the current state, invert it, and read it back
-               AttrData attr = EIP.AttrDict[ClassCode.IJP_operation, (byte)ccIJP.Online_Offline];
-               byte[] data = EIP.FormatOutput(attr.Set, ComIsOn ? 0 : 1);
-               if (EIP.SetAttribute(ClassCode.IJP_operation, (byte)ccIJP.Online_Offline, data)) {
+               if (EIP.SetAttribute(ccIJP.Online_Offline, ComIsOn ? "Off Line" : "On Line")) {
                   GetComSetting();
                   if (ComIsOn) {
                      // Update the other two major controls
@@ -499,9 +495,7 @@ namespace EIP_Lib {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
                // Don't know what the "1" state means.  If it is off, issue the "2"
-               AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag];
-               byte[] data = EIP.FormatOutput(attr.Set, MgmtIsOn ? 0 : 2);
-               if (EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, data)) {
+               if (EIP.SetAttribute(ccIDX.Start_Stop_Management_Flag, MgmtIsOn ? 0 : 2)) {
                   // Refresh the setting since "2" does not take but returns 0
                   GetMgmtSetting();
                }
@@ -516,9 +510,7 @@ namespace EIP_Lib {
       private void btnAutoReflection_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               AttrData attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Automatic_reflection];
-               byte[] data = EIP.FormatOutput(attr.Set, AutoReflIsOn ? 0 : 1);
-               if (EIP.SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, data)) {
+               if (EIP.SetAttribute(ccIDX.Automatic_reflection, AutoReflIsOn ? "Off" : "On")) {
                   GetAutoReflectionSetting();
                }
             }
