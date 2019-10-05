@@ -564,7 +564,7 @@ namespace EIP_Lib {
       #region Retrieve XML from printer
 
       // Generate an XMP Doc form the current printer settings
-      public string ConvertLayoutToXML() {
+      public string RetrieveXML() {
          string xml = string.Empty;
          ItemType itemType = ItemType.Text;
          using (MemoryStream ms = new MemoryStream()) {
@@ -577,7 +577,7 @@ namespace EIP_Lib {
                         writer.WriteStartElement("Label"); // Start Label
                         {
                            writer.WriteAttributeString("Version", "1");
-                           WritePrinterSettings(writer);
+                           RetrievePrinterSettings(writer);
                            writer.WriteStartElement("Objects"); // Start Objects
                            {
                               int item = 0;
@@ -596,23 +596,23 @@ namespace EIP_Lib {
                                     {
                                        writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
-                                       WriteFont(writer);
+                                       RetrieveFont(writer);
 
-                                       WriteLocation(writer, item, row, col);
+                                       RetrieveLocation(writer, item, row, col);
 
                                        switch (itemType) {
                                           case ItemType.Text:
                                              break;
                                           case ItemType.Date:
                                              // Missing multiple calendar block logic
-                                             WriteCalendarSettings(writer, mask);
+                                             RetrieveCalendarSettings(writer, mask);
                                              break;
                                           case ItemType.Counter:
                                              // Missing multiple counter block logic
-                                             WriteCounterSettings(writer);
+                                             RetrieveCounterSettings(writer);
                                              break;
                                           case ItemType.Logo:
-                                             WriteUserPatternSettings(writer);
+                                             RetrieveUserPatternSettings(writer);
                                              break;
                                           default:
                                              break;
@@ -665,8 +665,8 @@ namespace EIP_Lib {
          return xml;
       }
 
-      // Write the global printer settings
-      private void WritePrinterSettings(XmlTextWriter writer) {
+      // Retrieve the global printer settings
+      private void RetrievePrinterSettings(XmlTextWriter writer) {
 
          writer.WriteStartElement("Printer");
          {
@@ -734,13 +734,13 @@ namespace EIP_Lib {
             }
             writer.WriteEndElement(); // TwinNozzle
 
-            WriteSubstitutions(writer);
+            RetrieveSubstitutions(writer);
          }
          writer.WriteEndElement(); // Printer
       }
 
       // This is a work in progress
-      private void WriteSubstitutions(XmlTextWriter writer) {
+      private void RetrieveSubstitutions(XmlTextWriter writer) {
          // We need to figure out what substitution rules are being used
          // and which substitutions within the rule are needed.
          writer.WriteStartElement("Substitution");
@@ -749,18 +749,18 @@ namespace EIP_Lib {
             writer.WriteAttributeString("StartYear", "2019");
             writer.WriteAttributeString("Rule", "1");
             //WriteSubstitution(writer, ccSR.Year, 0, 23);
-            WriteSubstitution(writer, ccSR.Month, 1, 12);
+            RetrieveSubstitution(writer, ccSR.Month, 1, 12);
             //WriteSubstitution(writer, ccSR.Day, 1, 31);
             //WriteSubstitution(writer, ccSR.Hour, 0, 23);
             //WriteSubstitution(writer, ccSR.Minute, 0, 59);
             //WriteSubstitution(writer, ccSR.Week, 1, 53);
-            WriteSubstitution(writer, ccSR.Day_Of_Week, 1, 7);
+            RetrieveSubstitution(writer, ccSR.Day_Of_Week, 1, 7);
          }
          writer.WriteEndElement(); // Substitution
       }
 
-      // Write a single rule
-      private void WriteSubstitution(XmlTextWriter writer, ccSR attr, int start, int end) {
+      // Retrieve a single rule
+      private void RetrieveSubstitution(XmlTextWriter writer, ccSR attr, int start, int end) {
          int n = end - start + 1;
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
@@ -774,8 +774,8 @@ namespace EIP_Lib {
          }
       }
 
-      // Write the Font XML
-      private void WriteFont(XmlTextWriter writer) {
+      // Retrieve the Font XML
+      private void RetrieveFont(XmlTextWriter writer) {
          writer.WriteStartElement("Font"); // Start Font
          {
             string BarCode = GetAttribute(ccPF.Barcode_Type);
@@ -792,7 +792,8 @@ namespace EIP_Lib {
          writer.WriteEndElement(); // End Font
       }
 
-      private void WriteLocation(XmlTextWriter writer, int item, int row, int col) {
+      // Retrieve the ites location
+      private void RetrieveLocation(XmlTextWriter writer, int item, int row, int col) {
          writer.WriteStartElement("Location"); // Start Location
          {
             writer.WriteAttributeString("ItemNumber", item.ToString());
@@ -802,8 +803,8 @@ namespace EIP_Lib {
          writer.WriteEndElement(); // End Location
       }
 
-      // Output the Calendar Settings
-      private void WriteCalendarSettings(XmlTextWriter writer, int[] mask) {
+      // Retrieve the Calendar Settings
+      private void RetrieveCalendarSettings(XmlTextWriter writer, int[] mask) {
          bool success = true;
          int FirstBlock = 0;
          int BlockCount = 0;
@@ -900,8 +901,8 @@ namespace EIP_Lib {
          }
       }
 
-      // Output the Counter Settings
-      private void WriteCounterSettings(XmlTextWriter writer) {
+      // Retrieve the Counter Settings
+      private void RetrieveCounterSettings(XmlTextWriter writer) {
          bool success = true;
          int FirstBlock = 0;
          int BlockCount = 0;
@@ -931,8 +932,8 @@ namespace EIP_Lib {
          }
       }
 
-      // Output the User Pattern Settings
-      private void WriteUserPatternSettings(XmlTextWriter writer) {
+      // Retrieve the User Pattern Settings
+      private void RetrieveUserPatternSettings(XmlTextWriter writer) {
          writer.WriteStartElement("Logo"); // Start Logo
          {
             //writer.WriteAttributeString("Variable", p.WlxVariableName);

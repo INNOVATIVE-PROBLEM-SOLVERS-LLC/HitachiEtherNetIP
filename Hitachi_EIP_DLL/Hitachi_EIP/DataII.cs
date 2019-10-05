@@ -32,6 +32,7 @@ namespace EIP_Lib {
       Messagelayout = 20,
       ChargeRule = 21,
       TimeCount = 22,
+      OffOn = 23,
    }
 
    #endregion
@@ -789,9 +790,9 @@ namespace EIP_Lib {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Set
          new AttrData((byte)ccIDX.Automatic_reflection, GSS.GetSet, false, 1,   // Automatic reflection 0x65
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn),                //   Data
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.OffOn),                //   Get
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn)),               //   Set
          new AttrData((byte)ccIDX.Item, GSS.GetSet, false, 6,                   // Item 0x66
             new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None),               //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
