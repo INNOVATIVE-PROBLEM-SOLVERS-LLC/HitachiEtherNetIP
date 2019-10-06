@@ -83,7 +83,7 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
-            EIP.SendXmlToPrinter(xmlDoc);
+            EIP.SendXmlToPrinter(xmlDoc, true);
          }
       }
 

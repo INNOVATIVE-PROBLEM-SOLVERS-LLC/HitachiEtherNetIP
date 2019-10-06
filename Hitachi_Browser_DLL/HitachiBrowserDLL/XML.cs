@@ -209,7 +209,7 @@ namespace EIP_Lib {
             new string[] {
                "Reset", "Shift Code", "Month Day SR", "Time Count",
                "Day of Week etc", "MDY hms", "Multi-Line", "Counter",
-               "Comprehensive", "???" }
+               "ComprehensiveI", "ComprehensiveII", "???" }
             );
          cbAvailableHardTests.SelectedIndexChanged += CbAvailableHardTests_SelectedIndexChanged;
          cmdRunHardTest = new Button() { Text = "Run Test" };
