@@ -319,18 +319,60 @@ namespace EIP_Lib {
             SetAttribute(ccIDX.Item, item);
 
             n = obj.SelectSingleNode("Font");
-            SetAttribute(ccPF.Dot_Matrix, n.InnerText);
-            SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
-            SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
-            SetAttribute(ccPF.Print_Character_String, GetXmlValue(obj.SelectSingleNode("Text"))); // Load the text last
+            if((n = obj.SelectSingleNode("Font")) != null) {
+               SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+               SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
+               SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
+               SetAttribute(ccPF.Print_Character_String, GetXmlValue(obj.SelectSingleNode("Text"))); // Load the text last
+            }
+         }
+         bool saveAR = UseAutomaticReflection;
+         UseAutomaticReflection = false;
+
+         GetAttribute(ccPF.Number_Of_Items, out int items);
+
+         int[] calStart = new int[items + 1];
+         int[] calCount = new int[items + 1];
+         int[] countStart = new int[items + 1];
+         int[] countCount = new int[items + 1];
+
+         for (int i = 1; i <= items; i++) {
+            calStart[i] = 0;
+            calCount[i] = 0;
+            countStart[i] = 0;
+            countCount[i] = 0;
+            SetAttribute(ccIDX.Item, i);
+            GetAttribute(ccCal.Number_of_Calendar_Blocks, out calCount[i]);
+            if (calCount[i] > 0) {
+               GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
+            } else {
+               GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
+               if(countCount[i] > 0) {
+                  GetAttribute(ccCount.First_Count_Block, out countStart[i]);
+               }
+            }
+         }
+
+         UseAutomaticReflection = saveAR;
+
+         foreach (XmlNode obj in objs) {
+            if (obj is XmlWhitespace)
+               continue;
+
+            // Get the item number of the object
+            n = obj.SelectSingleNode("Location");
+            if (!int.TryParse(GetXmlAttr(n, "ItemNumber"), out int item)) {
+               return false;
+            }
+            SetAttribute(ccIDX.Item, item);
 
             ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(obj, "Type"), true);
             switch (type) {
                case ItemType.Date:
-                  LoadCalendar(obj);
+                  LoadCalendar(obj, calCount[item], calStart[item]);
                   break;
                case ItemType.Counter:
-                  LoadCount(obj);
+                  LoadCount(obj, countCount[item], countStart[item]);
                   break;
             }
          }
@@ -338,13 +380,9 @@ namespace EIP_Lib {
       }
 
       // Send Calendar related information
-      private bool LoadCalendar(XmlNode obj) {
+      private bool LoadCalendar(XmlNode obj, int CalBlockCount, int FirstCalBlock) {
          bool success = true;
          XmlNode n;
-
-         // Get data assigned by the printer
-         GetAttribute(ccCal.First_Calendar_Block, out int FirstCalBlock);
-         GetAttribute(ccCal.Number_of_Calendar_Blocks, out int CalBlockCount);
 
          foreach (XmlNode d in obj) {
             if (d is XmlWhitespace)
@@ -482,12 +520,8 @@ namespace EIP_Lib {
       }
 
       // Send counter related information
-      private bool LoadCount(XmlNode obj) {
+      private bool LoadCount(XmlNode obj, int CountBlockCount, int FirstCountBlock) {
          bool success = true;
-
-         // Get data assigned by the printer
-         GetAttribute(ccCount.First_Count_Block, out int FirstCountBlock);
-         GetAttribute(ccCount.Number_Of_Count_Blocks, out int CountBlockCount);
 
          foreach (XmlNode c in obj) {
             if (c is XmlWhitespace)
