@@ -8,12 +8,12 @@
     <PrintStartDelay Reverse="96" Forward="96" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
     <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <!-- Breaks auto-reflect 
       <Substitution Delimiter="/" StartYear="2019" Rule="1">
         <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Month>
         <Month Base="11">NOV/DEC</Month>
         <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
       </Substitution>
-    <!-- Breaks auto-reflect 
     -->
   </Printer>
   <Objects>

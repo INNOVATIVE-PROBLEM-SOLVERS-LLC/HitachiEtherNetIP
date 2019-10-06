@@ -31,7 +31,7 @@ namespace EIP_Lib {
       Button cmdGenerate;
       Button cmdSaveAs;
       Button cmdVerify;
-      Button cmdSaveInPrinter;
+      Button cmdSend;
 
       // Testing Buttons
       Label lblSelectXmlTest;
@@ -218,8 +218,8 @@ namespace EIP_Lib {
          cmdVerify = new Button() { Text = "Verify" };
          cmdVerify.Click += cmdVerify_Click;
 
-         cmdSaveInPrinter = new Button() { Text = "Save In Printer" };
-         cmdSaveInPrinter.Click += cmdSaveToPrinter_Click;
+         cmdSend = new Button() { Text = "Send" };
+         cmdSend.Click += SendFileToPrinter_Click;
 
          tab.Controls.Add(lblSelectXmlTest);
          tab.Controls.Add(lblSelectHardTest);
@@ -227,7 +227,7 @@ namespace EIP_Lib {
          tab.Controls.Add(cbAvailableHardTests);
          tab.Controls.Add(cmdVerify);
          tab.Controls.Add(cmdBrowse);
-         tab.Controls.Add(cmdSaveInPrinter);
+         tab.Controls.Add(cmdSend);
          tab.Controls.Add(cmdRunHardTest);
       }
 
@@ -251,13 +251,13 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, txtVerify, 1, 1, tclHeight - 12, tclWidth - 3);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 1, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 6, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSend, tclHeight - 6, 5.5f, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdVerify, tclHeight - 3, 5.5f, 2.5f, 4);
 
             Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 10, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdSaveInPrinter, tclHeight - 3, 10, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 10, 2.5f, 4);
 
             Utils.ResizeObject(ref R, lblSelectXmlTest, tclHeight - 6, 14.5f, 1, 6);
             Utils.ResizeObject(ref R, cbAvailableXmlTests, tclHeight - 5, 14.5f, 2, 6);
@@ -277,6 +277,7 @@ namespace EIP_Lib {
       // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
+         cmdSend.Enabled = xmlDoc != null;
          cmdSendFileToPrinter.Enabled = xmlDoc != null;
          cmdSendDisplayToPrinter.Enabled = xmlDoc != null;
          cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;
