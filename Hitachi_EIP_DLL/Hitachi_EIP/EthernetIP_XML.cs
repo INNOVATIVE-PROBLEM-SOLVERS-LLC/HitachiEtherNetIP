@@ -67,38 +67,36 @@ namespace EIP_Lib {
       #region Send XML to Printer
 
       // Send xml file to printer
-      public bool SendXmlToPrinter(string FileName) {
+      public bool SendXmlToPrinter(string FileName, bool UseAutoReflection = false) {
          XmlDocument xmlDoc = new XmlDocument();
          xmlDoc.PreserveWhitespace = true;
          xmlDoc.Load(FileName);
-         return SendXmlToPrinter(xmlDoc);
+         return SendXmlToPrinter(xmlDoc, UseAutoReflection);
       }
 
       // Send xlmDoc from file to printer
-      public bool SendXmlToPrinter(XmlDocument xmlDoc) {
+      public bool SendXmlToPrinter(XmlDocument xmlDoc, bool UseAutoReflection = false) {
          // Need a XMP Document to continue
-            if (xmlDoc == null) {
-               return false;
-            }
+         if (xmlDoc == null) {
+            return false;
+         }
          bool success = true;
          if (StartSession()) {
             if (ForwardOpen()) {
                try {
+                  this.UseAutomaticReflection = UseAutoReflection;
                   // Set to only one item in printer
                   CleanDisplay();
-                  XmlNode lab = xmlDoc.SelectSingleNode("Label");
-                  foreach (XmlNode l in lab.ChildNodes) {
-                     if (l is XmlWhitespace)
-                        continue;
-                     switch (l.Name) {
-                        case "Printer":
-                           SendPrinterSettings(l);            // Send printer wide settings
-                           break;
-                        case "Objects":
-                           AllocateRowsColumns(l.ChildNodes); // Allocate rows and columns
-                           LoadObjects(l.ChildNodes);         // Send the objects one at a time
-                           break;
-                     }
+
+                  XmlNode objs = xmlDoc.SelectSingleNode("Label/Objects");
+                  if(objs != null) {
+                     AllocateRowsColumns(objs.ChildNodes); // Allocate rows and columns
+                     LoadObjects(objs.ChildNodes);         // Send the objects one at a time
+                  }
+
+                  XmlNode prnt = xmlDoc.SelectSingleNode("Label/Printer");
+                  if (prnt != null) {
+                     SendPrinterSettings(prnt);            // Send printer wide settings
                   }
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error
@@ -108,6 +106,8 @@ namespace EIP_Lib {
                   success = false;
                } catch (Exception e2) {
                   // You are on your own here
+               } finally {
+                  this.UseAutomaticReflection = false;
                }
             }
             ForwardClose();
@@ -183,6 +183,10 @@ namespace EIP_Lib {
 
       // Set all the values for a single substitution rule
       private bool SendSubstitution(XmlNode p) {
+
+         bool saveAR = UseAutomaticReflection;
+         UseAutomaticReflection = false;
+
          bool success = true;
          AttrData attr;
          byte[] data;
@@ -194,7 +198,6 @@ namespace EIP_Lib {
 
          // Avoid user errors
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimiter.Length == 1) {
-
             // Sub Substitution rule in Index class
             attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
             data = FormatOutput(attr.Set, ruleNumber);
@@ -235,6 +238,9 @@ namespace EIP_Lib {
                }
             }
          }
+
+         UseAutomaticReflection = saveAR;
+
          return success;
       }
 

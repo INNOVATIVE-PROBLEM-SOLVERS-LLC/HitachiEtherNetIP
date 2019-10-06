@@ -315,11 +315,11 @@ namespace EIP_Lib {
       public event LogHandler Log;
       public delegate void LogHandler(EIP sender, string msg);
 
-      // Read completion
+      // I/O completion
       public event IOHandler IOComplete;
       public delegate void IOHandler(EIP sender, EIPEventArg e);
 
-      // Read completion
+      // State Cganged
       public event ConnectionStateChangedHandler StateChanged;
       public delegate void ConnectionStateChangedHandler(EIP sender, string msg);
 
@@ -520,7 +520,24 @@ namespace EIP_Lib {
 
       // Save area for Index function values
       int[] IndexValue;
-      Byte[] IndexAttr;
+      byte[] IndexAttr;
+
+      private bool useAutomaticReflection = false;
+      public bool UseAutomaticReflection {
+         get {
+            return useAutomaticReflection;
+         }
+         set {
+            if (useAutomaticReflection && !value) {
+               useAutomaticReflection = false;
+               if (GetIndexSetting(ccIDX.Automatic_reflection) == 1) {
+                  SetAttribute(ccIDX.Automatic_reflection, 0);
+                  SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               }
+            }
+            useAutomaticReflection = value;
+         }
+      }
 
       // Status of last request
       bool Successful = false;
@@ -795,6 +812,7 @@ namespace EIP_Lib {
 
       // Get one attribute based on the Data Property
       public bool GetAttribute<T>(T Attribute, out int value) where T : Enum {
+         AutomaticReflect(AccessCode.Get);
          AttrData attr = GetAttrData(Attribute);
          bool success = GetAttribute(attr.Class, attr.Val, Nodata);
          value = GetDecValue;
@@ -803,6 +821,7 @@ namespace EIP_Lib {
 
       // Get the contents of one attribute
       public bool GetAttribute<T>(T Attribute, out string value) where T : Enum {
+         AutomaticReflect(AccessCode.Get);
          AttrData attr = GetAttrData(Attribute);
          bool success = GetAttribute(attr.Class, attr.Val, Nodata);
          value = (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) ? FromQuoted(GetDataValue) : "";
@@ -811,6 +830,7 @@ namespace EIP_Lib {
 
       // Get the contents of one attribute
       public bool GetAttribute<T>(T Attribute, int n, out byte[] value) where T : Enum {
+         AutomaticReflect(AccessCode.Get);
          AttrData attr = GetAttrData(Attribute);
          bool success = GetAttribute(attr.Class, attr.Val, FormatOutput(attr.Get, n));
          value = GetData;
@@ -857,6 +877,7 @@ namespace EIP_Lib {
 
       // Set one attribute based on the Set Property
       public bool SetAttribute<T>(T Attribute, int n) where T : Enum {
+         AutomaticReflect(AccessCode.Set);
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
          if (attr.Set.Fmt == DataFormats.UTF8) {
@@ -869,6 +890,7 @@ namespace EIP_Lib {
 
       // Set one attribute based on the Set Property
       public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
+         AutomaticReflect(AccessCode.Set);
          AttrData attr = GetAttrData(Attribute);
          byte[] data = FormatOutput(attr.Set, s);
          return SetAttribute(attr.Class, attr.Val, data);
@@ -876,6 +898,7 @@ namespace EIP_Lib {
 
       // Set one attribute based on the Set Property
       public bool SetAttribute<T>(T Attribute, int item, string s) {
+         AutomaticReflect(AccessCode.Set);
          ClassCode cc = ClassCodes[Array.IndexOf(ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
          AttrData attr = AttrDict[cc, at];
@@ -920,6 +943,7 @@ namespace EIP_Lib {
 
       // Service one attribute based on the Set Property
       public bool ServiceAttribute<T>(T Attribute, int n) {
+         AutomaticReflect(AccessCode.Service);
          ClassCode cc = ClassCodes[Array.IndexOf(ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
          AttrData attr = AttrDict[cc, at];
@@ -928,6 +952,7 @@ namespace EIP_Lib {
 
       // Service one attribute based on the Set Property
       public bool ServiceAttribute<T>(T Attribute) {
+         AutomaticReflect(AccessCode.Service);
          ClassCode cc = ClassCodes[Array.IndexOf(ClassCodeAttributes, typeof(T))];
          byte at = Convert.ToByte(Attribute);
          return ServiceAttribute(cc, at, Nodata);
@@ -1732,7 +1757,7 @@ namespace EIP_Lib {
             for (int i = 0; i < ClassCodes.Length; i++) {
                int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
                for (int j = 0; j < ClassAttr.Length; j++) {
-                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (Byte)ClassAttr[j]));
+                  AttrDict.Add(ClassCodes[i], (byte)ClassAttr[j], GetAttrData(ClassCodes[i], (byte)ClassAttr[j]));
                }
             }
          }
@@ -1947,6 +1972,28 @@ namespace EIP_Lib {
          this.SetDataLength = (byte)dataOut.Length;
          LastIO = $"{(int)Access:X2} {(int)Class & 0xFF:X2} {(int)Instance:X2} {(int)Attribute:X2}";
          return AttrDict[Class, Attribute];
+      }
+
+      private void AutomaticReflect(AccessCode ac) {
+         switch (ac) {
+            case AccessCode.Get:
+               if (useAutomaticReflection && GetIndexSetting(ccIDX.Automatic_reflection) == 1) {
+                  SetDataValue = "0";
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, DataZero);
+                  SetDataValue = "2";
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, DataTwo);
+               }
+               break;
+            case AccessCode.Set:
+            case AccessCode.Service:
+               if (useAutomaticReflection && GetIndexSetting(ccIDX.Automatic_reflection) == 0) {
+                  SetDataValue = "1";
+                  SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, DataOne);
+               }
+               break;
+            default:
+               break;
+         }
       }
 
       #endregion

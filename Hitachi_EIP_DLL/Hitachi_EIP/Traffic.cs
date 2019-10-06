@@ -269,23 +269,23 @@ namespace EIP_Lib {
       private void CloseExcelApplication(bool View) {
          if (excelApp != null) {
             if (View) {
-               // Set the Traffic worksheet as active
-               wsTraffic.Activate();
-               // Make a table out of the traffic data
-               Excel.Range SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
-               SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
-               SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
-               SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
-               wsTraffic.Columns.AutoFit();
-
-               // Set the Traffic worksheet as active
+               // Set the Verify worksheet as active
                wsVerify.Activate();
                // Make a table out of the Verify data
-               SourceRange = (Excel.Range)wsVerify.get_Range("A1", $"J{wsVerifyRow - 1}");
+               Excel.Range SourceRange = (Excel.Range)wsVerify.get_Range("A1", $"J{wsVerifyRow - 1}");
                SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
                SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Verify";
                SourceRange.Worksheet.ListObjects["Verify"].TableStyle = "TableStyleMedium2";
                wsVerify.Columns.AutoFit();
+
+               // Set the Traffic worksheet as active
+               wsTraffic.Activate();
+               // Make a table out of the traffic data
+               SourceRange = (Excel.Range)wsTraffic.get_Range("A1", $"N{wsTrafficRow - 1}");
+               SourceRange.Worksheet.ListObjects.Add(Excel.XlListObjectSourceType.xlSrcRange,
+               SourceRange, System.Type.Missing, Excel.XlYesNoGuess.xlYes, System.Type.Missing).Name = "Traffic";
+               SourceRange.Worksheet.ListObjects["Traffic"].TableStyle = "TableStyleMedium2";
+               wsTraffic.Columns.AutoFit();
 
                // Save it away
                TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
