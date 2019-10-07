@@ -288,7 +288,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter),   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter)),  //   Set
-         new AttrData((byte)ccPS.Targer_Sensor_Filter_Value, GSS.GetSet, false, 19, // Targer Sensor Filter Value 0x76
+         new AttrData((byte)ccPS.Target_Sensor_Filter_Value, GSS.GetSet, false, 19, // Target Sensor Filter Value 0x76
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
