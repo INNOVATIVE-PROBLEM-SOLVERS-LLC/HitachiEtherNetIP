@@ -86,7 +86,7 @@ namespace EIP_Lib {
                try {
                   this.UseAutomaticReflection = UseAutoReflection;
                   // Set to only one item in printer
-                  CleanDisplay();
+                  DeleteAllButOne();
 
                   XmlNode objs = xmlDoc.SelectSingleNode("Label/Objects");
                   if(objs != null) {
@@ -117,7 +117,7 @@ namespace EIP_Lib {
       }
 
       // Simulate Delete All But One
-      public void CleanDisplay() {
+      public void DeleteAllButOne() {
          GetAttribute(ccPF.Number_Of_Columns, out int cols); // Get the number of columns
          if (cols > 1) {                                     // No need to delete columns if there is only one
             SetAttribute(ccIDX.Column, 1);                   // Select to continuously delete column 2 (0 origin on deletes)
@@ -146,7 +146,7 @@ namespace EIP_Lib {
                   break;
                case "TargetSensor":
                   SetAttribute(ccPS.Target_Sensor_Filter, GetXmlAttr(c, "Filter"));
-                  SetAttribute(ccPS.Targer_Sensor_Filter_Value, GetXmlAttr(c, "SetupValue"));
+                  SetAttribute(ccPS.Target_Sensor_Filter_Value, GetXmlAttr(c, "SetupValue"));
                   SetAttribute(ccPS.Target_Sensor_Timer, GetXmlAttr(c, "Timer"));
                   break;
                case "CharacterSize":
@@ -715,7 +715,7 @@ namespace EIP_Lib {
             writer.WriteStartElement("TargetSensor");
             {
                writer.WriteAttributeString("Filter", GetAttribute(ccPS.Target_Sensor_Filter));
-               writer.WriteAttributeString("SetupValue", GetAttribute(ccPS.Targer_Sensor_Filter_Value));
+               writer.WriteAttributeString("SetupValue", GetAttribute(ccPS.Target_Sensor_Filter_Value));
                writer.WriteAttributeString("Timer", GetAttribute(ccPS.Target_Sensor_Timer));
             }
             writer.WriteEndElement(); // TargetSensor
@@ -1095,7 +1095,7 @@ namespace EIP_Lib {
                            VerifyXml(c, "Filter", ccPS.Target_Sensor_Filter);
                            break;
                         case "SetupValue":
-                           VerifyXml(c, "SetupValue", ccPS.Targer_Sensor_Filter_Value);
+                           VerifyXml(c, "SetupValue", ccPS.Target_Sensor_Filter_Value);
                            break;
                         case "Timer":
                            VerifyXml(c, "Timer", ccPS.Target_Sensor_Timer);

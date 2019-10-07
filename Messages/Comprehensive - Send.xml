@@ -2,10 +2,10 @@
 <Label Version="1">
   <Printer Make="Hitachi" Model="UX-D161W">
     <PrintHead Orientation="Inverted/Forward" />
-    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
     <TargetSensor Filter="Until End of Print" SetupValue="50" Timer="0" />
-    <CharacterSize Height="0" Width="90" />
-    <PrintStartDelay Reverse="96" Forward="96" />
+    <CharacterSize Height="90" Width="10" />
+    <PrintStartDelay Forward="96" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
     <InkStream InkDropUse="2" ChargeRule="Standard" />
     <!-- Breaks auto-reflect 
@@ -21,9 +21,8 @@
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="1" Row="3" Column="1" />
       <Date Block="1">
-        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
-        <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" />
-        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
+        <ZeroSuppress Day="Space Fill" />
+        <EnableSubstitution Month="Enable" />
       </Date>
       <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
     </Object>
@@ -31,9 +30,9 @@
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="2" Row="2" Column="1" />
       <Date Block="1">
-        <Offset Year="0" Month="0" Day="30" Hour="0" Minute="0" />
-        <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
-        <EnableSubstitution Year="Disable" Month="Enable" Day="Disable" />
+        <Offset Day="30" />
+        <ZeroSuppress Day="Space Fill" />
+        <EnableSubstitution Month="Enable" />
       </Date>
       <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
     </Object>
@@ -41,8 +40,6 @@
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="3" Row="1" Column="1" />
       <Date Block="1">
-        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
-        <ZeroSuppress DayOfWeek="Disable" />
         <EnableSubstitution DayOfWeek="Enable" />
       </Date>
       <Text>PACKED  {{TTT} {777}} </Text>
@@ -51,7 +48,6 @@
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="4" Row="3" Column="2" />
       <Date Block="1">
-        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
         <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
         <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
         <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
@@ -62,7 +58,6 @@
       <Font BarCode="None" IncreasedWidth="1" InterLineSpace="2" InterCharacterSpace="1">5x8(5x7)</Font>
       <Location ItemNumber="5" Row="2" Column="2" />
       <Date Block="1">
-        <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
         <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
       </Date>
       <Text>TCount {{FF}} </Text>

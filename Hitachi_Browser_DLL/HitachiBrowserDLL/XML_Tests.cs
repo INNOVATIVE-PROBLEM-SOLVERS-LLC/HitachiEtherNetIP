@@ -18,27 +18,27 @@ namespace EIP_Lib {
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
-                  // Clean up the display
-                  CleanUpDisplay();
                   // Run selected test
                   switch (cbAvailableHardTests.SelectedIndex) {
                      case 0:
+                        // Clean up the display
+                        EIP.DeleteAllButOne();
                         // Gets us down to a single item
                         break;
                      case 1:
-                        BuildShifts(Item++);
+                        BuildShifts();
                         break;
                      case 2:
-                        BuildMonthDaySR(Rule);
+                        BuildMonthDaySR();
                         break;
                      case 3:
-                        BuildTimeCount(Item++);
+                        BuildTimeCount();
                         break;
                      case 4:
-                        TryDayOfWeekEtc(Item++);
+                        TryDayOfWeekEtc();
                         break;
                      case 5:
-                        BuildMDYhms(Item++, Rule);
+                        BuildMDYhms();
                         break;
                      case 6:
                         MultiLine();
@@ -117,12 +117,11 @@ namespace EIP_Lib {
          return success;
       }
 
-      private bool BuildShifts(int Item) {
-         // Add the item if needed and select it
-         if (Item != 1) {
-            EIP.ServiceAttribute(ccPF.Add_Column, 0);
-         }
-         EIP.SetAttribute(ccIDX.Item, Item);
+      private bool BuildShifts() {
+         // Clean up the display
+         EIP.DeleteAllButOne();
+         // Point to first item
+         EIP.SetAttribute(ccIDX.Item, 1);
 
          EIP.SetAttribute(ccPF.Print_Character_String, "=>{{E}}<=");
 
@@ -146,10 +145,10 @@ namespace EIP_Lib {
          return true;
       }
 
-      private bool BuildMonthDaySR(int Rule) {
+      private bool BuildMonthDaySR() {
          // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
          char delimeter = '/';
-         EIP.SetAttribute(ccIDX.Substitution_Rule, Rule);
+         EIP.SetAttribute(ccIDX.Substitution_Rule, 1);
          EIP.SetAttribute(ccSR.Start_Year, 2010);
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
@@ -166,12 +165,14 @@ namespace EIP_Lib {
          return true;
       }
 
-      private bool BuildTimeCount(int Item) {
-         int block = 1;
-         EIP.SetAttribute(ccIDX.Item, Item);
+      private bool BuildTimeCount() {
+         // Clean up the display
+         EIP.DeleteAllButOne();
+
+         EIP.SetAttribute(ccIDX.Item, 1);
 
          EIP.SetAttribute(ccPF.Print_Character_String, "=>{{FF}}<=");
-         EIP.GetAttribute(ccCal.First_Calendar_Block, out block);
+         EIP.GetAttribute(ccCal.First_Calendar_Block, out int block);
          EIP.SetAttribute(ccIDX.Calendar_Block, block);
 
          // Set <TimeCount Start="AA" End="JJ" Reset="AA" ResetTime="6" RenewalPeriod="30 Minutes" />
@@ -183,15 +184,14 @@ namespace EIP_Lib {
          return true;
       }
 
-      private bool TryDayOfWeekEtc(int Item) {
-         if (Item != 1) {
-            EIP.ServiceAttribute(ccPF.Add_Column);
-         }
-         EIP.SetAttribute(ccIDX.Item, Item);
-         EIP.SetAttribute(ccIDX.Calendar_Block, Item);
-         EIP.SetAttribute(ccPF.Dot_Matrix, "5x8");
-         EIP.SetAttribute(ccPF.InterCharacter_Space, 1);
+      private bool TryDayOfWeekEtc() {
+         // Clean up the display
+         EIP.DeleteAllButOne();
+
+         EIP.SetAttribute(ccIDX.Item, 1);
          EIP.SetAttribute(ccPF.Print_Character_String, "=>{{77}-{WW}-{TTT}}<=");
+         EIP.GetAttribute(ccCal.First_Calendar_Block, out int block);
+         EIP.SetAttribute(ccIDX.Calendar_Block, block);
          EIP.SetAttribute(ccCal.Substitute_Weeks, "Disable");
          EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
          EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
@@ -199,20 +199,20 @@ namespace EIP_Lib {
          return true;
       }
 
-      private bool BuildMDYhms(int Item, int Rule) {
+      private bool BuildMDYhms() {
          bool success = true;
          try {
-            int firstBlock = 1;
-            int blockCount = 1;
-            // Add the item if needed and select it
-            EIP.SetAttribute(ccIDX.Item, Item);
+            // Clean up the display
+            EIP.DeleteAllButOne();
+            // Select item 1
+            EIP.SetAttribute(ccIDX.Item, 1);
 
             // Set Text
             EIP.SetAttribute(ccPF.Print_Character_String, "{{MMM}/{DD}/{YY}} {{hh}:{mm}:{ss}}");
 
             // Get first block and Substitution Rule
-            EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
-            EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out blockCount);
+            EIP.GetAttribute(ccCal.First_Calendar_Block, out int firstBlock);
+            EIP.GetAttribute(ccCal.Number_of_Calendar_Blocks, out int blockCount);
 
             // Set Item in Calendar Index
             EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
@@ -238,21 +238,22 @@ namespace EIP_Lib {
             // Set Item in Calendar Index
             if (blockCount > 1) {
                EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock + 1);
+
+               // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
+               //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
+               EIP.SetAttribute(ccCal.Substitute_Hour, "Disable");
+               EIP.SetAttribute(ccCal.Substitute_Minute, "Disable");
+
+               // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
+               EIP.SetAttribute(ccCal.Offset_Hour, 4);
+               EIP.SetAttribute(ccCal.Offset_Minute, -5);
+
+               // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable"
+               //      Hour ="Space Fill" Minute="Character Fill" />
+               EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
+               EIP.SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
             }
 
-            // Set <EnableSubstitution SubstitutionRule="01" Year="False" Month="True"  Day="False" 
-            //      Hour ="False" Minute="False" Week="False" DayOfWeek="False" />
-            EIP.SetAttribute(ccCal.Substitute_Hour, "Disable");
-            EIP.SetAttribute(ccCal.Substitute_Minute, "Disable");
-
-            // Set <Offset Year="1" Month="2" Day="3" Hour="-4" Minute="-5" />
-            EIP.SetAttribute(ccCal.Offset_Hour, 4);
-            EIP.SetAttribute(ccCal.Offset_Minute, -5);
-
-            // Set <ZeroSuppress Year="Disable" Month="Disable" Day="Disable"
-            //      Hour ="Space Fill" Minute="Character Fill" />
-            EIP.SetAttribute(ccCal.Zero_Suppress_Hour, "Space Fill");
-            EIP.SetAttribute(ccCal.Zero_Suppress_Minute, "Character Fill");
 
          } catch (EIPIOException e1) {
             // In case of an EIP I/O error
@@ -273,6 +274,8 @@ namespace EIP_Lib {
                try {
                   // Be sure we are in Individual Layout
                   EIP.SetAttribute(ccPF.Format_Setup, "Individual");
+                  // Clean up the display
+                  EIP.DeleteAllButOne();
                   // Select item 1 and set to 1 line (1 origin on Line Count)
                   EIP.SetAttribute(ccIDX.Item, 1);
                   EIP.SetAttribute(ccPF.Line_Count, 1);
@@ -285,6 +288,8 @@ namespace EIP_Lib {
                   EIP.SetAttribute(ccPF.Line_Count, 2);
                   EIP.SetAttribute(ccIDX.Item, 4);
                   EIP.SetAttribute(ccPF.Line_Count, 2);
+
+                  // Set the text in the items
                   for (int i = 1; i <= 7; i++) {
                      EIP.SetAttribute(ccIDX.Item, i);  // Select item
                      if (i == 1 || i == 4 || i == 7) { // Set the font and text
@@ -318,11 +323,11 @@ namespace EIP_Lib {
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
-                  // Set to first item
-                  int item = 1;
+                  // Clean up the display
+                  EIP.DeleteAllButOne();
 
                   // Select item #1
-                  EIP.SetAttribute(ccIDX.Item, item);
+                  EIP.SetAttribute(ccIDX.Item, 1);
 
                   // Set Text as a 4 digit counter
                   EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}} {{CCC}}");
@@ -407,6 +412,8 @@ namespace EIP_Lib {
                   // Load the message type
                   {
                      EIP.SetAttribute(ccPF.Format_Setup, "Individual");
+                     // Clean up the display
+                     EIP.DeleteAllButOne();
                   }
                   // Clean up the display
                   {
@@ -556,7 +563,7 @@ namespace EIP_Lib {
                   {
                      EIP.SetAttribute(ccPS.Character_Orientation, "Inverted/Forward");
                      EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Until End of Print");
-                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
+                     EIP.SetAttribute(ccPS.Target_Sensor_Filter_Value, 50);
                      EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
                      EIP.SetAttribute(ccPS.Character_Height, 99);
                      EIP.SetAttribute(ccPS.Character_Width, 10);
@@ -585,6 +592,7 @@ namespace EIP_Lib {
          return success;
       }
 
+      // Same as above but recoded for performance
       private bool ComprehensiveII() {
          bool success = true;
          string[] itemText = new string[] {
@@ -598,6 +606,8 @@ namespace EIP_Lib {
                   // Load the message type
                   {
                      EIP.SetAttribute(ccPF.Format_Setup, "Individual");
+                     // Clean up the display
+                     EIP.DeleteAllButOne();
                   }
                   // Clean up the display
                   {
@@ -757,7 +767,7 @@ namespace EIP_Lib {
                   {
                      EIP.SetAttribute(ccPS.Character_Orientation, "Inverted/Forward");
                      EIP.SetAttribute(ccPS.Target_Sensor_Filter, "Until End of Print");
-                     EIP.SetAttribute(ccPS.Targer_Sensor_Filter_Value, 50);
+                     EIP.SetAttribute(ccPS.Target_Sensor_Filter_Value, 50);
                      EIP.SetAttribute(ccPS.Target_Sensor_Timer, 0);
                      EIP.SetAttribute(ccPS.Character_Height, 99);
                      EIP.SetAttribute(ccPS.Character_Width, 10);
@@ -793,6 +803,8 @@ namespace EIP_Lib {
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
+                  // Clean up the display
+                  EIP.DeleteAllButOne();
                   // Select the item
                   EIP.SetAttribute(ccIDX.Item, 1);
                   // Insert the text
