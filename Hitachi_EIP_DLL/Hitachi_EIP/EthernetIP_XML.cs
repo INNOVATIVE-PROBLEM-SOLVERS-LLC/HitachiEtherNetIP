@@ -22,7 +22,7 @@ namespace EIP_Lib {
       }
 
       // Braced Characters (count, date, half-size, logos
-      char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
+      readonly char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
 
       // Attributes of braced characters
       enum ba {
@@ -68,8 +68,7 @@ namespace EIP_Lib {
 
       // Send xml file to printer
       public bool SendXmlToPrinter(string FileName, bool UseAutoReflection = false) {
-         XmlDocument xmlDoc = new XmlDocument();
-         xmlDoc.PreserveWhitespace = true;
+         XmlDocument xmlDoc = new XmlDocument { PreserveWhitespace = true };
          xmlDoc.Load(FileName);
          return SendXmlToPrinter(xmlDoc, UseAutoReflection);
       }
@@ -104,7 +103,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                } finally {
                   this.UseAutomaticReflection = false;
@@ -590,7 +589,7 @@ namespace EIP_Lib {
       // Generate an XMP Doc form the current printer settings
       public string RetrieveXML() {
          string xml = string.Empty;
-         ItemType itemType = ItemType.Text;
+         ItemType itemType;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
@@ -656,7 +655,7 @@ namespace EIP_Lib {
                         string name = $"{GetAttributeName(e1.ClassCode, e1.Attribute)}";
                         string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                         MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-                     } catch (Exception e2) {
+                     } catch {
                         // You are on your own here
                      }
                   }
@@ -830,10 +829,8 @@ namespace EIP_Lib {
       // Retrieve the Calendar Settings
       private void RetrieveCalendarSettings(XmlTextWriter writer, int[] mask) {
          bool success = true;
-         int FirstBlock = 0;
-         int BlockCount = 0;
-         GetAttribute(ccCal.First_Calendar_Block, out FirstBlock);
-         GetAttribute(ccCal.Number_of_Calendar_Blocks, out BlockCount);
+         GetAttribute(ccCal.First_Calendar_Block, out int FirstBlock);
+         GetAttribute(ccCal.Number_of_Calendar_Blocks, out int BlockCount);
          for (int i = 0; success && i < BlockCount; i++) {
             SetAttribute(ccIDX.Calendar_Block, FirstBlock + i);
             writer.WriteStartElement("Date"); // Start Date
@@ -891,8 +888,8 @@ namespace EIP_Lib {
                }
 
                if ((mask[i] & (int)ba.Shift) > 0) {
-                  string endHour = "0";
-                  string endMinute = "0";
+                  string endHour;
+                  string endMinute;
                   int shift = 1;
                   do {
                      writer.WriteStartElement("ShiftCode"); // Start ShiftCode
@@ -928,10 +925,8 @@ namespace EIP_Lib {
       // Retrieve the Counter Settings
       private void RetrieveCounterSettings(XmlTextWriter writer) {
          bool success = true;
-         int FirstBlock = 0;
-         int BlockCount = 0;
-         GetAttribute(ccCount.First_Count_Block, out FirstBlock);
-         GetAttribute(ccCount.Number_Of_Count_Blocks, out BlockCount);
+         GetAttribute(ccCount.First_Count_Block, out int FirstBlock);
+         GetAttribute(ccCount.Number_Of_Count_Blocks, out int BlockCount);
          for (int i = 0; success && i < BlockCount; i++) {
             SetAttribute(ccIDX.Count_Block, FirstBlock + i);
             writer.WriteStartElement("Counter"); // Start Counter
@@ -1015,8 +1010,7 @@ namespace EIP_Lib {
 
       // Verify the printer settings vs the XML File
       public bool VerifyXmlVsPrinter(string FileName, bool ReportAll = true) {
-         XmlDocument xmlDoc = new XmlDocument();
-         xmlDoc.PreserveWhitespace = true;
+         XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
          xmlDoc.Load(FileName);
          return VerifyXmlVsPrinter(xmlDoc, ReportAll);
       }
@@ -1052,7 +1046,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -1063,8 +1057,6 @@ namespace EIP_Lib {
       }
 
       private void VerifyPrinterSettings(XmlNode pr) {
-         string sent = string.Empty;
-         string back = string.Empty;
          foreach (XmlNode c in pr.ChildNodes) {
             switch (c.Name) {
                case "PrintHead":

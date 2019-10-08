@@ -61,7 +61,7 @@ namespace EIP_Lib {
       #region Data Tables
 
       // Print_data_management (Class Code 0x66)
-      private AttrData[] ccPDM_Addrs = new AttrData[] {
+      private readonly AttrData[] ccPDM_Addrs = new AttrData[] {
          new AttrData((byte)ccPDM.Select_Message, GSS.Service, false, 9,        // Select Message 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Service
@@ -104,7 +104,7 @@ namespace EIP_Lib {
       };
 
       // Print_format (Class Code 0x67)
-      private AttrData[] ccPF_Addrs = new AttrData[] {
+      private readonly AttrData[] ccPF_Addrs = new AttrData[] {
          new AttrData((byte)ccPF.Message_Name, GSS.Get, false, 20,              // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
             new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Get
@@ -215,7 +215,7 @@ namespace EIP_Lib {
       };
 
       // Print_specification (Class Code 0x68)
-      private AttrData[] ccPS_Addrs = new AttrData[] {
+      private readonly AttrData[] ccPS_Addrs = new AttrData[] {
          new AttrData((byte)ccPS.Character_Height, GSS.GetSet, false, 2,        // Character Height 0x64
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -303,7 +303,7 @@ namespace EIP_Lib {
       };
 
       // Calendar (Class Code 0x69)
-      private AttrData[] ccCal_Addrs = new AttrData[] {
+      private readonly AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((byte)ccCal.Shift_Code_Condition, GSS.Get, true, 10,      // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -435,7 +435,7 @@ namespace EIP_Lib {
       };
 
       // User_pattern (Class Code 0x6B)
-      private AttrData[] ccUP_Addrs = new AttrData[] {
+      private readonly AttrData[] ccUP_Addrs = new AttrData[] {
          new AttrData((byte)ccUP.User_Pattern_Fixed, GSS.GetSet, true, 1,       // User Pattern Fixed 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(2, DataFormats.N1N1, 0, 0, fmtDD.None),                    //   Get
@@ -447,7 +447,7 @@ namespace EIP_Lib {
       };
 
       // Substitution_rules (Class Code 0x6C)
-      private AttrData[] ccSR_Addrs = new AttrData[] {
+      private readonly AttrData[] ccSR_Addrs = new AttrData[] {
          new AttrData((byte)ccSR.Number, GSS.GetSet, false, 3,                  // Number 0x64
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -491,7 +491,7 @@ namespace EIP_Lib {
       };
 
       // Enviroment_setting (Class Code 0x71)
-      private AttrData[] ccES_Addrs = new AttrData[] {
+      private readonly AttrData[] ccES_Addrs = new AttrData[] {
          new AttrData((byte)ccES.Current_Time, GSS.GetSet, false, 5,            // Current Time 0x65
             new Prop(12, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -527,7 +527,7 @@ namespace EIP_Lib {
       };
 
       // Unit_Information (Class Code 0x73)
-      private AttrData[] ccUI_Addrs = new AttrData[] {
+      private readonly AttrData[] ccUI_Addrs = new AttrData[] {
          new AttrData((byte)ccUI.Unit_Information, GSS.Get, false, 20,          // Unit Information 0x64
             new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -615,7 +615,7 @@ namespace EIP_Lib {
       };
 
       // Operation_management (Class Code 0x74)
-      private AttrData[] ccOM_Addrs = new AttrData[] {
+      private readonly AttrData[] ccOM_Addrs = new AttrData[] {
          new AttrData((byte)ccOM.Operating_Management, GSS.Get, false, 12,      // Operating Management 0x64
             new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
             new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Get
@@ -671,7 +671,7 @@ namespace EIP_Lib {
       };
 
       // IJP_operation (Class Code 0x75)
-      private AttrData[] ccIJP_Addrs = new AttrData[] {
+      private readonly AttrData[] ccIJP_Addrs = new AttrData[] {
          new AttrData((byte)ccIJP.Remote_operation_information, GSS.Get, false, 7, // Remote operation information 0x64
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -712,7 +712,7 @@ namespace EIP_Lib {
       };
 
       // Count (Class Code 0x79)
-      private AttrData[] ccCount_Addrs = new AttrData[] {
+      private readonly AttrData[] ccCount_Addrs = new AttrData[] {
          new AttrData((byte)ccCount.First_Count_Block, GSS.Get, false, 12,      // First Count Block 0x65
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -784,7 +784,7 @@ namespace EIP_Lib {
       };
 
       // Index (Class Code 0x7A)
-      private AttrData[] ccIDX_Addrs = new AttrData[] {
+      private readonly AttrData[] ccIDX_Addrs = new AttrData[] {
          new AttrData((byte)ccIDX.Start_Stop_Management_Flag, GSS.GetSet, false, 10, // Start Stop Management Flag 0x64
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get

@@ -13,8 +13,6 @@ namespace EIP_Lib {
 
       // Run hard coded test
       private void cmdRunHardTest_Click(object sender, EventArgs e) {
-         int Item = 1;
-         int Rule = 1;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
@@ -62,7 +60,7 @@ namespace EIP_Lib {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -107,7 +105,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -261,7 +259,7 @@ namespace EIP_Lib {
             string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
             MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
             success = false;
-         } catch (Exception e2) {
+         } catch {
             // You are on your own here
          }
          return success;
@@ -306,7 +304,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -318,8 +316,6 @@ namespace EIP_Lib {
 
       private bool CreateCounter() {
          bool success = true;
-         int firstBlock = 1;
-         int blockCount = 1;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                try {
@@ -333,8 +329,8 @@ namespace EIP_Lib {
                   EIP.SetAttribute(ccPF.Print_Character_String, "{{CCCC}} {{CCC}}");
 
                   // Now retrieve the counter block allocations
-                  EIP.GetAttribute(ccCount.First_Count_Block, out firstBlock);
-                  EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out blockCount);
+                  EIP.GetAttribute(ccCount.First_Count_Block, out int firstBlock);
+                  EIP.GetAttribute(ccCount.Number_Of_Count_Blocks, out int blockCount);
 
                   // Set <Counter InitialValue="0001" Range1="0000" Range2="9999" JumpFrom="6666" JumpTo ="7777"
                   //      Increment="1" Direction="Up" ZeroSuppression="Enable" UpdateIP="0" UpdateUnit="1"
@@ -387,7 +383,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -404,7 +400,7 @@ namespace EIP_Lib {
             "SELLBY {{MMM}/{DD}/{YY}}  ", "USE BY {{MMM}/{DD}/{YY}}  ", "PACKED {{TTT} {777}} ",
             "Shift {{E}}", "T-Ct {{FF}} ", "#{{CCCCCC}} ", "{X/0}"
          };
-         int firstBlock = 1;
+         int firstBlock;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
                EIP.UseAutomaticReflection = chkAutoReflect.Checked; // Make things as fast as possible
@@ -579,7 +575,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                } finally {
                   EIP.UseAutomaticReflection = false; // Make things as fast as possible
@@ -783,7 +779,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                } finally {
                   EIP.UseAutomaticReflection = false; // Make things as fast as possible
@@ -798,7 +794,6 @@ namespace EIP_Lib {
 
       public bool SetText(string text) {
          bool success = true;
-         int calNo = 0;
          string[] s = text.Split('\n');
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
@@ -816,7 +811,7 @@ namespace EIP_Lib {
                   }
                   // Set info in first Calendar Block
                   EIP.SetAttribute(ccIDX.Item, 1);
-                  EIP.GetAttribute(ccCal.First_Calendar_Block, out calNo);
+                  EIP.GetAttribute(ccCal.First_Calendar_Block, out int calNo);
                   EIP.SetAttribute(ccIDX.Calendar_Block, calNo);
                   EIP.SetAttribute(ccCal.Offset_Month, 1);
                   // Set info in Second Calendar Block
@@ -830,7 +825,7 @@ namespace EIP_Lib {
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
                   success = false;
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }

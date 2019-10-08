@@ -9,48 +9,6 @@ namespace EIP_Lib {
 
    public partial class XML {
 
-      #region Data Declarations
-
-      // Braced Characters (count, date, half-size, logos
-      char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
-
-      // Attributes of braced characters
-      enum ba {
-         Count = 1 << 0,
-         Year = 1 << 1,
-         Month = 1 << 2,
-         Day = 1 << 3,
-         Hour = 1 << 4,
-         Minute = 1 << 5,
-         Second = 1 << 6,
-         Julian = 1 << 7,
-         Week = 1 << 8,
-         DayOfWeek = 1 << 9,
-         Shift = 1 << 10,
-         TimeCount = 1 << 11,
-         Space = 1 << 12,
-         Quote = 1 << 13,
-         Period = 1 << 14,
-         SemiColon = 1 << 15,
-         Colon = 1 << 16,
-         Exclamation = 1 << 17,
-         Comma = 1 << 18,
-         FixedPattern = 1 << 19,
-         FreePattern = 1 << 20,
-         Unknown = 1 << 21,
-         //DateCode = (1 << 12) - 2, // All the date codes combined
-      }
-
-      const int DateCode =
-         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-         (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
-
-      const int DateSubZS =
-         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
-         (int)ba.Week | (int)ba.DayOfWeek;
-
-      #endregion
-
       #region XML Driver Routines
 
       private void cbAvailableTests_SelectedIndexChanged(object sender, EventArgs e) {
@@ -71,8 +29,7 @@ namespace EIP_Lib {
 
       // Send xlmDoc from display to printer
       private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
-         xmlDoc = new XmlDocument();
-         xmlDoc.PreserveWhitespace = true;
+         xmlDoc = new XmlDocument() { PreserveWhitespace = true };
          xmlDoc.LoadXml(txtIndentedView.Text);
          SendFileToPrinter_Click(null, null);
       }
@@ -102,8 +59,8 @@ namespace EIP_Lib {
       // Process an XML Label
       private bool ProcessLabel(string xml) {
          bool result = false;
-         int xmlStart = 0;
-         int xmlEnd = 0;
+         int xmlStart;
+         int xmlEnd;
          try {
             // Can be called with a Filename or XML text
             xmlStart = xml.IndexOf("<Label");
@@ -118,8 +75,7 @@ namespace EIP_Lib {
             xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
             if (xmlEnd > 0) {
                xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
-               xmlDoc = new XmlDocument();
-               xmlDoc.PreserveWhitespace = true;
+               xmlDoc = new XmlDocument() { PreserveWhitespace = true };
                xmlDoc.LoadXml(xml);
                xml = ToIndentedString(xml);
                xmlStart = xml.IndexOf("<Label");
