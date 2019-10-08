@@ -407,7 +407,7 @@ namespace EIP_Lib {
          int firstBlock = 1;
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
-               EIP.UseAutomaticReflection = true; // Make things as fast as possible
+               EIP.UseAutomaticReflection = chkAutoReflect.Checked; // Make things as fast as possible
                try {
                   // Load the message type
                   {
@@ -601,7 +601,7 @@ namespace EIP_Lib {
          };
          if (EIP.StartSession(true)) {
             if (EIP.ForwardOpen()) {
-               EIP.UseAutomaticReflection = true; // Make things as fast as possible
+               EIP.UseAutomaticReflection = chkAutoReflect.Checked; // Make things as fast as possible
                try {
                   // Load the message type
                   {
@@ -679,7 +679,7 @@ namespace EIP_Lib {
                   EIP.GetAttribute(ccCal.First_Calendar_Block, out int firstBlock5);
                   EIP.SetAttribute(ccIDX.Item, 6);
                   EIP.GetAttribute(ccCount.First_Count_Block, out int firstBlock6);
-                  EIP.UseAutomaticReflection = true; // Make things as fast as possible
+                  EIP.UseAutomaticReflection = chkAutoReflect.Checked; // Make things as fast as possible
 
                   // Set up the clock for item 1
                   {
