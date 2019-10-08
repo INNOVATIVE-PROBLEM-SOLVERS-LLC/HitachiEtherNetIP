@@ -450,9 +450,9 @@ namespace EIP_Lib {
          // Get is assumed for read all request
          AllGood = true;
          if (EIP.StartSession()) {
-            for (int i = 0; i < EIP.ClassCodeAttributes.Length && AllGood; i++) {
-               ClassAttr = (int[])EIP.ClassCodeAttributes[i].GetEnumValues();
-               if (EIP.ForwardOpen()) {
+            if (EIP.ForwardOpen()) {
+               for (int i = 0; i < EIP.ClassCodeAttributes.Length && AllGood; i++) {
+                  ClassAttr = (int[])EIP.ClassCodeAttributes[i].GetEnumValues();
                   // Issue commands for this group
                   for (int j = 0; j < ClassAttr.Length && AllGood; j++) {
                      // Get attr for request
@@ -463,8 +463,8 @@ namespace EIP_Lib {
                      }
                   }
                }
-               EIP.ForwardClose();
             }
+            EIP.ForwardClose();
          }
          EIP.EndSession();
          EIP_Log(null, "Read All Complete");

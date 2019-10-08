@@ -39,6 +39,8 @@ namespace EIP_Lib {
       Button cmdBrowse;
       Button cmdSendFileToPrinter;
       Button cmdSendDisplayToPrinter;
+      CheckBox chkAutoReflect;
+      CheckBox chkErrorsOnly;
 
       Label lblSelectHardTest;
       ComboBox cbAvailableHardTests;
@@ -179,6 +181,9 @@ namespace EIP_Lib {
          cmdSendDisplayToPrinter = new Button() { Text = "Display To Printer" };
          cmdSendDisplayToPrinter.Click += SendDisplayToPrinter_Click;
 
+         chkAutoReflect = new CheckBox() { Text = "Auto Reflect.", Checked = true };
+         chkErrorsOnly = new CheckBox() { Text = "Errors Only", Checked = true };
+
          tab.Controls.Add(tclViewXML);
 
          tclViewXML.Controls.Add(tabTreeView);
@@ -195,6 +200,8 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSaveAs);
          tab.Controls.Add(cmdSendFileToPrinter);
          tab.Controls.Add(cmdSendDisplayToPrinter);
+         tab.Controls.Add(chkAutoReflect);
+         tab.Controls.Add(chkErrorsOnly);
 
          // Testing controls
          lblSelectXmlTest = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
@@ -250,25 +257,28 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtVerify, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 1, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 3, 1, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSend, tclHeight - 6, 5.5f, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdVerify, tclHeight - 3, 5.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 5, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 5, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 10, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 10, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSend, tclHeight - 6, 9.5f, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdVerify, tclHeight - 3, 9.5f, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, lblSelectXmlTest, tclHeight - 6, 14.5f, 1, 6);
-            Utils.ResizeObject(ref R, cbAvailableXmlTests, tclHeight - 5, 14.5f, 2, 6);
-            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 14.5f, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdSaveAs, tclHeight - 6, 14, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdClear, tclHeight - 3, 14, 2.5f, 4);
 
-            Utils.ResizeObject(ref R, cmdSendFileToPrinter, tclHeight - 6, 21, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdSendDisplayToPrinter, tclHeight - 3, 21, 2.5f, 4);
+            Utils.ResizeObject(ref R, lblSelectXmlTest, tclHeight - 6, 18.5f, 1, 6);
+            Utils.ResizeObject(ref R, cbAvailableXmlTests, tclHeight - 5, 18.5f, 2, 6);
+            Utils.ResizeObject(ref R, cmdBrowse, tclHeight - 3, 18.5f, 2.5f, 6);
 
-            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 25.5f, 1, 5);
-            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 25.5f, 2, 5);
-            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 6, 31, 5.5f, 4);
+            Utils.ResizeObject(ref R, cmdSendFileToPrinter, tclHeight - 6, 25, 2.5f, 4.5f);
+            Utils.ResizeObject(ref R, cmdSendDisplayToPrinter, tclHeight - 3, 25, 2.5f, 4.5f);
+
+            Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 30, 1, 5);
+            Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 30, 2, 5);
+            Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 3, 30, 2.5f, 5);
 
          }
          R.offset = 0;
@@ -339,7 +349,7 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
-            EIP.VerifyXmlVsPrinter(xmlDoc);
+            EIP.VerifyXmlVsPrinter(xmlDoc, !chkErrorsOnly.Checked);
          }
       }
 
