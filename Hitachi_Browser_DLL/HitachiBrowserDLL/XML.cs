@@ -10,10 +10,10 @@ namespace EIP_Lib {
 
       #region Data Declarations
 
-      Browser parent;
+      readonly Browser parent;
 
-      EIP EIP;
-      TabPage tab;
+      readonly EIP EIP;
+      readonly TabPage tab;
 
       // Tab Controls
       TabControl tclViewXML;
@@ -60,10 +60,7 @@ namespace EIP_Lib {
       }
 
       // Make things easier to read
-      Font courier = new Font("Courier New", 9);
-
-      // Flag for Attribute Not Present
-      const string N_A = "N!A";
+      readonly Font courier = new Font("Courier New", 9);
 
       #endregion
 
@@ -136,13 +133,12 @@ namespace EIP_Lib {
             dlgResult = saveFileDialog1.ShowDialog();
             if (dlgResult == DialogResult.OK && !String.IsNullOrEmpty(saveFileDialog1.FileName)) {
                filename = saveFileDialog1.FileName;
-               using (Stream outfs = new FileStream(filename, FileMode.Create)) {
-                  // Might have some possibilities here <TODO>
-                  outfs.Write(EIP.Encode.GetBytes(XMLText), 0, XMLText.Length);
-                  outfs.Flush();
-                  outfs.Close();
-                  SetButtonEnables();
-               }
+               Stream outfs = new FileStream(filename, FileMode.Create);
+               // Might have some possibilities here <TODO>
+               outfs.Write(EIP.Encode.GetBytes(XMLText), 0, XMLText.Length);
+               outfs.Flush();
+               outfs.Close();
+               outfs.Dispose();
             }
          }
          SetButtonEnables();
@@ -310,38 +306,6 @@ namespace EIP_Lib {
 
       #region Test Routines
 
-      // Get the contents of one attribute
-      private string GetAttribute<T>(T Attribute) where T : Enum {
-         string val = string.Empty;
-         AttrData attr = EIP.GetAttrData(Attribute);
-         if (EIP.GetAttribute(attr.Class, attr.Val, EIP.Nodata)) {
-            val = EIP.GetDataValue;
-            if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
-               val = EIP.FromQuoted(val);
-            } else if (attr.Data.DropDown != fmtDD.None) {
-               string[] dd = EIP.DropDowns[(int)attr.Data.DropDown];
-               long n = EIP.GetDecValue - attr.Data.Min;
-               if (n >= 0 && n < dd.Length) {
-                  val = dd[n];
-               }
-            }
-         }
-         return val;
-      }
-
-      // Get the contents of one attribute
-      private string GetAttribute<T>(T Attribute, int n) where T : Enum {
-         string val = string.Empty;
-         AttrData attr = EIP.GetAttrData(Attribute);
-         if (EIP.GetAttribute(attr.Class, attr.Val, EIP.FormatOutput(attr.Get, n))) {
-            val = EIP.GetDataValue;
-            if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
-               val = EIP.FromQuoted(val);
-            }
-         }
-         return val;
-      }
-
       // Verify send vs received
       private void cmdVerify_Click(object sender, EventArgs e) {
          // Need a XMP Document to continue
@@ -386,7 +350,7 @@ namespace EIP_Lib {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
@@ -403,14 +367,12 @@ namespace EIP_Lib {
       }
 
       private void cmdBrowse_Click(object sender, EventArgs e) {
-         using (FolderBrowserDialog dlg = new FolderBrowserDialog()) {
-            dlg.ShowNewFolderButton = true;
-            dlg.SelectedPath = parent.MessageFolder;
-            if (dlg.ShowDialog() == DialogResult.OK) {
-               parent.MessageFolder = dlg.SelectedPath;
-               BuildTestFileList();
-            }
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = parent.MessageFolder };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            parent.MessageFolder = dlg.SelectedPath;
+            BuildTestFileList();
          }
+         dlg.Dispose();
       }
 
       #endregion

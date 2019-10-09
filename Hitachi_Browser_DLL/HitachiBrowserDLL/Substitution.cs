@@ -9,9 +9,9 @@ namespace EIP_Lib {
 
       ResizeInfo R;
       int GroupWidth = 0;
-      Browser parent;
-      EIP EIP;
-      TabPage tab;
+      readonly Browser parent;
+      readonly EIP EIP;
+      readonly TabPage tab;
 
       // Substitution Specific Controls
       GroupBox SubControls;
@@ -22,7 +22,7 @@ namespace EIP_Lib {
       Label[][] subLabels;
       TextBox[][] subTexts;
 
-      bool[] resizeNeeded = new bool[] { true, true, true, true, true, true, true };
+      readonly bool[] resizeNeeded = new bool[] { true, true, true, true, true, true, true };
       readonly int[] startWith = new[] { 0, 1, 1, 0, 0, 1, 1 };
       readonly ccSR[] at = new ccSR[] {
          ccSR.Year,
@@ -37,7 +37,7 @@ namespace EIP_Lib {
       // Visible Category
       int vCat = -1;
 
-      Font courier = new Font("Courier New", 9);
+      readonly Font courier = new Font("Courier New", 9);
 
       #endregion
 
@@ -144,8 +144,6 @@ namespace EIP_Lib {
             if (EIP.StartSession()) {
                // Save the state on entry
                if (EIP.ForwardOpen()) {
-                  // The correct substitution rule is already set
-                  //EIP.ReadOneAttribute(at[visibleCategory], EIP.Nodata, out string dataIn);
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
                      // Get the substitution all at once
                      data = EIP.ToBytes((i + startWith[vCat]), 1);
