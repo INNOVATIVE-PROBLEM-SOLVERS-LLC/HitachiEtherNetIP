@@ -194,12 +194,12 @@ namespace EIP_Lib {
 
             #region Left Column
 
-            Utils.ResizeObject(ref R, lblIPAddress, 1, 1, 2, 4);
-            Utils.ResizeObject(ref R, txtIPAddress, 1, 5, 2, 4);
-            Utils.ResizeObject(ref R, lblPort, 3, 1, 2, 4);
-            Utils.ResizeObject(ref R, txtPort, 3, 5, 2, 4);
-            Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 4);
-            Utils.ResizeObject(ref R, txtSessionID, 5, 5, 2, 4);
+            Utils.ResizeObject(ref R, lblIPAddress, 1, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtIPAddress, 1, 4, 2, 5);
+            Utils.ResizeObject(ref R, lblPort, 3, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtPort, 3, 4, 2, 5);
+            Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 3);
+            Utils.ResizeObject(ref R, txtSessionID, 5, 4, 2, 5);
 
             Utils.ResizeObject(ref R, btnStartSession, 7.5f, 0.5f, 2, 4);
             Utils.ResizeObject(ref R, btnEndSession, 7.5f, 5, 2, 4);
@@ -292,6 +292,7 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, btnManagementFlag, 45.5f, 20, 3, 5);
 
             Utils.ResizeObject(ref R, btnRefresh, 45.5f, 25.5f, 3, 3);
+            Utils.ResizeObject(ref R, btnReformat, 45.5f, 25.5f, 3, 3);
             Utils.ResizeObject(ref R, btnStop, 45.5f, 29, 3, 3);
             Utils.ResizeObject(ref R, btnViewTraffic, 45.5f, 32.5f, 3, 3);
             Utils.ResizeObject(ref R, btnResetTraffic, 45.5f, 36, 3, 3);
@@ -680,7 +681,7 @@ namespace EIP_Lib {
          RFN = CreateFileName(txtSaveFolder.Text, "Reformat");
          RFS = new StreamWriter(RFN, false, Encoding.UTF8);
 
-         //EIP.M161.ReformatTables(RFS);
+         EIP.M161.ReformatTables(RFS);
 
          RFS.Flush();
          RFS.Close();

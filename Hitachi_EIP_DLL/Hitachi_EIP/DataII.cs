@@ -864,8 +864,30 @@ namespace EIP_Lib {
 
       }
 
-      // Process the tables one at a time
       private void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
+         // Now process each attribute within the Class
+         string[] attrNames = Enum.GetNames(at);
+         for (int i = 0; i < tbl.Length; i++) {
+
+            string printLine = $"(0x{((int)cc).ToString("X2")}){cc}\t(0x{tbl[i].Val:X2}){attrNames[i]}\t";
+
+            if (tbl[i].HasGet)
+               printLine += "Get";
+            printLine += "\t";
+            if (tbl[i].HasSet)
+               printLine += "Set";
+            printLine += "\t";
+            if (tbl[i].HasService)
+               printLine += "Service";
+            printLine += "\t";
+            RFS.WriteLine(printLine.Replace('_',' '));
+
+         }
+         RFS.WriteLine(" ");
+      }
+
+      // Process the tables one at a time
+      private void DumpTableII(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
          string name = at.ToString();
          name = name.Substring(name.IndexOf('.') + 1);
 
