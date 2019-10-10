@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Label Version="1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Inverted/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Until End of Print" SetupValue="50" Timer="0" />
+    <CharacterSize Height="90" Width="10" />
+    <PrintStartDelay Forward="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <!-- Breaks auto-reflect 
+      <Substitution Delimiter="/" StartYear="2019" Rule="1" Name="">
+        <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Month>
+        <Month Base="11">NOV/DEC</Month>
+        <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
+      </Substitution>
+    -->
+  </Printer>
+  <Message Layout="Individual">
+    <Column InterLineSpacing="2">
+      <Item Type="Calendar">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <ZeroSuppress Day="Space Fill" />
+          <Substitution Month="Enable" />
+        </Date>
+        <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item Type="Calendar">
+        <Font IncreasedWidth="1" InterCharacterSpace="1">5x8(5x7)</Font>
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="30" />
+          <ZeroSuppress Day="Space Fill" />
+          <Substitution Month="Enable" />
+        </Date>
+        <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1">5x8(5x7)</Font>
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Substitution DayOfWeek="Enable" />
+        </Date>
+        <Text>PACKED  {{TTT} {777}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item Type="Calendar">
+        <Font IncreasedWidth="1" InterCharacterSpace="1">5x8(5x7)</Font>
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+          <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+          <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+        </Date>
+        <Text>Shift {{E}}</Text>
+      </Item>
+      <Item Type="Calendar">
+        <Font IncreasedWidth="1" InterCharacterSpace="1">5x8(5x7)</Font>
+        <BarCode />
+        <Location ItemNumber="5" Row="2" Column="2" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        </Date>
+        <Text>TCount {{FF}} </Text>
+      </Item>
+      <Item Type="Counter">
+        <Font IncreasedWidth="1" InterCharacterSpace="1">5x8(5x7)</Font>
+        <BarCode />
+        <Location ItemNumber="6" Row="1" Column="2" />
+        <Counter Block="1" Reset="000001" CountUp="Down" Increment="2" JumpTo="000300" JumpFrom="000199"
+          UpdateUnit="1" UpdateIP="0" Range2="999999" Range1="000000" InitialValue="000001" Multiplier="" ZeroSuppression="Enable" />
+        <Text># {{CCCCCC}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="2">18x24</Font>
+        <BarCode />
+        <Text>{X/000}</Text>
+        <Logo Layout="Fixed" Location="" RawData="" />
+      </Item>
+    </Column>
+  </Message>
+</Label>
