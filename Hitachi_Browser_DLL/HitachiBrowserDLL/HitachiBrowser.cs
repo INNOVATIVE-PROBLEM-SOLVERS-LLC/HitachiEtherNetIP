@@ -380,10 +380,9 @@ namespace EIP_Lib {
 
       // Issue a Set based on the Class Code and Function dropdowns
       private void btnIssueSet_Click(object sender, EventArgs e) {
-         bool Success = false;
          try {
             byte[] data = EIP.FormatOutput(attr.Set, txtDataOut.Text);
-            Success = EIP.SetAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+            EIP.SetAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
          } catch {
             AllGood = false;
          }
@@ -391,10 +390,9 @@ namespace EIP_Lib {
 
       // Issue a Service based on the Class Code and Function dropdowns
       private void btnIssueService_Click(object sender, EventArgs e) {
-         bool Success = false;
          try {
             byte[] data = EIP.FormatOutput(attr.Service, txtDataOut.Text);
-            Success = EIP.ServiceAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
+            EIP.ServiceAttribute(EIP.ClassCodes[cbClassCode.SelectedIndex], (byte)ClassAttr[cbFunction.SelectedIndex], data);
          } catch {
             AllGood = false;
          }
@@ -815,12 +813,9 @@ namespace EIP_Lib {
 
       // Browse for folder to save Log/Traffic/Reformat data
       private void BrowseForFolder(TextBox tb) {
-         using (FolderBrowserDialog dlg = new FolderBrowserDialog()) {
-            dlg.ShowNewFolderButton = true;
-            dlg.SelectedPath = tb.Text;
-            if (dlg.ShowDialog() == DialogResult.OK) {
-               tb.Text = dlg.SelectedPath;
-            }
+         using FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = tb.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            tb.Text = dlg.SelectedPath;
          }
 
       }

@@ -37,7 +37,7 @@ namespace EIP_Lib {
       // Visible Category
       int vCat = -1;
 
-      readonly Font courier = new Font("Courier New", 9);
+      readonly System.Drawing.Font courier = new System.Drawing.Font("Courier New", 9);
 
       #endregion
 
@@ -206,9 +206,7 @@ namespace EIP_Lib {
       // Make the group box more visible
       private void GroupBorder_Paint(object sender, PaintEventArgs e) {
          GroupBox gb = (GroupBox)sender;
-         using (Pen p = new Pen(Color.CadetBlue, 2)) {
-            e.Graphics.DrawRectangle(p, 1, 1, gb.Width - 2, gb.Height - 2);
-         }
+         e.Graphics.DrawRectangle(new Pen(Color.CadetBlue, 2), 1, 1, gb.Width - 2, gb.Height - 2);
       }
 
       // Class attribute changed.  

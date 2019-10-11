@@ -15,6 +15,7 @@ namespace EIP_Lib {
          if (cbAvailableXmlTests.SelectedIndex >= 0) {
             try {
                string fileName = Path.Combine(parent.MessageFolder, cbAvailableXmlTests.Text + ".XML");
+               OpenedFile = fileName;
                ProcessLabel(File.ReadAllText(fileName));
             } catch {
                Clear_Click(null, null);
@@ -40,6 +41,7 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
+            //EIP.ReadItem(OpenedFile);
             EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
          }
       }
