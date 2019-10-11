@@ -41,6 +41,7 @@ namespace EIP_Lib {
       Button cmdSendDisplayToPrinter;
       CheckBox chkAutoReflect;
       CheckBox chkErrorsOnly;
+      CheckBox chkSerialize;
 
       Label lblSelectHardTest;
       ComboBox cbAvailableHardTests;
@@ -82,7 +83,7 @@ namespace EIP_Lib {
       #endregion
 
       #region Form Control Events
-
+      string OpenedFile = string.Empty;
       // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
          // Clear out any currently loaded file
@@ -99,6 +100,7 @@ namespace EIP_Lib {
                dlgResult = dlg.ShowDialog();
                if (dlgResult == DialogResult.OK) {
                   try {
+                     OpenedFile = dlg.FileName;
                      ProcessLabel(File.ReadAllText(dlg.FileName));
                   } catch (Exception ex) {
                      MessageBox.Show(parent, ex.Message, "Cannot load XML File!");
@@ -179,6 +181,7 @@ namespace EIP_Lib {
 
          chkAutoReflect = new CheckBox() { Text = "Auto Reflect.", Checked = true };
          chkErrorsOnly = new CheckBox() { Text = "Errors Only", Checked = true };
+         chkSerialize = new CheckBox() { Text = "Serialize", Checked = false };
 
          tab.Controls.Add(tclViewXML);
 
@@ -198,6 +201,7 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSendDisplayToPrinter);
          tab.Controls.Add(chkAutoReflect);
          tab.Controls.Add(chkErrorsOnly);
+         tab.Controls.Add(chkSerialize);
 
          // Testing controls
          lblSelectXmlTest = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
@@ -253,8 +257,9 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtVerify, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 2.5f, 4);
-            Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 3, 1, 2.5f, 4);
+            Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 2, 4);
+            Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 4, 1, 2, 4);
+            Utils.ResizeObject(ref R, chkSerialize, tclHeight - 2, 1, 2, 4);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 5, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 5, 2.5f, 4);
