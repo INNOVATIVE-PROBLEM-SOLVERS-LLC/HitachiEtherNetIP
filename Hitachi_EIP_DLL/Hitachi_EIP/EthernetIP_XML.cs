@@ -55,6 +55,10 @@ namespace EIP_Lib {
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
          (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
 
+      const int DateOffset =
+        (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
+        (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek;
+
       const int DateSubZS =
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
          (int)ba.Week | (int)ba.DayOfWeek;
@@ -88,7 +92,7 @@ namespace EIP_Lib {
                   DeleteAllButOne();
 
                   XmlNode objs = xmlDoc.SelectSingleNode("Label/Objects");
-                  if(objs != null) {
+                  if (objs != null) {
                      AllocateRowsColumns(objs.ChildNodes); // Allocate rows and columns
                      LoadObjects(objs.ChildNodes);         // Send the objects one at a time
                   }
@@ -318,7 +322,7 @@ namespace EIP_Lib {
             SetAttribute(ccIDX.Item, item);
 
             n = obj.SelectSingleNode("Font");
-            if((n = obj.SelectSingleNode("Font")) != null) {
+            if ((n = obj.SelectSingleNode("Font")) != null) {
                SetAttribute(ccPF.Dot_Matrix, n.InnerText);
                SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
                SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
@@ -346,7 +350,7 @@ namespace EIP_Lib {
                GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
             } else {
                GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
-               if(countCount[i] > 0) {
+               if (countCount[i] > 0) {
                   GetAttribute(ccCount.First_Count_Block, out countStart[i]);
                }
             }

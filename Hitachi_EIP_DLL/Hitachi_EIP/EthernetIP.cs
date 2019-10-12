@@ -891,6 +891,9 @@ namespace EIP_Lib {
 
       // Set one attribute based on the Set Property
       public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
+         if (string.IsNullOrEmpty(s)) {
+            return true;
+         }
          AutomaticReflect(AccessCode.Set);
          AttrData attr = GetAttrData(Attribute);
          byte[] data = FormatOutput(attr.Set, s);
