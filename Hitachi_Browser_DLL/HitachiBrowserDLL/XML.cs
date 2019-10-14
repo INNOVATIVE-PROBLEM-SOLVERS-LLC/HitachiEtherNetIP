@@ -48,6 +48,7 @@ namespace EIP_Lib {
       Button cmdRunHardTest;
 
       // XML Processing
+      string XMLFileName = string.Empty;
       string XMLText = string.Empty;
       XmlDocument xmlDoc = null;
       enum ItemType {
@@ -83,7 +84,7 @@ namespace EIP_Lib {
       #endregion
 
       #region Form Control Events
-      string OpenedFile = string.Empty;
+
       // Open a new XML file
       private void Open_Click(object sender, EventArgs e) {
          // Clear out any currently loaded file
@@ -100,7 +101,7 @@ namespace EIP_Lib {
                dlgResult = dlg.ShowDialog();
                if (dlgResult == DialogResult.OK) {
                   try {
-                     OpenedFile = dlg.FileName;
+                     XMLFileName = dlg.FileName;
                      ProcessLabel(File.ReadAllText(dlg.FileName));
                   } catch (Exception ex) {
                      MessageBox.Show(parent, ex.Message, "Cannot load XML File!");
@@ -117,13 +118,13 @@ namespace EIP_Lib {
          xmlDoc = null;
          tvXML.Nodes.Clear();
          XMLText = string.Empty;
+         XMLFileName = string.Empty;
          SetButtonEnables();
       }
 
       // Save the generated XML file
       private void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
-         string filename = string.Empty;
 
          using (SaveFileDialog saveFileDialog1 = new SaveFileDialog()) {
             saveFileDialog1.CheckFileExists = false;
@@ -131,11 +132,11 @@ namespace EIP_Lib {
             saveFileDialog1.DefaultExt = "xml";
             saveFileDialog1.Filter = "xml|*.xml";
             saveFileDialog1.Title = "Save Printer Layout to XML file";
-            saveFileDialog1.FileName = filename;
+            saveFileDialog1.FileName = XMLFileName;
             dlgResult = saveFileDialog1.ShowDialog();
             if (dlgResult == DialogResult.OK && !String.IsNullOrEmpty(saveFileDialog1.FileName)) {
-               filename = saveFileDialog1.FileName;
-               Stream outfs = new FileStream(filename, FileMode.Create);
+               XMLFileName = saveFileDialog1.FileName;
+               Stream outfs = new FileStream(XMLFileName, FileMode.Create);
                // Might have some possibilities here <TODO>
                outfs.Write(EIP.Encode.GetBytes(XMLText), 0, XMLText.Length);
                outfs.Flush();
@@ -289,7 +290,7 @@ namespace EIP_Lib {
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
          cmdSend.Enabled = xmlDoc != null;
-         cmdSendFileToPrinter.Enabled = xmlDoc != null;
+         cmdSendFileToPrinter.Enabled = !string.IsNullOrEmpty(XMLFileName);
          cmdSendDisplayToPrinter.Enabled = xmlDoc != null;
          cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;
       }

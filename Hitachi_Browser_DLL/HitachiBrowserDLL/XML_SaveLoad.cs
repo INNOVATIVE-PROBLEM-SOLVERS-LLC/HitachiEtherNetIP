@@ -15,7 +15,7 @@ namespace EIP_Lib {
          if (cbAvailableXmlTests.SelectedIndex >= 0) {
             try {
                string fileName = Path.Combine(parent.MessageFolder, cbAvailableXmlTests.Text + ".XML");
-               OpenedFile = fileName;
+               XMLFileName = fileName;
                ProcessLabel(File.ReadAllText(fileName));
             } catch {
                Clear_Click(null, null);
@@ -41,15 +41,22 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
-            //EIP.ReadItem(OpenedFile);
-            EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
+            if (chkSerialize.Checked) {
+               EIP.SendFileAsSerialization(XMLFileName, chkAutoReflect.Checked);
+            } else {
+               EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
+            }
          }
       }
 
 
       // Generate an XML Doc from the printer contents
       private void Generate_Click(object sender, EventArgs e) {
-         XMLText = EIP.RetrieveXML();
+         if (chkSerialize.Checked) {
+            XMLText = EIP.RetrieveXMLAsSerialization(chkSerialize.Checked);
+         } else {
+            XMLText = EIP.RetrieveXML();
+         }
          ProcessLabel(XMLText);
          SetButtonEnables();
       }

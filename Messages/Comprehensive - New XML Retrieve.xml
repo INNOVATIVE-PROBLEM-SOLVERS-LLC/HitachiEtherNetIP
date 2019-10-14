@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Label Version="1">
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
   <Printer Make="Hitachi" Model="UX-D161W">
     <PrintHead Orientation="Inverted/Forward" />
     <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
@@ -8,27 +8,24 @@
     <PrintStartDelay Forward="96" Reverse="96" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
     <InkStream InkDropUse="2" ChargeRule="Standard" />
-    <Logos Folder="">
-      <Logo Layout="Fixed" Location="" RawData="" />
-    </Logos>
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="2">
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1" SubstitutionRule="1" RuleName="">
+        <Date Block="1">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
-          <Substitute Month="Enable" />
+          <Substitute Year="Disable" Month="Disable" Day="Disable" />
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1" SubstitutionRule="1" RuleName="">
-          <Offset Day="20" />
+        <Date Block="1">
+          <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
           <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
           <Substitute Year="Disable" Month="Disable" Day="Disable" />
         </Date>
@@ -37,10 +34,10 @@
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1" SubstitutionRule="1" RuleName="">
+        <Date Block="1">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress DayOfWeek="Disable" />
-          <Substitute DayOfWeek="Enable" />
+          <Substitute DayOfWeek="Disable" />
         </Date>
         <Text>PACKED  {{TTT} {777}} </Text>
       </Item>
@@ -50,17 +47,17 @@
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
-          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
-          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
-          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="0" />
+          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="0" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="0" />
         </Date>
-        <Text>Shift {{E}}</Text>
+        <Text>Shift {E}}</Text>
       </Item>
-      <Item Type="Calendar">
+      <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
-          <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+          <TimeCount Interval="-1202212427" Start="00" End="X2" ResetTime="6" ResetValue="A1" />
         </Date>
         <Text>TCount {{FF}} </Text>
       </Item>
@@ -69,9 +66,9 @@
         <BarCode />
         <Counter Block="1">
           <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
-          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="Enable" />
-          <Reset Type="Signal 1" Value="000001" />
-          <Misc UpdateUnit="1" UpdateIP="0" Multiplier="" />
+          <Count InitialValue="000000" Increment="2" Direction="Down" ZeroSuppression="Enable" />
+          <Reset Type="808464433" Value="000001" />
+          <Misc UpdateUnit="1" UpdateIP="0" Multiplier="" ExternalCount="Disable" CountSkip=" " />
         </Counter>
         <Text># {{CCCCCC}} </Text>
       </Item>
