@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Normal/Reverse" />
+    <ContinuousPrinting RepeatInterval="3300" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time Setup" SetupValue="50" Timer="0" />
+    <CharacterSize Height="60" Width="8" />
+    <PrintStartDelay Forward="502" Reverse="502" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="5" ChargeRule="Standard" />
+  </Printer>
+  <Message Layout="Individual">
+    <Column InterLineSpacing="0">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text>1</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

@@ -10,9 +10,9 @@ namespace EIP_Lib {
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {
       [XmlAttribute]
-      public string Version;
-      public Printer Printer;
-      public Msg Message;
+      public string Version;   // Keep track of version to allow for changes
+      public Printer Printer;  // Information that pertains to the printer
+      public Msg Message;      // Information that pertains to the message
    }
 
    #region Message Classes
@@ -74,12 +74,6 @@ namespace EIP_Lib {
    public class Counter {
       [XmlAttribute]
       public int Block;
-      [XmlAttribute]
-      public string UpdateUnit;
-      [XmlAttribute]
-      public string UpdateIP;
-      [XmlAttribute]
-      public string Multiplier;
 
       public Range Range;
       public Count Count;
@@ -335,7 +329,8 @@ namespace EIP_Lib {
          }
       }
 
-      public void SendFileAsSerialization(string filename, bool AutoReflect = true) {
+      public bool SendFileAsSerialization(string filename, bool AutoReflect = true) {
+         bool success = true;
          Lab Lab;
          XmlSerializer serializer = new XmlSerializer(typeof(Lab));
          try {
@@ -349,12 +344,13 @@ namespace EIP_Lib {
             }
          } catch (Exception e) {
             LogIt(e.Message);
-            // String passed is not XML, simply return defaultXmlClass
+            success = false;
          } finally {
             // Release the error detection events
             serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
             serializer.UnknownAttribute -= new XmlAttributeEventHandler(serializer_UnknownAttribute);
          }
+         return success;
       }
 
       private void SendLabelToPrinter(Lab Lab, bool AutoReflect) {
@@ -428,12 +424,12 @@ namespace EIP_Lib {
       private void SendMessage(Msg m) {
          if (m.Column != null) {
             AllocateRowsColumns(m);
-            SendObjects(m);
          }
       }
 
       private void AllocateRowsColumns(Msg m) {
          int index = 0;
+         bool hasDateOrCount = false; // Save some time if no need to look
          for (int c = 0; c < m.Column.Length; c++) {
             if (c > 0) {
                ServiceAttribute(ccPF.Add_Column);
@@ -446,31 +442,29 @@ namespace EIP_Lib {
                SetAttribute(ccPF.Line_Spacing, m.Column[c].InterLineSpacing);
             }
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               SetAttribute(ccIDX.Item, index + 1);
+               Item item = m.Column[c].Item[r];
+               if (item.Font != null) {
+                  SetAttribute(ccPF.InterCharacter_Space, item.Font.InterCharacterSpace);
+                  SetAttribute(ccPF.Character_Bold, item.Font.IncreasedWidth);
+                  SetAttribute(ccPF.Dot_Matrix, item.Font.Face);
+               }
+               SetAttribute(ccPF.Print_Character_String, item.Text);
+               hasDateOrCount |= item.Date != null | item.Counter != null;
                m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
             }
          }
+         // Process calendar and count if needed
+         if (hasDateOrCount) {
+            SendDateCount(m);
+         }
       }
 
-      private void SendObjects(Msg m) {
-         for (int c = 0; c < m.Column.Length; c++) {
-            if (m.Column[c].Item != null) {
-               for (int r = 0; r < m.Column[c].Item.Length; r++) {
-                  SetAttribute(ccIDX.Item, m.Column[c].Item[r].Location.Index + 1);
-                  Item item = m.Column[c].Item[r];
-                  if (item.Font != null) {
-                     SetAttribute(ccPF.InterCharacter_Space, item.Font.InterCharacterSpace);
-                     SetAttribute(ccPF.Character_Bold, item.Font.IncreasedWidth);
-                     SetAttribute(ccPF.Dot_Matrix, item.Font.Face);
-                  }
-                  SetAttribute(ccPF.Print_Character_String, item.Text);
-               }
-            }
-         }
-
+      private void SendDateCount(Msg m) {
          // Need a combination of sets and gets.  Turn AutoReflection off
          bool saveAR = UseAutomaticReflection;
          UseAutomaticReflection = false;
-
+         // Get calendar and count blocks assigned by the printer
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
@@ -490,7 +484,6 @@ namespace EIP_Lib {
 
          // Restore previous AutoReflection to previous state
          UseAutomaticReflection = saveAR;
-
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];

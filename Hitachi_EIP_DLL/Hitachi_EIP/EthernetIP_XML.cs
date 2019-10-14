@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -66,6 +67,9 @@ namespace EIP_Lib {
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
+      // A list of all items in XML file
+      List<XmlNode> Items;
+
       #endregion
 
       #region Send XML to Printer
@@ -91,15 +95,16 @@ namespace EIP_Lib {
                   // Set to only one item in printer
                   DeleteAllButOne();
 
-                  XmlNode objs = xmlDoc.SelectSingleNode("Label/Objects");
+                  XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
                   if (objs != null) {
-                     AllocateRowsColumns(objs.ChildNodes); // Allocate rows and columns
-                     LoadObjects(objs.ChildNodes);         // Send the objects one at a time
+                     if (success = AllocateRowsColumns(objs.ChildNodes)) { // Allocate rows and columns
+                        success = LoadObjects(objs.ChildNodes);            // Send the objects one at a time}
+                     }
                   }
 
                   XmlNode prnt = xmlDoc.SelectSingleNode("Label/Printer");
-                  if (prnt != null) {
-                     SendPrinterSettings(prnt);            // Send printer wide settings
+                  if (success && prnt != null) {
+                     success = SendPrinterSettings(prnt);            // Send printer wide settings
                   }
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error
@@ -268,38 +273,47 @@ namespace EIP_Lib {
 
       // Allocate rows, columns, and inner-line spacing 
       private bool AllocateRowsColumns(XmlNodeList objs) {
+         Items = new List<XmlNode>();
          bool success = true;
          int[] columns = new int[100];
          int[] ILS = new int[100];
          int maxCol = 0;
-         // Collect information about rows and columns (both 1-origin in XML file)
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
+         // Count the rows and columns
+         foreach (XmlNode col in objs) {
+            if (col is XmlWhitespace)
                continue;
-            XmlNode l = obj.SelectSingleNode("Location");
-            if (int.TryParse(GetXmlAttr(l, "Row"), out int row)
-               && int.TryParse(GetXmlAttr(l, "Column"), out int col)
-               && int.TryParse(GetXmlAttr(obj.SelectSingleNode("Font"), "InterLineSpace"), out int ils)) {
-               columns[col] = Math.Max(columns[col], row);
-               ILS[col] = Math.Max(ILS[col], ils);
-               maxCol = Math.Max(maxCol, col);
-            } else {
-               return false;
+            switch (col.Name) {
+               case "Column":
+                  columns[maxCol] = 0;
+                  int.TryParse(GetXmlAttr(col, "InterLineSpacing"), out ILS[maxCol]);
+                  foreach (XmlNode item in col) {
+                     if (item is XmlWhitespace)
+                        continue;
+                     switch (item.Name) {
+                        case "Item":
+                           Items.Add(item);
+                           columns[maxCol]++;
+                           break;
+                     }
+                  }
+                  maxCol++;
+                  break;
             }
          }
+
          // Allocate the rows and columns
-         for (int col = 1; col <= maxCol && success; col++) {
+         for (int col = 0; col < maxCol; col++) {
             if (columns[col] == 0) {
                return false;
             }
-            if (col > 1) {
+            if (col > 0) {
                ServiceAttribute(ccPF.Add_Column);
             }
             // Should this be Column and not Item?
-            SetAttribute(ccIDX.Item, col);
+            SetAttribute(ccIDX.Item, col + 1);
             SetAttribute(ccPF.Line_Count, columns[col]);
             if (columns[col] > 1) {
-               SetAttribute(ccIDX.Column, col);
+               SetAttribute(ccIDX.Column, col + 1);
                SetAttribute(ccPF.Line_Spacing, ILS[col]);
             }
          }
@@ -308,77 +322,64 @@ namespace EIP_Lib {
 
       // Load objects
       private bool LoadObjects(XmlNodeList objs) {
+         bool hasDateOrCount = false;
          bool success = true;
          XmlNode n;
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetXmlAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-            SetAttribute(ccIDX.Item, item);
-
-            n = obj.SelectSingleNode("Font");
-            if ((n = obj.SelectSingleNode("Font")) != null) {
-               SetAttribute(ccPF.Dot_Matrix, n.InnerText);
+         for (int i = 0; i < Items.Count; i++) {
+            SetAttribute(ccIDX.Item, i + 1);
+            XmlNode item = Items[i];
+            if ((n = Items[i].SelectSingleNode("Font")) != null) {
+               SetAttribute(ccPF.Dot_Matrix, GetXmlAttr(n, "Face"));
                SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
                SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
-               SetAttribute(ccPF.Print_Character_String, GetXmlValue(obj.SelectSingleNode("Text"))); // Load the text last
+               SetAttribute(ccPF.Print_Character_String, GetXmlValue(Items[i].SelectSingleNode("Text"))); // Load the text last
             }
+            hasDateOrCount |= Items[i].SelectSingleNode("Date") != null | Items[i].SelectSingleNode("Counter") != null;
          }
-         bool saveAR = UseAutomaticReflection;
-         UseAutomaticReflection = false;
 
-         GetAttribute(ccPF.Number_Of_Items, out int items);
+         if (hasDateOrCount) {
+            bool saveAR = UseAutomaticReflection;
+            UseAutomaticReflection = false;
 
-         int[] calStart = new int[items + 1];
-         int[] calCount = new int[items + 1];
-         int[] countStart = new int[items + 1];
-         int[] countCount = new int[items + 1];
+            GetAttribute(ccPF.Number_Of_Items, out int items);
 
-         for (int i = 1; i <= items; i++) {
-            calStart[i] = 0;
-            calCount[i] = 0;
-            countStart[i] = 0;
-            countCount[i] = 0;
-            SetAttribute(ccIDX.Item, i);
-            GetAttribute(ccCal.Number_of_Calendar_Blocks, out calCount[i]);
-            if (calCount[i] > 0) {
-               GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
-            } else {
-               GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
-               if (countCount[i] > 0) {
-                  GetAttribute(ccCount.First_Count_Block, out countStart[i]);
+            int[] calStart = new int[items];
+            int[] calCount = new int[items];
+            int[] countStart = new int[items];
+            int[] countCount = new int[items];
+            Debug.Assert(items == Items.Count, $"Item counts do not match!  Expected = {items}, Actual = {Items.Count}!");
+
+            for (int i = 0; i < Items.Count; i++) {
+               if (Items[i].SelectSingleNode("Date") != null) {
+                  SetAttribute(ccIDX.Item, i + 1);
+                  GetAttribute(ccCal.Number_of_Calendar_Blocks, out calCount[i]);
+                  if (calCount[i] > 0) {
+                     GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
+                  }
+               }
+               if (Items[i].SelectSingleNode("Counter") != null) {
+                  SetAttribute(ccIDX.Item, i + 1);
+                  GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
+                  if (countCount[i] > 0) {
+                     GetAttribute(ccCount.First_Count_Block, out countStart[i]);
+                  }
+               }
+            }
+
+            UseAutomaticReflection = saveAR;
+
+            for (int i = 0; i < Items.Count; i++) {
+               if (Items[i].SelectSingleNode("Date") != null) {
+                  LoadCalendar(Items[i], calCount[i], calStart[i]);
+               }
+               if (Items[i].SelectSingleNode("Counter") != null) {
+                  LoadCount(Items[i], countCount[i], countStart[i]);
                }
             }
          }
 
-         UseAutomaticReflection = saveAR;
+         Items = null;
 
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
-               continue;
-
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetXmlAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-            SetAttribute(ccIDX.Item, item);
-
-            ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(obj, "Type"), true);
-            switch (type) {
-               case ItemType.Date:
-                  LoadCalendar(obj, calCount[item], calStart[item]);
-                  break;
-               case ItemType.Counter:
-                  LoadCount(obj, countCount[item], countStart[item]);
-                  break;
-            }
-         }
          return success;
       }
 
@@ -504,11 +505,11 @@ namespace EIP_Lib {
                            case "StartMinute":
                               SetAttribute(ccCal.Shift_Start_Minute, a.Value);
                               break;
-                           case "EndHour": // Read Only
-                                           //SetAttribute(ccCal.Shift_End_Hour, a.Value);
+                           case "EndHour":
+                              //SetAttribute(ccCal.Shift_End_Hour, a.Value);  // Read Only
                               break;
-                           case "EndMinute": // Read Only
-                                             //SetAttribute(ccCal.Shift_End_Minute, a.Value);
+                           case "EndMinute":
+                              //SetAttribute(ccCal.Shift_End_Minute, a.Value); // Read Only
                               break;
                            case "ShiftCode":
                               SetAttribute(ccCal.Shift_Code_Condition, a.Value);
@@ -525,60 +526,83 @@ namespace EIP_Lib {
       // Send counter related information
       private bool LoadCount(XmlNode obj, int CountBlockCount, int FirstCountBlock) {
          bool success = true;
-
+         XmlNode n;
          foreach (XmlNode c in obj) {
             if (c is XmlWhitespace)
                continue;
             if (c.Name == "Counter" && int.TryParse(GetXmlAttr(c, "Block"), out int b) && b <= CountBlockCount) {
                SetAttribute(ccIDX.Count_Block, FirstCountBlock + b - 1);
-               foreach (XmlAttribute a in c.Attributes) {
-                  switch (a.Name) {
-                     case "InitialValue":
-                        SetAttribute(ccCount.Initial_Value, a.Value);
-                        break;
-                     case "Range1":
-                        SetAttribute(ccCount.Count_Range_1, a.Value);
-                        break;
-                     case "Range2":
-                        SetAttribute(ccCount.Count_Range_2, a.Value);
-                        break;
-                     case "UpdateIP":
-                        SetAttribute(ccCount.Update_Unit_Halfway, a.Value);
-                        break;
-                     case "UpdateUnit":
-                        SetAttribute(ccCount.Update_Unit_Unit, a.Value);
-                        break;
-                     case "Increment":
-                        SetAttribute(ccCount.Increment_Value, a.Value);
-                        break;
-                     case "CountUp":
-                        string s = bool.TryParse(a.Value, out bool dir) && dir ? "Up" : "Down";
-                        SetAttribute(ccCount.Direction_Value, s);
-                        break;
-                     case "JumpFrom":
-                        SetAttribute(ccCount.Jump_From, a.Value);
-                        break;
-                     case "JumpTo":
-                        SetAttribute(ccCount.Jump_To, a.Value);
-                        break;
-                     case "Reset":
-                        SetAttribute(ccCount.Reset_Value, a.Value);
-                        break;
-                     case "ResetSignal":
-                        SetAttribute(ccCount.Type_Of_Reset_Signal, a.Value);
-                        break;
-                     case "ExternalSignal":
-                        SetAttribute(ccCount.External_Count, a.Value);
-                        break;
-                     case "ZeroSuppression":
-                        SetAttribute(ccCount.Zero_Suppression, a.Value);
-                        break;
-                     case "Multiplier":
-                        SetAttribute(ccCount.Count_Multiplier, a.Value);
-                        break;
-                     case "Skip":
-                        SetAttribute(ccCount.Count_Skip, a.Value);
-                        break;
+
+               if ((n = c.SelectSingleNode("Range")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Range1":
+                           SetAttribute(ccCount.Count_Range_1, a.Value);
+                           break;
+                        case "Range2":
+                           SetAttribute(ccCount.Count_Range_2, a.Value);
+                           break;
+                        case "JumpFrom":
+                           SetAttribute(ccCount.Jump_From, a.Value);
+                           break;
+                        case "JumpTo":
+                           SetAttribute(ccCount.Jump_To, a.Value);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Count")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "InitialValue":
+                           SetAttribute(ccCount.Initial_Value, a.Value);
+                           break;
+                        case "Increment":
+                           SetAttribute(ccCount.Increment_Value, a.Value);
+                           break;
+                        case "Direction":
+                           SetAttribute(ccCount.Direction_Value, a.Value);
+                           break;
+                        case "ZeroSuppression":
+                           SetAttribute(ccCount.Zero_Suppression, a.Value);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Reset")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Type":
+                           SetAttribute(ccCount.Type_Of_Reset_Signal, a.Value);
+                           break;
+                        case "Value":
+                           SetAttribute(ccCount.Reset_Value, a.Value);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Misc")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "UpdateIP":
+                           SetAttribute(ccCount.Update_Unit_Halfway, a.Value);
+                           break;
+                        case "UpdateUnit":
+                           SetAttribute(ccCount.Update_Unit_Unit, a.Value);
+                           break;
+                        case "ExternalCount":
+                           SetAttribute(ccCount.External_Count, a.Value);
+                           break;
+                        case "Multiplier":
+                           SetAttribute(ccCount.Count_Multiplier, a.Value);
+                           break;
+                        case "Skip":
+                           SetAttribute(ccCount.Count_Skip, a.Value);
+                           break;
+                     }
                   }
                }
             }
@@ -936,20 +960,41 @@ namespace EIP_Lib {
             writer.WriteStartElement("Counter"); // Start Counter
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
-               writer.WriteAttributeString("Reset", GetAttribute(ccCount.Reset_Value));
-               //writer.WriteAttributeString("ExternalSignal", p.CtExternalSignal);
-               //writer.WriteAttributeString("ResetSignal", p.CtResetSignal);
-               writer.WriteAttributeString("CountUp", GetAttribute(ccCount.Direction_Value));
-               writer.WriteAttributeString("Increment", GetAttribute(ccCount.Increment_Value));
-               writer.WriteAttributeString("JumpTo", GetAttribute(ccCount.Jump_To));
-               writer.WriteAttributeString("JumpFrom", GetAttribute(ccCount.Jump_From));
-               writer.WriteAttributeString("UpdateUnit", GetAttribute(ccCount.Update_Unit_Unit));
-               writer.WriteAttributeString("UpdateIP", GetAttribute(ccCount.Update_Unit_Halfway));
-               writer.WriteAttributeString("Range2", GetAttribute(ccCount.Count_Range_2));
-               writer.WriteAttributeString("Range1", GetAttribute(ccCount.Count_Range_1));
-               writer.WriteAttributeString("InitialValue", GetAttribute(ccCount.Initial_Value));
-               writer.WriteAttributeString("Multiplier", GetAttribute(ccCount.Count_Multiplier));
-               writer.WriteAttributeString("ZeroSuppression", GetAttribute(ccCount.Zero_Suppression));
+               writer.WriteStartElement("Range"); // Start Range
+               {
+                  writer.WriteAttributeString("Range1", GetAttribute(ccCount.Count_Range_1));
+                  writer.WriteAttributeString("Range2", GetAttribute(ccCount.Count_Range_2));
+                  writer.WriteAttributeString("JumpFrom", GetAttribute(ccCount.Jump_From));
+                  writer.WriteAttributeString("JumpTo", GetAttribute(ccCount.Jump_To));
+               }
+               writer.WriteEndElement(); //  End Range
+
+               writer.WriteStartElement("Count"); // Start Count
+               {
+                  writer.WriteAttributeString("InitialValue", GetAttribute(ccCount.Initial_Value));
+                  writer.WriteAttributeString("Increment", GetAttribute(ccCount.Increment_Value));
+                  writer.WriteAttributeString("Direction", GetAttribute(ccCount.Direction_Value));
+                  writer.WriteAttributeString("ZeroSuppression", GetAttribute(ccCount.Zero_Suppression));
+               }
+               writer.WriteEndElement(); //  End Count
+
+               writer.WriteStartElement("Reset"); // Start Reset
+               {
+                  writer.WriteAttributeString("Type", GetAttribute(ccCount.Type_Of_Reset_Signal));
+                  writer.WriteAttributeString("Value", GetAttribute(ccCount.Reset_Value));
+               }
+               writer.WriteEndElement(); //  End Reset
+
+               writer.WriteStartElement("Misc"); // Start Misc
+               {
+                  writer.WriteAttributeString("UpdateIP", GetAttribute(ccCount.Update_Unit_Halfway));
+                  writer.WriteAttributeString("UpdateUnit", GetAttribute(ccCount.Update_Unit_Unit));
+                  writer.WriteAttributeString("Count", GetAttribute(ccCount.External_Count));
+                  writer.WriteAttributeString("Multiplier", GetAttribute(ccCount.Count_Multiplier));
+                  writer.WriteAttributeString("SkipCount", GetAttribute(ccCount.Count_Skip));
+               }
+               writer.WriteEndElement(); //  End Misc
+
             }
             writer.WriteEndElement(); //  End Counter
          }
@@ -1279,6 +1324,7 @@ namespace EIP_Lib {
       }
 
       private void VerifyCount(XmlNode obj) {
+         XmlNode n;
          // Get data assigned by the printer
          GetAttribute(ccCount.First_Count_Block, out int FirstCountBlock);
          GetAttribute(ccCount.Number_Of_Count_Blocks, out int CountBlockCount);
@@ -1290,53 +1336,77 @@ namespace EIP_Lib {
             if (c.Name == "Counter" && int.TryParse(GetXmlAttr(c, "Block"), out int b) && b <= CountBlockCount) {
                int cb = FirstCountBlock + b - 1;
                SetAttribute(ccIDX.Count_Block, cb);
-               foreach (XmlAttribute a in c.Attributes) {
-                  switch (a.Name) {
-                     case "InitialValue":
-                        VerifyXml(c, "InitialValue", ccCount.Initial_Value, item, cb);
-                        break;
-                     case "Range1":
-                        VerifyXml(c, "Range1", ccCount.Count_Range_1, item, cb);
-                        break;
-                     case "Range2":
-                        VerifyXml(c, "Range2", ccCount.Count_Range_2, item, cb);
-                        break;
-                     case "UpdateIP":
-                        VerifyXml(c, "UpdateIP", ccCount.Update_Unit_Halfway, item, cb);
-                        break;
-                     case "UpdateUnit":
-                        VerifyXml(c, "UpdateUnit", ccCount.Update_Unit_Unit, item, cb);
-                        break;
-                     case "Increment":
-                        VerifyXml(c, "Increment", ccCount.Increment_Value, item, cb);
-                        break;
-                     case "CountUp":
-                        VerifyXml(c, "CountUp", ccCount.Direction_Value, item, cb);
-                        break;
-                     case "JumpFrom":
-                        VerifyXml(c, "JumpFrom", ccCount.Jump_From, item, cb);
-                        break;
-                     case "JumpTo":
-                        VerifyXml(c, "JumpTo", ccCount.Jump_To, item, cb);
-                        break;
-                     case "Reset":
-                        VerifyXml(c, "Reset", ccCount.Reset_Value, item, cb);
-                        break;
-                     case "ResetSignal":
-                        VerifyXml(c, "ResetSignal", ccCount.Type_Of_Reset_Signal, item, cb);
-                        break;
-                     case "ExternalSignal":
-                        VerifyXml(c, "ExternalSignal", ccCount.External_Count, item, cb);
-                        break;
-                     case "ZeroSuppression":
-                        VerifyXml(c, "ZeroSuppression", ccCount.Zero_Suppression, item, cb);
-                        break;
-                     case "Multiplier":
-                        VerifyXml(c, "Multiplier", ccCount.Count_Multiplier, item, cb);
-                        break;
-                     case "Skip":
-                        VerifyXml(c, "Skip", ccCount.Count_Skip, item, cb);
-                        break;
+
+               if ((n = c.SelectSingleNode("Range")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Range1":
+                           VerifyXml(c, "Range1", ccCount.Count_Range_1, item, cb);
+                           break;
+                        case "Range2":
+                           VerifyXml(c, "Range2", ccCount.Count_Range_2, item, cb);
+                           break;
+                        case "JumpFrom":
+                           VerifyXml(c, "JumpFrom", ccCount.Jump_From, item, cb);
+                           break;
+                        case "JumpTo":
+                           VerifyXml(c, "JumpTo", ccCount.Jump_To, item, cb);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Count")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "InitialValue":
+                           VerifyXml(c, "InitialValue", ccCount.Initial_Value, item, cb);
+                           break;
+                        case "Increment":
+                           VerifyXml(c, "Increment", ccCount.Increment_Value, item, cb);
+                           break;
+                        case "Direction":
+                           VerifyXml(c, "Direction", ccCount.Direction_Value, item, cb);
+                           break;
+                        case "ZeroSuppression":
+                           VerifyXml(c, "ZeroSuppression", ccCount.Zero_Suppression, item, cb);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Reset")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Type":
+                           VerifyXml(c, "Type", ccCount.Type_Of_Reset_Signal, item, cb);
+                           break;
+                        case "Value":
+                           VerifyXml(c, "Value", ccCount.Reset_Value, item, cb);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Misc")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "UpdateIP":
+                           VerifyXml(c, "UpdateIP", ccCount.Update_Unit_Halfway, item, cb);
+                           break;
+                        case "UpdateUnit":
+                           VerifyXml(c, "UpdateUnit", ccCount.Update_Unit_Unit, item, cb);
+                           break;
+                        case "ExternalSignal":
+                           VerifyXml(c, "ExternalSignal", ccCount.External_Count, item, cb);
+                           break;
+                        case "Multiplier":
+                           VerifyXml(c, "Multiplier", ccCount.Count_Multiplier, item, cb);
+                           break;
+                        case "Skip":
+                           VerifyXml(c, "Skip", ccCount.Count_Skip, item, cb);
+                           break;
+                     }
                   }
                }
             }

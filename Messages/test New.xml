@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Normal/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time Setup" SetupValue="50" Timer="0" />
+    <CharacterSize Height="2" Width="90" />
+    <PrintStartDelay Forward="0" Reverse="0" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="3" ChargeRule="Standard" />
+  </Printer>
+  <Message Layout="Individual">
+    <Column InterLineSpacing="0">
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1">
+          <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+          <ZeroSuppress Year="Disable" Month="Disable" Day="Disable" Hour="Disable" Minute="Disable" />
+          <Substitute Year="Disable" Month="Disable" Day="Disable" Hour="Disable" Minute="Disable" />
+        </Date>
+        <Text>{{MMM}/{DD}/{YY} {hh}:{mm}:{ss}}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>
