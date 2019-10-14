@@ -182,7 +182,7 @@ namespace EIP_Lib {
 
          chkAutoReflect = new CheckBox() { Text = "Auto Reflect.", Checked = true };
          chkErrorsOnly = new CheckBox() { Text = "Errors Only", Checked = true };
-         chkSerialize = new CheckBox() { Text = "Serialize", Checked = false };
+         chkSerialize = new CheckBox() { Text = "Serialize", Checked = true };
 
          tab.Controls.Add(tclViewXML);
 

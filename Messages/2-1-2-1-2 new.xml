@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Normal/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time Setup" SetupValue="50" Timer="0" />
+    <CharacterSize Height="2" Width="90" />
+    <PrintStartDelay Forward="0" Reverse="0" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="3" ChargeRule="Standard" />
+  </Printer>
+  <Message Layout="Individual">
+    <Column InterLineSpacing="1">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 1 </Text>
+      </Item>
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 2 </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="12x16" />
+        <BarCode />
+        <Text>3</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="1">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 4 </Text>
+      </Item>
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 5 </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="12x16" />
+        <BarCode />
+        <Text>6</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="1">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 7 </Text>
+      </Item>
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Text> 8 </Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

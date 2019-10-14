@@ -36,16 +36,22 @@ namespace EIP_Lib {
       }
 
       private void SendFileToPrinter_Click(object sender, EventArgs e) {
+         bool success = true;
          // Need a XMP Document to continue
          if (xmlDoc == null) {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
             if (chkSerialize.Checked) {
-               EIP.SendFileAsSerialization(XMLFileName, chkAutoReflect.Checked);
+               success = EIP.SendFileAsSerialization(XMLFileName, chkAutoReflect.Checked);
             } else {
-               EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
+               success = EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
             }
+         }
+         if (success) {
+            EIP.LogIt("Load Successful!");
+         } else {
+            EIP.LogIt("Load Failed!");
          }
       }
 
