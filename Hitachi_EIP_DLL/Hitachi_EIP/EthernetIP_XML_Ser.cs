@@ -68,7 +68,12 @@ namespace EIP_Lib {
    }
 
    public class BarCode {
-
+      [XmlAttribute]
+      public string HumanReadableFont;
+      [XmlAttribute]
+      public string EANPrefix;
+      [XmlAttribute]
+      public string Face;
    }
 
    public class Counter {
@@ -230,6 +235,7 @@ namespace EIP_Lib {
       public PrintStartDelay PrintStartDelay;
       public EncoderSettings EncoderSettings;
       public InkStream InkStream;
+      public Substitution Substitution;
       public Logos Logos;
    }
 
@@ -295,12 +301,39 @@ namespace EIP_Lib {
       [XmlAttribute]
       public string Layout;
       [XmlAttribute]
+      public string Face;
+      [XmlAttribute]
       public string Location;
       [XmlAttribute]
-      public string RawData;
-      [XmlAttribute]
       public string FileName;
+      [XmlAttribute]
+      public string RawData;
    }
+
+   public class Substitution {
+      [XmlAttribute]
+      public string Delimiter;
+      [XmlAttribute]
+      public string StartYear;
+      [XmlAttribute]
+      public string RuleNumber;
+
+      [XmlElement("Rule")]
+      public SubstitutionRule[] SubRule;
+
+   }
+
+   public class SubstitutionRule {
+      [XmlAttribute]
+      public string Type;
+      [XmlAttribute]
+      public string Base;
+
+      [XmlText]
+      public string Text;
+   }
+
+
    #endregion
 
    public partial class EIP {
@@ -419,6 +452,66 @@ namespace EIP_Lib {
 
             }
          }
+         if (p.Substitution != null && p.Substitution.SubRule != null) {
+            if (int.TryParse(p.Substitution.RuleNumber, out int ruleNumber)
+               && int.TryParse(p.Substitution.StartYear, out int year)
+               && p.Substitution.Delimiter.Length == 1) {
+               SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               SetAttribute(ccSR.Start_Year, year);
+               // Substitution rules cannot be set with Auto Reflection on
+               bool saveAR = UseAutomaticReflection;
+               UseAutomaticReflection = false;
+               SendSubstitution(p.Substitution, p.Substitution.Delimiter);
+               UseAutomaticReflection = saveAR;
+            }
+         }
+      }
+
+      private void SendSubstitution(Substitution s, string delimiter) {
+         for (int i = 0; i < s.SubRule.Length; i++) {
+            SubstitutionRule r = s.SubRule[i];
+            string type = r.Type;
+            switch (type) {
+               case "Year":
+                  SetSubValues(ccSR.Year, r, delimiter);
+                  break;
+               case "Month":
+                  SetSubValues(ccSR.Month, r, delimiter);
+                  break;
+               case "Day":
+                  SetSubValues(ccSR.Day, r, delimiter);
+                  break;
+               case "Hour":
+                  SetSubValues(ccSR.Hour, r, delimiter);
+                  break;
+               case "Minute":
+                  SetSubValues(ccSR.Minute, r, delimiter);
+                  break;
+               case "Week":
+                  SetSubValues(ccSR.Week, r, delimiter);
+                  break;
+               case "DayOfWeek":
+                  SetSubValues(ccSR.Day_Of_Week, r, delimiter);
+                  break;
+            }
+         }
+      }
+
+      private bool SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
+         bool success = true;
+         if (int.TryParse(r.Base, out int b)) {
+            Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
+            string[] s = r.Text.Split(delimeter[0]);
+            for (int i = 0; i < s.Length; i++) {
+               int n = b + i;
+               // Avoid user errors
+               if (n >= prop.Min && n <= prop.Max) {
+                  byte[] data = FormatOutput(prop, n, 1, s[i]);
+                  SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
+               }
+            }
+         }
+         return success;
       }
 
       private void SendMessage(Msg m) {
@@ -555,6 +648,7 @@ namespace EIP_Lib {
                // Process Shift
                if (date.Shift != null) {
                   for (int j = 0; j < date.Shift.Length; j++) {
+                     SetAttribute(ccIDX.Item, j + 1);
                      SetAttribute(ccIDX.Calendar_Block, date.Shift[j].ShiftNumber);
                      SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
                      SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
@@ -689,9 +783,58 @@ namespace EIP_Lib {
                InkDropUse = GetAttribute(ccPS.Ink_Drop_Use),
                ChargeRule = GetAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
+            Substitution = RetrieveSubstitutions(),
+            Logos = RetrieveLogos(),
          };
+
          // Logos TBD
          return p;
+      }
+
+      private Substitution RetrieveSubstitutions() {
+         List<SubstitutionRule> sr = new List<SubstitutionRule>();
+         //WriteSubstitution(sr, ccSR.Year, 0, 23);
+         RetrieveSubstitution(sr, ccSR.Month, 1, 12);
+         //WriteSubstitution(sr, ccSR.Day, 1, 31);
+         //WriteSubstitution(sr, ccSR.Hour, 0, 23);
+         //WriteSubstitution(sr, ccSR.Minute, 0, 59);
+         //WriteSubstitution(ccSR.Week, 1, 53);
+         RetrieveSubstitution(sr, ccSR.Day_Of_Week, 1, 7);
+         Substitution substitution = new Substitution() {
+            Delimiter = "/",
+            StartYear = GetAttribute(ccSR.Start_Year),
+            RuleNumber = "1",
+            SubRule = sr.ToArray()
+         };
+         return substitution;
+      }
+
+      private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR attr, int start, int end) {
+         int n = end - start + 1;
+         string[] subCode = new string[n];
+         for (int i = 0; i < n; i++) {
+            subCode[i] = GetAttribute(attr, i + start);
+         }
+         for (int i = 0; i < n; i += 10) {
+            sr.Add(new SubstitutionRule() {
+               Type = attr.ToString().Replace("_", ""),
+               Base = (i + start).ToString(),
+               Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
+            });
+         }
+      }
+
+      private Logos RetrieveLogos() {
+         Logos logos = new Logos();
+         logos.Logo = new Logo[1];
+         logos.Logo[0] = new Logo() {
+            Layout = "Fixed",
+            Face = "18x24",
+            Location = "0",
+            FileName = "Square 5x8",
+            RawData = "FF 81 81 99 99 81 81 FF",
+         };
+         return logos;
       }
 
       private Msg RetrieveMessage() {
@@ -747,6 +890,10 @@ namespace EIP_Lib {
          for (int i = 0; i < item.Location.calCount; i++) {
             SetAttribute(ccIDX.Calendar_Block, item.Location.calStart + i);
             item.Date[i] = new Date() { Block = i + 1 };
+            if ((mask[i] & DateOffset) > 0) {
+               item.Date[i].SubstitutionRule = "1";
+               item.Date[i].RuleName = "";
+            }
             if ((mask[i] & DateOffset) > 0) {
                item.Date[i].Offset = new Offset() {
                   Year = GetAttribute(ccCal.Offset_Year),
@@ -827,7 +974,7 @@ namespace EIP_Lib {
             SetAttribute(ccIDX.Count_Block, item.Location.calStart + i);
             item.Counter[i] = new Counter() { Block = i + 1 };
             item.Counter[i].Range = new Range() {
-              Range1 = GetAttribute(ccCount.Count_Range_1),
+               Range1 = GetAttribute(ccCount.Count_Range_1),
                Range2 = GetAttribute(ccCount.Count_Range_2),
                JumpFrom = GetAttribute(ccCount.Jump_From),
                JumpTo = GetAttribute(ccCount.Jump_To),

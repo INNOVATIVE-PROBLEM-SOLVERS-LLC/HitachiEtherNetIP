@@ -35,6 +35,7 @@ namespace EIP_Lib {
          SendFileToPrinter_Click(null, null);
       }
 
+      // Send xlmDoc from file to printer
       private void SendFileToPrinter_Click(object sender, EventArgs e) {
          bool success = true;
          // Need a XMP Document to continue
@@ -55,9 +56,8 @@ namespace EIP_Lib {
          }
       }
 
-
       // Generate an XML Doc from the printer contents
-      private void Generate_Click(object sender, EventArgs e) {
+      private void Retrieve_Click(object sender, EventArgs e) {
          if (chkSerialize.Checked) {
             XMLText = EIP.RetrieveXMLAsSerialization(chkSerialize.Checked);
          } else {

@@ -8,33 +8,41 @@
     <PrintStartDelay Forward="96" Reverse="96" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
     <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <Substitution Delimiter="/" StartYear="227" RuleNumber="1">
+      <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
+    </Substitution>
+    <Logos>
+      <Logo Layout="Fixed" Face="18x24" Location="0" RawData="FF 81 81 99 99 81 81 FF" FileName="Square 5x8" />
+    </Logos>
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="2">
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1">
+        <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
-          <Substitute Year="Disable" Month="Disable" Day="Disable" />
+          <Substitute Year="Disable" Month="Enable" Day="Disable" />
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1">
+        <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
           <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
-          <Substitute Year="Disable" Month="Disable" Day="Disable" />
+          <Substitute Year="Disable" Month="Enable" Day="Disable" />
         </Date>
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item Type="Date">
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
-        <Date Block="1">
+        <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress DayOfWeek="Disable" />
           <Substitute DayOfWeek="Disable" />
@@ -47,9 +55,9 @@
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
-          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="0" />
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
           <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="0" />
-          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="0" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
         </Date>
         <Text>Shift {E}}</Text>
       </Item>
@@ -57,7 +65,7 @@
         <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
-          <TimeCount Interval="-1202212427" Start="00" End="X2" ResetTime="6" ResetValue="A1" />
+          <TimeCount Interval="-1205358155" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
         </Date>
         <Text>TCount {{FF}} </Text>
       </Item>

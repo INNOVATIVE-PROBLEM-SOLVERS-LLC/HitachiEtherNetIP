@@ -28,7 +28,7 @@ namespace EIP_Lib {
       // Operating Buttons
       Button cmdOpen;
       Button cmdClear;
-      Button cmdGenerate;
+      Button cmdRetrieve;
       Button cmdSaveAs;
       Button cmdVerify;
       Button cmdSend;
@@ -122,7 +122,7 @@ namespace EIP_Lib {
          SetButtonEnables();
       }
 
-      // Save the generated XML file
+      // Save the Retrieved XML file
       private void SaveAs_Click(object sender, EventArgs e) {
          DialogResult dlgResult;
 
@@ -168,8 +168,8 @@ namespace EIP_Lib {
          cmdClear = new Button() { Text = "Clear" };
          cmdClear.Click += Clear_Click;
 
-         cmdGenerate = new Button() { Text = "Generate" };
-         cmdGenerate.Click += Generate_Click;
+         cmdRetrieve = new Button() { Text = "Retrieve" };
+         cmdRetrieve.Click += Retrieve_Click;
 
          cmdSaveAs = new Button() { Text = "Save As" };
          cmdSaveAs.Click += SaveAs_Click;
@@ -196,7 +196,7 @@ namespace EIP_Lib {
 
          tab.Controls.Add(cmdOpen);
          tab.Controls.Add(cmdClear);
-         tab.Controls.Add(cmdGenerate);
+         tab.Controls.Add(cmdRetrieve);
          tab.Controls.Add(cmdSaveAs);
          tab.Controls.Add(cmdSendFileToPrinter);
          tab.Controls.Add(cmdSendDisplayToPrinter);
@@ -263,7 +263,7 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, chkSerialize, tclHeight - 2, 1, 2, 4);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 5, 2.5f, 4);
-            Utils.ResizeObject(ref R, cmdGenerate, tclHeight - 3, 5, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdRetrieve, tclHeight - 3, 5, 2.5f, 4);
 
             Utils.ResizeObject(ref R, cmdSend, tclHeight - 6, 9.5f, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdVerify, tclHeight - 3, 9.5f, 2.5f, 4);
