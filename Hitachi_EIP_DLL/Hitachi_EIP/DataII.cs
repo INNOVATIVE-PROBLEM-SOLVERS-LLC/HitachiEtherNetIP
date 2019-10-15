@@ -168,7 +168,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal),              //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Set
-         new AttrData((byte)ccPF.Barcode_Type, GSS.GetSet, false, 5,            // Barcode Type 0x77
+         new AttrData((byte)ccPF.Barcode_Type, GSS.GetSet, false, 5,            // BarCode Type 0x77
             new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType),         //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Set
@@ -204,7 +204,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Set
-         new AttrData((byte)ccPF.Barcode_Printing, GSS.GetSet, false, 4,        // Barcode Printing 0x90
+         new AttrData((byte)ccPF.Barcode_Printing, GSS.GetSet, false, 4,        // BarCode Printing 0x90
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Set
@@ -556,7 +556,7 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None),            //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Set
-         new AttrData((byte)ccUI.Barcode_Information, GSS.Get, false, 1,        // Barcode Information 0x71
+         new AttrData((byte)ccUI.Barcode_Information, GSS.Get, false, 1,        // BarCode Information 0x71
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None)),                //   Set

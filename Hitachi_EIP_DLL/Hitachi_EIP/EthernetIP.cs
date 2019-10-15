@@ -397,7 +397,7 @@ namespace EIP_Lib {
                         "Code 128 (Code set C)", "UPC-A", "UPC-E", "EAN-8", "QR21x21", "QR25x25",
                         "QR29x29", "QR33x33", "EAN-13add-on5", "Micro QR (15 x 15)",
                         "GS1 DataBar (Limited)", "GS1 DataBar (Omnidirectional)",
-                        "GS1 DataBar (Stacked)", "DM14x14", },        // 9 - Barcode Types
+                        "GS1 DataBar (Stacked)", "DM14x14", },        // 9 - BarCode Types
          new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
          new string[] { "M 15%", "Q 25%" },                           // 11 - M 15%, Q 25%
          new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print

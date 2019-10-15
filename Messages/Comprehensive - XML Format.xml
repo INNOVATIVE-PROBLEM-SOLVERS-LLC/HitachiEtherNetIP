@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Label Version="1">
+  <Printer Make="Hitachi" Model="UX-D161W">
+    <PrintHead Orientation="Inverted/Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Until End of Print" SetupValue="50" Timer="0" />
+    <CharacterSize Height="90" Width="10" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
+    <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <Substitution Delimiter="/" StartYear="2019" RuleNumber="1">
+      <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
+    </Substitution>
+    <Logos Folder="C:\GitHubEtherNetIP\Messages">
+      <Logo Layout="Fixed" Face="18x24" Location="0" FileName="Square 5x8" RawData="FF 81 81 99 99 81 81 FF" />
+    </Logos>
+  </Printer>
+  <Message Layout="Individual">
+    <Column InterLineSpacing="2">
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+          <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
+          <Substitute Month="Enable" />
+        </Date>
+        <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
+          <ZeroSuppress Year="Disable" Month="Disable" Day="Space Fill" />
+          <Substitute Year="Disable" Month="Enable" Day="Disable" />
+        </Date>
+        <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+          <ZeroSuppress DayOfWeek="Disable" />
+          <Substitute DayOfWeek="Enable" />
+        </Date>
+        <Text>PACKED  {{TTT} {777}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1">
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+        </Date>
+        <Text>Shift {{E}}</Text>
+      </Item>
+      <Item Type="Date">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Date Block="1">
+          <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        </Date>
+        <Text>TCount {{FF}} </Text>
+      </Item>
+      <Item Type="Counter">
+        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <BarCode />
+        <Counter Block="1">
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="Enable" />
+          <Reset Type="Signal 1" Value="000001" />
+          <Misc UpdateUnit="1" UpdateIP="0" Multiplier="" />
+        </Counter>
+        <Text># {{CCCCCC}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item Type="Text">
+        <Font IncreasedWidth="1" InterCharacterSpace="2" Face="18x24" />
+        <BarCode />
+        <Text>{X/000}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

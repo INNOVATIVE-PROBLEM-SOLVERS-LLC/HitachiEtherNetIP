@@ -64,6 +64,8 @@ namespace EIP_Lib {
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
          (int)ba.Week | (int)ba.DayOfWeek;
 
+      const int DateUseSubRule = DateOffset;
+
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
@@ -174,13 +176,6 @@ namespace EIP_Lib {
                   SetAttribute(ccPS.Ink_Drop_Use, GetXmlAttr(c, "InkDropUse"));
                   SetAttribute(ccPS.Ink_Drop_Charge_Rule, GetXmlAttr(c, "ChargeRule"));
                   break;
-               case "TwinNozzle":
-                  // Not supported in EtherNet/IP
-                  //this.LeadingCharacterControl = GetAttr(c, "LeadingCharControl", 0);
-                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth1", 32);
-                  //this.LeadingCharacterControlWidth1 = GetAttr(c, "LeadingCharControlWidth2", 32);
-                  //this.NozzleSpaceAlignment = GetAttr(c, "NozzleSpaceAlignment", 0);
-                  break;
                case "Substitution":
                   SendSubstitution(c);
                   break;
@@ -200,7 +195,7 @@ namespace EIP_Lib {
          byte[] data;
 
          // Get the standard attributes for substitution
-         string rule = GetXmlAttr(p, "Rule");
+         string rule = GetXmlAttr(p, "RuleNumber");
          string startYear = GetXmlAttr(p, "StartYear");
          string delimiter = GetXmlAttr(p, "Delimiter");
 
@@ -219,29 +214,34 @@ namespace EIP_Lib {
             // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
-                  case "Year":
-                     SetSubValues(ccSR.Year, c, delimiter);
-                     break;
-                  case "Month":
-                     SetSubValues(ccSR.Month, c, delimiter);
-                     break;
-                  case "Day":
-                     SetSubValues(ccSR.Day, c, delimiter);
-                     break;
-                  case "Hour":
-                     SetSubValues(ccSR.Hour, c, delimiter);
-                     break;
-                  case "Minute":
-                     SetSubValues(ccSR.Minute, c, delimiter);
-                     break;
-                  case "Week":
-                     SetSubValues(ccSR.Week, c, delimiter);
-                     break;
-                  case "DayOfWeek":
-                     SetSubValues(ccSR.Day_Of_Week, c, delimiter);
-                     break;
-                  case "Skip":
-                     // Do not process these nodes
+                  case "Rule":
+                     string type = GetXmlAttr(c, "Type");
+                     switch (type) {
+                        case "Year":
+                           SetSubValues(ccSR.Year, c, delimiter);
+                           break;
+                        case "Month":
+                           SetSubValues(ccSR.Month, c, delimiter);
+                           break;
+                        case "Day":
+                           SetSubValues(ccSR.Day, c, delimiter);
+                           break;
+                        case "Hour":
+                           SetSubValues(ccSR.Hour, c, delimiter);
+                           break;
+                        case "Minute":
+                           SetSubValues(ccSR.Minute, c, delimiter);
+                           break;
+                        case "Week":
+                           SetSubValues(ccSR.Week, c, delimiter);
+                           break;
+                        case "DayOfWeek":
+                           SetSubValues(ccSR.Day_Of_Week, c, delimiter);
+                           break;
+                        case "Skip":
+                           // Do not process these nodes
+                           break;
+                     }
                      break;
                }
             }
@@ -629,53 +629,58 @@ namespace EIP_Lib {
                         {
                            writer.WriteAttributeString("Version", "1");
                            RetrievePrinterSettings(writer);
-                           writer.WriteStartElement("Objects"); // Start Objects
+                           writer.WriteStartElement("Message"); // Start Message
                            {
+                              writer.WriteAttributeString("Layout", GetAttribute(ccPF.Format_Type));
                               int item = 0;
                               GetAttribute(ccPF.Number_Of_Columns, out int colCount);
                               for (int col = 1; col <= colCount; col++) {
                                  SetAttribute(ccIDX.Column, col);
-                                 GetAttribute(ccPF.Line_Count, out int LineCount);
-                                 for (int row = LineCount; row > 0; row--) {
-                                    SetAttribute(ccIDX.Item, ++item);
-                                    GetAttribute(ccPF.Print_Character_String, out string text);
-                                    GetAttribute(ccCal.Number_of_Calendar_Blocks, out int calBlocks);
-                                    GetAttribute(ccCount.Number_Of_Count_Blocks, out int cntBlocks);
-                                    int[] mask = new int[1 + Math.Max(calBlocks, cntBlocks)];
-                                    itemType = GetItemType(text, ref mask);
-                                    writer.WriteStartElement("Object"); // Start Object
-                                    {
-                                       writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
+                                 writer.WriteStartElement("Column"); // Start Column
+                                 {
+                                    writer.WriteAttributeString("InterLineSpacing", GetAttribute(ccPF.Line_Spacing));
 
-                                       RetrieveFont(writer);
+                                    GetAttribute(ccPF.Line_Count, out int LineCount);
+                                    for (int row = LineCount; row > 0; row--) {
+                                       SetAttribute(ccIDX.Item, ++item);
+                                       GetAttribute(ccPF.Print_Character_String, out string text);
+                                       GetAttribute(ccCal.Number_of_Calendar_Blocks, out int calBlocks);
+                                       GetAttribute(ccCount.Number_Of_Count_Blocks, out int cntBlocks);
+                                       int[] mask = new int[1 + Math.Max(calBlocks, cntBlocks)];
+                                       itemType = GetItemType(text, ref mask);
+                                       writer.WriteStartElement("Item"); // Start Item
+                                       {
+                                          writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
 
-                                       RetrieveLocation(writer, item, row, col);
+                                          RetrieveFont(writer);
 
-                                       switch (itemType) {
-                                          case ItemType.Text:
-                                             break;
-                                          case ItemType.Date:
-                                             // Missing multiple calendar block logic
-                                             RetrieveCalendarSettings(writer, mask);
-                                             break;
-                                          case ItemType.Counter:
-                                             // Missing multiple counter block logic
-                                             RetrieveCounterSettings(writer);
-                                             break;
-                                          case ItemType.Logo:
-                                             RetrieveUserPatternSettings(writer);
-                                             break;
-                                          default:
-                                             break;
+                                          switch (itemType) {
+                                             case ItemType.Text:
+                                                break;
+                                             case ItemType.Date:
+                                                // Missing multiple calendar block logic
+                                                RetrieveCalendarSettings(writer, mask);
+                                                break;
+                                             case ItemType.Counter:
+                                                // Missing multiple counter block logic
+                                                RetrieveCounterSettings(writer);
+                                                break;
+                                             case ItemType.Logo:
+                                                RetrieveUserPatternSettings(writer);
+                                                break;
+                                             default:
+                                                break;
+                                          }
+
+                                          writer.WriteElementString("Text", text);
                                        }
-
-                                       writer.WriteElementString("Text", text);
+                                       writer.WriteEndElement(); // End Item
                                     }
-                                    writer.WriteEndElement(); // End Object
                                  }
+                                 writer.WriteEndElement(); // End Colomn
                               }
                            }
-                           writer.WriteEndElement(); // End Objects
+                           writer.WriteEndElement(); // End Message
                         }
                         writer.WriteEndElement(); // End Label
                      } catch (EIPIOException e1) {
@@ -749,15 +754,15 @@ namespace EIP_Lib {
 
             writer.WriteStartElement("CharacterSize");
             {
-               writer.WriteAttributeString("Height", GetAttribute(ccPS.Character_Width));
-               writer.WriteAttributeString("Width", GetAttribute(ccPS.Character_Height));
+               writer.WriteAttributeString("Height", GetAttribute(ccPS.Character_Height));
+               writer.WriteAttributeString("Width", GetAttribute(ccPS.Character_Width));
             }
             writer.WriteEndElement(); // CharacterSize
 
             writer.WriteStartElement("PrintStartDelay");
             {
-               writer.WriteAttributeString("Reverse", GetAttribute(ccPS.Print_Start_Delay_Forward));
-               writer.WriteAttributeString("Forward", GetAttribute(ccPS.Print_Start_Delay_Reverse));
+               writer.WriteAttributeString("Forward", GetAttribute(ccPS.Print_Start_Delay_Forward));
+               writer.WriteAttributeString("Reverse", GetAttribute(ccPS.Print_Start_Delay_Reverse));
             }
             writer.WriteEndElement(); // PrintStartDelay
 
@@ -776,18 +781,23 @@ namespace EIP_Lib {
             }
             writer.WriteEndElement(); // InkStream
 
-            writer.WriteStartElement("TwinNozzle");
-            {
-               //writer.WriteAttributeString("LeadingCharControl", this.LeadingCharacterControl.ToString());
-               //writer.WriteAttributeString("LeadingCharControlWidth1", this.LeadingCharacterControlWidth1.ToString());
-               //writer.WriteAttributeString("LeadingCharControlWidth2", this.LeadingCharacterControlWidth2.ToString());
-               //writer.WriteAttributeString("NozzleSpaceAlignment", this.NozzleSpaceAlignment.ToString());
-            }
-            writer.WriteEndElement(); // TwinNozzle
-
             RetrieveSubstitutions(writer);
+
+            RetrieveLogos(writer);
          }
          writer.WriteEndElement(); // Printer
+      }
+
+      private void RetrieveLogos(XmlTextWriter writer) {
+         // This needs to be expanded when the printer fixes logos
+         writer.WriteStartElement("Logos");
+         {
+            writer.WriteStartElement("Logo");
+            {
+            }
+            writer.WriteEndElement(); // Logo
+         }
+         writer.WriteEndElement(); // Logos
       }
 
       // This is a work in progress
@@ -798,7 +808,7 @@ namespace EIP_Lib {
          {
             writer.WriteAttributeString("Delimiter", "/");
             writer.WriteAttributeString("StartYear", "2019");
-            writer.WriteAttributeString("Rule", "1");
+            writer.WriteAttributeString("RuleNumber", "1");
             //WriteSubstitution(writer, ccSR.Year, 0, 23);
             RetrieveSubstitution(writer, ccSR.Month, 1, 12);
             //WriteSubstitution(writer, ccSR.Day, 1, 31);
@@ -818,7 +828,8 @@ namespace EIP_Lib {
             subCode[i] = GetAttribute(attr, i + start);
          }
          for (int i = 0; i < n; i += 10) {
-            writer.WriteStartElement(attr.ToString().Replace("_", ""));
+            writer.WriteStartElement("Rule");
+            writer.WriteAttributeString("Type", attr.ToString().Replace("_", ""));
             writer.WriteAttributeString("Base", (i + start).ToString());
             writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
             writer.WriteEndElement(); // Element
@@ -829,29 +840,22 @@ namespace EIP_Lib {
       private void RetrieveFont(XmlTextWriter writer) {
          writer.WriteStartElement("Font"); // Start Font
          {
+            writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
+            writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
+            writer.WriteAttributeString("Face", GetAttribute(ccPF.Dot_Matrix));
+         }
+         writer.WriteEndElement(); // End Font
+
+         writer.WriteStartElement("BarCode"); // Start Barcode
+         {
             string BarCode = GetAttribute(ccPF.Barcode_Type);
-            writer.WriteAttributeString("BarCode", BarCode);
             if (BarCode != "None") {
                writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
                writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
+               writer.WriteAttributeString("Face", BarCode);
             }
-            writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
-            writer.WriteAttributeString("InterLineSpace", GetAttribute(ccPF.Line_Spacing));
-            writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
-            writer.WriteString(GetAttribute(ccPF.Dot_Matrix));
          }
-         writer.WriteEndElement(); // End Font
-      }
-
-      // Retrieve the ites location
-      private void RetrieveLocation(XmlTextWriter writer, int item, int row, int col) {
-         writer.WriteStartElement("Location"); // Start Location
-         {
-            writer.WriteAttributeString("ItemNumber", item.ToString());
-            writer.WriteAttributeString("Row", row.ToString());
-            writer.WriteAttributeString("Column", col.ToString());
-         }
-         writer.WriteEndElement(); // End Location
+         writer.WriteEndElement(); // End BarCode
       }
 
       // Retrieve the Calendar Settings
@@ -864,16 +868,22 @@ namespace EIP_Lib {
             writer.WriteStartElement("Date"); // Start Date
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
-               // Offsets are always required
-               writer.WriteStartElement("Offset"); // Start Offset
-               {
-                  writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
-                  writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
-                  writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
-                  writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
-                  writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
+               if ((mask[i] & DateUseSubRule) > 0) {
+                  writer.WriteAttributeString("SubstitutionRule", "1");
+                  writer.WriteAttributeString("RuleName", "");
                }
-               writer.WriteEndElement(); // End Offset
+
+               if ((mask[i] & DateOffset) > 0) { // Not always needed
+                  writer.WriteStartElement("Offset"); // Start Offset
+                  {
+                     writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
+                     writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
+                     writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
+                     writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
+                     writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
+                  }
+                  writer.WriteEndElement(); // End Offset
+               }
 
                if ((mask[i] & DateSubZS) > 0) {
                   writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
@@ -895,7 +905,7 @@ namespace EIP_Lib {
                   }
                   writer.WriteEndElement(); // End ZeroSuppress
 
-                  writer.WriteStartElement("EnableSubstitution"); // Start EnableSubstitution
+                  writer.WriteStartElement("Substitute"); // Start Substitute
                   {
                      if ((mask[i] & (int)ba.Year) > 0)
                         writer.WriteAttributeString("Year", GetAttribute(ccCal.Substitute_Year));
@@ -920,17 +930,17 @@ namespace EIP_Lib {
                   string endMinute;
                   int shift = 1;
                   do {
-                     writer.WriteStartElement("ShiftCode"); // Start ShiftCode
+                     writer.WriteStartElement("Shift"); // Start Shift
                      {
                         SetAttribute(ccIDX.Item, shift);
-                        writer.WriteAttributeString("Shift", shift.ToString());
+                        writer.WriteAttributeString("ShiftNumber", shift.ToString());
                         writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
                         writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
                         writer.WriteAttributeString("EndHour", endHour = GetAttribute(ccCal.Shift_End_Hour));
                         writer.WriteAttributeString("EndMinute", endMinute = GetAttribute(ccCal.Shift_End_Minute));
                         writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
                      }
-                     writer.WriteEndElement(); // End ShiftCode
+                     writer.WriteEndElement(); // End Shift
                      shift++;
                   } while (endHour != "23" || endMinute != "59");
                }
