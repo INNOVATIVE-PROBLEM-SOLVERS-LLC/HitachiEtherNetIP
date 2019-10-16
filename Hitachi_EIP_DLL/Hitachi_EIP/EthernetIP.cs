@@ -881,7 +881,7 @@ namespace EIP_Lib {
          AutomaticReflect(AccessCode.Set);
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
-         if (attr.Set.Fmt == DataFormats.UTF8) {
+         if (attr.Set.Fmt == DataFormats.UTF8 || attr.Set.Fmt == DataFormats.UTF8N) {
             data = FormatOutput(attr.Set, n.ToString());
          } else {
             data = FormatOutput(attr.Set, n);

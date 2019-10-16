@@ -605,36 +605,75 @@ namespace EIP_Lib {
 
                // Process Offset
                Offset o = date.Offset;
+               int n;
                if (o != null) {
-                  SetAttribute(ccCal.Offset_Year, o.Year);
-                  SetAttribute(ccCal.Offset_Month, o.Month);
-                  SetAttribute(ccCal.Offset_Day, o.Day);
-                  SetAttribute(ccCal.Offset_Hour, o.Hour);
-                  SetAttribute(ccCal.Offset_Minute, o.Minute);
+                  if (int.TryParse(o.Year, out n) && n != 0) {
+                     SetAttribute(ccCal.Offset_Year, n);
+                  }
+                  if (int.TryParse(o.Month, out n) && n != 0) {
+                     SetAttribute(ccCal.Offset_Month, n);
+                  }
+                  if (int.TryParse(o.Day, out n) && n != 0) {
+                     SetAttribute(ccCal.Offset_Day, n);
+                  }
+                  if (int.TryParse(o.Hour, out n) && n != 0) {
+                     SetAttribute(ccCal.Offset_Hour, n);
+                  }
+                  if (int.TryParse(o.Minute, out n) && n != 0) {
+                     SetAttribute(ccCal.Offset_Minute, n);
+                  }
                }
 
                // Process Zero Suppress
                ZeroSuppress zs = date.ZeroSuppress;
                if (zs != null) {
-                  SetAttribute(ccCal.Zero_Suppress_Year, zs.Year);
-                  SetAttribute(ccCal.Zero_Suppress_Month, zs.Month);
-                  SetAttribute(ccCal.Zero_Suppress_Day, zs.Day);
-                  SetAttribute(ccCal.Zero_Suppress_Hour, zs.Hour);
-                  SetAttribute(ccCal.Zero_Suppress_Minute, zs.Minute);
-                  SetAttribute(ccCal.Zero_Suppress_Weeks, zs.Week);
-                  SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, zs.DayOfWeek);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
+                     SetAttribute(ccCal.Zero_Suppress_Year, zs.Year);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
+                     SetAttribute(ccCal.Zero_Suppress_Month, zs.Month);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
+                     SetAttribute(ccCal.Zero_Suppress_Day, zs.Day);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
+                     SetAttribute(ccCal.Zero_Suppress_Hour, zs.Hour);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
+                     SetAttribute(ccCal.Zero_Suppress_Minute, zs.Minute);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
+                     SetAttribute(ccCal.Zero_Suppress_Weeks, zs.Week);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
+                     SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, zs.DayOfWeek);
+                  }
                }
 
                // Process Substitutions
                Substitute s = date.Substitute;
                if (s != null) {
-                  SetAttribute(ccCal.Substitute_Year, s.Year);
-                  SetAttribute(ccCal.Substitute_Month, s.Month);
-                  SetAttribute(ccCal.Substitute_Day, s.Day);
-                  SetAttribute(ccCal.Substitute_Hour, s.Hour);
-                  SetAttribute(ccCal.Substitute_Minute, s.Minute);
-                  SetAttribute(ccCal.Substitute_Weeks, s.Week);
-                  SetAttribute(ccCal.Substitute_Day_Of_Week, s.DayOfWeek);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Year)) {
+                     SetAttribute(ccCal.Substitute_Year, s.Year);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Month)) {
+                     SetAttribute(ccCal.Substitute_Month, s.Month);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Day)) {
+                     SetAttribute(ccCal.Substitute_Day, s.Day);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Hour)) {
+                     SetAttribute(ccCal.Substitute_Hour, s.Hour);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Minute)) {
+                     SetAttribute(ccCal.Substitute_Minute, s.Minute);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Week)) {
+                     SetAttribute(ccCal.Substitute_Weeks, s.Week);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.DayOfWeek)) {
+                     SetAttribute(ccCal.Substitute_Day_Of_Week, s.DayOfWeek);
+                  }
                }
 
                // Process Time Count
@@ -1017,6 +1056,21 @@ namespace EIP_Lib {
       private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e) {
          System.Xml.XmlAttribute attr = e.Attr;
          LogIt($"Unknown Node:{attr.Name}\t{attr.Value}");
+      }
+
+      private bool IsDefaultValue(fmtDD fmt, string s) {
+         if (string.IsNullOrEmpty(s)) {
+            return true;
+         }
+         if (int.TryParse(s, out int val)) {
+            return val == 0;
+         }
+         if (bool.TryParse(s, out bool b)) {
+            return !b;
+         }
+         s = s.ToLower();
+         val = Array.FindIndex(DropDowns[(int)fmt], x => x.ToLower().Contains(s));
+         return val == 0;
       }
 
       #endregion
