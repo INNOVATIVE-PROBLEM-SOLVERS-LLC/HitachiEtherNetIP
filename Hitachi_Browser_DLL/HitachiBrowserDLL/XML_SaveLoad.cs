@@ -59,7 +59,7 @@ namespace EIP_Lib {
       // Generate an XML Doc from the printer contents
       private void Retrieve_Click(object sender, EventArgs e) {
          if (chkSerialize.Checked) {
-            XMLText = EIP.RetrieveXMLAsSerialization(chkSerialize.Checked);
+            XMLText = EIP.RetrieveXMLAsSerialization();
          } else {
             XMLText = EIP.RetrieveXML();
          }
