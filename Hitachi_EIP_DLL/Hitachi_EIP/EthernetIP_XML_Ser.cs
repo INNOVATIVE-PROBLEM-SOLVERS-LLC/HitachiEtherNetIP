@@ -60,9 +60,9 @@ namespace EIP_Lib {
 
    public class FontDef {
       [XmlAttribute]
-      public string IncreasedWidth;
-      [XmlAttribute]
       public string InterCharacterSpace;
+      [XmlAttribute]
+      public string IncreasedWidth;
       [XmlAttribute]
       public string Face;
    }
@@ -117,15 +117,15 @@ namespace EIP_Lib {
 
    public class Misc {
       [XmlAttribute]
-      public string UpdateUnit;
-      [XmlAttribute]
       public string UpdateIP;
       [XmlAttribute]
-      public string Multiplier;
+      public string UpdateUnit;
       [XmlAttribute]
       public string ExternalCount;
       [XmlAttribute]
-      public string CountSkip;
+      public string Multiplier;
+      [XmlAttribute]
+      public string SkipCount;
    }
 
    public class Date {
@@ -262,9 +262,9 @@ namespace EIP_Lib {
 
    public class CharacterSize {
       [XmlAttribute]
-      public string Height;
-      [XmlAttribute]
       public string Width;
+      [XmlAttribute]
+      public string Height;
    }
 
    public class PrintStartDelay {
@@ -456,12 +456,14 @@ namespace EIP_Lib {
             if (int.TryParse(p.Substitution.RuleNumber, out int ruleNumber)
                && int.TryParse(p.Substitution.StartYear, out int year)
                && p.Substitution.Delimiter.Length == 1) {
-               SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
-               SetAttribute(ccSR.Start_Year, year);
                // Substitution rules cannot be set with Auto Reflection on
                bool saveAR = UseAutomaticReflection;
                UseAutomaticReflection = false;
+
+               SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               SetAttribute(ccSR.Start_Year, year);
                SendSubstitution(p.Substitution, p.Substitution.Delimiter);
+
                UseAutomaticReflection = saveAR;
             }
          }
@@ -538,9 +540,9 @@ namespace EIP_Lib {
                SetAttribute(ccIDX.Item, index + 1);
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
+                  SetAttribute(ccPF.Dot_Matrix, item.Font.Face);
                   SetAttribute(ccPF.InterCharacter_Space, item.Font.InterCharacterSpace);
                   SetAttribute(ccPF.Character_Bold, item.Font.IncreasedWidth);
-                  SetAttribute(ccPF.Dot_Matrix, item.Font.Face);
                }
                SetAttribute(ccPF.Print_Character_String, item.Text);
                hasDateOrCount |= item.Date != null | item.Counter != null;
@@ -638,22 +640,20 @@ namespace EIP_Lib {
                // Process Time Count
                TimeCount tc = date.TimeCount;
                if (tc != null) {
+                  SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
                   SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
                   SetAttribute(ccCal.Time_Count_End_Value, tc.End);
-                  SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
                   SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
-                  SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
+                  SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
                }
 
                // Process Shift
                if (date.Shift != null) {
                   for (int j = 0; j < date.Shift.Length; j++) {
-                     SetAttribute(ccIDX.Item, j + 1);
+                     //SetAttribute(ccIDX.Item, j + 1);
                      SetAttribute(ccIDX.Calendar_Block, date.Shift[j].ShiftNumber);
                      SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
                      SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
-                     //SetAttribute(ccCal.Shift_End_Hour, date.Shift[j].EndHour);     // Get Only
-                     //SetAttribute(ccCal.Shift_End_Minute, date.Shift[j].EndMinute); // Get only
                      SetAttribute(ccCal.Shift_String_Value, date.Shift[j].ShiftCode);
                   }
                }
@@ -667,7 +667,7 @@ namespace EIP_Lib {
          for (int i = 0; i < item.Counter.Length; i++) {
             Counter c = item.Counter[i];
             if (c.Block <= countCount) {
-
+               SetAttribute(ccIDX.Count_Block, countStart + c.Block - 1);
                // Process Range
                Range r = c.Range;
                if (r != null) {
@@ -696,11 +696,11 @@ namespace EIP_Lib {
                // Process Misc
                Misc m = c.Misc;
                if (m != null) {
-                  SetAttribute(ccCount.Update_Unit_Halfway, m.UpdateIP);
                   SetAttribute(ccCount.Update_Unit_Unit, m.UpdateUnit);
+                  SetAttribute(ccCount.Update_Unit_Halfway, m.UpdateIP);
                   SetAttribute(ccCount.External_Count, m.ExternalCount);
                   SetAttribute(ccCount.Count_Multiplier, m.Multiplier);
-                  SetAttribute(ccCount.Count_Skip, m.CountSkip);
+                  SetAttribute(ccCount.Count_Skip, m.SkipCount);
                }
             }
          }
@@ -710,9 +710,9 @@ namespace EIP_Lib {
 
       #region Retrieve XML from printer using Serialization
 
-      public string RetrieveXMLAsSerialization(bool AutoReflect = false) {
+      public string RetrieveXMLAsSerialization() {
          string xml = string.Empty;
-         UseAutomaticReflection = AutoReflect; // Speed up processing
+         UseAutomaticReflection = false; // Never want Auto Reflescion on
          if (StartSession(true)) {
             if (ForwardOpen()) {
                try {
@@ -864,6 +864,13 @@ namespace EIP_Lib {
                   },
                   BarCode = new BarCode(),
                };
+               string barcode = GetAttribute(ccPF.Barcode_Type);
+               if (barcode != "None") {
+                  item.BarCode.HumanReadableFont = GetAttribute(ccPF.Readable_Code);
+                  item.BarCode.EANPrefix = GetAttribute(ccPF.Prefix_Code);
+                  item.BarCode.Face = barcode;
+               }
+
                item.Location = new Location() { Index = index, Row = row, Col = col };
                GetAttribute(ccCal.Number_of_Calendar_Blocks, out item.Location.calCount);
                if (item.Location.calCount > 0) {
@@ -994,7 +1001,7 @@ namespace EIP_Lib {
                UpdateUnit = GetAttribute(ccCount.Update_Unit_Unit),
                ExternalCount = GetAttribute(ccCount.External_Count),
                Multiplier = GetAttribute(ccCount.Count_Multiplier),
-               CountSkip = GetAttribute(ccCount.Count_Skip),
+               SkipCount = GetAttribute(ccCount.Count_Skip),
             };
          }
       }

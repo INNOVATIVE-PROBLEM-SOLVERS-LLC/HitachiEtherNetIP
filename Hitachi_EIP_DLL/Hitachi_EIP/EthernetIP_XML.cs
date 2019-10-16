@@ -99,9 +99,7 @@ namespace EIP_Lib {
 
                   XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
                   if (objs != null) {
-                     if (success = AllocateRowsColumns(objs.ChildNodes)) { // Allocate rows and columns
-                        success = LoadObjects(objs.ChildNodes);            // Send the objects one at a time}
-                     }
+                     success = AllocateRowsColumns(objs.ChildNodes); // Allocate rows and columns
                   }
 
                   XmlNode prnt = xmlDoc.SelectSingleNode("Label/Printer");
@@ -164,8 +162,8 @@ namespace EIP_Lib {
                   SetAttribute(ccPS.Character_Height, GetXmlAttr(c, "Height"));
                   break;
                case "PrintStartDelay":
-                  SetAttribute(ccPS.Print_Start_Delay_Reverse, GetXmlAttr(c, "Reverse"));
                   SetAttribute(ccPS.Print_Start_Delay_Forward, GetXmlAttr(c, "Forward"));
+                  SetAttribute(ccPS.Print_Start_Delay_Reverse, GetXmlAttr(c, "Reverse"));
                   break;
                case "EncoderSettings":
                   SetAttribute(ccPS.High_Speed_Print, GetXmlAttr(c, "HighSpeedPrinting"));
@@ -273,6 +271,8 @@ namespace EIP_Lib {
 
       // Allocate rows, columns, and inner-line spacing 
       private bool AllocateRowsColumns(XmlNodeList objs) {
+         bool hasDateOrCount = false;
+         XmlNode n;
          Items = new List<XmlNode>();
          bool success = true;
          int[] columns = new int[100];
@@ -302,6 +302,7 @@ namespace EIP_Lib {
          }
 
          // Allocate the rows and columns
+         int i = 0;
          for (int col = 0; col < maxCol; col++) {
             if (columns[col] == 0) {
                return false;
@@ -316,65 +317,63 @@ namespace EIP_Lib {
                SetAttribute(ccIDX.Column, col + 1);
                SetAttribute(ccPF.Line_Spacing, ILS[col]);
             }
+            for (int row = 0; row < columns[col]; row++) {
+               SetAttribute(ccIDX.Item, i + 1);
+               XmlNode item = Items[i];
+               if ((n = Items[i].SelectSingleNode("Font")) != null) {
+                  SetAttribute(ccPF.Dot_Matrix, GetXmlAttr(n, "Face"));
+                  SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
+                  SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
+                  SetAttribute(ccPF.Print_Character_String, GetXmlValue(Items[i].SelectSingleNode("Text"))); // Load the text last
+               }
+               hasDateOrCount |= Items[i].SelectSingleNode("Date") != null | Items[i].SelectSingleNode("Counter") != null;
+               i++;
+            }
+         }
+         if (hasDateOrCount) {
+            SendDateCount();
          }
          return success;
       }
 
       // Load objects
-      private bool LoadObjects(XmlNodeList objs) {
-         bool hasDateOrCount = false;
+      private bool SendDateCount() {
          bool success = true;
-         XmlNode n;
+         bool saveAR = UseAutomaticReflection;
+         UseAutomaticReflection = false;
+
+         int[] calStart = new int[Items.Count];
+         int[] calCount = new int[Items.Count];
+         int[] countStart = new int[Items.Count];
+         int[] countCount = new int[Items.Count];
+
          for (int i = 0; i < Items.Count; i++) {
-            SetAttribute(ccIDX.Item, i + 1);
-            XmlNode item = Items[i];
-            if ((n = Items[i].SelectSingleNode("Font")) != null) {
-               SetAttribute(ccPF.Dot_Matrix, GetXmlAttr(n, "Face"));
-               SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
-               SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
-               SetAttribute(ccPF.Print_Character_String, GetXmlValue(Items[i].SelectSingleNode("Text"))); // Load the text last
+            if (Items[i].SelectSingleNode("Date") != null) {
+               SetAttribute(ccIDX.Item, i + 1);
+               GetAttribute(ccCal.Number_of_Calendar_Blocks, out calCount[i]);
+               if (calCount[i] > 0) {
+                  GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
+               }
             }
-            hasDateOrCount |= Items[i].SelectSingleNode("Date") != null | Items[i].SelectSingleNode("Counter") != null;
+            if (Items[i].SelectSingleNode("Counter") != null) {
+               SetAttribute(ccIDX.Item, i + 1);
+               GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
+               if (countCount[i] > 0) {
+                  GetAttribute(ccCount.First_Count_Block, out countStart[i]);
+               }
+            }
          }
 
-         if (hasDateOrCount) {
-            bool saveAR = UseAutomaticReflection;
-            UseAutomaticReflection = false;
+         UseAutomaticReflection = saveAR;
 
-            GetAttribute(ccPF.Number_Of_Items, out int items);
-
-            int[] calStart = new int[items];
-            int[] calCount = new int[items];
-            int[] countStart = new int[items];
-            int[] countCount = new int[items];
-            Debug.Assert(items == Items.Count, $"Item counts do not match!  Expected = {items}, Actual = {Items.Count}!");
-
-            for (int i = 0; i < Items.Count; i++) {
-               if (Items[i].SelectSingleNode("Date") != null) {
-                  SetAttribute(ccIDX.Item, i + 1);
-                  GetAttribute(ccCal.Number_of_Calendar_Blocks, out calCount[i]);
-                  if (calCount[i] > 0) {
-                     GetAttribute(ccCal.First_Calendar_Block, out calStart[i]);
-                  }
-               }
-               if (Items[i].SelectSingleNode("Counter") != null) {
-                  SetAttribute(ccIDX.Item, i + 1);
-                  GetAttribute(ccCount.Number_Of_Count_Blocks, out countCount[i]);
-                  if (countCount[i] > 0) {
-                     GetAttribute(ccCount.First_Count_Block, out countStart[i]);
-                  }
-               }
+         for (int i = 0; i < Items.Count; i++) {
+            if (Items[i].SelectSingleNode("Date") != null) {
+               SetAttribute(ccIDX.Item, i + 1);
+               LoadCalendar(Items[i], calCount[i], calStart[i]);
             }
-
-            UseAutomaticReflection = saveAR;
-
-            for (int i = 0; i < Items.Count; i++) {
-               if (Items[i].SelectSingleNode("Date") != null) {
-                  LoadCalendar(Items[i], calCount[i], calStart[i]);
-               }
-               if (Items[i].SelectSingleNode("Counter") != null) {
-                  LoadCount(Items[i], countCount[i], countStart[i]);
-               }
+            if (Items[i].SelectSingleNode("Counter") != null) {
+               SetAttribute(ccIDX.Item, i + 1);
+               LoadCount(Items[i], countCount[i], countStart[i]);
             }
          }
 
@@ -386,7 +385,6 @@ namespace EIP_Lib {
       // Send Calendar related information
       private bool LoadCalendar(XmlNode obj, int CalBlockCount, int FirstCalBlock) {
          bool success = true;
-         XmlNode n;
 
          foreach (XmlNode d in obj) {
             if (d is XmlWhitespace)
@@ -394,128 +392,130 @@ namespace EIP_Lib {
             if (d.Name == "Date" && int.TryParse(GetXmlAttr(d, "Block"), out int b) && b <= CalBlockCount) {
                SetAttribute(ccIDX.Calendar_Block, FirstCalBlock + b - 1);
 
-               if ((n = d.SelectSingleNode("Offset")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           SetAttribute(ccCal.Offset_Year, a.Value);
-                           break;
-                        case "Month":
-                           SetAttribute(ccCal.Offset_Month, a.Value);
-                           break;
-                        case "Day":
-                           SetAttribute(ccCal.Offset_Day, a.Value);
-                           break;
-                        case "Hour":
-                           SetAttribute(ccCal.Offset_Hour, a.Value);
-                           break;
-                        case "Minute":
-                           SetAttribute(ccCal.Offset_Minute, a.Value);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("ZeroSuppress")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
-                           break;
-                        case "Month":
-                           SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
-                           break;
-                        case "Day":
-                           SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
-                           break;
-                        case "Hour":
-                           SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
-                           break;
-                        case "Minute":
-                           SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
-                           break;
-                        case "Week":
-                           SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
-                           break;
-                        case "DayOfWeek":
-                           SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("EnableSubstitution")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           SetAttribute(ccCal.Substitute_Year, a.Value);
-                           break;
-                        case "Month":
-                           SetAttribute(ccCal.Substitute_Month, a.Value);
-                           break;
-                        case "Day":
-                           SetAttribute(ccCal.Substitute_Day, a.Value);
-                           break;
-                        case "Hour":
-                           SetAttribute(ccCal.Substitute_Hour, a.Value);
-                           break;
-                        case "Minute":
-                           SetAttribute(ccCal.Substitute_Minute, a.Value);
-                           break;
-                        case "Week":
-                           SetAttribute(ccCal.Substitute_Weeks, a.Value);
-                           break;
-                        case "DayOfWeek":
-                           SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("TimeCount")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Start":
-                           SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
-                           break;
-                        case "End":
-                           SetAttribute(ccCal.Time_Count_End_Value, a.Value);
-                           break;
-                        case "Reset":
-                           SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
-                           break;
-                        case "ResetTime":
-                           SetAttribute(ccCal.Reset_Time_Value, a.Value);
-                           break;
-                        case "RenewalPeriod":
-                           SetAttribute(ccCal.Update_Interval_Value, a.Value);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("Shift")) != null) {
-                  if (int.TryParse(GetXmlAttr(n, "Shift"), out int shift)) {
-                     SetAttribute(ccIDX.Calendar_Block, shift);
-                     foreach (XmlAttribute a in n.Attributes) {
-                        switch (a.Name) {
-                           case "StartHour":
-                              SetAttribute(ccCal.Shift_Start_Hour, a.Value);
-                              break;
-                           case "StartMinute":
-                              SetAttribute(ccCal.Shift_Start_Minute, a.Value);
-                              break;
-                           case "EndHour":
-                              //SetAttribute(ccCal.Shift_End_Hour, a.Value);  // Read Only
-                              break;
-                           case "EndMinute":
-                              //SetAttribute(ccCal.Shift_End_Minute, a.Value); // Read Only
-                              break;
-                           case "ShiftCode":
-                              SetAttribute(ccCal.Shift_Code_Condition, a.Value);
-                              break;
+               foreach (XmlNode n in d.ChildNodes) {
+                  if (n is XmlWhitespace)
+                     continue;
+                  switch (n.Name) {
+                     case "Offset":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 SetAttribute(ccCal.Offset_Year, a.Value);
+                                 break;
+                              case "Month":
+                                 SetAttribute(ccCal.Offset_Month, a.Value);
+                                 break;
+                              case "Day":
+                                 SetAttribute(ccCal.Offset_Day, a.Value);
+                                 break;
+                              case "Hour":
+                                 SetAttribute(ccCal.Offset_Hour, a.Value);
+                                 break;
+                              case "Minute":
+                                 SetAttribute(ccCal.Offset_Minute, a.Value);
+                                 break;
+                           }
                         }
-                     }
+                        break;
+                     case "ZeroSuppress":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
+                                 break;
+                              case "Month":
+                                 SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
+                                 break;
+                              case "Day":
+                                 SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
+                                 break;
+                              case "Hour":
+                                 SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
+                                 break;
+                              case "Minute":
+                                 SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
+                                 break;
+                              case "Week":
+                                 SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
+                                 break;
+                              case "DayOfWeek":
+                                 SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "Substitute":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 SetAttribute(ccCal.Substitute_Year, a.Value);
+                                 break;
+                              case "Month":
+                                 SetAttribute(ccCal.Substitute_Month, a.Value);
+                                 break;
+                              case "Day":
+                                 SetAttribute(ccCal.Substitute_Day, a.Value);
+                                 break;
+                              case "Hour":
+                                 SetAttribute(ccCal.Substitute_Hour, a.Value);
+                                 break;
+                              case "Minute":
+                                 SetAttribute(ccCal.Substitute_Minute, a.Value);
+                                 break;
+                              case "Week":
+                                 SetAttribute(ccCal.Substitute_Weeks, a.Value);
+                                 break;
+                              case "DayOfWeek":
+                                 SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "TimeCount":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Start":
+                                 SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
+                                 break;
+                              case "End":
+                                 SetAttribute(ccCal.Time_Count_End_Value, a.Value);
+                                 break;
+                              case "ResetValue":
+                                 SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
+                                 break;
+                              case "ResetTime":
+                                 SetAttribute(ccCal.Reset_Time_Value, a.Value);
+                                 break;
+                              case "Interval":
+                                 SetAttribute(ccCal.Update_Interval_Value, a.Value);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "Shift":
+                        if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
+                           SetAttribute(ccIDX.Calendar_Block, shift);
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "StartHour":
+                                    SetAttribute(ccCal.Shift_Start_Hour, a.Value);
+                                    break;
+                                 case "StartMinute":
+                                    SetAttribute(ccCal.Shift_Start_Minute, a.Value);
+                                    break;
+                                 case "EndHour":
+                                    //SetAttribute(ccCal.Shift_End_Hour, a.Value);  // Read Only
+                                    break;
+                                 case "EndMinute":
+                                    //SetAttribute(ccCal.Shift_End_Minute, a.Value); // Read Only
+                                    break;
+                                 case "ShiftCode":
+                                    SetAttribute(ccCal.Shift_String_Value, a.Value);
+                                    break;
+                              }
+                           }
+                        }
+                        break;
                   }
                }
             }
@@ -677,7 +677,7 @@ namespace EIP_Lib {
                                        writer.WriteEndElement(); // End Item
                                     }
                                  }
-                                 writer.WriteEndElement(); // End Colomn
+                                 writer.WriteEndElement(); // End Column
                               }
                            }
                            writer.WriteEndElement(); // End Message
@@ -688,7 +688,7 @@ namespace EIP_Lib {
                         string name = $"{GetAttributeName(e1.ClassCode, e1.Attribute)}";
                         string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                         MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-                     } catch {
+                     } catch (Exception e2) {
                         // You are on your own here
                      }
                   }
@@ -754,8 +754,8 @@ namespace EIP_Lib {
 
             writer.WriteStartElement("CharacterSize");
             {
-               writer.WriteAttributeString("Height", GetAttribute(ccPS.Character_Height));
                writer.WriteAttributeString("Width", GetAttribute(ccPS.Character_Width));
+               writer.WriteAttributeString("Height", GetAttribute(ccPS.Character_Height));
             }
             writer.WriteEndElement(); // CharacterSize
 
@@ -807,7 +807,7 @@ namespace EIP_Lib {
          writer.WriteStartElement("Substitution");
          {
             writer.WriteAttributeString("Delimiter", "/");
-            writer.WriteAttributeString("StartYear", "2019");
+            writer.WriteAttributeString("StartYear", GetAttribute(ccSR.Start_Year));
             writer.WriteAttributeString("RuleNumber", "1");
             //WriteSubstitution(writer, ccSR.Year, 0, 23);
             RetrieveSubstitution(writer, ccSR.Month, 1, 12);
@@ -829,10 +829,12 @@ namespace EIP_Lib {
          }
          for (int i = 0; i < n; i += 10) {
             writer.WriteStartElement("Rule");
-            writer.WriteAttributeString("Type", attr.ToString().Replace("_", ""));
-            writer.WriteAttributeString("Base", (i + start).ToString());
-            writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
-            writer.WriteEndElement(); // Element
+            {
+               writer.WriteAttributeString("Type", attr.ToString().Replace("_", ""));
+               writer.WriteAttributeString("Base", (i + start).ToString());
+               writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
+            }
+            writer.WriteEndElement(); // Rule
          }
       }
 
@@ -840,8 +842,8 @@ namespace EIP_Lib {
       private void RetrieveFont(XmlTextWriter writer) {
          writer.WriteStartElement("Font"); // Start Font
          {
-            writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
             writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
+            writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
             writer.WriteAttributeString("Face", GetAttribute(ccPF.Dot_Matrix));
          }
          writer.WriteEndElement(); // End Font
@@ -999,7 +1001,7 @@ namespace EIP_Lib {
                {
                   writer.WriteAttributeString("UpdateIP", GetAttribute(ccCount.Update_Unit_Halfway));
                   writer.WriteAttributeString("UpdateUnit", GetAttribute(ccCount.Update_Unit_Unit));
-                  writer.WriteAttributeString("Count", GetAttribute(ccCount.External_Count));
+                  writer.WriteAttributeString("ExternalCount", GetAttribute(ccCount.External_Count));
                   writer.WriteAttributeString("Multiplier", GetAttribute(ccCount.Count_Multiplier));
                   writer.WriteAttributeString("SkipCount", GetAttribute(ccCount.Count_Skip));
                }
