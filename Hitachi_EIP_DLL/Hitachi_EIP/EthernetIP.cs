@@ -1982,7 +1982,8 @@ namespace EIP_Lib {
          switch (ac) {
             case AccessCode.Get:
                if (useAutomaticReflection && GetIndexSetting(ccIDX.Automatic_reflection) == 1) {
-                  SetDataValue = "0";
+                  // Do not use short form of Set Attribute here
+                  SetDataValue = "Off";
                   SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, DataZero);
                   SetDataValue = "2";
                   SetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, DataTwo);
@@ -1991,7 +1992,8 @@ namespace EIP_Lib {
             case AccessCode.Set:
             case AccessCode.Service:
                if (useAutomaticReflection && GetIndexSetting(ccIDX.Automatic_reflection) == 0) {
-                  SetDataValue = "1";
+                  // Do not use short form of Set Attribute here
+                  SetDataValue = "On";
                   SetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, DataOne);
                }
                break;

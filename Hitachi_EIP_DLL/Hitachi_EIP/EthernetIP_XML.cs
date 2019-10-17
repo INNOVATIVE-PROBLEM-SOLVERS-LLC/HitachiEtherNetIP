@@ -200,14 +200,10 @@ namespace EIP_Lib {
          // Avoid user errors
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimiter.Length == 1) {
             // Sub Substitution rule in Index class
-            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
-            data = FormatOutput(attr.Set, ruleNumber);
-            SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
+            SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
 
             // Set the start year in the substitution rule
-            attr = AttrDict[ClassCode.Index, (byte)ccSR.Start_Year];
-            data = FormatOutput(attr.Set, year);
-            SetAttribute(ClassCode.Substitution_rules, (byte)ccSR.Start_Year, data);
+            SetAttribute(ccSR.Start_Year, year);
 
             // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
@@ -398,76 +394,82 @@ namespace EIP_Lib {
                   switch (n.Name) {
                      case "Offset":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 SetAttribute(ccCal.Offset_Year, a.Value);
-                                 break;
-                              case "Month":
-                                 SetAttribute(ccCal.Offset_Month, a.Value);
-                                 break;
-                              case "Day":
-                                 SetAttribute(ccCal.Offset_Day, a.Value);
-                                 break;
-                              case "Hour":
-                                 SetAttribute(ccCal.Offset_Hour, a.Value);
-                                 break;
-                              case "Minute":
-                                 SetAttribute(ccCal.Offset_Minute, a.Value);
-                                 break;
+                           if (int.TryParse(a.Value, out int x) && x != 0) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    SetAttribute(ccCal.Offset_Year, x);
+                                    break;
+                                 case "Month":
+                                    SetAttribute(ccCal.Offset_Month, x);
+                                    break;
+                                 case "Day":
+                                    SetAttribute(ccCal.Offset_Day, x);
+                                    break;
+                                 case "Hour":
+                                    SetAttribute(ccCal.Offset_Hour, x);
+                                    break;
+                                 case "Minute":
+                                    SetAttribute(ccCal.Offset_Minute, x);
+                                    break;
+                              }
                            }
                         }
                         break;
                      case "ZeroSuppress":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
-                                 break;
-                              case "Month":
-                                 SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
-                                 break;
-                              case "Day":
-                                 SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
-                                 break;
-                              case "Hour":
-                                 SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
-                                 break;
-                              case "Minute":
-                                 SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
-                                 break;
-                              case "Week":
-                                 SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
-                                 break;
-                              case "DayOfWeek":
-                                 SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
-                                 break;
+                           if (!IsDefaultValue(fmtDD.DisableSpaceChar, a.Value)) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
+                                    break;
+                                 case "Month":
+                                    SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
+                                    break;
+                                 case "Day":
+                                    SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
+                                    break;
+                                 case "Hour":
+                                    SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
+                                    break;
+                                 case "Minute":
+                                    SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
+                                    break;
+                                 case "Week":
+                                    SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
+                                    break;
+                                 case "DayOfWeek":
+                                    SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
+                                    break;
+                              }
                            }
                         }
                         break;
                      case "Substitute":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 SetAttribute(ccCal.Substitute_Year, a.Value);
-                                 break;
-                              case "Month":
-                                 SetAttribute(ccCal.Substitute_Month, a.Value);
-                                 break;
-                              case "Day":
-                                 SetAttribute(ccCal.Substitute_Day, a.Value);
-                                 break;
-                              case "Hour":
-                                 SetAttribute(ccCal.Substitute_Hour, a.Value);
-                                 break;
-                              case "Minute":
-                                 SetAttribute(ccCal.Substitute_Minute, a.Value);
-                                 break;
-                              case "Week":
-                                 SetAttribute(ccCal.Substitute_Weeks, a.Value);
-                                 break;
-                              case "DayOfWeek":
-                                 SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
-                                 break;
+                           if (!IsDefaultValue(fmtDD.EnableDisable, a.Value)) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    SetAttribute(ccCal.Substitute_Year, a.Value);
+                                    break;
+                                 case "Month":
+                                    SetAttribute(ccCal.Substitute_Month, a.Value);
+                                    break;
+                                 case "Day":
+                                    SetAttribute(ccCal.Substitute_Day, a.Value);
+                                    break;
+                                 case "Hour":
+                                    SetAttribute(ccCal.Substitute_Hour, a.Value);
+                                    break;
+                                 case "Minute":
+                                    SetAttribute(ccCal.Substitute_Minute, a.Value);
+                                    break;
+                                 case "Week":
+                                    SetAttribute(ccCal.Substitute_Weeks, a.Value);
+                                    break;
+                                 case "DayOfWeek":
+                                    SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
+                                    break;
+                              }
                            }
                         }
                         break;
@@ -1227,9 +1229,7 @@ namespace EIP_Lib {
          if (int.TryParse(rule, out int ruleNumber) && int.TryParse(startYear, out int year) && delimiter.Length == 1) {
 
             // Sub Substitution rule in Index class
-            attr = EIP.AttrDict[ClassCode.Index, (byte)ccIDX.Substitution_Rule];
-            data = FormatOutput(attr.Set, ruleNumber);
-            SetAttribute(ClassCode.Index, (byte)ccIDX.Substitution_Rule, data);
+            SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
 
             // Validate the start year in the substitution rule
             VerifyXml(p, "StartYear", ccSR.Start_Year, SubRule: ruleNumber);
