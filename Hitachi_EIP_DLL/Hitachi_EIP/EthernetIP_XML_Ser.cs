@@ -143,7 +143,7 @@ namespace EIP_Lib {
       private void SendSubstitution(Substitution s, string delimiter) {
          for (int i = 0; i < s.SubRule.Length; i++) {
             SubstitutionRule r = s.SubRule[i];
-            if (Enum.TryParse(r.Type, out ccSR type)) {
+            if (Enum.TryParse(r.Type, true, out ccSR type)) {
                SetSubValues(type, r, delimiter);
             } else {
                LogIt($"Unknown substitution rule type =>{r.Type}<=");
@@ -296,7 +296,7 @@ namespace EIP_Lib {
                      SetAttribute(ccCal.Zero_Suppress_Weeks, zs.Week);
                   }
                   if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
-                     SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, zs.DayOfWeek);
+                     SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
                   }
                }
 
@@ -322,7 +322,7 @@ namespace EIP_Lib {
                      SetAttribute(ccCal.Substitute_Weeks, s.Week);
                   }
                   if (!IsDefaultValue(fmtDD.EnableDisable, s.DayOfWeek)) {
-                     SetAttribute(ccCal.Substitute_Day_Of_Week, s.DayOfWeek);
+                     SetAttribute(ccCal.Substitute_DayOfWeek, s.DayOfWeek);
                   }
                }
 
@@ -339,7 +339,7 @@ namespace EIP_Lib {
                // Process Shift
                if (date.Shift != null) {
                   for (int j = 0; j < date.Shift.Length; j++) {
-                     //SetAttribute(ccIDX.Item, j + 1);
+                     SetAttribute(ccIDX.Item, j + 1);
                      SetAttribute(ccIDX.Calendar_Block, date.Shift[j].ShiftNumber);
                      SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
                      SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
@@ -614,7 +614,7 @@ namespace EIP_Lib {
                if ((mask[i] & (int)ba.Week) > 0)
                   item.Date[i].ZeroSuppress.Week = GetAttribute(ccCal.Zero_Suppress_Weeks);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].ZeroSuppress.DayOfWeek = GetAttribute(ccCal.Zero_Suppress_Day_Of_Week);
+                  item.Date[i].ZeroSuppress.DayOfWeek = GetAttribute(ccCal.Zero_Suppress_DayOfWeek);
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
@@ -630,7 +630,7 @@ namespace EIP_Lib {
                if ((mask[i] & (int)ba.Week) > 0)
                   item.Date[i].Substitute.Week = GetAttribute(ccCal.Substitute_Weeks);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = GetAttribute(ccCal.Substitute_Day_Of_Week);
+                  item.Date[i].Substitute.DayOfWeek = GetAttribute(ccCal.Substitute_DayOfWeek);
             }
             if ((mask[i] & (int)ba.Shift) > 0) {
                List<Shift> s = new List<Shift>();

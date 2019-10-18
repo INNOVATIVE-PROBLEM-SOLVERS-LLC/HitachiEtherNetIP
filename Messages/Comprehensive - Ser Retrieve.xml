@@ -14,13 +14,13 @@
       <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
     </Substitution>
     <Logos>
-      <Logo Layout="Fixed" Face="18x24" Location="0" FileName="Square 5x8" RawData="FF 81 81 99 99 81 81 FF" />
+      <Logo Layout="Fixed" DotMatrix="18x24" Location="0" FileName="Square 5x8" RawData="FF 81 81 99 99 81 81 FF" />
     </Logos>
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="2">
       <Item Type="Date">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
@@ -30,7 +30,7 @@
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item Type="Date">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
@@ -40,7 +40,7 @@
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item Type="Date">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
@@ -52,7 +52,7 @@
     </Column>
     <Column InterLineSpacing="2">
       <Item Type="Date">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
           <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
@@ -62,7 +62,7 @@
         <Text>Shift {E}}</Text>
       </Item>
       <Item Type="Date">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
           <TimeCount Interval="-1207456075" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
@@ -70,7 +70,7 @@
         <Text>TCount {{FF}} </Text>
       </Item>
       <Item Type="Counter">
-        <Font InterCharacterSpace="1" IncreasedWidth="1" Face="5x8(5x7)" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Counter Block="1">
           <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
@@ -83,7 +83,7 @@
     </Column>
     <Column InterLineSpacing="0">
       <Item Type="Text">
-        <Font InterCharacterSpace="2" IncreasedWidth="1" Face="18x24" />
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="18x24" />
         <BarCode />
         <Text>{X/000}</Text>
       </Item>

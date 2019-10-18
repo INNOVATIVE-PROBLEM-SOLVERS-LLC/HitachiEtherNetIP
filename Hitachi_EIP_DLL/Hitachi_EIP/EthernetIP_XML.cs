@@ -209,32 +209,10 @@ namespace EIP_Lib {
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
                   case "Rule":
-                     string type = GetXmlAttr(c, "Type");
-                     switch (type) {
-                        case "Year":
-                           SetSubValues(ccSR.Year, c, delimiter);
-                           break;
-                        case "Month":
-                           SetSubValues(ccSR.Month, c, delimiter);
-                           break;
-                        case "Day":
-                           SetSubValues(ccSR.Day, c, delimiter);
-                           break;
-                        case "Hour":
-                           SetSubValues(ccSR.Hour, c, delimiter);
-                           break;
-                        case "Minute":
-                           SetSubValues(ccSR.Minute, c, delimiter);
-                           break;
-                        case "Week":
-                           SetSubValues(ccSR.Week, c, delimiter);
-                           break;
-                        case "DayOfWeek":
-                           SetSubValues(ccSR.DayOfWeek, c, delimiter);
-                           break;
-                        case "Skip":
-                           // Do not process these nodes
-                           break;
+                     if (Enum.TryParse(GetXmlAttr(c, "Type"), true, out ccSR type)) {
+                        SetSubValues(type, c, delimiter);
+                     } else {
+                        LogIt($"Unknown substitution rule type =>{GetXmlAttr(c, "Type")}<=");
                      }
                      break;
                }
@@ -317,7 +295,7 @@ namespace EIP_Lib {
                SetAttribute(ccIDX.Item, i + 1);
                XmlNode item = Items[i];
                if ((n = Items[i].SelectSingleNode("Font")) != null) {
-                  SetAttribute(ccPF.Dot_Matrix, GetXmlAttr(n, "Face"));
+                  SetAttribute(ccPF.Dot_Matrix, GetXmlAttr(n, "DotMatrix"));
                   SetAttribute(ccPF.InterCharacter_Space, GetXmlAttr(n, "InterCharacterSpace"));
                   SetAttribute(ccPF.Character_Bold, GetXmlAttr(n, "IncreasedWidth"));
                   SetAttribute(ccPF.Print_Character_String, GetXmlValue(Items[i].SelectSingleNode("Text"))); // Load the text last
@@ -438,7 +416,7 @@ namespace EIP_Lib {
                                     SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
                                     break;
                                  case "DayOfWeek":
-                                    SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, a.Value);
+                                    SetAttribute(ccCal.Zero_Suppress_DayOfWeek, a.Value);
                                     break;
                               }
                            }
@@ -467,7 +445,7 @@ namespace EIP_Lib {
                                     SetAttribute(ccCal.Substitute_Weeks, a.Value);
                                     break;
                                  case "DayOfWeek":
-                                    SetAttribute(ccCal.Substitute_Day_Of_Week, a.Value);
+                                    SetAttribute(ccCal.Substitute_DayOfWeek, a.Value);
                                     break;
                               }
                            }
@@ -496,7 +474,7 @@ namespace EIP_Lib {
                         break;
                      case "Shift":
                         if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
-                           SetAttribute(ccIDX.Calendar_Block, shift);
+                           SetAttribute(ccIDX.Item, shift);
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "StartHour":
@@ -846,7 +824,7 @@ namespace EIP_Lib {
          {
             writer.WriteAttributeString("InterCharacterSpace", GetAttribute(ccPF.InterCharacter_Space));
             writer.WriteAttributeString("IncreasedWidth", GetAttribute(ccPF.Character_Bold));
-            writer.WriteAttributeString("Face", GetAttribute(ccPF.Dot_Matrix));
+            writer.WriteAttributeString("DotMatrix", GetAttribute(ccPF.Dot_Matrix));
          }
          writer.WriteEndElement(); // End Font
 
@@ -856,7 +834,7 @@ namespace EIP_Lib {
             if (BarCode != "None") {
                writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
                writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
-               writer.WriteAttributeString("Face", BarCode);
+               writer.WriteAttributeString("DotMatrix", BarCode);
             }
          }
          writer.WriteEndElement(); // End BarCode
@@ -905,7 +883,7 @@ namespace EIP_Lib {
                      if ((mask[i] & (int)ba.Week) > 0)
                         writer.WriteAttributeString("Week", GetAttribute(ccCal.Zero_Suppress_Weeks));
                      if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Zero_Suppress_Day_Of_Week));
+                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Zero_Suppress_DayOfWeek));
                   }
                   writer.WriteEndElement(); // End ZeroSuppress
 
@@ -924,7 +902,7 @@ namespace EIP_Lib {
                      if ((mask[i] & (int)ba.Week) > 0)
                         writer.WriteAttributeString("Week", GetAttribute(ccCal.Substitute_Weeks));
                      if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Substitute_Day_Of_Week));
+                        writer.WriteAttributeString("DayOfWeek", GetAttribute(ccCal.Substitute_DayOfWeek));
                   }
                   writer.WriteEndElement(); // End EnableSubstitution
                }
@@ -1097,8 +1075,8 @@ namespace EIP_Lib {
                         case "Printer":
                            VerifyPrinterSettings(l);            // Send printer wide settings
                            break;
-                        case "Objects":
-                           VerifyRowsColumns(l.ChildNodes); // Allocate rows and columns
+                        case "Message":
+                           VerifyRowsColumns(l.ChildNodes);     // Allocate rows and columns
                            VerifyObjects(l.ChildNodes);         // Send the objects one at a time
                            break;
                      }
@@ -1237,29 +1215,12 @@ namespace EIP_Lib {
             // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
                switch (c.Name) {
-                  case "Year":
-                     VerifySubValues(ccSR.Year, c, delimiter);
-                     break;
-                  case "Month":
-                     VerifySubValues(ccSR.Month, c, delimiter);
-                     break;
-                  case "Day":
-                     VerifySubValues(ccSR.Day, c, delimiter);
-                     break;
-                  case "Hour":
-                     VerifySubValues(ccSR.Hour, c, delimiter);
-                     break;
-                  case "Minute":
-                     VerifySubValues(ccSR.Minute, c, delimiter);
-                     break;
-                  case "Week":
-                     VerifySubValues(ccSR.Week, c, delimiter);
-                     break;
-                  case "DayOfWeek":
-                     VerifySubValues(ccSR.DayOfWeek, c, delimiter);
-                     break;
-                  case "Skip":
-                     // Do not process these nodes
+                  case "Rule":
+                     if (Enum.TryParse(GetXmlAttr(c, "Type"), true, out ccSR type)) {
+                        VerifySubValues(type, c, delimiter);
+                     } else {
+                        LogIt($"Unknown substitution rule type =>{GetXmlAttr(c, "Type")}<=");
+                     }
                      break;
                }
             }
@@ -1294,45 +1255,53 @@ namespace EIP_Lib {
          // <TODO>
       }
 
-      private bool VerifyObjects(XmlNodeList objs) {
-         bool success = true;
+      private void VerifyObjects(XmlNodeList objs) {
          XmlNode n;
-         foreach (XmlNode obj in objs) {
-            if (obj is XmlWhitespace)
+         int item = 1;
+         foreach (XmlNode col in objs) {
+            if (col is XmlWhitespace)
                continue;
+            switch (col.Name) {
+               case "Column":
+                  foreach (XmlNode row in col.ChildNodes) {
+                     if (row is XmlWhitespace)
+                        continue;
+                     switch (row.Name) {
+                        case "Item":
+                           SetAttribute(ccIDX.Item, item);
+                           n = row.SelectSingleNode("Font");
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "InterCharacterSpace":
+                                    VerifyXml(n, "InterCharacterSpace", ccPF.InterCharacter_Space, item);
+                                    break;
+                                 case "IncreasedWidth":
+                                    VerifyXml(n, "IncreasedWidth", ccPF.Character_Bold, item);
+                                    break;
+                                 case "DotMatrix":
+                                    VerifyXml(n, "DotMatrix", ccPF.Dot_Matrix, item);
+                                    break;
+                              }
+                           }
+                           VerifyXml(row.SelectSingleNode("Text"), "Text", ccPF.Print_Character_String, item);
 
-            // Get the item number of the object
-            n = obj.SelectSingleNode("Location");
-            if (!int.TryParse(GetXmlAttr(n, "ItemNumber"), out int item)) {
-               return false;
-            }
-            SetAttribute(ccIDX.Item, item);
-
-            n = obj.SelectSingleNode("Font");
-            VerifyXml(n, "Font", ccPF.Dot_Matrix, item);
-            foreach (XmlAttribute a in n.Attributes) {
-               switch (a.Name) {
-                  case "InterCharacterSpace":
-                     VerifyXml(n, "InterCharacterSpace", ccPF.InterCharacter_Space, item);
-                     break;
-                  case "IncreasedWidth":
-                     VerifyXml(n, "IncreasedWidth", ccPF.Character_Bold, item);
-                     break;
-               }
-            }
-            VerifyXml(obj.SelectSingleNode("Text"), "Text", ccPF.Print_Character_String, item);
-
-            ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(obj, "Type"), true);
-            switch (type) {
-               case ItemType.Date:
-                  VerifyCalendar(obj);
+                           ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(row, "Type"), true);
+                           switch (type) {
+                              case ItemType.Date:
+                                 VerifyCalendar(row);
+                                 break;
+                              case ItemType.Counter:
+                                 VerifyCount(row);
+                                 break;
+                           }
+                           item++;
+                           break;
+                     }
+                  }
                   break;
-               case ItemType.Counter:
-                  VerifyCount(obj);
-                  break;
             }
+
          }
-         return success;
       }
 
       private void VerifyCount(XmlNode obj) {
@@ -1353,16 +1322,16 @@ namespace EIP_Lib {
                   foreach (XmlAttribute a in n.Attributes) {
                      switch (a.Name) {
                         case "Range1":
-                           VerifyXml(c, "Range1", ccCount.Count_Range_1, item, cb);
+                           VerifyXml(n, "Range1", ccCount.Count_Range_1, item, cb);
                            break;
                         case "Range2":
-                           VerifyXml(c, "Range2", ccCount.Count_Range_2, item, cb);
+                           VerifyXml(n, "Range2", ccCount.Count_Range_2, item, cb);
                            break;
                         case "JumpFrom":
-                           VerifyXml(c, "JumpFrom", ccCount.Jump_From, item, cb);
+                           VerifyXml(n, "JumpFrom", ccCount.Jump_From, item, cb);
                            break;
                         case "JumpTo":
-                           VerifyXml(c, "JumpTo", ccCount.Jump_To, item, cb);
+                           VerifyXml(n, "JumpTo", ccCount.Jump_To, item, cb);
                            break;
                      }
                   }
@@ -1372,16 +1341,16 @@ namespace EIP_Lib {
                   foreach (XmlAttribute a in n.Attributes) {
                      switch (a.Name) {
                         case "InitialValue":
-                           VerifyXml(c, "InitialValue", ccCount.Initial_Value, item, cb);
+                           VerifyXml(n, "InitialValue", ccCount.Initial_Value, item, cb);
                            break;
                         case "Increment":
-                           VerifyXml(c, "Increment", ccCount.Increment_Value, item, cb);
+                           VerifyXml(n, "Increment", ccCount.Increment_Value, item, cb);
                            break;
                         case "Direction":
-                           VerifyXml(c, "Direction", ccCount.Direction_Value, item, cb);
+                           VerifyXml(n, "Direction", ccCount.Direction_Value, item, cb);
                            break;
                         case "ZeroSuppression":
-                           VerifyXml(c, "ZeroSuppression", ccCount.Zero_Suppression, item, cb);
+                           VerifyXml(n, "ZeroSuppression", ccCount.Zero_Suppression, item, cb);
                            break;
                      }
                   }
@@ -1391,10 +1360,10 @@ namespace EIP_Lib {
                   foreach (XmlAttribute a in n.Attributes) {
                      switch (a.Name) {
                         case "Type":
-                           VerifyXml(c, "Type", ccCount.Type_Of_Reset_Signal, item, cb);
+                           VerifyXml(n, "Type", ccCount.Type_Of_Reset_Signal, item, cb);
                            break;
                         case "Value":
-                           VerifyXml(c, "Value", ccCount.Reset_Value, item, cb);
+                           VerifyXml(n, "Value", ccCount.Reset_Value, item, cb);
                            break;
                      }
                   }
@@ -1404,19 +1373,19 @@ namespace EIP_Lib {
                   foreach (XmlAttribute a in n.Attributes) {
                      switch (a.Name) {
                         case "UpdateIP":
-                           VerifyXml(c, "UpdateIP", ccCount.Update_Unit_Halfway, item, cb);
+                           VerifyXml(n, "UpdateIP", ccCount.Update_Unit_Halfway, item, cb);
                            break;
                         case "UpdateUnit":
-                           VerifyXml(c, "UpdateUnit", ccCount.Update_Unit_Unit, item, cb);
+                           VerifyXml(n, "UpdateUnit", ccCount.Update_Unit_Unit, item, cb);
                            break;
                         case "ExternalSignal":
-                           VerifyXml(c, "ExternalSignal", ccCount.External_Count, item, cb);
+                           VerifyXml(n, "ExternalSignal", ccCount.External_Count, item, cb);
                            break;
                         case "Multiplier":
-                           VerifyXml(c, "Multiplier", ccCount.Count_Multiplier, item, cb);
+                           VerifyXml(n, "Multiplier", ccCount.Count_Multiplier, item, cb);
                            break;
                         case "Skip":
-                           VerifyXml(c, "Skip", ccCount.Count_Skip, item, cb);
+                           VerifyXml(n, "Skip", ccCount.Count_Skip, item, cb);
                            break;
                      }
                   }
@@ -1426,8 +1395,6 @@ namespace EIP_Lib {
       }
 
       private void VerifyCalendar(XmlNode obj) {
-         XmlNode n;
-
          // Get data assigned by the printer
          GetAttribute(ccCal.First_Calendar_Block, out int FirstCalBlock);
          GetAttribute(ccCal.Number_of_Calendar_Blocks, out int CalBlockCount);
@@ -1439,129 +1406,130 @@ namespace EIP_Lib {
             if (d.Name == "Date" && int.TryParse(GetXmlAttr(d, "Block"), out int b) && b <= CalBlockCount) {
                int cb = FirstCalBlock + b - 1;
                SetAttribute(ccIDX.Calendar_Block, cb);
-
-               if ((n = d.SelectSingleNode("Offset")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           VerifyXml(n, "Year", ccCal.Offset_Year, item, cb);
-                           break;
-                        case "Month":
-                           VerifyXml(n, "Month", ccCal.Offset_Month, item, cb);
-                           break;
-                        case "Day":
-                           VerifyXml(n, "Day", ccCal.Offset_Day, item, cb);
-                           break;
-                        case "Hour":
-                           VerifyXml(n, "Hour", ccCal.Offset_Hour, item, cb);
-                           break;
-                        case "Minute":
-                           VerifyXml(n, "Minute", ccCal.Offset_Minute, item, cb);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("ZeroSuppress")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           VerifyXml(n, "Year", ccCal.Zero_Suppress_Year, item, cb);
-                           break;
-                        case "Month":
-                           VerifyXml(n, "Month", ccCal.Zero_Suppress_Month, item, cb);
-                           break;
-                        case "Day":
-                           VerifyXml(n, "Day", ccCal.Zero_Suppress_Day, item, cb);
-                           break;
-                        case "Hour":
-                           VerifyXml(n, "Hour", ccCal.Zero_Suppress_Hour, item, cb);
-                           break;
-                        case "Minute":
-                           VerifyXml(n, "Minute", ccCal.Zero_Suppress_Minute, item, cb);
-                           break;
-                        case "Week":
-                           VerifyXml(n, "Week", ccCal.Zero_Suppress_Weeks, item, cb);
-                           break;
-                        case "DayOfWeek":
-                           VerifyXml(n, "DayOfWeek", ccCal.Zero_Suppress_Day_Of_Week, item, cb);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("EnableSubstitution")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Year":
-                           VerifyXml(n, "Year", ccCal.Substitute_Year, item, cb);
-                           break;
-                        case "Month":
-                           VerifyXml(n, "Month", ccCal.Substitute_Month, item, cb);
-                           break;
-                        case "Day":
-                           VerifyXml(n, "Day", ccCal.Substitute_Day, item, cb);
-                           break;
-                        case "Hour":
-                           VerifyXml(n, "Hour", ccCal.Substitute_Hour, item, cb);
-                           break;
-                        case "Minute":
-                           VerifyXml(n, "Minute", ccCal.Substitute_Minute, item, cb);
-                           break;
-                        case "Week":
-                           VerifyXml(n, "Week", ccCal.Substitute_Weeks, item, cb);
-                           break;
-                        case "DayOfWeek":
-                           VerifyXml(n, "DayOfWeek", ccCal.Substitute_Day_Of_Week, item, cb);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("TimeCount")) != null) {
-                  foreach (XmlAttribute a in n.Attributes) {
-                     switch (a.Name) {
-                        case "Start":
-                           VerifyXml(n, "Start", ccCal.Time_Count_Start_Value, item, cb);
-                           break;
-                        case "End":
-                           VerifyXml(n, "End", ccCal.Time_Count_End_Value, item, cb);
-                           break;
-                        case "Reset":
-                           VerifyXml(n, "Reset", ccCal.Time_Count_Reset_Value, item, cb);
-                           break;
-                        case "ResetTime":
-                           VerifyXml(n, "ResetTime", ccCal.Reset_Time_Value, item, cb);
-                           break;
-                        case "RenewalPeriod":
-                           VerifyXml(n, "RenewalPeriod", ccCal.Update_Interval_Value, item, cb);
-                           break;
-                     }
-                  }
-               }
-
-               if ((n = d.SelectSingleNode("Shift")) != null) {
-                  if (int.TryParse(GetXmlAttr(n, "Shift"), out int shift)) {
-                     SetAttribute(ccIDX.Calendar_Block, shift);
-                     foreach (XmlAttribute a in n.Attributes) {
-                        switch (a.Name) {
-                           case "StartHour":
-                              VerifyXml(n, "StartHour", ccCal.Shift_Start_Hour, item, cb);
-                              break;
-                           case "StartMinute":
-                              VerifyXml(n, "StartMinute", ccCal.Shift_Start_Minute, item, cb);
-                              break;
-                           case "EndHour": // Read Only
-                              VerifyXml(n, "EndHour", ccCal.Shift_End_Hour, item, cb);
-                              break;
-                           case "EndMinute": // Read Only
-                              VerifyXml(n, "EndMinute", ccCal.Shift_End_Minute, item, cb);
-                              break;
-                           case "ShiftCode":
-                              VerifyXml(n, "ShiftCode", ccCal.Shift_Code_Condition, item, cb);
-                              break;
+               foreach (XmlNode n in d) {
+                  if (n is XmlWhitespace)
+                     continue;
+                  switch (n.Name) {
+                     case "Offset":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 VerifyXml(n, "Year", ccCal.Offset_Year, item, cb);
+                                 break;
+                              case "Month":
+                                 VerifyXml(n, "Month", ccCal.Offset_Month, item, cb);
+                                 break;
+                              case "Day":
+                                 VerifyXml(n, "Day", ccCal.Offset_Day, item, cb);
+                                 break;
+                              case "Hour":
+                                 VerifyXml(n, "Hour", ccCal.Offset_Hour, item, cb);
+                                 break;
+                              case "Minute":
+                                 VerifyXml(n, "Minute", ccCal.Offset_Minute, item, cb);
+                                 break;
+                           }
                         }
-                     }
+                        break;
+                     case "ZeroSuppress":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 VerifyXml(n, "Year", ccCal.Zero_Suppress_Year, item, cb);
+                                 break;
+                              case "Month":
+                                 VerifyXml(n, "Month", ccCal.Zero_Suppress_Month, item, cb);
+                                 break;
+                              case "Day":
+                                 VerifyXml(n, "Day", ccCal.Zero_Suppress_Day, item, cb);
+                                 break;
+                              case "Hour":
+                                 VerifyXml(n, "Hour", ccCal.Zero_Suppress_Hour, item, cb);
+                                 break;
+                              case "Minute":
+                                 VerifyXml(n, "Minute", ccCal.Zero_Suppress_Minute, item, cb);
+                                 break;
+                              case "Week":
+                                 VerifyXml(n, "Week", ccCal.Zero_Suppress_Weeks, item, cb);
+                                 break;
+                              case "DayOfWeek":
+                                 VerifyXml(n, "DayOfWeek", ccCal.Zero_Suppress_DayOfWeek, item, cb);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "Substitute":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Year":
+                                 VerifyXml(n, "Year", ccCal.Substitute_Year, item, cb);
+                                 break;
+                              case "Month":
+                                 VerifyXml(n, "Month", ccCal.Substitute_Month, item, cb);
+                                 break;
+                              case "Day":
+                                 VerifyXml(n, "Day", ccCal.Substitute_Day, item, cb);
+                                 break;
+                              case "Hour":
+                                 VerifyXml(n, "Hour", ccCal.Substitute_Hour, item, cb);
+                                 break;
+                              case "Minute":
+                                 VerifyXml(n, "Minute", ccCal.Substitute_Minute, item, cb);
+                                 break;
+                              case "Week":
+                                 VerifyXml(n, "Week", ccCal.Substitute_Weeks, item, cb);
+                                 break;
+                              case "DayOfWeek":
+                                 VerifyXml(n, "DayOfWeek", ccCal.Substitute_DayOfWeek, item, cb);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "TimeCount":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           switch (a.Name) {
+                              case "Start":
+                                 VerifyXml(n, "Start", ccCal.Time_Count_Start_Value, item, cb);
+                                 break;
+                              case "End":
+                                 VerifyXml(n, "End", ccCal.Time_Count_End_Value, item, cb);
+                                 break;
+                              case "Reset":
+                                 VerifyXml(n, "ResetValue", ccCal.Time_Count_Reset_Value, item, cb);
+                                 break;
+                              case "ResetTime":
+                                 VerifyXml(n, "ResetTime", ccCal.Reset_Time_Value, item, cb);
+                                 break;
+                              case "RenewalPeriod":
+                                 VerifyXml(n, "Interval", ccCal.Update_Interval_Value, item, cb);
+                                 break;
+                           }
+                        }
+                        break;
+                     case "Shift":
+                        if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
+                           SetAttribute(ccIDX.Item, shift);
+                           foreach (XmlAttribute a in n.Attributes) {
+                              switch (a.Name) {
+                                 case "StartHour":
+                                    VerifyXml(n, "StartHour", ccCal.Shift_Start_Hour, item, cb);
+                                    break;
+                                 case "StartMinute":
+                                    VerifyXml(n, "StartMinute", ccCal.Shift_Start_Minute, item, cb);
+                                    break;
+                                 case "EndHour": // Read Only
+                                    VerifyXml(n, "EndHour", ccCal.Shift_End_Hour, item, cb);
+                                    break;
+                                 case "EndMinute": // Read Only
+                                    VerifyXml(n, "EndMinute", ccCal.Shift_End_Minute, item, cb);
+                                    break;
+                                 case "ShiftCode":
+                                    VerifyXml(n, "ShiftCode", ccCal.Shift_String_Value, item, cb);
+                                    break;
+                              }
+                           }
+                        }
+                        break;
                   }
                }
             }
