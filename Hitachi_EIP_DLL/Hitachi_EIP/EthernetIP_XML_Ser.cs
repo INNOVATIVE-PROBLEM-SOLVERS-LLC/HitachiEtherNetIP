@@ -190,7 +190,7 @@ namespace EIP_Lib {
                SetAttribute(ccIDX.Item, index + 1);
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
-                  SetAttribute(ccPF.Dot_Matrix, item.Font.Face);
+                  SetAttribute(ccPF.Dot_Matrix, item.Font.DotMatrix);
                   SetAttribute(ccPF.InterCharacter_Space, item.Font.InterCharacterSpace);
                   SetAttribute(ccPF.Character_Bold, item.Font.IncreasedWidth);
                }
@@ -518,7 +518,7 @@ namespace EIP_Lib {
          logos.Logo = new Logo[1];
          logos.Logo[0] = new Logo() {
             Layout = "Fixed",
-            Face = "18x24",
+            DotMatrix = "18x24",
             Location = "0",
             FileName = "Square 5x8",
             RawData = "FF 81 81 99 99 81 81 FF",
@@ -549,7 +549,7 @@ namespace EIP_Lib {
                   Font = new FontDef() {
                      InterCharacterSpace = GetAttribute(ccPF.InterCharacter_Space),
                      IncreasedWidth = GetAttribute(ccPF.Character_Bold),
-                     Face = GetAttribute(ccPF.Dot_Matrix),
+                     DotMatrix = GetAttribute(ccPF.Dot_Matrix),
                   },
                   BarCode = new BarCode(),
                };
@@ -557,7 +557,7 @@ namespace EIP_Lib {
                if (barcode != "None") {
                   item.BarCode.HumanReadableFont = GetAttribute(ccPF.Readable_Code);
                   item.BarCode.EANPrefix = GetAttribute(ccPF.Prefix_Code);
-                  item.BarCode.Face = barcode;
+                  item.BarCode.DotMatrix = barcode;
                }
 
                item.Location = new Location() { Index = index, Row = row, Col = col };
