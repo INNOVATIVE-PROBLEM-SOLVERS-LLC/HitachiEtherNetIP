@@ -158,7 +158,7 @@ namespace EIP_Lib {
          // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
          string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
          for (int i = 0; i < day.Length; i++) {
-            EIP.SetAttribute(ccSR.Day_Of_Week, i + 1, day[i]);
+            EIP.SetAttribute(ccSR.DayOfWeek, i + 1, day[i]);
          }
          return true;
       }

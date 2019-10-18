@@ -31,7 +31,7 @@ namespace EIP_Lib {
          ccSR.Hour,
          ccSR.Minute,
          ccSR.Week,
-         ccSR.Day_Of_Week,
+         ccSR.DayOfWeek,
       };
 
       // Visible Category
