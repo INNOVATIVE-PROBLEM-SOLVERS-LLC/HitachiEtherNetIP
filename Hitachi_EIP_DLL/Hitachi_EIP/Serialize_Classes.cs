@@ -65,7 +65,7 @@ namespace EIP_Lib {
       [XmlAttribute]
       public string IncreasedWidth;
       [XmlAttribute]
-      public string Face;
+      public string DotMatrix;
    }
 
    public class BarCode {
@@ -74,7 +74,7 @@ namespace EIP_Lib {
       [XmlAttribute]
       public string EANPrefix;
       [XmlAttribute]
-      public string Face;
+      public string DotMatrix;
    }
 
    public class Counter {
@@ -302,7 +302,7 @@ namespace EIP_Lib {
       [XmlAttribute]
       public string Layout;
       [XmlAttribute]
-      public string Face;
+      public string DotMatrix;
       [XmlAttribute]
       public string Location;
       [XmlAttribute]
