@@ -360,7 +360,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((byte)ccCal.Zero_Suppress_Day_Of_Week, GSS.GetSet, false, 27, // Zero Suppress Day Of Week 0x73
+         new AttrData((byte)ccCal.Zero_Suppress_DayOfWeek, GSS.GetSet, false, 27, // Zero Suppress Day Of Week 0x73
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
@@ -388,7 +388,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((byte)ccCal.Substitute_Day_Of_Week, GSS.GetSet, false, 16, // Substitute Day Of Week 0x7A
+         new AttrData((byte)ccCal.Substitute_DayOfWeek, GSS.GetSet, false, 16,  // Substitute Day Of Week 0x7A
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set

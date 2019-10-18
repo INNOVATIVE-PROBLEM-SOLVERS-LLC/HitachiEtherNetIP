@@ -192,8 +192,8 @@ namespace EIP_Lib {
          EIP.SetAttribute(ccIDX.Calendar_Block, block);
          EIP.SetAttribute(ccCal.Substitute_Weeks, "Disable");
          EIP.SetAttribute(ccCal.Zero_Suppress_Weeks, "Disable");
-         EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
-         EIP.SetAttribute(ccCal.Zero_Suppress_Day_Of_Week, "Disable");
+         EIP.SetAttribute(ccCal.Substitute_DayOfWeek, "Enable");
+         EIP.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, "Disable");
          return true;
       }
 
@@ -490,7 +490,7 @@ namespace EIP_Lib {
                      EIP.SetAttribute(ccIDX.Item, 3);
                      EIP.GetAttribute(ccCal.First_Calendar_Block, out firstBlock);
                      EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock);
-                     EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
+                     EIP.SetAttribute(ccCal.Substitute_DayOfWeek, "Enable");
                   }
                   // Set up the clock for item 4
                   {
@@ -697,7 +697,7 @@ namespace EIP_Lib {
                   {
                      EIP.SetAttribute(ccIDX.Item, 3);
                      EIP.SetAttribute(ccIDX.Calendar_Block, firstBlock3);
-                     EIP.SetAttribute(ccCal.Substitute_Day_Of_Week, "Enable");
+                     EIP.SetAttribute(ccCal.Substitute_DayOfWeek, "Enable");
                   }
                   // Set up the clock for item 4
                   {

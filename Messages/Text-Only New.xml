@@ -12,7 +12,7 @@
   <Message Layout="Individual">
     <Column InterLineSpacing="0">
       <Item Type="Text">
-        <Font IncreasedWidth="1" InterCharacterSpace="1" Face="5x8(5x7)" />
+        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text>1</Text>
       </Item>
