@@ -143,35 +143,15 @@ namespace EIP_Lib {
       private void SendSubstitution(Substitution s, string delimiter) {
          for (int i = 0; i < s.SubRule.Length; i++) {
             SubstitutionRule r = s.SubRule[i];
-            string type = r.Type;
-            switch (type) {
-               case "Year":
-                  SetSubValues(ccSR.Year, r, delimiter);
-                  break;
-               case "Month":
-                  SetSubValues(ccSR.Month, r, delimiter);
-                  break;
-               case "Day":
-                  SetSubValues(ccSR.Day, r, delimiter);
-                  break;
-               case "Hour":
-                  SetSubValues(ccSR.Hour, r, delimiter);
-                  break;
-               case "Minute":
-                  SetSubValues(ccSR.Minute, r, delimiter);
-                  break;
-               case "Week":
-                  SetSubValues(ccSR.Week, r, delimiter);
-                  break;
-               case "DayOfWeek":
-                  SetSubValues(ccSR.Day_Of_Week, r, delimiter);
-                  break;
+            if (Enum.TryParse(r.Type, out ccSR type)) {
+               SetSubValues(type, r, delimiter);
+            } else {
+               LogIt($"Unknown substitution rule type =>{r.Type}<=");
             }
          }
       }
 
-      private bool SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
-         bool success = true;
+      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
          if (int.TryParse(r.Base, out int b)) {
             Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
             string[] s = r.Text.Split(delimeter[0]);
@@ -184,7 +164,6 @@ namespace EIP_Lib {
                }
             }
          }
-         return success;
       }
 
       private void SendMessage(Msg m) {
@@ -509,7 +488,7 @@ namespace EIP_Lib {
          //WriteSubstitution(sr, ccSR.Hour, 0, 23);
          //WriteSubstitution(sr, ccSR.Minute, 0, 59);
          //WriteSubstitution(ccSR.Week, 1, 53);
-         RetrieveSubstitution(sr, ccSR.Day_Of_Week, 1, 7);
+         RetrieveSubstitution(sr, ccSR.DayOfWeek, 1, 7);
          Substitution substitution = new Substitution() {
             Delimiter = "/",
             StartYear = GetAttribute(ccSR.Start_Year),

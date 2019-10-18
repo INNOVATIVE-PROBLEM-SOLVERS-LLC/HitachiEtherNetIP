@@ -230,7 +230,7 @@ namespace EIP_Lib {
                            SetSubValues(ccSR.Week, c, delimiter);
                            break;
                         case "DayOfWeek":
-                           SetSubValues(ccSR.Day_Of_Week, c, delimiter);
+                           SetSubValues(ccSR.DayOfWeek, c, delimiter);
                            break;
                         case "Skip":
                            // Do not process these nodes
@@ -817,7 +817,7 @@ namespace EIP_Lib {
             //WriteSubstitution(writer, ccSR.Hour, 0, 23);
             //WriteSubstitution(writer, ccSR.Minute, 0, 59);
             //WriteSubstitution(writer, ccSR.Week, 1, 53);
-            RetrieveSubstitution(writer, ccSR.Day_Of_Week, 1, 7);
+            RetrieveSubstitution(writer, ccSR.DayOfWeek, 1, 7);
          }
          writer.WriteEndElement(); // Substitution
       }
@@ -1256,7 +1256,7 @@ namespace EIP_Lib {
                      VerifySubValues(ccSR.Week, c, delimiter);
                      break;
                   case "DayOfWeek":
-                     VerifySubValues(ccSR.Day_Of_Week, c, delimiter);
+                     VerifySubValues(ccSR.DayOfWeek, c, delimiter);
                      break;
                   case "Skip":
                      // Do not process these nodes

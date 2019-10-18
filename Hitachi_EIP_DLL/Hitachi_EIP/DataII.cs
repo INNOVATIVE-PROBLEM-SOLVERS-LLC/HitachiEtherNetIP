@@ -484,7 +484,7 @@ namespace EIP_Lib {
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 53, fmtDD.None),                   //   Get
             new Prop(3, DataFormats.ItemChar, 1, 53, fmtDD.None)),              //   Set
-         new AttrData((byte)ccSR.Day_Of_Week, GSS.GetSet, false, 5,             // Day Of Week 0x6D
+         new AttrData((byte)ccSR.DayOfWeek, GSS.GetSet, false, 5,               // Day Of Week 0x6D
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
             new Prop(1, DataFormats.Item, 1, 7, fmtDD.None),                    //   Get
             new Prop(3, DataFormats.ItemChar, 1, 7, fmtDD.None)),               //   Set

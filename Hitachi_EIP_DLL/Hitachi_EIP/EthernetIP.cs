@@ -197,7 +197,7 @@ namespace EIP_Lib {
       Hour = 0x6A,
       Minute = 0x6B,
       Week = 0x6C,
-      Day_Of_Week = 0x6D,
+      DayOfWeek = 0x6D,
    }
 
    // Attributes within Enviroment Setting class 0x71
