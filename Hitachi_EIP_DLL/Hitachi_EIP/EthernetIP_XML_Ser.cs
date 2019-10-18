@@ -62,9 +62,6 @@ namespace EIP_Lib {
          if (StartSession(true)) {
             if (ForwardOpen()) {
                try {
-
-                  DeleteAllButOne();  // Delete all but one item in printer
-
                   if (Lab.Message != null) {
                      SendMessage(Lab.Message);
                   }
@@ -167,6 +164,9 @@ namespace EIP_Lib {
       }
 
       private void SendMessage(Msg m) {
+         // Set to only one item in printer
+         DeleteAllButOne();
+
          if (m.Column != null) {
             AllocateRowsColumns(m);
          }
