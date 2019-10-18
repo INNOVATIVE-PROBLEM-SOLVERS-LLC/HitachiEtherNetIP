@@ -1,37 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Label ClockSystem="24-Hour" Registration="101" GroupNumber="00" GroupName="" Name="EthernetIP" 
-       BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+<Label Version="3">
 	  <Printer Model="UX" Make="Hitachi">
 
-			<Substitution Rule="01" StartYear="2019" Delimiter="/">
-				<Year Base="00">00/01/02/03/04/05/06/07/08/09</Year>
-				<Year Base="10">10/11/12/13/14/15/16/17/18/19</Year>
-				<Year Base="20">20/21/22/23</Year>
+			<Substitution RuleNumber="01" StartYear="2019" Delimiter="/">
+				<Rule Type="Year" Base="00">00/01/02/03/04/05/06/07/08/09</Rule>
+				<Rule Type="Year" Base="10">10/11/12/13/14/15/16/17/18/19</Rule>
+				<Rule Type="Year" Base="20">20/21/22/23</Rule>
 
-				<Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
+				<Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Rule>
 
-				<Day Base="01">01/02/03/04/05/06/07/08/09/10</Day>
-				<Day Base="11">11/02/13/14/15/16/17/18/19/20</Day>
-				<Day Base="21">21/22/23/24/25/26/27/28/29/30/31</Day>
+				<Rule Type="Day" Base="01">01/02/03/04/05/06/07/08/09/10</Rule>
+				<Rule Type="Day" Base="11">11/02/13/14/15/16/17/18/19/20</Rule>
+				<Rule Type="Day" Base="21">21/22/23/24/25/26/27/28/29/30/31</Rule>
 
-				<Hour Base="00">00/01/02/03/04/05/06/07/08/09</Hour>
-				<Hour Base="10">10/11/12/13/14/15/16/17/18/19</Hour>
-				<Hour Base="20">20/21/22/23</Hour>
+				<Rule Type="Hour" Base="00">00/01/02/03/04/05/06/07/08/09</Rule>
+				<Rule Type="Hour" Base="10">10/11/12/13/14/15/16/17/18/19</Rule>
+				<Rule Type="Hour" Base="20">20/21/22/23</Rule>
 
-				<Minute Base="00">00/01/02/03/04/05/06/07/08/09</Minute>
-				<Minute Base="10">10/11/12/13/14/15/16/17/18/19</Minute>
-				<Minute Base="20">20/21/22/23/24/25/26/27/28/29</Minute>
-				<Minute Base="30">30/31/32/33/34/35/36/37/38/39</Minute>
-				<Minute Base="40">40/41/42/43/44/45/46/47/48/49</Minute>
-				<Minute Base="50">50/51/52/53/54/55/56/57/58/59</Minute>
+				<Rule Type="Minute" Base="00">00/01/02/03/04/05/06/07/08/09</Rule>
+				<Rule Type="Minute" Base="10">10/11/12/13/14/15/16/17/18/19</Rule>
+				<Rule Type="Minute" Base="20">20/21/22/23/24/25/26/27/28/29</Rule>
+				<Rule Type="Minute" Base="30">30/31/32/33/34/35/36/37/38/39</Rule>
+				<Rule Type="Minute" Base="40">40/41/42/43/44/45/46/47/48/49</Rule>
+				<Rule Type="Minute" Base="50">50/51/52/53/54/55/56/57/58/59</Rule>
 
-				<Week Base="01">01/02/03/04/05/06/07/08/09/10</Week>
-				<Week Base="11">11/12/13/14/15/16/17/18/19/20</Week>
-				<Week Base="21">21/22/23/24/25/26/27/28/29/30</Week>
-				<Week Base="31">31/32/33/34/35/36/37/38/39/40</Week>
-				<Week Base="41">41/42/43/44/45/46/47/48/49/50/51/52/53</Week>
+				<Rule Type="Week" Base="01">01/02/03/04/05/06/07/08/09/10</Rule>
+				<Rule Type="Week" Base="11">11/12/13/14/15/16/17/18/19/20</Rule>
+				<Rule Type="Week" Base="21">21/22/23/24/25/26/27/28/29/30</Rule>
+				<Rule Type="Week" Base="31">31/32/33/34/35/36/37/38/39/40</Rule>
+				<Rule Type="Week" Base="41">41/42/43/44/45/46/47/48/49/50/51/52/53</Rule>
 
-				<DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
+				<Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
 
 			</Substitution>
 	  </Printer>

@@ -77,14 +77,14 @@ namespace EIP_Lib {
       #region Send XML to Printer
 
       // Send xml file to printer
-      public bool SendXmlToPrinter(string FileName, bool UseAutoReflection = false) {
+      public bool SendXmlToPrinter(string FileName, bool UseAutoReflection = true) {
          XmlDocument xmlDoc = new XmlDocument { PreserveWhitespace = true };
          xmlDoc.Load(FileName);
          return SendXmlToPrinter(xmlDoc, UseAutoReflection);
       }
 
       // Send xlmDoc from file to printer
-      public bool SendXmlToPrinter(XmlDocument xmlDoc, bool UseAutoReflection = false) {
+      public bool SendXmlToPrinter(XmlDocument xmlDoc, bool UseAutoReflection = true) {
          // Need a XMP Document to continue
          if (xmlDoc == null) {
             return false;
@@ -94,8 +94,6 @@ namespace EIP_Lib {
             if (ForwardOpen()) {
                try {
                   this.UseAutomaticReflection = UseAutoReflection;
-                  // Set to only one item in printer
-                  DeleteAllButOne();
 
                   XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
                   if (objs != null) {
@@ -252,6 +250,10 @@ namespace EIP_Lib {
          int[] columns = new int[100];
          int[] ILS = new int[100];
          int maxCol = 0;
+
+         // Set to only one item in printer
+         DeleteAllButOne();
+
          // Count the rows and columns
          foreach (XmlNode col in objs) {
             if (col is XmlWhitespace)
@@ -1199,7 +1201,7 @@ namespace EIP_Lib {
          byte[] data;
 
          // Get the standard attributes for substitution
-         string rule = GetXmlAttr(p, "Rule");
+         string rule = GetXmlAttr(p, "RuleNumber");
          string startYear = GetXmlAttr(p, "StartYear");
          string delimiter = GetXmlAttr(p, "Delimiter");
 
