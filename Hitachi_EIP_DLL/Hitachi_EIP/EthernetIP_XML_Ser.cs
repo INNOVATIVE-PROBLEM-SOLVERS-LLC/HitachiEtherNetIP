@@ -11,7 +11,12 @@ namespace EIP_Lib {
 
       #region Send XML to printer using Serialization
 
-      public void SendXMLAsSerialization(string xml, bool AutoReflect = true) {
+      public bool SendFileAsSerialization(string filename, bool AutoReflect = true) {
+         return SendXMLAsSerialization(File.ReadAllText(filename), AutoReflect);
+      }
+
+      public bool SendXMLAsSerialization(string xml, bool AutoReflect = true) {
+         bool success = true;
          Lab Lab;
          XmlSerializer serializer = new XmlSerializer(typeof(Lab));
          try {
@@ -24,31 +29,9 @@ namespace EIP_Lib {
                SendLabelToPrinter(Lab, AutoReflect);
             }
          } catch (Exception e) {
+            success = false;
             LogIt(e.Message);
             // String passed is not XML, simply return defaultXmlClass
-         } finally {
-            // Release the error detection events
-            serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute -= new XmlAttributeEventHandler(serializer_UnknownAttribute);
-         }
-      }
-
-      public bool SendFileAsSerialization(string filename, bool AutoReflect = true) {
-         bool success = true;
-         Lab Lab;
-         XmlSerializer serializer = new XmlSerializer(typeof(Lab));
-         try {
-            // Arm the Serializer
-            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
-            using (FileStream reader = new FileStream(filename, FileMode.Open)) {
-               // Deserialize the file contents
-               Lab = (Lab)serializer.Deserialize(reader);
-               SendLabelToPrinter(Lab, AutoReflect);
-            }
-         } catch (Exception e) {
-            LogIt(e.Message);
-            success = false;
          } finally {
             // Release the error detection events
             serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
@@ -57,7 +40,7 @@ namespace EIP_Lib {
          return success;
       }
 
-      private void SendLabelToPrinter(Lab Lab, bool AutoReflect) {
+      public void SendLabelToPrinter(Lab Lab, bool AutoReflect) {
          UseAutomaticReflection = AutoReflect; // Speed up processing
          if (StartSession(true)) {
             if (ForwardOpen()) {
