@@ -375,22 +375,8 @@ namespace EIP_Lib {
                      case "Offset":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (int.TryParse(a.Value, out int x) && x != 0) {
-                              switch (a.Name) {
-                                 case "Year":
-                                    SetAttribute(ccCal.Offset_Year, x);
-                                    break;
-                                 case "Month":
-                                    SetAttribute(ccCal.Offset_Month, x);
-                                    break;
-                                 case "Day":
-                                    SetAttribute(ccCal.Offset_Day, x);
-                                    break;
-                                 case "Hour":
-                                    SetAttribute(ccCal.Offset_Hour, x);
-                                    break;
-                                 case "Minute":
-                                    SetAttribute(ccCal.Offset_Minute, x);
-                                    break;
+                              if (Enum.TryParse($"Offset_{a.Name}", out ccCal attr)) {
+                                 SetAttribute(attr, x);
                               }
                            }
                         }
@@ -398,28 +384,8 @@ namespace EIP_Lib {
                      case "ZeroSuppress":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (!IsDefaultValue(fmtDD.DisableSpaceChar, a.Value)) {
-                              switch (a.Name) {
-                                 case "Year":
-                                    SetAttribute(ccCal.Zero_Suppress_Year, a.Value);
-                                    break;
-                                 case "Month":
-                                    SetAttribute(ccCal.Zero_Suppress_Month, a.Value);
-                                    break;
-                                 case "Day":
-                                    SetAttribute(ccCal.Zero_Suppress_Day, a.Value);
-                                    break;
-                                 case "Hour":
-                                    SetAttribute(ccCal.Zero_Suppress_Hour, a.Value);
-                                    break;
-                                 case "Minute":
-                                    SetAttribute(ccCal.Zero_Suppress_Minute, a.Value);
-                                    break;
-                                 case "Week":
-                                    SetAttribute(ccCal.Zero_Suppress_Weeks, a.Value);
-                                    break;
-                                 case "DayOfWeek":
-                                    SetAttribute(ccCal.Zero_Suppress_DayOfWeek, a.Value);
-                                    break;
+                              if (Enum.TryParse($"Zero_Suppress_{a.Name}", out ccCal attr)) {
+                                 SetAttribute(attr, a.Value);
                               }
                            }
                         }
@@ -427,28 +393,8 @@ namespace EIP_Lib {
                      case "Substitute":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (!IsDefaultValue(fmtDD.EnableDisable, a.Value)) {
-                              switch (a.Name) {
-                                 case "Year":
-                                    SetAttribute(ccCal.Substitute_Year, a.Value);
-                                    break;
-                                 case "Month":
-                                    SetAttribute(ccCal.Substitute_Month, a.Value);
-                                    break;
-                                 case "Day":
-                                    SetAttribute(ccCal.Substitute_Day, a.Value);
-                                    break;
-                                 case "Hour":
-                                    SetAttribute(ccCal.Substitute_Hour, a.Value);
-                                    break;
-                                 case "Minute":
-                                    SetAttribute(ccCal.Substitute_Minute, a.Value);
-                                    break;
-                                 case "Week":
-                                    SetAttribute(ccCal.Substitute_Weeks, a.Value);
-                                    break;
-                                 case "DayOfWeek":
-                                    SetAttribute(ccCal.Substitute_DayOfWeek, a.Value);
-                                    break;
+                              if (Enum.TryParse($"Substitute_{a.Name}", out ccCal attr)) {
+                                 SetAttribute(attr, a.Value);
                               }
                            }
                         }
@@ -1414,76 +1360,22 @@ namespace EIP_Lib {
                   switch (n.Name) {
                      case "Offset":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 VerifyXml(n, "Year", ccCal.Offset_Year, item, cb);
-                                 break;
-                              case "Month":
-                                 VerifyXml(n, "Month", ccCal.Offset_Month, item, cb);
-                                 break;
-                              case "Day":
-                                 VerifyXml(n, "Day", ccCal.Offset_Day, item, cb);
-                                 break;
-                              case "Hour":
-                                 VerifyXml(n, "Hour", ccCal.Offset_Hour, item, cb);
-                                 break;
-                              case "Minute":
-                                 VerifyXml(n, "Minute", ccCal.Offset_Minute, item, cb);
-                                 break;
+                           if (Enum.TryParse($"Offset_{a.Name}", out ccCal attr)) {
+                              VerifyXml(n, a.Name, attr, item, cb);
                            }
                         }
                         break;
                      case "ZeroSuppress":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 VerifyXml(n, "Year", ccCal.Zero_Suppress_Year, item, cb);
-                                 break;
-                              case "Month":
-                                 VerifyXml(n, "Month", ccCal.Zero_Suppress_Month, item, cb);
-                                 break;
-                              case "Day":
-                                 VerifyXml(n, "Day", ccCal.Zero_Suppress_Day, item, cb);
-                                 break;
-                              case "Hour":
-                                 VerifyXml(n, "Hour", ccCal.Zero_Suppress_Hour, item, cb);
-                                 break;
-                              case "Minute":
-                                 VerifyXml(n, "Minute", ccCal.Zero_Suppress_Minute, item, cb);
-                                 break;
-                              case "Week":
-                                 VerifyXml(n, "Week", ccCal.Zero_Suppress_Weeks, item, cb);
-                                 break;
-                              case "DayOfWeek":
-                                 VerifyXml(n, "DayOfWeek", ccCal.Zero_Suppress_DayOfWeek, item, cb);
-                                 break;
+                           if (Enum.TryParse($"Zero_Suppress_{a.Name}", out ccCal attr)) {
+                              VerifyXml(n, a.Name, attr, item, cb);
                            }
                         }
                         break;
                      case "Substitute":
                         foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Year":
-                                 VerifyXml(n, "Year", ccCal.Substitute_Year, item, cb);
-                                 break;
-                              case "Month":
-                                 VerifyXml(n, "Month", ccCal.Substitute_Month, item, cb);
-                                 break;
-                              case "Day":
-                                 VerifyXml(n, "Day", ccCal.Substitute_Day, item, cb);
-                                 break;
-                              case "Hour":
-                                 VerifyXml(n, "Hour", ccCal.Substitute_Hour, item, cb);
-                                 break;
-                              case "Minute":
-                                 VerifyXml(n, "Minute", ccCal.Substitute_Minute, item, cb);
-                                 break;
-                              case "Week":
-                                 VerifyXml(n, "Week", ccCal.Substitute_Weeks, item, cb);
-                                 break;
-                              case "DayOfWeek":
-                                 VerifyXml(n, "DayOfWeek", ccCal.Substitute_DayOfWeek, item, cb);
-                                 break;
+                           if (Enum.TryParse($"Substitute_{a.Name}", out ccCal attr)) {
+                              VerifyXml(n, a.Name, attr, item, cb);
                            }
                         }
                         break;

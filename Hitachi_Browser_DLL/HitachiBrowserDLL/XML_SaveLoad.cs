@@ -30,9 +30,19 @@ namespace EIP_Lib {
 
       // Send xlmDoc from display to printer
       private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
-         xmlDoc = new XmlDocument() { PreserveWhitespace = true };
-         xmlDoc.LoadXml(txtIndentedView.Text);
-         SendFileToPrinter_Click(null, null);
+         bool success = true;
+         if (chkSerialize.Checked) {
+            success = EIP.SendXMLAsSerialization(txtIndentedView.Text, chkAutoReflect.Checked);
+         } else {
+            xmlDoc = new XmlDocument() { PreserveWhitespace = true };
+            xmlDoc.LoadXml(txtIndentedView.Text);
+            success = EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
+         }
+         if (success) {
+            EIP.LogIt("Load Successful!");
+         } else {
+            EIP.LogIt("Load Failed!");
+         }
       }
 
       // Send xlmDoc from file to printer
