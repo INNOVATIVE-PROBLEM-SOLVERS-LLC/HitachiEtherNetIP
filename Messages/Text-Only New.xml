@@ -11,7 +11,7 @@
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text>1</Text>

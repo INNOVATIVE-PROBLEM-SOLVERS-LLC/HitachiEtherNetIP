@@ -11,50 +11,50 @@
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="1">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 1 </Text>
       </Item>
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 2 </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="12x16" />
         <BarCode />
         <Text>3</Text>
       </Item>
     </Column>
     <Column InterLineSpacing="1">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 4 </Text>
       </Item>
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 5 </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="12x16" />
         <BarCode />
         <Text>6</Text>
       </Item>
     </Column>
     <Column InterLineSpacing="1">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 7 </Text>
       </Item>
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text> 8 </Text>

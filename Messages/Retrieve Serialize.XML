@@ -11,7 +11,7 @@
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="2">
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
@@ -21,7 +21,7 @@
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
       </Item>
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
@@ -31,7 +31,7 @@
         </Date>
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
       </Item>
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
@@ -43,7 +43,7 @@
       </Item>
     </Column>
     <Column InterLineSpacing="2">
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
@@ -53,7 +53,7 @@
         </Date>
         <Text>Shift {E}}</Text>
       </Item>
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
@@ -61,7 +61,7 @@
         </Date>
         <Text>TCount {{FF}} </Text>
       </Item>
-      <Item Type="Counter">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Counter Block="1">
@@ -74,7 +74,7 @@
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="2" DotMatrix="18x24" />
         <BarCode />
         <Text>{X/000}</Text>
