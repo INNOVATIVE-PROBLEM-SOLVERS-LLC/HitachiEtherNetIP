@@ -11,11 +11,10 @@ namespace EIP_Lib {
 
       #region Send XML to printer using Serialization
 
-      public bool SendFileAsSerialization(string filename, bool AutoReflect = true) {
-         return SendXMLAsSerialization(File.ReadAllText(filename), AutoReflect);
-      }
-
       public bool SendXMLAsSerialization(string xml, bool AutoReflect = true) {
+         if (xml.IndexOf("<Label", StringComparison.OrdinalIgnoreCase) < 0) {
+            xml = File.ReadAllText(xml);
+         }
          bool success = true;
          Lab Lab;
          XmlSerializer serializer = new XmlSerializer(typeof(Lab));
@@ -26,7 +25,7 @@ namespace EIP_Lib {
             using (TextReader reader = new StringReader(xml)) {
                // Deserialize the file contents
                Lab = (Lab)serializer.Deserialize(reader);
-               SendLabelToPrinter(Lab, AutoReflect);
+               SendXMLAsSerialization(Lab, AutoReflect);
             }
          } catch (Exception e) {
             success = false;
@@ -40,7 +39,7 @@ namespace EIP_Lib {
          return success;
       }
 
-      public void SendLabelToPrinter(Lab Lab, bool AutoReflect) {
+      public void SendXMLAsSerialization(Lab Lab, bool AutoReflect = true) {
          UseAutomaticReflection = AutoReflect; // Speed up processing
          if (StartSession(true)) {
             if (ForwardOpen()) {

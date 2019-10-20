@@ -79,7 +79,11 @@ namespace EIP_Lib {
       // Send xml file to printer
       public bool SendXmlToPrinter(string FileName, bool UseAutoReflection = true) {
          XmlDocument xmlDoc = new XmlDocument { PreserveWhitespace = true };
-         xmlDoc.Load(FileName);
+         if (FileName.IndexOf("<Label", StringComparison.OrdinalIgnoreCase) >= 0) {
+            xmlDoc.LoadXml(FileName);
+         } else {
+            xmlDoc.Load(FileName);
+         }
          return SendXmlToPrinter(xmlDoc, UseAutoReflection);
       }
 
@@ -1000,7 +1004,11 @@ namespace EIP_Lib {
       // Verify the printer settings vs the XML File
       public bool VerifyXmlVsPrinter(string FileName, bool ReportAll = true) {
          XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
-         xmlDoc.Load(FileName);
+         if (FileName.IndexOf("<Label", StringComparison.OrdinalIgnoreCase) >= 0) {
+            xmlDoc.LoadXml(FileName);
+         } else {
+            xmlDoc.Load(FileName);
+         }
          return VerifyXmlVsPrinter(xmlDoc, ReportAll);
       }
 
