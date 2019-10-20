@@ -371,7 +371,9 @@ namespace EIP_Lib {
                continue;
             if (d.Name == "Date" && int.TryParse(GetXmlAttr(d, "Block"), out int b) && b <= CalBlockCount) {
                SetAttribute(ccIDX.Calendar_Block, FirstCalBlock + b - 1);
-
+               if (int.TryParse(GetXmlAttr(d, "SubstitutionRule"), out int sr)) {
+                  SetAttribute(ccIDX.Substitution_Rule, sr);
+               }
                foreach (XmlNode n in d.ChildNodes) {
                   if (n is XmlWhitespace)
                      continue;
@@ -796,6 +798,7 @@ namespace EIP_Lib {
          GetAttribute(ccCal.Number_of_Calendar_Blocks, out int BlockCount);
          for (int i = 0; success && i < BlockCount; i++) {
             SetAttribute(ccIDX.Calendar_Block, FirstBlock + i);
+            // Where is the Substitution Rule
             writer.WriteStartElement("Date"); // Start Date
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
@@ -1355,6 +1358,9 @@ namespace EIP_Lib {
             if (d.Name == "Date" && int.TryParse(GetXmlAttr(d, "Block"), out int b) && b <= CalBlockCount) {
                int cb = FirstCalBlock + b - 1;
                SetAttribute(ccIDX.Calendar_Block, cb);
+               if (int.TryParse(GetXmlAttr(d, "SubstitutionRule"), out int sr)) {
+                  SetAttribute(ccIDX.Substitution_Rule, sr);
+               }
                foreach (XmlNode n in d) {
                   if (n is XmlWhitespace)
                      continue;

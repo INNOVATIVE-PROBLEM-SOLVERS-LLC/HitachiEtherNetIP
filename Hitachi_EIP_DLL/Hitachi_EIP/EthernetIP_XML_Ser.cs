@@ -233,6 +233,7 @@ namespace EIP_Lib {
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
             if (date.Block <= calCount) {
+               SetAttribute(ccIDX.Substitution_Rule, date.SubstitutionRule);
                SetAttribute(ccIDX.Calendar_Block, calStart + date.Block - 1);
 
                // Process Offset
@@ -564,6 +565,7 @@ namespace EIP_Lib {
          item.Date = new Date[item.Location.calCount];
          for (int i = 0; i < item.Location.calCount; i++) {
             SetAttribute(ccIDX.Calendar_Block, item.Location.calStart + i);
+            // Where do you get Substitution rule number
             item.Date[i] = new Date() { Block = i + 1 };
             if ((mask[i] & DateOffset) > 0) {
                item.Date[i].SubstitutionRule = "1";

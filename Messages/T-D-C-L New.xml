@@ -11,14 +11,14 @@
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Text>Text{:}Only{!} </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Date">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1">
@@ -30,7 +30,7 @@
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Counter">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Counter Block="1">
@@ -43,7 +43,7 @@
       </Item>
     </Column>
     <Column InterLineSpacing="0">
-      <Item Type="Text">
+      <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="12x16" />
         <BarCode />
         <Text />
