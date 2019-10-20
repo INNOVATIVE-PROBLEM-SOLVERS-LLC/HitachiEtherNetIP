@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
+
 namespace EIP_Lib {
 
    public partial class XML {
@@ -54,7 +55,7 @@ namespace EIP_Lib {
          }
          if (xmlDoc != null) {
             if (chkSerialize.Checked) {
-               success = EIP.SendFileAsSerialization(XMLFileName, chkAutoReflect.Checked);
+               success = EIP.SendXMLAsSerialization(XMLFileName, chkAutoReflect.Checked);
             } else {
                success = EIP.SendXmlToPrinter(xmlDoc, chkAutoReflect.Checked);
             }
