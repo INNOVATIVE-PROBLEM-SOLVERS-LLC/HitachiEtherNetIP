@@ -33,6 +33,7 @@ namespace EIP_Lib {
    }
 
    public class Item {
+      [XmlIgnore]
       [XmlAttribute]
       public string Type;
       public FontDef Font;

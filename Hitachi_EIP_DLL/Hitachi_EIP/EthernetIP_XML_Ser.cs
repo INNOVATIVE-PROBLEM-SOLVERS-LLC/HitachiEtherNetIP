@@ -526,7 +526,6 @@ namespace EIP_Lib {
             for (int row = 0; row < LineCount; row++) {
                SetAttribute(ccIDX.Item, index + 1);
                Item item = new Item() {
-                  Type = ItemType.Text.ToString(),
                   Text = GetAttribute(ccPF.Print_Character_String),
                   Font = new FontDef() {
                      InterCharacterSpace = GetAttribute(ccPF.InterCharacter_Space),
@@ -545,13 +544,11 @@ namespace EIP_Lib {
                item.Location = new Location() { Index = index, Row = row, Col = col };
                GetAttribute(ccCal.Number_of_Calendar_Blocks, out item.Location.calCount);
                if (item.Location.calCount > 0) {
-                  item.Type = ItemType.Date.ToString();
                   GetAttribute(ccCal.First_Calendar_Block, out item.Location.calStart);
                   RetrieveCalendarSettings(item);
                }
                GetAttribute(ccCount.Number_Of_Count_Blocks, out item.Location.countCount);
                if (item.Location.countCount > 0) {
-                  item.Type = ItemType.Counter.ToString();
                   GetAttribute(ccCount.First_Count_Block, out item.Location.countStart);
                   RetrieveCountSettings(item);
                }

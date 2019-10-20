@@ -582,10 +582,7 @@ namespace EIP_Lib {
                                        itemType = GetItemType(text, ref mask);
                                        writer.WriteStartElement("Item"); // Start Item
                                        {
-                                          writer.WriteAttributeString("Type", Enum.GetName(typeof(ItemType), itemType));
-
                                           RetrieveFont(writer);
-
                                           switch (itemType) {
                                              case ItemType.Text:
                                                 break;
@@ -1240,15 +1237,11 @@ namespace EIP_Lib {
                               }
                            }
                            VerifyXml(row.SelectSingleNode("Text"), "Text", ccPF.Print_Character_String, item);
-
-                           ItemType type = (ItemType)Enum.Parse(typeof(ItemType), GetXmlAttr(row, "Type"), true);
-                           switch (type) {
-                              case ItemType.Date:
-                                 VerifyCalendar(row);
-                                 break;
-                              case ItemType.Counter:
-                                 VerifyCount(row);
-                                 break;
+                           if (row.SelectSingleNode("Date") != null) {
+                              VerifyCalendar(row);
+                           }
+                           if (row.SelectSingleNode("Counter") != null) {
+                              VerifyCount(row);
                            }
                            item++;
                            break;
