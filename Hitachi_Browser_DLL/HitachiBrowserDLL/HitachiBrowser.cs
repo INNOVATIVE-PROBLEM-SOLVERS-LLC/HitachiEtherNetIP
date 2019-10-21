@@ -813,7 +813,7 @@ namespace EIP_Lib {
 
       // Browse for folder to save Log/Traffic/Reformat data
       private void BrowseForFolder(TextBox tb) {
-         using FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = tb.Text };
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = tb.Text };
          if (dlg.ShowDialog() == DialogResult.OK) {
             tb.Text = dlg.SelectedPath;
          }
@@ -885,7 +885,6 @@ namespace EIP_Lib {
       }
 
       #endregion
-
    }
 }
 
