@@ -23,7 +23,6 @@ namespace EIP_Lib {
 
       TreeView tvXML;
       TextBox txtIndentedView;
-      TextBox txtVerify;
 
       // Operating Buttons
       Button cmdOpen;
@@ -46,6 +45,18 @@ namespace EIP_Lib {
       Label lblSelectHardTest;
       ComboBox cbAvailableHardTests;
       Button cmdRunHardTest;
+
+      // Verify data Grid
+      DataGridView VerifyView;
+
+      DataGridViewColumn XMLName;
+      DataGridViewColumn Class;
+      DataGridViewColumn Attribute;
+      DataGridViewColumn Item;
+      DataGridViewColumn Block;
+      DataGridViewColumn SubRule;
+      DataGridViewColumn DataOut;
+      DataGridViewColumn DataIn;
 
       // XML Processing
       string XMLFileName = string.Empty;
@@ -160,7 +171,6 @@ namespace EIP_Lib {
 
          tvXML = new TreeView() { Name = "tvXML", Font = courier };
          txtIndentedView = new TextBox() { Name = "txtIndentedView", Font = courier, Multiline = true, ScrollBars = ScrollBars.Both };
-         txtVerify = new TextBox() { Name = "txtVerify", Font = courier, Multiline = true, ScrollBars = ScrollBars.Both };
 
          cmdOpen = new Button() { Text = "Open" };
          cmdOpen.Click += Open_Click;
@@ -192,7 +202,6 @@ namespace EIP_Lib {
 
          tabTreeView.Controls.Add(tvXML);
          tabIndented.Controls.Add(txtIndentedView);
-         tabVerify.Controls.Add(txtVerify);
 
          tab.Controls.Add(cmdOpen);
          tab.Controls.Add(cmdClear);
@@ -237,6 +246,37 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdBrowse);
          tab.Controls.Add(cmdSend);
          tab.Controls.Add(cmdRunHardTest);
+
+         // Verify data Grid
+         VerifyView = new DataGridView()
+            { Name = "VerifyView", AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = false, Visible = true };
+
+         XMLName = new DataGridViewColumn()
+            { Name = "XMLName", HeaderText = "XML Name", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(XMLName);
+         Class = new DataGridViewColumn()
+            { Name = "Class", HeaderText = "Class", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(Class);
+         Attribute = new DataGridViewColumn()
+            { Name = "Attribute", HeaderText = "Attribute", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(Attribute);
+         Item = new DataGridViewColumn()
+            { Name = "Item", HeaderText = "Item", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(Item);
+         Block = new DataGridViewColumn()
+            { Name = "Block", HeaderText = "Block", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(Block);
+         SubRule = new DataGridViewColumn()
+            { Name = "SubRule", HeaderText = "Rule", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(SubRule);
+         DataOut = new DataGridViewColumn()
+            { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(DataOut);
+         DataIn = new DataGridViewColumn()
+            { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
+         VerifyView.Columns.Add(DataIn);
+
+         tabVerify.Controls.Add(VerifyView);
       }
 
       private void CbAvailableHardTests_SelectedIndexChanged(object sender, EventArgs e) {
@@ -256,7 +296,6 @@ namespace EIP_Lib {
          {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
-            Utils.ResizeObject(ref R, txtVerify, 1, 1, tclHeight - 12, tclWidth - 3);
 
             Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 2, 4);
             Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 4, 1, 2, 4);
@@ -281,6 +320,21 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, lblSelectHardTest, tclHeight - 6, 30, 1, 5);
             Utils.ResizeObject(ref R, cbAvailableHardTests, tclHeight - 5, 30, 2, 5);
             Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 3, 30, 2.5f, 5);
+
+            // Resize VerifyView
+            Utils.ResizeObject(ref R, VerifyView, 1, 1, tclHeight - 12, tclWidth - 3);
+            for (int i = 0; i < VerifyView.Columns.Count; i++) {
+               switch (i) {
+                  case 3:
+                  case 4:
+                  case 5:
+                     VerifyView.Columns[i].Width = VerifyView.Width / 16;
+                     break;
+                  default:
+                     VerifyView.Columns[i].Width = VerifyView.Width / 7;
+                     break;
+               }
+            }
 
          }
          R.offset = 0;
@@ -319,8 +373,16 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
+            VerifyView.Rows.Clear();
+            EIP.Verify += EIP_VerifyEvent;
             EIP.VerifyXmlVsPrinter(xmlDoc, !chkErrorsOnly.Checked);
+            EIP.Verify -= EIP_VerifyEvent;
          }
+      }
+
+      private void EIP_VerifyEvent(EIP sender, string msg) {
+         string[] v = msg.Split('\t');
+         VerifyView.Rows.Add(v);
       }
 
       // Add text to all items (Control Deleted)

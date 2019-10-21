@@ -191,8 +191,6 @@ namespace EIP_Lib {
          UseAutomaticReflection = false;
 
          bool success = true;
-         AttrData attr;
-         byte[] data;
 
          // Get the standard attributes for substitution
          string rule = GetXmlAttr(p, "RuleNumber");
@@ -428,7 +426,7 @@ namespace EIP_Lib {
                         break;
                      case "Shift":
                         if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
-                           SetAttribute(ccIDX.Item, shift);
+                           SetAttribute(ccIDX.Calendar_Block, shift);
                            foreach (XmlAttribute a in n.Attributes) {
                               switch (a.Name) {
                                  case "StartHour":
@@ -1151,9 +1149,6 @@ namespace EIP_Lib {
       }
 
       private void VerifySubstitution(XmlNode p) {
-         AttrData attr;
-         byte[] data;
-
          // Get the standard attributes for substitution
          string rule = GetXmlAttr(p, "RuleNumber");
          string startYear = GetXmlAttr(p, "StartYear");
@@ -1368,21 +1363,21 @@ namespace EIP_Lib {
                      case "Offset":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (Enum.TryParse($"Offset_{a.Name}", out ccCal attr)) {
-                              VerifyXml(n, a.Name, attr, item, cb);
+                              VerifyXml(n, a.Name, attr, item, cb, sr);
                            }
                         }
                         break;
                      case "ZeroSuppress":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (Enum.TryParse($"Zero_Suppress_{a.Name}", out ccCal attr)) {
-                              VerifyXml(n, a.Name, attr, item, cb);
+                              VerifyXml(n, a.Name, attr, item, cb, sr);
                            }
                         }
                         break;
                      case "Substitute":
                         foreach (XmlAttribute a in n.Attributes) {
                            if (Enum.TryParse($"Substitute_{a.Name}", out ccCal attr)) {
-                              VerifyXml(n, a.Name, attr, item, cb);
+                              VerifyXml(n, a.Name, attr, item, cb, sr);
                            }
                         }
                         break;
@@ -1457,6 +1452,9 @@ namespace EIP_Lib {
             string msg = $"{xmlName}\t{GetAttrData(Attribute).Class}\t{Attribute}\t{sItem}"
                        + $"\t{sBlock}\t{sSubRule}\t{sent}\t{back}";
             Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg.Replace('_', ' ')));
+            if (sent != back) {
+               Verify?.Invoke(this, msg);
+            }
          }
       }
 

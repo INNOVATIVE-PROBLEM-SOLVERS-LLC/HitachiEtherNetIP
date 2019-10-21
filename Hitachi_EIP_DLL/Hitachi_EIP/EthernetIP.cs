@@ -319,9 +319,13 @@ namespace EIP_Lib {
       public event IOHandler IOComplete;
       public delegate void IOHandler(EIP sender, EIPEventArg e);
 
-      // State Cganged
+      // State Changed
       public event ConnectionStateChangedHandler StateChanged;
       public delegate void ConnectionStateChangedHandler(EIP sender, string msg);
+
+      // State Changed
+      public event VerifyResult Verify;
+      public delegate void VerifyResult(EIP sender, string msg);
 
       #endregion
 
@@ -745,6 +749,7 @@ namespace EIP_Lib {
             }
          }
          if (!successful) {
+
             LogIt("Read Failed.");
             //Disconnect();
          }

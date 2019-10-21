@@ -322,8 +322,7 @@ namespace EIP_Lib {
                // Process Shift
                if (date.Shift != null) {
                   for (int j = 0; j < date.Shift.Length; j++) {
-                     SetAttribute(ccIDX.Item, j + 1);
-                     SetAttribute(ccIDX.Calendar_Block, date.Shift[j].ShiftNumber);
+                     SetAttribute(ccIDX.Calendar_Block, j + 1);
                      SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
                      SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
                      SetAttribute(ccCal.Shift_String_Value, date.Shift[j].ShiftCode);
