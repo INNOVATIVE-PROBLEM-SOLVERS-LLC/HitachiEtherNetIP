@@ -291,9 +291,13 @@ namespace EIP_Lib {
                TrafficFileName = EIP.CreateFileName(TrafficFolder, "Traffic", "xlsx");
                excelApp.ActiveWorkbook.SaveAs(TrafficFileName);
             }
+            wsVerify = null;
+            wsTraffic = null;
             wb.Close();
             excelApp.Quit();
+            Marshal.ReleaseComObject(wb);
             Marshal.ReleaseComObject(excelApp);
+            wb = null;
             excelApp = null;
          }
       }
