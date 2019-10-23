@@ -323,9 +323,13 @@ namespace EIP_Lib {
       public event ConnectionStateChangedHandler StateChanged;
       public delegate void ConnectionStateChangedHandler(EIP sender, string msg);
 
-      // State Changed
+      // Verify Result
       public event VerifyResult Verify;
       public delegate void VerifyResult(EIP sender, string msg);
+
+      // Traffic Result
+      public event TrafficResult TrafficRes;
+      public delegate void TrafficResult(EIP sender, string msg);
 
       #endregion
 
@@ -1707,52 +1711,54 @@ namespace EIP_Lib {
 
       // Build the string to save in the traffic Excel Spreadsheet
       public string GetTraffic(AttrData attr) {
-         string trafficText = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}";
-         trafficText += $"\t{Access}\t{Class}\t{GetAttributeName(Class, Attribute)}";
-         trafficText = trafficText.Replace("_", " ");
+         string trafficHdr = $"{LengthIsValid}\t{DataIsValid}\t{GetStatus}\t";
+         string trafficReq = $"{Access}\t{Class}\t{GetAttributeName(Class, Attribute)}".Replace("_", " ");
+         string trafficIn = string.Empty;
+         string trafficOut = string.Empty;
          if (GetDataLength == 0 && Access != AccessCode.Get) {
-            trafficText += $"\t\t\t";
+            trafficIn += $"\t\t\t";
          } else {
-            trafficText += $"\t{GetDataLength}";
+            trafficIn += $"\t{GetDataLength}";
             if (attr.Data.Fmt == DataFormats.Bytes || attr.Data.Fmt == DataFormats.N1N2N1) {
-               trafficText += $"\tSee=>";
+               trafficIn += $"\tSee=>";
             } else {
                if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
                   string[] dd = DropDowns[(int)attr.Data.DropDown];
                   long n = GetDecValue - attr.Data.Min;
                   if (n >= 0 && n < dd.Length) {
-                     trafficText += $"\t{dd[n]}";
+                     trafficIn += $"\t{dd[n]}";
                   } else {
-                     trafficText += $"\t{GetDataValue}";
+                     trafficIn += $"\t{GetDataValue}";
                   }
                } else {
-                  trafficText += $"\t{GetDataValue}";
+                  trafficIn += $"\t{GetDataValue}";
                }
             }
-            trafficText += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
+            trafficIn += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
          }
          if (SetDataLength == 0) {
-            trafficText += $"\t\t\t";
+            trafficOut += $"\t\t\t";
          } else {
-            trafficText += $"\t{SetDataLength}";
+            trafficOut += $"\t{SetDataLength}";
             if (!string.IsNullOrEmpty(SetDataValue) && SetDataValue.Length > 50) {
-               trafficText += $"\tSee=>";
+               trafficOut += $"\tSee=>";
             } else {
                if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
                   string[] dd = DropDowns[(int)attr.Data.DropDown];
                   long n = SetDecValue - attr.Data.Min;
                   if (n >= 0 && n < dd.Length) {
-                     trafficText += $"\t{dd[n]}";
+                     trafficOut += $"\t{dd[n]}";
                   } else {
-                     trafficText += $"\t{SetDataValue}";
+                     trafficOut += $"\t{SetDataValue}";
                   }
                } else {
-                  trafficText += $"\t{SetDataValue}";
+                  trafficOut += $"\t{SetDataValue}";
                }
             }
-            trafficText += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
+            trafficOut += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
          }
-         return trafficText;
+         TrafficRes?.Invoke(this, trafficReq + trafficIn + trafficOut);
+         return trafficHdr + trafficReq + trafficIn + trafficOut;
       }
 
       #endregion

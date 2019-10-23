@@ -17,7 +17,8 @@ namespace EIP_Lib {
             try {
                string fileName = Path.Combine(parent.MessageFolder, cbAvailableXmlTests.Text + ".XML");
                XMLFileName = fileName;
-               ProcessLabel(File.ReadAllText(fileName));
+               XMLText = File.ReadAllText(fileName);
+               ProcessLabel(XMLText);
             } catch {
                Clear_Click(null, null);
             }

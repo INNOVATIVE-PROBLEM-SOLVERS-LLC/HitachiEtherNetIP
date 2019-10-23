@@ -20,6 +20,7 @@ namespace EIP_Lib {
       TabPage tabTreeView;
       TabPage tabIndented;
       TabPage tabVerify;
+      TabPage tabTraffic;
 
       TreeView tvXML;
       TextBox txtIndentedView;
@@ -41,6 +42,7 @@ namespace EIP_Lib {
       CheckBox chkAutoReflect;
       CheckBox chkErrorsOnly;
       CheckBox chkSerialize;
+      CheckBox chkTraffic;
 
       Label lblSelectHardTest;
       ComboBox cbAvailableHardTests;
@@ -49,14 +51,28 @@ namespace EIP_Lib {
       // Verify data Grid
       DataGridView VerifyView;
 
-      DataGridViewColumn XMLName;
-      DataGridViewColumn Class;
-      DataGridViewColumn Attribute;
-      DataGridViewColumn Item;
-      DataGridViewColumn Block;
-      DataGridViewColumn SubRule;
-      DataGridViewColumn DataOut;
-      DataGridViewColumn DataIn;
+      DataGridViewColumn V_XMLName;
+      DataGridViewColumn V_Class;
+      DataGridViewColumn V_Attribute;
+      DataGridViewColumn V_Item;
+      DataGridViewColumn V_Block;
+      DataGridViewColumn V_SubRule;
+      DataGridViewColumn V_DataOut;
+      DataGridViewColumn V_DataIn;
+
+      // Traffic data Grid
+      DataGridView TrafficView;
+
+      DataGridViewColumn T_Access;
+      DataGridViewColumn T_Class;
+      DataGridViewColumn T_Attribute;
+      DataGridViewColumn T_NOut;
+      DataGridViewColumn T_DataOut;
+      DataGridViewColumn T_RawOut;
+      DataGridViewColumn T_NIn;
+      DataGridViewColumn T_DataIn;
+      DataGridViewColumn T_RawIn;
+
 
       // XML Processing
       string XMLFileName = string.Empty;
@@ -113,7 +129,8 @@ namespace EIP_Lib {
                if (dlgResult == DialogResult.OK) {
                   try {
                      XMLFileName = dlg.FileName;
-                     ProcessLabel(File.ReadAllText(dlg.FileName));
+                     XMLText = File.ReadAllText(dlg.FileName);
+                     ProcessLabel(XMLText);
                   } catch (Exception ex) {
                      MessageBox.Show(parent, ex.Message, "Cannot load XML File!");
                   }
@@ -125,11 +142,17 @@ namespace EIP_Lib {
 
       // Clear out the screens
       private void Clear_Click(object sender, EventArgs e) {
-         txtIndentedView.Text = string.Empty;
-         xmlDoc = null;
-         tvXML.Nodes.Clear();
-         XMLText = string.Empty;
-         XMLFileName = string.Empty;
+         if (tclViewXML.SelectedTab == tabTraffic) {
+            TrafficView.Rows.Clear();
+         } else if (tclViewXML.SelectedTab == tabVerify) {
+            VerifyView.Rows.Clear();
+         } else if (tclViewXML.SelectedTab == tabTreeView | tclViewXML.SelectedTab == tabIndented) {
+            txtIndentedView.Text = string.Empty;
+            xmlDoc = null;
+            tvXML.Nodes.Clear();
+            XMLText = string.Empty;
+            XMLFileName = string.Empty;
+         }
          SetButtonEnables();
       }
 
@@ -160,6 +183,43 @@ namespace EIP_Lib {
 
       #endregion
 
+      #region Event Handlers
+
+      private void EIP_VerifyEvent(EIP sender, string msg) {
+         string[] v = msg.Split('\t');
+         VerifyView.Rows.Add(v);
+         VerifyView.FirstDisplayedScrollingRowIndex = VerifyView.RowCount - 1;
+      }
+
+      private void EIP_TrafficRes(EIP sender, string msg) {
+         string[] t = msg.Split('\t');
+         TrafficView.Rows.Add(t);
+         TrafficView.FirstDisplayedScrollingRowIndex = TrafficView.RowCount - 1;
+      }
+
+      private void TrafficView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e) {
+         switch (TrafficView.Rows[e.RowIndex].Cells[0].Value) {
+            case "Get":
+               TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightBlue;
+               break;
+            case "Set":
+               TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+               break;
+            case "Service":
+               break;
+         }
+      }
+
+      private void ChkTraffic_CheckedChanged(object sender, EventArgs e) {
+         if (chkTraffic.Checked) {
+            EIP.TrafficRes += EIP_TrafficRes;
+         } else {
+            EIP.TrafficRes -= EIP_TrafficRes;
+         }
+      }
+
+      #endregion
+
       #region Service Routines
 
       // Build XML page controls
@@ -167,7 +227,6 @@ namespace EIP_Lib {
          tclViewXML = new TabControl() { Name = "tclViewXML", Font = courier };
          tabTreeView = new TabPage() { Name = "tabTreeView", Text = "Tree View" };
          tabIndented = new TabPage() { Name = "tabIndented", Text = "Indented View" };
-         tabVerify = new TabPage() { Name = "tabVerify", Text = "Verify View" };
 
          tvXML = new TreeView() { Name = "tvXML", Font = courier };
          txtIndentedView = new TextBox() { Name = "txtIndentedView", Font = courier, Multiline = true, ScrollBars = ScrollBars.Both };
@@ -193,12 +252,13 @@ namespace EIP_Lib {
          chkAutoReflect = new CheckBox() { Text = "Auto Reflect.", Checked = true };
          chkErrorsOnly = new CheckBox() { Text = "Errors Only", Checked = true };
          chkSerialize = new CheckBox() { Text = "Serialize", Checked = true };
+         chkTraffic = new CheckBox() { Text = "Log Traffic", Checked = false };
+         chkTraffic.CheckedChanged += ChkTraffic_CheckedChanged;
 
          tab.Controls.Add(tclViewXML);
 
          tclViewXML.Controls.Add(tabTreeView);
          tclViewXML.Controls.Add(tabIndented);
-         tclViewXML.Controls.Add(tabVerify);
 
          tabTreeView.Controls.Add(tvXML);
          tabIndented.Controls.Add(txtIndentedView);
@@ -212,6 +272,7 @@ namespace EIP_Lib {
          tab.Controls.Add(chkAutoReflect);
          tab.Controls.Add(chkErrorsOnly);
          tab.Controls.Add(chkSerialize);
+         tab.Controls.Add(chkTraffic);
 
          // Testing controls
          lblSelectXmlTest = new Label() { Text = "Select XML Test", TextAlign = ContentAlignment.BottomCenter };
@@ -247,36 +308,107 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSend);
          tab.Controls.Add(cmdRunHardTest);
 
-         // Verify data Grid
-         VerifyView = new DataGridView()
-            { Name = "VerifyView", AllowUserToAddRows = false, AllowUserToDeleteRows = false, AutoGenerateColumns = false, Visible = true };
+         BuildTraffic();
 
-         XMLName = new DataGridViewColumn()
-            { Name = "XMLName", HeaderText = "XML Name", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(XMLName);
-         Class = new DataGridViewColumn()
-            { Name = "Class", HeaderText = "Class", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(Class);
-         Attribute = new DataGridViewColumn()
-            { Name = "Attribute", HeaderText = "Attribute", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(Attribute);
-         Item = new DataGridViewColumn()
-            { Name = "Item", HeaderText = "Item", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(Item);
-         Block = new DataGridViewColumn()
-            { Name = "Block", HeaderText = "Block", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(Block);
-         SubRule = new DataGridViewColumn()
-            { Name = "SubRule", HeaderText = "Rule", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(SubRule);
-         DataOut = new DataGridViewColumn()
-            { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(DataOut);
-         DataIn = new DataGridViewColumn()
-            { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = new DataGridViewTextBoxCell() };
-         VerifyView.Columns.Add(DataIn);
+         BuildVerify();
+      }
+
+      private void BuildVerify() {
+
+         tabVerify = new TabPage() { Name = "tabVerify", Text = "Verify View" };
+
+         // Verify data Grid
+         VerifyView = new DataGridView() {
+            Name = "VerifyView",
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells,
+            AllowUserToAddRows = false,
+            AllowUserToDeleteRows = false,
+            AutoGenerateColumns = false,
+            RowHeadersVisible = false,
+            Visible = true
+         };
+
+         DataGridViewTextBoxCell ct = new DataGridViewTextBoxCell();
+         DataGridViewCellStyle cs = new DataGridViewCellStyle() { Alignment = DataGridViewContentAlignment.MiddleCenter };
+
+         V_XMLName = new DataGridViewColumn() { Name = "XMLName", HeaderText = "XML Name", ReadOnly = true, CellTemplate = ct };
+         VerifyView.Columns.Add(V_XMLName);
+
+         V_Class = new DataGridViewColumn() { Name = "Class", HeaderText = "Class", ReadOnly = true, CellTemplate = ct };
+         VerifyView.Columns.Add(V_Class);
+
+         V_Attribute = new DataGridViewColumn() { Name = "Attribute", HeaderText = "Attribute", ReadOnly = true, CellTemplate = ct };
+         VerifyView.Columns.Add(V_Attribute);
+
+         V_Item = new DataGridViewColumn() { Name = "Item", HeaderText = "Item", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
+         VerifyView.Columns.Add(V_Item);
+
+         V_Block = new DataGridViewColumn() { Name = "Block", HeaderText = "Block", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
+         VerifyView.Columns.Add(V_Block);
+
+         V_SubRule = new DataGridViewColumn() { Name = "SubRule", HeaderText = "Rule", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
+         VerifyView.Columns.Add(V_SubRule);
+
+         V_DataOut = new DataGridViewColumn() { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = ct };
+         VerifyView.Columns.Add(V_DataOut);
+
+         V_DataIn = new DataGridViewColumn() { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = ct };
+         VerifyView.Columns.Add(V_DataIn);
 
          tabVerify.Controls.Add(VerifyView);
+
+         tclViewXML.Controls.Add(tabVerify);
+      }
+
+      private void BuildTraffic() {
+
+         tabTraffic = new TabPage() { Name = "tabTraffic", Text = "Traffic View" };
+
+         // Traffic data Grid
+         TrafficView = new DataGridView() {
+            Name = "TrafficView",
+            AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells,
+            AllowUserToAddRows = false,
+            AllowUserToDeleteRows = false,
+            AutoGenerateColumns = false,
+            RowHeadersVisible = false,
+            Visible = true
+         };
+
+         DataGridViewTextBoxCell ct = new DataGridViewTextBoxCell();
+
+         T_Access = new DataGridViewColumn() { Name = "Access", HeaderText = "Access", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_Access);
+
+         T_Class = new DataGridViewColumn() { Name = "Class", HeaderText = "Class", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_Class);
+
+         T_Attribute = new DataGridViewColumn() { Name = "Attribute", HeaderText = "Attribute", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_Attribute);
+
+         T_NIn = new DataGridViewColumn() { Name = "NIn", HeaderText = "#In", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_NIn);
+
+         T_DataIn = new DataGridViewColumn() { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_DataIn);
+
+         T_RawIn = new DataGridViewColumn() { Name = "RawIn", HeaderText = "Raw In", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_RawIn);
+
+         T_NOut = new DataGridViewColumn() { Name = "NOut", HeaderText = "#Out", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_NOut);
+
+         T_DataOut = new DataGridViewColumn() { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_DataOut);
+
+         T_RawOut = new DataGridViewColumn() { Name = "RawOut", HeaderText = "Raw Out", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_RawOut);
+
+         tabTraffic.Controls.Add(TrafficView);
+
+         tclViewXML.Controls.Add(tabTraffic);
+
+         TrafficView.RowPrePaint += TrafficView_RowPrePaint;
       }
 
       private void CbAvailableHardTests_SelectedIndexChanged(object sender, EventArgs e) {
@@ -297,9 +429,10 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, tvXML, 1, 1, tclHeight - 12, tclWidth - 3);
             Utils.ResizeObject(ref R, txtIndentedView, 1, 1, tclHeight - 12, tclWidth - 3);
 
-            Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 2, 4);
-            Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 4, 1, 2, 4);
-            Utils.ResizeObject(ref R, chkSerialize, tclHeight - 2, 1, 2, 4);
+            Utils.ResizeObject(ref R, chkAutoReflect, tclHeight - 6, 1, 1.5f, 4);
+            Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 4.5f, 1, 1.5f, 4);
+            Utils.ResizeObject(ref R, chkSerialize, tclHeight - 3, 1, 1.5f, 4);
+            Utils.ResizeObject(ref R, chkTraffic, tclHeight - 1.5f, 1, 1.5f, 4);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 5, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdRetrieve, tclHeight - 3, 5, 2.5f, 4);
@@ -322,19 +455,8 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, cmdRunHardTest, tclHeight - 3, 30, 2.5f, 5);
 
             // Resize VerifyView
-            Utils.ResizeObject(ref R, VerifyView, 1, 1, tclHeight - 12, tclWidth - 3);
-            for (int i = 0; i < VerifyView.Columns.Count; i++) {
-               switch (i) {
-                  case 3:
-                  case 4:
-                  case 5:
-                     VerifyView.Columns[i].Width = VerifyView.Width / 16;
-                     break;
-                  default:
-                     VerifyView.Columns[i].Width = VerifyView.Width / 7;
-                     break;
-               }
-            }
+            Utils.ResizeObject(ref R, VerifyView, 1, 1, tclHeight - 12, tclWidth - 3, 0.9f);
+            Utils.ResizeObject(ref R, TrafficView, 1, 1, tclHeight - 12, tclWidth - 3, 0.9f);
 
          }
          R.offset = 0;
@@ -378,11 +500,6 @@ namespace EIP_Lib {
             EIP.VerifyXmlVsPrinter(xmlDoc, !chkErrorsOnly.Checked);
             EIP.Verify -= EIP_VerifyEvent;
          }
-      }
-
-      private void EIP_VerifyEvent(EIP sender, string msg) {
-         string[] v = msg.Split('\t');
-         VerifyView.Rows.Add(v);
       }
 
       // Add text to all items (Control Deleted)
