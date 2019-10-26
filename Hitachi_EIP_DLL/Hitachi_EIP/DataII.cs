@@ -67,7 +67,7 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Service
          new AttrData((byte)ccPDM.Store_Print_Data, GSS.Set, false, 10,         // Store Print Data 0x65
             new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(15, DataFormats.N2Char, 0, 14, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.Delete_Print_Data, GSS.Set, false, 3,         // Delete Print Data 0x67
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
@@ -75,7 +75,7 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
          new AttrData((byte)ccPDM.Print_Data_Name, GSS.Set, false, 7,           // Print Data Name 0x69
             new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(10, DataFormats.N2Char, 0, 14, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.List_of_Messages, GSS.Get, true, 6,           // List of Messages 0x6A
             new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None),              //   Data
@@ -87,7 +87,7 @@ namespace EIP_Lib {
             new Prop(4, DataFormats.N2N2, 1, 2000, fmtDD.None)),                //   Set
          new AttrData((byte)ccPDM.Change_Create_Group_Name, GSS.Set, false, 1,  // Change Create Group Name 0x6C
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(14, DataFormats.N1Char, 0, 14, fmtDD.None)),               //   Set
          new AttrData((byte)ccPDM.Group_Deletion, GSS.Set, false, 4,            // Group Deletion 0x6D
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
@@ -107,7 +107,7 @@ namespace EIP_Lib {
       private readonly AttrData[] ccPF_Addrs = new AttrData[] {
          new AttrData((byte)ccPF.Message_Name, GSS.Get, false, 20,              // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Set
          new AttrData((byte)ccPF.Number_Of_Items, GSS.Get, false, 25,           // Number Of Items 0x65
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
@@ -146,7 +146,7 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Service
          new AttrData((byte)ccPF.Print_Character_String, GSS.GetSet, false, 24, // Print Character String 0x71
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Set
          new AttrData((byte)ccPF.Line_Count, GSS.GetSet, false, 18,             // Line Count 0x72
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None),                 //   Data
@@ -190,7 +190,7 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
          new AttrData((byte)ccPF.Add_To_End_Of_String, GSS.Set, false, 2,       // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Set
          new AttrData((byte)ccPF.Calendar_Offset, GSS.GetSet, false, 6,         // Calendar Offset 0x8D
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday),       //   Data
@@ -394,15 +394,15 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCal.Time_Count_Start_Value, GSS.GetSet, false, 24, // Time Count Start Value 0x7B
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccCal.Time_Count_End_Value, GSS.GetSet, false, 22,  // Time Count End Value 0x7C
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccCal.Time_Count_Reset_Value, GSS.GetSet, false, 23, // Time Count Reset Value 0x7D
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccCal.Reset_Time_Value, GSS.GetSet, false, 9,       // Reset Time Value 0x7E
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
@@ -530,11 +530,11 @@ namespace EIP_Lib {
       private readonly AttrData[] ccUI_Addrs = new AttrData[] {
          new AttrData((byte)ccUI.Unit_Information, GSS.Get, false, 20,          // Unit Information 0x64
             new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccUI.Model_Name, GSS.Get, false, 15,                // Model Name 0x6B
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccUI.Serial_Number, GSS.Get, false, 17,             // Serial Number 0x6C
             new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None),        //   Data
@@ -542,7 +542,7 @@ namespace EIP_Lib {
             new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None)),       //   Set
          new AttrData((byte)ccUI.Ink_Name, GSS.Get, false, 8,                   // Ink Name 0x6D
             new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccUI.Input_Mode, GSS.Get, false, 9,                 // Input Mode 0x6E
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
@@ -586,31 +586,31 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccUI.Basic_Software_Version, GSS.Get, false, 2,     // Basic Software Version 0x78
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.Controller_Software_Version, GSS.Get, false, 4, // Controller Software Version 0x79
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.Engine_M_Software_Version, GSS.Get, false, 5,  // Engine M Software Version 0x7A
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.Engine_S_Software_Version, GSS.Get, false, 6,  // Engine S Software Version 0x7B
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.First_Language_Version, GSS.Get, false, 7,     // First Language Version 0x7C
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.Second_Language_Version, GSS.Get, false, 16,   // Second Language Version 0x7D
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
          new AttrData((byte)ccUI.Software_Option_Version, GSS.Get, false, 19,   // Software Option Version 0x7E
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
       };
 
@@ -642,11 +642,11 @@ namespace EIP_Lib {
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccOM.Ink_And_Makeup_Name, GSS.Get, false, 8,        // Ink And Makeup Name 0x6A
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccOM.Ink_Viscosity, GSS.Get, false, 11,             // Ink Viscosity 0x6B
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
          new AttrData((byte)ccOM.Ink_Pressure, GSS.Get, false, 10,              // Ink Pressure 0x6C
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
@@ -723,15 +723,15 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
          new AttrData((byte)ccCount.Initial_Value, GSS.GetSet, false, 9,        // Initial Value 0x67
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Range_1, GSS.GetSet, false, 4,        // Count Range 1 0x68
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Range_2, GSS.GetSet, false, 5,        // Count Range 2 0x69
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Update_Unit_Halfway, GSS.GetSet, false, 15, // Update Unit Halfway 0x6A
             new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None),            //   Data
@@ -751,15 +751,15 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Set
          new AttrData((byte)ccCount.Jump_From, GSS.GetSet, false, 10,           // Jump From 0x6E
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Jump_To, GSS.GetSet, false, 11,             // Jump To 0x6F
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Reset_Value, GSS.GetSet, false, 13,         // Reset Value 0x70
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Type_Of_Reset_Signal, GSS.GetSet, false, 14, // Type Of Reset Signal 0x71
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2),      //   Data
@@ -775,11 +775,11 @@ namespace EIP_Lib {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
          new AttrData((byte)ccCount.Count_Multiplier, GSS.GetSet, false, 3,     // Count Multiplier 0x74
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
          new AttrData((byte)ccCount.Count_Skip, GSS.GetSet, false, 6,           // Count Skip 0x75
             new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
+            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
             new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
       };
 

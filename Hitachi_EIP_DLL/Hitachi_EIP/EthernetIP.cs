@@ -1734,7 +1734,13 @@ namespace EIP_Lib {
                   trafficIn += $"\t{GetDataValue}";
                }
             }
-            trafficIn += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
+            if (Access == AccessCode.Get && attr.Get.Fmt == DataFormats.UTF8) {
+               trafficIn += $"\tUTF8 + Null";
+            } else if (Access == AccessCode.Get && attr.Get.Fmt == DataFormats.UTF8N) {
+               trafficIn += $"\tUTF8";
+            } else {
+               trafficIn += $"\t{GetBytes(GetData, 0, Math.Min(GetDataLength, 16))}";
+            }
          }
          if (SetDataLength == 0) {
             trafficOut += $"\t\t\t";
@@ -1755,10 +1761,16 @@ namespace EIP_Lib {
                   trafficOut += $"\t{SetDataValue}";
                }
             }
-            trafficOut += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
+            if (Access == AccessCode.Set && attr.Set.Fmt == DataFormats.UTF8) {
+               trafficOut += $"\tUTF8 + Null";
+            } else if (Access == AccessCode.Set && attr.Set.Fmt == DataFormats.UTF8N) {
+               trafficOut += $"\tUTF8";
+            } else {
+               trafficOut += $"\t{GetBytes(SetData, 0, Math.Min(SetDataLength, 16))}";
+            }
          }
-         TrafficRes?.Invoke(this, trafficReq + trafficIn + trafficOut);
-         return trafficHdr + trafficReq + trafficIn + trafficOut;
+         TrafficRes?.Invoke(this, trafficReq + trafficOut + trafficIn);
+         return trafficHdr + trafficReq + trafficOut + trafficIn;
       }
 
       #endregion
