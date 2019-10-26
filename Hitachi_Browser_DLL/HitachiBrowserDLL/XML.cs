@@ -198,15 +198,21 @@ namespace EIP_Lib {
       }
 
       private void TrafficView_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e) {
-         switch (TrafficView.Rows[e.RowIndex].Cells[0].Value) {
-            case "Get":
-               TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightBlue;
-               break;
-            case "Set":
-               TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
-               break;
-            case "Service":
-               break;
+         if ((string)TrafficView.Rows[e.RowIndex].Cells[2].Value == "Automatic reflection"
+            || (string)TrafficView.Rows[e.RowIndex].Cells[2].Value == "Start Stop Management Flag") {
+            TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Pink;
+         } else {
+            switch (TrafficView.Rows[e.RowIndex].Cells[0].Value) {
+               case "Get":
+                  TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Yellow;
+                  break;
+               case "Set":
+                  TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.LightGreen;
+                  break;
+               case "Service":
+                  TrafficView.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Cyan;
+                  break;
+            }
          }
       }
 
@@ -376,6 +382,7 @@ namespace EIP_Lib {
          };
 
          DataGridViewTextBoxCell ct = new DataGridViewTextBoxCell();
+         DataGridViewCellStyle cs = new DataGridViewCellStyle() { Alignment = DataGridViewContentAlignment.MiddleCenter };
 
          T_Access = new DataGridViewColumn() { Name = "Access", HeaderText = "Access", ReadOnly = true, CellTemplate = ct };
          TrafficView.Columns.Add(T_Access);
@@ -386,23 +393,23 @@ namespace EIP_Lib {
          T_Attribute = new DataGridViewColumn() { Name = "Attribute", HeaderText = "Attribute", ReadOnly = true, CellTemplate = ct };
          TrafficView.Columns.Add(T_Attribute);
 
-         T_NIn = new DataGridViewColumn() { Name = "NIn", HeaderText = "#In", ReadOnly = true, CellTemplate = ct };
-         TrafficView.Columns.Add(T_NIn);
-
-         T_DataIn = new DataGridViewColumn() { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = ct };
-         TrafficView.Columns.Add(T_DataIn);
-
-         T_RawIn = new DataGridViewColumn() { Name = "RawIn", HeaderText = "Raw In", ReadOnly = true, CellTemplate = ct };
-         TrafficView.Columns.Add(T_RawIn);
-
-         T_NOut = new DataGridViewColumn() { Name = "NOut", HeaderText = "#Out", ReadOnly = true, CellTemplate = ct };
+         T_NOut = new DataGridViewColumn() { Name = "NOut", HeaderText = "#Out", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
          TrafficView.Columns.Add(T_NOut);
 
-         T_DataOut = new DataGridViewColumn() { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = ct };
+         T_DataOut = new DataGridViewColumn() { Name = "DataOut", HeaderText = "Data Out", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
          TrafficView.Columns.Add(T_DataOut);
 
          T_RawOut = new DataGridViewColumn() { Name = "RawOut", HeaderText = "Raw Out", ReadOnly = true, CellTemplate = ct };
          TrafficView.Columns.Add(T_RawOut);
+
+         T_NIn = new DataGridViewColumn() { Name = "NIn", HeaderText = "#In", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
+         TrafficView.Columns.Add(T_NIn);
+
+         T_DataIn = new DataGridViewColumn() { Name = "DataIn", HeaderText = "Data In", ReadOnly = true, CellTemplate = ct, DefaultCellStyle = cs };
+         TrafficView.Columns.Add(T_DataIn);
+
+         T_RawIn = new DataGridViewColumn() { Name = "RawIn", HeaderText = "Raw In", ReadOnly = true, CellTemplate = ct };
+         TrafficView.Columns.Add(T_RawIn);
 
          tabTraffic.Controls.Add(TrafficView);
 

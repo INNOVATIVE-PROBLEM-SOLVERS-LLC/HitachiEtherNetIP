@@ -24,7 +24,7 @@ namespace EIP_Lib {
 
       string trafficHdrs =
               "Count OK\tData OK\tStatus/Path\tAccess\tClass\tAttribute" +
-              "\t#In\tData In\tRaw In\t#Out\tData Out\tRaw Out";
+              "\t#Out\tData Out\tRaw Out\t#In\tData In\tRaw In";
       string VerifycHdrs =
               "XML Name\tClass\tAttribute\tItem\tBlock\tSub Rule\tData Out\tData In";
 
