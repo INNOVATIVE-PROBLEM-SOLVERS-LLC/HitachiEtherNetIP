@@ -67,6 +67,12 @@ namespace EIP_Lib {
       public string IncreasedWidth;
       [XmlAttribute]
       public string DotMatrix;
+
+      [XmlAttribute]
+      public string ICS {
+         get { return InterCharacterSpace; }
+         set { InterCharacterSpace = value; }
+      }
    }
 
    public class BarCode {

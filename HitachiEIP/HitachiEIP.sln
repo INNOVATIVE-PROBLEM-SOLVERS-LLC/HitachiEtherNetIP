@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HitachiProtocol", "..\Hitac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HitachiProtocol_Test", "..\HitachiProtocol_Test\HitachiProtocol_Test.csproj", "{6EB1C6B3-D8B0-4133-9DB4-BB64545AEF81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IJPLib_Test", "..\IJPLib_Test\IJPLib_Test\IJPLib_Test.csproj", "{13AF631A-0D65-415E-BA8B-A50597B7F177}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{6EB1C6B3-D8B0-4133-9DB4-BB64545AEF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EB1C6B3-D8B0-4133-9DB4-BB64545AEF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EB1C6B3-D8B0-4133-9DB4-BB64545AEF81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13AF631A-0D65-415E-BA8B-A50597B7F177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13AF631A-0D65-415E-BA8B-A50597B7F177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13AF631A-0D65-415E-BA8B-A50597B7F177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13AF631A-0D65-415E-BA8B-A50597B7F177}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
