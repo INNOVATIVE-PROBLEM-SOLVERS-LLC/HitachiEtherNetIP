@@ -38,12 +38,12 @@ namespace IJPLib_Test.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\GitHubEtherNetIP\\Messages")]
-        public string MessageFile {
+        public string MessageFolder {
             get {
-                return ((string)(this["MessageFile"]));
+                return ((string)(this["MessageFolder"]));
             }
             set {
-                this["MessageFile"] = value;
+                this["MessageFolder"] = value;
             }
         }
     }

@@ -39,15 +39,22 @@
          this.cmdGetViews = new System.Windows.Forms.Button();
          this.cmdGetXML = new System.Windows.Forms.Button();
          this.tclIJPTests = new System.Windows.Forms.TabControl();
-         this.tabMain = new System.Windows.Forms.TabPage();
-         this.lblSelectTest = new System.Windows.Forms.Label();
-         this.cbSelectTest = new System.Windows.Forms.ComboBox();
-         this.cmdRunTest = new System.Windows.Forms.Button();
          this.tabDisplay = new System.Windows.Forms.TabPage();
+         this.tabMain = new System.Windows.Forms.TabPage();
+         this.lblSelectHardCodedTest = new System.Windows.Forms.Label();
+         this.cbSelectHardCodedTest = new System.Windows.Forms.ComboBox();
+         this.cmdRunHardCodedTest = new System.Windows.Forms.Button();
          this.lstLogs = new System.Windows.Forms.ListBox();
          this.cmErrLog = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmErrLogToNotepad = new System.Windows.Forms.ToolStripMenuItem();
          this.cmErrLogClearlog = new System.Windows.Forms.ToolStripMenuItem();
+         this.cmdSaveAs = new System.Windows.Forms.Button();
+         this.lblSelectXMLTest = new System.Windows.Forms.Label();
+         this.cbSelectXMLTest = new System.Windows.Forms.ComboBox();
+         this.cmdRunXMLTest = new System.Windows.Forms.Button();
+         this.lblMessageFolder = new System.Windows.Forms.Label();
+         this.txtMessageFolder = new System.Windows.Forms.TextBox();
+         this.cmdBrowse = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
@@ -98,15 +105,16 @@
          this.tclIJPLib.Location = new System.Drawing.Point(19, 16);
          this.tclIJPLib.Name = "tclIJPLib";
          this.tclIJPLib.SelectedIndex = 0;
-         this.tclIJPLib.Size = new System.Drawing.Size(675, 488);
+         this.tclIJPLib.Size = new System.Drawing.Size(675, 195);
          this.tclIJPLib.TabIndex = 16;
+         this.tclIJPLib.SelectedIndexChanged += new System.EventHandler(this.tclIJPLib_SelectedIndexChanged);
          // 
          // tabIndentedView
          // 
          this.tabIndentedView.Controls.Add(this.txtIjpIndented);
          this.tabIndentedView.Location = new System.Drawing.Point(4, 25);
          this.tabIndentedView.Name = "tabIndentedView";
-         this.tabIndentedView.Size = new System.Drawing.Size(667, 573);
+         this.tabIndentedView.Size = new System.Drawing.Size(667, 459);
          this.tabIndentedView.TabIndex = 2;
          this.tabIndentedView.Text = "IJPLib Indented View";
          this.tabIndentedView.UseVisualStyleBackColor = true;
@@ -118,7 +126,7 @@
          this.txtIjpIndented.Multiline = true;
          this.txtIjpIndented.Name = "txtIjpIndented";
          this.txtIjpIndented.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-         this.txtIjpIndented.Size = new System.Drawing.Size(614, 417);
+         this.txtIjpIndented.Size = new System.Drawing.Size(614, 118);
          this.txtIjpIndented.TabIndex = 0;
          // 
          // tabTreeView
@@ -127,16 +135,16 @@
          this.tabTreeView.Location = new System.Drawing.Point(4, 25);
          this.tabTreeView.Name = "tabTreeView";
          this.tabTreeView.Padding = new System.Windows.Forms.Padding(3);
-         this.tabTreeView.Size = new System.Drawing.Size(667, 573);
+         this.tabTreeView.Size = new System.Drawing.Size(667, 459);
          this.tabTreeView.TabIndex = 1;
          this.tabTreeView.Text = "IJPLib Tree View";
          this.tabTreeView.UseVisualStyleBackColor = true;
          // 
          // tvIJPLibTree
          // 
-         this.tvIJPLibTree.Location = new System.Drawing.Point(29, 66);
+         this.tvIJPLibTree.Location = new System.Drawing.Point(36, 21);
          this.tvIJPLibTree.Name = "tvIJPLibTree";
-         this.tvIJPLibTree.Size = new System.Drawing.Size(602, 390);
+         this.tvIJPLibTree.Size = new System.Drawing.Size(602, 116);
          this.tvIJPLibTree.TabIndex = 0;
          // 
          // tabXMLIndented
@@ -144,7 +152,7 @@
          this.tabXMLIndented.Controls.Add(this.txtXMLIndented);
          this.tabXMLIndented.Location = new System.Drawing.Point(4, 25);
          this.tabXMLIndented.Name = "tabXMLIndented";
-         this.tabXMLIndented.Size = new System.Drawing.Size(667, 573);
+         this.tabXMLIndented.Size = new System.Drawing.Size(667, 459);
          this.tabXMLIndented.TabIndex = 3;
          this.tabXMLIndented.Text = "XML Indented";
          this.tabXMLIndented.UseVisualStyleBackColor = true;
@@ -156,7 +164,7 @@
          this.txtXMLIndented.Multiline = true;
          this.txtXMLIndented.Name = "txtXMLIndented";
          this.txtXMLIndented.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-         this.txtXMLIndented.Size = new System.Drawing.Size(609, 449);
+         this.txtXMLIndented.Size = new System.Drawing.Size(609, 117);
          this.txtXMLIndented.TabIndex = 1;
          // 
          // tabXMLTree
@@ -164,16 +172,16 @@
          this.tabXMLTree.Controls.Add(this.tvXMLTree);
          this.tabXMLTree.Location = new System.Drawing.Point(4, 25);
          this.tabXMLTree.Name = "tabXMLTree";
-         this.tabXMLTree.Size = new System.Drawing.Size(667, 459);
+         this.tabXMLTree.Size = new System.Drawing.Size(667, 166);
          this.tabXMLTree.TabIndex = 4;
          this.tabXMLTree.Text = "XML Tree";
          this.tabXMLTree.UseVisualStyleBackColor = true;
          // 
          // tvXMLTree
          // 
-         this.tvXMLTree.Location = new System.Drawing.Point(28, 42);
+         this.tvXMLTree.Location = new System.Drawing.Point(27, 18);
          this.tvXMLTree.Name = "tvXMLTree";
-         this.tvXMLTree.Size = new System.Drawing.Size(603, 405);
+         this.tvXMLTree.Size = new System.Drawing.Size(603, 119);
          this.tvXMLTree.TabIndex = 1;
          // 
          // cmdGetViews
@@ -205,68 +213,69 @@
          this.tclIJPTests.Location = new System.Drawing.Point(13, 60);
          this.tclIJPTests.Name = "tclIJPTests";
          this.tclIJPTests.SelectedIndex = 0;
-         this.tclIJPTests.Size = new System.Drawing.Size(837, 553);
+         this.tclIJPTests.Size = new System.Drawing.Size(837, 274);
          this.tclIJPTests.TabIndex = 19;
-         // 
-         // tabMain
-         // 
-         this.tabMain.Location = new System.Drawing.Point(4, 25);
-         this.tabMain.Name = "tabMain";
-         this.tabMain.Padding = new System.Windows.Forms.Padding(3);
-         this.tabMain.Size = new System.Drawing.Size(829, 476);
-         this.tabMain.TabIndex = 1;
-         this.tabMain.Text = "Main";
-         this.tabMain.UseVisualStyleBackColor = true;
-         // 
-         // lblSelectTest
-         // 
-         this.lblSelectTest.Location = new System.Drawing.Point(403, 619);
-         this.lblSelectTest.Name = "lblSelectTest";
-         this.lblSelectTest.Size = new System.Drawing.Size(141, 28);
-         this.lblSelectTest.TabIndex = 2;
-         this.lblSelectTest.Text = "SelectTest";
-         this.lblSelectTest.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // cbSelectTest
-         // 
-         this.cbSelectTest.FormattingEnabled = true;
-         this.cbSelectTest.Location = new System.Drawing.Point(406, 650);
-         this.cbSelectTest.Name = "cbSelectTest";
-         this.cbSelectTest.Size = new System.Drawing.Size(132, 24);
-         this.cbSelectTest.TabIndex = 1;
-         this.cbSelectTest.SelectedIndexChanged += new System.EventHandler(this.cbSelectTest_SelectedIndexChanged);
-         // 
-         // cmdRunTest
-         // 
-         this.cmdRunTest.Location = new System.Drawing.Point(559, 619);
-         this.cmdRunTest.Name = "cmdRunTest";
-         this.cmdRunTest.Size = new System.Drawing.Size(171, 51);
-         this.cmdRunTest.TabIndex = 0;
-         this.cmdRunTest.Text = "Run Test";
-         this.cmdRunTest.UseVisualStyleBackColor = true;
-         this.cmdRunTest.Click += new System.EventHandler(this.cmdRunTest_Click);
          // 
          // tabDisplay
          // 
+         this.tabDisplay.Controls.Add(this.cmdSaveAs);
          this.tabDisplay.Controls.Add(this.tclIJPLib);
          this.tabDisplay.Controls.Add(this.cmdGetViews);
          this.tabDisplay.Controls.Add(this.cmdGetXML);
          this.tabDisplay.Location = new System.Drawing.Point(4, 25);
          this.tabDisplay.Name = "tabDisplay";
          this.tabDisplay.Padding = new System.Windows.Forms.Padding(3);
-         this.tabDisplay.Size = new System.Drawing.Size(829, 524);
+         this.tabDisplay.Size = new System.Drawing.Size(829, 245);
          this.tabDisplay.TabIndex = 0;
          this.tabDisplay.Text = "Display";
          this.tabDisplay.UseVisualStyleBackColor = true;
+         // 
+         // tabMain
+         // 
+         this.tabMain.Location = new System.Drawing.Point(4, 25);
+         this.tabMain.Name = "tabMain";
+         this.tabMain.Padding = new System.Windows.Forms.Padding(3);
+         this.tabMain.Size = new System.Drawing.Size(829, 524);
+         this.tabMain.TabIndex = 1;
+         this.tabMain.Text = "Main";
+         this.tabMain.UseVisualStyleBackColor = true;
+         // 
+         // lblSelectHardCodedTest
+         // 
+         this.lblSelectHardCodedTest.Location = new System.Drawing.Point(331, 359);
+         this.lblSelectHardCodedTest.Name = "lblSelectHardCodedTest";
+         this.lblSelectHardCodedTest.Size = new System.Drawing.Size(167, 28);
+         this.lblSelectHardCodedTest.TabIndex = 2;
+         this.lblSelectHardCodedTest.Text = "Select Hard Coded Test";
+         this.lblSelectHardCodedTest.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // cbSelectHardCodedTest
+         // 
+         this.cbSelectHardCodedTest.FormattingEnabled = true;
+         this.cbSelectHardCodedTest.Location = new System.Drawing.Point(326, 390);
+         this.cbSelectHardCodedTest.Name = "cbSelectHardCodedTest";
+         this.cbSelectHardCodedTest.Size = new System.Drawing.Size(172, 24);
+         this.cbSelectHardCodedTest.TabIndex = 1;
+         this.cbSelectHardCodedTest.SelectedIndexChanged += new System.EventHandler(this.cbSelectTest_SelectedIndexChanged);
+         // 
+         // cmdRunHardCodedTest
+         // 
+         this.cmdRunHardCodedTest.Location = new System.Drawing.Point(326, 420);
+         this.cmdRunHardCodedTest.Name = "cmdRunHardCodedTest";
+         this.cmdRunHardCodedTest.Size = new System.Drawing.Size(171, 51);
+         this.cmdRunHardCodedTest.TabIndex = 0;
+         this.cmdRunHardCodedTest.Text = "Run Hard Coded Test";
+         this.cmdRunHardCodedTest.UseVisualStyleBackColor = true;
+         this.cmdRunHardCodedTest.Click += new System.EventHandler(this.cmdRunTest_Click);
          // 
          // lstLogs
          // 
          this.lstLogs.ContextMenuStrip = this.cmErrLog;
          this.lstLogs.FormattingEnabled = true;
          this.lstLogs.ItemHeight = 16;
-         this.lstLogs.Location = new System.Drawing.Point(17, 619);
+         this.lstLogs.Location = new System.Drawing.Point(17, 359);
          this.lstLogs.Name = "lstLogs";
-         this.lstLogs.Size = new System.Drawing.Size(355, 36);
+         this.lstLogs.Size = new System.Drawing.Size(291, 116);
          this.lstLogs.TabIndex = 3;
          // 
          // cmErrLog
@@ -276,31 +285,100 @@
             this.cmErrLogToNotepad,
             this.cmErrLogClearlog});
          this.cmErrLog.Name = "cmErrLog";
-         this.cmErrLog.Size = new System.Drawing.Size(211, 80);
+         this.cmErrLog.Size = new System.Drawing.Size(190, 52);
          // 
          // cmErrLogToNotepad
          // 
          this.cmErrLogToNotepad.Name = "cmErrLogToNotepad";
-         this.cmErrLogToNotepad.Size = new System.Drawing.Size(210, 24);
+         this.cmErrLogToNotepad.Size = new System.Drawing.Size(189, 24);
          this.cmErrLogToNotepad.Text = "View In Notepad";
          this.cmErrLogToNotepad.Click += new System.EventHandler(this.cmErrLogToNotepad_Click);
          // 
          // cmErrLogClearlog
          // 
          this.cmErrLogClearlog.Name = "cmErrLogClearlog";
-         this.cmErrLogClearlog.Size = new System.Drawing.Size(210, 24);
+         this.cmErrLogClearlog.Size = new System.Drawing.Size(189, 24);
          this.cmErrLogClearlog.Text = "Clear Log";
          this.cmErrLogClearlog.Click += new System.EventHandler(this.cmErrLogClearlog_Click);
+         // 
+         // cmdSaveAs
+         // 
+         this.cmdSaveAs.Location = new System.Drawing.Point(701, 147);
+         this.cmdSaveAs.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdSaveAs.Name = "cmdSaveAs";
+         this.cmdSaveAs.Size = new System.Drawing.Size(100, 31);
+         this.cmdSaveAs.TabIndex = 19;
+         this.cmdSaveAs.Text = "Save As";
+         this.cmdSaveAs.UseVisualStyleBackColor = true;
+         this.cmdSaveAs.Click += new System.EventHandler(this.ccmdSaveAs_Click);
+         // 
+         // lblSelectXMLTest
+         // 
+         this.lblSelectXMLTest.Location = new System.Drawing.Point(531, 359);
+         this.lblSelectXMLTest.Name = "lblSelectXMLTest";
+         this.lblSelectXMLTest.Size = new System.Drawing.Size(167, 28);
+         this.lblSelectXMLTest.TabIndex = 22;
+         this.lblSelectXMLTest.Text = "Select XML Test";
+         this.lblSelectXMLTest.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // cbSelectXMLTest
+         // 
+         this.cbSelectXMLTest.FormattingEnabled = true;
+         this.cbSelectXMLTest.Location = new System.Drawing.Point(526, 390);
+         this.cbSelectXMLTest.Name = "cbSelectXMLTest";
+         this.cbSelectXMLTest.Size = new System.Drawing.Size(172, 24);
+         this.cbSelectXMLTest.TabIndex = 21;
+         // 
+         // cmdRunXMLTest
+         // 
+         this.cmdRunXMLTest.Location = new System.Drawing.Point(526, 420);
+         this.cmdRunXMLTest.Name = "cmdRunXMLTest";
+         this.cmdRunXMLTest.Size = new System.Drawing.Size(171, 51);
+         this.cmdRunXMLTest.TabIndex = 20;
+         this.cmdRunXMLTest.Text = "Run XML Test";
+         this.cmdRunXMLTest.UseVisualStyleBackColor = true;
+         // 
+         // lblMessageFolder
+         // 
+         this.lblMessageFolder.AutoSize = true;
+         this.lblMessageFolder.Location = new System.Drawing.Point(482, 26);
+         this.lblMessageFolder.Name = "lblMessageFolder";
+         this.lblMessageFolder.Size = new System.Drawing.Size(109, 17);
+         this.lblMessageFolder.TabIndex = 23;
+         this.lblMessageFolder.Text = "Message Folder";
+         this.lblMessageFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // txtMessageFolder
+         // 
+         this.txtMessageFolder.Location = new System.Drawing.Point(625, 25);
+         this.txtMessageFolder.Name = "txtMessageFolder";
+         this.txtMessageFolder.Size = new System.Drawing.Size(106, 22);
+         this.txtMessageFolder.TabIndex = 24;
+         // 
+         // cmdBrowse
+         // 
+         this.cmdBrowse.Location = new System.Drawing.Point(761, 26);
+         this.cmdBrowse.Name = "cmdBrowse";
+         this.cmdBrowse.Size = new System.Drawing.Size(84, 34);
+         this.cmdBrowse.TabIndex = 25;
+         this.cmdBrowse.Text = "Browse";
+         this.cmdBrowse.UseVisualStyleBackColor = true;
          // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(926, 683);
-         this.Controls.Add(this.lblSelectTest);
+         this.ClientSize = new System.Drawing.Size(926, 522);
+         this.Controls.Add(this.cmdBrowse);
+         this.Controls.Add(this.txtMessageFolder);
+         this.Controls.Add(this.lblMessageFolder);
+         this.Controls.Add(this.lblSelectXMLTest);
+         this.Controls.Add(this.cbSelectXMLTest);
+         this.Controls.Add(this.cmdRunXMLTest);
+         this.Controls.Add(this.lblSelectHardCodedTest);
          this.Controls.Add(this.lstLogs);
-         this.Controls.Add(this.cbSelectTest);
-         this.Controls.Add(this.cmdRunTest);
+         this.Controls.Add(this.cbSelectHardCodedTest);
+         this.Controls.Add(this.cmdRunHardCodedTest);
          this.Controls.Add(this.tclIJPTests);
          this.Controls.Add(this.cmdComOnOff);
          this.Controls.Add(this.cmdConnect);
@@ -343,13 +421,20 @@
       private System.Windows.Forms.TabControl tclIJPTests;
       private System.Windows.Forms.TabPage tabMain;
       private System.Windows.Forms.TabPage tabDisplay;
-      private System.Windows.Forms.Label lblSelectTest;
-      private System.Windows.Forms.ComboBox cbSelectTest;
-      private System.Windows.Forms.Button cmdRunTest;
+      private System.Windows.Forms.Label lblSelectHardCodedTest;
+      private System.Windows.Forms.ComboBox cbSelectHardCodedTest;
+      private System.Windows.Forms.Button cmdRunHardCodedTest;
       private System.Windows.Forms.ListBox lstLogs;
       private System.Windows.Forms.ContextMenuStrip cmErrLog;
       private System.Windows.Forms.ToolStripMenuItem cmErrLogToNotepad;
       private System.Windows.Forms.ToolStripMenuItem cmErrLogClearlog;
+      private System.Windows.Forms.Button cmdSaveAs;
+      private System.Windows.Forms.Label lblSelectXMLTest;
+      private System.Windows.Forms.ComboBox cbSelectXMLTest;
+      private System.Windows.Forms.Button cmdRunXMLTest;
+      private System.Windows.Forms.Label lblMessageFolder;
+      private System.Windows.Forms.TextBox txtMessageFolder;
+      private System.Windows.Forms.Button cmdBrowse;
    }
 }
 
