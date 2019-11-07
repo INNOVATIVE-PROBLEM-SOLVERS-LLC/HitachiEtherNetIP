@@ -5,7 +5,7 @@
     <Setting Name="IPAddress" Type="System.String" Scope="User">
       <Value Profile="(Default)">10.0.0.100</Value>
     </Setting>
-    <Setting Name="MessageFile" Type="System.String" Scope="User">
+    <Setting Name="MessageFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\GitHubEtherNetIP\Messages</Value>
     </Setting>
   </Settings>

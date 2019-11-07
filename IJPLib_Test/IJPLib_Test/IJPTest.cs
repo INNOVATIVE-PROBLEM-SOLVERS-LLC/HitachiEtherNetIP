@@ -82,6 +82,7 @@ namespace IJPLib_Test {
          initComplete = true;
          p = IJPLib_Test.Properties.Settings.Default;
          ipAddressTextBox.Text = p.IPAddress;
+         txtMessageFolder.Text = p.MessageFolder;
       }
 
       ~IJPTest() {
@@ -95,7 +96,7 @@ namespace IJPLib_Test {
       private void IJPTest_Load(object sender, EventArgs e) {
          // Center the form on the screen
          Utils.PositionForm(this, 0.5f, 0.9f);
-         cbSelectTest.Items.AddRange(AvailableTests);
+         cbSelectHardCodedTest.Items.AddRange(AvailableTests);
          setButtonEnables();
       }
 
@@ -111,36 +112,50 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, ipAddressTextBox, 1, 1, 2, 5);
             Utils.ResizeObject(ref R, cmdConnect, 1, 7, 2, 5);
             Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
+
+            Utils.ResizeObject(ref R, lblMessageFolder, 1, 19, 2, 4);
+            Utils.ResizeObject(ref R, txtMessageFolder, 1, 24, 2, 10);
+            Utils.ResizeObject(ref R, cmdBrowse, 1, 35, 2, 4);
+
             Utils.ResizeObject(ref R, tclIJPTests, 4, 1, 45, 38);
 
             Utils.ResizeObject(ref R, tclIJPLib, 2, 1, 40, 31);
             Utils.ResizeObject(ref R, cmdGetXML, 4, 33, 2, 4);
             Utils.ResizeObject(ref R, cmdGetViews, 7, 33, 2, 4);
+            Utils.ResizeObject(ref R, cmdSaveAs, 10, 33, 2, 4);
 
             Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 36, 29);
             Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 36, 29);
             Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 36, 29);
             Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 36, 29);
 
-            Utils.ResizeObject(ref R, lblSelectTest, 55, 21, 2, 10);
-            Utils.ResizeObject(ref R, cbSelectTest, 57, 21, 2, 10);
-            Utils.ResizeObject(ref R, cmdRunTest, 57, 32, 2, 5);
-
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
-            this.ResumeLayout();
+            Utils.ResizeObject(ref R, lblSelectHardCodedTest, 50, 17, 2, 10);
+            Utils.ResizeObject(ref R, cbSelectHardCodedTest, 52, 17, 2, 10);
+            Utils.ResizeObject(ref R, cmdRunHardCodedTest, 55, 17, 3, 10);
 
+            Utils.ResizeObject(ref R, lblSelectXMLTest, 50, 28, 2, 10);
+            Utils.ResizeObject(ref R, cbSelectXMLTest, 52, 28, 2, 10);
+            Utils.ResizeObject(ref R, cmdRunXMLTest, 55, 28, 3, 10);
+
+            this.ResumeLayout();
          }
       }
 
       private void IJPTest_FormClosing(object sender, FormClosingEventArgs e) {
          p.IPAddress = ipAddressTextBox.Text;
+         p.MessageFolder = txtMessageFolder.Text;
          p.Save();
       }
 
       #endregion
 
       #region Form Control Events
+
+      private void tclIJPLib_SelectedIndexChanged(object sender, EventArgs e) {
+         setButtonEnables();
+      }
 
       private void cmdConnect_Click(object sender, EventArgs e) {
          if (null == this.ijp) {
@@ -211,6 +226,19 @@ namespace IJPLib_Test {
          ProcessLabel(txtXMLIndented.Text);
          // Restore cursor
          Cursor.Current = Cursors.Arrow;
+      }
+
+      private void ccmdSaveAs_Click(object sender, EventArgs e) {
+         switch (tclIJPLib.SelectedIndex) {
+            case 0:
+
+               break;
+            case 2:
+
+               break;
+            default:
+               break;
+         }
       }
 
       private void cmdClear_Click(object sender, EventArgs e) {
@@ -625,6 +653,44 @@ namespace IJPLib_Test {
 
       #region XML to Message
 
+      // Send xlmDoc from file to printer
+      public bool SendXmlToPrinter(XmlDocument xmlDoc) {
+         bool success = true;
+         // Need a XMP Document to continue
+         if (xmlDoc == null) {
+            return false;
+         }
+         try {
+            XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
+            if (objs != null) {
+               success = AllocateRowsColumns(objs.ChildNodes); // Allocate rows and columns
+            }
+
+            XmlNode prnt = xmlDoc.SelectSingleNode("Label/Printer");
+            if (success && prnt != null) {
+               success = SendPrinterSettings(prnt);            // Send printer wide settings
+            }
+         } catch (Exception e1) {
+            success = false;
+         } finally {
+
+         }
+
+         return success;
+      }
+
+      private bool AllocateRowsColumns(XmlNodeList childNodes) {
+         bool success = true;
+
+         return success;
+      }
+
+      private bool SendPrinterSettings(XmlNode prnt) {
+         bool success = true;
+
+         return success;
+      }
+
       #endregion
 
       #region XML Formatting
@@ -793,7 +859,20 @@ namespace IJPLib_Test {
          cmdGetViews.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
          cmdGetXML.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
 
-         cmdRunTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectTest.SelectedIndex >= 0;
+         cmdRunHardCodedTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectHardCodedTest.SelectedIndex >= 0;
+         cmdRunXMLTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectXMLTest.SelectedIndex >= 0;
+
+         switch (tclIJPLib.SelectedIndex) {
+            case 0:
+               cmdSaveAs.Enabled = txtIjpIndented.Text.Length > 0;
+               break;
+            case 2:
+               cmdSaveAs.Enabled = txtXMLIndented.Text.Length > 0;
+               break;
+            default:
+               cmdSaveAs.Enabled = false;
+               break;
+         }
       }
 
       #endregion
@@ -801,13 +880,13 @@ namespace IJPLib_Test {
       #region Test Routines
 
       string[] AvailableTests = new string[]
-         { "New Message", "Retrieve Message", "Send Message", "Clear Screen", "Create Message" };
+         { "New Message", "Retrieve Message", "Send Message", "Clear Screen", "Create Message", "Create Complex Message" };
 
       private void cmdRunTest_Click(object sender, EventArgs e) {
          try {
             Cursor.Current = Cursors.WaitCursor;
-            Log($"{cbSelectTest.Text} Starting");
-            switch (cbSelectTest.SelectedIndex) {
+            Log($"{cbSelectHardCodedTest.Text} Starting");
+            switch (cbSelectHardCodedTest.SelectedIndex) {
                case 0:
                   NewMessage();
                   break;
@@ -824,15 +903,32 @@ namespace IJPLib_Test {
                case 4:
                   CreateMessage();
                   break;
+               case 5:
+                  CreateComplex();
+                  break;
                default:
                   break;
             }
          } catch (Exception e2) {
             Log($"ConnectIJP: {e2.Message}\r\n{e2.StackTrace}");
          } finally {
-            Log($"{cbSelectTest.Text} Complete");
+            Log($"{cbSelectHardCodedTest.Text} Complete");
             Cursor.Current = Cursors.Arrow;
          }
+      }
+
+      private void CreateComplex() {
+         ClearViews();
+         message = new IJPMessage();
+         message.AddColumn();
+         message.SetRow(0, 3);
+         message.AddColumn();
+         message.SetRow(1, 2);
+         for (int i = 0; i < message.Items.Count; i++) {
+            message.Items[i].Text = $"Item #{i + 1}";
+         }
+         message.InkDropUse = 2; // Missing from documentation example
+         // Set to IJP.
       }
 
       private void CreateMessage() {
@@ -840,8 +936,8 @@ namespace IJPLib_Test {
          message = new IJPMessage();
          message.AddColumn();
          message.Items[0].Text = "ABC";
-         message.Items[0].Bold = 5;
-         message.CharacterHeight = 80;
+         //message.Items[0].Bold = 5;
+         message.InkDropUse = 2; // Missing from documentation example
          // Set to IJP.
          ijp.SetMessage(message);
       }
@@ -875,12 +971,12 @@ namespace IJPLib_Test {
 
       private void ClearDisplay() {
          ClearViews();
-         message = (IJPMessage)this.ijp.GetMessage();
-         while (message.Items.Count > 1) {
-            message.RemoveItemAt(message.Items.Count - 1);
-         }
+         message = new IJPMessage();
+         message.InkDropUse = 2; // Missing from documentation example
+         message.AddColumn();
+         message.AddItem();
          message.Items[0].Text = "X";
-         ijp.SetMessage(message);
+         //ijp.SetMessage(message);
       }
 
       #endregion
