@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,6 +16,9 @@ namespace IJPLib_Test {
    public partial class IJPTest : Form {
 
       #region Data Declarations
+
+      ResizeInfo R;
+      bool initComplete = false;
 
       // Braced Characters (count, date, half-size, logos
       readonly char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
@@ -63,7 +67,9 @@ namespace IJPLib_Test {
       // Get the current message.
       IJPMessage message = null;
 
-      bool comOn = false;
+      IJPOnlineStatus comOn = IJPOnlineStatus.Offline;
+
+      IJPLib_Test.Properties.Settings p;
 
       #endregion
 
@@ -73,6 +79,9 @@ namespace IJPLib_Test {
 
       public IJPTest() {
          InitializeComponent();
+         initComplete = true;
+         p = IJPLib_Test.Properties.Settings.Default;
+         ipAddressTextBox.Text = p.IPAddress;
       }
 
       ~IJPTest() {
@@ -83,9 +92,50 @@ namespace IJPLib_Test {
 
       #region Form level events
 
-
       private void IJPTest_Load(object sender, EventArgs e) {
+         // Center the form on the screen
+         Utils.PositionForm(this, 0.5f, 0.9f);
+         cbSelectTest.Items.AddRange(AvailableTests);
          setButtonEnables();
+      }
+
+      private void IJPTest_Resize(object sender, EventArgs e) {
+         //
+         // Avoid resize before Program Load has run or on screen minimize
+         if (initComplete && ClientRectangle.Height > 0) {
+            //
+            this.SuspendLayout();
+            // Build local parameters
+            R = Utils.InitializeResize(this, 60, 40, true);
+
+            Utils.ResizeObject(ref R, ipAddressTextBox, 1, 1, 2, 5);
+            Utils.ResizeObject(ref R, cmdConnect, 1, 7, 2, 5);
+            Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
+            Utils.ResizeObject(ref R, tclIJPTests, 4, 1, 45, 38);
+
+            Utils.ResizeObject(ref R, tclIJPLib, 2, 1, 40, 31);
+            Utils.ResizeObject(ref R, cmdGetXML, 4, 33, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetViews, 7, 33, 2, 4);
+
+            Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 36, 29);
+            Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 36, 29);
+            Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 36, 29);
+            Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 36, 29);
+
+            Utils.ResizeObject(ref R, lblSelectTest, 55, 21, 2, 10);
+            Utils.ResizeObject(ref R, cbSelectTest, 57, 21, 2, 10);
+            Utils.ResizeObject(ref R, cmdRunTest, 57, 32, 2, 5);
+
+            Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
+
+            this.ResumeLayout();
+
+         }
+      }
+
+      private void IJPTest_FormClosing(object sender, FormClosingEventArgs e) {
+         p.IPAddress = ipAddressTextBox.Text;
+         p.Save();
       }
 
       #endregion
@@ -96,29 +146,37 @@ namespace IJPLib_Test {
          if (null == this.ijp) {
             // Connect to the printer
             ConnectIJP();
-            // Get com on
-            cmdComOn_Click(null, null);
+            // Get com setting
+            comOn = ijp.GetComPort();
+            if (comOn == IJPOnlineStatus.Offline) {
+               cmdComOnOff_Click(null, null);
+            }
             // Set Caption
             this.cmdConnect.Text = "Disconnect";
          } else {
             // Turn com off
-            cmdComOff_Click(null, null);
+            cmdComOnOff_Click(null, null);
             // Disconnect from printer
             DisconnectIJP();
             // Set caption
             this.cmdConnect.Text = "Connect";
          }
-      }
-
-      private void cmdComOn_Click(object sender, EventArgs e) {
-         this.ijp.SetComPort(IJPOnlineStatus.Online);
-         comOn = true;
          setButtonEnables();
       }
 
-      private void cmdComOff_Click(object sender, EventArgs e) {
-         this.ijp.SetComPort(IJPOnlineStatus.Offline);
-         comOn = false;
+      private void cmdComOnOff_Click(object sender, EventArgs e) {
+         switch (comOn) {
+            case IJPOnlineStatus.Offline:
+               this.ijp.SetComPort(IJPOnlineStatus.Online);
+               comOn = IJPOnlineStatus.Online;
+               break;
+            case IJPOnlineStatus.Online:
+               this.ijp.SetComPort(IJPOnlineStatus.Offline);
+               comOn = IJPOnlineStatus.Offline;
+               break;
+            default:
+               break;
+         }
          setButtonEnables();
       }
 
@@ -126,8 +184,8 @@ namespace IJPLib_Test {
          //  Set hour glass
          Cursor.Current = Cursors.WaitCursor;
          // Out with the old
-         ivMessage.Text = string.Empty;
-         tvMessage.Nodes.Clear();
+         txtIjpIndented.Text = string.Empty;
+         tvIJPLibTree.Nodes.Clear();
          // In with the new
          ShowCurrentMessage();
          // Generate the views
@@ -136,9 +194,9 @@ namespace IJPLib_Test {
          TreeNode treeNode;
          od.Dump(message, out indentedView, out treeNode);
          // Display the viewd
-         ivMessage.Text = indentedView;
-         tvMessage.Nodes.Add(treeNode);
-         tvMessage.ExpandAll();
+         txtIjpIndented.Text = indentedView;
+         tvIJPLibTree.Nodes.Add(treeNode);
+         tvIJPLibTree.ExpandAll();
          // Restore cursor
          Cursor.Current = Cursors.Arrow;
       }
@@ -147,12 +205,31 @@ namespace IJPLib_Test {
          //  Set hour glass
          Cursor.Current = Cursors.WaitCursor;
          // Out with the old
-         txtXML.Text = string.Empty;
+         txtXMLIndented.Text = string.Empty;
          ShowCurrentMessage();
-         txtXML.Text = RetrieveXML(message);
-         ProcessLabel(txtXML.Text);
+         txtXMLIndented.Text = RetrieveXML(message);
+         ProcessLabel(txtXMLIndented.Text);
          // Restore cursor
          Cursor.Current = Cursors.Arrow;
+      }
+
+      private void cmdClear_Click(object sender, EventArgs e) {
+         Log("Message Cleared");
+         message = null;
+      }
+
+      private void cbSelectTest_SelectedIndexChanged(object sender, EventArgs e) {
+         setButtonEnables();
+      }
+
+      private void cmErrLogToNotepad_Click(object sender, EventArgs e) {
+         string ViewFilename = @"c:\Temp\Err.txt";
+         File.WriteAllLines(ViewFilename, lstLogs.Items.Cast<string>().ToArray());
+         Process.Start("notepad.exe", ViewFilename);
+      }
+
+      private void cmErrLogClearlog_Click(object sender, EventArgs e) {
+         lstLogs.Items.Clear();
       }
 
       #endregion
@@ -425,7 +502,7 @@ namespace IJPLib_Test {
                   writer.WriteStartElement("Shift"); // Start Shift
                   {
                      writer.WriteAttributeString("ShiftNumber", (shift + 1).ToString());
-                     writer.WriteAttributeString("StartHour",ss[shift].StartTime.Hour.ToString());
+                     writer.WriteAttributeString("StartHour", ss[shift].StartTime.Hour.ToString());
                      writer.WriteAttributeString("StartMinute", ss[shift].StartTime.Minute.ToString());
                      writer.WriteAttributeString("ShiftCode", ss[shift].String);
                   }
@@ -440,11 +517,11 @@ namespace IJPLib_Test {
             if ((mask[i] & (int)ba.TimeCount) > 0) {
                writer.WriteStartElement("TimeCount"); // Start TimeCount
                {
-                  writer.WriteAttributeString("Interval",tc.RenewalPeriod.ToString());
-                  writer.WriteAttributeString("Start",tc.LowerRange.ToString());
-                  writer.WriteAttributeString("End",tc.UpperRange.ToString());
-                  writer.WriteAttributeString("ResetTime",tc.ResetTime.ToString());
-                  writer.WriteAttributeString("ResetValue",tc.Reset.ToString());
+                  writer.WriteAttributeString("Interval", tc.RenewalPeriod.ToString());
+                  writer.WriteAttributeString("Start", tc.LowerRange.ToString());
+                  writer.WriteAttributeString("End", tc.UpperRange.ToString());
+                  writer.WriteAttributeString("ResetTime", tc.ResetTime.ToString());
+                  writer.WriteAttributeString("ResetValue", tc.Reset.ToString());
                }
                writer.WriteEndElement(); // End TimeCount
             }
@@ -452,7 +529,7 @@ namespace IJPLib_Test {
       }
 
       private void RetrieveCounterSettings(XmlTextWriter writer, IJPMessageItem mi, IJPCountConditionCollection cc) {
-         int FirstBlock  = mi.CountBlockNumber;
+         int FirstBlock = mi.CountBlockNumber;
          int BlockCount = mi.CountBlockCount;
 
          for (int i = 0; i < BlockCount; i++) {
@@ -464,32 +541,32 @@ namespace IJPLib_Test {
                {
                   writer.WriteAttributeString("Range1", c.LowerRange);
                   writer.WriteAttributeString("Range2", c.UpperRange);
-                  writer.WriteAttributeString("JumpFrom",c.JumpFrom);
+                  writer.WriteAttributeString("JumpFrom", c.JumpFrom);
                   writer.WriteAttributeString("JumpTo", c.JumpTo);
                }
                writer.WriteEndElement(); //  End Range
 
                writer.WriteStartElement("Count"); // Start Count
                {
-                  writer.WriteAttributeString("InitialValue",c.Value);
-                  writer.WriteAttributeString("Increment",c.Increment.ToString());
-                  writer.WriteAttributeString("Direction",c.Direction.ToString());
-                  writer.WriteAttributeString("ZeroSuppression",c.SuppressesZero.ToString());
+                  writer.WriteAttributeString("InitialValue", c.Value);
+                  writer.WriteAttributeString("Increment", c.Increment.ToString());
+                  writer.WriteAttributeString("Direction", c.Direction.ToString());
+                  writer.WriteAttributeString("ZeroSuppression", c.SuppressesZero.ToString());
                }
                writer.WriteEndElement(); //  End Count
 
                writer.WriteStartElement("Reset"); // Start Reset
                {
                   writer.WriteAttributeString("Type", c.ResetSignal.ToString());
-                  writer.WriteAttributeString("Value",c.Reset.ToString());
+                  writer.WriteAttributeString("Value", c.Reset.ToString());
                }
                writer.WriteEndElement(); //  End Reset
 
                writer.WriteStartElement("Misc"); // Start Misc
                {
-                  writer.WriteAttributeString("UpdateIP",c.UpdateInProgress.ToString());
-                  writer.WriteAttributeString("UpdateUnit",c.UpdateUnit.ToString());
-                  writer.WriteAttributeString("ExternalCount",c.UsesExternalSignalCount.ToString());
+                  writer.WriteAttributeString("UpdateIP", c.UpdateInProgress.ToString());
+                  writer.WriteAttributeString("UpdateUnit", c.UpdateUnit.ToString());
+                  writer.WriteAttributeString("ExternalCount", c.UsesExternalSignalCount.ToString());
                   //writer.WriteAttributeString("Multiplier",c.Multiplier.ToString());
                   //writer.WriteAttributeString("SkipCount",c.CountSkip.ToString());
                }
@@ -578,15 +655,15 @@ namespace IJPLib_Test {
                xmlStart = xml.IndexOf("<Label");
                if (xmlStart > 0) {
                   xml = xml.Substring(xmlStart);
-                  txtXML.Text = xml;
+                  txtXMLIndented.Text = xml;
 
-                  tvXML.Nodes.Clear();
-                  tvXML.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
+                  tvXMLTree.Nodes.Clear();
+                  tvXMLTree.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
                   TreeNode tNode = new TreeNode();
-                  tNode = tvXML.Nodes[0];
+                  tNode = tvXMLTree.Nodes[0];
 
                   AddNode(xmlDoc.DocumentElement, tNode);
-                  tvXML.ExpandAll();
+                  tvXMLTree.ExpandAll();
 
                   result = true;
                }
@@ -676,8 +753,9 @@ namespace IJPLib_Test {
 
             // Connect the Ink jet printer.
             this.ijp.Connect();
-         } catch (Exception e) {
 
+         } catch (Exception e) {
+            Log($"ConnectIJP: {e.Message} \n{e.StackTrace}");
          }
          setButtonEnables();
       }
@@ -702,13 +780,107 @@ namespace IJPLib_Test {
          setButtonEnables();
       }
 
+      private void Log(string s) {
+         lstLogs.Items.Add(s);
+         lstLogs.Update();
+      }
+
       private void setButtonEnables() {
          bool connected = ijp != null;
          // These must connect first
          cmdComOnOff.Enabled = connected;
-         cmdComOnOff.Text = comOn ? "Com Off" : "Com On";
-         cmdGetViews.Enabled = connected && comOn || message != null;
-         cmdGetXML.Enabled = connected && comOn || message != null;
+         cmdComOnOff.Text = comOn == IJPOnlineStatus.Online ? "Com Off" : "Com On";
+         cmdGetViews.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
+         cmdGetXML.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
+
+         cmdRunTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectTest.SelectedIndex >= 0;
+      }
+
+      #endregion
+
+      #region Test Routines
+
+      string[] AvailableTests = new string[]
+         { "New Message", "Retrieve Message", "Send Message", "Clear Screen", "Create Message" };
+
+      private void cmdRunTest_Click(object sender, EventArgs e) {
+         try {
+            Cursor.Current = Cursors.WaitCursor;
+            Log($"{cbSelectTest.Text} Starting");
+            switch (cbSelectTest.SelectedIndex) {
+               case 0:
+                  NewMessage();
+                  break;
+               case 1:
+                  RetrieveMessage();
+                  Echo();
+                  break;
+               case 2:
+                  SendMessage();
+                  break;
+               case 3:
+                  ClearDisplay();
+                  break;
+               case 4:
+                  CreateMessage();
+                  break;
+               default:
+                  break;
+            }
+         } catch (Exception e2) {
+            Log($"ConnectIJP: {e2.Message}\r\n{e2.StackTrace}");
+         } finally {
+            Log($"{cbSelectTest.Text} Complete");
+            Cursor.Current = Cursors.Arrow;
+         }
+      }
+
+      private void CreateMessage() {
+         ClearViews();
+         message = new IJPMessage();
+         message.AddColumn();
+         message.Items[0].Text = "ABC";
+         message.Items[0].Bold = 5;
+         message.CharacterHeight = 80;
+         // Set to IJP.
+         ijp.SetMessage(message);
+      }
+
+      private void NewMessage() {
+         message = new IJPMessage();
+         ClearViews();
+      }
+
+      private void ClearViews() {
+         tvIJPLibTree.Nodes.Clear();
+         tvXMLTree.Nodes.Clear();
+         txtIjpIndented.Text = string.Empty;
+         txtXMLIndented.Text = string.Empty;
+      }
+
+      private void RetrieveMessage() {
+         ClearViews();
+         message = (IJPMessage)ijp.GetMessage();
+      }
+
+      private void SendMessage() {
+         ijp.SetMessage(message);
+      }
+
+      private void Echo() {
+         ClearViews();
+         message = (IJPMessage)this.ijp.GetMessage();
+         ijp.SetMessage(message);
+      }
+
+      private void ClearDisplay() {
+         ClearViews();
+         message = (IJPMessage)this.ijp.GetMessage();
+         while (message.Items.Count > 1) {
+            message.RemoveItemAt(message.Items.Count - 1);
+         }
+         message.Items[0].Text = "X";
+         ijp.SetMessage(message);
       }
 
       #endregion
