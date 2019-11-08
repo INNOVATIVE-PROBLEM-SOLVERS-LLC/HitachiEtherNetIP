@@ -97,6 +97,7 @@ namespace IJPLib_Test {
          // Center the form on the screen
          Utils.PositionForm(this, 0.5f, 0.9f);
          cbSelectHardCodedTest.Items.AddRange(AvailableTests);
+         BuildTestFileList();
          setButtonEnables();
       }
 
@@ -113,21 +114,20 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, cmdConnect, 1, 7, 2, 5);
             Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
 
-            Utils.ResizeObject(ref R, lblMessageFolder, 1, 19, 2, 4);
-            Utils.ResizeObject(ref R, txtMessageFolder, 1, 24, 2, 10);
-            Utils.ResizeObject(ref R, cmdBrowse, 1, 35, 2, 4);
+            Utils.ResizeObject(ref R, lblMessageFolder, 1, 24, 2, 10);
+            Utils.ResizeObject(ref R, txtMessageFolder, 3, 24, 2, 10);
+            Utils.ResizeObject(ref R, cmdBrowse, 1, 35, 4, 4);
 
-            Utils.ResizeObject(ref R, tclIJPTests, 4, 1, 45, 38);
+            Utils.ResizeObject(ref R, tclIJPLib, 5, 1, 43, 33);
+            Utils.ResizeObject(ref R, cmdClear, 7, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetXML, 10, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetViews, 13, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdSaveAs, 16, 35, 2, 4);
 
-            Utils.ResizeObject(ref R, tclIJPLib, 2, 1, 40, 31);
-            Utils.ResizeObject(ref R, cmdGetXML, 4, 33, 2, 4);
-            Utils.ResizeObject(ref R, cmdGetViews, 7, 33, 2, 4);
-            Utils.ResizeObject(ref R, cmdSaveAs, 10, 33, 2, 4);
-
-            Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 36, 29);
-            Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 36, 29);
-            Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 36, 29);
-            Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 36, 29);
+            Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 38, 31);
+            Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 38, 31);
+            Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 38, 31);
+            Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 38, 31);
 
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
@@ -195,7 +195,13 @@ namespace IJPLib_Test {
          setButtonEnables();
       }
 
+      private void cmdClear_Click_1(object sender, EventArgs e) {
+         message = null;    // Force retrieval of next message
+         ClearViews();      // Clear the four screens
+      }
+
       private void cmdGetViews_Click(object sender, EventArgs e) {
+         Log("Get View Starting");
          //  Set hour glass
          Cursor.Current = Cursors.WaitCursor;
          // Out with the old
@@ -212,33 +218,59 @@ namespace IJPLib_Test {
          txtIjpIndented.Text = indentedView;
          tvIJPLibTree.Nodes.Add(treeNode);
          tvIJPLibTree.ExpandAll();
+         tclIJPLib.SelectedTab = tabIndentedView;
          // Restore cursor
          Cursor.Current = Cursors.Arrow;
+         setButtonEnables();
+         Log("Get View Complete");
       }
 
       private void cmdGetXML_Click(object sender, EventArgs e) {
-         //  Set hour glass
-         Cursor.Current = Cursors.WaitCursor;
-         // Out with the old
-         txtXMLIndented.Text = string.Empty;
-         ShowCurrentMessage();
-         txtXMLIndented.Text = RetrieveXML(message);
-         ProcessLabel(txtXMLIndented.Text);
-         // Restore cursor
-         Cursor.Current = Cursors.Arrow;
+         Log("Get XML Starting");                      // Show start
+         Cursor.Current = Cursors.WaitCursor;          // Set hour glass
+         ClearViews();                                 // Out with the old
+         ShowCurrentMessage();                         // Use current or new message
+         txtXMLIndented.Text = RetrieveXML(message);   // Display the indented XML as it is.
+         ProcessLabel(txtXMLIndented.Text);            // Build XML Tree and display it
+         tclIJPLib.SelectedTab = tabXMLIndented;       // Make XML Indented tab visible
+         Cursor.Current = Cursors.Arrow;               // Restore cursor
+         setButtonEnables();                           // Enable the correct buttons
+         Log("Get XML Complete");                      // Show Completion
       }
 
       private void ccmdSaveAs_Click(object sender, EventArgs e) {
-         switch (tclIJPLib.SelectedIndex) {
-            case 0:
-
-               break;
-            case 2:
-
-               break;
-            default:
-               break;
+         string fileName = string.Empty;
+         string fileText = string.Empty; ;
+         using (SaveFileDialog sfd = new SaveFileDialog()) {
+            switch (tclIJPLib.SelectedIndex) {
+               case 0:
+                  fileName = "IJPIndented.txt";
+                  fileText = txtIjpIndented.Text;
+                  sfd.DefaultExt = "txt";
+                  sfd.Filter = "Text|*.txt";
+                  sfd.Title = "Save Printer Image to Text file";
+                  break;
+               case 2:
+                  fileName = "XMLIndented.XML";
+                  fileText = txtXMLIndented.Text;
+                  sfd.DefaultExt = "xml";
+                  sfd.Filter = "XML|*.xml";
+                  sfd.Title = "Save Printer Image to XML file";
+                  break;
+               default:
+                  break;
+            }
+            sfd.CheckFileExists = false;
+            sfd.CheckPathExists = true;
+            sfd.InitialDirectory = txtMessageFolder.Text;
+            sfd.FileName = fileName;
+            if (sfd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(sfd.FileName)) {
+               fileName = Path.Combine(txtMessageFolder.Text, sfd.FileName);
+               File.WriteAllText(fileName, fileText);
+            }
          }
+         BuildTestFileList();
+         setButtonEnables();
       }
 
       private void cmdClear_Click(object sender, EventArgs e) {
@@ -260,6 +292,29 @@ namespace IJPLib_Test {
          lstLogs.Items.Clear();
       }
 
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog() 
+            { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtMessageFolder.Text = dlg.SelectedPath;
+            BuildTestFileList();
+         }
+      }
+
+      private void cbSelectXMLTest_SelectedIndexChanged(object sender, EventArgs e) {
+         string fileName = Path.Combine(txtMessageFolder.Text, cbSelectXMLTest.Text + ".xml");
+         ClearViews();
+         string xml = File.ReadAllText(fileName);
+         ProcessLabel(xml);
+         setButtonEnables();
+      }
+
+      private void cmdRunXMLTest_Click(object sender, EventArgs e) {
+         XmlDocument  xmlDoc = new XmlDocument() { PreserveWhitespace = true };
+         xmlDoc.LoadXml(txtXMLIndented.Text);
+         SendXmlToPrinter(xmlDoc);
+      }
+
       #endregion
 
       #region Message to XML 
@@ -275,6 +330,8 @@ namespace IJPLib_Test {
       public string RetrieveXML(IJPMessage m) {
          string xml = string.Empty;
          ItemType itemType;
+         int calBlockNumber = 0;
+         int cntBlockNumber = 0;
          using (MemoryStream ms = new MemoryStream()) {
             using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
@@ -295,9 +352,9 @@ namespace IJPLib_Test {
                               writer.WriteAttributeString("InterLineSpacing", m.Items[item].LineSpacing.ToString());
                               for (int i = item; i < item + colCount; i++) {
                                  string text = m.Items[i].Text;
-                                 int calBlocks = m.Items[i].CalendarBlockCount;
-                                 int cntBlocks = m.Items[i].CountBlockCount;
-                                 int[] mask = new int[1 + Math.Max(calBlocks, cntBlocks)];
+                                 int calBlockCount = m.Items[i].CalendarBlockCount;
+                                 int cntBlockCount = m.Items[i].CountBlockCount;
+                                 int[] mask = new int[1 + Math.Max(calBlockCount, cntBlockCount)];
                                  itemType = GetItemType(text, ref mask);
                                  writer.WriteStartElement("Item"); // Start Item
                                  {
@@ -306,14 +363,13 @@ namespace IJPLib_Test {
                                        case ItemType.Text:
                                           break;
                                        case ItemType.Date:
-                                          // Missing multiple calendar block logic
-                                          RetrieveCalendarSettings(writer, (IJPMessageItem)m.Items[i], m.CalendarConditions, mask);
+                                          RetrieveCalendarSettings(writer, calBlockNumber, calBlockCount, m.CalendarConditions, mask);
                                           RetrieveShiftSettings(writer, m.ShiftCodes, mask);
                                           RetrieveTimeCountSettings(writer, m.TimeCount, mask);
+                                          calBlockNumber += calBlockCount;
                                           break;
                                        case ItemType.Counter:
-                                          // Missing multiple counter block logic
-                                          RetrieveCounterSettings(writer, (IJPMessageItem)m.Items[i], m.CountConditions);
+                                          RetrieveCounterSettings(writer, cntBlockNumber, cntBlockCount, m.CountConditions);
                                           break;
                                        case ItemType.Logo:
                                           RetrieveUserPatternSettings(writer);
@@ -451,12 +507,10 @@ namespace IJPLib_Test {
          writer.WriteEndElement(); // End BarCode
       }
 
-      private void RetrieveCalendarSettings(XmlTextWriter writer, IJPMessageItem mi, IJPCalendarConditionCollection cc, int[] mask) {
-         int FirstBlock = mi.CalendarBlockNumber;
-         int BlockCount = mi.CalendarBlockCount;
+      private void RetrieveCalendarSettings(XmlTextWriter writer, int FirstBlock, int BlockCount, IJPCalendarConditionCollection cc, int[] mask) {
 
          for (int i = 0; i < BlockCount; i++) {
-            IJPCalendarCondition c = cc[FirstBlock + i - 1];
+            IJPCalendarCondition c = cc[FirstBlock + i];
             // Where is the Substitution Rule
             writer.WriteStartElement("Date"); // Start Date
             {
@@ -556,12 +610,9 @@ namespace IJPLib_Test {
          }
       }
 
-      private void RetrieveCounterSettings(XmlTextWriter writer, IJPMessageItem mi, IJPCountConditionCollection cc) {
-         int FirstBlock = mi.CountBlockNumber;
-         int BlockCount = mi.CountBlockCount;
-
+      private void RetrieveCounterSettings(XmlTextWriter writer, int FirstBlock, int BlockCount, IJPCountConditionCollection cc) {
          for (int i = 0; i < BlockCount; i++) {
-            IJPCountCondition c = cc[FirstBlock + i - 1];
+            IJPCountCondition c = cc[FirstBlock + i];
             writer.WriteStartElement("Counter"); // Start Counter
             {
                writer.WriteAttributeString("Block", (i + 1).ToString());
@@ -640,7 +691,6 @@ namespace IJPLib_Test {
          }
       }
 
-
       private void RetrieveLogos(XmlTextWriter writer) {
 
       }
@@ -653,8 +703,11 @@ namespace IJPLib_Test {
 
       #region XML to Message
 
+      List<XmlNode> Items;
+
       // Send xlmDoc from file to printer
       public bool SendXmlToPrinter(XmlDocument xmlDoc) {
+         message = new IJPMessage();
          bool success = true;
          // Need a XMP Document to continue
          if (xmlDoc == null) {
@@ -679,16 +732,471 @@ namespace IJPLib_Test {
          return success;
       }
 
-      private bool AllocateRowsColumns(XmlNodeList childNodes) {
+      //ild the structure and load Items
+      private bool AllocateRowsColumns(XmlNodeList objs) {
+         bool hasDateOrCount = false;
+         XmlNode n;
+         Items = new List<XmlNode>();
          bool success = true;
+         int[] columns = new int[100];
+         int[] ILS = new int[100];
+         int maxCol = 0;
+
+         // Count the rows and columns
+         foreach (XmlNode col in objs) {
+            if (col is XmlWhitespace)
+               continue;
+            switch (col.Name) {
+               case "Column":
+                  columns[maxCol] = 0;
+                  int.TryParse(GetXmlAttr(col, "InterLineSpacing"), out ILS[maxCol]);
+                  foreach (XmlNode item in col) {
+                     if (item is XmlWhitespace)
+                        continue;
+                     switch (item.Name) {
+                        case "Item":
+                           Items.Add(item);
+                           columns[maxCol]++;
+                           break;
+                     }
+                  }
+                  maxCol++;
+                  break;
+            }
+         }
+
+         // Allocate the rows and columns
+         int i = 0;
+         for (int col = 0; col < maxCol; col++) {
+            if (columns[col] == 0) {
+               return false;
+            }
+            message.AddColumn();
+            message.SetRow(col, (byte)columns[col]);
+
+            for (int row = 0; row < columns[col]; row++) {
+               IJPMessageItem item = (IJPMessageItem)message.Items[i];
+               if ((n = Items[i].SelectSingleNode("Font")) != null) {
+                  item.DotMatrix = ParseEnum<IJPDotMatrix>(GetXmlAttr(n, "DotMatrix"));
+                  item.InterCharacterSpace = (byte)GetXmlAttrN(n, "InterCharacterSpace");
+                  item.LineSpacing = (byte)ILS[col];
+                  item.Bold = (byte)GetXmlAttrN(n, "IncreasedWidth");
+                  item.Text = GetXmlValue(Items[i].SelectSingleNode("Text"));
+               }
+               hasDateOrCount |= Items[i].SelectSingleNode("Date") != null | Items[i].SelectSingleNode("Counter") != null;
+               i++;
+            }
+         }
+         if (hasDateOrCount) {
+            SendDateCount();
+         }
+         return success;
+      }
+
+      private bool SendDateCount() {
+         bool success = true;
+         int calBlockNumber = 0;
+         int cntBlockNumber = 0;
+
+         int[] calStart = new int[Items.Count];
+         int[] calCount = new int[Items.Count];
+         int[] countStart = new int[Items.Count];
+         int[] countCount = new int[Items.Count];
+
+         for (int i = 0; i < Items.Count; i++) {
+            IJPMessageItem item = (IJPMessageItem)message.Items[i];
+            if (Items[i].SelectSingleNode("Date") != null) {
+               calCount[i] = item.CalendarBlockCount;
+               if (calCount[i] > 0) {
+                  calStart[i] = calBlockNumber;
+                  calBlockNumber += calCount[i];
+               }
+            }
+            if (Items[i].SelectSingleNode("Counter") != null) {
+               countCount[i] = item.CountBlockCount;
+               if (countCount[i] > 0) {
+                  countStart[i] = cntBlockNumber;
+                  cntBlockNumber += countCount[i];
+               }
+            }
+         }
+
+         for (int i = 0; i < Items.Count; i++) {
+            if (Items[i].SelectSingleNode("Date") != null) {
+               LoadCalendar(Items[i], calCount[i], calStart[i]);
+            }
+            if (Items[i].SelectSingleNode("Counter") != null) {
+               LoadCount(Items[i], countCount[i], countStart[i]);
+            }
+            if (Items[i].SelectSingleNode("TimeCount") != null) {
+               LoadTimeCount(Items[i].SelectSingleNode("TimeCount"));
+            }
+            if (Items[i].SelectSingleNode("Shift") != null) {
+               //LoadShift(Items[i]);
+            }
+         }
+
+         Items = null;
 
          return success;
       }
 
-      private bool SendPrinterSettings(XmlNode prnt) {
+      private void LoadShift(XmlNode obj) {
+         foreach (XmlNode d in obj) {
+            if (d is XmlWhitespace)
+               continue;
+            if (d.Name == "Shift") {
+               if (int.TryParse(GetXmlAttr(d, "ShiftNumber"), out int shift)) {
+                  IJPShiftCode sc = message.ShiftCodes[shift - 1];
+                  foreach (XmlAttribute a in d.Attributes) {
+                     switch (a.Name) {
+                        case "StartHour":
+                           sc.StartTime.Hour = (byte)Convert.ToInt16(a.Value);
+                           break;
+                        case "StartMinute":
+                           sc.StartTime.Minute = (byte)Convert.ToInt16(a.Value);
+                           break;
+                        case "ShiftCode":
+                           sc.String = a.Value;
+                           break;
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      private void LoadTimeCount(XmlNode d) {
+         IJPTimeCountCondition tc = new IJPTimeCountCondition();
+         foreach (XmlAttribute a in d.Attributes) {
+            switch (a.Name) {
+               case "Start":
+                  tc.LowerRange = a.Value;
+                  break;
+               case "End":
+                  tc.UpperRange = a.Value;
+                  break;
+               case "ResetValue":
+                  tc.Reset = a.Value;
+                  break;
+               case "ResetTime":
+                  tc.ResetTime = (byte)Convert.ToInt16(a.Value);
+                  break;
+               case "Interval":
+                  tc.RenewalPeriod = ParseEnum<IJPTimeCountConditionRenewalPeriod>(a.Value);
+                  break;
+            }
+         }
+         message.TimeCount = tc;
+      }
+
+      // Send Calendar related information
+      private bool LoadCalendar(XmlNode obj, int CalBlockCount, int FirstCalBlock) {
          bool success = true;
 
+         foreach (XmlNode d in obj) {
+            if (d is XmlWhitespace)
+               continue;
+            if (d.Name == "Date" && int.TryParse(GetXmlAttr(d, "Block"), out int b) && b <= CalBlockCount) {
+               IJPCalendarCondition cc = message.CalendarConditions[FirstCalBlock + b - 1];
+
+               if (int.TryParse(GetXmlAttr(d, "SubstitutionRule"), out int sr)) {
+                  cc.SubstitutionRuleNumber = (byte)sr;
+               }
+               foreach (XmlNode n in d.ChildNodes) {
+                  if (n is XmlWhitespace)
+                     continue;
+                  switch (n.Name) {
+                     case "Offset":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           if (int.TryParse(a.Value, out int x)) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    cc.YearOffset = (byte)x;
+                                    break;
+                                 case "Month":
+                                    cc.MonthOffset = (byte)x;
+                                    break;
+                                 case "Day":
+                                    cc.DayOffset = (ushort)x;
+                                    break;
+                                 case "Hour":
+                                    cc.HourOffset = (short)x;
+                                    break;
+                                 case "Minute":
+                                    cc.MinuteOffset = (short)x;
+                                    break;
+                              }
+                           }
+                        }
+                        break;
+                     case "ZeroSuppress":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           IJPCalendarConditionZeroSuppress zs = ParseEnum<IJPCalendarConditionZeroSuppress>(a.Value);
+                           switch (a.Name) {
+                              case "Year":
+                                 cc.YearZeroSuppression = zs;
+                                 break;
+                              case "Month":
+                                 cc.MonthZeroSuppression = zs;
+                                 break;
+                              case "Day":
+                                 cc.DayZeroSuppression = zs;
+                                 break;
+                              case "Hour":
+                                 cc.HourZeroSuppression = zs;
+                                 break;
+                              case "Minute":
+                                 cc.MinuteZeroSuppression = zs;
+                                 break;
+                              case "Week":
+                                 cc.WeekZeroSuppression = zs;
+                                 break;
+                              case "DayOfWeek":
+                                 cc.WeekNumberZeroSuppression = zs;
+                                 break;
+                           }
+                        }
+                        break;
+                     case "Substitute":
+                        foreach (XmlAttribute a in n.Attributes) {
+                           if (bool.TryParse(a.Value, out bool sub)) {
+                              switch (a.Name) {
+                                 case "Year":
+                                    cc.YearSubstitutionRule = sub;
+                                    break;
+                                 case "Month":
+                                    cc.MonthSubstitutionRule = sub;
+                                    break;
+                                 case "Day":
+                                    cc.DaySubstitutionRule = sub;
+                                    break;
+                                 case "Hour":
+                                    cc.HourSubstitutionRule = sub;
+                                    break;
+                                 case "Minute":
+                                    cc.MinuteSubstitutionRule = sub;
+                                    break;
+                                 case "Week":
+                                    cc.WeekNumberSubstitutionRule = sub;
+                                    break;
+                                 case "DayOfWeek":
+                                    cc.WeekSubstitutionRule = sub;
+                                    break;
+                              }
+                           }
+                        }
+                        break;
+                  }
+               }
+            } else if (d.Name == "TimeCount") {
+               IJPTimeCountCondition tc = message.TimeCount;
+               foreach (XmlAttribute a in d.Attributes) {
+                  switch (a.Name) {
+                     case "Start":
+                        tc.LowerRange = a.Value;
+                        break;
+                     case "End":
+                        tc.LowerRange = a.Value;
+                        break;
+                     case "ResetValue":
+                        tc.Reset = a.Value;
+                        break;
+                     case "ResetTime":
+                        tc.ResetTime = (byte)Convert.ToInt16(a.Value);
+                        break;
+                     case "Interval":
+                        tc.RenewalPeriod = ParseEnum<IJPTimeCountConditionRenewalPeriod>(a.Value);
+                        break;
+                  }
+               }
+            } else if (d.Name == "Shift") {
+               if (int.TryParse(GetXmlAttr(d, "ShiftNumber"), out int shift)) {
+                  IJPShiftCode sc = message.ShiftCodes[shift - 1];
+                  foreach (XmlAttribute a in d.Attributes) {
+                     switch (a.Name) {
+                        case "StartHour":
+                           sc.StartTime.Hour = (byte)Convert.ToInt16(a.Value);
+                           break;
+                        case "StartMinute":
+                           sc.StartTime.Minute = (byte)Convert.ToInt16(a.Value);
+                           break;
+                        case "ShiftCode":
+                           sc.String = a.Value;
+                           break;
+                     }
+                  }
+               }
+            }
+         }
          return success;
+      }
+
+      // Send counter related information
+      private bool LoadCount(XmlNode obj, int CountBlockCount, int FirstCountBlock) {
+         bool success = true;
+         XmlNode n;
+         foreach (XmlNode c in obj) {
+            if (c is XmlWhitespace)
+               continue;
+            if (c.Name == "Counter" && int.TryParse(GetXmlAttr(c, "Block"), out int b) && b <= CountBlockCount) {
+               IJPCountCondition cc = message.CountConditions[FirstCountBlock + b - 1];
+               if ((n = c.SelectSingleNode("Range")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Range1":
+                           cc.LowerRange = a.Value;
+                           break;
+                        case "Range2":
+                           cc.UpperRange = a.Value;
+                           break;
+                        case "JumpFrom":
+                           cc.JumpFrom = a.Value;
+                           break;
+                        case "JumpTo":
+                           cc.JumpTo = a.Value;
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Count")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "InitialValue":
+                           cc.Value = a.Value;
+                           break;
+                        case "Increment":
+                           cc.Increment = (byte)Convert.ToInt32(a.Value);
+                           break;
+                        case "Direction":
+                           cc.Direction = ParseEnum<IJPCountConditionDirection>(a.Value);
+                           break;
+                        case "ZeroSuppression":
+                           cc.SuppressesZero = Convert.ToBoolean(a.Value);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Reset")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "Value":
+                           cc.Reset = a.Value;
+                           break;
+                        case "Type":
+                           cc.ResetSignal = ParseEnum<IJPCountConditionResetSignal>(a.Value);
+                           break;
+                     }
+                  }
+               }
+
+               if ((n = c.SelectSingleNode("Misc")) != null) {
+                  foreach (XmlAttribute a in n.Attributes) {
+                     switch (a.Name) {
+                        case "UpdateIP":
+                           cc.UpdateInProgress = Convert.ToUInt32(a.Value);
+                           break;
+                        case "UpdateUnit":
+                           cc.UpdateUnit = Convert.ToUInt32(a.Value);
+                           break;
+                        case "ExternalCount":
+                           cc.UsesExternalSignalCount = Convert.ToBoolean(a.Value);
+                           break;
+                        case "Multiplier":
+                           cc.Multiplier = a.Value;
+                           break;
+                        case "Skip":
+                           cc.CountSkip = a.Value;
+                           break;
+                     }
+                  }
+               }
+            }
+         }
+         return success;
+      }
+
+      // Send the Printer Wide Settings
+      private bool SendPrinterSettings(XmlNode pr) {
+         bool success = true;
+         foreach (XmlNode c in pr.ChildNodes) {
+            switch (c.Name) {
+               case "PrintHead":
+                  message.CharacterOrientation = ParseEnum<IJPCharacterOrientation>(GetXmlAttr(c, "Orientation"));
+                  break;
+               case "ContinuousPrinting":
+                  message.RepeatIntervals = (uint)GetXmlAttrN(c, "RepeatInterval");
+                  message.RepeatCount = (ushort)GetXmlAttrN(c, "PrintsPerTrigger");
+                  break;
+               case "TargetSensor":
+                  message.TargetSensorFilter = ParseEnum<IJPSensorFilter>(GetXmlAttr(c, "Filter"));
+                  message.TimeSetup = (ushort)GetXmlAttrN(c, "SetupValue");
+                  message.TargetSensorTimer = (ushort)GetXmlAttrN(c, "Timer");
+                  break;
+               case "CharacterSize":
+                  message.CharacterWidth = (ushort)GetXmlAttrN(c, "Width");
+                  message.CharacterHeight = (byte)GetXmlAttrN(c, "Height");
+                  break;
+               case "PrintStartDelay":
+                  message.PrintStartDelayForward = (ushort)GetXmlAttrN(c, "Forward");
+                  message.PrintStartDelayReverse = (ushort)GetXmlAttrN(c, "Reverse");
+                  break;
+               case "EncoderSettings":
+                  message.HiSpeedPrint = ParseEnum<IJPHiSpeedPrintType>(GetXmlAttr(c, "HighSpeedPrinting"));
+                  message.PulseRateDivisionFactor = (ushort)GetXmlAttrN(c, "Divisor");
+                  message.ProductSpeedMatching = ParseEnum<IJPProductSpeedMatching>(GetXmlAttr(c, "ExternalEncoder"));
+                  break;
+               case "InkStream":
+                  message.InkDropUse = (byte)GetXmlAttrN(c, "InkDropUse");
+                  message.InkDropChargeRule = ParseEnum<IJPInkDropChargeRule>(GetXmlAttr(c, "ChargeRule"));
+                  break;
+               case "Substitution":
+                  //SendSubstitution(c);
+                  break;
+            }
+         }
+         return success;
+      }
+
+      // Get XML Text
+      private string GetXmlValue(XmlNode node) {
+         if (node != null) {
+            return node.InnerText;
+         } else {
+            return "N_A";
+         }
+      }
+
+      // Get XML Attribute Value
+      private string GetXmlAttr(XmlNode node, string AttrName) {
+         XmlNode n;
+         if (node != null && (n = node.Attributes[AttrName]) != null) {
+            return n.Value;
+         } else {
+            return "N_A";
+         }
+      }
+
+      // Get XML Attribute Value
+      private long GetXmlAttrN(XmlNode node, string AttrName) {
+         XmlNode n;
+         if (node != null && (n = node.Attributes[AttrName]) != null) {
+            if(long.TryParse(n.Value, out long v)) {
+               return v;
+            }
+         }
+         return 0;
+      }
+
+      // Convert string back to Enum
+      public T ParseEnum<T>(string EnumValue) {
+         if (Enum.IsDefined(typeof(T), EnumValue)) {
+            return (T)Enum.Parse(typeof(T), EnumValue, true);
+         }
+         Log($"{typeof(T)}.{EnumValue} is unknown enumeration value");
+         return (T)Enum.GetValues(typeof(T)).GetValue(0);
       }
 
       #endregion
@@ -844,6 +1352,19 @@ namespace IJPLib_Test {
 
          }
          setButtonEnables();
+      }
+
+      private void BuildTestFileList() {
+         cbSelectXMLTest.Items.Clear();
+         try {
+            string[] FileNames = Directory.GetFiles(txtMessageFolder.Text, "*.XML");
+            Array.Sort(FileNames);
+            for (int i = 0; i < FileNames.Length; i++) {
+               cbSelectXMLTest.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
+            }
+         } catch {
+
+         }
       }
 
       private void Log(string s) {
