@@ -817,7 +817,6 @@ namespace EIP_Lib {
          if (dlg.ShowDialog() == DialogResult.OK) {
             tb.Text = dlg.SelectedPath;
          }
-
       }
 
       // Enable only the buttons that should be used

@@ -38,9 +38,7 @@
          this.tvXMLTree = new System.Windows.Forms.TreeView();
          this.cmdGetViews = new System.Windows.Forms.Button();
          this.cmdGetXML = new System.Windows.Forms.Button();
-         this.tclIJPTests = new System.Windows.Forms.TabControl();
-         this.tabDisplay = new System.Windows.Forms.TabPage();
-         this.tabMain = new System.Windows.Forms.TabPage();
+         this.cmdSaveAs = new System.Windows.Forms.Button();
          this.lblSelectHardCodedTest = new System.Windows.Forms.Label();
          this.cbSelectHardCodedTest = new System.Windows.Forms.ComboBox();
          this.cmdRunHardCodedTest = new System.Windows.Forms.Button();
@@ -48,20 +46,18 @@
          this.cmErrLog = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmErrLogToNotepad = new System.Windows.Forms.ToolStripMenuItem();
          this.cmErrLogClearlog = new System.Windows.Forms.ToolStripMenuItem();
-         this.cmdSaveAs = new System.Windows.Forms.Button();
          this.lblSelectXMLTest = new System.Windows.Forms.Label();
          this.cbSelectXMLTest = new System.Windows.Forms.ComboBox();
          this.cmdRunXMLTest = new System.Windows.Forms.Button();
          this.lblMessageFolder = new System.Windows.Forms.Label();
          this.txtMessageFolder = new System.Windows.Forms.TextBox();
          this.cmdBrowse = new System.Windows.Forms.Button();
+         this.cmdClear = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
          this.tabXMLIndented.SuspendLayout();
          this.tabXMLTree.SuspendLayout();
-         this.tclIJPTests.SuspendLayout();
-         this.tabDisplay.SuspendLayout();
          this.cmErrLog.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -102,7 +98,7 @@
          this.tclIJPLib.Controls.Add(this.tabTreeView);
          this.tclIJPLib.Controls.Add(this.tabXMLIndented);
          this.tclIJPLib.Controls.Add(this.tabXMLTree);
-         this.tclIJPLib.Location = new System.Drawing.Point(19, 16);
+         this.tclIJPLib.Location = new System.Drawing.Point(18, 76);
          this.tclIJPLib.Name = "tclIJPLib";
          this.tclIJPLib.SelectedIndex = 0;
          this.tclIJPLib.Size = new System.Drawing.Size(675, 195);
@@ -114,7 +110,7 @@
          this.tabIndentedView.Controls.Add(this.txtIjpIndented);
          this.tabIndentedView.Location = new System.Drawing.Point(4, 25);
          this.tabIndentedView.Name = "tabIndentedView";
-         this.tabIndentedView.Size = new System.Drawing.Size(667, 459);
+         this.tabIndentedView.Size = new System.Drawing.Size(667, 166);
          this.tabIndentedView.TabIndex = 2;
          this.tabIndentedView.Text = "IJPLib Indented View";
          this.tabIndentedView.UseVisualStyleBackColor = true;
@@ -122,7 +118,7 @@
          // txtIjpIndented
          // 
          this.txtIjpIndented.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.txtIjpIndented.Location = new System.Drawing.Point(17, 19);
+         this.txtIjpIndented.Location = new System.Drawing.Point(12, 25);
          this.txtIjpIndented.Multiline = true;
          this.txtIjpIndented.Name = "txtIjpIndented";
          this.txtIjpIndented.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -135,7 +131,7 @@
          this.tabTreeView.Location = new System.Drawing.Point(4, 25);
          this.tabTreeView.Name = "tabTreeView";
          this.tabTreeView.Padding = new System.Windows.Forms.Padding(3);
-         this.tabTreeView.Size = new System.Drawing.Size(667, 459);
+         this.tabTreeView.Size = new System.Drawing.Size(667, 166);
          this.tabTreeView.TabIndex = 1;
          this.tabTreeView.Text = "IJPLib Tree View";
          this.tabTreeView.UseVisualStyleBackColor = true;
@@ -152,7 +148,7 @@
          this.tabXMLIndented.Controls.Add(this.txtXMLIndented);
          this.tabXMLIndented.Location = new System.Drawing.Point(4, 25);
          this.tabXMLIndented.Name = "tabXMLIndented";
-         this.tabXMLIndented.Size = new System.Drawing.Size(667, 459);
+         this.tabXMLIndented.Size = new System.Drawing.Size(667, 166);
          this.tabXMLIndented.TabIndex = 3;
          this.tabXMLIndented.Text = "XML Indented";
          this.tabXMLIndented.UseVisualStyleBackColor = true;
@@ -186,7 +182,7 @@
          // 
          // cmdGetViews
          // 
-         this.cmdGetViews.Location = new System.Drawing.Point(701, 94);
+         this.cmdGetViews.Location = new System.Drawing.Point(721, 197);
          this.cmdGetViews.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetViews.Name = "cmdGetViews";
          this.cmdGetViews.Size = new System.Drawing.Size(100, 31);
@@ -197,7 +193,7 @@
          // 
          // cmdGetXML
          // 
-         this.cmdGetXML.Location = new System.Drawing.Point(701, 40);
+         this.cmdGetXML.Location = new System.Drawing.Point(721, 158);
          this.cmdGetXML.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetXML.Name = "cmdGetXML";
          this.cmdGetXML.Size = new System.Drawing.Size(100, 31);
@@ -206,43 +202,20 @@
          this.cmdGetXML.UseVisualStyleBackColor = true;
          this.cmdGetXML.Click += new System.EventHandler(this.cmdGetXML_Click);
          // 
-         // tclIJPTests
+         // cmdSaveAs
          // 
-         this.tclIJPTests.Controls.Add(this.tabDisplay);
-         this.tclIJPTests.Controls.Add(this.tabMain);
-         this.tclIJPTests.Location = new System.Drawing.Point(13, 60);
-         this.tclIJPTests.Name = "tclIJPTests";
-         this.tclIJPTests.SelectedIndex = 0;
-         this.tclIJPTests.Size = new System.Drawing.Size(837, 274);
-         this.tclIJPTests.TabIndex = 19;
-         // 
-         // tabDisplay
-         // 
-         this.tabDisplay.Controls.Add(this.cmdSaveAs);
-         this.tabDisplay.Controls.Add(this.tclIJPLib);
-         this.tabDisplay.Controls.Add(this.cmdGetViews);
-         this.tabDisplay.Controls.Add(this.cmdGetXML);
-         this.tabDisplay.Location = new System.Drawing.Point(4, 25);
-         this.tabDisplay.Name = "tabDisplay";
-         this.tabDisplay.Padding = new System.Windows.Forms.Padding(3);
-         this.tabDisplay.Size = new System.Drawing.Size(829, 245);
-         this.tabDisplay.TabIndex = 0;
-         this.tabDisplay.Text = "Display";
-         this.tabDisplay.UseVisualStyleBackColor = true;
-         // 
-         // tabMain
-         // 
-         this.tabMain.Location = new System.Drawing.Point(4, 25);
-         this.tabMain.Name = "tabMain";
-         this.tabMain.Padding = new System.Windows.Forms.Padding(3);
-         this.tabMain.Size = new System.Drawing.Size(829, 524);
-         this.tabMain.TabIndex = 1;
-         this.tabMain.Text = "Main";
-         this.tabMain.UseVisualStyleBackColor = true;
+         this.cmdSaveAs.Location = new System.Drawing.Point(721, 236);
+         this.cmdSaveAs.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdSaveAs.Name = "cmdSaveAs";
+         this.cmdSaveAs.Size = new System.Drawing.Size(100, 31);
+         this.cmdSaveAs.TabIndex = 19;
+         this.cmdSaveAs.Text = "Save As";
+         this.cmdSaveAs.UseVisualStyleBackColor = true;
+         this.cmdSaveAs.Click += new System.EventHandler(this.ccmdSaveAs_Click);
          // 
          // lblSelectHardCodedTest
          // 
-         this.lblSelectHardCodedTest.Location = new System.Drawing.Point(331, 359);
+         this.lblSelectHardCodedTest.Location = new System.Drawing.Point(326, 292);
          this.lblSelectHardCodedTest.Name = "lblSelectHardCodedTest";
          this.lblSelectHardCodedTest.Size = new System.Drawing.Size(167, 28);
          this.lblSelectHardCodedTest.TabIndex = 2;
@@ -252,7 +225,7 @@
          // cbSelectHardCodedTest
          // 
          this.cbSelectHardCodedTest.FormattingEnabled = true;
-         this.cbSelectHardCodedTest.Location = new System.Drawing.Point(326, 390);
+         this.cbSelectHardCodedTest.Location = new System.Drawing.Point(321, 323);
          this.cbSelectHardCodedTest.Name = "cbSelectHardCodedTest";
          this.cbSelectHardCodedTest.Size = new System.Drawing.Size(172, 24);
          this.cbSelectHardCodedTest.TabIndex = 1;
@@ -260,7 +233,7 @@
          // 
          // cmdRunHardCodedTest
          // 
-         this.cmdRunHardCodedTest.Location = new System.Drawing.Point(326, 420);
+         this.cmdRunHardCodedTest.Location = new System.Drawing.Point(321, 353);
          this.cmdRunHardCodedTest.Name = "cmdRunHardCodedTest";
          this.cmdRunHardCodedTest.Size = new System.Drawing.Size(171, 51);
          this.cmdRunHardCodedTest.TabIndex = 0;
@@ -273,7 +246,7 @@
          this.lstLogs.ContextMenuStrip = this.cmErrLog;
          this.lstLogs.FormattingEnabled = true;
          this.lstLogs.ItemHeight = 16;
-         this.lstLogs.Location = new System.Drawing.Point(17, 359);
+         this.lstLogs.Location = new System.Drawing.Point(12, 292);
          this.lstLogs.Name = "lstLogs";
          this.lstLogs.Size = new System.Drawing.Size(291, 116);
          this.lstLogs.TabIndex = 3;
@@ -301,20 +274,9 @@
          this.cmErrLogClearlog.Text = "Clear Log";
          this.cmErrLogClearlog.Click += new System.EventHandler(this.cmErrLogClearlog_Click);
          // 
-         // cmdSaveAs
-         // 
-         this.cmdSaveAs.Location = new System.Drawing.Point(701, 147);
-         this.cmdSaveAs.Margin = new System.Windows.Forms.Padding(4);
-         this.cmdSaveAs.Name = "cmdSaveAs";
-         this.cmdSaveAs.Size = new System.Drawing.Size(100, 31);
-         this.cmdSaveAs.TabIndex = 19;
-         this.cmdSaveAs.Text = "Save As";
-         this.cmdSaveAs.UseVisualStyleBackColor = true;
-         this.cmdSaveAs.Click += new System.EventHandler(this.ccmdSaveAs_Click);
-         // 
          // lblSelectXMLTest
          // 
-         this.lblSelectXMLTest.Location = new System.Drawing.Point(531, 359);
+         this.lblSelectXMLTest.Location = new System.Drawing.Point(526, 292);
          this.lblSelectXMLTest.Name = "lblSelectXMLTest";
          this.lblSelectXMLTest.Size = new System.Drawing.Size(167, 28);
          this.lblSelectXMLTest.TabIndex = 22;
@@ -324,19 +286,21 @@
          // cbSelectXMLTest
          // 
          this.cbSelectXMLTest.FormattingEnabled = true;
-         this.cbSelectXMLTest.Location = new System.Drawing.Point(526, 390);
+         this.cbSelectXMLTest.Location = new System.Drawing.Point(521, 323);
          this.cbSelectXMLTest.Name = "cbSelectXMLTest";
          this.cbSelectXMLTest.Size = new System.Drawing.Size(172, 24);
          this.cbSelectXMLTest.TabIndex = 21;
+         this.cbSelectXMLTest.SelectedIndexChanged += new System.EventHandler(this.cbSelectXMLTest_SelectedIndexChanged);
          // 
          // cmdRunXMLTest
          // 
-         this.cmdRunXMLTest.Location = new System.Drawing.Point(526, 420);
+         this.cmdRunXMLTest.Location = new System.Drawing.Point(521, 353);
          this.cmdRunXMLTest.Name = "cmdRunXMLTest";
          this.cmdRunXMLTest.Size = new System.Drawing.Size(171, 51);
          this.cmdRunXMLTest.TabIndex = 20;
          this.cmdRunXMLTest.Text = "Run XML Test";
          this.cmdRunXMLTest.UseVisualStyleBackColor = true;
+         this.cmdRunXMLTest.Click += new System.EventHandler(this.cmdRunXMLTest_Click);
          // 
          // lblMessageFolder
          // 
@@ -346,7 +310,7 @@
          this.lblMessageFolder.Size = new System.Drawing.Size(109, 17);
          this.lblMessageFolder.TabIndex = 23;
          this.lblMessageFolder.Text = "Message Folder";
-         this.lblMessageFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         this.lblMessageFolder.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
          // 
          // txtMessageFolder
          // 
@@ -363,13 +327,30 @@
          this.cmdBrowse.TabIndex = 25;
          this.cmdBrowse.Text = "Browse";
          this.cmdBrowse.UseVisualStyleBackColor = true;
+         this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
+         // 
+         // cmdClear
+         // 
+         this.cmdClear.Location = new System.Drawing.Point(721, 119);
+         this.cmdClear.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdClear.Name = "cmdClear";
+         this.cmdClear.Size = new System.Drawing.Size(100, 31);
+         this.cmdClear.TabIndex = 26;
+         this.cmdClear.Text = "Clear";
+         this.cmdClear.UseVisualStyleBackColor = true;
+         this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click_1);
          // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(926, 522);
+         this.ClientSize = new System.Drawing.Size(926, 437);
+         this.Controls.Add(this.cmdClear);
+         this.Controls.Add(this.cmdSaveAs);
+         this.Controls.Add(this.tclIJPLib);
+         this.Controls.Add(this.cmdGetViews);
          this.Controls.Add(this.cmdBrowse);
+         this.Controls.Add(this.cmdGetXML);
          this.Controls.Add(this.txtMessageFolder);
          this.Controls.Add(this.lblMessageFolder);
          this.Controls.Add(this.lblSelectXMLTest);
@@ -379,7 +360,6 @@
          this.Controls.Add(this.lstLogs);
          this.Controls.Add(this.cbSelectHardCodedTest);
          this.Controls.Add(this.cmdRunHardCodedTest);
-         this.Controls.Add(this.tclIJPTests);
          this.Controls.Add(this.cmdComOnOff);
          this.Controls.Add(this.cmdConnect);
          this.Controls.Add(this.ipAddressTextBox);
@@ -395,8 +375,6 @@
          this.tabXMLIndented.ResumeLayout(false);
          this.tabXMLIndented.PerformLayout();
          this.tabXMLTree.ResumeLayout(false);
-         this.tclIJPTests.ResumeLayout(false);
-         this.tabDisplay.ResumeLayout(false);
          this.cmErrLog.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
@@ -418,9 +396,6 @@
       private System.Windows.Forms.Button cmdGetXML;
       private System.Windows.Forms.TabPage tabXMLTree;
       private System.Windows.Forms.TreeView tvXMLTree;
-      private System.Windows.Forms.TabControl tclIJPTests;
-      private System.Windows.Forms.TabPage tabMain;
-      private System.Windows.Forms.TabPage tabDisplay;
       private System.Windows.Forms.Label lblSelectHardCodedTest;
       private System.Windows.Forms.ComboBox cbSelectHardCodedTest;
       private System.Windows.Forms.Button cmdRunHardCodedTest;
@@ -435,6 +410,7 @@
       private System.Windows.Forms.Label lblMessageFolder;
       private System.Windows.Forms.TextBox txtMessageFolder;
       private System.Windows.Forms.Button cmdBrowse;
+      private System.Windows.Forms.Button cmdClear;
    }
 }
 
