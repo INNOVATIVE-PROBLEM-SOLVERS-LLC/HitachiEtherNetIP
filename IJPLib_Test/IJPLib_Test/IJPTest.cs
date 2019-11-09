@@ -123,6 +123,7 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, cmdGetXML, 10, 35, 2, 4);
             Utils.ResizeObject(ref R, cmdGetViews, 13, 35, 2, 4);
             Utils.ResizeObject(ref R, cmdSaveAs, 16, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdSend, 19, 35, 2, 4);
 
             Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 38, 31);
             Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 38, 31);
@@ -195,7 +196,7 @@ namespace IJPLib_Test {
          setButtonEnables();
       }
 
-      private void cmdClear_Click_1(object sender, EventArgs e) {
+      private void cmdClear_Click(object sender, EventArgs e) {
          message = null;    // Force retrieval of next message
          ClearViews();      // Clear the four screens
       }
@@ -230,7 +231,7 @@ namespace IJPLib_Test {
          Cursor.Current = Cursors.WaitCursor;          // Set hour glass
          ClearViews();                                 // Out with the old
          ShowCurrentMessage();                         // Use current or new message
-         txtXMLIndented.Text = RetrieveXML(message);   // Display the indented XML as it is.
+         txtXMLIndented.Text = MessageToXML(message);   // Display the indented XML as it is.
          ProcessLabel(txtXMLIndented.Text);            // Build XML Tree and display it
          tclIJPLib.SelectedTab = tabXMLIndented;       // Make XML Indented tab visible
          Cursor.Current = Cursors.Arrow;               // Restore cursor
@@ -273,9 +274,16 @@ namespace IJPLib_Test {
          setButtonEnables();
       }
 
-      private void cmdClear_Click(object sender, EventArgs e) {
-         Log("Message Cleared");
-         message = null;
+      private void cmdSend_Click(object sender, EventArgs e) {
+         try {
+            Log("Send Message Starting");
+            cmdRunXMLTest_Click(null, null);
+            ijp.SetMessage(message);
+         } catch (Exception e2) {
+            Log($"Send Message: {e2.Message}\r\n{e2.StackTrace}");
+         } finally {
+            Log("Send Message Complete");
+         }
       }
 
       private void cbSelectTest_SelectedIndexChanged(object sender, EventArgs e) {
@@ -327,7 +335,7 @@ namespace IJPLib_Test {
          Logo = 4,
       }
 
-      public string RetrieveXML(IJPMessage m) {
+      public string MessageToXML(IJPMessage m) {
          string xml = string.Empty;
          ItemType itemType;
          int calBlockNumber = 0;
@@ -734,7 +742,6 @@ namespace IJPLib_Test {
 
       //ild the structure and load Items
       private bool AllocateRowsColumns(XmlNodeList objs) {
-         bool hasDateOrCount = false;
          XmlNode n;
          Items = new List<XmlNode>();
          bool success = true;
@@ -764,7 +771,6 @@ namespace IJPLib_Test {
                   break;
             }
          }
-
          // Allocate the rows and columns
          int i = 0;
          for (int col = 0; col < maxCol; col++) {
@@ -783,13 +789,10 @@ namespace IJPLib_Test {
                   item.Bold = (byte)GetXmlAttrN(n, "IncreasedWidth");
                   item.Text = GetXmlValue(Items[i].SelectSingleNode("Text"));
                }
-               hasDateOrCount |= Items[i].SelectSingleNode("Date") != null | Items[i].SelectSingleNode("Counter") != null;
                i++;
             }
          }
-         if (hasDateOrCount) {
-            SendDateCount();
-         }
+         SendDateCount();
          return success;
       }
 
@@ -832,7 +835,7 @@ namespace IJPLib_Test {
                LoadTimeCount(Items[i].SelectSingleNode("TimeCount"));
             }
             if (Items[i].SelectSingleNode("Shift") != null) {
-               //LoadShift(Items[i]);
+               LoadShift(Items[i]);
             }
          }
 
@@ -842,12 +845,13 @@ namespace IJPLib_Test {
       }
 
       private void LoadShift(XmlNode obj) {
+
          foreach (XmlNode d in obj) {
             if (d is XmlWhitespace)
                continue;
             if (d.Name == "Shift") {
+               IJPShiftCode sc = new IJPShiftCode();
                if (int.TryParse(GetXmlAttr(d, "ShiftNumber"), out int shift)) {
-                  IJPShiftCode sc = message.ShiftCodes[shift - 1];
                   foreach (XmlAttribute a in d.Attributes) {
                      switch (a.Name) {
                         case "StartHour":
@@ -862,6 +866,7 @@ namespace IJPLib_Test {
                      }
                   }
                }
+               message.ShiftCodes.Add(sc);
             }
          }
       }
@@ -1401,7 +1406,8 @@ namespace IJPLib_Test {
       #region Test Routines
 
       string[] AvailableTests = new string[]
-         { "New Message", "Retrieve Message", "Send Message", "Clear Screen", "Create Message", "Create Complex Message" };
+         { "New Message", "Retrieve Message", "Send Message", "Clear Screen",
+           "Create Message", "Create Complex Message", "Echo" };
 
       private void cmdRunTest_Click(object sender, EventArgs e) {
          try {
@@ -1413,7 +1419,6 @@ namespace IJPLib_Test {
                   break;
                case 1:
                   RetrieveMessage();
-                  Echo();
                   break;
                case 2:
                   SendMessage();
@@ -1427,11 +1432,14 @@ namespace IJPLib_Test {
                case 5:
                   CreateComplex();
                   break;
+               case 6:
+                  Echo();
+                  break;
                default:
                   break;
             }
          } catch (Exception e2) {
-            Log($"ConnectIJP: {e2.Message}\r\n{e2.StackTrace}");
+            Log($"Run Test: {e2.Message}\r\n{e2.StackTrace}");
          } finally {
             Log($"{cbSelectHardCodedTest.Text} Complete");
             Cursor.Current = Cursors.Arrow;
@@ -1485,8 +1493,8 @@ namespace IJPLib_Test {
       }
 
       private void Echo() {
-         ClearViews();
          message = (IJPMessage)this.ijp.GetMessage();
+         Log("Message Retrieved");
          ijp.SetMessage(message);
       }
 

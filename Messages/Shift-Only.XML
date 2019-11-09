@@ -1,0 +1,23 @@
+<Label Version="1">
+  <Printer Make="Hitachi" Model="UX-D161W        ">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="105" Reverse="105" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+  </Printer>
+  <Message Layout="SeparateSetup">
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
+        <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
+        <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
+        <Text>Shift {E}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

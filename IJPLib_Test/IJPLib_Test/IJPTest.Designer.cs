@@ -53,6 +53,7 @@
          this.txtMessageFolder = new System.Windows.Forms.TextBox();
          this.cmdBrowse = new System.Windows.Forms.Button();
          this.cmdClear = new System.Windows.Forms.Button();
+         this.cmdSend = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
@@ -338,13 +339,25 @@
          this.cmdClear.TabIndex = 26;
          this.cmdClear.Text = "Clear";
          this.cmdClear.UseVisualStyleBackColor = true;
-         this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click_1);
+         this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click);
+         // 
+         // cmdSend
+         // 
+         this.cmdSend.Location = new System.Drawing.Point(721, 275);
+         this.cmdSend.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdSend.Name = "cmdSend";
+         this.cmdSend.Size = new System.Drawing.Size(100, 31);
+         this.cmdSend.TabIndex = 27;
+         this.cmdSend.Text = "Send";
+         this.cmdSend.UseVisualStyleBackColor = true;
+         this.cmdSend.Click += new System.EventHandler(this.cmdSend_Click);
          // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(926, 437);
+         this.Controls.Add(this.cmdSend);
          this.Controls.Add(this.cmdClear);
          this.Controls.Add(this.cmdSaveAs);
          this.Controls.Add(this.tclIJPLib);
@@ -411,6 +424,7 @@
       private System.Windows.Forms.TextBox txtMessageFolder;
       private System.Windows.Forms.Button cmdBrowse;
       private System.Windows.Forms.Button cmdClear;
+      private System.Windows.Forms.Button cmdSend;
    }
 }
 
