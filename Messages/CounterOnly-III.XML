@@ -1,0 +1,25 @@
+<Label Version="1">
+  <Printer Make="Hitachi" Model="UX-D161W        ">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="105" Reverse="105" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+  </Printer>
+  <Message Layout="SeparateSetup">
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Counter Block="1">
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="True" />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" />
+        </Counter>
+        <Text># {CCCCCC} </Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>
