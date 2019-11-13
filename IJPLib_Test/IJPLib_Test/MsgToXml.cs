@@ -17,8 +17,6 @@ namespace IJPLib_Test {
 
       #region Data Declarations
 
-      IJPMessage m = null;
-
       // Braced Characters (count, date, half-size, logos
       readonly char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
 
@@ -32,7 +30,7 @@ namespace IJPLib_Test {
          Minute = 1 << 5,
          Second = 1 << 6,
          Julian = 1 << 7,
-         Week = 1 << 8,
+         WeekNumber = 1 << 8,
          DayOfWeek = 1 << 9,
          Shift = 1 << 10,
          TimeCount = 1 << 11,
@@ -51,15 +49,15 @@ namespace IJPLib_Test {
 
       const int DateCode =
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-         (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
+         (int)ba.Julian | (int)ba.WeekNumber | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
 
       const int DateOffset =
         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-        (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek;
+        (int)ba.Julian | (int)ba.WeekNumber | (int)ba.DayOfWeek;
 
       const int DateSubZS =
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
-         (int)ba.Week | (int)ba.DayOfWeek;
+         (int)ba.WeekNumber | (int)ba.DayOfWeek;
 
       const int DateUseSubRule = DateOffset;
 
@@ -75,15 +73,14 @@ namespace IJPLib_Test {
 
       #region Constructors and Destructors
 
-      public MsgToXml(IJPMessage m) {
-         this.m = m;
+      public MsgToXml() {
       }
 
       #endregion
 
       #region Message to XML 
 
-      public string GetXML() {
+      public string RetrieveXML(IJPMessage m, IJP ijp = null) {
          string xml = string.Empty;
          ItemType itemType;
          int calBlockNumber = 0;
@@ -96,7 +93,7 @@ namespace IJPLib_Test {
                   writer.WriteStartElement("Label"); // Start Label
                   {
                      writer.WriteAttributeString("Version", "1");
-                     RetrievePrinterSettings(writer, m);
+                     RetrievePrinterSettings(writer, m, ijp);
                      writer.WriteStartElement("Message"); // Start Message
                      {
                         writer.WriteAttributeString("Layout", m.FormatSetup.ToString());
@@ -176,7 +173,7 @@ namespace IJPLib_Test {
          return xml;
       }
 
-      private void RetrievePrinterSettings(XmlTextWriter writer, IJPMessage m) {
+      private void RetrievePrinterSettings(XmlTextWriter writer, IJPMessage m, IJP ijp) {
 
          writer.WriteStartElement("Printer");
          {
@@ -236,28 +233,28 @@ namespace IJPLib_Test {
             }
             writer.WriteEndElement(); // InkStream
 
-            RetrieveSubstitutions(writer);
+            RetrieveSubstitutions(writer, m, ijp);
 
             RetrieveLogos(writer);
          }
          writer.WriteEndElement(); // Printer
       }
 
-      private void RetrieveFont(XmlTextWriter writer, IJPMessageItem mi) {
+      private void RetrieveFont(XmlTextWriter writer, IJPMessageItem m) {
          writer.WriteStartElement("Font"); // Start Font
          {
-            writer.WriteAttributeString("InterCharacterSpace", mi.InterCharacterSpace.ToString());
-            writer.WriteAttributeString("IncreasedWidth", mi.Bold.ToString());
-            writer.WriteAttributeString("DotMatrix", mi.DotMatrix.ToString());
+            writer.WriteAttributeString("InterCharacterSpace", m.InterCharacterSpace.ToString());
+            writer.WriteAttributeString("IncreasedWidth", m.Bold.ToString());
+            writer.WriteAttributeString("DotMatrix", m.DotMatrix.ToString());
          }
          writer.WriteEndElement(); // End Font
 
          writer.WriteStartElement("BarCode"); // Start Barcode
          {
-            if (mi.Barcode != IJPBarcode.Nothing) {
-               writer.WriteAttributeString("HumanReadableFont", mi.ReadableCode.ToString());
-               writer.WriteAttributeString("EANPrefix", mi.Prefix.ToString());
-               writer.WriteAttributeString("DotMatrix", mi.Barcode.ToString());
+            if (m.Barcode != IJPBarcode.Nothing) {
+               writer.WriteAttributeString("HumanReadableFont", m.ReadableCode.ToString());
+               writer.WriteAttributeString("EANPrefix", m.Prefix.ToString());
+               writer.WriteAttributeString("DotMatrix", m.Barcode.ToString());
             }
          }
          writer.WriteEndElement(); // End BarCode
@@ -301,7 +298,7 @@ namespace IJPLib_Test {
                         writer.WriteAttributeString("Hour", c.HourZeroSuppression.ToString());
                      if ((mask[i] & (int)ba.Minute) > 0)
                         writer.WriteAttributeString("Minute", c.MinuteZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.Week) > 0)
+                     if ((mask[i] & (int)ba.WeekNumber) > 0)
                         writer.WriteAttributeString("Week", c.WeekNumberZeroSuppression.ToString());
                      if ((mask[i] & (int)ba.DayOfWeek) > 0)
                         writer.WriteAttributeString("DayOfWeek", c.WeekZeroSuppression.ToString());
@@ -320,7 +317,7 @@ namespace IJPLib_Test {
                         writer.WriteAttributeString("Hour", c.HourSubstitutionRule.ToString());
                      if ((mask[i] & (int)ba.Minute) > 0)
                         writer.WriteAttributeString("Minute", c.MinuteSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.Week) > 0)
+                     if ((mask[i] & (int)ba.WeekNumber) > 0)
                         writer.WriteAttributeString("Week", c.WeekNumberSubstitutionRule.ToString());
                      if ((mask[i] & (int)ba.DayOfWeek) > 0)
                         writer.WriteAttributeString("DayOfWeek", c.WeekSubstitutionRule.ToString());
@@ -451,8 +448,96 @@ namespace IJPLib_Test {
 
       }
 
-      private void RetrieveSubstitutions(XmlTextWriter writer) {
+      private void RetrieveSubstitutions(XmlTextWriter writer, IJPMessage m, IJP ijp) {
+         int maxSZ = -1;
+         int[] sr = new int[100]; // They are assumed to be 0
+         if (ijp != null) {
+            for (int i = 0; i < m.CalendarConditions.Count; i++) {
+               IJPCalendarCondition cc = m.CalendarConditions[i];
+               int n = cc.SubstitutionRuleNumber;
+               maxSZ = Math.Max(maxSZ, n);
+               if (cc.YearSubstitutionRule)
+                  sr[n] |= (int)ba.Year;
+               if (cc.MonthSubstitutionRule)
+                  sr[n] |= (int)ba.Month;
+               if (cc.DaySubstitutionRule)
+                  sr[n] |= (int)ba.Day;
+               if (cc.HourSubstitutionRule)
+                  sr[n] |= (int)ba.Hour;
+               if (cc.MinuteSubstitutionRule)
+                  sr[n] |= (int)ba.Minute;
+               if (cc.WeekNumberSubstitutionRule)
+                  sr[n] |= (int)ba.WeekNumber;
+               if (cc.WeekSubstitutionRule)
+                  sr[n] |= (int)ba.DayOfWeek;
+            }
+            for (int i = 1; i <= maxSZ; i++) {
+               if (sr[i] > 0) {
+                  IJPSubstitutionRule srs = (IJPSubstitutionRule)ijp.GetSubstitutionRule(i);
+                  writer.WriteStartElement("Substitution");
+                  {
+                     writer.WriteAttributeString("Delimiter", "/");
+                     writer.WriteAttributeString("StartYear", srs.StartYear.ToString());
+                     writer.WriteAttributeString("RuleNumber", i.ToString());
+                     writer.WriteAttributeString("RuleName", srs.Name);
+                     if ((sr[i] & (int)ba.Year) > 0)
+                        WriteSubstitution(writer, srs, ba.Year, 0, 23);
+                     if ((sr[i] & (int)ba.Month) > 0)
+                        WriteSubstitution(writer, srs, ba.Month, 1, 12);
+                     if ((sr[i] & (int)ba.Day) > 0)
+                        WriteSubstitution(writer, srs, ba.Day, 1, 31);
+                     if ((sr[i] & (int)ba.Hour) > 0)
+                        WriteSubstitution(writer, srs, ba.Hour, 0, 23);
+                     if ((sr[i] & (int)ba.Minute) > 0)
+                        WriteSubstitution(writer, srs, ba.Minute, 0, 59);
+                     if ((sr[i] & (int)ba.WeekNumber) > 0)
+                        WriteSubstitution(writer, srs, ba.WeekNumber, 1, 53);
+                     if ((sr[i] & (int)ba.DayOfWeek) > 0)
+                        WriteSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
+                  }
+                  writer.WriteEndElement(); // Substitution
+               }
+            }
+         }
+      }
 
+      private void WriteSubstitution(XmlTextWriter writer, IJPSubstitutionRule srs, ba rule, int start, int end) {
+         int n = end - start + 1;
+         string[] subCode = new string[n];
+         for (int i = 0; i < n; i++) {
+            switch (rule) {
+               case ba.Year:
+                  subCode[i] = srs.GetYearSetup(i + start);
+                  break;
+               case ba.Month:
+                  subCode[i] = srs.GetMonthSetup(i + start);
+                  break;
+               case ba.Day:
+                  subCode[i] = srs.GetDaySetup(i + start);
+                  break;
+               case ba.Hour:
+                  subCode[i] = srs.GetHourSetup(i + start);
+                  break;
+               case ba.Minute:
+                  subCode[i] = srs.GetMinuteSetup(i + start);
+                  break;
+               case ba.WeekNumber:
+                  subCode[i] = srs.GetWeekNumberSetup(i);
+                  break;
+               case ba.DayOfWeek:
+                  subCode[i] = srs.GetWeekSetup((DayOfWeek)i);
+                  break;
+            }
+         }
+         for (int i = 0; i < n; i += 10) {
+            writer.WriteStartElement("Rule");
+            {
+               writer.WriteAttributeString("Type", rule.ToString());
+               writer.WriteAttributeString("Base", (i + start).ToString());
+               writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
+            }
+            writer.WriteEndElement(); // Rule
+         }
       }
 
       #endregion

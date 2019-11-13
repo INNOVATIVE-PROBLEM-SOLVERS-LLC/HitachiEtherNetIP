@@ -24,6 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
+         System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IJPTest));
          this.cmdComOnOff = new System.Windows.Forms.Button();
          this.cmdConnect = new System.Windows.Forms.Button();
          this.ipAddressTextBox = new System.Windows.Forms.TextBox();
@@ -376,6 +377,7 @@
          this.Controls.Add(this.cmdComOnOff);
          this.Controls.Add(this.cmdConnect);
          this.Controls.Add(this.ipAddressTextBox);
+         this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "IJPTest";
          this.Text = "Test IJP Interface";
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.IJPTest_FormClosing);

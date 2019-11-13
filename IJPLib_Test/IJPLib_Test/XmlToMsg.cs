@@ -33,26 +33,31 @@ namespace IJPLib_Test {
 
       #region Constructors and destructors
 
+      // Convert XML Text to a IJPMessage
       public XmlToMsg(string XmlText) {
          XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
          xmlDoc.LoadXml(XmlText);
          this.xmlDoc = xmlDoc;
       }
 
+      // Convert XML Document to a IJPMessage
       public XmlToMsg(XmlDocument xmlDoc) {
          this.xmlDoc = xmlDoc;
       }
 
+      // Clean up
       ~XmlToMsg() {
-
+         xmlDoc = null;
+         Items.Clear();
+         Items = null;
       }
 
       #endregion
 
       #region XML to Message
 
-      // Send xlmDoc from file to printer
-      public IJPMessage GetMessage() {
+      // Convert XML Document to a IJPMessage
+      public IJPMessage BuildMessage() {
          IJPMessage m = null;
          bool success = true;
          // Need a XMP Document to continue
@@ -116,7 +121,16 @@ namespace IJPLib_Test {
                   m.InkDropChargeRule = ParseEnum<IJPInkDropChargeRule>(GetXmlAttr(c, "ChargeRule"));
                   break;
                case "Substitution":
-                  //SendSubstitution(c);
+                  //BuildSubstitution(c);
+                  break;
+               case "TimeCount":
+                  //BuildTimeCount(c);
+                  break;
+               case "Shifts":
+                  //BuildShifts(c);
+                  break;
+               case "Logos":
+                  //BuildLogos(c);
                   break;
             }
          }
@@ -179,6 +193,7 @@ namespace IJPLib_Test {
          return success;
       }
 
+      // Load the Calendar and date objects from the XML
       private bool LoadDateCount(IJPMessage m) {
          bool success = true;
          int calBlockNumber = 0;
@@ -214,9 +229,13 @@ namespace IJPLib_Test {
             if (Items[i].SelectSingleNode("Counter") != null) {
                LoadCount(m.CountConditions, Items[i], countCount[i], countStart[i]);
             }
+
+            // Time Count is not by item but are by message.  
             if (Items[i].SelectSingleNode("TimeCount") != null) {
                m.TimeCount = LoadTimeCount(Items[i].SelectSingleNode("TimeCount"));
             }
+
+            // Shift codes are not by item but are by message.  
             if (Items[i].SelectSingleNode("Shift") != null) {
                LoadShift(m.ShiftCodes, Items[i]);
             }
@@ -227,6 +246,7 @@ namespace IJPLib_Test {
          return success;
       }
 
+      // Load one or more shift codes into the Shift Code Collection
       private void LoadShift(IJPShiftCodeCollection scc, XmlNode obj) {
 
          foreach (XmlNode d in obj) {
@@ -254,6 +274,7 @@ namespace IJPLib_Test {
          }
       }
 
+      // Build the Time Count object and return it
       private IJPTimeCountCondition LoadTimeCount(XmlNode d) {
          IJPTimeCountCondition tc = new IJPTimeCountCondition();
          foreach (XmlAttribute a in d.Attributes) {
@@ -503,6 +524,8 @@ namespace IJPLib_Test {
          if (Enum.IsDefined(typeof(T), EnumValue)) {
             return (T)Enum.Parse(typeof(T), EnumValue, true);
          }
+
+         // May want to check for wrong case
          Log?.Invoke($"{typeof(T)}.{EnumValue} is unknown enumeration value");
          return (T)Enum.GetValues(typeof(T)).GetValue(0);
       }
