@@ -1,0 +1,51 @@
+<Label Version="1">
+  <Printer Make="Hitachi">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <Substitution Delimiter="/" StartYear="2000" RuleNumber="1" RuleName="REP01       ">
+      <Rule Type="Month" Base="1">xxx/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">xxx/TUE/WED/THU/FRI/SAT/SUN</Rule>
+    </Substitution>
+  </Printer>
+  <Message Layout="SeparateSetup">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
+        <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
+        <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
+        <Text>Shift {E}</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        <Text>TCount {FF} </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Counter Block="1">
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="True" />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" />
+        </Counter>
+        <Text># {CCCCCC} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <BarCode />
+        <Text></Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

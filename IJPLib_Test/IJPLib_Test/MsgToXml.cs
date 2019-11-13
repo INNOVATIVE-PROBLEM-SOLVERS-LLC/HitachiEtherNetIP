@@ -21,7 +21,7 @@ namespace IJPLib_Test {
       readonly char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
 
       // Attributes of braced characters
-      enum ba {
+      public enum ba {
          Count = 1 << 0,
          Year = 1 << 1,
          Month = 1 << 2,
@@ -232,8 +232,9 @@ namespace IJPLib_Test {
                writer.WriteAttributeString("ChargeRule", m.InkDropChargeRule.ToString());
             }
             writer.WriteEndElement(); // InkStream
-
-            RetrieveSubstitutions(writer, m, ijp);
+            if (ijp != null) {
+               RetrieveSubstitutions(writer, m, ijp);
+            }
 
             RetrieveLogos(writer);
          }
@@ -387,12 +388,12 @@ namespace IJPLib_Test {
                }
                writer.WriteEndElement(); //  End Count
 
-               writer.WriteStartElement("Reset"); // Start Reset
-               {
-                  writer.WriteAttributeString("Type", c.ResetSignal.ToString());
-                  writer.WriteAttributeString("Value", c.Reset.ToString());
-               }
-               writer.WriteEndElement(); //  End Reset
+               //writer.WriteStartElement("Reset"); // Start Reset
+               //{
+               //   writer.WriteAttributeString("Type", c.ResetSignal.ToString());
+               //   writer.WriteAttributeString("Value", c.Reset.ToString());
+               //}
+               //writer.WriteEndElement(); //  End Reset
 
                writer.WriteStartElement("Misc"); // Start Misc
                {
@@ -451,52 +452,50 @@ namespace IJPLib_Test {
       private void RetrieveSubstitutions(XmlTextWriter writer, IJPMessage m, IJP ijp) {
          int maxSZ = -1;
          int[] sr = new int[100]; // They are assumed to be 0
-         if (ijp != null) {
-            for (int i = 0; i < m.CalendarConditions.Count; i++) {
-               IJPCalendarCondition cc = m.CalendarConditions[i];
-               int n = cc.SubstitutionRuleNumber;
-               maxSZ = Math.Max(maxSZ, n);
-               if (cc.YearSubstitutionRule)
-                  sr[n] |= (int)ba.Year;
-               if (cc.MonthSubstitutionRule)
-                  sr[n] |= (int)ba.Month;
-               if (cc.DaySubstitutionRule)
-                  sr[n] |= (int)ba.Day;
-               if (cc.HourSubstitutionRule)
-                  sr[n] |= (int)ba.Hour;
-               if (cc.MinuteSubstitutionRule)
-                  sr[n] |= (int)ba.Minute;
-               if (cc.WeekNumberSubstitutionRule)
-                  sr[n] |= (int)ba.WeekNumber;
-               if (cc.WeekSubstitutionRule)
-                  sr[n] |= (int)ba.DayOfWeek;
-            }
-            for (int i = 1; i <= maxSZ; i++) {
-               if (sr[i] > 0) {
-                  IJPSubstitutionRule srs = (IJPSubstitutionRule)ijp.GetSubstitutionRule(i);
-                  writer.WriteStartElement("Substitution");
-                  {
-                     writer.WriteAttributeString("Delimiter", "/");
-                     writer.WriteAttributeString("StartYear", srs.StartYear.ToString());
-                     writer.WriteAttributeString("RuleNumber", i.ToString());
-                     writer.WriteAttributeString("RuleName", srs.Name);
-                     if ((sr[i] & (int)ba.Year) > 0)
-                        WriteSubstitution(writer, srs, ba.Year, 0, 23);
-                     if ((sr[i] & (int)ba.Month) > 0)
-                        WriteSubstitution(writer, srs, ba.Month, 1, 12);
-                     if ((sr[i] & (int)ba.Day) > 0)
-                        WriteSubstitution(writer, srs, ba.Day, 1, 31);
-                     if ((sr[i] & (int)ba.Hour) > 0)
-                        WriteSubstitution(writer, srs, ba.Hour, 0, 23);
-                     if ((sr[i] & (int)ba.Minute) > 0)
-                        WriteSubstitution(writer, srs, ba.Minute, 0, 59);
-                     if ((sr[i] & (int)ba.WeekNumber) > 0)
-                        WriteSubstitution(writer, srs, ba.WeekNumber, 1, 53);
-                     if ((sr[i] & (int)ba.DayOfWeek) > 0)
-                        WriteSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
-                  }
-                  writer.WriteEndElement(); // Substitution
+         for (int i = 0; i < m.CalendarConditions.Count; i++) {
+            IJPCalendarCondition cc = m.CalendarConditions[i];
+            int n = cc.SubstitutionRuleNumber;
+            maxSZ = Math.Max(maxSZ, n);
+            if (cc.YearSubstitutionRule)
+               sr[n] |= (int)ba.Year;
+            if (cc.MonthSubstitutionRule)
+               sr[n] |= (int)ba.Month;
+            if (cc.DaySubstitutionRule)
+               sr[n] |= (int)ba.Day;
+            if (cc.HourSubstitutionRule)
+               sr[n] |= (int)ba.Hour;
+            if (cc.MinuteSubstitutionRule)
+               sr[n] |= (int)ba.Minute;
+            if (cc.WeekNumberSubstitutionRule)
+               sr[n] |= (int)ba.WeekNumber;
+            if (cc.WeekSubstitutionRule)
+               sr[n] |= (int)ba.DayOfWeek;
+         }
+         for (int i = 1; i <= maxSZ; i++) {
+            if (sr[i] > 0) {
+               IJPSubstitutionRule srs = (IJPSubstitutionRule)ijp.GetSubstitutionRule(i);
+               writer.WriteStartElement("Substitution");
+               {
+                  writer.WriteAttributeString("Delimiter", "/");
+                  writer.WriteAttributeString("StartYear", srs.StartYear.ToString());
+                  writer.WriteAttributeString("RuleNumber", i.ToString());
+                  writer.WriteAttributeString("RuleName", srs.Name);
+                  if ((sr[i] & (int)ba.Year) > 0)
+                     WriteSubstitution(writer, srs, ba.Year, 0, 23);
+                  if ((sr[i] & (int)ba.Month) > 0)
+                     WriteSubstitution(writer, srs, ba.Month, 1, 12);
+                  if ((sr[i] & (int)ba.Day) > 0)
+                     WriteSubstitution(writer, srs, ba.Day, 1, 31);
+                  if ((sr[i] & (int)ba.Hour) > 0)
+                     WriteSubstitution(writer, srs, ba.Hour, 0, 23);
+                  if ((sr[i] & (int)ba.Minute) > 0)
+                     WriteSubstitution(writer, srs, ba.Minute, 0, 59);
+                  if ((sr[i] & (int)ba.WeekNumber) > 0)
+                     WriteSubstitution(writer, srs, ba.WeekNumber, 1, 53);
+                  if ((sr[i] & (int)ba.DayOfWeek) > 0)
+                     WriteSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
                }
+               writer.WriteEndElement(); // Substitution
             }
          }
       }
