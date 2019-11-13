@@ -258,13 +258,39 @@ namespace IJPLib_Test {
                   item.InterCharacterSpace = (byte)GetXmlAttrN(n, "InterCharacterSpace");
                   item.LineSpacing = (byte)ILS[col];
                   item.Bold = (byte)GetXmlAttrN(n, "IncreasedWidth");
-                  item.Text = GetXmlValue(Items[i].SelectSingleNode("Text"));
+                  item.Text = FormatText(GetXmlValue(Items[i].SelectSingleNode("Text")));
                }
                i++;
             }
          }
          LoadDateCount(m);
          return success;
+      }
+
+      private string FormatText(string s) {
+         string result = s;
+         int start = -1;
+         int end = 0;
+         int n = 0;
+         result = result.Replace("{{", "}").Replace("}}", "}");
+         while ((start = result.IndexOf("{X", start + 1)) >= 0) {
+            if ((end = result.IndexOf("}", start)) > 0) {
+               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
+               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 200) {
+                  result = result.Substring(0, start) + (char)(n + 0xF140) + result.Substring(end + 1);
+               }
+            }
+         }
+         while ((start = result.IndexOf("{Z", start + 1)) >= 0) {
+            if ((end = result.IndexOf("}", start)) > 0) {
+               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
+               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 50) {
+                  result = result.Substring(0, start) + (char)(n + 0xF209) + result.Substring(end + 1);
+               }
+            }
+         }
+         int x = result[0];
+         return result;
       }
 
       // Load the Calendar and date objects from the XML

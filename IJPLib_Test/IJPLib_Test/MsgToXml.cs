@@ -131,7 +131,7 @@ namespace IJPLib_Test {
                                           break;
                                     }
 
-                                    writer.WriteElementString("Text", m.Items[i].Text);
+                                    writer.WriteElementString("Text", FormatText(m.Items[i].Text));
                                  }
                                  writer.WriteEndElement(); // End Item
                               }
@@ -171,6 +171,16 @@ namespace IJPLib_Test {
             }
          }
          return xml;
+      }
+
+      private string FormatText(string s) {
+         string result = string.Empty;
+         int first = s.IndexOf("{");
+         int last = s.LastIndexOf("}");
+         if (first >= 0 && last > first) {
+            result = s.Substring(0, first) + "{" + s.Substring(first, last - first) + "}" + s.Substring(last);
+         }
+         return result;
       }
 
       private void RetrievePrinterSettings(XmlTextWriter writer, IJPMessage m, IJP ijp) {
