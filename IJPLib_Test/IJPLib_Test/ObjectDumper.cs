@@ -24,12 +24,12 @@ namespace IJPLib_Test {
       }
 
       public void Dump(object element, out string indentedText, out TreeNode treeView ) {
-         string result = DumpElement(element);
-         indentedText = result;
+         DumpElement(element);
+         indentedText = _stringBuilder.ToString();
          treeView = rootBase;
       }
 
-      public string DumpElement(object element) {
+      private void DumpElement(object element) {
          if (element == null || element is ValueType || element is string) {
             Write(FormatValue(element));
          } else {
@@ -48,7 +48,7 @@ namespace IJPLib_Test {
                root = t;
             }
 
-            var enumerableElement = element as IEnumerable;
+            IEnumerable enumerableElement = element as IEnumerable;
             if (enumerableElement != null) {
                foreach (object item in enumerableElement) {
                   if (item is IEnumerable && !(item is string)) {
@@ -108,8 +108,6 @@ namespace IJPLib_Test {
                root = root.Parent;
             }
          }
-
-         return _stringBuilder.ToString();
       }
 
       private bool AlreadyTouched(object value) {

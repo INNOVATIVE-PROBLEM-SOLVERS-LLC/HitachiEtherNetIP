@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using HIES.IJP.RX;
+using HIES.ModbusTcp;
 
 namespace IJPLib_Test {
    public partial class IJPTest : Form {
@@ -20,22 +21,24 @@ namespace IJPLib_Test {
       ResizeInfo R;
       bool initComplete = false;
 
+      private IJP ijp;
+
       IJPMessage message = null;
 
       IJPOnlineStatus comOn = IJPOnlineStatus.Offline;
 
-      IJPLib_Test.Properties.Settings p;
+      Properties.Settings p;
+
+      MBTCPLibClass mb;
 
       #endregion
 
       #region Constructors and Destructors
 
-      private IJP ijp;
-
       public IJPTest() {
          InitializeComponent();
          initComplete = true;
-         p = IJPLib_Test.Properties.Settings.Default;
+         p = Properties.Settings.Default;
          ipAddressTextBox.Text = p.IPAddress;
          txtMessageFolder.Text = p.MessageFolder;
       }
@@ -50,7 +53,7 @@ namespace IJPLib_Test {
 
       private void IJPTest_Load(object sender, EventArgs e) {
          // Center the form on the screen
-         Utils.PositionForm(this, 0.5f, 0.9f);
+         Utils.PositionForm(this, 0.6f, 0.9f);
          cbSelectHardCodedTest.Items.AddRange(AvailableTests);
          BuildTestFileList();
          setButtonEnables();
@@ -186,8 +189,8 @@ namespace IJPLib_Test {
          Cursor.Current = Cursors.WaitCursor;          // Set hour glass
          ClearViews();                                 // Out with the old
          GetCurrentMessage();                         // Use current or new message
-         MsgToXml mtx = new MsgToXml(message);
-         txtXMLIndented.Text = mtx.GetXML();           // Display the indented XML as it is.
+         MsgToXml mtx = new MsgToXml();
+         txtXMLIndented.Text = mtx.RetrieveXML(message, ijp);           // Display the indented XML as it is.
          ProcessLabel(txtXMLIndented.Text);            // Build XML Tree and display it
          tclIJPLib.SelectedTab = tabXMLIndented;       // Make XML Indented tab visible
          Cursor.Current = Cursors.Arrow;               // Restore cursor
@@ -276,7 +279,7 @@ namespace IJPLib_Test {
       private void cmdRunXMLTest_Click(object sender, EventArgs e) {
          XmlToMsg xtm = new XmlToMsg(txtXMLIndented.Text);
          xtm.Log += Log;
-         message = xtm.GetMessage();
+         message = xtm.BuildMessage();
          xtm.Log -= Log;
       }
 
@@ -430,7 +433,7 @@ namespace IJPLib_Test {
                message = (IJPMessage)this.ijp.GetMessage();
             }
          } catch (Exception e) {
-
+            Log($"Send Message: {e.Message}\r\n{e.StackTrace}");
          }
          setButtonEnables();
       }
