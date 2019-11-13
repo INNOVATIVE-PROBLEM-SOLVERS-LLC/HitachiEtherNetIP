@@ -17,6 +17,7 @@ namespace IJPLib_Test {
 
       #region Data Declarations
 
+      IJP ijp;
       XmlDocument xmlDoc;
 
       List<XmlNode> Items;
@@ -34,21 +35,22 @@ namespace IJPLib_Test {
       #region Constructors and destructors
 
       // Convert XML Text to a IJPMessage
-      public XmlToMsg(string XmlText) {
+      public XmlToMsg(string XmlText, IJP ijp = null) {
          XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
          xmlDoc.LoadXml(XmlText);
          this.xmlDoc = xmlDoc;
+         this.ijp = ijp;
       }
 
       // Convert XML Document to a IJPMessage
-      public XmlToMsg(XmlDocument xmlDoc) {
+      public XmlToMsg(XmlDocument xmlDoc, IJP ijp = null) {
          this.xmlDoc = xmlDoc;
+         this.ijp = ijp;
       }
 
       // Clean up
       ~XmlToMsg() {
          xmlDoc = null;
-         Items.Clear();
          Items = null;
       }
 
@@ -75,6 +77,11 @@ namespace IJPLib_Test {
             XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
             if (objs != null) {
                success = AllocateRowsColumns(m, objs.ChildNodes); // Allocate rows and columns
+            }
+
+            // Send it to the printer (Maybe)
+            if (ijp != null) {
+               ijp.SetMessage(m);
             }
 
          } catch (Exception e1) {
@@ -121,7 +128,9 @@ namespace IJPLib_Test {
                   m.InkDropChargeRule = ParseEnum<IJPInkDropChargeRule>(GetXmlAttr(c, "ChargeRule"));
                   break;
                case "Substitution":
-                  //BuildSubstitution(c);
+                  if (ijp != null) {
+                     LoadBuildSubstitution(c);
+                  }
                   break;
                case "TimeCount":
                   //BuildTimeCount(c);
@@ -135,6 +144,71 @@ namespace IJPLib_Test {
             }
          }
          return success;
+      }
+
+      private void LoadBuildSubstitution(XmlNode p) {
+         // Get the standard attributes for substitution
+         string rule = GetXmlAttr(p, "RuleNumber");
+         string startYear = GetXmlAttr(p, "StartYear");
+         string delimiter = GetXmlAttr(p, "Delimiter");
+
+         // Avoid user errors
+         if (int.TryParse(rule, out int ruleNumber) && ushort.TryParse(startYear, out ushort year) && delimiter.Length == 1) {
+            // Sub Substitution rule in Index class
+            IJPSubstitutionRule sr = (IJPSubstitutionRule)ijp.GetSubstitutionRule(ruleNumber);
+            // Set the start year in the substitution rule
+            sr.StartYear = year;
+
+            // Load the individual rules
+            foreach (XmlNode c in p.ChildNodes) {
+               switch (c.Name) {
+                  case "Rule":
+                     if (Enum.TryParse(GetXmlAttr(c, "Type"), true, out MsgToXml.ba type)) {
+                        SetSubValues(sr, type, c, delimiter);
+                     } else {
+                        Log?.Invoke($"Unknown substitution rule type =>{GetXmlAttr(c, "Type")}<=");
+                     }
+                     break;
+               }
+            }
+            ijp.SetSubstitutionRule(sr);
+         }
+
+      }
+
+      private void SetSubValues(IJPSubstitutionRule sr, MsgToXml.ba type, XmlNode c, string delimiter) {
+         bool success = true;
+         // Avoid user errors
+         if (int.TryParse(GetXmlAttr(c, "Base"), out int b)) {
+            string[] s = GetXmlValue(c).Split(delimiter[0]);
+            for (int i = 0; i < s.Length && success; i++) {
+               int n = b + i;
+               // Avoid user errors
+               switch (type) {
+                  case MsgToXml.ba.Year:
+                     sr.SetYearSetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.Month:
+                     sr.SetMonthSetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.Day:
+                     sr.SetDaySetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.Hour:
+                     sr.SetHourSetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.Minute:
+                     sr.SetMinuteSetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.WeekNumber:
+                     sr.SetWeekNumberSetup(n, s[i]);
+                     break;
+                  case MsgToXml.ba.DayOfWeek:
+                     sr.SetWeekSetup((DayOfWeek)(n - 1), s[i]); // 
+                     break;
+               }
+            }
+         }
       }
 
       // Build the structure and load Items

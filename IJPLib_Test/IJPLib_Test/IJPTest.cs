@@ -237,7 +237,6 @@ namespace IJPLib_Test {
          try {
             Log("Send Message Starting");
             cmdRunXMLTest_Click(null, null);
-            ijp.SetMessage(message);
          } catch (Exception e2) {
             Log($"Send Message: {e2.Message}\r\n{e2.StackTrace}");
          } finally {
@@ -277,7 +276,7 @@ namespace IJPLib_Test {
       }
 
       private void cmdRunXMLTest_Click(object sender, EventArgs e) {
-         XmlToMsg xtm = new XmlToMsg(txtXMLIndented.Text);
+         XmlToMsg xtm = new XmlToMsg(txtXMLIndented.Text, ijp);
          xtm.Log += Log;
          message = xtm.BuildMessage();
          xtm.Log -= Log;
