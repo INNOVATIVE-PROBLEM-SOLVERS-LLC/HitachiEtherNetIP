@@ -12,15 +12,20 @@
       <Rule Type="Month" Base="11">NOV/DEC</Rule>
       <Rule Type="DayOfWeek" Base="1">xxx/TUE/WED/THU/FRI/SAT/SUN</Rule>
     </Substitution>
-  </Printer>
+    <Logos>
+       <Logo Layout="Fixed" DotMatrix="Size18x24" Location="0" FileName="" Width="24" Height="24" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF" />
+    </Logos>
+ </Printer>
   <Message Layout="SeparateSetup">
     <Column InterLineSpacing="2">
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <BarCode />
-        <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
-        <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
-        <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
+        <Shifts>
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
+          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
+        </Shifts>
         <Text>Shift {E}</Text>
       </Item>
       <Item>
@@ -44,7 +49,7 @@
       <Item>
         <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
         <BarCode />
-        <Text></Text>
+        <Text>{X/0}</Text>
       </Item>
     </Column>
   </Message>

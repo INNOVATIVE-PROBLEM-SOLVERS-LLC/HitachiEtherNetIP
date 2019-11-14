@@ -343,16 +343,20 @@ namespace IJPLib_Test {
       private void RetrieveShiftSettings(XmlTextWriter writer, IJPShiftCodeCollection ss, int[] mask) {
          for (int i = 0; i < mask.Length; i++) {
             if ((mask[i] & (int)ba.Shift) > 0) {
-               for (int shift = 0; shift < ss.Count; shift++) {
-                  writer.WriteStartElement("Shift"); // Start Shift
-                  {
-                     writer.WriteAttributeString("ShiftNumber", (shift + 1).ToString());
-                     writer.WriteAttributeString("StartHour", ss[shift].StartTime.Hour.ToString());
-                     writer.WriteAttributeString("StartMinute", ss[shift].StartTime.Minute.ToString());
-                     writer.WriteAttributeString("ShiftCode", ss[shift].String);
+               writer.WriteStartElement("Shifts"); // Start Shifts
+               {
+                  for (int shift = 0; shift < ss.Count; shift++) {
+                     writer.WriteStartElement("Shift"); // Start Shift
+                     {
+                        writer.WriteAttributeString("ShiftNumber", (shift + 1).ToString());
+                        writer.WriteAttributeString("StartHour", ss[shift].StartTime.Hour.ToString());
+                        writer.WriteAttributeString("StartMinute", ss[shift].StartTime.Minute.ToString());
+                        writer.WriteAttributeString("ShiftCode", ss[shift].String);
+                     }
+                     writer.WriteEndElement(); // End Shift
                   }
-                  writer.WriteEndElement(); // End Shift
                }
+               writer.WriteEndElement(); // End Shifts
             }
          }
       }
