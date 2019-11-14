@@ -1,5 +1,5 @@
 <Label Version="1">
-  <Printer Make="Hitachi" Model="UX-D161W        ">
+  <Printer Make="Hitachi">
     <PrintHead Orientation="Reverse_Forward" />
     <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
     <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
@@ -7,17 +7,17 @@
     <PrintStartDelay Forward="105" Reverse="105" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
     <InkStream InkDropUse="2" ChargeRule="Normal" />
-    <Logos Folder="C:\GitHubEtherNetIP\Messages">
-      <Logo Layout="Fixed" DotMatrix="Size18x24" Location="0" FileName="XML-18x24" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF " />
-      <Logo Layout="Fixed" DotMatrix="Size18x24" Location="1" FileName="XML-18x24" RawData="" />
+    <Logos Folder="C:\GitHubEtherNetIP\Messages-IJPLib">
+      <Logo Layout="Free" DotMatrix="Size18x24" Location="0" FileName="" Width="24" Height="24" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF" />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Location="0" FileName="" Width="24" Height="24" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF" />
     </Logos>
   </Printer>
   <Message Layout="SeparateSetup">
     <Column InterLineSpacing="0">
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="2" DotMatrix="Size18x24" />
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
         <BarCode />
-        <Text>{X/000}/{X/001}</Text>
+        <Text>{X/0}/{Z/0}</Text>
       </Item>
     </Column>
   </Message>

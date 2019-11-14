@@ -155,13 +155,12 @@ namespace IJPLib_Test {
       private void LoadLogos(XmlNode c) {
          Bitmap bm = null;
          foreach (XmlNode l in c.ChildNodes) {
-            if (l is XmlWhitespace || l.Name != "Logo" || GetXmlAttr(l, "Layout") != "Fixed")
+            if (l is XmlWhitespace || l.Name != "Logo")
                continue;
             string layout = GetXmlAttr(l, "Layout");
-            string dotMatrix = GetXmlAttr(l, "DotMatrix");
+            IJPDotMatrix dotMatrix = ParseEnum<IJPDotMatrix>(GetXmlAttr(l, "DotMatrix"));
             int location = (int)GetXmlAttrN(l, "Location");
             string rawData = GetXmlAttr(l, "RawData");
-            GetBitmapSize(dotMatrix, out IJPDotMatrix dm, out int width, out int height);
             if (rawData == string.Empty) {
                string folder = GetXmlAttr(c, "Folder");
                string fileName = GetXmlAttr(l, "FileName");
@@ -172,13 +171,20 @@ namespace IJPLib_Test {
                   continue;
                }
             } else {
-               if (height > 0) {
-                  ulong[] stripes = rawDataToStripes(height, rawData);
-                  bm = BuildBitMap(stripes, width, height);
+               if (!int.TryParse(GetXmlAttr(l, "Width"), out int width)
+                 || !int.TryParse(GetXmlAttr(l, "Height"), out int height)) {
+                  GetBitmapSize(dotMatrix, out width, out height);
                }
+               ulong[] stripes = rawDataToStripes(height, rawData);
+               bm = BuildBitMap(stripes, width, height);
             }
-            IJPFixedUserPattern up = new IJPFixedUserPattern(location + 1, dm, bm);
-            ijp.SetFixedUserPattern(up);
+            if (layout == "Fixed") {
+               IJPFixedUserPattern upFixed = new IJPFixedUserPattern(location + 1, dotMatrix, bm);
+               ijp.SetFixedUserPattern(upFixed);
+            } else {
+               IJPFreeUserPattern upFree = new IJPFreeUserPattern(location + 1, bm);
+               ijp.SetFreeUserPattern(upFree);
+            }
          }
       }
 
@@ -657,7 +663,7 @@ namespace IJPLib_Test {
             if ((end = result.IndexOf("}", start)) > 0) {
                string[] t = result.Substring(start + 1, end - start - 1).Split('/');
                if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 200) {
-                  result = result.Substring(0, start) + (char)(n + 0xF140) + result.Substring(end + 1);
+                  result = result.Substring(0, start) + (char)(n + IJPTest.FirstFixedUP) + result.Substring(end + 1);
                }
             }
          }
@@ -665,7 +671,7 @@ namespace IJPLib_Test {
             if ((end = result.IndexOf("}", start)) > 0) {
                string[] t = result.Substring(start + 1, end - start - 1).Split('/');
                if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 50) {
-                  result = result.Substring(0, start) + (char)(n + 0xF209) + result.Substring(end + 1);
+                  result = result.Substring(0, start) + (char)(n + IJPTest.FirstFreeUP) + result.Substring(end + 1);
                }
             }
          }
@@ -674,8 +680,7 @@ namespace IJPLib_Test {
       }
 
       // Get the height and width of a user pattern
-      private void GetBitmapSize(string dotMatrix, out IJPDotMatrix dm, out int width, out int height) {
-         dm = ParseEnum<IJPDotMatrix>(dotMatrix);
+      private void GetBitmapSize(IJPDotMatrix dm, out int width, out int height) {
          switch (dm) {
             case IJPDotMatrix.Size4x5:
                width = 8;
