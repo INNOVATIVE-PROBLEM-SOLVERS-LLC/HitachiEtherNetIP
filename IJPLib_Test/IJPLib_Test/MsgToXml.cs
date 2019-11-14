@@ -425,10 +425,10 @@ namespace IJPLib_Test {
             string s = m.Items[i].Text;
             for (int n = 0; n < s.Length; n++) {
                char c = s[n];
-               if (c >= 0xF140 && c <= 0xF208) {
-                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - 0xF140 });
-               } else if (c >= 0xF209 && c <= 0xF23A) {
-                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - 0xF209 });
+               if (c >= IJPTest.FirstFixedUP && c <= IJPTest.LastFixedUP) {
+                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - IJPTest.FirstFixedUP });
+               } else if (c >= IJPTest.FirstFreeUP && c <= IJPTest.LastFreeUP) {
+                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - IJPTest.FirstFreeUP });
                }
             }
 
@@ -447,11 +447,17 @@ namespace IJPLib_Test {
             {
                writer.WriteAttributeString("Folder", Properties.Settings.Default.MessageFolder);
                // Now write the logos
+               IIJPUserPattern up;
                for (int i = 0; i < neededLogos.Count; i++) {
                   writer.WriteStartElement("Logo"); // Start Logo
                   {
-                     IJPFixedUserPattern up = (IJPFixedUserPattern)ijp.GetFixedUserPattern(neededLogos[i].location + 1, neededLogos[i].dm);
-                     writer.WriteAttributeString("Layout", neededLogos[i].fixedStyle ? "Fixed" : "Free");
+                     if (neededLogos[i].fixedStyle) {
+                        writer.WriteAttributeString("Layout", "Fixed");
+                        up = ijp.GetFixedUserPattern(neededLogos[i].location + 1, neededLogos[i].dm);
+                     } else {
+                        writer.WriteAttributeString("Layout", "Free");
+                        up = ijp.GetFreeUserPattern(neededLogos[i].location + 1);
+                     }
                      writer.WriteAttributeString("DotMatrix", neededLogos[i].dm.ToString());
                      writer.WriteAttributeString("Location", neededLogos[i].location.ToString());
                      writer.WriteAttributeString("FileName", "");
@@ -635,10 +641,10 @@ namespace IJPLib_Test {
          }
          for (int i = 0; i < s.Length; i++) {
             char c = s[i];
-            if (c >= 0xF140 && c <= 0xF208) {
-               result += $"{{X/{c - 0xF140}}}";
-            } else if (c >= 0xF209 && c <= 0xF23A) {
-               result += $"{{Z/{c - 0xF209}}}";
+            if (c >= IJPTest.FirstFixedUP && c <= IJPTest.LastFixedUP) {
+               result += $"{{X/{c - IJPTest.FirstFixedUP}}}";
+            } else if (c >= IJPTest.FirstFreeUP && c <= IJPTest.LastFreeUP) {
+               result += $"{{Z/{c - IJPTest.FirstFreeUP}}}";
             } else {
                result += s.Substring(i, 1);
             }

@@ -14,9 +14,16 @@ using HIES.IJP.RX;
 using HIES.ModbusTcp;
 
 namespace IJPLib_Test {
+
+
    public partial class IJPTest : Form {
 
       #region Data Declarations
+
+      public const int FirstFixedUP = 0xF140;
+      public const int LastFixedUP = 0xF208;
+      public const int FirstFreeUP = 0xF209;
+      public const int LastFreeUP = 0xF23A;
 
       ResizeInfo R;
       bool initComplete = false;
