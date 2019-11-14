@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -139,11 +142,32 @@ namespace IJPLib_Test {
                   //BuildShifts(c);
                   break;
                case "Logos":
-                  //BuildLogos(c);
+                  if (ijp != null) {
+                     LoadLogos(c);
+                  }
                   break;
             }
          }
          return success;
+      }
+
+      private void LoadLogos(XmlNode c) {
+         Bitmap bm = null;
+         foreach (XmlNode l in c.ChildNodes) {
+            if (l is XmlWhitespace || l.Name != "Logo")
+               continue;
+            string layout = GetXmlAttr(l, "Layout");
+            string dotMatrix = GetXmlAttr(l, "DotMatrix");
+            string rawData = GetXmlAttr(l, "RawData");
+            int location = (int)GetXmlAttrN(l, "Location");
+            GetBitmapSize(dotMatrix, out IJPDotMatrix dm, out int width, out int height);
+            if (height > 0) {
+               ulong[] stripes = rawDataToStripes(height, rawData);
+               bm = BuildBitMap(stripes, width, height);
+               IJPFixedUserPattern up = new IJPFixedUserPattern(location + 1, dm, bm);
+               ijp.SetFixedUserPattern(up);
+            }
+         }
       }
 
       private void LoadBuildSubstitution(XmlNode p) {
@@ -265,32 +289,6 @@ namespace IJPLib_Test {
          }
          LoadDateCount(m);
          return success;
-      }
-
-      private string FormatText(string s) {
-         string result = s;
-         int start = -1;
-         int end = 0;
-         int n = 0;
-         result = result.Replace("{{", "}").Replace("}}", "}");
-         while ((start = result.IndexOf("{X", start + 1)) >= 0) {
-            if ((end = result.IndexOf("}", start)) > 0) {
-               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
-               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 200) {
-                  result = result.Substring(0, start) + (char)(n + 0xF140) + result.Substring(end + 1);
-               }
-            }
-         }
-         while ((start = result.IndexOf("{Z", start + 1)) >= 0) {
-            if ((end = result.IndexOf("}", start)) > 0) {
-               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
-               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 50) {
-                  result = result.Substring(0, start) + (char)(n + 0xF209) + result.Substring(end + 1);
-               }
-            }
-         }
-         int x = result[0];
-         return result;
       }
 
       // Load the Calendar and date objects from the XML
@@ -589,6 +587,10 @@ namespace IJPLib_Test {
          return success;
       }
 
+      #endregion
+
+      #region Service Routines
+
       // Get XML Text
       private string GetXmlValue(XmlNode node) {
          if (node != null) {
@@ -630,7 +632,133 @@ namespace IJPLib_Test {
          return (T)Enum.GetValues(typeof(T)).GetValue(0);
       }
 
+      // Resolve brace usage differences between IJPLib and EtherNet/IP
+      private string FormatText(string s) {
+         string result = s;
+         int start = -1;
+         int end = 0;
+         int n = 0;
+         result = result.Replace("{{", "}").Replace("}}", "}");
+         while ((start = result.IndexOf("{X", start + 1)) >= 0) {
+            if ((end = result.IndexOf("}", start)) > 0) {
+               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
+               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 200) {
+                  result = result.Substring(0, start) + (char)(n + 0xF140) + result.Substring(end + 1);
+               }
+            }
+         }
+         while ((start = result.IndexOf("{Z", start + 1)) >= 0) {
+            if ((end = result.IndexOf("}", start)) > 0) {
+               string[] t = result.Substring(start + 1, end - start - 1).Split('/');
+               if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 50) {
+                  result = result.Substring(0, start) + (char)(n + 0xF209) + result.Substring(end + 1);
+               }
+            }
+         }
+         int x = result[0];
+         return result;
+      }
+
+      // Get the height and width of a user pattern
+      private void GetBitmapSize(string dotMatrix, out IJPDotMatrix dm, out int width, out int height) {
+         dm = ParseEnum<IJPDotMatrix>(dotMatrix);
+         switch (dm) {
+            case IJPDotMatrix.Size4x5:
+               width = 8;
+               height = 5;
+               break;
+            case IJPDotMatrix.Size5x5:
+               width = 8;
+               height = 5;
+               break;
+            case IJPDotMatrix.Size5x7:
+               width = 8;
+               height = 7;
+               break;
+            case IJPDotMatrix.Size9x7:
+               width = 16;
+               height = 7;
+               break;
+            case IJPDotMatrix.Size7x10:
+               width = -8;
+               height = 10;
+               break;
+            case IJPDotMatrix.Size10x12:
+               width = 16;
+               height = 12;
+               break;
+            case IJPDotMatrix.Size12x16:
+               width = 16;
+               height = 16;
+               break;
+            case IJPDotMatrix.Size18x24:
+               width = 24;
+               height = 24;
+               break;
+            case IJPDotMatrix.Size24x32:
+               width = 32;
+               height = 32;
+               break;
+            case IJPDotMatrix.Size11x11:
+               width = 16;
+               height = 11;
+               break;
+            case IJPDotMatrix.Size5x3_Chimney:
+               width = 5;
+               height = 3;
+               break;
+            case IJPDotMatrix.Size5x5_Chimney:
+               width = 5;
+               height = 5;
+               break;
+            case IJPDotMatrix.Size7x5_Chimney:
+               width = 7;
+               height = 5;
+               break;
+            default:
+               width = -1;
+               height = -1;
+               break;
+         }
+
+      }
+
+      // Convert raw data to stripes
+      private ulong[] rawDataToStripes(int height, string rawData) {
+         string[] s = rawData.Trim().Split(' ');
+         int stride = (height + 7) / 8;
+         int nStripes = (s.Length + stride - 1) / stride;
+         ulong[] result = new ulong[nStripes];
+         int n = 0;
+         for (int i = 0; i < nStripes; i++) {
+            ulong v = 0;
+            for (int j = 0; j < stride && n < s.Length; j++) {
+               v = v + (ulong.Parse(s[n++], NumberStyles.HexNumber) << (8 * j));
+            }
+            result[i] = v;
+         }
+         return result;
+      }
+
+      // Convert the stripes to a bitmap
+      private Bitmap BuildBitMap(ulong[] stripes, int width, int height) {
+         Bitmap result = new Bitmap(width, height);
+         using (Graphics g = Graphics.FromImage(result)) {
+            g.Clear(Color.White);
+            for (int x = 0; x < Math.Min(width, stripes.Length); x++) {
+               for (int y = height - 1; stripes[x] > 0 && y >= 0; y--) {
+                  if ((stripes[x] & 1) != 0) {
+                     result.SetPixel(x, y, Color.Black);
+                  }
+                  stripes[x] >>= 1;
+               }
+            }
+            return result;
+         }
+      }
+
       #endregion
 
    }
+
 }
