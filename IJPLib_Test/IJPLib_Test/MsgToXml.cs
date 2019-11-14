@@ -69,6 +69,18 @@ namespace IJPLib_Test {
          Logo = 4,
       }
 
+      struct logoSave {
+         public IJPDotMatrix dm;
+         public int location;
+         public bool fixedStyle;
+
+         public bool Equals(logoSave other) {
+            return this.fixedStyle.Equals(other.fixedStyle) &&
+               this.dm.Equals(other.dm) &&
+               this.location.Equals(other.location);
+         }
+      }
+
       #endregion
 
       #region Constructors and Destructors
@@ -124,9 +136,6 @@ namespace IJPLib_Test {
                                        case ItemType.Counter:
                                           RetrieveCounterSettings(writer, cntBlockNumber, cntBlockCount, m.CountConditions);
                                           break;
-                                       case ItemType.Logo:
-                                          RetrieveUserPatternSettings(writer);
-                                          break;
                                        default:
                                           break;
                                     }
@@ -171,16 +180,6 @@ namespace IJPLib_Test {
             }
          }
          return xml;
-      }
-
-      private string FormatText(string s) {
-         string result = string.Empty;
-         int first = s.IndexOf("{");
-         int last = s.LastIndexOf("}");
-         if (first >= 0 && last > first) {
-            result = s.Substring(0, first) + "{" + s.Substring(first, last - first) + "}" + s.Substring(last);
-         }
-         return result;
       }
 
       private void RetrievePrinterSettings(XmlTextWriter writer, IJPMessage m, IJP ijp) {
@@ -242,11 +241,11 @@ namespace IJPLib_Test {
                writer.WriteAttributeString("ChargeRule", m.InkDropChargeRule.ToString());
             }
             writer.WriteEndElement(); // InkStream
+
             if (ijp != null) {
                RetrieveSubstitutions(writer, m, ijp);
+               RetrieveUserPatternSettings(writer, m, ijp);
             }
-
-            RetrieveLogos(writer);
          }
          writer.WriteEndElement(); // Printer
       }
@@ -420,43 +419,84 @@ namespace IJPLib_Test {
          }
       }
 
-      private void RetrieveUserPatternSettings(XmlTextWriter writer) {
-
-      }
-
-      // Examine the contents of a print message to determine its type
-      private ItemType GetItemType(string text, ref int[] mask) {
-         int l = 0;
-         mask[l] = 0;
-         string[] s = text.Split('{');
-         for (int i = 0; i < s.Length; i++) {
-            int n = s[i].IndexOf('}');
-            if (n >= 0) {
-               for (int j = 0; j < n; j++) {
-                  int k = Array.IndexOf(bc, s[i][j]);
-                  if (k >= 0) {
-                     mask[l] |= 1 << k;
-                  } else {
-                     mask[l] |= (int)ba.Unknown;
-                  }
+      private void RetrieveUserPatternSettings(XmlTextWriter writer, IJPMessage m, IJP ijp) {
+         List<logoSave> neededLogos = new List<logoSave>();
+         for (int i = 0; i < m.Items.Count; i++) {
+            string s = m.Items[i].Text;
+            for (int n = 0; n < s.Length; n++) {
+               char c = s[n];
+               if (c >= 0xF140 && c <= 0xF208) {
+                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - 0xF140 });
+               } else if (c >= 0xF209 && c <= 0xF23A) {
+                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - 0xF209 });
                }
             }
-            if (s[i].IndexOf('}', n + 1) > 0) {
-               l++;
-            }
+
          }
-         // Calendar and Count cannot appear in the same item
-         if ((mask[0] & (int)ba.Count) > 0) {
-            return ItemType.Counter;
-         } else if ((mask[0] & DateCode) > 0) {
-            return ItemType.Date;
-         } else {
-            return ItemType.Text;
+         // Any referenced?
+         if (neededLogos.Count > 0) {
+            // Eliminate duplicates
+            neededLogos = neededLogos.OrderBy(o => o.location).OrderBy(o => o.dm).OrderBy(o => o.fixedStyle).ToList();
+            for (int i = 0; i < neededLogos.Count - 1; i++) {
+               if (neededLogos[i].Equals(neededLogos[i = 1])) {
+                  neededLogos.RemoveAt(i + 1);
+               }
+            }
+            // Output the remainder
+            writer.WriteStartElement("Logos"); // Start Logos
+            {
+               writer.WriteAttributeString("Folder", Properties.Settings.Default.MessageFolder);
+               // Now write the logos
+               for (int i = 0; i < neededLogos.Count; i++) {
+                  writer.WriteStartElement("Logo"); // Start Logo
+                  {
+                     IJPFixedUserPattern up = (IJPFixedUserPattern)ijp.GetFixedUserPattern(neededLogos[i].location + 1, neededLogos[i].dm);
+                     writer.WriteAttributeString("Layout", neededLogos[i].fixedStyle ? "Fixed" : "Free");
+                     writer.WriteAttributeString("DotMatrix", neededLogos[i].dm.ToString());
+                     writer.WriteAttributeString("Location", neededLogos[i].location.ToString());
+                     writer.WriteAttributeString("FileName", "");
+                     writer.WriteAttributeString("Width", up.Pattern.Width.ToString());
+                     writer.WriteAttributeString("Height", up.Pattern.Height.ToString());
+
+                     writer.WriteAttributeString("RawData", BitMapToRawData(up.Pattern));
+                  }
+                  writer.WriteEndElement(); //  End Logo
+               }
+
+
+            }
+            writer.WriteEndElement(); //  End Logos
          }
       }
 
-      private void RetrieveLogos(XmlTextWriter writer) {
+      private string BitMapToRawData(Bitmap bm) {
+         ulong[] stripes = new ulong[bm.Width];
+         for (int x = 0; x < bm.Width; x++) {
+            for (int y = 0; y < bm.Height; y++) {
+               stripes[x] <<= 1;
+               if (bm.GetPixel(x, y).ToArgb() == Color.Black.ToArgb()) {
+                  stripes[x] |= 1;
+               }
+            }
+         }
+         // Eliminate trailing stripes
+         int n = 0;
+         for (n = stripes.Length - 1; n > 0; n--) {
+            if (stripes[n] != 0) {
+               break;
+            }
+         }
+         // Generate the raw data
+         int stride = (bm.Height + 7) / 8;
+         string result = "";
+         for (int i = 0; i <= n; i++) {
+            for (int j = 0; j < stride; j++) {
+               result += $"{stripes[i] & 0xFF:X2} ";
+               stripes[i] >>= 8;
+            }
+         }
 
+         return result.Trim();
       }
 
       private void RetrieveSubstitutions(XmlTextWriter writer, IJPMessage m, IJP ijp) {
@@ -491,26 +531,26 @@ namespace IJPLib_Test {
                   writer.WriteAttributeString("RuleNumber", i.ToString());
                   writer.WriteAttributeString("RuleName", srs.Name);
                   if ((sr[i] & (int)ba.Year) > 0)
-                     WriteSubstitution(writer, srs, ba.Year, 0, 23);
+                     RetrieveSubstitution(writer, srs, ba.Year, 0, 23);
                   if ((sr[i] & (int)ba.Month) > 0)
-                     WriteSubstitution(writer, srs, ba.Month, 1, 12);
+                     RetrieveSubstitution(writer, srs, ba.Month, 1, 12);
                   if ((sr[i] & (int)ba.Day) > 0)
-                     WriteSubstitution(writer, srs, ba.Day, 1, 31);
+                     RetrieveSubstitution(writer, srs, ba.Day, 1, 31);
                   if ((sr[i] & (int)ba.Hour) > 0)
-                     WriteSubstitution(writer, srs, ba.Hour, 0, 23);
+                     RetrieveSubstitution(writer, srs, ba.Hour, 0, 23);
                   if ((sr[i] & (int)ba.Minute) > 0)
-                     WriteSubstitution(writer, srs, ba.Minute, 0, 59);
+                     RetrieveSubstitution(writer, srs, ba.Minute, 0, 59);
                   if ((sr[i] & (int)ba.WeekNumber) > 0)
-                     WriteSubstitution(writer, srs, ba.WeekNumber, 1, 53);
+                     RetrieveSubstitution(writer, srs, ba.WeekNumber, 1, 53);
                   if ((sr[i] & (int)ba.DayOfWeek) > 0)
-                     WriteSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
+                     RetrieveSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
                }
                writer.WriteEndElement(); // Substitution
             }
          }
       }
 
-      private void WriteSubstitution(XmlTextWriter writer, IJPSubstitutionRule srs, ba rule, int start, int end) {
+      private void RetrieveSubstitution(XmlTextWriter writer, IJPSubstitutionRule srs, ba rule, int start, int end) {
          int n = end - start + 1;
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
@@ -547,6 +587,63 @@ namespace IJPLib_Test {
             }
             writer.WriteEndElement(); // Rule
          }
+      }
+
+      #endregion
+
+      #region Service Routines
+
+      // Examine the contents of a print message to determine its type
+      private ItemType GetItemType(string text, ref int[] mask) {
+         int l = 0;
+         mask[l] = 0;
+         string[] s = text.Split('{');
+         for (int i = 0; i < s.Length; i++) {
+            int n = s[i].IndexOf('}');
+            if (n >= 0) {
+               for (int j = 0; j < n; j++) {
+                  int k = Array.IndexOf(bc, s[i][j]);
+                  if (k >= 0) {
+                     mask[l] |= 1 << k;
+                  } else {
+                     mask[l] |= (int)ba.Unknown;
+                  }
+               }
+            }
+            if (s[i].IndexOf('}', n + 1) > 0) {
+               l++;
+            }
+         }
+         // Calendar and Count cannot appear in the same item
+         if ((mask[0] & (int)ba.Count) > 0) {
+            return ItemType.Counter;
+         } else if ((mask[0] & DateCode) > 0) {
+            return ItemType.Date;
+         } else {
+            return ItemType.Text;
+         }
+      }
+
+      // Resolve differences between IJPLib and EtherNet/IP text syntax
+      private string FormatText(string s) {
+         string result = string.Empty;
+         int first = s.IndexOf("{");
+         int last = s.LastIndexOf("}");
+         // This does not work for "{E}" or "{F}" for output for EtherNet/IP
+         if (first >= 0 && last > first) {
+            s = s.Substring(0, first) + "{" + s.Substring(first, last - first) + "}" + s.Substring(last);
+         }
+         for (int i = 0; i < s.Length; i++) {
+            char c = s[i];
+            if (c >= 0xF140 && c <= 0xF208) {
+               result += $"{{X/{c - 0xF140}}}";
+            } else if (c >= 0xF209 && c <= 0xF23A) {
+               result += $"{{Z/{c - 0xF209}}}";
+            } else {
+               result += s.Substring(i, 1);
+            }
+         }
+         return result;
       }
 
       #endregion

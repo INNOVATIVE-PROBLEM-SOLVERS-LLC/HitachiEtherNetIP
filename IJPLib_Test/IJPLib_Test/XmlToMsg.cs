@@ -151,25 +151,38 @@ namespace IJPLib_Test {
          return success;
       }
 
+      // Handle Fixed logos (Free Style and cijConnect formats later)
       private void LoadLogos(XmlNode c) {
          Bitmap bm = null;
          foreach (XmlNode l in c.ChildNodes) {
-            if (l is XmlWhitespace || l.Name != "Logo")
+            if (l is XmlWhitespace || l.Name != "Logo" || GetXmlAttr(l, "Layout") != "Fixed")
                continue;
             string layout = GetXmlAttr(l, "Layout");
             string dotMatrix = GetXmlAttr(l, "DotMatrix");
-            string rawData = GetXmlAttr(l, "RawData");
             int location = (int)GetXmlAttrN(l, "Location");
+            string rawData = GetXmlAttr(l, "RawData");
             GetBitmapSize(dotMatrix, out IJPDotMatrix dm, out int width, out int height);
-            if (height > 0) {
-               ulong[] stripes = rawDataToStripes(height, rawData);
-               bm = BuildBitMap(stripes, width, height);
-               IJPFixedUserPattern up = new IJPFixedUserPattern(location + 1, dm, bm);
-               ijp.SetFixedUserPattern(up);
+            if (rawData == string.Empty) {
+               string folder = GetXmlAttr(c, "Folder");
+               string fileName = GetXmlAttr(l, "FileName");
+               string fullFileName = Path.Combine(folder, fileName + ".bmp");
+               if (File.Exists(fullFileName)) {
+                  bm = new Bitmap(fullFileName);
+               } else {
+                  continue;
+               }
+            } else {
+               if (height > 0) {
+                  ulong[] stripes = rawDataToStripes(height, rawData);
+                  bm = BuildBitMap(stripes, width, height);
+               }
             }
+            IJPFixedUserPattern up = new IJPFixedUserPattern(location + 1, dm, bm);
+            ijp.SetFixedUserPattern(up);
          }
       }
 
+      // Load substitutions
       private void LoadBuildSubstitution(XmlNode p) {
          // Get the standard attributes for substitution
          string rule = GetXmlAttr(p, "RuleNumber");
@@ -200,6 +213,7 @@ namespace IJPLib_Test {
 
       }
 
+      // Set valuse within a substiturion rule
       private void SetSubValues(IJPSubstitutionRule sr, MsgToXml.ba type, XmlNode c, string delimiter) {
          bool success = true;
          // Avoid user errors
@@ -610,7 +624,7 @@ namespace IJPLib_Test {
          }
       }
 
-      // Get XML Attribute Value
+      // Get XML Attribute Value as long
       private long GetXmlAttrN(XmlNode node, string AttrName) {
          XmlNode n;
          if (node != null && (n = node.Attributes[AttrName]) != null) {
@@ -725,17 +739,17 @@ namespace IJPLib_Test {
 
       // Convert raw data to stripes
       private ulong[] rawDataToStripes(int height, string rawData) {
-         string[] s = rawData.Trim().Split(' ');
+         string[] s = rawData.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
          int stride = (height + 7) / 8;
          int nStripes = (s.Length + stride - 1) / stride;
          ulong[] result = new ulong[nStripes];
          int n = 0;
          for (int i = 0; i < nStripes; i++) {
-            ulong v = 0;
             for (int j = 0; j < stride && n < s.Length; j++) {
-               v = v + (ulong.Parse(s[n++], NumberStyles.HexNumber) << (8 * j));
+               if (ulong.TryParse(s[n++], NumberStyles.HexNumber, null, out ulong x)) {
+                  result[i] += x << (8 * j);
+               }
             }
-            result[i] = v;
          }
          return result;
       }

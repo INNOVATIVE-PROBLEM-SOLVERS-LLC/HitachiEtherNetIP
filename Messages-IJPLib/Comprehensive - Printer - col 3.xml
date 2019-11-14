@@ -9,6 +9,7 @@
     <InkStream InkDropUse="2" ChargeRule="Normal" />
     <Logos Folder="C:\GitHubEtherNetIP\Messages">
       <Logo Layout="Fixed" DotMatrix="Size18x24" Location="0" FileName="XML-18x24" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Location="1" FileName="XML-18x24" RawData="" />
     </Logos>
   </Printer>
   <Message Layout="SeparateSetup">
@@ -16,7 +17,7 @@
       <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="2" DotMatrix="Size18x24" />
         <BarCode />
-        <Text>{X/000}</Text>
+        <Text>{X/000}/{X/001}</Text>
       </Item>
     </Column>
   </Message>
