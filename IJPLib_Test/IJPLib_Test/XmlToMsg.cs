@@ -65,7 +65,7 @@ namespace IJPLib_Test {
       public IJPMessage BuildMessage() {
          IJPMessage m = null;
          bool success = true;
-         // Need a XMP Document to continue
+         // Need a XML Document to continue
          if (xmlDoc == null) {
             return m;
          }
@@ -78,7 +78,7 @@ namespace IJPLib_Test {
             }
 
             XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
-            if (objs != null) {
+            if (success && objs != null) {
                success = AllocateRowsColumns(m, objs.ChildNodes); // Allocate rows and columns
             }
 
@@ -100,6 +100,8 @@ namespace IJPLib_Test {
       private bool LoadPrinterSettings(IJPMessage m, XmlNode pr) {
          bool success = true;
          foreach (XmlNode c in pr.ChildNodes) {
+            if (c is XmlWhitespace)
+               continue;
             switch (c.Name) {
                case "PrintHead":
                   m.CharacterOrientation = ParseEnum<IJPCharacterOrientation>(GetXmlAttr(c, "Orientation"));
@@ -136,10 +138,10 @@ namespace IJPLib_Test {
                   }
                   break;
                case "TimeCount":
-                  //BuildTimeCount(c);
+                  m.TimeCount = LoadTimeCount(c);
                   break;
                case "Shifts":
-                  //BuildShifts(c);
+                  LoadShift(m.ShiftCodes, c);
                   break;
                case "Logos":
                   if (ijp != null) {
@@ -204,6 +206,8 @@ namespace IJPLib_Test {
 
             // Load the individual rules
             foreach (XmlNode c in p.ChildNodes) {
+               if (c is XmlWhitespace)
+                  continue;
                switch (c.Name) {
                   case "Rule":
                      if (Enum.TryParse(GetXmlAttr(c, "Type"), true, out MsgToXml.ba type)) {
@@ -354,8 +358,8 @@ namespace IJPLib_Test {
             }
 
             // Shift codes are not by item but are by message.  
-            if (Items[i].SelectSingleNode("Shift") != null) {
-               LoadShift(m.ShiftCodes, Items[i]);
+            if (Items[i].SelectSingleNode("Shifts") != null) {
+               LoadShift(m.ShiftCodes, Items[i].SelectSingleNode("Shifts"));
             }
          }
 
@@ -366,7 +370,6 @@ namespace IJPLib_Test {
 
       // Load one or more shift codes into the Shift Code Collection
       private void LoadShift(IJPShiftCodeCollection scc, XmlNode obj) {
-
          foreach (XmlNode d in obj) {
             if (d is XmlWhitespace)
                continue;
@@ -658,7 +661,7 @@ namespace IJPLib_Test {
          int start = -1;
          int end = 0;
          int n = 0;
-         result = result.Replace("{{", "}").Replace("}}", "}");
+         result = result.Replace("{{", "{").Replace("}}", "}");
          while ((start = result.IndexOf("{X", start + 1)) >= 0) {
             if ((end = result.IndexOf("}", start)) > 0) {
                string[] t = result.Substring(start + 1, end - start - 1).Split('/');
@@ -675,7 +678,6 @@ namespace IJPLib_Test {
                }
             }
          }
-         int x = result[0];
          return result;
       }
 
