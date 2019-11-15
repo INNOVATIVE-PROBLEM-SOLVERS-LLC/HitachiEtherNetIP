@@ -24,6 +24,8 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IJPTest));
          this.cmdComOnOff = new System.Windows.Forms.Button();
          this.cmdConnect = new System.Windows.Forms.Button();
@@ -52,15 +54,28 @@
          this.cmdRunXMLTest = new System.Windows.Forms.Button();
          this.lblMessageFolder = new System.Windows.Forms.Label();
          this.txtMessageFolder = new System.Windows.Forms.TextBox();
-         this.cmdBrowse = new System.Windows.Forms.Button();
+         this.cmdMsgBrowse = new System.Windows.Forms.Button();
          this.cmdClear = new System.Windows.Forms.Button();
          this.cmdSend = new System.Windows.Forms.Button();
+         this.cmdLogBrowse = new System.Windows.Forms.Button();
+         this.txtLogFolder = new System.Windows.Forms.TextBox();
+         this.lblLogFolder = new System.Windows.Forms.Label();
+         this.tabDirectory = new System.Windows.Forms.TabPage();
+         this.cmdGetMsgs = new System.Windows.Forms.Button();
+         this.dgDirectory = new System.Windows.Forms.DataGridView();
+         this.cmdGetOne = new System.Windows.Forms.Button();
+         this.colMsgNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colGroupNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.cmdGetAll = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
          this.tabXMLIndented.SuspendLayout();
          this.tabXMLTree.SuspendLayout();
          this.cmErrLog.SuspendLayout();
+         this.tabDirectory.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).BeginInit();
          this.SuspendLayout();
          // 
          // cmdComOnOff
@@ -100,6 +115,7 @@
          this.tclIJPLib.Controls.Add(this.tabTreeView);
          this.tclIJPLib.Controls.Add(this.tabXMLIndented);
          this.tclIJPLib.Controls.Add(this.tabXMLTree);
+         this.tclIJPLib.Controls.Add(this.tabDirectory);
          this.tclIJPLib.Location = new System.Drawing.Point(18, 76);
          this.tclIJPLib.Name = "tclIJPLib";
          this.tclIJPLib.SelectedIndex = 0;
@@ -312,7 +328,7 @@
          this.lblMessageFolder.Size = new System.Drawing.Size(109, 17);
          this.lblMessageFolder.TabIndex = 23;
          this.lblMessageFolder.Text = "Message Folder";
-         this.lblMessageFolder.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+         this.lblMessageFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // txtMessageFolder
          // 
@@ -321,15 +337,15 @@
          this.txtMessageFolder.Size = new System.Drawing.Size(106, 22);
          this.txtMessageFolder.TabIndex = 24;
          // 
-         // cmdBrowse
+         // cmdMsgBrowse
          // 
-         this.cmdBrowse.Location = new System.Drawing.Point(761, 26);
-         this.cmdBrowse.Name = "cmdBrowse";
-         this.cmdBrowse.Size = new System.Drawing.Size(84, 34);
-         this.cmdBrowse.TabIndex = 25;
-         this.cmdBrowse.Text = "Browse";
-         this.cmdBrowse.UseVisualStyleBackColor = true;
-         this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
+         this.cmdMsgBrowse.Location = new System.Drawing.Point(761, 26);
+         this.cmdMsgBrowse.Name = "cmdMsgBrowse";
+         this.cmdMsgBrowse.Size = new System.Drawing.Size(84, 34);
+         this.cmdMsgBrowse.TabIndex = 25;
+         this.cmdMsgBrowse.Text = "Browse";
+         this.cmdMsgBrowse.UseVisualStyleBackColor = true;
+         this.cmdMsgBrowse.Click += new System.EventHandler(this.cmdMsgBrowse_Click);
          // 
          // cmdClear
          // 
@@ -353,17 +369,130 @@
          this.cmdSend.UseVisualStyleBackColor = true;
          this.cmdSend.Click += new System.EventHandler(this.cmdSend_Click);
          // 
+         // cmdLogBrowse
+         // 
+         this.cmdLogBrowse.Location = new System.Drawing.Point(761, 66);
+         this.cmdLogBrowse.Name = "cmdLogBrowse";
+         this.cmdLogBrowse.Size = new System.Drawing.Size(84, 34);
+         this.cmdLogBrowse.TabIndex = 30;
+         this.cmdLogBrowse.Text = "Browse";
+         this.cmdLogBrowse.UseVisualStyleBackColor = true;
+         this.cmdLogBrowse.Click += new System.EventHandler(this.cmdLogBrowse_Click);
+         // 
+         // txtLogFolder
+         // 
+         this.txtLogFolder.Location = new System.Drawing.Point(625, 65);
+         this.txtLogFolder.Name = "txtLogFolder";
+         this.txtLogFolder.Size = new System.Drawing.Size(106, 22);
+         this.txtLogFolder.TabIndex = 29;
+         // 
+         // lblLogFolder
+         // 
+         this.lblLogFolder.AutoSize = true;
+         this.lblLogFolder.Location = new System.Drawing.Point(482, 66);
+         this.lblLogFolder.Name = "lblLogFolder";
+         this.lblLogFolder.Size = new System.Drawing.Size(76, 17);
+         this.lblLogFolder.TabIndex = 28;
+         this.lblLogFolder.Text = "Log Folder";
+         this.lblLogFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // tabDirectory
+         // 
+         this.tabDirectory.Controls.Add(this.cmdGetAll);
+         this.tabDirectory.Controls.Add(this.cmdGetOne);
+         this.tabDirectory.Controls.Add(this.dgDirectory);
+         this.tabDirectory.Controls.Add(this.cmdGetMsgs);
+         this.tabDirectory.Location = new System.Drawing.Point(4, 25);
+         this.tabDirectory.Name = "tabDirectory";
+         this.tabDirectory.Size = new System.Drawing.Size(667, 166);
+         this.tabDirectory.TabIndex = 5;
+         this.tabDirectory.Text = "Directory";
+         this.tabDirectory.UseVisualStyleBackColor = true;
+         // 
+         // cmdGetMsgs
+         // 
+         this.cmdGetMsgs.Location = new System.Drawing.Point(492, 27);
+         this.cmdGetMsgs.Name = "cmdGetMsgs";
+         this.cmdGetMsgs.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetMsgs.TabIndex = 1;
+         this.cmdGetMsgs.Text = "Get Directory";
+         this.cmdGetMsgs.UseVisualStyleBackColor = true;
+         this.cmdGetMsgs.Click += new System.EventHandler(this.cmdGetMsgs_Click);
+         // 
+         // dgDirectory
+         // 
+         this.dgDirectory.AllowUserToAddRows = false;
+         this.dgDirectory.AllowUserToDeleteRows = false;
+         this.dgDirectory.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+         this.dgDirectory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgDirectory.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colMsgNo,
+            this.colGroupNo,
+            this.colName});
+         this.dgDirectory.Location = new System.Drawing.Point(26, 36);
+         this.dgDirectory.Name = "dgDirectory";
+         this.dgDirectory.RowTemplate.Height = 24;
+         this.dgDirectory.Size = new System.Drawing.Size(362, 114);
+         this.dgDirectory.TabIndex = 2;
+         this.dgDirectory.SelectionChanged += new System.EventHandler(this.dgDirectory_SelectionChanged);
+         // 
+         // cmdGetOne
+         // 
+         this.cmdGetOne.Location = new System.Drawing.Point(492, 63);
+         this.cmdGetOne.Name = "cmdGetOne";
+         this.cmdGetOne.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetOne.TabIndex = 3;
+         this.cmdGetOne.Text = "Get One Message";
+         this.cmdGetOne.UseVisualStyleBackColor = true;
+         this.cmdGetOne.Click += new System.EventHandler(this.cmdGetOne_Click);
+         // 
+         // colMsgNo
+         // 
+         this.colMsgNo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+         dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.colMsgNo.DefaultCellStyle = dataGridViewCellStyle1;
+         this.colMsgNo.HeaderText = "Msg #";
+         this.colMsgNo.Name = "colMsgNo";
+         this.colMsgNo.Width = 75;
+         // 
+         // colGroupNo
+         // 
+         dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.colGroupNo.DefaultCellStyle = dataGridViewCellStyle2;
+         this.colGroupNo.HeaderText = "Group #";
+         this.colGroupNo.Name = "colGroupNo";
+         this.colGroupNo.Width = 89;
+         // 
+         // colName
+         // 
+         this.colName.HeaderText = "Name";
+         this.colName.Name = "colName";
+         this.colName.Width = 74;
+         // 
+         // cmdGetAll
+         // 
+         this.cmdGetAll.Location = new System.Drawing.Point(492, 99);
+         this.cmdGetAll.Name = "cmdGetAll";
+         this.cmdGetAll.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetAll.TabIndex = 4;
+         this.cmdGetAll.Text = "Get All Messages";
+         this.cmdGetAll.UseVisualStyleBackColor = true;
+         this.cmdGetAll.Click += new System.EventHandler(this.cmdGetAll_Click);
+         // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(926, 437);
+         this.Controls.Add(this.cmdLogBrowse);
+         this.Controls.Add(this.txtLogFolder);
+         this.Controls.Add(this.lblLogFolder);
          this.Controls.Add(this.cmdSend);
          this.Controls.Add(this.cmdClear);
          this.Controls.Add(this.cmdSaveAs);
          this.Controls.Add(this.tclIJPLib);
          this.Controls.Add(this.cmdGetViews);
-         this.Controls.Add(this.cmdBrowse);
+         this.Controls.Add(this.cmdMsgBrowse);
          this.Controls.Add(this.cmdGetXML);
          this.Controls.Add(this.txtMessageFolder);
          this.Controls.Add(this.lblMessageFolder);
@@ -391,6 +520,8 @@
          this.tabXMLIndented.PerformLayout();
          this.tabXMLTree.ResumeLayout(false);
          this.cmErrLog.ResumeLayout(false);
+         this.tabDirectory.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).EndInit();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -399,7 +530,6 @@
       #endregion
       private System.Windows.Forms.Button cmdComOnOff;
       private System.Windows.Forms.Button cmdConnect;
-      private System.Windows.Forms.TextBox ipAddressTextBox;
       private System.Windows.Forms.TabControl tclIJPLib;
       private System.Windows.Forms.TabPage tabTreeView;
       private System.Windows.Forms.TabPage tabIndentedView;
@@ -423,10 +553,22 @@
       private System.Windows.Forms.ComboBox cbSelectXMLTest;
       private System.Windows.Forms.Button cmdRunXMLTest;
       private System.Windows.Forms.Label lblMessageFolder;
-      private System.Windows.Forms.TextBox txtMessageFolder;
-      private System.Windows.Forms.Button cmdBrowse;
+      private System.Windows.Forms.Button cmdMsgBrowse;
       private System.Windows.Forms.Button cmdClear;
       private System.Windows.Forms.Button cmdSend;
+      private System.Windows.Forms.Button cmdLogBrowse;
+      private System.Windows.Forms.Label lblLogFolder;
+      public System.Windows.Forms.TextBox ipAddressTextBox;
+      public System.Windows.Forms.TextBox txtMessageFolder;
+      public System.Windows.Forms.TextBox txtLogFolder;
+      private System.Windows.Forms.TabPage tabDirectory;
+      private System.Windows.Forms.Button cmdGetMsgs;
+      private System.Windows.Forms.DataGridView dgDirectory;
+      private System.Windows.Forms.Button cmdGetOne;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colMsgNo;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colGroupNo;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+      private System.Windows.Forms.Button cmdGetAll;
    }
 }
 

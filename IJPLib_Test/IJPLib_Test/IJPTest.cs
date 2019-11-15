@@ -46,8 +46,6 @@ namespace IJPLib_Test {
          InitializeComponent();
          initComplete = true;
          p = Properties.Settings.Default;
-         ipAddressTextBox.Text = p.IPAddress;
-         txtMessageFolder.Text = p.MessageFolder;
       }
 
       ~IJPTest() {
@@ -79,9 +77,13 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, cmdConnect, 1, 7, 2, 5);
             Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
 
-            Utils.ResizeObject(ref R, lblMessageFolder, 1, 24, 2, 10);
-            Utils.ResizeObject(ref R, txtMessageFolder, 3, 24, 2, 10);
-            Utils.ResizeObject(ref R, cmdBrowse, 1, 35, 4, 4);
+            Utils.ResizeObject(ref R, lblMessageFolder, 0.5f, 18, 2, 5);
+            Utils.ResizeObject(ref R, txtMessageFolder, 0.5f, 24, 2, 10);
+            Utils.ResizeObject(ref R, cmdMsgBrowse, 0.5f, 35, 2, 4);
+
+            Utils.ResizeObject(ref R, lblLogFolder, 3, 18, 2, 5);
+            Utils.ResizeObject(ref R, txtLogFolder, 3, 24, 2, 10);
+            Utils.ResizeObject(ref R, cmdLogBrowse, 3, 35, 2, 4);
 
             Utils.ResizeObject(ref R, tclIJPLib, 5, 1, 43, 33);
             Utils.ResizeObject(ref R, cmdClear, 7, 35, 2, 4);
@@ -95,6 +97,11 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 38, 31);
             Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 38, 31);
 
+            Utils.ResizeObject(ref R, dgDirectory, 1, 1, 38, 15);
+            Utils.ResizeObject(ref R, cmdGetMsgs, 1, 17, 2, 5);
+            Utils.ResizeObject(ref R, cmdGetOne, 4, 17, 2, 5);
+            Utils.ResizeObject(ref R, cmdGetAll, 7, 17, 2, 5);
+
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
             Utils.ResizeObject(ref R, lblSelectHardCodedTest, 50, 17, 2, 10);
@@ -104,6 +111,8 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, lblSelectXMLTest, 50, 28, 2, 10);
             Utils.ResizeObject(ref R, cbSelectXMLTest, 52, 28, 2, 10);
             Utils.ResizeObject(ref R, cmdRunXMLTest, 55, 28, 3, 10);
+
+
 
             this.ResumeLayout();
          }
@@ -162,8 +171,10 @@ namespace IJPLib_Test {
       }
 
       private void cmdClear_Click(object sender, EventArgs e) {
+         Log($"Clear Starting");
          message = null;    // Force retrieval of next message
          ClearViews();      // Clear the four screens
+         Log($"Clear Complete");
       }
 
       private void cmdGetViews_Click(object sender, EventArgs e) {
@@ -206,6 +217,7 @@ namespace IJPLib_Test {
       }
 
       private void ccmdSaveAs_Click(object sender, EventArgs e) {
+         Log($"Save As Starting");
          string fileName = string.Empty;
          string fileText = string.Empty; ;
          using (SaveFileDialog sfd = new SaveFileDialog()) {
@@ -238,6 +250,7 @@ namespace IJPLib_Test {
          }
          BuildTestFileList();
          setButtonEnables();
+         Log($"Save As Complete");
       }
 
       private void cmdSend_Click(object sender, EventArgs e) {
@@ -265,12 +278,19 @@ namespace IJPLib_Test {
          lstLogs.Items.Clear();
       }
 
-      private void cmdBrowse_Click(object sender, EventArgs e) {
+      private void cmdMsgBrowse_Click(object sender, EventArgs e) {
          FolderBrowserDialog dlg = new FolderBrowserDialog() 
             { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
          if (dlg.ShowDialog() == DialogResult.OK) {
             txtMessageFolder.Text = dlg.SelectedPath;
             BuildTestFileList();
+         }
+      }
+
+      private void cmdLogBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtLogFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtLogFolder.Text = dlg.SelectedPath;
          }
       }
 
@@ -283,10 +303,67 @@ namespace IJPLib_Test {
       }
 
       private void cmdRunXMLTest_Click(object sender, EventArgs e) {
+         Log($"Run XML Test Starting");
          XmlToMsg xtm = new XmlToMsg(txtXMLIndented.Text, ijp);
          xtm.Log += Log;
          message = xtm.BuildMessage();
          xtm.Log -= Log;
+         Log($"Run XML Test Complete");
+      }
+
+      private void cmdGetMsgs_Click(object sender, EventArgs e) {
+         Cursor.Current = Cursors.WaitCursor;
+         Log("Retrieve Directory Starting");
+         dgDirectory.Rows.Clear();
+         bool ok = true;
+         for (int n = 1; n <= 200 && ok; n += 10) {
+            IIJPMessageInfo[] mi = ijp.ListMessage(n, n + 9);
+            if (mi.Length > 0) {
+               for (int i = 0; i < mi.Length; i++) {
+                  dgDirectory.Rows.Add(new string[]
+                  { mi[i].RegistrationNumber.ToString(),mi[i].GroupNumber.ToString(),  mi[i].Nickname });
+               }
+               dgDirectory.Update();
+            } else {
+               ok = false;
+            }
+         }
+         setButtonEnables();
+         Log("Retrieve Directory Complete");
+         Cursor.Current = Cursors.Arrow;
+      }
+
+      private void dgDirectory_SelectionChanged(object sender, EventArgs e) {
+         setButtonEnables();
+      }
+
+      private void cmdGetOne_Click(object sender, EventArgs e) {
+         Cursor.Current = Cursors.WaitCursor;
+         Log("Retrieve One Message Starting");
+         int n = dgDirectory.SelectedRows[0].Index;
+         ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
+         ijp.CallMessage(msgNo);
+         Log("Retrieve One Message Complete");
+         Cursor.Current = Cursors.Arrow;
+      }
+
+      private void cmdGetAll_Click(object sender, EventArgs e) {
+         Cursor.Current = Cursors.WaitCursor;
+         Log("Retrieve All Messages Starting");
+         MsgToXml mtx = new MsgToXml();
+         for (int i = 0; i < dgDirectory.SelectedRows.Count; i++) {
+            int n = dgDirectory.SelectedRows[i].Index;
+            ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
+            Log($"Getting message # {msgNo}");
+            ijp.CallMessage(msgNo);
+            IJPMessage m = (IJPMessage)ijp.GetMessage();
+            string xml = mtx.RetrieveXML(m, ijp);
+            string fileName = Path.Combine(txtMessageFolder.Text, (string)dgDirectory.Rows[n].Cells[2].Value) + ".xml";
+            File.WriteAllText(fileName, xml);
+         }
+         mtx = null;
+         Log("Retrieve All Messages Complete");
+         Cursor.Current = Cursors.Arrow;
       }
 
       #endregion
@@ -457,21 +534,25 @@ namespace IJPLib_Test {
          }
       }
 
-      private void Log(string s) {
+      public void Log(string s) {
          lstLogs.Items.Add(s);
          lstLogs.Update();
       }
 
       private void setButtonEnables() {
          bool connected = ijp != null;
+         bool IOPossible = connected && comOn == IJPOnlineStatus.Online;
          // These must connect first
          cmdComOnOff.Enabled = connected;
          cmdComOnOff.Text = comOn == IJPOnlineStatus.Online ? "Com Off" : "Com On";
-         cmdGetViews.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
-         cmdGetXML.Enabled = connected && comOn == IJPOnlineStatus.Online || message != null;
+         cmdGetViews.Enabled = IOPossible || message != null;
+         cmdGetXML.Enabled = IOPossible || message != null;
+         cmdGetMsgs.Enabled = IOPossible;
+         cmdGetOne.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
+         cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
 
-         cmdRunHardCodedTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectHardCodedTest.SelectedIndex >= 0;
-         cmdRunXMLTest.Enabled = comOn == IJPOnlineStatus.Online && cbSelectXMLTest.SelectedIndex >= 0;
+         cmdRunHardCodedTest.Enabled = IOPossible && cbSelectHardCodedTest.SelectedIndex >= 0;
+         cmdRunXMLTest.Enabled = IOPossible && cbSelectXMLTest.SelectedIndex >= 0;
 
          switch (tclIJPLib.SelectedIndex) {
             case 0:

@@ -88,6 +88,7 @@ namespace IJPLib_Test {
             }
 
          } catch (Exception e1) {
+            Log($"XML To Msg Failed == {e1}");
             success = false;
          } finally {
 

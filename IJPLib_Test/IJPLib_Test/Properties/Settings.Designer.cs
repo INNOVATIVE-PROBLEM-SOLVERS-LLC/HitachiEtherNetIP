@@ -46,5 +46,17 @@ namespace IJPLib_Test.Properties {
                 this["MessageFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\GitHubEtherNetIP\\Messages\\Log")]
+        public string LogFolder {
+            get {
+                return ((string)(this["LogFolder"]));
+            }
+            set {
+                this["LogFolder"] = value;
+            }
+        }
     }
 }
