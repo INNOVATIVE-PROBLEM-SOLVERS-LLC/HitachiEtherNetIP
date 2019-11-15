@@ -637,12 +637,6 @@ namespace IJPLib_Test {
       // Resolve differences between IJPLib and EtherNet/IP text syntax
       private string FormatText(string s) {
          string result = string.Empty;
-         int first = s.IndexOf("{");
-         int last = s.LastIndexOf("}");
-         // This does not work for "{E}" or "{F}" for output for EtherNet/IP
-         if (first >= 0 && last > first) {
-            s = s.Substring(0, first) + "{" + s.Substring(first, last - first) + "}" + s.Substring(last);
-         }
          for (int i = 0; i < s.Length; i++) {
             char c = s[i];
             if (c >= IJPTest.FirstFixedUP && c <= IJPTest.LastFixedUP) {

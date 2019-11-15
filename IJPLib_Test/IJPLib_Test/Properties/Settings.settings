@@ -8,5 +8,8 @@
     <Setting Name="MessageFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\GitHubEtherNetIP\Messages</Value>
     </Setting>
+    <Setting Name="LogFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\GitHubEtherNetIP\Messages\Log</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
