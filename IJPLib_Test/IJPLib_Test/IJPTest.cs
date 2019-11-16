@@ -354,11 +354,13 @@ namespace IJPLib_Test {
          for (int i = 0; i < dgDirectory.SelectedRows.Count; i++) {
             int n = dgDirectory.SelectedRows[i].Index;
             ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
+            byte grpNo = Convert.ToByte(dgDirectory.Rows[n].Cells[1].Value);
+            string nickName = (string)dgDirectory.Rows[n].Cells[2].Value;
             Log($"Getting message # {msgNo}");
             ijp.CallMessage(msgNo);
             IJPMessage m = (IJPMessage)ijp.GetMessage();
-            string xml = mtx.RetrieveXML(m, ijp);
-            string fileName = Path.Combine(txtMessageFolder.Text, (string)dgDirectory.Rows[n].Cells[2].Value) + ".xml";
+            string xml = mtx.RetrieveXML(m, ijp, new IJPMessageInfo(msgNo, grpNo, nickName));
+            string fileName = Path.Combine(txtMessageFolder.Text, nickName) + ".xml";
             File.WriteAllText(fileName, xml);
          }
          mtx = null;

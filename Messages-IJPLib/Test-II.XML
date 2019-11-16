@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Label Version="1">
   <Printer Make="Hitachi">
     <PrintHead Orientation="Reverse_Forward" />
@@ -7,12 +8,13 @@
     <PrintStartDelay Forward="0" Reverse="0" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
     <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <ClockSystem HourMode24="True" />
     <Substitution Delimiter="/" StartYear="2019" RuleNumber="1" RuleName="REP01       ">
       <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
       <Rule Type="Month" Base="11">NOV/DEC</Rule>
     </Substitution>
   </Printer>
-  <Message Layout="SeparateSetup">
+  <Message Layout="SeparateSetup" Registration="23" GroupNumber="2" GroupName="Firestone2" Name="Hello">
     <Column InterLineSpacing="1">
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />

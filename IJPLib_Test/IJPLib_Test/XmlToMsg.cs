@@ -77,9 +77,10 @@ namespace IJPLib_Test {
                success = LoadPrinterSettings(m, prnt);            // Send printer wide settings
             }
 
-            XmlNode objs = xmlDoc.SelectSingleNode("Label/Message");
-            if (success && objs != null) {
-               success = AllocateRowsColumns(m, objs.ChildNodes); // Allocate rows and columns
+            XmlNode msg = xmlDoc.SelectSingleNode("Label/Message");
+            if (success && msg != null) {
+               m.Nickname = GetXmlAttr(msg, "Name");
+               success = AllocateRowsColumns(m, msg.ChildNodes); // Allocate rows and columns
             }
 
             // Send it to the printer (Maybe)
@@ -136,6 +137,11 @@ namespace IJPLib_Test {
                case "Substitution":
                   if (ijp != null) {
                      LoadBuildSubstitution(c);
+                  }
+                  break;
+               case "ClockSystem":
+                  if(ijp != null && bool.TryParse(GetXmlAttr(c, ""), out bool cs)) {
+                     ijp.SetHourMode24(cs);
                   }
                   break;
                case "TimeCount":
@@ -261,7 +267,7 @@ namespace IJPLib_Test {
       }
 
       // Build the structure and load Items
-      private bool AllocateRowsColumns(IJPMessage m, XmlNodeList objs) {
+      private bool AllocateRowsColumns(IJPMessage m, XmlNodeList msg) {
          XmlNode n;
          Items = new List<XmlNode>();
          bool success = true;
@@ -270,7 +276,7 @@ namespace IJPLib_Test {
          int maxCol = 0;
 
          // Count the rows and columns
-         foreach (XmlNode col in objs) {
+         foreach (XmlNode col in msg) {
             if (col is XmlWhitespace)
                continue;
             switch (col.Name) {
