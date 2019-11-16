@@ -92,7 +92,7 @@ namespace IJPLib_Test {
 
       #region Message to XML 
 
-      public string RetrieveXML(IJPMessage m, IJP ijp = null) {
+      public string RetrieveXML(IJPMessage m, IJP ijp = null, IJPMessageInfo mInfo = null) {
          string xml = string.Empty;
          ItemType itemType;
          int calBlockNumber = 0;
@@ -109,6 +109,13 @@ namespace IJPLib_Test {
                      writer.WriteStartElement("Message"); // Start Message
                      {
                         writer.WriteAttributeString("Layout", m.FormatSetup.ToString());
+                        if (mInfo == null) {
+                           writer.WriteAttributeString("Name", m.Nickname);
+                        } else {
+                           writer.WriteAttributeString("Registration", mInfo.RegistrationNumber.ToString());
+                           writer.WriteAttributeString("GroupNumber", mInfo.GroupNumber.ToString());
+                           writer.WriteAttributeString("Name", mInfo.Nickname);
+                        }
                         int item = 0;
                         while (item < m.Items.Count) {
                            writer.WriteStartElement("Column"); // Start Column
@@ -159,24 +166,7 @@ namespace IJPLib_Test {
                writer.WriteEndDocument();
                writer.Flush();
                ms.Position = 0;
-
                xml = new StreamReader(ms).ReadToEnd();
-               int xmlStart = 0;
-               int xmlEnd = 0;
-               // Can be called with a Filename or XML text
-               xmlStart = xml.IndexOf("<Label");
-               if (xmlStart == -1) {
-                  xml = File.ReadAllText(xml);
-                  xmlStart = xml.IndexOf("<Label");
-               }
-               // No label found, exit
-               if (xmlStart == -1) {
-                  return string.Empty;
-               }
-               xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
-               if (xmlEnd > 0) {
-                  xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
-               }
             }
          }
          return xml;
@@ -243,6 +233,11 @@ namespace IJPLib_Test {
             writer.WriteEndElement(); // InkStream
 
             if (ijp != null) {
+               writer.WriteStartElement("ClockSystem");
+               {
+                  writer.WriteAttributeString("HourMode24", ijp.GetHourMode24().ToString());
+               }
+               writer.WriteEndElement(); // ClockSystem
                RetrieveSubstitutions(writer, m, ijp);
                RetrieveUserPatternSettings(writer, m, ijp);
             }
