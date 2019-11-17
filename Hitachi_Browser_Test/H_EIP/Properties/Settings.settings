@@ -8,5 +8,8 @@
     <Setting Name="Port" Type="System.String" Scope="User">
       <Value Profile="(Default)">44818</Value>
     </Setting>
+    <Setting Name="MessageFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Temp\EIP</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

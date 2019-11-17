@@ -81,5 +81,17 @@ namespace H_EIP {
          }
          EIP.EndSession();      // Must be outside the StartSession if block
       }
+
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtMessageFolder.Text = dlg.SelectedPath;
+         }
+      }
+
+      public void Log(string msg) {
+         EIP?.LogIt(msg);
+      }
+
    }
 }

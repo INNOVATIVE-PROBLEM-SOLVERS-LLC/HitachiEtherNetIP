@@ -31,13 +31,16 @@
          this.lblPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
          this.txtPort = new System.Windows.Forms.TextBox();
+         this.lblMessageFolder = new System.Windows.Forms.Label();
+         this.txtMessageFolder = new System.Windows.Forms.TextBox();
+         this.cmdBrowse = new System.Windows.Forms.Button();
          this.SuspendLayout();
          // 
          // cmdSendToPrinter
          // 
-         this.cmdSendToPrinter.Location = new System.Drawing.Point(21, 61);
+         this.cmdSendToPrinter.Location = new System.Drawing.Point(24, 123);
          this.cmdSendToPrinter.Name = "cmdSendToPrinter";
-         this.cmdSendToPrinter.Size = new System.Drawing.Size(173, 45);
+         this.cmdSendToPrinter.Size = new System.Drawing.Size(173, 34);
          this.cmdSendToPrinter.TabIndex = 0;
          this.cmdSendToPrinter.Text = "Run Test";
          this.cmdSendToPrinter.UseVisualStyleBackColor = true;
@@ -45,9 +48,9 @@
          // 
          // cmdViewTraffic
          // 
-         this.cmdViewTraffic.Location = new System.Drawing.Point(21, 112);
+         this.cmdViewTraffic.Location = new System.Drawing.Point(24, 174);
          this.cmdViewTraffic.Name = "cmdViewTraffic";
-         this.cmdViewTraffic.Size = new System.Drawing.Size(173, 45);
+         this.cmdViewTraffic.Size = new System.Drawing.Size(173, 34);
          this.cmdViewTraffic.TabIndex = 1;
          this.cmdViewTraffic.Text = "View Traffic";
          this.cmdViewTraffic.UseVisualStyleBackColor = true;
@@ -55,9 +58,9 @@
          // 
          // cmdStartBrowser
          // 
-         this.cmdStartBrowser.Location = new System.Drawing.Point(209, 61);
+         this.cmdStartBrowser.Location = new System.Drawing.Point(212, 123);
          this.cmdStartBrowser.Name = "cmdStartBrowser";
-         this.cmdStartBrowser.Size = new System.Drawing.Size(173, 45);
+         this.cmdStartBrowser.Size = new System.Drawing.Size(173, 34);
          this.cmdStartBrowser.TabIndex = 2;
          this.cmdStartBrowser.Text = "Start Browser";
          this.cmdStartBrowser.UseVisualStyleBackColor = true;
@@ -65,9 +68,9 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(209, 112);
+         this.cmdExit.Location = new System.Drawing.Point(212, 174);
          this.cmdExit.Name = "cmdExit";
-         this.cmdExit.Size = new System.Drawing.Size(173, 45);
+         this.cmdExit.Size = new System.Drawing.Size(173, 34);
          this.cmdExit.TabIndex = 3;
          this.cmdExit.Text = "Exit";
          this.cmdExit.UseVisualStyleBackColor = true;
@@ -110,11 +113,40 @@
          this.txtPort.Text = "44818";
          this.txtPort.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
+         // lblMessageFolder
+         // 
+         this.lblMessageFolder.Location = new System.Drawing.Point(24, 58);
+         this.lblMessageFolder.Name = "lblMessageFolder";
+         this.lblMessageFolder.Size = new System.Drawing.Size(170, 22);
+         this.lblMessageFolder.TabIndex = 8;
+         this.lblMessageFolder.Text = "Message Folder";
+         // 
+         // txtMessageFolder
+         // 
+         this.txtMessageFolder.Location = new System.Drawing.Point(27, 83);
+         this.txtMessageFolder.Name = "txtMessageFolder";
+         this.txtMessageFolder.Size = new System.Drawing.Size(269, 22);
+         this.txtMessageFolder.TabIndex = 9;
+         this.txtMessageFolder.Text = "C:\\Temp\\EIP";
+         // 
+         // cmdBrowse
+         // 
+         this.cmdBrowse.Location = new System.Drawing.Point(302, 75);
+         this.cmdBrowse.Name = "cmdBrowse";
+         this.cmdBrowse.Size = new System.Drawing.Size(81, 31);
+         this.cmdBrowse.TabIndex = 10;
+         this.cmdBrowse.Text = " Browse";
+         this.cmdBrowse.UseVisualStyleBackColor = true;
+         this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
+         // 
          // TestEIP
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(394, 175);
+         this.ClientSize = new System.Drawing.Size(394, 230);
+         this.Controls.Add(this.cmdBrowse);
+         this.Controls.Add(this.txtMessageFolder);
+         this.Controls.Add(this.lblMessageFolder);
          this.Controls.Add(this.txtPort);
          this.Controls.Add(this.txtIPAddress);
          this.Controls.Add(this.lblPort);
@@ -142,6 +174,9 @@
       private System.Windows.Forms.Label lblPort;
       public System.Windows.Forms.TextBox txtIPAddress;
       public System.Windows.Forms.TextBox txtPort;
+      private System.Windows.Forms.Label lblMessageFolder;
+      public System.Windows.Forms.TextBox txtMessageFolder;
+      private System.Windows.Forms.Button cmdBrowse;
    }
 }
 

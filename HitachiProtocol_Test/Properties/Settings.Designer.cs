@@ -118,5 +118,17 @@ namespace HitachiProtocol_Test.Properties {
                 this["Tab"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Temp\\EIP")]
+        public string MessageFolder {
+            get {
+                return ((string)(this["MessageFolder"]));
+            }
+            set {
+                this["MessageFolder"] = value;
+            }
+        }
     }
 }
