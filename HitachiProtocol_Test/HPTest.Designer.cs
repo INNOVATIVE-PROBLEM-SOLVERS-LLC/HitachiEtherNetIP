@@ -41,6 +41,8 @@
          this.lblPrinterParity = new System.Windows.Forms.Label();
          this.lblPrinterDataBits = new System.Windows.Forms.Label();
          this.lblPrinterBaudRate = new System.Windows.Forms.Label();
+         this.tabSimulated = new System.Windows.Forms.TabPage();
+         this.label1 = new System.Windows.Forms.Label();
          this.cmdConnect = new System.Windows.Forms.Button();
          this.cmdDisconnect = new System.Windows.Forms.Button();
          this.cmdSend = new System.Windows.Forms.Button();
@@ -49,13 +51,14 @@
          this.TrafficMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmTraffic = new System.Windows.Forms.ToolStripMenuItem();
          this.cmLoadInNotepad = new System.Windows.Forms.ToolStripMenuItem();
-         this.tabSimulated = new System.Windows.Forms.TabPage();
-         this.label1 = new System.Windows.Forms.Label();
+         this.llblMessageFolder = new System.Windows.Forms.Label();
+         this.txtMessageFolder = new System.Windows.Forms.TextBox();
+         this.cmdBrowse = new System.Windows.Forms.Button();
          this.ConfigureConnection.SuspendLayout();
          this.tabEthernet.SuspendLayout();
          this.tabSerial.SuspendLayout();
-         this.TrafficMenu.SuspendLayout();
          this.tabSimulated.SuspendLayout();
+         this.TrafficMenu.SuspendLayout();
          this.SuspendLayout();
          // 
          // ConfigureConnection
@@ -63,7 +66,7 @@
          this.ConfigureConnection.Controls.Add(this.tabEthernet);
          this.ConfigureConnection.Controls.Add(this.tabSerial);
          this.ConfigureConnection.Controls.Add(this.tabSimulated);
-         this.ConfigureConnection.Location = new System.Drawing.Point(21, 12);
+         this.ConfigureConnection.Location = new System.Drawing.Point(17, 50);
          this.ConfigureConnection.Name = "ConfigureConnection";
          this.ConfigureConnection.SelectedIndex = 0;
          this.ConfigureConnection.Size = new System.Drawing.Size(264, 199);
@@ -286,9 +289,27 @@
          this.lblPrinterBaudRate.Text = "Baud Rate";
          this.lblPrinterBaudRate.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
+         // tabSimulated
+         // 
+         this.tabSimulated.Controls.Add(this.label1);
+         this.tabSimulated.Location = new System.Drawing.Point(4, 25);
+         this.tabSimulated.Name = "tabSimulated";
+         this.tabSimulated.Size = new System.Drawing.Size(256, 170);
+         this.tabSimulated.TabIndex = 2;
+         this.tabSimulated.Text = "Simulated";
+         this.tabSimulated.UseVisualStyleBackColor = true;
+         // 
+         // label1
+         // 
+         this.label1.Location = new System.Drawing.Point(21, 22);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(217, 23);
+         this.label1.TabIndex = 6;
+         this.label1.Text = "No parameters needed!";
+         // 
          // cmdConnect
          // 
-         this.cmdConnect.Location = new System.Drawing.Point(317, 37);
+         this.cmdConnect.Location = new System.Drawing.Point(313, 75);
          this.cmdConnect.Name = "cmdConnect";
          this.cmdConnect.Size = new System.Drawing.Size(163, 39);
          this.cmdConnect.TabIndex = 1;
@@ -298,7 +319,7 @@
          // 
          // cmdDisconnect
          // 
-         this.cmdDisconnect.Location = new System.Drawing.Point(317, 82);
+         this.cmdDisconnect.Location = new System.Drawing.Point(313, 120);
          this.cmdDisconnect.Name = "cmdDisconnect";
          this.cmdDisconnect.Size = new System.Drawing.Size(163, 39);
          this.cmdDisconnect.TabIndex = 2;
@@ -308,7 +329,7 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(317, 127);
+         this.cmdSend.Location = new System.Drawing.Point(313, 165);
          this.cmdSend.Name = "cmdSend";
          this.cmdSend.Size = new System.Drawing.Size(163, 39);
          this.cmdSend.TabIndex = 3;
@@ -318,7 +339,7 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(317, 172);
+         this.cmdExit.Location = new System.Drawing.Point(313, 210);
          this.cmdExit.Name = "cmdExit";
          this.cmdExit.Size = new System.Drawing.Size(163, 39);
          this.cmdExit.TabIndex = 4;
@@ -331,7 +352,7 @@
          this.lbTraffic.ContextMenuStrip = this.TrafficMenu;
          this.lbTraffic.FormattingEnabled = true;
          this.lbTraffic.ItemHeight = 16;
-         this.lbTraffic.Location = new System.Drawing.Point(21, 222);
+         this.lbTraffic.Location = new System.Drawing.Point(17, 260);
          this.lbTraffic.Name = "lbTraffic";
          this.lbTraffic.Size = new System.Drawing.Size(459, 164);
          this.lbTraffic.TabIndex = 5;
@@ -359,29 +380,45 @@
          this.cmLoadInNotepad.Text = "Load In NotePad";
          this.cmLoadInNotepad.Click += new System.EventHandler(this.cmLoadInNotepad_Click);
          // 
-         // tabSimulated
+         // llblMessageFolder
          // 
-         this.tabSimulated.Controls.Add(this.label1);
-         this.tabSimulated.Location = new System.Drawing.Point(4, 25);
-         this.tabSimulated.Name = "tabSimulated";
-         this.tabSimulated.Size = new System.Drawing.Size(256, 170);
-         this.tabSimulated.TabIndex = 2;
-         this.tabSimulated.Text = "Simulated";
-         this.tabSimulated.UseVisualStyleBackColor = true;
+         this.llblMessageFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.llblMessageFolder.Location = new System.Drawing.Point(18, 9);
+         this.llblMessageFolder.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+         this.llblMessageFolder.Name = "llblMessageFolder";
+         this.llblMessageFolder.Size = new System.Drawing.Size(135, 25);
+         this.llblMessageFolder.TabIndex = 31;
+         this.llblMessageFolder.Text = "Message Folder";
+         this.llblMessageFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
-         // label1
+         // txtMessageFolder
          // 
-         this.label1.Location = new System.Drawing.Point(21, 22);
-         this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(217, 23);
-         this.label1.TabIndex = 6;
-         this.label1.Text = "No parameters needed!";
+         this.txtMessageFolder.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.txtMessageFolder.Location = new System.Drawing.Point(161, 9);
+         this.txtMessageFolder.Margin = new System.Windows.Forms.Padding(4);
+         this.txtMessageFolder.Name = "txtMessageFolder";
+         this.txtMessageFolder.Size = new System.Drawing.Size(247, 22);
+         this.txtMessageFolder.TabIndex = 33;
+         this.txtMessageFolder.Text = "C:\\Temp\\EIP";
+         // 
+         // cmdBrowse
+         // 
+         this.cmdBrowse.Location = new System.Drawing.Point(415, 9);
+         this.cmdBrowse.Name = "cmdBrowse";
+         this.cmdBrowse.Size = new System.Drawing.Size(78, 40);
+         this.cmdBrowse.TabIndex = 34;
+         this.cmdBrowse.Text = "Browse";
+         this.cmdBrowse.UseVisualStyleBackColor = true;
+         this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
          // 
          // HPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(505, 402);
+         this.ClientSize = new System.Drawing.Size(505, 447);
+         this.Controls.Add(this.cmdBrowse);
+         this.Controls.Add(this.txtMessageFolder);
+         this.Controls.Add(this.llblMessageFolder);
          this.Controls.Add(this.lbTraffic);
          this.Controls.Add(this.cmdExit);
          this.Controls.Add(this.cmdSend);
@@ -396,9 +433,10 @@
          this.tabEthernet.ResumeLayout(false);
          this.tabEthernet.PerformLayout();
          this.tabSerial.ResumeLayout(false);
-         this.TrafficMenu.ResumeLayout(false);
          this.tabSimulated.ResumeLayout(false);
+         this.TrafficMenu.ResumeLayout(false);
          this.ResumeLayout(false);
+         this.PerformLayout();
 
       }
 
@@ -431,6 +469,9 @@
       private System.Windows.Forms.ToolStripMenuItem cmLoadInNotepad;
       private System.Windows.Forms.TabPage tabSimulated;
       private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.Label llblMessageFolder;
+      private System.Windows.Forms.Button cmdBrowse;
+      public System.Windows.Forms.TextBox txtMessageFolder;
    }
 }
 

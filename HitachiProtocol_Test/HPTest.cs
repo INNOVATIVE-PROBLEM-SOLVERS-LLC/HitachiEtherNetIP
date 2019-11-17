@@ -160,7 +160,7 @@ namespace HitachiProtocol_Test {
 
       #region Event Processing
 
-      void HP_Log(HitachiPrinter p, HPEventArgs e) {
+      public void HP_Log(HitachiPrinter p, HPEventArgs e) {
          lbTraffic.Items.Add(HP.Translate(e.Message));
       }
 
@@ -289,6 +289,7 @@ namespace HitachiProtocol_Test {
          cbPrinterDataBits.Text = p.SerialDataBits;
          cbPrinterParity.Text = p.SerialParity;
          cbPrinterStopBits.Text = p.SerialStopBits;
+         txtMessageFolder.Text = p.MessageFolder;
       }
 
       void SaveSettings() {
@@ -303,6 +304,7 @@ namespace HitachiProtocol_Test {
          p.SerialDataBits = cbPrinterDataBits.Text;
          p.SerialParity = cbPrinterParity.Text;
          p.SerialStopBits = cbPrinterStopBits.Text;
+         p.MessageFolder = txtMessageFolder.Text;
          p.Save();
       }
 
@@ -344,5 +346,11 @@ namespace HitachiProtocol_Test {
 
       #endregion
 
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtMessageFolder.Text = dlg.SelectedPath;
+         }
+      }
    }
 }
