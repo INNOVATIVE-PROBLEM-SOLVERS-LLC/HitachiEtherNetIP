@@ -15,8 +15,8 @@ using System.Windows.Forms;
 using System.Xml;
 using HIES.IJP.RX;
 
-namespace IJPLib_Test {
-   class XmlToMsg {
+namespace IJPLibXML {
+   public class XmlToMsg {
 
       #region Data Declarations
 
@@ -673,7 +673,7 @@ namespace IJPLib_Test {
             if ((end = result.IndexOf("}", start)) > 0) {
                string[] t = result.Substring(start + 1, end - start - 1).Split('/');
                if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 200) {
-                  result = result.Substring(0, start) + (char)(n + IJPTest.FirstFixedUP) + result.Substring(end + 1);
+                  result = result.Substring(0, start) + (char)(n + IJPLib_XML.FirstFixedUP) + result.Substring(end + 1);
                }
             }
          }
@@ -681,7 +681,7 @@ namespace IJPLib_Test {
             if ((end = result.IndexOf("}", start)) > 0) {
                string[] t = result.Substring(start + 1, end - start - 1).Split('/');
                if (t.Length == 2 && int.TryParse(t[1], out n) && n >= 0 && n < 50) {
-                  result = result.Substring(0, start) + (char)(n + IJPTest.FirstFreeUP) + result.Substring(end + 1);
+                  result = result.Substring(0, start) + (char)(n + IJPLib_XML.FirstFreeUP) + result.Substring(end + 1);
                }
             }
          }

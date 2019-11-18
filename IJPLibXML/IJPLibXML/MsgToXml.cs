@@ -12,8 +12,8 @@ using System.Windows.Forms;
 using System.Xml;
 using HIES.IJP.RX;
 
-namespace IJPLib_Test {
-   class MsgToXml {
+namespace IJPLibXML {
+   public class MsgToXml {
 
       #region Data Declarations
 
@@ -424,10 +424,10 @@ namespace IJPLib_Test {
             string s = m.Items[i].Text;
             for (int n = 0; n < s.Length; n++) {
                char c = s[n];
-               if (c >= IJPTest.FirstFixedUP && c <= IJPTest.LastFixedUP) {
-                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - IJPTest.FirstFixedUP });
-               } else if (c >= IJPTest.FirstFreeUP && c <= IJPTest.LastFreeUP) {
-                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - IJPTest.FirstFreeUP });
+               if (c >= IJPLib_XML.FirstFixedUP && c <= IJPLib_XML.LastFixedUP) {
+                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFixedUP });
+               } else if (c >= IJPLib_XML.FirstFreeUP && c <= IJPLib_XML.LastFreeUP) {
+                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFreeUP });
                }
             }
 
@@ -444,7 +444,7 @@ namespace IJPLib_Test {
             // Output the remainder
             writer.WriteStartElement("Logos"); // Start Logos
             {
-               writer.WriteAttributeString("Folder", Properties.Settings.Default.MessageFolder);
+               //writer.WriteAttributeString("Folder", Properties.Settings.Default.MessageFolder);
                // Now write the logos
                IIJPUserPattern up;
                for (int i = 0; i < neededLogos.Count; i++) {
@@ -634,10 +634,10 @@ namespace IJPLib_Test {
          string result = string.Empty;
          for (int i = 0; i < s.Length; i++) {
             char c = s[i];
-            if (c >= IJPTest.FirstFixedUP && c <= IJPTest.LastFixedUP) {
-               result += $"{{X/{c - IJPTest.FirstFixedUP}}}";
-            } else if (c >= IJPTest.FirstFreeUP && c <= IJPTest.LastFreeUP) {
-               result += $"{{Z/{c - IJPTest.FirstFreeUP}}}";
+            if (c >= IJPLib_XML.FirstFixedUP && c <= IJPLib_XML.LastFixedUP) {
+               result += $"{{X/{c - IJPLib_XML.FirstFixedUP}}}";
+            } else if (c >= IJPLib_XML.FirstFreeUP && c <= IJPLib_XML.LastFreeUP) {
+               result += $"{{Z/{c - IJPLib_XML.FirstFreeUP}}}";
             } else {
                result += s.Substring(i, 1);
             }

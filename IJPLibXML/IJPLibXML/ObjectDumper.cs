@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
-namespace IJPLib_Test {
+namespace IJPLibXML {
    public class ObjectDumper {
       TreeNode root = null;
       TreeNode rootBase = null;
