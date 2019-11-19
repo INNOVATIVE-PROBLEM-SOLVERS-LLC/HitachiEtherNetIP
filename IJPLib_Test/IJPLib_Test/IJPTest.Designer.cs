@@ -39,12 +39,17 @@
          this.txtXMLIndented = new System.Windows.Forms.TextBox();
          this.tabXMLTree = new System.Windows.Forms.TabPage();
          this.tvXMLTree = new System.Windows.Forms.TreeView();
+         this.tabDirectory = new System.Windows.Forms.TabPage();
+         this.cmdGetAll = new System.Windows.Forms.Button();
+         this.cmdGetOne = new System.Windows.Forms.Button();
+         this.dgDirectory = new System.Windows.Forms.DataGridView();
+         this.colMsgNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colGroupNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.cmdGetDirectory = new System.Windows.Forms.Button();
          this.cmdGetViews = new System.Windows.Forms.Button();
          this.cmdGetXML = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
-         this.lblSelectHardCodedTest = new System.Windows.Forms.Label();
-         this.cbSelectHardCodedTest = new System.Windows.Forms.ComboBox();
-         this.cmdRunHardCodedTest = new System.Windows.Forms.Button();
          this.lstLogs = new System.Windows.Forms.ListBox();
          this.cmErrLog = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmErrLogToNotepad = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,22 +65,17 @@
          this.cmdLogBrowse = new System.Windows.Forms.Button();
          this.txtLogFolder = new System.Windows.Forms.TextBox();
          this.lblLogFolder = new System.Windows.Forms.Label();
-         this.tabDirectory = new System.Windows.Forms.TabPage();
-         this.cmdGetMsgs = new System.Windows.Forms.Button();
-         this.dgDirectory = new System.Windows.Forms.DataGridView();
-         this.cmdGetOne = new System.Windows.Forms.Button();
-         this.colMsgNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.colGroupNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.cmdGetAll = new System.Windows.Forms.Button();
+         this.cmdGetMessage = new System.Windows.Forms.Button();
+         this.cmdNewMessage = new System.Windows.Forms.Button();
+         this.cmdCancel = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
          this.tabXMLIndented.SuspendLayout();
          this.tabXMLTree.SuspendLayout();
-         this.cmErrLog.SuspendLayout();
          this.tabDirectory.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).BeginInit();
+         this.cmErrLog.SuspendLayout();
          this.SuspendLayout();
          // 
          // cmdComOnOff
@@ -198,9 +198,92 @@
          this.tvXMLTree.Size = new System.Drawing.Size(603, 119);
          this.tvXMLTree.TabIndex = 1;
          // 
+         // tabDirectory
+         // 
+         this.tabDirectory.Controls.Add(this.cmdGetAll);
+         this.tabDirectory.Controls.Add(this.cmdGetOne);
+         this.tabDirectory.Controls.Add(this.dgDirectory);
+         this.tabDirectory.Controls.Add(this.cmdGetDirectory);
+         this.tabDirectory.Location = new System.Drawing.Point(4, 25);
+         this.tabDirectory.Name = "tabDirectory";
+         this.tabDirectory.Size = new System.Drawing.Size(667, 166);
+         this.tabDirectory.TabIndex = 5;
+         this.tabDirectory.Text = "Directory";
+         this.tabDirectory.UseVisualStyleBackColor = true;
+         // 
+         // cmdGetAll
+         // 
+         this.cmdGetAll.Location = new System.Drawing.Point(492, 99);
+         this.cmdGetAll.Name = "cmdGetAll";
+         this.cmdGetAll.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetAll.TabIndex = 4;
+         this.cmdGetAll.Text = "Get All Messages";
+         this.cmdGetAll.UseVisualStyleBackColor = true;
+         this.cmdGetAll.Click += new System.EventHandler(this.cmdGetAll_Click);
+         // 
+         // cmdGetOne
+         // 
+         this.cmdGetOne.Location = new System.Drawing.Point(492, 63);
+         this.cmdGetOne.Name = "cmdGetOne";
+         this.cmdGetOne.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetOne.TabIndex = 3;
+         this.cmdGetOne.Text = "Get One Message";
+         this.cmdGetOne.UseVisualStyleBackColor = true;
+         this.cmdGetOne.Click += new System.EventHandler(this.cmdGetOne_Click);
+         // 
+         // dgDirectory
+         // 
+         this.dgDirectory.AllowUserToAddRows = false;
+         this.dgDirectory.AllowUserToDeleteRows = false;
+         this.dgDirectory.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+         this.dgDirectory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgDirectory.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colMsgNo,
+            this.colGroupNo,
+            this.colName});
+         this.dgDirectory.Location = new System.Drawing.Point(26, 36);
+         this.dgDirectory.Name = "dgDirectory";
+         this.dgDirectory.RowTemplate.Height = 24;
+         this.dgDirectory.Size = new System.Drawing.Size(362, 114);
+         this.dgDirectory.TabIndex = 2;
+         this.dgDirectory.SelectionChanged += new System.EventHandler(this.dgDirectory_SelectionChanged);
+         // 
+         // colMsgNo
+         // 
+         this.colMsgNo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+         dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.colMsgNo.DefaultCellStyle = dataGridViewCellStyle1;
+         this.colMsgNo.HeaderText = "Msg #";
+         this.colMsgNo.Name = "colMsgNo";
+         this.colMsgNo.Width = 75;
+         // 
+         // colGroupNo
+         // 
+         dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.colGroupNo.DefaultCellStyle = dataGridViewCellStyle2;
+         this.colGroupNo.HeaderText = "Group #";
+         this.colGroupNo.Name = "colGroupNo";
+         this.colGroupNo.Width = 89;
+         // 
+         // colName
+         // 
+         this.colName.HeaderText = "Name";
+         this.colName.Name = "colName";
+         this.colName.Width = 74;
+         // 
+         // cmdGetDirectory
+         // 
+         this.cmdGetDirectory.Location = new System.Drawing.Point(492, 27);
+         this.cmdGetDirectory.Name = "cmdGetDirectory";
+         this.cmdGetDirectory.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetDirectory.TabIndex = 1;
+         this.cmdGetDirectory.Text = "Get Directory";
+         this.cmdGetDirectory.UseVisualStyleBackColor = true;
+         this.cmdGetDirectory.Click += new System.EventHandler(this.cmdGetDirectory_Click);
+         // 
          // cmdGetViews
          // 
-         this.cmdGetViews.Location = new System.Drawing.Point(721, 197);
+         this.cmdGetViews.Location = new System.Drawing.Point(721, 275);
          this.cmdGetViews.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetViews.Name = "cmdGetViews";
          this.cmdGetViews.Size = new System.Drawing.Size(100, 31);
@@ -211,7 +294,7 @@
          // 
          // cmdGetXML
          // 
-         this.cmdGetXML.Location = new System.Drawing.Point(721, 158);
+         this.cmdGetXML.Location = new System.Drawing.Point(721, 236);
          this.cmdGetXML.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetXML.Name = "cmdGetXML";
          this.cmdGetXML.Size = new System.Drawing.Size(100, 31);
@@ -222,7 +305,7 @@
          // 
          // cmdSaveAs
          // 
-         this.cmdSaveAs.Location = new System.Drawing.Point(721, 236);
+         this.cmdSaveAs.Location = new System.Drawing.Point(721, 314);
          this.cmdSaveAs.Margin = new System.Windows.Forms.Padding(4);
          this.cmdSaveAs.Name = "cmdSaveAs";
          this.cmdSaveAs.Size = new System.Drawing.Size(100, 31);
@@ -230,34 +313,6 @@
          this.cmdSaveAs.Text = "Save As";
          this.cmdSaveAs.UseVisualStyleBackColor = true;
          this.cmdSaveAs.Click += new System.EventHandler(this.ccmdSaveAs_Click);
-         // 
-         // lblSelectHardCodedTest
-         // 
-         this.lblSelectHardCodedTest.Location = new System.Drawing.Point(326, 292);
-         this.lblSelectHardCodedTest.Name = "lblSelectHardCodedTest";
-         this.lblSelectHardCodedTest.Size = new System.Drawing.Size(167, 28);
-         this.lblSelectHardCodedTest.TabIndex = 2;
-         this.lblSelectHardCodedTest.Text = "Select Hard Coded Test";
-         this.lblSelectHardCodedTest.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // cbSelectHardCodedTest
-         // 
-         this.cbSelectHardCodedTest.FormattingEnabled = true;
-         this.cbSelectHardCodedTest.Location = new System.Drawing.Point(321, 323);
-         this.cbSelectHardCodedTest.Name = "cbSelectHardCodedTest";
-         this.cbSelectHardCodedTest.Size = new System.Drawing.Size(172, 24);
-         this.cbSelectHardCodedTest.TabIndex = 1;
-         this.cbSelectHardCodedTest.SelectedIndexChanged += new System.EventHandler(this.cbSelectTest_SelectedIndexChanged);
-         // 
-         // cmdRunHardCodedTest
-         // 
-         this.cmdRunHardCodedTest.Location = new System.Drawing.Point(321, 353);
-         this.cmdRunHardCodedTest.Name = "cmdRunHardCodedTest";
-         this.cmdRunHardCodedTest.Size = new System.Drawing.Size(171, 51);
-         this.cmdRunHardCodedTest.TabIndex = 0;
-         this.cmdRunHardCodedTest.Text = "Run Hard Coded Test";
-         this.cmdRunHardCodedTest.UseVisualStyleBackColor = true;
-         this.cmdRunHardCodedTest.Click += new System.EventHandler(this.cmdRunTest_Click);
          // 
          // lstLogs
          // 
@@ -322,7 +377,6 @@
          // 
          // lblMessageFolder
          // 
-         this.lblMessageFolder.AutoSize = true;
          this.lblMessageFolder.Location = new System.Drawing.Point(482, 26);
          this.lblMessageFolder.Name = "lblMessageFolder";
          this.lblMessageFolder.Size = new System.Drawing.Size(109, 17);
@@ -360,7 +414,7 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(721, 275);
+         this.cmdSend.Location = new System.Drawing.Point(721, 353);
          this.cmdSend.Margin = new System.Windows.Forms.Padding(4);
          this.cmdSend.Name = "cmdSend";
          this.cmdSend.Size = new System.Drawing.Size(100, 31);
@@ -388,7 +442,6 @@
          // 
          // lblLogFolder
          // 
-         this.lblLogFolder.AutoSize = true;
          this.lblLogFolder.Location = new System.Drawing.Point(482, 66);
          this.lblLogFolder.Name = "lblLogFolder";
          this.lblLogFolder.Size = new System.Drawing.Size(76, 17);
@@ -396,94 +449,47 @@
          this.lblLogFolder.Text = "Log Folder";
          this.lblLogFolder.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
-         // tabDirectory
+         // cmdGetMessage
          // 
-         this.tabDirectory.Controls.Add(this.cmdGetAll);
-         this.tabDirectory.Controls.Add(this.cmdGetOne);
-         this.tabDirectory.Controls.Add(this.dgDirectory);
-         this.tabDirectory.Controls.Add(this.cmdGetMsgs);
-         this.tabDirectory.Location = new System.Drawing.Point(4, 25);
-         this.tabDirectory.Name = "tabDirectory";
-         this.tabDirectory.Size = new System.Drawing.Size(667, 166);
-         this.tabDirectory.TabIndex = 5;
-         this.tabDirectory.Text = "Directory";
-         this.tabDirectory.UseVisualStyleBackColor = true;
+         this.cmdGetMessage.Location = new System.Drawing.Point(721, 197);
+         this.cmdGetMessage.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdGetMessage.Name = "cmdGetMessage";
+         this.cmdGetMessage.Size = new System.Drawing.Size(100, 31);
+         this.cmdGetMessage.TabIndex = 31;
+         this.cmdGetMessage.Text = "Get Message";
+         this.cmdGetMessage.UseVisualStyleBackColor = true;
+         this.cmdGetMessage.Click += new System.EventHandler(this.cmdGetMessage_Click);
          // 
-         // cmdGetMsgs
+         // cmdNewMessage
          // 
-         this.cmdGetMsgs.Location = new System.Drawing.Point(492, 27);
-         this.cmdGetMsgs.Name = "cmdGetMsgs";
-         this.cmdGetMsgs.Size = new System.Drawing.Size(141, 30);
-         this.cmdGetMsgs.TabIndex = 1;
-         this.cmdGetMsgs.Text = "Get Directory";
-         this.cmdGetMsgs.UseVisualStyleBackColor = true;
-         this.cmdGetMsgs.Click += new System.EventHandler(this.cmdGetMsgs_Click);
+         this.cmdNewMessage.Location = new System.Drawing.Point(721, 158);
+         this.cmdNewMessage.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdNewMessage.Name = "cmdNewMessage";
+         this.cmdNewMessage.Size = new System.Drawing.Size(100, 31);
+         this.cmdNewMessage.TabIndex = 32;
+         this.cmdNewMessage.Text = "New Message";
+         this.cmdNewMessage.UseVisualStyleBackColor = true;
+         this.cmdNewMessage.Click += new System.EventHandler(this.cmdNewMessage_Click);
          // 
-         // dgDirectory
+         // cmdCancel
          // 
-         this.dgDirectory.AllowUserToAddRows = false;
-         this.dgDirectory.AllowUserToDeleteRows = false;
-         this.dgDirectory.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-         this.dgDirectory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-         this.dgDirectory.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colMsgNo,
-            this.colGroupNo,
-            this.colName});
-         this.dgDirectory.Location = new System.Drawing.Point(26, 36);
-         this.dgDirectory.Name = "dgDirectory";
-         this.dgDirectory.RowTemplate.Height = 24;
-         this.dgDirectory.Size = new System.Drawing.Size(362, 114);
-         this.dgDirectory.TabIndex = 2;
-         this.dgDirectory.SelectionChanged += new System.EventHandler(this.dgDirectory_SelectionChanged);
-         // 
-         // cmdGetOne
-         // 
-         this.cmdGetOne.Location = new System.Drawing.Point(492, 63);
-         this.cmdGetOne.Name = "cmdGetOne";
-         this.cmdGetOne.Size = new System.Drawing.Size(141, 30);
-         this.cmdGetOne.TabIndex = 3;
-         this.cmdGetOne.Text = "Get One Message";
-         this.cmdGetOne.UseVisualStyleBackColor = true;
-         this.cmdGetOne.Click += new System.EventHandler(this.cmdGetOne_Click);
-         // 
-         // colMsgNo
-         // 
-         this.colMsgNo.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-         dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-         this.colMsgNo.DefaultCellStyle = dataGridViewCellStyle1;
-         this.colMsgNo.HeaderText = "Msg #";
-         this.colMsgNo.Name = "colMsgNo";
-         this.colMsgNo.Width = 75;
-         // 
-         // colGroupNo
-         // 
-         dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-         this.colGroupNo.DefaultCellStyle = dataGridViewCellStyle2;
-         this.colGroupNo.HeaderText = "Group #";
-         this.colGroupNo.Name = "colGroupNo";
-         this.colGroupNo.Width = 89;
-         // 
-         // colName
-         // 
-         this.colName.HeaderText = "Name";
-         this.colName.Name = "colName";
-         this.colName.Width = 74;
-         // 
-         // cmdGetAll
-         // 
-         this.cmdGetAll.Location = new System.Drawing.Point(492, 99);
-         this.cmdGetAll.Name = "cmdGetAll";
-         this.cmdGetAll.Size = new System.Drawing.Size(141, 30);
-         this.cmdGetAll.TabIndex = 4;
-         this.cmdGetAll.Text = "Get All Messages";
-         this.cmdGetAll.UseVisualStyleBackColor = true;
-         this.cmdGetAll.Click += new System.EventHandler(this.cmdGetAll_Click);
+         this.cmdCancel.Location = new System.Drawing.Point(721, 393);
+         this.cmdCancel.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdCancel.Name = "cmdCancel";
+         this.cmdCancel.Size = new System.Drawing.Size(100, 31);
+         this.cmdCancel.TabIndex = 33;
+         this.cmdCancel.Text = "Cancel";
+         this.cmdCancel.UseVisualStyleBackColor = true;
+         this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
          // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(926, 437);
+         this.Controls.Add(this.cmdCancel);
+         this.Controls.Add(this.cmdNewMessage);
+         this.Controls.Add(this.cmdGetMessage);
          this.Controls.Add(this.cmdLogBrowse);
          this.Controls.Add(this.txtLogFolder);
          this.Controls.Add(this.lblLogFolder);
@@ -499,10 +505,7 @@
          this.Controls.Add(this.lblSelectXMLTest);
          this.Controls.Add(this.cbSelectXMLTest);
          this.Controls.Add(this.cmdRunXMLTest);
-         this.Controls.Add(this.lblSelectHardCodedTest);
          this.Controls.Add(this.lstLogs);
-         this.Controls.Add(this.cbSelectHardCodedTest);
-         this.Controls.Add(this.cmdRunHardCodedTest);
          this.Controls.Add(this.cmdComOnOff);
          this.Controls.Add(this.cmdConnect);
          this.Controls.Add(this.ipAddressTextBox);
@@ -519,9 +522,9 @@
          this.tabXMLIndented.ResumeLayout(false);
          this.tabXMLIndented.PerformLayout();
          this.tabXMLTree.ResumeLayout(false);
-         this.cmErrLog.ResumeLayout(false);
          this.tabDirectory.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).EndInit();
+         this.cmErrLog.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -541,9 +544,6 @@
       private System.Windows.Forms.Button cmdGetXML;
       private System.Windows.Forms.TabPage tabXMLTree;
       private System.Windows.Forms.TreeView tvXMLTree;
-      private System.Windows.Forms.Label lblSelectHardCodedTest;
-      private System.Windows.Forms.ComboBox cbSelectHardCodedTest;
-      private System.Windows.Forms.Button cmdRunHardCodedTest;
       private System.Windows.Forms.ListBox lstLogs;
       private System.Windows.Forms.ContextMenuStrip cmErrLog;
       private System.Windows.Forms.ToolStripMenuItem cmErrLogToNotepad;
@@ -562,13 +562,16 @@
       public System.Windows.Forms.TextBox txtMessageFolder;
       public System.Windows.Forms.TextBox txtLogFolder;
       private System.Windows.Forms.TabPage tabDirectory;
-      private System.Windows.Forms.Button cmdGetMsgs;
+      private System.Windows.Forms.Button cmdGetDirectory;
       private System.Windows.Forms.DataGridView dgDirectory;
       private System.Windows.Forms.Button cmdGetOne;
       private System.Windows.Forms.DataGridViewTextBoxColumn colMsgNo;
       private System.Windows.Forms.DataGridViewTextBoxColumn colGroupNo;
       private System.Windows.Forms.DataGridViewTextBoxColumn colName;
       private System.Windows.Forms.Button cmdGetAll;
+      private System.Windows.Forms.Button cmdGetMessage;
+      private System.Windows.Forms.Button cmdNewMessage;
+      private System.Windows.Forms.Button cmdCancel;
    }
 }
 

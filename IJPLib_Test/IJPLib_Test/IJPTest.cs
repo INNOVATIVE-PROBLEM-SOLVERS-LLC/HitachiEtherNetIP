@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml;
 using HIES.IJP.RX;
 using HIES.ModbusTcp;
+using IJPLibXML;
 
 namespace IJPLib_Test {
 
@@ -20,23 +21,18 @@ namespace IJPLib_Test {
 
       #region Data Declarations
 
-      public const int FirstFixedUP = 0xF140;
-      public const int LastFixedUP = 0xF208;
-      public const int FirstFreeUP = 0xF209;
-      public const int LastFreeUP = 0xF23A;
-
       ResizeInfo R;
       bool initComplete = false;
 
-      private IJP ijp;
+      IJPLib_XML IX;
+
+      //private IJP ijp;
 
       IJPMessage message = null;
 
       IJPOnlineStatus comOn = IJPOnlineStatus.Offline;
 
       Properties.Settings p;
-
-      MBTCPLibClass mb;
 
       #endregion
 
@@ -46,6 +42,9 @@ namespace IJPLib_Test {
          InitializeComponent();
          initComplete = true;
          p = Properties.Settings.Default;
+         IX = new IJPLib_XML(this);
+         IX.Complete += IX_IOComplete;
+         IX.Log += IX_Log;
       }
 
       ~IJPTest() {
@@ -59,7 +58,6 @@ namespace IJPLib_Test {
       private void IJPTest_Load(object sender, EventArgs e) {
          // Center the form on the screen
          Utils.PositionForm(this, 0.6f, 0.9f);
-         cbSelectHardCodedTest.Items.AddRange(AvailableTests);
          BuildTestFileList();
          setButtonEnables();
       }
@@ -78,19 +76,22 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
 
             Utils.ResizeObject(ref R, lblMessageFolder, 0.5f, 18, 2, 5);
-            Utils.ResizeObject(ref R, txtMessageFolder, 0.5f, 24, 2, 10);
+            Utils.ResizeObject(ref R, txtMessageFolder, 0.5f, 23, 2, 11);
             Utils.ResizeObject(ref R, cmdMsgBrowse, 0.5f, 35, 2, 4);
 
             Utils.ResizeObject(ref R, lblLogFolder, 3, 18, 2, 5);
-            Utils.ResizeObject(ref R, txtLogFolder, 3, 24, 2, 10);
+            Utils.ResizeObject(ref R, txtLogFolder, 3, 23, 2, 11);
             Utils.ResizeObject(ref R, cmdLogBrowse, 3, 35, 2, 4);
 
             Utils.ResizeObject(ref R, tclIJPLib, 5, 1, 43, 33);
             Utils.ResizeObject(ref R, cmdClear, 7, 35, 2, 4);
-            Utils.ResizeObject(ref R, cmdGetXML, 10, 35, 2, 4);
-            Utils.ResizeObject(ref R, cmdGetViews, 13, 35, 2, 4);
-            Utils.ResizeObject(ref R, cmdSaveAs, 16, 35, 2, 4);
-            Utils.ResizeObject(ref R, cmdSend, 19, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdNewMessage, 10, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetMessage, 13, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetXML, 16, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetViews, 19, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdSaveAs, 22, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdSend, 25, 35, 2, 4);
+            Utils.ResizeObject(ref R, cmdCancel, 28, 35, 2, 4);
 
             Utils.ResizeObject(ref R, txtIjpIndented, 1, 1, 38, 31);
             Utils.ResizeObject(ref R, tvIJPLibTree, 1, 1, 38, 31);
@@ -98,126 +99,92 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 38, 31);
 
             Utils.ResizeObject(ref R, dgDirectory, 1, 1, 38, 15);
-            Utils.ResizeObject(ref R, cmdGetMsgs, 1, 17, 2, 5);
+            Utils.ResizeObject(ref R, cmdGetDirectory, 1, 17, 2, 5);
             Utils.ResizeObject(ref R, cmdGetOne, 4, 17, 2, 5);
             Utils.ResizeObject(ref R, cmdGetAll, 7, 17, 2, 5);
 
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
-            Utils.ResizeObject(ref R, lblSelectHardCodedTest, 50, 17, 2, 10);
-            Utils.ResizeObject(ref R, cbSelectHardCodedTest, 52, 17, 2, 10);
-            Utils.ResizeObject(ref R, cmdRunHardCodedTest, 55, 17, 3, 10);
-
-            Utils.ResizeObject(ref R, lblSelectXMLTest, 50, 28, 2, 10);
-            Utils.ResizeObject(ref R, cbSelectXMLTest, 52, 28, 2, 10);
-            Utils.ResizeObject(ref R, cmdRunXMLTest, 55, 28, 3, 10);
-
-
+            Utils.ResizeObject(ref R, lblSelectXMLTest, 50, 24, 2, 10);
+            Utils.ResizeObject(ref R, cbSelectXMLTest, 52, 24, 2, 10);
+            Utils.ResizeObject(ref R, cmdRunXMLTest, 55, 24, 3, 10);
 
             this.ResumeLayout();
          }
       }
 
       private void IJPTest_FormClosing(object sender, FormClosingEventArgs e) {
-         p.IPAddress = ipAddressTextBox.Text;
-         p.MessageFolder = txtMessageFolder.Text;
-         p.Save();
+         // Force other thread to close.
+         IX?.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.Exit));
       }
 
       #endregion
 
       #region Form Control Events
 
+      // Set the enables to reflect the selected tab
       private void tclIJPLib_SelectedIndexChanged(object sender, EventArgs e) {
          setButtonEnables();
       }
 
+      // Connect and turn com on, or turn com off and Disconnect
       private void cmdConnect_Click(object sender, EventArgs e) {
-         if (null == this.ijp) {
-            // Connect to the printer
-            ConnectIJP();
-            // Get com setting
-            comOn = ijp.GetComPort();
-            if (comOn == IJPOnlineStatus.Offline) {
-               cmdComOnOff_Click(null, null);
-            }
-            // Set Caption
-            this.cmdConnect.Text = "Disconnect";
+         if (!IX.IsConnected) {
+            IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.Connect) { ipAddress = ipAddressTextBox.Text });
          } else {
-            // Turn com off
-            cmdComOnOff_Click(null, null);
-            // Disconnect from printer
-            DisconnectIJP();
-            // Set caption
-            this.cmdConnect.Text = "Connect";
+            IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.Disconnect));
          }
          setButtonEnables();
       }
 
+      // Invert the current com setting
       private void cmdComOnOff_Click(object sender, EventArgs e) {
          switch (comOn) {
             case IJPOnlineStatus.Offline:
-               this.ijp.SetComPort(IJPOnlineStatus.Online);
-               comOn = IJPOnlineStatus.Online;
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Online });
                break;
             case IJPOnlineStatus.Online:
-               this.ijp.SetComPort(IJPOnlineStatus.Offline);
-               comOn = IJPOnlineStatus.Offline;
-               break;
-            default:
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Offline });
                break;
          }
          setButtonEnables();
       }
 
+      // Clear message and all view displays
       private void cmdClear_Click(object sender, EventArgs e) {
-         Log($"Clear Starting");
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.ClearMessage));
          message = null;    // Force retrieval of next message
          ClearViews();      // Clear the four screens
-         Log($"Clear Complete");
       }
 
+      private void cmdNewMessage_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.NewMessage));
+         message = null;    // Force retrieval of next message
+         ClearViews();      // Clear the four screens
+      }
+
+      // Get indented and tree views of message object settings
       private void cmdGetViews_Click(object sender, EventArgs e) {
-         Log("Get View Starting");
-         //  Set hour glass
-         Cursor.Current = Cursors.WaitCursor;
-         // Out with the old
          txtIjpIndented.Text = string.Empty;
          tvIJPLibTree.Nodes.Clear();
-         // In with the new
-         GetCurrentMessage();
-         // Generate the views
-         ObjectDumper od = new ObjectDumper(2);
-         string indentedView;
-         TreeNode treeNode;
-         od.Dump(message, out indentedView, out treeNode);
-         // Display the viewd
-         txtIjpIndented.Text = indentedView;
-         tvIJPLibTree.Nodes.Add(treeNode);
-         tvIJPLibTree.ExpandAll();
-         tclIJPLib.SelectedTab = tabIndentedView;
-         // Restore cursor
-         Cursor.Current = Cursors.Arrow;
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetObjectSettings));
          setButtonEnables();
-         Log("Get View Complete");
       }
 
+      // Get current message from the printer
+      private void cmdGetMessage_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
+      }
+
+      // Get indented and tree views of message object XML
       private void cmdGetXML_Click(object sender, EventArgs e) {
-         Log("Get XML Starting");                      // Show start
-         Cursor.Current = Cursors.WaitCursor;          // Set hour glass
-         ClearViews();                                 // Out with the old
-         GetCurrentMessage();                         // Use current or new message
-         MsgToXml mtx = new MsgToXml();
-         txtXMLIndented.Text = mtx.RetrieveXML(message, ijp);           // Display the indented XML as it is.
-         ProcessLabel(txtXMLIndented.Text);            // Build XML Tree and display it
-         tclIJPLib.SelectedTab = tabXMLIndented;       // Make XML Indented tab visible
-         Cursor.Current = Cursors.Arrow;               // Restore cursor
-         setButtonEnables();                           // Enable the correct buttons
-         Log("Get XML Complete");                      // Show Completion
+         //IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.ClearMessage));
+         //IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXML));
       }
 
+      // Save indented view of message object or message XML
       private void ccmdSaveAs_Click(object sender, EventArgs e) {
-         Log($"Save As Starting");
          string fileName = string.Empty;
          string fileText = string.Empty; ;
          using (SaveFileDialog sfd = new SaveFileDialog()) {
@@ -250,18 +217,13 @@ namespace IJPLib_Test {
          }
          BuildTestFileList();
          setButtonEnables();
-         Log($"Save As Complete");
       }
 
+      // 
       private void cmdSend_Click(object sender, EventArgs e) {
-         try {
-            Log("Send Message Starting");
-            cmdRunXMLTest_Click(null, null);
-         } catch (Exception e2) {
-            Log($"Send Message: {e2.Message}\r\n{e2.StackTrace}");
-         } finally {
-            Log("Send Message Complete");
-         }
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.NewMessage));
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetXML) { XML = txtXMLIndented.Text });
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetMessage));
       }
 
       private void cbSelectTest_SelectedIndexChanged(object sender, EventArgs e) {
@@ -298,39 +260,35 @@ namespace IJPLib_Test {
          string fileName = Path.Combine(txtMessageFolder.Text, cbSelectXMLTest.Text + ".xml");
          ClearViews();
          string xml = File.ReadAllText(fileName);
-         ProcessLabel(xml);
+         IX.ProcessLabel(xml, out string indentedXML, out TreeNode tnXML);
+         txtXMLIndented.Text = indentedXML;
+         tvXMLTree.Nodes.Clear();
+         tvXMLTree.Nodes.Add(tnXML);
+         tvXMLTree.ExpandAll();
+         tclIJPLib.SelectedTab = tabXMLIndented;
          setButtonEnables();
       }
 
       private void cmdRunXMLTest_Click(object sender, EventArgs e) {
-         Log($"Run XML Test Starting");
-         XmlToMsg xtm = new XmlToMsg(txtXMLIndented.Text, ijp);
-         xtm.Log += Log;
-         message = xtm.BuildMessage();
-         xtm.Log -= Log;
-         Log($"Run XML Test Complete");
+         cmdSend_Click(null, null);
       }
 
-      private void cmdGetMsgs_Click(object sender, EventArgs e) {
+      int firstDirMsg;
+      int dirCount;
+      bool cancel;
+      private void cmdGetDirectory_Click(object sender, EventArgs e) {
          Cursor.Current = Cursors.WaitCursor;
-         Log("Retrieve Directory Starting");
          dgDirectory.Rows.Clear();
-         bool ok = true;
-         for (int n = 1; n <= 200 && ok; n += 10) {
-            IIJPMessageInfo[] mi = ijp.ListMessage(n, n + 9);
-            if (mi.Length > 0) {
-               for (int i = 0; i < mi.Length; i++) {
-                  dgDirectory.Rows.Add(new string[]
-                  { mi[i].RegistrationNumber.ToString(),mi[i].GroupNumber.ToString(),  mi[i].Nickname });
-               }
-               dgDirectory.Update();
-            } else {
-               ok = false;
-            }
-         }
+         firstDirMsg = 1;
+         dirCount = 5;
+         cancel = false;
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = firstDirMsg, End = firstDirMsg + dirCount - 1 });
          setButtonEnables();
-         Log("Retrieve Directory Complete");
          Cursor.Current = Cursors.Arrow;
+      }
+
+      private void cmdCancel_Click(object sender, EventArgs e) {
+         cancel = true;
       }
 
       private void dgDirectory_SelectionChanged(object sender, EventArgs e) {
@@ -338,191 +296,115 @@ namespace IJPLib_Test {
       }
 
       private void cmdGetOne_Click(object sender, EventArgs e) {
-         Cursor.Current = Cursors.WaitCursor;
-         Log("Retrieve One Message Starting");
          int n = dgDirectory.SelectedRows[0].Index;
          ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
-         ijp.CallMessage(msgNo);
-         Log("Retrieve One Message Complete");
-         Cursor.Current = Cursors.Arrow;
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = msgNo });
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXML));
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetObjectSettings));
       }
 
+      bool SavingAll;
+      string nickName;
       private void cmdGetAll_Click(object sender, EventArgs e) {
-         Cursor.Current = Cursors.WaitCursor;
-         Log("Retrieve All Messages Starting");
-         MsgToXml mtx = new MsgToXml();
-         for (int i = 0; i < dgDirectory.SelectedRows.Count; i++) {
-            int n = dgDirectory.SelectedRows[i].Index;
-            ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
-            byte grpNo = Convert.ToByte(dgDirectory.Rows[n].Cells[1].Value);
-            string nickName = (string)dgDirectory.Rows[n].Cells[2].Value;
-            Log($"Getting message # {msgNo}");
-            ijp.CallMessage(msgNo);
-            IJPMessage m = (IJPMessage)ijp.GetMessage();
-            string xml = mtx.RetrieveXML(m, ijp, new IJPMessageInfo(msgNo, grpNo, nickName));
-            string fileName = Path.Combine(txtMessageFolder.Text, nickName) + ".xml";
-            File.WriteAllText(fileName, xml);
+         SavingAll = true;
+         cancel = false;
+         GetNextMessage();
+      }
+
+      private bool GetNextMessage() {
+         for (int i = 0; i < dgDirectory.Rows.Count; i++) {
+            if (dgDirectory.Rows[i].Selected) {
+               ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[i].Cells[0].Value);
+               nickName = dgDirectory.Rows[i].Cells[0].Value.ToString();
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = msgNo });
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXMLOnly));
+               dgDirectory.Rows[i].Selected = false;
+               return true;
+            }
          }
-         mtx = null;
-         Log("Retrieve All Messages Complete");
-         Cursor.Current = Cursors.Arrow;
+         return false;
       }
 
       #endregion
 
-      #region XML Formatting
+      #region Completion Methods
 
-      // Process an XML Label
-      private bool ProcessLabel(string xml) {
-         XmlDocument xmlDoc;
-         bool result = false;
-         int xmlStart;
-         int xmlEnd;
-         try {
-            // Can be called with a Filename or XML text
-            xmlStart = xml.IndexOf("<Label");
-            if (xmlStart == -1) {
-               xml = File.ReadAllText(xml);
-               xmlStart = xml.IndexOf("<Label");
-            }
-            // No label found, exit
-            if (xmlStart == -1) {
-               return result;
-            }
-            xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
-            if (xmlEnd > 0) {
-               xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
-               xmlDoc = new XmlDocument() { PreserveWhitespace = true };
-               xmlDoc.LoadXml(xml);
-               xml = ToIndentedString(xml);
-               xmlStart = xml.IndexOf("<Label");
-               if (xmlStart > 0) {
-                  xml = xml.Substring(xmlStart);
-                  txtXMLIndented.Text = xml;
-
-                  tvXMLTree.Nodes.Clear();
-                  tvXMLTree.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
-                  TreeNode tNode = new TreeNode();
-                  tNode = tvXMLTree.Nodes[0];
-
-                  AddNode(xmlDoc.DocumentElement, tNode);
-                  tvXMLTree.ExpandAll();
-
-                  result = true;
-               }
-            }
-         } catch {
-
-         }
-         return result;
-      }
-
-      // Convert an XML Document into an indented text string
-      private string ToIndentedString(string unformattedXml) {
-         string result;
-         XmlReaderSettings readeroptions = new XmlReaderSettings { IgnoreWhitespace = true };
-         XmlReader reader = XmlReader.Create(new StringReader(unformattedXml), readeroptions);
-         StringBuilder sb = new StringBuilder();
-         XmlWriterSettings xmlSettingsWithIndentation = new XmlWriterSettings { Indent = true };
-         using (XmlWriter writer = XmlWriter.Create(sb, xmlSettingsWithIndentation)) {
-            writer.WriteNode(reader, true);
-         }
-         result = sb.ToString();
-         return result;
-      }
-
-      // Add a node to the tree view
-      private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode) {
-         if (inXmlNode is XmlWhitespace)
-            return;
-         XmlNode xNode;
-         XmlNodeList nodeList;
-         if (inXmlNode.HasChildNodes) {
-            inTreeNode.Text = GetNameAttr(inXmlNode);
-            nodeList = inXmlNode.ChildNodes;
-            int j = 0;
-            for (int i = 0; i < nodeList.Count; i++) {
-               xNode = inXmlNode.ChildNodes[i];
-               if (xNode is XmlWhitespace)
-                  continue;
-               if (xNode.Name == "#text") {
-                  inTreeNode.Text = inXmlNode.OuterXml.Trim();
-               } else {
-                  if (!(xNode is XmlWhitespace)) {
-                     inTreeNode.Nodes.Add(new TreeNode(GetNameAttr(xNode)));
-                     AddNode(xNode, inTreeNode.Nodes[j]);
+      private void IX_IOComplete(IJPLib_XML sender, IX_EventArgs evArgs) {
+         switch (evArgs.Type) {
+            case IJPLib_XML.ReqType.Connect:
+               comOn = evArgs.ComStatus;
+               break;
+            case IJPLib_XML.ReqType.Disconnect:
+               comOn = IJPOnlineStatus.Offline;
+               break;
+            case IJPLib_XML.ReqType.GetMessage:
+               this.message = evArgs.message;
+               comOn = evArgs.ComStatus;
+               break;
+            case IJPLib_XML.ReqType.GetDirectory:
+               if (evArgs.mi.Length > 0) {
+                  for (int i = 0; i < evArgs.mi.Length; i++) {
+                     dgDirectory.Rows.Add(new string[]
+                     { evArgs.mi[i].RegistrationNumber.ToString(),  evArgs.mi[i].GroupNumber.ToString(), evArgs.mi[i].Nickname });
                   }
+                  if (!cancel) {
+                     firstDirMsg += dirCount;
+                     IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = firstDirMsg, End = firstDirMsg + dirCount - 1 });
+                  }
+               } else {
                }
-               j++;
-            }
-         } else {
-            inTreeNode.Text = inXmlNode.OuterXml.Trim();
+               dgDirectory.FirstDisplayedScrollingRowIndex = dgDirectory.Rows.Count - 1;
+               break;
+            case IJPLib_XML.ReqType.GetXML:
+               txtXMLIndented.Text = evArgs.Indented;
+               tvXMLTree.Nodes.Clear();
+               if (evArgs.TreeNode != null) {
+                  tvXMLTree.Nodes.Add(evArgs.TreeNode);
+                  tvXMLTree.ExpandAll();
+               }
+               tclIJPLib.SelectedTab = tabXMLIndented;
+               break;
+            case IJPLib_XML.ReqType.GetXMLOnly:
+               // need to do a save here
+               if (!cancel) {
+                  GetNextMessage();
+               }
+               break;
+            case IJPLib_XML.ReqType.GetObjectSettings:
+               txtIjpIndented.Text = evArgs.Indented;
+               if (evArgs.TreeNode != null) {
+                  tvIJPLibTree.Nodes.Add(evArgs.TreeNode);
+                  tvIJPLibTree.ExpandAll();
+               }
+               tclIJPLib.SelectedTab = tabIndentedView;
+               break;
+            case IJPLib_XML.ReqType.SetComStatus:
+               comOn = evArgs.ComStatus;
+               break;
+            case IJPLib_XML.ReqType.Exit:
+               break;
+            default:
+               break;
          }
-      }
-
-      // Get the attributes associated with a node
-      private string GetNameAttr(XmlNode n) {
-         string result = n.Name;
-         if (n.Attributes != null && n.Attributes.Count > 0) {
-            foreach (XmlAttribute attribute in n.Attributes) {
-               result += $" {attribute.Name}=\"{attribute.Value}\"";
-            }
-         }
-         return result;
+         Log($"{evArgs.Type.ToString()} Complete");
+         setButtonEnables();
       }
 
       #endregion
 
       #region Service routines
 
-      private void ConnectIJP() {
-         ConnectIJP(this.ipAddressTextBox.Text, 5000, 5);
+      // Clear XML and Object Indented and Tree View displays
+      private void ClearViews() {
+         tvIJPLibTree.Nodes.Clear();
+         tvXMLTree.Nodes.Clear();
+         txtIjpIndented.Text = string.Empty;
+         txtXMLIndented.Text = string.Empty;
       }
 
-      private void ConnectIJP(string ipAddress, int timeout, int retry) {
-         if (null != this.ijp) {
-            DisconnectIJP();
-            this.ijp = null;
-         }
-         try {
-
-            // Create the IJP object.
-            this.ijp = new IJP();
-
-            // Set parameters.
-            this.ijp.IPAddress = ipAddress;
-            this.ijp.Timeout = timeout;
-            this.ijp.Retry = retry;
-
-            // Connect the Ink jet printer.
-            this.ijp.Connect();
-
-         } catch (Exception e) {
-            Log($"ConnectIJP: {e.Message} \n{e.StackTrace}");
-         }
-         setButtonEnables();
-      }
-
-      private void DisconnectIJP() {
-         if (null != this.ijp) {
-            this.ijp.Disconnect();
-            this.ijp = null;
-         }
-         setButtonEnables();
-      }
-
-      private void GetCurrentMessage() {
-         try {
-            if (message == null) {
-               // Get the current message.
-               message = (IJPMessage)this.ijp.GetMessage();
-            }
-         } catch (Exception e) {
-            Log($"Send Message: {e.Message}\r\n{e.StackTrace}");
-         }
-         setButtonEnables();
-      }
-
+      // Populate dropdown with XML files in Messages folder
       private void BuildTestFileList() {
          cbSelectXMLTest.Items.Clear();
          try {
@@ -536,24 +418,31 @@ namespace IJPLib_Test {
          }
       }
 
+      // Log requests from IX Object
+      private void IX_Log(IJPLib_XML sender, string msg) {
+         Log(msg);
+      }
+
+      // Log messages
       public void Log(string s) {
          lstLogs.Items.Add(s);
          lstLogs.Update();
+         lstLogs.SelectedIndex = lstLogs.Items.Count - 1;
       }
 
       private void setButtonEnables() {
-         bool connected = ijp != null;
+         bool connected = IX != null && IX.IsConnected;
          bool IOPossible = connected && comOn == IJPOnlineStatus.Online;
          // These must connect first
          cmdComOnOff.Enabled = connected;
+         cmdConnect.Text = connected ? "Disconnect" : "Connect";
          cmdComOnOff.Text = comOn == IJPOnlineStatus.Online ? "Com Off" : "Com On";
          cmdGetViews.Enabled = IOPossible || message != null;
          cmdGetXML.Enabled = IOPossible || message != null;
-         cmdGetMsgs.Enabled = IOPossible;
+         cmdGetDirectory.Enabled = IOPossible;
          cmdGetOne.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
          cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
 
-         cmdRunHardCodedTest.Enabled = IOPossible && cbSelectHardCodedTest.SelectedIndex >= 0;
          cmdRunXMLTest.Enabled = IOPossible && cbSelectXMLTest.SelectedIndex >= 0;
 
          switch (tclIJPLib.SelectedIndex) {
@@ -567,113 +456,6 @@ namespace IJPLib_Test {
                cmdSaveAs.Enabled = false;
                break;
          }
-      }
-
-      #endregion
-
-      #region Test Routines
-
-      string[] AvailableTests = new string[]
-         { "New Message", "Retrieve Message", "Send Message", "Clear Screen",
-           "Create Message", "Create Complex Message", "Echo" };
-
-      private void cmdRunTest_Click(object sender, EventArgs e) {
-         try {
-            Cursor.Current = Cursors.WaitCursor;
-            Log($"{cbSelectHardCodedTest.Text} Starting");
-            switch (cbSelectHardCodedTest.SelectedIndex) {
-               case 0:
-                  NewMessage();
-                  break;
-               case 1:
-                  RetrieveMessage();
-                  break;
-               case 2:
-                  SendMessage();
-                  break;
-               case 3:
-                  ClearDisplay();
-                  break;
-               case 4:
-                  CreateMessage();
-                  break;
-               case 5:
-                  CreateComplex();
-                  break;
-               case 6:
-                  Echo();
-                  break;
-               default:
-                  break;
-            }
-         } catch (Exception e2) {
-            Log($"Run Test: {e2.Message}\r\n{e2.StackTrace}");
-         } finally {
-            Log($"{cbSelectHardCodedTest.Text} Complete");
-            Cursor.Current = Cursors.Arrow;
-         }
-      }
-
-      private void CreateComplex() {
-         ClearViews();
-         message = new IJPMessage();
-         message.AddColumn();
-         message.SetRow(0, 3);
-         message.AddColumn();
-         message.SetRow(1, 2);
-         for (int i = 0; i < message.Items.Count; i++) {
-            message.Items[i].Text = $"Item #{i + 1}";
-         }
-         message.InkDropUse = 2; // Missing from documentation example
-         // Set to IJP.
-      }
-
-      private void CreateMessage() {
-         ClearViews();
-         message = new IJPMessage();
-         message.AddColumn();
-         message.Items[0].Text = "ABC";
-         //message.Items[0].Bold = 5;
-         message.InkDropUse = 2; // Missing from documentation example
-         // Set to IJP.
-         ijp.SetMessage(message);
-      }
-
-      private void NewMessage() {
-         message = new IJPMessage();
-         ClearViews();
-      }
-
-      private void ClearViews() {
-         tvIJPLibTree.Nodes.Clear();
-         tvXMLTree.Nodes.Clear();
-         txtIjpIndented.Text = string.Empty;
-         txtXMLIndented.Text = string.Empty;
-      }
-
-      private void RetrieveMessage() {
-         ClearViews();
-         message = (IJPMessage)ijp.GetMessage();
-      }
-
-      private void SendMessage() {
-         ijp.SetMessage(message);
-      }
-
-      private void Echo() {
-         message = (IJPMessage)this.ijp.GetMessage();
-         Log("Message Retrieved");
-         ijp.SetMessage(message);
-      }
-
-      private void ClearDisplay() {
-         ClearViews();
-         message = new IJPMessage();
-         message.InkDropUse = 2; // Missing from documentation example
-         message.AddColumn();
-         message.AddItem();
-         message.Items[0].Text = "X";
-         //ijp.SetMessage(message);
       }
 
       #endregion
