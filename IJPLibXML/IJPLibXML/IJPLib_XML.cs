@@ -52,6 +52,7 @@ namespace IJPLibXML {
          SetMessage,
          SetComStatus,
          CallMessage,
+         SaveMessage,
          Exit,
       }
 
@@ -120,7 +121,7 @@ namespace IJPLibXML {
                   case ReqType.GetXML:
                      if (message != null) {
                         mtx = new MsgToXml();
-                        string xml = mtx.RetrieveXML(message, ijp);
+                        string xml = mtx.RetrieveXML(message, ijp, pkt.MessageInfo);
                         ProcessLabel(xml, out string IndentedXML, out TreeNode tnXML);
                         evArgs.Indented = IndentedXML;
                         evArgs.TreeNode = tnXML;
@@ -165,6 +166,9 @@ namespace IJPLibXML {
                      break;
                   case ReqType.CallMessage:
                      ijp.CallMessage(pkt.MessageNumber);
+                     break;
+                  case ReqType.SaveMessage:
+                     ijp.SaveMessage(pkt.MessageInfo);
                      break;
                }
             } catch (Exception e) {
@@ -287,7 +291,7 @@ namespace IJPLibXML {
       public int timeOut { get; set; } = 5000;
       public int retries { get; set; } = 5;
       public IJPOnlineStatus ComStatus { get; set; }
-      public ushort MessageNumber { get; set; }
+      public ushort MessageNumber { get; set; } = 0;
       public int Start { get; set; }
       public int End { get; set; }
       public string XML { get; set; }
