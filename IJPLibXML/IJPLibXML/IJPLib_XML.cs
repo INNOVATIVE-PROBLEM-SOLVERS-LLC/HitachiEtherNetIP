@@ -71,12 +71,19 @@ namespace IJPLibXML {
 
       #endregion
 
+      #region Constructors and destructors
+
       public IJPLib_XML(Form parent) {
          this.parent = parent;
          t = new Thread(processTasks);
          t.Start();
       }
 
+      #endregion
+
+      #region Task Processing
+
+      // Main processing loop
       private void processTasks() {
          while (true) {
             pkt = Tasks.Take();
@@ -122,7 +129,7 @@ namespace IJPLibXML {
                   case ReqType.GetXMLOnly:
                      if (message != null) {
                         mtx = new MsgToXml();
-                        evArgs.Indented = mtx.RetrieveXML(message, ijp);
+                        evArgs.Indented = mtx.RetrieveXML(message, ijp, pkt.MessageInfo);
                      }
                      break;
                   case ReqType.GetObjectSettings:
@@ -167,6 +174,7 @@ namespace IJPLibXML {
          }
       }
 
+      // Connect to printer
       private void Connect(ReqPkt pkt) {
          Disconnect(pkt);
          ijp = new IJP();
@@ -174,13 +182,15 @@ namespace IJPLibXML {
          ijp.Timeout = pkt.timeOut;
          ijp.Retry = pkt.retries;
          ijp.Connect();
-         ComOn = ijp.GetComPort();                 // Be sure com is on
+         ComOn = ijp.GetComPort();
+         // Be sure com is on
          if (ComOn == IJPOnlineStatus.Offline) {
             ijp.SetComPort(IJPOnlineStatus.Online);
             ComOn = IJPOnlineStatus.Online;
          }
       }
 
+      // Disconnect from printer
       private void Disconnect(ReqPkt pkt) {
          if (null != this.ijp) {
             ijp.Disconnect();
@@ -189,6 +199,10 @@ namespace IJPLibXML {
             ComOn = IJPOnlineStatus.Offline;
          }
       }
+
+      #endregion
+
+      #region XML Label Processing
 
       // Process an XML Label
       public bool ProcessLabel(string xml, out string indentedXML, out TreeNode tnXML) {
@@ -204,9 +218,8 @@ namespace IJPLibXML {
                xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
                xmlDoc = new XmlDocument() { PreserveWhitespace = true };
                xmlDoc.LoadXml(xml);
-               xml = ToIndentedString(xml);
                xmlStart = xml.IndexOf("<Label");
-               if (xmlStart > 0) {
+               if (xmlStart >= 0) {
                   indentedXML = xml.Substring(xmlStart);
                   tnXML = new TreeNode(xmlDoc.DocumentElement.Name);
                   AddNode(xmlDoc.DocumentElement, tnXML);
@@ -218,20 +231,6 @@ namespace IJPLibXML {
                parent.BeginInvoke(new EventHandler(delegate { Log(this, $"IJP_XML: {e.Message} \n{e.StackTrace}"); }));
             }
          }
-         return result;
-      }
-
-      // Convert an XML Document into an indented text string
-      private string ToIndentedString(string unformattedXml) {
-         string result;
-         XmlReaderSettings readeroptions = new XmlReaderSettings { IgnoreWhitespace = true };
-         XmlReader reader = XmlReader.Create(new StringReader(unformattedXml), readeroptions);
-         StringBuilder sb = new StringBuilder();
-         XmlWriterSettings xmlSettingsWithIndentation = new XmlWriterSettings { Indent = true };
-         using (XmlWriter writer = XmlWriter.Create(sb, xmlSettingsWithIndentation)) {
-            writer.WriteNode(reader, true);
-         }
-         result = sb.ToString();
          return result;
       }
 
@@ -275,6 +274,8 @@ namespace IJPLibXML {
          return result;
       }
 
+      #endregion
+
    }
 
    #region Request Packet and Event Args 
@@ -287,9 +288,10 @@ namespace IJPLibXML {
       public int retries { get; set; } = 5;
       public IJPOnlineStatus ComStatus { get; set; }
       public ushort MessageNumber { get; set; }
-      public int Start { get; set;}
+      public int Start { get; set; }
       public int End { get; set; }
       public string XML { get; set; }
+      public IJPMessageInfo MessageInfo {get; set;}
 
       public ReqPkt(IJPLib_XML.ReqType Type) {
          this.Type = Type;

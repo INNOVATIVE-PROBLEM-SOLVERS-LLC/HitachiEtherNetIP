@@ -34,6 +34,16 @@ namespace IJPLib_Test {
 
       Properties.Settings p;
 
+      // Variables for Save All files in printer directory
+      bool SA_SavingAll;
+      string SA_NickName;
+      ushort SA_PrinterID;
+      byte SA_GroupID;
+      int SA_DirectoryID;
+
+      // Cancel for multi step processes
+      bool cancel = false;
+
       #endregion
 
       #region Constructors and Destructors
@@ -43,7 +53,7 @@ namespace IJPLib_Test {
          initComplete = true;
          p = Properties.Settings.Default;
          IX = new IJPLib_XML(this);
-         IX.Complete += IX_IOComplete;
+         IX.Complete += IX_Complete;
          IX.Log += IX_Log;
       }
 
@@ -186,7 +196,8 @@ namespace IJPLib_Test {
       // Save indented view of message object or message XML
       private void ccmdSaveAs_Click(object sender, EventArgs e) {
          string fileName = string.Empty;
-         string fileText = string.Empty; ;
+         string fileText = string.Empty;
+         ;
          using (SaveFileDialog sfd = new SaveFileDialog()) {
             switch (tclIJPLib.SelectedIndex) {
                case 0:
@@ -197,11 +208,11 @@ namespace IJPLib_Test {
                   sfd.Title = "Save Printer Image to Text file";
                   break;
                case 2:
-                  fileName = "XMLIndented.XML";
+                  fileName = "XMLIndented.HML";
                   fileText = txtXMLIndented.Text;
-                  sfd.DefaultExt = "xml";
-                  sfd.Filter = "XML|*.xml";
-                  sfd.Title = "Save Printer Image to XML file";
+                  sfd.DefaultExt = "hml";
+                  sfd.Filter = "HML|*.hml";
+                  sfd.Title = "Save Printer Image to HML file";
                   break;
                default:
                   break;
@@ -241,8 +252,7 @@ namespace IJPLib_Test {
       }
 
       private void cmdMsgBrowse_Click(object sender, EventArgs e) {
-         FolderBrowserDialog dlg = new FolderBrowserDialog() 
-            { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
          if (dlg.ShowDialog() == DialogResult.OK) {
             txtMessageFolder.Text = dlg.SelectedPath;
             BuildTestFileList();
@@ -257,7 +267,7 @@ namespace IJPLib_Test {
       }
 
       private void cbSelectXMLTest_SelectedIndexChanged(object sender, EventArgs e) {
-         string fileName = Path.Combine(txtMessageFolder.Text, cbSelectXMLTest.Text + ".xml");
+         string fileName = Path.Combine(txtMessageFolder.Text, cbSelectXMLTest.Text + ".hml");
          ClearViews();
          string xml = File.ReadAllText(fileName);
          IX.ProcessLabel(xml, out string indentedXML, out TreeNode tnXML);
@@ -273,18 +283,17 @@ namespace IJPLib_Test {
          cmdSend_Click(null, null);
       }
 
-      int firstDirMsg;
-      int dirCount;
-      bool cancel;
+      bool GD_GettingDirectory;
+      int GD_FirstMsg;
+      int GD_DirCount;
       private void cmdGetDirectory_Click(object sender, EventArgs e) {
-         Cursor.Current = Cursors.WaitCursor;
          dgDirectory.Rows.Clear();
-         firstDirMsg = 1;
-         dirCount = 5;
+         GD_GettingDirectory = true;
+         GD_FirstMsg = 1;
+         GD_DirCount = 5;
          cancel = false;
-         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = firstDirMsg, End = firstDirMsg + dirCount - 1 });
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = GD_FirstMsg, End = GD_FirstMsg + GD_DirCount - 1 });
          setButtonEnables();
-         Cursor.Current = Cursors.Arrow;
       }
 
       private void cmdCancel_Click(object sender, EventArgs e) {
@@ -304,34 +313,34 @@ namespace IJPLib_Test {
          IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetObjectSettings));
       }
 
-      bool SavingAll;
-      string nickName;
       private void cmdGetAll_Click(object sender, EventArgs e) {
-         SavingAll = true;
+         SA_SavingAll = true;
          cancel = false;
          GetNextMessage();
       }
 
-      private bool GetNextMessage() {
+      private void GetNextMessage() {
          for (int i = 0; i < dgDirectory.Rows.Count; i++) {
             if (dgDirectory.Rows[i].Selected) {
-               ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[i].Cells[0].Value);
-               nickName = dgDirectory.Rows[i].Cells[0].Value.ToString();
-               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = msgNo });
+               SA_DirectoryID = i;
+               SA_PrinterID = Convert.ToUInt16(dgDirectory.Rows[i].Cells[0].Value);
+               SA_GroupID = Convert.ToByte(dgDirectory.Rows[i].Cells[1].Value);
+               SA_NickName = dgDirectory.Rows[i].Cells[2].Value.ToString();
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = SA_PrinterID });
                IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
-               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXMLOnly));
-               dgDirectory.Rows[i].Selected = false;
-               return true;
+               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXMLOnly) { MessageInfo = new IJPMessageInfo(SA_PrinterID, SA_GroupID, SA_NickName) });
+               return;
             }
          }
-         return false;
+         SA_SavingAll = false;
       }
 
       #endregion
 
       #region Completion Methods
 
-      private void IX_IOComplete(IJPLib_XML sender, IX_EventArgs evArgs) {
+      // Receive notification as each task completes
+      private void IX_Complete(IJPLib_XML sender, IX_EventArgs evArgs) {
          switch (evArgs.Type) {
             case IJPLib_XML.ReqType.Connect:
                comOn = evArgs.ComStatus;
@@ -341,21 +350,25 @@ namespace IJPLib_Test {
                break;
             case IJPLib_XML.ReqType.GetMessage:
                this.message = evArgs.message;
-               comOn = evArgs.ComStatus;
                break;
             case IJPLib_XML.ReqType.GetDirectory:
-               if (evArgs.mi.Length > 0) {
-                  for (int i = 0; i < evArgs.mi.Length; i++) {
-                     dgDirectory.Rows.Add(new string[]
-                     { evArgs.mi[i].RegistrationNumber.ToString(),  evArgs.mi[i].GroupNumber.ToString(), evArgs.mi[i].Nickname });
+               if (GD_GettingDirectory) {
+                  if (evArgs.mi.Length > 0) {
+                     for (int i = 0; i < evArgs.mi.Length; i++) {
+                        dgDirectory.Rows.Add(new string[]
+                        { evArgs.mi[i].RegistrationNumber.ToString(),  evArgs.mi[i].GroupNumber.ToString(), evArgs.mi[i].Nickname });
+                     }
+                     if (cancel) {
+                        GD_GettingDirectory = false;
+                     } else {
+                        GD_FirstMsg += GD_DirCount;
+                        IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = GD_FirstMsg, End = GD_FirstMsg + GD_DirCount - 1 });
+                     }
+                  } else {
+                     GD_GettingDirectory = false;
                   }
-                  if (!cancel) {
-                     firstDirMsg += dirCount;
-                     IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = firstDirMsg, End = firstDirMsg + dirCount - 1 });
-                  }
-               } else {
+                  dgDirectory.FirstDisplayedScrollingRowIndex = dgDirectory.Rows.Count - 1;
                }
-               dgDirectory.FirstDisplayedScrollingRowIndex = dgDirectory.Rows.Count - 1;
                break;
             case IJPLib_XML.ReqType.GetXML:
                txtXMLIndented.Text = evArgs.Indented;
@@ -367,9 +380,19 @@ namespace IJPLib_Test {
                tclIJPLib.SelectedTab = tabXMLIndented;
                break;
             case IJPLib_XML.ReqType.GetXMLOnly:
-               // need to do a save here
-               if (!cancel) {
-                  GetNextMessage();
+               if (SA_SavingAll) {
+                  dgDirectory.Rows[SA_DirectoryID].Selected = false;
+                  if (Directory.Exists(txtMessageFolder.Text)) {
+                     File.WriteAllText(Path.Combine(txtMessageFolder.Text, $"{SA_NickName}.hml"), evArgs.Indented);
+                     Log($"File \"{SA_NickName}\" saved");
+                  } else {
+                     Log($"Directory \"{txtMessageFolder.Text}\" does not exits!");
+                     cancel = true;
+                  }
+                  // need to do a save here
+                  if (!cancel) {
+                     GetNextMessage();
+                  }
                }
                break;
             case IJPLib_XML.ReqType.GetObjectSettings:
@@ -407,14 +430,14 @@ namespace IJPLib_Test {
       // Populate dropdown with XML files in Messages folder
       private void BuildTestFileList() {
          cbSelectXMLTest.Items.Clear();
-         try {
-            string[] FileNames = Directory.GetFiles(txtMessageFolder.Text, "*.XML");
+         if (Directory.Exists(txtMessageFolder.Text)) {
+            string[] FileNames = Directory.GetFiles(txtMessageFolder.Text, "*.HML");
             Array.Sort(FileNames);
             for (int i = 0; i < FileNames.Length; i++) {
                cbSelectXMLTest.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
             }
-         } catch {
-
+         } else {
+            Log($"The Directory \"{txtMessageFolder.Text}\" does not exist!");
          }
       }
 
@@ -441,7 +464,7 @@ namespace IJPLib_Test {
          cmdGetXML.Enabled = IOPossible || message != null;
          cmdGetDirectory.Enabled = IOPossible;
          cmdGetOne.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
-         cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
+         cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0 && Directory.Exists(txtMessageFolder.Text);
 
          cmdRunXMLTest.Enabled = IOPossible && cbSelectXMLTest.SelectedIndex >= 0;
 
