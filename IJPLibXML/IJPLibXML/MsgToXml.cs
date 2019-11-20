@@ -191,7 +191,8 @@ namespace IJPLibXML {
             writer.WriteStartElement("ContinuousPrinting");
             {
                writer.WriteAttributeString("RepeatInterval", m.RepeatIntervals.ToString());
-               writer.WriteAttributeString("PrintsPerTrigger", m.RepeatCount.ToString());
+               writer.WriteAttributeString("PrintsPerTrigger",
+                  m.RepeatCount == 0 ? "1" : m.RepeatCount.ToString());
             }
             writer.WriteEndElement(); // ContinuousPrinting
 
@@ -632,6 +633,14 @@ namespace IJPLibXML {
       // Resolve differences between IJPLib and EtherNet/IP text syntax
       private string FormatText(string s) {
          string result = string.Empty;
+         int start = s.IndexOf("{");
+         if (start >= 0) {
+            int end = s.LastIndexOf("}");
+            if (end > 0) {
+               string text = s.Substring(start + 1, end - start - 1).Trim().Replace("{", "").Replace("}", "");
+               s = s.Substring(0, start + 1) + text + s.Substring(end);
+            }
+         }
          for (int i = 0; i < s.Length; i++) {
             char c = s[i];
             if (c >= IJPLib_XML.FirstFixedUP && c <= IJPLib_XML.LastFixedUP) {
