@@ -68,6 +68,11 @@
          this.cmdGetMessage = new System.Windows.Forms.Button();
          this.cmdNewMessage = new System.Windows.Forms.Button();
          this.cmdCancel = new System.Windows.Forms.Button();
+         this.lblPrinterDirectory = new System.Windows.Forms.Label();
+         this.lblFolderDirectory = new System.Windows.Forms.Label();
+         this.dgFolder = new System.Windows.Forms.DataGridView();
+         this.FolderContents = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.cmdSaveInPrinter = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
@@ -76,6 +81,7 @@
          this.tabDirectory.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).BeginInit();
          this.cmErrLog.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgFolder)).BeginInit();
          this.SuspendLayout();
          // 
          // cmdComOnOff
@@ -116,10 +122,10 @@
          this.tclIJPLib.Controls.Add(this.tabXMLIndented);
          this.tclIJPLib.Controls.Add(this.tabXMLTree);
          this.tclIJPLib.Controls.Add(this.tabDirectory);
-         this.tclIJPLib.Location = new System.Drawing.Point(18, 76);
+         this.tclIJPLib.Location = new System.Drawing.Point(15, 93);
          this.tclIJPLib.Name = "tclIJPLib";
          this.tclIJPLib.SelectedIndex = 0;
-         this.tclIJPLib.Size = new System.Drawing.Size(675, 195);
+         this.tclIJPLib.Size = new System.Drawing.Size(739, 226);
          this.tclIJPLib.TabIndex = 16;
          this.tclIJPLib.SelectedIndexChanged += new System.EventHandler(this.tclIJPLib_SelectedIndexChanged);
          // 
@@ -200,22 +206,26 @@
          // 
          // tabDirectory
          // 
+         this.tabDirectory.Controls.Add(this.cmdSaveInPrinter);
+         this.tabDirectory.Controls.Add(this.dgFolder);
+         this.tabDirectory.Controls.Add(this.lblFolderDirectory);
+         this.tabDirectory.Controls.Add(this.lblPrinterDirectory);
          this.tabDirectory.Controls.Add(this.cmdGetAll);
          this.tabDirectory.Controls.Add(this.cmdGetOne);
          this.tabDirectory.Controls.Add(this.dgDirectory);
          this.tabDirectory.Controls.Add(this.cmdGetDirectory);
          this.tabDirectory.Location = new System.Drawing.Point(4, 25);
          this.tabDirectory.Name = "tabDirectory";
-         this.tabDirectory.Size = new System.Drawing.Size(667, 166);
+         this.tabDirectory.Size = new System.Drawing.Size(731, 197);
          this.tabDirectory.TabIndex = 5;
          this.tabDirectory.Text = "Directory";
          this.tabDirectory.UseVisualStyleBackColor = true;
          // 
          // cmdGetAll
          // 
-         this.cmdGetAll.Location = new System.Drawing.Point(492, 99);
+         this.cmdGetAll.Location = new System.Drawing.Point(309, 157);
          this.cmdGetAll.Name = "cmdGetAll";
-         this.cmdGetAll.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetAll.Size = new System.Drawing.Size(128, 30);
          this.cmdGetAll.TabIndex = 4;
          this.cmdGetAll.Text = "Get All Messages";
          this.cmdGetAll.UseVisualStyleBackColor = true;
@@ -223,7 +233,7 @@
          // 
          // cmdGetOne
          // 
-         this.cmdGetOne.Location = new System.Drawing.Point(492, 63);
+         this.cmdGetOne.Location = new System.Drawing.Point(443, 157);
          this.cmdGetOne.Name = "cmdGetOne";
          this.cmdGetOne.Size = new System.Drawing.Size(141, 30);
          this.cmdGetOne.TabIndex = 3;
@@ -241,10 +251,10 @@
             this.colMsgNo,
             this.colGroupNo,
             this.colName});
-         this.dgDirectory.Location = new System.Drawing.Point(26, 36);
+         this.dgDirectory.Location = new System.Drawing.Point(309, 41);
          this.dgDirectory.Name = "dgDirectory";
          this.dgDirectory.RowTemplate.Height = 24;
-         this.dgDirectory.Size = new System.Drawing.Size(362, 114);
+         this.dgDirectory.Size = new System.Drawing.Size(403, 69);
          this.dgDirectory.TabIndex = 2;
          this.dgDirectory.SelectionChanged += new System.EventHandler(this.dgDirectory_SelectionChanged);
          // 
@@ -273,9 +283,9 @@
          // 
          // cmdGetDirectory
          // 
-         this.cmdGetDirectory.Location = new System.Drawing.Point(492, 27);
+         this.cmdGetDirectory.Location = new System.Drawing.Point(590, 157);
          this.cmdGetDirectory.Name = "cmdGetDirectory";
-         this.cmdGetDirectory.Size = new System.Drawing.Size(141, 30);
+         this.cmdGetDirectory.Size = new System.Drawing.Size(122, 30);
          this.cmdGetDirectory.TabIndex = 1;
          this.cmdGetDirectory.Text = "Get Directory";
          this.cmdGetDirectory.UseVisualStyleBackColor = true;
@@ -283,7 +293,7 @@
          // 
          // cmdGetViews
          // 
-         this.cmdGetViews.Location = new System.Drawing.Point(721, 275);
+         this.cmdGetViews.Location = new System.Drawing.Point(761, 275);
          this.cmdGetViews.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetViews.Name = "cmdGetViews";
          this.cmdGetViews.Size = new System.Drawing.Size(100, 31);
@@ -294,7 +304,7 @@
          // 
          // cmdGetXML
          // 
-         this.cmdGetXML.Location = new System.Drawing.Point(721, 236);
+         this.cmdGetXML.Location = new System.Drawing.Point(761, 236);
          this.cmdGetXML.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetXML.Name = "cmdGetXML";
          this.cmdGetXML.Size = new System.Drawing.Size(100, 31);
@@ -305,7 +315,7 @@
          // 
          // cmdSaveAs
          // 
-         this.cmdSaveAs.Location = new System.Drawing.Point(721, 314);
+         this.cmdSaveAs.Location = new System.Drawing.Point(761, 314);
          this.cmdSaveAs.Margin = new System.Windows.Forms.Padding(4);
          this.cmdSaveAs.Name = "cmdSaveAs";
          this.cmdSaveAs.Size = new System.Drawing.Size(100, 31);
@@ -319,9 +329,9 @@
          this.lstLogs.ContextMenuStrip = this.cmErrLog;
          this.lstLogs.FormattingEnabled = true;
          this.lstLogs.ItemHeight = 16;
-         this.lstLogs.Location = new System.Drawing.Point(12, 292);
+         this.lstLogs.Location = new System.Drawing.Point(12, 340);
          this.lstLogs.Name = "lstLogs";
-         this.lstLogs.Size = new System.Drawing.Size(291, 116);
+         this.lstLogs.Size = new System.Drawing.Size(291, 84);
          this.lstLogs.TabIndex = 3;
          // 
          // cmErrLog
@@ -349,7 +359,7 @@
          // 
          // lblSelectXMLTest
          // 
-         this.lblSelectXMLTest.Location = new System.Drawing.Point(526, 292);
+         this.lblSelectXMLTest.Location = new System.Drawing.Point(523, 312);
          this.lblSelectXMLTest.Name = "lblSelectXMLTest";
          this.lblSelectXMLTest.Size = new System.Drawing.Size(167, 28);
          this.lblSelectXMLTest.TabIndex = 22;
@@ -359,7 +369,7 @@
          // cbSelectXMLTest
          // 
          this.cbSelectXMLTest.FormattingEnabled = true;
-         this.cbSelectXMLTest.Location = new System.Drawing.Point(521, 323);
+         this.cbSelectXMLTest.Location = new System.Drawing.Point(518, 343);
          this.cbSelectXMLTest.Name = "cbSelectXMLTest";
          this.cbSelectXMLTest.Size = new System.Drawing.Size(172, 24);
          this.cbSelectXMLTest.TabIndex = 21;
@@ -367,7 +377,7 @@
          // 
          // cmdRunXMLTest
          // 
-         this.cmdRunXMLTest.Location = new System.Drawing.Point(521, 353);
+         this.cmdRunXMLTest.Location = new System.Drawing.Point(518, 373);
          this.cmdRunXMLTest.Name = "cmdRunXMLTest";
          this.cmdRunXMLTest.Size = new System.Drawing.Size(171, 51);
          this.cmdRunXMLTest.TabIndex = 20;
@@ -403,7 +413,7 @@
          // 
          // cmdClear
          // 
-         this.cmdClear.Location = new System.Drawing.Point(721, 119);
+         this.cmdClear.Location = new System.Drawing.Point(761, 119);
          this.cmdClear.Margin = new System.Windows.Forms.Padding(4);
          this.cmdClear.Name = "cmdClear";
          this.cmdClear.Size = new System.Drawing.Size(100, 31);
@@ -414,7 +424,7 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(721, 353);
+         this.cmdSend.Location = new System.Drawing.Point(761, 353);
          this.cmdSend.Margin = new System.Windows.Forms.Padding(4);
          this.cmdSend.Name = "cmdSend";
          this.cmdSend.Size = new System.Drawing.Size(100, 31);
@@ -451,7 +461,7 @@
          // 
          // cmdGetMessage
          // 
-         this.cmdGetMessage.Location = new System.Drawing.Point(721, 197);
+         this.cmdGetMessage.Location = new System.Drawing.Point(761, 197);
          this.cmdGetMessage.Margin = new System.Windows.Forms.Padding(4);
          this.cmdGetMessage.Name = "cmdGetMessage";
          this.cmdGetMessage.Size = new System.Drawing.Size(100, 31);
@@ -462,7 +472,7 @@
          // 
          // cmdNewMessage
          // 
-         this.cmdNewMessage.Location = new System.Drawing.Point(721, 158);
+         this.cmdNewMessage.Location = new System.Drawing.Point(761, 158);
          this.cmdNewMessage.Margin = new System.Windows.Forms.Padding(4);
          this.cmdNewMessage.Name = "cmdNewMessage";
          this.cmdNewMessage.Size = new System.Drawing.Size(100, 31);
@@ -473,7 +483,7 @@
          // 
          // cmdCancel
          // 
-         this.cmdCancel.Location = new System.Drawing.Point(721, 393);
+         this.cmdCancel.Location = new System.Drawing.Point(761, 393);
          this.cmdCancel.Margin = new System.Windows.Forms.Padding(4);
          this.cmdCancel.Name = "cmdCancel";
          this.cmdCancel.Size = new System.Drawing.Size(100, 31);
@@ -481,6 +491,56 @@
          this.cmdCancel.Text = "Cancel";
          this.cmdCancel.UseVisualStyleBackColor = true;
          this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
+         // 
+         // lblPrinterDirectory
+         // 
+         this.lblPrinterDirectory.Location = new System.Drawing.Point(349, 15);
+         this.lblPrinterDirectory.Name = "lblPrinterDirectory";
+         this.lblPrinterDirectory.Size = new System.Drawing.Size(277, 17);
+         this.lblPrinterDirectory.TabIndex = 29;
+         this.lblPrinterDirectory.Text = "Messages in Printer\'s Directory";
+         this.lblPrinterDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // lblFolderDirectory
+         // 
+         this.lblFolderDirectory.Location = new System.Drawing.Point(40, 15);
+         this.lblFolderDirectory.Name = "lblFolderDirectory";
+         this.lblFolderDirectory.Size = new System.Drawing.Size(220, 23);
+         this.lblFolderDirectory.TabIndex = 30;
+         this.lblFolderDirectory.Text = "Messages in Message Folder";
+         this.lblFolderDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // dgFolder
+         // 
+         this.dgFolder.AllowUserToAddRows = false;
+         this.dgFolder.AllowUserToDeleteRows = false;
+         this.dgFolder.AllowUserToResizeRows = false;
+         this.dgFolder.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+         this.dgFolder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgFolder.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.FolderContents});
+         this.dgFolder.Location = new System.Drawing.Point(24, 41);
+         this.dgFolder.Name = "dgFolder";
+         this.dgFolder.RowTemplate.Height = 24;
+         this.dgFolder.Size = new System.Drawing.Size(260, 69);
+         this.dgFolder.TabIndex = 31;
+         this.dgFolder.SelectionChanged += new System.EventHandler(this.dgFolder_SelectionChanged);
+         // 
+         // FolderContents
+         // 
+         this.FolderContents.HeaderText = "FolderContents";
+         this.FolderContents.Name = "FolderContents";
+         this.FolderContents.Width = 133;
+         // 
+         // cmdSaveInPrinter
+         // 
+         this.cmdSaveInPrinter.Location = new System.Drawing.Point(24, 157);
+         this.cmdSaveInPrinter.Name = "cmdSaveInPrinter";
+         this.cmdSaveInPrinter.Size = new System.Drawing.Size(128, 30);
+         this.cmdSaveInPrinter.TabIndex = 32;
+         this.cmdSaveInPrinter.Text = "Save in Printer";
+         this.cmdSaveInPrinter.UseVisualStyleBackColor = true;
+         this.cmdSaveInPrinter.Click += new System.EventHandler(this.cmdSaveInPrinter_Click);
          // 
          // IJPTest
          // 
@@ -525,6 +585,7 @@
          this.tabDirectory.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).EndInit();
          this.cmErrLog.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgFolder)).EndInit();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -572,6 +633,11 @@
       private System.Windows.Forms.Button cmdGetMessage;
       private System.Windows.Forms.Button cmdNewMessage;
       private System.Windows.Forms.Button cmdCancel;
+      private System.Windows.Forms.Button cmdSaveInPrinter;
+      private System.Windows.Forms.DataGridView dgFolder;
+      private System.Windows.Forms.DataGridViewTextBoxColumn FolderContents;
+      private System.Windows.Forms.Label lblFolderDirectory;
+      private System.Windows.Forms.Label lblPrinterDirectory;
    }
 }
 

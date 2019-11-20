@@ -41,6 +41,18 @@ namespace IJPLib_Test {
       byte SA_GroupID;
       int SA_DirectoryID;
 
+      // Variables for Load All files into printer directory
+      bool LA_LoadingAll;
+      string LA_NickName;
+      ushort LA_PrinterID;
+      byte LA_GroupID;
+      int LA_DirectoryID;
+
+      // Variables for retrieving the printer's directory
+      bool GD_GettingDirectory;
+      int GD_FirstMsg;
+      int GD_DirCount;
+
       // Cancel for multi step processes
       bool cancel = false;
 
@@ -108,10 +120,15 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, txtXMLIndented, 1, 1, 38, 31);
             Utils.ResizeObject(ref R, tvXMLTree, 1, 1, 38, 31);
 
-            Utils.ResizeObject(ref R, dgDirectory, 1, 1, 38, 15);
-            Utils.ResizeObject(ref R, cmdGetDirectory, 1, 17, 2, 5);
-            Utils.ResizeObject(ref R, cmdGetOne, 4, 17, 2, 5);
-            Utils.ResizeObject(ref R, cmdGetAll, 7, 17, 2, 5);
+            Utils.ResizeObject(ref R, lblFolderDirectory, 1, 1, 2, 8);
+            Utils.ResizeObject(ref R, dgFolder, 3, 1, 36, 8);
+            Utils.ResizeObject(ref R, cmdSaveInPrinter, 3, 9.5f, 2, 4);
+
+            Utils.ResizeObject(ref R, lblPrinterDirectory, 1, 14, 2, 14);
+            Utils.ResizeObject(ref R, dgDirectory, 3, 14, 36, 14);
+            Utils.ResizeObject(ref R, cmdGetDirectory, 3, 28.5f, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetOne, 6, 28.5f, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetAll, 9, 28.5f, 2, 4);
 
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
@@ -283,9 +300,6 @@ namespace IJPLib_Test {
          cmdSend_Click(null, null);
       }
 
-      bool GD_GettingDirectory;
-      int GD_FirstMsg;
-      int GD_DirCount;
       private void cmdGetDirectory_Click(object sender, EventArgs e) {
          dgDirectory.Rows.Clear();
          GD_GettingDirectory = true;
@@ -304,22 +318,29 @@ namespace IJPLib_Test {
          setButtonEnables();
       }
 
+      private void dgFolder_SelectionChanged(object sender, EventArgs e) {
+         setButtonEnables();
+      }
+
       private void cmdGetOne_Click(object sender, EventArgs e) {
          int n = dgDirectory.SelectedRows[0].Index;
          ushort msgNo = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
-         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = msgNo });
+         ushort PrinterID = Convert.ToUInt16(dgDirectory.Rows[n].Cells[0].Value);
+         byte GroupID = Convert.ToByte(dgDirectory.Rows[n].Cells[1].Value);
+         string NickName = dgDirectory.Rows[n].Cells[2].Value.ToString();
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.CallMessage) { MessageNumber = PrinterID });
          IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
-         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXML));
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXML) { MessageInfo = new IJPMessageInfo(PrinterID, GroupID, NickName) });
          IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetObjectSettings));
       }
 
       private void cmdGetAll_Click(object sender, EventArgs e) {
          SA_SavingAll = true;
          cancel = false;
-         GetNextMessage();
+         GetNextMessageToSave();
       }
 
-      private void GetNextMessage() {
+      private void GetNextMessageToSave() {
          for (int i = 0; i < dgDirectory.Rows.Count; i++) {
             if (dgDirectory.Rows[i].Selected) {
                SA_DirectoryID = i;
@@ -330,6 +351,39 @@ namespace IJPLib_Test {
                IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMessage));
                IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetXMLOnly) { MessageInfo = new IJPMessageInfo(SA_PrinterID, SA_GroupID, SA_NickName) });
                return;
+            }
+         }
+         SA_SavingAll = false;
+      }
+
+      private void cmdSaveInPrinter_Click(object sender, EventArgs e) {
+         LA_LoadingAll = true;
+         cancel = false;
+         GetNextMessageToLoad();
+      }
+
+      private void GetNextMessageToLoad() {
+         for (int i = 0; i < dgFolder.Rows.Count; i++) {
+            if (dgFolder.Rows[i].Selected) {
+               LA_DirectoryID = i;
+               string fileName = Path.Combine(txtMessageFolder.Text, dgFolder.Rows[i].Cells[0].Value.ToString() + ".hml");
+               if (File.Exists(fileName)) {
+                  string xml = File.ReadAllText(fileName);
+                  XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
+                  xmlDoc.LoadXml(xml);
+                  XmlNode msg = xmlDoc.SelectSingleNode("Label/Message");
+                  if (msg != null) {
+                     if (ushort.TryParse(GetXmlAttr(msg, "Registration"), out LA_PrinterID)
+                        && byte.TryParse(GetXmlAttr(msg, "GroupNumber"), out LA_GroupID)) {
+                        LA_NickName = GetXmlAttr(msg, "Name");
+                        IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.NewMessage));
+                        IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetXML) { XML = xml });
+                        IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetMessage));
+                        IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SaveMessage) { MessageInfo = new IJPMessageInfo(LA_PrinterID, LA_GroupID, LA_NickName) });
+                        return;
+                     }
+                  }
+               }
             }
          }
          SA_SavingAll = false;
@@ -353,7 +407,7 @@ namespace IJPLib_Test {
                break;
             case IJPLib_XML.ReqType.GetDirectory:
                if (GD_GettingDirectory) {
-                  if (evArgs.mi.Length > 0) {
+                  if (evArgs.mi != null && evArgs.mi.Length > 0) {
                      for (int i = 0; i < evArgs.mi.Length; i++) {
                         dgDirectory.Rows.Add(new string[]
                         { evArgs.mi[i].RegistrationNumber.ToString(),  evArgs.mi[i].GroupNumber.ToString(), evArgs.mi[i].Nickname });
@@ -364,10 +418,10 @@ namespace IJPLib_Test {
                         GD_FirstMsg += GD_DirCount;
                         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetDirectory) { Start = GD_FirstMsg, End = GD_FirstMsg + GD_DirCount - 1 });
                      }
+                     dgDirectory.FirstDisplayedScrollingRowIndex = dgDirectory.Rows.Count - 1;
                   } else {
                      GD_GettingDirectory = false;
                   }
-                  dgDirectory.FirstDisplayedScrollingRowIndex = dgDirectory.Rows.Count - 1;
                }
                break;
             case IJPLib_XML.ReqType.GetXML:
@@ -391,7 +445,7 @@ namespace IJPLib_Test {
                   }
                   // need to do a save here
                   if (!cancel) {
-                     GetNextMessage();
+                     GetNextMessageToSave();
                   }
                }
                break;
@@ -406,6 +460,14 @@ namespace IJPLib_Test {
             case IJPLib_XML.ReqType.SetComStatus:
                comOn = evArgs.ComStatus;
                break;
+            case IJPLib_XML.ReqType.SaveMessage:
+               if (LA_LoadingAll) {
+                  dgFolder.Rows[LA_DirectoryID].Selected = false;
+                  if (!cancel) {
+                     GetNextMessageToLoad();
+                  }
+               }
+               break;
             case IJPLib_XML.ReqType.Exit:
                break;
             default:
@@ -419,6 +481,16 @@ namespace IJPLib_Test {
 
       #region Service routines
 
+      // Get XML Attribute Value
+      private string GetXmlAttr(XmlNode node, string AttrName) {
+         XmlNode n;
+         if (node != null && (n = node.Attributes[AttrName]) != null) {
+            return n.Value;
+         } else {
+            return "N_A";
+         }
+      }
+
       // Clear XML and Object Indented and Tree View displays
       private void ClearViews() {
          tvIJPLibTree.Nodes.Clear();
@@ -430,11 +502,14 @@ namespace IJPLib_Test {
       // Populate dropdown with XML files in Messages folder
       private void BuildTestFileList() {
          cbSelectXMLTest.Items.Clear();
+         dgFolder.Rows.Clear();
          if (Directory.Exists(txtMessageFolder.Text)) {
             string[] FileNames = Directory.GetFiles(txtMessageFolder.Text, "*.HML");
             Array.Sort(FileNames);
             for (int i = 0; i < FileNames.Length; i++) {
-               cbSelectXMLTest.Items.Add(Path.GetFileNameWithoutExtension(FileNames[i]));
+               string fileName = Path.GetFileNameWithoutExtension(FileNames[i]);
+               cbSelectXMLTest.Items.Add(fileName);
+               dgFolder.Rows.Add(fileName);
             }
          } else {
             Log($"The Directory \"{txtMessageFolder.Text}\" does not exist!");
@@ -456,6 +531,7 @@ namespace IJPLib_Test {
       private void setButtonEnables() {
          bool connected = IX != null && IX.IsConnected;
          bool IOPossible = connected && comOn == IJPOnlineStatus.Online;
+         bool msgDirExists = Directory.Exists(txtMessageFolder.Text);
          // These must connect first
          cmdComOnOff.Enabled = connected;
          cmdConnect.Text = connected ? "Disconnect" : "Connect";
@@ -464,7 +540,8 @@ namespace IJPLib_Test {
          cmdGetXML.Enabled = IOPossible || message != null;
          cmdGetDirectory.Enabled = IOPossible;
          cmdGetOne.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
-         cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0 && Directory.Exists(txtMessageFolder.Text);
+         cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0 && msgDirExists;
+         cmdSaveInPrinter.Enabled = IOPossible && dgFolder.SelectedRows.Count > 0 && msgDirExists;
 
          cmdRunXMLTest.Enabled = IOPossible && cbSelectXMLTest.SelectedIndex >= 0;
 
