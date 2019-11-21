@@ -18,10 +18,10 @@ namespace IJPLibXML {
       #region Data Declarations
 
       // Braced Characters (count, date, half-size, logos
-      readonly char[] bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
+      readonly char[] Bc = new char[] { 'C', 'Y', 'M', 'D', 'h', 'm', 's', 'T', 'W', '7', 'E', 'F', ' ', '\'', '.', ';', ':', '!', ',', 'X', 'Z' };
 
-      // Attributes of braced characters
-      public enum ba {
+      // Braced Attributes for Braced Characters
+      public enum Ba {
          Count = 1 << 0,
          Year = 1 << 1,
          Month = 1 << 2,
@@ -48,16 +48,16 @@ namespace IJPLibXML {
       }
 
       const int DateCode =
-         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-         (int)ba.Julian | (int)ba.WeekNumber | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
+         (int)Ba.Year | (int)Ba.Month | (int)Ba.Day | (int)Ba.Hour | (int)Ba.Minute | (int)Ba.Second |
+         (int)Ba.Julian | (int)Ba.WeekNumber | (int)Ba.DayOfWeek | (int)Ba.Shift | (int)Ba.TimeCount;
 
       const int DateOffset =
-        (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-        (int)ba.Julian | (int)ba.WeekNumber | (int)ba.DayOfWeek;
+        (int)Ba.Year | (int)Ba.Month | (int)Ba.Day | (int)Ba.Hour | (int)Ba.Minute | (int)Ba.Second |
+        (int)Ba.Julian | (int)Ba.WeekNumber | (int)Ba.DayOfWeek;
 
       const int DateSubZS =
-         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
-         (int)ba.WeekNumber | (int)ba.DayOfWeek;
+         (int)Ba.Year | (int)Ba.Month | (int)Ba.Day | (int)Ba.Hour | (int)Ba.Minute |
+         (int)Ba.WeekNumber | (int)Ba.DayOfWeek;
 
       const int DateUseSubRule = DateOffset;
 
@@ -69,12 +69,12 @@ namespace IJPLibXML {
          Logo = 4,
       }
 
-      struct logoSave {
+      struct LogoSave {
          public IJPDotMatrix dm;
          public int location;
          public bool fixedStyle;
 
-         public bool Equals(logoSave other) {
+         public bool Equals(LogoSave other) {
             return this.fixedStyle.Equals(other.fixedStyle) &&
                this.dm.Equals(other.dm) &&
                this.location.Equals(other.location);
@@ -97,8 +97,8 @@ namespace IJPLibXML {
          ItemType itemType;
          int calBlockNumber = 0;
          int cntBlockNumber = 0;
-         using (MemoryStream ms = new MemoryStream()) {
-            using (XmlTextWriter writer = new XmlTextWriter(ms, Encoding.GetEncoding("UTF-8"))) {
+         using (MemoryStream MemStream = new MemoryStream()) {
+            using (XmlTextWriter writer = new XmlTextWriter(MemStream, Encoding.GetEncoding("UTF-8"))) {
                writer.Formatting = Formatting.Indented;
                writer.WriteStartDocument();
                try {
@@ -161,12 +161,12 @@ namespace IJPLibXML {
                   }
                   writer.WriteEndElement(); // End Label
                } catch (Exception e1) {
-                  MessageBox.Show("Help", "EIP I/O Error", MessageBoxButtons.OK);
+                  MessageBox.Show($"IJP_XML: {e1.Message}\n{e1.StackTrace}", "EIP I/O Error", MessageBoxButtons.OK);
                }
                writer.WriteEndDocument();
                writer.Flush();
-               ms.Position = 0;
-               xml = new StreamReader(ms).ReadToEnd();
+               MemStream.Position = 0;
+               xml = new StreamReader(MemStream).ReadToEnd();
             }
          }
          return xml;
@@ -294,38 +294,38 @@ namespace IJPLibXML {
                if ((mask[i] & DateSubZS) > 0) {
                   writer.WriteStartElement("ZeroSuppress"); // Start ZeroSuppress
                   {
-                     if ((mask[i] & (int)ba.Year) > 0)
+                     if ((mask[i] & (int)Ba.Year) > 0)
                         writer.WriteAttributeString("Year", c.YearZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.Month) > 0)
+                     if ((mask[i] & (int)Ba.Month) > 0)
                         writer.WriteAttributeString("Month", c.MonthZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.Day) > 0)
+                     if ((mask[i] & (int)Ba.Day) > 0)
                         writer.WriteAttributeString("Day", c.DayZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.Hour) > 0)
+                     if ((mask[i] & (int)Ba.Hour) > 0)
                         writer.WriteAttributeString("Hour", c.HourZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.Minute) > 0)
+                     if ((mask[i] & (int)Ba.Minute) > 0)
                         writer.WriteAttributeString("Minute", c.MinuteZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.WeekNumber) > 0)
+                     if ((mask[i] & (int)Ba.WeekNumber) > 0)
                         writer.WriteAttributeString("Week", c.WeekNumberZeroSuppression.ToString());
-                     if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                     if ((mask[i] & (int)Ba.DayOfWeek) > 0)
                         writer.WriteAttributeString("DayOfWeek", c.WeekZeroSuppression.ToString());
                   }
                   writer.WriteEndElement(); // End ZeroSuppress
 
                   writer.WriteStartElement("Substitute"); // Start Substitute
                   {
-                     if ((mask[i] & (int)ba.Year) > 0)
+                     if ((mask[i] & (int)Ba.Year) > 0)
                         writer.WriteAttributeString("Year", c.YearSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.Month) > 0)
+                     if ((mask[i] & (int)Ba.Month) > 0)
                         writer.WriteAttributeString("Month", c.MonthSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.Day) > 0)
+                     if ((mask[i] & (int)Ba.Day) > 0)
                         writer.WriteAttributeString("Day", c.DaySubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.Hour) > 0)
+                     if ((mask[i] & (int)Ba.Hour) > 0)
                         writer.WriteAttributeString("Hour", c.HourSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.Minute) > 0)
+                     if ((mask[i] & (int)Ba.Minute) > 0)
                         writer.WriteAttributeString("Minute", c.MinuteSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.WeekNumber) > 0)
+                     if ((mask[i] & (int)Ba.WeekNumber) > 0)
                         writer.WriteAttributeString("Week", c.WeekNumberSubstitutionRule.ToString());
-                     if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                     if ((mask[i] & (int)Ba.DayOfWeek) > 0)
                         writer.WriteAttributeString("DayOfWeek", c.WeekSubstitutionRule.ToString());
                   }
                   writer.WriteEndElement(); // End EnableSubstitution
@@ -338,7 +338,7 @@ namespace IJPLibXML {
 
       private void RetrieveShiftSettings(XmlTextWriter writer, IJPShiftCodeCollection ss, int[] mask) {
          for (int i = 0; i < mask.Length; i++) {
-            if ((mask[i] & (int)ba.Shift) > 0) {
+            if ((mask[i] & (int)Ba.Shift) > 0) {
                writer.WriteStartElement("Shifts"); // Start Shifts
                {
                   for (int shift = 0; shift < ss.Count; shift++) {
@@ -359,7 +359,7 @@ namespace IJPLibXML {
 
       private void RetrieveTimeCountSettings(XmlTextWriter writer, IJPTimeCountCondition tc, int[] mask) {
          for (int i = 0; i < mask.Length; i++) {
-            if ((mask[i] & (int)ba.TimeCount) > 0) {
+            if ((mask[i] & (int)Ba.TimeCount) > 0) {
                writer.WriteStartElement("TimeCount"); // Start TimeCount
                {
                   writer.WriteAttributeString("Interval", tc.RenewalPeriod.ToString());
@@ -420,15 +420,15 @@ namespace IJPLibXML {
       }
 
       private void RetrieveUserPatternSettings(XmlTextWriter writer, IJPMessage m, IJP ijp) {
-         List<logoSave> neededLogos = new List<logoSave>();
+         List<LogoSave> neededLogos = new List<LogoSave>();
          for (int i = 0; i < m.Items.Count; i++) {
             string s = m.Items[i].Text;
             for (int n = 0; n < s.Length; n++) {
                char c = s[n];
                if (c >= IJPLib_XML.FirstFixedUP && c <= IJPLib_XML.LastFixedUP) {
-                  neededLogos.Add(new logoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFixedUP });
+                  neededLogos.Add(new LogoSave() { fixedStyle = true, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFixedUP });
                } else if (c >= IJPLib_XML.FirstFreeUP && c <= IJPLib_XML.LastFreeUP) {
-                  neededLogos.Add(new logoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFreeUP });
+                  neededLogos.Add(new LogoSave() { fixedStyle = false, dm = m.Items[i].DotMatrix, location = c - IJPLib_XML.FirstFreeUP });
                }
             }
 
@@ -513,19 +513,19 @@ namespace IJPLibXML {
             int n = cc.SubstitutionRuleNumber;
             maxSZ = Math.Max(maxSZ, n);
             if (cc.YearSubstitutionRule)
-               sr[n] |= (int)ba.Year;
+               sr[n] |= (int)Ba.Year;
             if (cc.MonthSubstitutionRule)
-               sr[n] |= (int)ba.Month;
+               sr[n] |= (int)Ba.Month;
             if (cc.DaySubstitutionRule)
-               sr[n] |= (int)ba.Day;
+               sr[n] |= (int)Ba.Day;
             if (cc.HourSubstitutionRule)
-               sr[n] |= (int)ba.Hour;
+               sr[n] |= (int)Ba.Hour;
             if (cc.MinuteSubstitutionRule)
-               sr[n] |= (int)ba.Minute;
+               sr[n] |= (int)Ba.Minute;
             if (cc.WeekNumberSubstitutionRule)
-               sr[n] |= (int)ba.WeekNumber;
+               sr[n] |= (int)Ba.WeekNumber;
             if (cc.WeekSubstitutionRule)
-               sr[n] |= (int)ba.DayOfWeek;
+               sr[n] |= (int)Ba.DayOfWeek;
          }
          for (int i = 1; i <= maxSZ; i++) {
             if (sr[i] > 0) {
@@ -536,50 +536,50 @@ namespace IJPLibXML {
                   writer.WriteAttributeString("StartYear", srs.StartYear.ToString());
                   writer.WriteAttributeString("RuleNumber", i.ToString());
                   writer.WriteAttributeString("RuleName", srs.Name);
-                  if ((sr[i] & (int)ba.Year) > 0)
-                     RetrieveSubstitution(writer, srs, ba.Year, 0, 23);
-                  if ((sr[i] & (int)ba.Month) > 0)
-                     RetrieveSubstitution(writer, srs, ba.Month, 1, 12);
-                  if ((sr[i] & (int)ba.Day) > 0)
-                     RetrieveSubstitution(writer, srs, ba.Day, 1, 31);
-                  if ((sr[i] & (int)ba.Hour) > 0)
-                     RetrieveSubstitution(writer, srs, ba.Hour, 0, 23);
-                  if ((sr[i] & (int)ba.Minute) > 0)
-                     RetrieveSubstitution(writer, srs, ba.Minute, 0, 59);
-                  if ((sr[i] & (int)ba.WeekNumber) > 0)
-                     RetrieveSubstitution(writer, srs, ba.WeekNumber, 1, 53);
-                  if ((sr[i] & (int)ba.DayOfWeek) > 0)
-                     RetrieveSubstitution(writer, srs, ba.DayOfWeek, 1, 7);
+                  if ((sr[i] & (int)Ba.Year) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.Year, 0, 23);
+                  if ((sr[i] & (int)Ba.Month) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.Month, 1, 12);
+                  if ((sr[i] & (int)Ba.Day) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.Day, 1, 31);
+                  if ((sr[i] & (int)Ba.Hour) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.Hour, 0, 23);
+                  if ((sr[i] & (int)Ba.Minute) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.Minute, 0, 59);
+                  if ((sr[i] & (int)Ba.WeekNumber) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.WeekNumber, 1, 53);
+                  if ((sr[i] & (int)Ba.DayOfWeek) > 0)
+                     RetrieveSubstitution(writer, srs, Ba.DayOfWeek, 1, 7);
                }
                writer.WriteEndElement(); // Substitution
             }
          }
       }
 
-      private void RetrieveSubstitution(XmlTextWriter writer, IJPSubstitutionRule srs, ba rule, int start, int end) {
+      private void RetrieveSubstitution(XmlTextWriter writer, IJPSubstitutionRule srs, Ba rule, int start, int end) {
          int n = end - start + 1;
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
             switch (rule) {
-               case ba.Year:
+               case Ba.Year:
                   subCode[i] = srs.GetYearSetup(i + start);
                   break;
-               case ba.Month:
+               case Ba.Month:
                   subCode[i] = srs.GetMonthSetup(i + start);
                   break;
-               case ba.Day:
+               case Ba.Day:
                   subCode[i] = srs.GetDaySetup(i + start);
                   break;
-               case ba.Hour:
+               case Ba.Hour:
                   subCode[i] = srs.GetHourSetup(i + start);
                   break;
-               case ba.Minute:
+               case Ba.Minute:
                   subCode[i] = srs.GetMinuteSetup(i + start);
                   break;
-               case ba.WeekNumber:
+               case Ba.WeekNumber:
                   subCode[i] = srs.GetWeekNumberSetup(i);
                   break;
-               case ba.DayOfWeek:
+               case Ba.DayOfWeek:
                   subCode[i] = srs.GetWeekSetup((DayOfWeek)i);
                   break;
             }
@@ -608,11 +608,11 @@ namespace IJPLibXML {
             int n = s[i].IndexOf('}');
             if (n >= 0) {
                for (int j = 0; j < n; j++) {
-                  int k = Array.IndexOf(bc, s[i][j]);
+                  int k = Array.IndexOf(Bc, s[i][j]);
                   if (k >= 0) {
                      mask[l] |= 1 << k;
                   } else {
-                     mask[l] |= (int)ba.Unknown;
+                     mask[l] |= (int)Ba.Unknown;
                   }
                }
             }
@@ -621,7 +621,7 @@ namespace IJPLibXML {
             }
          }
          // Calendar and Count cannot appear in the same item
-         if ((mask[0] & (int)ba.Count) > 0) {
+         if ((mask[0] & (int)Ba.Count) > 0) {
             return ItemType.Counter;
          } else if ((mask[0] & DateCode) > 0) {
             return ItemType.Date;
