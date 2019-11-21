@@ -93,7 +93,7 @@
          this.cmdComOnOff.TabIndex = 11;
          this.cmdComOnOff.Text = "COM On";
          this.cmdComOnOff.UseVisualStyleBackColor = true;
-         this.cmdComOnOff.Click += new System.EventHandler(this.cmdComOnOff_Click);
+         this.cmdComOnOff.Click += new System.EventHandler(this.ComOnOff_Click);
          // 
          // cmdConnect
          // 
@@ -104,7 +104,7 @@
          this.cmdConnect.TabIndex = 9;
          this.cmdConnect.Text = "Connect";
          this.cmdConnect.UseVisualStyleBackColor = true;
-         this.cmdConnect.Click += new System.EventHandler(this.cmdConnect_Click);
+         this.cmdConnect.Click += new System.EventHandler(this.Connect_Click);
          // 
          // ipAddressTextBox
          // 
@@ -127,7 +127,7 @@
          this.tclIJPLib.SelectedIndex = 0;
          this.tclIJPLib.Size = new System.Drawing.Size(739, 226);
          this.tclIJPLib.TabIndex = 16;
-         this.tclIJPLib.SelectedIndexChanged += new System.EventHandler(this.tclIJPLib_SelectedIndexChanged);
+         this.tclIJPLib.SelectedIndexChanged += new System.EventHandler(this.IJPLib_SelectedIndexChanged);
          // 
          // tabIndentedView
          // 
@@ -229,7 +229,7 @@
          this.cmdGetAll.TabIndex = 4;
          this.cmdGetAll.Text = "Get All Messages";
          this.cmdGetAll.UseVisualStyleBackColor = true;
-         this.cmdGetAll.Click += new System.EventHandler(this.cmdGetAll_Click);
+         this.cmdGetAll.Click += new System.EventHandler(this.GetAll_Click);
          // 
          // cmdGetOne
          // 
@@ -239,7 +239,7 @@
          this.cmdGetOne.TabIndex = 3;
          this.cmdGetOne.Text = "Get One Message";
          this.cmdGetOne.UseVisualStyleBackColor = true;
-         this.cmdGetOne.Click += new System.EventHandler(this.cmdGetOne_Click);
+         this.cmdGetOne.Click += new System.EventHandler(this.GetOne_Click);
          // 
          // dgDirectory
          // 
@@ -256,7 +256,7 @@
          this.dgDirectory.RowTemplate.Height = 24;
          this.dgDirectory.Size = new System.Drawing.Size(403, 69);
          this.dgDirectory.TabIndex = 2;
-         this.dgDirectory.SelectionChanged += new System.EventHandler(this.dgDirectory_SelectionChanged);
+         this.dgDirectory.SelectionChanged += new System.EventHandler(this.Directory_SelectionChanged);
          // 
          // colMsgNo
          // 
@@ -289,7 +289,7 @@
          this.cmdGetDirectory.TabIndex = 1;
          this.cmdGetDirectory.Text = "Get Directory";
          this.cmdGetDirectory.UseVisualStyleBackColor = true;
-         this.cmdGetDirectory.Click += new System.EventHandler(this.cmdGetDirectory_Click);
+         this.cmdGetDirectory.Click += new System.EventHandler(this.GetDirectory_Click);
          // 
          // cmdGetViews
          // 
@@ -300,7 +300,7 @@
          this.cmdGetViews.TabIndex = 17;
          this.cmdGetViews.Text = "Get Views";
          this.cmdGetViews.UseVisualStyleBackColor = true;
-         this.cmdGetViews.Click += new System.EventHandler(this.cmdGetViews_Click);
+         this.cmdGetViews.Click += new System.EventHandler(this.GetViews_Click);
          // 
          // cmdGetXML
          // 
@@ -311,7 +311,7 @@
          this.cmdGetXML.TabIndex = 18;
          this.cmdGetXML.Text = "Get XML";
          this.cmdGetXML.UseVisualStyleBackColor = true;
-         this.cmdGetXML.Click += new System.EventHandler(this.cmdGetXML_Click);
+         this.cmdGetXML.Click += new System.EventHandler(this.GetXML_Click);
          // 
          // cmdSaveAs
          // 
@@ -322,7 +322,7 @@
          this.cmdSaveAs.TabIndex = 19;
          this.cmdSaveAs.Text = "Save As";
          this.cmdSaveAs.UseVisualStyleBackColor = true;
-         this.cmdSaveAs.Click += new System.EventHandler(this.ccmdSaveAs_Click);
+         this.cmdSaveAs.Click += new System.EventHandler(this.SaveAs_Click);
          // 
          // lstLogs
          // 
@@ -348,14 +348,14 @@
          this.cmErrLogToNotepad.Name = "cmErrLogToNotepad";
          this.cmErrLogToNotepad.Size = new System.Drawing.Size(189, 24);
          this.cmErrLogToNotepad.Text = "View In Notepad";
-         this.cmErrLogToNotepad.Click += new System.EventHandler(this.cmErrLogToNotepad_Click);
+         this.cmErrLogToNotepad.Click += new System.EventHandler(this.ErrLogToNotepad_Click);
          // 
          // cmErrLogClearlog
          // 
          this.cmErrLogClearlog.Name = "cmErrLogClearlog";
          this.cmErrLogClearlog.Size = new System.Drawing.Size(189, 24);
          this.cmErrLogClearlog.Text = "Clear Log";
-         this.cmErrLogClearlog.Click += new System.EventHandler(this.cmErrLogClearlog_Click);
+         this.cmErrLogClearlog.Click += new System.EventHandler(this.ErrLogClearlog_Click);
          // 
          // lblSelectXMLTest
          // 
@@ -373,7 +373,7 @@
          this.cbSelectXMLTest.Name = "cbSelectXMLTest";
          this.cbSelectXMLTest.Size = new System.Drawing.Size(172, 24);
          this.cbSelectXMLTest.TabIndex = 21;
-         this.cbSelectXMLTest.SelectedIndexChanged += new System.EventHandler(this.cbSelectXMLTest_SelectedIndexChanged);
+         this.cbSelectXMLTest.SelectedIndexChanged += new System.EventHandler(this.SelectXMLTest_SelectedIndexChanged);
          // 
          // cmdRunXMLTest
          // 
@@ -383,7 +383,7 @@
          this.cmdRunXMLTest.TabIndex = 20;
          this.cmdRunXMLTest.Text = "Run XML Test";
          this.cmdRunXMLTest.UseVisualStyleBackColor = true;
-         this.cmdRunXMLTest.Click += new System.EventHandler(this.cmdRunXMLTest_Click);
+         this.cmdRunXMLTest.Click += new System.EventHandler(this.RunXMLTest_Click);
          // 
          // lblMessageFolder
          // 
@@ -409,7 +409,7 @@
          this.cmdMsgBrowse.TabIndex = 25;
          this.cmdMsgBrowse.Text = "Browse";
          this.cmdMsgBrowse.UseVisualStyleBackColor = true;
-         this.cmdMsgBrowse.Click += new System.EventHandler(this.cmdMsgBrowse_Click);
+         this.cmdMsgBrowse.Click += new System.EventHandler(this.Browse_Click);
          // 
          // cmdClear
          // 
@@ -420,7 +420,7 @@
          this.cmdClear.TabIndex = 26;
          this.cmdClear.Text = "Clear";
          this.cmdClear.UseVisualStyleBackColor = true;
-         this.cmdClear.Click += new System.EventHandler(this.cmdClear_Click);
+         this.cmdClear.Click += new System.EventHandler(this.Clear_Click);
          // 
          // cmdSend
          // 
@@ -431,7 +431,7 @@
          this.cmdSend.TabIndex = 27;
          this.cmdSend.Text = "Send";
          this.cmdSend.UseVisualStyleBackColor = true;
-         this.cmdSend.Click += new System.EventHandler(this.cmdSend_Click);
+         this.cmdSend.Click += new System.EventHandler(this.Send_Click);
          // 
          // cmdLogBrowse
          // 
@@ -441,7 +441,7 @@
          this.cmdLogBrowse.TabIndex = 30;
          this.cmdLogBrowse.Text = "Browse";
          this.cmdLogBrowse.UseVisualStyleBackColor = true;
-         this.cmdLogBrowse.Click += new System.EventHandler(this.cmdLogBrowse_Click);
+         this.cmdLogBrowse.Click += new System.EventHandler(this.LogBrowse_Click);
          // 
          // txtLogFolder
          // 
@@ -468,7 +468,7 @@
          this.cmdGetMessage.TabIndex = 31;
          this.cmdGetMessage.Text = "Get Message";
          this.cmdGetMessage.UseVisualStyleBackColor = true;
-         this.cmdGetMessage.Click += new System.EventHandler(this.cmdGetMessage_Click);
+         this.cmdGetMessage.Click += new System.EventHandler(this.GetMessage_Click);
          // 
          // cmdNewMessage
          // 
@@ -479,7 +479,7 @@
          this.cmdNewMessage.TabIndex = 32;
          this.cmdNewMessage.Text = "New Message";
          this.cmdNewMessage.UseVisualStyleBackColor = true;
-         this.cmdNewMessage.Click += new System.EventHandler(this.cmdNewMessage_Click);
+         this.cmdNewMessage.Click += new System.EventHandler(this.NewMessage_Click);
          // 
          // cmdCancel
          // 
@@ -490,7 +490,7 @@
          this.cmdCancel.TabIndex = 33;
          this.cmdCancel.Text = "Cancel";
          this.cmdCancel.UseVisualStyleBackColor = true;
-         this.cmdCancel.Click += new System.EventHandler(this.cmdCancel_Click);
+         this.cmdCancel.Click += new System.EventHandler(this.Cancel_Click);
          // 
          // lblPrinterDirectory
          // 
@@ -524,7 +524,7 @@
          this.dgFolder.RowTemplate.Height = 24;
          this.dgFolder.Size = new System.Drawing.Size(260, 69);
          this.dgFolder.TabIndex = 31;
-         this.dgFolder.SelectionChanged += new System.EventHandler(this.dgFolder_SelectionChanged);
+         this.dgFolder.SelectionChanged += new System.EventHandler(this.Folder_SelectionChanged);
          // 
          // FolderContents
          // 
@@ -540,7 +540,7 @@
          this.cmdSaveInPrinter.TabIndex = 32;
          this.cmdSaveInPrinter.Text = "Save in Printer";
          this.cmdSaveInPrinter.UseVisualStyleBackColor = true;
-         this.cmdSaveInPrinter.Click += new System.EventHandler(this.cmdSaveInPrinter_Click);
+         this.cmdSaveInPrinter.Click += new System.EventHandler(this.SaveInPrinter_Click);
          // 
          // IJPTest
          // 

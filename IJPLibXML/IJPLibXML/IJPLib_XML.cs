@@ -18,15 +18,15 @@ namespace IJPLibXML {
 
       // Event Logging
       public event LogHandler Log;
-      public delegate void LogHandler(IJPLib_XML sender, string msg);
+      public delegate void LogHandler(object sender, string msg);
 
       // Task Completion
       public event CompleteHandler Complete;
-      public delegate void CompleteHandler(IJPLib_XML sender, IX_EventArgs evArgs);
+      public delegate void CompleteHandler(object sender, IX_EventArgs e);
 
       public bool IsConnected { get { return ijp != null; } }
       public IJPOnlineStatus ComStatus { get { return ijp != null ? ComOn : IJPOnlineStatus.Offline; } }
-
+      public bool MessageExists { get { return message != null; } }
 
       #endregion
 
@@ -53,6 +53,7 @@ namespace IJPLibXML {
          SetComStatus,
          CallMessage,
          SaveMessage,
+         RenameMessage,
          Exit,
       }
 
@@ -76,7 +77,7 @@ namespace IJPLibXML {
 
       public IJPLib_XML(Form parent) {
          this.parent = parent;
-         t = new Thread(processTasks);
+         t = new Thread(ProcessTasks);
          t.Start();
       }
 
@@ -85,38 +86,31 @@ namespace IJPLibXML {
       #region Task Processing
 
       // Main processing loop
-      private void processTasks() {
+      private void ProcessTasks() {
          while (true) {
             pkt = Tasks.Take();
             if (pkt.Type == ReqType.Exit) {
                break;
             }
-            parent.BeginInvoke(new EventHandler(delegate { Log(this, pkt.Type.ToString() + " Starting!"); }));
+            parent.BeginInvoke(new EventHandler(delegate { Log(this, pkt.ToString() + " Starting!"); }));
             IX_EventArgs evArgs = new IX_EventArgs(pkt.Type);
             MsgToXml mtx = null;
             try {
                switch (pkt.Type) {
                   case ReqType.Connect:
                      Connect(pkt);
-                     evArgs.ijp = ijp;
-                     evArgs.ComStatus = ComOn;
                      break;
                   case ReqType.Disconnect:
                      Disconnect(pkt);
-                     evArgs.ijp = ijp;
-                     evArgs.ComStatus = ComOn;
                      break;
                   case ReqType.ClearMessage:
                      message = null;
-                     evArgs.message = message;
                      break;
                   case ReqType.NewMessage:
                      message = new IJPMessage();
-                     evArgs.message = message;
                      break;
                   case ReqType.GetMessage:
                      message = (IJPMessage)ijp.GetMessage();
-                     evArgs.message = message;
                      break;
                   case ReqType.GetXML:
                      if (message != null) {
@@ -142,22 +136,17 @@ namespace IJPLibXML {
                      }
                      break;
                   case ReqType.GetDirectory:
-                     evArgs.mi = ijp.ListMessage(pkt.Start, pkt.End);
+                     evArgs.Mi = ijp.ListMessage(pkt.Start, pkt.End);
                      break;
                   case ReqType.GetSettings:
                      message = (IJPMessage)ijp.GetMessage();
                      break;
                   case ReqType.SetXML:
                      XmlToMsg xtm = new XmlToMsg(pkt.XML, ijp);
-                     //xtm.Log += Log;
                      message = xtm.BuildMessage();
-                     //xtm.Log -= Log;
-                     //Log($"Run XML Test Complete");
-                     evArgs.message = message;
                      break;
                   case ReqType.SetComStatus:
                      ijp.SetComPort(pkt.ComStatus);
-                     evArgs.ComStatus = pkt.ComStatus;
                      break;
                   case ReqType.SetMessage:
                      if (message != null) {
@@ -170,6 +159,9 @@ namespace IJPLibXML {
                   case ReqType.SaveMessage:
                      ijp.SaveMessage(pkt.MessageInfo);
                      break;
+                  case ReqType.RenameMessage:
+                     ijp.RenameMessage(pkt.MessageNumber, pkt.MessageName);
+                     break;
                }
             } catch (Exception e) {
                parent.BeginInvoke(new EventHandler(delegate { Log(this, $"IJP_XML: {e.Message} \n{e.StackTrace}"); }));
@@ -181,10 +173,11 @@ namespace IJPLibXML {
       // Connect to printer
       private void Connect(ReqPkt pkt) {
          Disconnect(pkt);
-         ijp = new IJP();
-         ijp.IPAddress = pkt.ipAddress;
-         ijp.Timeout = pkt.timeOut;
-         ijp.Retry = pkt.retries;
+         ijp = new IJP() {
+            IPAddress = pkt.IpAddress,
+            Timeout = pkt.TimeOut,
+            Retry = pkt.Retries
+         };
          ijp.Connect();
          ComOn = ijp.GetComPort();
          // Be sure com is on
@@ -284,40 +277,65 @@ namespace IJPLibXML {
 
    #region Request Packet and Event Args 
 
-   public class ReqPkt : IFormattable {
+   public class ReqPkt {
 
       public IJPLib_XML.ReqType Type { get; set; }
-      public string ipAddress { get; set; } = "10.0.0.100";
-      public int timeOut { get; set; } = 5000;
-      public int retries { get; set; } = 5;
+      public string IpAddress { get; set; } = "10.0.0.100";
+      public int TimeOut { get; set; } = 5000;
+      public int Retries { get; set; } = 5;
       public IJPOnlineStatus ComStatus { get; set; }
       public ushort MessageNumber { get; set; } = 0;
-      public int Start { get; set; }
-      public int End { get; set; }
-      public string XML { get; set; }
-      public IJPMessageInfo MessageInfo {get; set;}
+      public string MessageName { get; set; } = "";
+      public int Start { get; set; } = 0;
+      public int End { get; set; } = 0;
+      public string XML { get; set; } = null;
+      public IJPMessageInfo MessageInfo { get; set; } = null;
 
       public ReqPkt(IJPLib_XML.ReqType Type) {
          this.Type = Type;
       }
 
-      public string ToString(string format, IFormatProvider provider) {
+      // Display information about the request
+      public override string ToString() {
          string result = $"{Type}:";
-         switch (this.Type) {
+         switch (Type) {
             case IJPLib_XML.ReqType.Connect:
-               result = $"{Type}: IP Address {ipAddress}, Timeout {timeOut}, Retries {retries}";
+               result = $"{Type}: IP Address {IpAddress}, Timeout {TimeOut}, Retries {Retries}";
                break;
             case IJPLib_XML.ReqType.Disconnect:
                break;
-            case IJPLib_XML.ReqType.GetMessage:
+            case IJPLib_XML.ReqType.ClearMessage:
                break;
-            case IJPLib_XML.ReqType.GetDirectory:
+            case IJPLib_XML.ReqType.NewMessage:
+               break;
+            case IJPLib_XML.ReqType.GetMessage:
                break;
             case IJPLib_XML.ReqType.GetXML:
                break;
+            case IJPLib_XML.ReqType.GetXMLOnly:
+               break;
+            case IJPLib_XML.ReqType.GetObjectSettings:
+               break;
+            case IJPLib_XML.ReqType.GetDirectory:
+               result = $"Get Directory: Start Number {Start}, End Number {End}";
+               break;
             case IJPLib_XML.ReqType.GetSettings:
                break;
+            case IJPLib_XML.ReqType.SetXML:
+               break;
+            case IJPLib_XML.ReqType.SetMessage:
+               break;
             case IJPLib_XML.ReqType.SetComStatus:
+               result = $"Set COM Status {ComStatus.ToString()}";
+               break;
+            case IJPLib_XML.ReqType.CallMessage:
+               result = $"Call Message: Registration {MessageNumber}";
+               break;
+            case IJPLib_XML.ReqType.SaveMessage:
+               result = $"Save Message: Registration # {MessageInfo.RegistrationNumber}, Group # {MessageInfo.GroupNumber}, Nickname {MessageInfo.Nickname}";
+               break;
+            case IJPLib_XML.ReqType.RenameMessage:
+               result = $"Rename Message: Registration # {MessageNumber}, New Name {MessageName}";
                break;
             case IJPLib_XML.ReqType.Exit:
                break;
@@ -326,20 +344,63 @@ namespace IJPLibXML {
          }
          return result;
       }
+
    }
 
    public class IX_EventArgs : EventArgs {
 
       public IJPLib_XML.ReqType Type { get; set; }
-      public IJP ijp { get; set; } = null;
-      public IJPOnlineStatus ComStatus { get; set; }
-      public IJPMessage message { get; set; } = null;
       public string Indented { get; set; } = null;
       public TreeNode TreeNode { get; set; } = null;
-      public IIJPMessageInfo[] mi { get; set; } = null;
+      public IIJPMessageInfo[] Mi { get; set; } = null;
 
       public IX_EventArgs(IJPLib_XML.ReqType Type) {
          this.Type = Type;
+      }
+
+      public override string ToString() {
+         string result = Type.ToString();
+         switch (Type) {
+            case IJPLib_XML.ReqType.Connect:
+               break;
+            case IJPLib_XML.ReqType.Disconnect:
+               break;
+            case IJPLib_XML.ReqType.ClearMessage:
+               break;
+            case IJPLib_XML.ReqType.NewMessage:
+               break;
+            case IJPLib_XML.ReqType.GetMessage:
+               break;
+            case IJPLib_XML.ReqType.GetXML:
+               break;
+            case IJPLib_XML.ReqType.GetXMLOnly:
+               break;
+            case IJPLib_XML.ReqType.GetObjectSettings:
+               break;
+            case IJPLib_XML.ReqType.GetDirectory:
+               int n = Mi == null ? 0 : Mi.Length;
+               result = $"Get Directory Retrieved {n} Entries!";
+               break;
+            case IJPLib_XML.ReqType.GetSettings:
+               break;
+            case IJPLib_XML.ReqType.SetXML:
+               break;
+            case IJPLib_XML.ReqType.SetMessage:
+               break;
+            case IJPLib_XML.ReqType.SetComStatus:
+               break;
+            case IJPLib_XML.ReqType.CallMessage:
+               break;
+            case IJPLib_XML.ReqType.SaveMessage:
+               break;
+            case IJPLib_XML.ReqType.RenameMessage:
+               break;
+            case IJPLib_XML.ReqType.Exit:
+               break;
+            default:
+               break;
+         }
+         return result;
       }
 
    }
