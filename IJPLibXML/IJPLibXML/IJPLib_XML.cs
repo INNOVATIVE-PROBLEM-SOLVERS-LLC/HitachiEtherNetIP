@@ -54,7 +54,20 @@ namespace IJPLibXML {
          CallMessage,
          SaveMessage,
          RenameMessage,
+         GetAlarms,
+         GetMisc,
          Exit,
+      }
+
+      public enum ReqSubType {
+         UnitInformation = 0,
+         OperationManagement = 1,
+         ServiceManagement = 2,
+         Status = 3,
+         ComEnvironment = 4,
+         DispEnvironment = 5,
+         CircControl = 6,
+         SoftwareVersion = 7,
       }
 
       // Do the work in the background
@@ -95,6 +108,9 @@ namespace IJPLibXML {
             parent.BeginInvoke(new EventHandler(delegate { Log(this, pkt.ToString() + " Starting!"); }));
             IX_EventArgs evArgs = new IX_EventArgs(pkt.Type);
             MsgToXml mtx = null;
+            string indentedView = string.Empty;
+            TreeNode treeNode = null;
+            ObjectDumper od = null;
             try {
                switch (pkt.Type) {
                   case ReqType.Connect:
@@ -129,8 +145,8 @@ namespace IJPLibXML {
                      break;
                   case ReqType.GetObjectSettings:
                      if (message != null) {
-                        ObjectDumper od = new ObjectDumper(2);
-                        od.Dump(message, out string indentedView, out TreeNode treeNode);
+                        od = new ObjectDumper(2);
+                        od.Dump(message, out indentedView, out treeNode);
                         evArgs.Indented = indentedView;
                         evArgs.TreeNode = treeNode;
                      }
@@ -161,6 +177,45 @@ namespace IJPLibXML {
                      break;
                   case ReqType.RenameMessage:
                      ijp.RenameMessage(pkt.MessageNumber, pkt.MessageName);
+                     break;
+                  case ReqType.GetAlarms:
+                     evArgs.AlarmHistory = ijp.GetAlarmHistory(pkt.Start, pkt.End);
+                     break;
+                  case ReqType.GetMisc:
+                     object Misc = null;
+                     switch (pkt.SubType) {
+                        case ReqSubType.UnitInformation:
+                           Misc = ijp.GetUnitInformation();
+                           break;
+                        case ReqSubType.OperationManagement:
+                           Misc = ijp.GetOperationManagement();
+                           break;
+                        case ReqSubType.ServiceManagement:
+                           Misc = ijp.GetServiceManagement();
+                           break;
+                        case ReqSubType.Status:
+                           Misc = ijp.GetStatus();
+                           break;
+                        case ReqSubType.ComEnvironment:
+                           Misc = ijp.GetCommunicationEnvironmentSetup();
+                           break;
+                        case ReqSubType.DispEnvironment:
+                           Misc = ijp.GetDisplayEnvironmentSetup();
+                           break;
+                        case ReqSubType.CircControl:
+                           Misc = ijp.GetCirculationControl();
+                           break;
+                        case ReqSubType.SoftwareVersion:
+                           Misc = ijp.GetSoftwareVersion();
+                           break;
+                        default:
+                           break;
+                     }
+                     od = new ObjectDumper(2);
+                     od.Dump(Misc, out indentedView, out treeNode);
+                     evArgs.Indented = indentedView;
+                     evArgs.TreeNode = treeNode;
+                     evArgs.SubType = pkt.SubType;
                      break;
                }
             } catch (Exception e) {
@@ -195,6 +250,11 @@ namespace IJPLibXML {
             ijp = null;
             ComOn = IJPOnlineStatus.Offline;
          }
+      }
+
+      // Get Alarm count (please ignore back door)
+      public int GetAlarmCount() {
+         return ijp.GetAlarmInformationCount();
       }
 
       #endregion
@@ -280,6 +340,7 @@ namespace IJPLibXML {
    public class ReqPkt {
 
       public IJPLib_XML.ReqType Type { get; set; }
+      public IJPLib_XML.ReqSubType SubType { get; set; }
       public string IpAddress { get; set; } = "10.0.0.100";
       public int TimeOut { get; set; } = 5000;
       public int Retries { get; set; } = 5;
@@ -337,6 +398,9 @@ namespace IJPLibXML {
             case IJPLib_XML.ReqType.RenameMessage:
                result = $"Rename Message: Registration # {MessageNumber}, New Name {MessageName}";
                break;
+            case IJPLib_XML.ReqType.GetMisc:
+               result = $"Get Misc Data {SubType.ToString()}";
+               break;
             case IJPLib_XML.ReqType.Exit:
                break;
             default:
@@ -350,9 +414,11 @@ namespace IJPLibXML {
    public class IX_EventArgs : EventArgs {
 
       public IJPLib_XML.ReqType Type { get; set; }
+      public IJPLib_XML.ReqSubType SubType { get; set; }
       public string Indented { get; set; } = null;
       public TreeNode TreeNode { get; set; } = null;
       public IIJPMessageInfo[] Mi { get; set; } = null;
+      public IIJPAlarmInformation[] AlarmHistory { get; set; } = null;
 
       public IX_EventArgs(IJPLib_XML.ReqType Type) {
          this.Type = Type;
@@ -394,6 +460,9 @@ namespace IJPLibXML {
             case IJPLib_XML.ReqType.SaveMessage:
                break;
             case IJPLib_XML.ReqType.RenameMessage:
+               break;
+            case IJPLib_XML.ReqType.GetMisc:
+               result = $"Get Misc Data {SubType.ToString()}";
                break;
             case IJPLib_XML.ReqType.Exit:
                break;

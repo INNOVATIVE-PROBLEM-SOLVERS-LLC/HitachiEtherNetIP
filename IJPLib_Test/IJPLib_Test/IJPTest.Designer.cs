@@ -26,6 +26,9 @@
          this.components = new System.ComponentModel.Container();
          System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
          System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+         System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IJPTest));
          this.cmdComOnOff = new System.Windows.Forms.Button();
          this.cmdConnect = new System.Windows.Forms.Button();
@@ -40,6 +43,11 @@
          this.tabXMLTree = new System.Windows.Forms.TabPage();
          this.tvXMLTree = new System.Windows.Forms.TreeView();
          this.tabDirectory = new System.Windows.Forms.TabPage();
+         this.cmdSaveInPrinter = new System.Windows.Forms.Button();
+         this.dgFolder = new System.Windows.Forms.DataGridView();
+         this.FolderContents = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.lblFolderDirectory = new System.Windows.Forms.Label();
+         this.lblPrinterDirectory = new System.Windows.Forms.Label();
          this.cmdGetAll = new System.Windows.Forms.Button();
          this.cmdGetOne = new System.Windows.Forms.Button();
          this.dgDirectory = new System.Windows.Forms.DataGridView();
@@ -47,6 +55,21 @@
          this.colGroupNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.cmdGetDirectory = new System.Windows.Forms.Button();
+         this.tabAlarms = new System.Windows.Forms.TabPage();
+         this.lblAlarms = new System.Windows.Forms.Label();
+         this.cmdGetAlarms = new System.Windows.Forms.Button();
+         this.dgAlarms = new System.Windows.Forms.DataGridView();
+         this.colDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.conErrorCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colDesc = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.tabMisc = new System.Windows.Forms.TabPage();
+         this.cbMiscOps = new System.Windows.Forms.ComboBox();
+         this.lblSelect = new System.Windows.Forms.Label();
+         this.cmdGetMisc = new System.Windows.Forms.Button();
+         this.lblMiscTreeView = new System.Windows.Forms.Label();
+         this.lblMiscIndented = new System.Windows.Forms.Label();
+         this.tvMisc = new System.Windows.Forms.TreeView();
+         this.txtMisc = new System.Windows.Forms.TextBox();
          this.cmdGetViews = new System.Windows.Forms.Button();
          this.cmdGetXML = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
@@ -68,20 +91,18 @@
          this.cmdGetMessage = new System.Windows.Forms.Button();
          this.cmdNewMessage = new System.Windows.Forms.Button();
          this.cmdCancel = new System.Windows.Forms.Button();
-         this.lblPrinterDirectory = new System.Windows.Forms.Label();
-         this.lblFolderDirectory = new System.Windows.Forms.Label();
-         this.dgFolder = new System.Windows.Forms.DataGridView();
-         this.FolderContents = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.cmdSaveInPrinter = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
          this.tabXMLIndented.SuspendLayout();
          this.tabXMLTree.SuspendLayout();
          this.tabDirectory.SuspendLayout();
-         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).BeginInit();
-         this.cmErrLog.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dgFolder)).BeginInit();
+         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).BeginInit();
+         this.tabAlarms.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgAlarms)).BeginInit();
+         this.tabMisc.SuspendLayout();
+         this.cmErrLog.SuspendLayout();
          this.SuspendLayout();
          // 
          // cmdComOnOff
@@ -122,6 +143,8 @@
          this.tclIJPLib.Controls.Add(this.tabXMLIndented);
          this.tclIJPLib.Controls.Add(this.tabXMLTree);
          this.tclIJPLib.Controls.Add(this.tabDirectory);
+         this.tclIJPLib.Controls.Add(this.tabAlarms);
+         this.tclIJPLib.Controls.Add(this.tabMisc);
          this.tclIJPLib.Location = new System.Drawing.Point(15, 93);
          this.tclIJPLib.Name = "tclIJPLib";
          this.tclIJPLib.SelectedIndex = 0;
@@ -134,7 +157,7 @@
          this.tabIndentedView.Controls.Add(this.txtIjpIndented);
          this.tabIndentedView.Location = new System.Drawing.Point(4, 25);
          this.tabIndentedView.Name = "tabIndentedView";
-         this.tabIndentedView.Size = new System.Drawing.Size(667, 166);
+         this.tabIndentedView.Size = new System.Drawing.Size(731, 197);
          this.tabIndentedView.TabIndex = 2;
          this.tabIndentedView.Text = "IJPLib Indented View";
          this.tabIndentedView.UseVisualStyleBackColor = true;
@@ -155,7 +178,7 @@
          this.tabTreeView.Location = new System.Drawing.Point(4, 25);
          this.tabTreeView.Name = "tabTreeView";
          this.tabTreeView.Padding = new System.Windows.Forms.Padding(3);
-         this.tabTreeView.Size = new System.Drawing.Size(667, 166);
+         this.tabTreeView.Size = new System.Drawing.Size(731, 197);
          this.tabTreeView.TabIndex = 1;
          this.tabTreeView.Text = "IJPLib Tree View";
          this.tabTreeView.UseVisualStyleBackColor = true;
@@ -172,7 +195,7 @@
          this.tabXMLIndented.Controls.Add(this.txtXMLIndented);
          this.tabXMLIndented.Location = new System.Drawing.Point(4, 25);
          this.tabXMLIndented.Name = "tabXMLIndented";
-         this.tabXMLIndented.Size = new System.Drawing.Size(667, 166);
+         this.tabXMLIndented.Size = new System.Drawing.Size(731, 197);
          this.tabXMLIndented.TabIndex = 3;
          this.tabXMLIndented.Text = "XML Indented";
          this.tabXMLIndented.UseVisualStyleBackColor = true;
@@ -192,7 +215,7 @@
          this.tabXMLTree.Controls.Add(this.tvXMLTree);
          this.tabXMLTree.Location = new System.Drawing.Point(4, 25);
          this.tabXMLTree.Name = "tabXMLTree";
-         this.tabXMLTree.Size = new System.Drawing.Size(667, 166);
+         this.tabXMLTree.Size = new System.Drawing.Size(731, 197);
          this.tabXMLTree.TabIndex = 4;
          this.tabXMLTree.Text = "XML Tree";
          this.tabXMLTree.UseVisualStyleBackColor = true;
@@ -220,6 +243,56 @@
          this.tabDirectory.TabIndex = 5;
          this.tabDirectory.Text = "Directory";
          this.tabDirectory.UseVisualStyleBackColor = true;
+         // 
+         // cmdSaveInPrinter
+         // 
+         this.cmdSaveInPrinter.Location = new System.Drawing.Point(24, 157);
+         this.cmdSaveInPrinter.Name = "cmdSaveInPrinter";
+         this.cmdSaveInPrinter.Size = new System.Drawing.Size(128, 30);
+         this.cmdSaveInPrinter.TabIndex = 32;
+         this.cmdSaveInPrinter.Text = "Save in Printer";
+         this.cmdSaveInPrinter.UseVisualStyleBackColor = true;
+         this.cmdSaveInPrinter.Click += new System.EventHandler(this.SaveInPrinter_Click);
+         // 
+         // dgFolder
+         // 
+         this.dgFolder.AllowUserToAddRows = false;
+         this.dgFolder.AllowUserToDeleteRows = false;
+         this.dgFolder.AllowUserToResizeRows = false;
+         this.dgFolder.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+         this.dgFolder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgFolder.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.FolderContents});
+         this.dgFolder.Location = new System.Drawing.Point(24, 41);
+         this.dgFolder.Name = "dgFolder";
+         this.dgFolder.RowTemplate.Height = 24;
+         this.dgFolder.Size = new System.Drawing.Size(260, 69);
+         this.dgFolder.TabIndex = 31;
+         this.dgFolder.SelectionChanged += new System.EventHandler(this.Folder_SelectionChanged);
+         // 
+         // FolderContents
+         // 
+         this.FolderContents.HeaderText = "FolderContents";
+         this.FolderContents.Name = "FolderContents";
+         this.FolderContents.Width = 133;
+         // 
+         // lblFolderDirectory
+         // 
+         this.lblFolderDirectory.Location = new System.Drawing.Point(40, 15);
+         this.lblFolderDirectory.Name = "lblFolderDirectory";
+         this.lblFolderDirectory.Size = new System.Drawing.Size(220, 23);
+         this.lblFolderDirectory.TabIndex = 30;
+         this.lblFolderDirectory.Text = "Messages in Message Folder";
+         this.lblFolderDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // lblPrinterDirectory
+         // 
+         this.lblPrinterDirectory.Location = new System.Drawing.Point(349, 15);
+         this.lblPrinterDirectory.Name = "lblPrinterDirectory";
+         this.lblPrinterDirectory.Size = new System.Drawing.Size(277, 17);
+         this.lblPrinterDirectory.TabIndex = 29;
+         this.lblPrinterDirectory.Text = "Messages in Printer\'s Directory";
+         this.lblPrinterDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
          // cmdGetAll
          // 
@@ -290,6 +363,155 @@
          this.cmdGetDirectory.Text = "Get Directory";
          this.cmdGetDirectory.UseVisualStyleBackColor = true;
          this.cmdGetDirectory.Click += new System.EventHandler(this.GetDirectory_Click);
+         // 
+         // tabAlarms
+         // 
+         this.tabAlarms.Controls.Add(this.lblAlarms);
+         this.tabAlarms.Controls.Add(this.cmdGetAlarms);
+         this.tabAlarms.Controls.Add(this.dgAlarms);
+         this.tabAlarms.Location = new System.Drawing.Point(4, 25);
+         this.tabAlarms.Name = "tabAlarms";
+         this.tabAlarms.Size = new System.Drawing.Size(731, 197);
+         this.tabAlarms.TabIndex = 6;
+         this.tabAlarms.Text = "Alarms";
+         this.tabAlarms.UseVisualStyleBackColor = true;
+         // 
+         // lblAlarms
+         // 
+         this.lblAlarms.Location = new System.Drawing.Point(64, 27);
+         this.lblAlarms.Name = "lblAlarms";
+         this.lblAlarms.Size = new System.Drawing.Size(220, 23);
+         this.lblAlarms.TabIndex = 31;
+         this.lblAlarms.Text = "Alarm History";
+         this.lblAlarms.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // cmdGetAlarms
+         // 
+         this.cmdGetAlarms.Location = new System.Drawing.Point(560, 33);
+         this.cmdGetAlarms.Name = "cmdGetAlarms";
+         this.cmdGetAlarms.Size = new System.Drawing.Size(121, 37);
+         this.cmdGetAlarms.TabIndex = 1;
+         this.cmdGetAlarms.Text = "Get Alarms";
+         this.cmdGetAlarms.UseVisualStyleBackColor = true;
+         this.cmdGetAlarms.Click += new System.EventHandler(this.cmdGetAlarms_Click);
+         // 
+         // dgAlarms
+         // 
+         this.dgAlarms.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+         this.dgAlarms.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgAlarms.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colDateTime,
+            this.conErrorCode,
+            this.colDesc});
+         this.dgAlarms.Location = new System.Drawing.Point(27, 53);
+         this.dgAlarms.Name = "dgAlarms";
+         this.dgAlarms.RowTemplate.Height = 24;
+         this.dgAlarms.Size = new System.Drawing.Size(322, 121);
+         this.dgAlarms.TabIndex = 0;
+         // 
+         // colDateTime
+         // 
+         dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.colDateTime.DefaultCellStyle = dataGridViewCellStyle3;
+         this.colDateTime.HeaderText = "Date/Time";
+         this.colDateTime.Name = "colDateTime";
+         this.colDateTime.Width = 102;
+         // 
+         // conErrorCode
+         // 
+         dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+         this.conErrorCode.DefaultCellStyle = dataGridViewCellStyle4;
+         this.conErrorCode.HeaderText = "Code";
+         this.conErrorCode.Name = "conErrorCode";
+         this.conErrorCode.Width = 70;
+         // 
+         // colDesc
+         // 
+         dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+         this.colDesc.DefaultCellStyle = dataGridViewCellStyle5;
+         this.colDesc.HeaderText = "Description";
+         this.colDesc.Name = "colDesc";
+         this.colDesc.Width = 108;
+         // 
+         // tabMisc
+         // 
+         this.tabMisc.Controls.Add(this.cbMiscOps);
+         this.tabMisc.Controls.Add(this.lblSelect);
+         this.tabMisc.Controls.Add(this.cmdGetMisc);
+         this.tabMisc.Controls.Add(this.lblMiscTreeView);
+         this.tabMisc.Controls.Add(this.lblMiscIndented);
+         this.tabMisc.Controls.Add(this.tvMisc);
+         this.tabMisc.Controls.Add(this.txtMisc);
+         this.tabMisc.Location = new System.Drawing.Point(4, 25);
+         this.tabMisc.Name = "tabMisc";
+         this.tabMisc.Size = new System.Drawing.Size(731, 197);
+         this.tabMisc.TabIndex = 7;
+         this.tabMisc.Text = "Misc";
+         this.tabMisc.UseVisualStyleBackColor = true;
+         // 
+         // cbMiscOps
+         // 
+         this.cbMiscOps.FormattingEnabled = true;
+         this.cbMiscOps.Location = new System.Drawing.Point(583, 49);
+         this.cbMiscOps.Name = "cbMiscOps";
+         this.cbMiscOps.Size = new System.Drawing.Size(129, 24);
+         this.cbMiscOps.TabIndex = 36;
+         this.cbMiscOps.SelectedIndexChanged += new System.EventHandler(this.cbMiscOps_SelectedIndexChanged);
+         // 
+         // lblSelect
+         // 
+         this.lblSelect.Location = new System.Drawing.Point(570, 16);
+         this.lblSelect.Name = "lblSelect";
+         this.lblSelect.Size = new System.Drawing.Size(142, 23);
+         this.lblSelect.TabIndex = 35;
+         this.lblSelect.Text = "Select";
+         this.lblSelect.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // cmdGetMisc
+         // 
+         this.cmdGetMisc.Location = new System.Drawing.Point(591, 79);
+         this.cmdGetMisc.Name = "cmdGetMisc";
+         this.cmdGetMisc.Size = new System.Drawing.Size(121, 37);
+         this.cmdGetMisc.TabIndex = 34;
+         this.cmdGetMisc.Text = "Get Misc";
+         this.cmdGetMisc.UseVisualStyleBackColor = true;
+         this.cmdGetMisc.Click += new System.EventHandler(this.cmdGetMisc_Click);
+         // 
+         // lblMiscTreeView
+         // 
+         this.lblMiscTreeView.Location = new System.Drawing.Point(257, 16);
+         this.lblMiscTreeView.Name = "lblMiscTreeView";
+         this.lblMiscTreeView.Size = new System.Drawing.Size(220, 23);
+         this.lblMiscTreeView.TabIndex = 33;
+         this.lblMiscTreeView.Text = "Misc Tree View";
+         this.lblMiscTreeView.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // lblMiscIndented
+         // 
+         this.lblMiscIndented.Location = new System.Drawing.Point(16, 9);
+         this.lblMiscIndented.Name = "lblMiscIndented";
+         this.lblMiscIndented.Size = new System.Drawing.Size(220, 23);
+         this.lblMiscIndented.TabIndex = 32;
+         this.lblMiscIndented.Text = "Misc Indented";
+         this.lblMiscIndented.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // tvMisc
+         // 
+         this.tvMisc.Location = new System.Drawing.Point(249, 42);
+         this.tvMisc.Name = "tvMisc";
+         this.tvMisc.Size = new System.Drawing.Size(263, 116);
+         this.tvMisc.TabIndex = 4;
+         // 
+         // txtMisc
+         // 
+         this.txtMisc.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.txtMisc.Location = new System.Drawing.Point(19, 40);
+         this.txtMisc.Multiline = true;
+         this.txtMisc.Name = "txtMisc";
+         this.txtMisc.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+         this.txtMisc.Size = new System.Drawing.Size(197, 118);
+         this.txtMisc.TabIndex = 3;
+         this.txtMisc.WordWrap = false;
          // 
          // cmdGetViews
          // 
@@ -492,56 +714,6 @@
          this.cmdCancel.UseVisualStyleBackColor = true;
          this.cmdCancel.Click += new System.EventHandler(this.Cancel_Click);
          // 
-         // lblPrinterDirectory
-         // 
-         this.lblPrinterDirectory.Location = new System.Drawing.Point(349, 15);
-         this.lblPrinterDirectory.Name = "lblPrinterDirectory";
-         this.lblPrinterDirectory.Size = new System.Drawing.Size(277, 17);
-         this.lblPrinterDirectory.TabIndex = 29;
-         this.lblPrinterDirectory.Text = "Messages in Printer\'s Directory";
-         this.lblPrinterDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // lblFolderDirectory
-         // 
-         this.lblFolderDirectory.Location = new System.Drawing.Point(40, 15);
-         this.lblFolderDirectory.Name = "lblFolderDirectory";
-         this.lblFolderDirectory.Size = new System.Drawing.Size(220, 23);
-         this.lblFolderDirectory.TabIndex = 30;
-         this.lblFolderDirectory.Text = "Messages in Message Folder";
-         this.lblFolderDirectory.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // dgFolder
-         // 
-         this.dgFolder.AllowUserToAddRows = false;
-         this.dgFolder.AllowUserToDeleteRows = false;
-         this.dgFolder.AllowUserToResizeRows = false;
-         this.dgFolder.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-         this.dgFolder.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-         this.dgFolder.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.FolderContents});
-         this.dgFolder.Location = new System.Drawing.Point(24, 41);
-         this.dgFolder.Name = "dgFolder";
-         this.dgFolder.RowTemplate.Height = 24;
-         this.dgFolder.Size = new System.Drawing.Size(260, 69);
-         this.dgFolder.TabIndex = 31;
-         this.dgFolder.SelectionChanged += new System.EventHandler(this.Folder_SelectionChanged);
-         // 
-         // FolderContents
-         // 
-         this.FolderContents.HeaderText = "FolderContents";
-         this.FolderContents.Name = "FolderContents";
-         this.FolderContents.Width = 133;
-         // 
-         // cmdSaveInPrinter
-         // 
-         this.cmdSaveInPrinter.Location = new System.Drawing.Point(24, 157);
-         this.cmdSaveInPrinter.Name = "cmdSaveInPrinter";
-         this.cmdSaveInPrinter.Size = new System.Drawing.Size(128, 30);
-         this.cmdSaveInPrinter.TabIndex = 32;
-         this.cmdSaveInPrinter.Text = "Save in Printer";
-         this.cmdSaveInPrinter.UseVisualStyleBackColor = true;
-         this.cmdSaveInPrinter.Click += new System.EventHandler(this.SaveInPrinter_Click);
-         // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -583,9 +755,13 @@
          this.tabXMLIndented.PerformLayout();
          this.tabXMLTree.ResumeLayout(false);
          this.tabDirectory.ResumeLayout(false);
-         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).EndInit();
-         this.cmErrLog.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dgFolder)).EndInit();
+         ((System.ComponentModel.ISupportInitialize)(this.dgDirectory)).EndInit();
+         this.tabAlarms.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgAlarms)).EndInit();
+         this.tabMisc.ResumeLayout(false);
+         this.tabMisc.PerformLayout();
+         this.cmErrLog.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -638,6 +814,21 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn FolderContents;
       private System.Windows.Forms.Label lblFolderDirectory;
       private System.Windows.Forms.Label lblPrinterDirectory;
+      private System.Windows.Forms.TabPage tabAlarms;
+      private System.Windows.Forms.DataGridView dgAlarms;
+      private System.Windows.Forms.TabPage tabMisc;
+      private System.Windows.Forms.Button cmdGetAlarms;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colDateTime;
+      private System.Windows.Forms.DataGridViewTextBoxColumn conErrorCode;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colDesc;
+      private System.Windows.Forms.Label lblAlarms;
+      private System.Windows.Forms.Label lblMiscTreeView;
+      private System.Windows.Forms.Label lblMiscIndented;
+      private System.Windows.Forms.TreeView tvMisc;
+      private System.Windows.Forms.TextBox txtMisc;
+      private System.Windows.Forms.Button cmdGetMisc;
+      private System.Windows.Forms.ComboBox cbMiscOps;
+      private System.Windows.Forms.Label lblSelect;
    }
 }
 

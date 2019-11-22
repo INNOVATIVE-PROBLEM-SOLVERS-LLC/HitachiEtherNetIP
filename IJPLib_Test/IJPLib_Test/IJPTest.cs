@@ -26,6 +26,8 @@ namespace IJPLib_Test {
 
       IJPLib_XML IX;
 
+      Status StatusArea = new Status();
+
       Properties.Settings p;
 
       // Variables for Save All files in printer directory
@@ -46,6 +48,12 @@ namespace IJPLib_Test {
       bool GD_GettingDirectory;
       int GD_FirstMsg;
       int GD_DirCount;
+
+      // Variables for retrieving Alarm Codes
+      bool GA_GettingAlarms;
+      int GA_CurrentAlarm;
+      int GA_AlarmCount;
+      int GA_TotalAlarms;
 
       // Cancel for multi step processes
       bool Cancel = false;
@@ -72,6 +80,7 @@ namespace IJPLib_Test {
          // Center the form on the screen
          Utils.PositionForm(this, 0.6f, 0.9f);
          BuildTestFileList();
+         cbMiscOps.Items.AddRange(Enum.GetNames(typeof(IJPLib_XML.ReqSubType)));
          SetButtonEnables();
       }
 
@@ -82,7 +91,7 @@ namespace IJPLib_Test {
          if (initComplete && ClientRectangle.Height > 0) {
             //
             this.SuspendLayout();
-            // Build local parameters
+            // Build local parameter
             R = Utils.InitializeResize(this, 60, 40, true);
 
             Utils.ResizeObject(ref R, ipAddressTextBox, 1, 1, 2, 5);
@@ -121,6 +130,18 @@ namespace IJPLib_Test {
             Utils.ResizeObject(ref R, cmdGetDirectory, 3, 28.5f, 2, 4);
             Utils.ResizeObject(ref R, cmdGetOne, 6, 28.5f, 2, 4);
             Utils.ResizeObject(ref R, cmdGetAll, 9, 28.5f, 2, 4);
+
+            Utils.ResizeObject(ref R, lblAlarms, 1, 1, 2, 27);
+            Utils.ResizeObject(ref R, dgAlarms, 3, 1, 36, 27);
+            Utils.ResizeObject(ref R, cmdGetAlarms, 3, 28.5f, 2, 4);
+
+            Utils.ResizeObject(ref R, lblMiscIndented, 1, 1, 2, 13);
+            Utils.ResizeObject(ref R, txtMisc, 3, 1, 36, 13);
+            Utils.ResizeObject(ref R, lblMiscTreeView, 1, 15, 2, 13);
+            Utils.ResizeObject(ref R, tvMisc, 3, 15, 36, 13);
+            Utils.ResizeObject(ref R, lblSelect, 1, 28.5f, 2, 4);
+            Utils.ResizeObject(ref R, cbMiscOps, 3, 28.5f, 2, 4);
+            Utils.ResizeObject(ref R, cmdGetMisc, 6, 28.5f, 2, 4);
 
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
@@ -402,6 +423,30 @@ namespace IJPLib_Test {
          SA_SavingAll = false;
       }
 
+      private void cmdGetAlarms_Click(object sender, EventArgs e) {
+         GA_TotalAlarms = IX.GetAlarmCount();
+         GA_CurrentAlarm = 1;
+         GA_AlarmCount = 5;
+         GA_GettingAlarms = true;
+         dgAlarms.Rows.Clear();
+         GetNextAlarmToLoad();
+      }
+
+      private void GetNextAlarmToLoad() {
+         int n = Math.Min(GA_AlarmCount, GA_TotalAlarms - GA_CurrentAlarm + 1);
+         if (n > 0) {
+            IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetAlarms) { Start = GA_CurrentAlarm, End = n });
+         }
+      }
+
+      private void cbMiscOps_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
+      }
+
+      private void cmdGetMisc_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.GetMisc) { SubType = (IJPLib_XML.ReqSubType)cbMiscOps.SelectedIndex });
+      }
+
       #endregion
 
       #region Completion Methods
@@ -476,6 +521,24 @@ namespace IJPLib_Test {
                      GetNextMessageToLoad();
                   }
                }
+               break;
+            case IJPLib_XML.ReqType.GetAlarms:
+               for (int i = 0; i < evArgs.AlarmHistory.Length; i++) {
+                  string status = StatusArea.TranslateStatus(Status.Area.Operation, (char)evArgs.AlarmHistory[i].ErrorCode);
+                  dgAlarms.Rows.Add(new string[] { evArgs.AlarmHistory[i].DateTime.ToString(), evArgs.AlarmHistory[i].ErrorCode.ToString(), status });
+               }
+               GA_CurrentAlarm += evArgs.AlarmHistory.Length;
+               if (!Cancel) {
+                  GetNextAlarmToLoad();
+               }
+               break;
+            case IJPLib_XML.ReqType.GetMisc:
+               lblMiscIndented.Text = $"{evArgs.SubType.ToString()} Indented View";
+               txtMisc.Text = evArgs.Indented;
+               lblMiscTreeView.Text = $"{evArgs.SubType.ToString()} Tree View";
+               tvMisc.Nodes.Clear();
+               tvMisc.Nodes.Add(evArgs.TreeNode);
+               tvMisc.ExpandAll();
                break;
             case IJPLib_XML.ReqType.Exit:
                break;
@@ -553,7 +616,8 @@ namespace IJPLib_Test {
          cmdGetOne.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0;
          cmdGetAll.Enabled = IOPossible && dgDirectory.SelectedRows.Count > 0 && msgDirExists;
          cmdSaveInPrinter.Enabled = IOPossible && dgFolder.SelectedRows.Count > 0 && msgDirExists;
-
+         cmdGetAlarms.Enabled = IOPossible;
+         cmdGetMisc.Enabled = IOPossible && cbMiscOps.SelectedIndex >= 0;
          cmdRunXMLTest.Enabled = IOPossible && cbSelectXMLTest.SelectedIndex >= 0;
 
          switch (tclIJPLib.SelectedIndex) {
