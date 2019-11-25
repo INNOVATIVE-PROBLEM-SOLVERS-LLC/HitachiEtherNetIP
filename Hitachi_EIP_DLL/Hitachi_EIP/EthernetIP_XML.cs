@@ -547,7 +547,8 @@ namespace EIP_Lib {
       #region Retrieve XML from printer
 
       // Generate an XMP Doc form the current printer settings
-      public string RetrieveXML() {
+      public string RetrieveXML(bool UseIJPLibNames) {
+         this.UseIJPLibNames = UseIJPLibNames;
          string xml = string.Empty;
          ItemType itemType;
          using (MemoryStream ms = new MemoryStream()) {
@@ -780,7 +781,7 @@ namespace EIP_Lib {
          writer.WriteStartElement("BarCode"); // Start Barcode
          {
             string BarCode = GetAttribute(ccPF.Barcode_Type);
-            if (BarCode != "None") {
+            if (BarCode != GetDropDownNames((int)fmtDD.BarcodeType)[0]) {
                writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
                writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
                writer.WriteAttributeString("DotMatrix", BarCode);
@@ -858,8 +859,6 @@ namespace EIP_Lib {
                }
 
                if ((mask[i] & (int)ba.Shift) > 0) {
-                  string endHour;
-                  string endMinute;
                   int shift = 1;
                   do {
                      writer.WriteStartElement("Shift"); // Start Shift
@@ -868,13 +867,11 @@ namespace EIP_Lib {
                         writer.WriteAttributeString("ShiftNumber", shift.ToString());
                         writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
                         writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
-                        writer.WriteAttributeString("EndHour", endHour = GetAttribute(ccCal.Shift_End_Hour));
-                        writer.WriteAttributeString("EndMinute", endMinute = GetAttribute(ccCal.Shift_End_Minute));
                         writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
                      }
                      writer.WriteEndElement(); // End Shift
                      shift++;
-                  } while (endHour != "23" || endMinute != "59");
+                  } while (GetAttribute(ccCal.Shift_End_Hour) != "23" || GetAttribute(ccCal.Shift_End_Minute) != "59");
                }
                if ((mask[i] & (int)ba.TimeCount) > 0) {
                   writer.WriteStartElement("TimeCount"); // Start TimeCount
@@ -1499,7 +1496,7 @@ namespace EIP_Lib {
             if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
                val = FromQuoted(val);
             } else if (attr.Data.DropDown != fmtDD.None) {
-               string[] dd = EIP.DropDowns[(int)attr.Data.DropDown];
+               string[] dd = GetDropDownNames((int)attr.Data.DropDown);
                long n = GetDecValue - attr.Data.Min;
                if (n >= 0 && n < dd.Length) {
                   val = dd[n];

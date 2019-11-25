@@ -389,7 +389,7 @@ namespace EIP_Lib {
             typeof(ccIDX),   // 0x7A Index function
          };
 
-      // Attribute DropDown conversion
+      // Attribute DropDown conversion (EtherNet/IP Names)
       static public string[][] DropDowns = new string[][] {
          new string[] { },                                            // 0 - Just decimal values
          new string[] { "Disable", "Enable" },                        // 1 - Enable and disable
@@ -425,8 +425,49 @@ namespace EIP_Lib {
          new string[] { "Standard", "Mixed", "Dot Mixed" },           // 21 - Charge Rule
          new string[] { "5 Minutes", "6 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes" },
                                                                       // 22 - Time Count renewal period
-          new string[] { "Off", "On" },                               // 23 - On/Off for Auto Reflection
+         new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
      };
+
+      // Attribute DropDown conversion (IJPLib Names)
+      static public string[][] DropDownsIJPLib = new string[][] {
+         new string[] { },                                            // 0 - Just decimal values
+         new string[] { "False", "True" },                            // 1 - Enable and disable
+         new string[] { "None", "Space", "CharacterFill" },           // 2 - Disable, space fill, character fill
+         new string[] { "TwentyFour Hour", "Twelve Hour" },           // 3 - 12 & 24 hour
+         new string[] { "Current Time", "Stop Clock" },               // 4 - Current time or stop clock
+         new string[] { "Offline", "Online" },                        // 5 - Offline/Online
+         new string[] { "Nothing", "Signal1", "Signal2" },            // 6 - None, Signal 1, Signal 2
+         new string[] { "Up", "Down" },                               // 7 - Up/Down
+         new string[] { "Nothing", "Size5x5", "Size5x7" },                       // 8 - Readable Code 5X5 or 5X7
+         new string[] { "Nothing", "Code39", "ITF", "NW7", "JAN_13", "DM8x32", "DM16x16", "DM16x36",
+                        "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code128_CodesetB",
+                        "Code128_CodesetC", "UPC_A", "UPC_E", "JAN_8", "QR21x21", "QR25x25",
+                        "QR29x29", "QR33x33", "JAN_13add_on5", "MicroQR15x15",
+                        "GS1_Lim", "GS1_Omn",
+                        "GS1 DataBar (Stacked)", "DM14x14", },        // 9 - BarCode Types
+         new string[] { "Normal", "Reverse" },                        // 10 - Normal/reverse
+         new string[] { "M", "Q" },                                   // 11 - M 15%, Q 25%
+         new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
+         new string[] { "OneDayAgo", "None" },                        // 13 - From Yesterday/Today
+         new string[] { "Size4x5", "Size5x5", "Size5x7", "Size9x7", "Size7x10", "Size10x12", "Size12x16", "Size18x24",
+                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney"  },
+                                                                      // 14 - Font Types
+         new string[] { "Normal_Forward", "Normal_Backward",
+                        "Reverse_Forward", "Reverse_Forward",},       // 15 - Orientation
+         new string[] { "Off", "On", "Auto" },                        // 16 - Product speed matching
+         new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
+         new string[] { "Time", "Complete" },                         // 18 - Target Sensor Filter
+         new string[] { "Size4x5", "Size5x5", "Size5x7", "Size9x7", "Size7x10", "Size10x12", "Size12x16", "Size18x24",
+                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney"  },
+                                                                      // 19 - User Pattern Font Types
+         new string[] { "SeparateSetup", "CollectiveSetup", "FreeLayout" },     // 20 - Message Layout
+         new string[] { "Normal", "DotMixed", "Mixed" },              // 21 - Charge Rule
+         new string[] { "FiveMinutes", "SixMinutes", "TenMinutes", "QuarterHour", "TwentyMinutes", "HalfHour" },
+                                                                      // 22 - Time Count renewal period
+         new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
+         new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
+     };
+
 
       public int port { get; set; }
       public string IPAddress { get; set; }
@@ -530,7 +571,7 @@ namespace EIP_Lib {
       int[] IndexValue;
       byte[] IndexAttr;
 
-      private bool useAutomaticReflection = false;
+      private bool useAutomaticReflection = true;
       public bool UseAutomaticReflection {
          get {
             return useAutomaticReflection;
@@ -546,6 +587,8 @@ namespace EIP_Lib {
             useAutomaticReflection = value;
          }
       }
+
+      public bool UseIJPLibNames = false;
 
       // Status of last request
       bool Successful = false;
@@ -1282,6 +1325,9 @@ namespace EIP_Lib {
                   if (prop.DropDown != fmtDD.None) {
                      s = s.ToLower();
                      val = Array.FindIndex(DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     if (val < 0) {
+                        val = Array.FindIndex(DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     }
                      if (val >= 0) {
                         val += (int)prop.Min;
                         result = ToBytes(val, prop.Len);
@@ -1723,7 +1769,7 @@ namespace EIP_Lib {
                trafficIn += $"\tSee=>";
             } else {
                if (Access == AccessCode.Get && attr.Data.DropDown != fmtDD.None) {
-                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  string[] dd = GetDropDownNames((int)attr.Data.DropDown);
                   long n = GetDecValue - attr.Data.Min;
                   if (n >= 0 && n < dd.Length) {
                      trafficIn += $"\t{dd[n]}";
@@ -1750,7 +1796,7 @@ namespace EIP_Lib {
                trafficOut += $"\tSee=>";
             } else {
                if (Access == AccessCode.Set && attr.Data.DropDown != fmtDD.None) {
-                  string[] dd = DropDowns[(int)attr.Data.DropDown];
+                  string[] dd = GetDropDownNames((int)attr.Data.DropDown);
                   long n = SetDecValue - attr.Data.Min;
                   if (n >= 0 && n < dd.Length) {
                      trafficOut += $"\t{dd[n]}";

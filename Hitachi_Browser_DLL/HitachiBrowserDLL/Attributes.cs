@@ -477,7 +477,7 @@ namespace EIP_Lib {
             return names;
          } else {
             // Get the names from the translation table
-            return EIP.DropDowns[(int)attr.Data.DropDown];
+            return EIP.GetDropDownNames((int)attr.Data.DropDown);
          }
       }
 

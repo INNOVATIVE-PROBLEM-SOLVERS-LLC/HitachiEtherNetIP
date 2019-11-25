@@ -521,7 +521,7 @@ namespace EIP_Lib {
          switch ((Layout)cbLayout.SelectedIndex) {
             case Layout.Fixed:
                lblFontRows.Text = "Font";
-               string[] dd = EIP.DropDowns[(int)fmtDD.UserPatternFont];
+               string[] dd = EIP.GetDropDownNames((int)fmtDD.UserPatternFont);
                cbFontRows.Items.Clear();
                cbFontRows.Items.AddRange(dd);
 

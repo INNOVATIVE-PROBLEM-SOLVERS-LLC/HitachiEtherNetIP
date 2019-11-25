@@ -115,7 +115,7 @@
          this.txtIPAddress.Name = "txtIPAddress";
          this.txtIPAddress.Size = new System.Drawing.Size(175, 22);
          this.txtIPAddress.TabIndex = 4;
-         this.txtIPAddress.Text = "192.168.0.1";
+         this.txtIPAddress.Text = "192.168.168.100";
          this.txtIPAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // txtPort
