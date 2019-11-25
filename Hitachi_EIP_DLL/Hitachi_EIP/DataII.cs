@@ -33,6 +33,7 @@ namespace EIP_Lib {
       ChargeRule = 21,
       TimeCount = 22,
       OffOn = 23,
+      EANRule = 24,
    }
 
    #endregion

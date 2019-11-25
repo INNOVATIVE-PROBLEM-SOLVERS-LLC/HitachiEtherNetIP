@@ -381,7 +381,8 @@ namespace EIP_Lib {
 
       #region Retrieve XML from printer using Serialization
 
-      public string RetrieveXMLAsSerialization() {
+      public string RetrieveXMLAsSerialization(bool UseIJPLibNames) {
+         this.UseIJPLibNames = UseIJPLibNames;
          string xml = string.Empty;
          UseAutomaticReflection = false; // Never want Auto Reflescion on
          if (StartSession(true)) {
@@ -700,7 +701,18 @@ namespace EIP_Lib {
          }
          s = s.ToLower();
          val = Array.FindIndex(DropDowns[(int)fmt], x => x.ToLower().Contains(s));
+         if (val < 0) {
+            val = Array.FindIndex(DropDownsIJPLib[(int)fmt], x => x.ToLower().Contains(s));
+         }
          return val == 0;
+      }
+
+      public string[] GetDropDownNames(int n) {
+         if (UseIJPLibNames) {
+            return DropDownsIJPLib[n];
+         } else {
+            return DropDowns[n];
+         }
       }
 
       #endregion
