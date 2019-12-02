@@ -509,7 +509,7 @@ namespace EIP_Lib {
       private void btnAutoReflection_Click(object sender, EventArgs e) {
          if (EIP.StartSession()) {
             if (EIP.ForwardOpen()) {
-               if (EIP.SetAttribute(ccIDX.Automatic_reflection, AutoReflIsOn ? "Off" : "On")) {
+               if (EIP.SetAttribute(ccIDX.Automatic_reflection, AutoReflIsOn ? 0 : 1)) {
                   GetAutoReflectionSetting();
                }
             }

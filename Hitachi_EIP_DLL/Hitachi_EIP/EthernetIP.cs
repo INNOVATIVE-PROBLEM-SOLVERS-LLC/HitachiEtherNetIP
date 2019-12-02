@@ -872,6 +872,15 @@ namespace EIP_Lib {
          return success;
       }
 
+      // Get one attribute based on the Data Property
+      public bool GetAttribute<T>(T Attribute, out bool value) where T : Enum {
+         AutomaticReflect(AccessCode.Get);
+         AttrData attr = GetAttrData(Attribute);
+         bool success = GetAttribute(attr.Class, attr.Val, Nodata);
+         value = GetData.Length > 0 && GetData[0] == 1;
+         return success;
+      }
+
       // Get the contents of one attribute
       public bool GetAttribute<T>(T Attribute, out string value) where T : Enum {
          AutomaticReflect(AccessCode.Get);

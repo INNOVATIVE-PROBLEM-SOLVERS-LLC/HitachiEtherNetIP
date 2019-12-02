@@ -97,6 +97,25 @@ namespace EIP_Lib {
             SetAttribute(ccPS.Ink_Drop_Use, p.InkStream.InkDropUse);
             SetAttribute(ccPS.Ink_Drop_Charge_Rule, p.InkStream.ChargeRule);
          }
+         if (p.Shift != null) {
+            // Process Shift
+            for (int j = 0; j < p.Shift.Length; j++) {
+               SetAttribute(ccIDX.Calendar_Block, j + 1);
+               SetAttribute(ccCal.Shift_Start_Hour, p.Shift[j].StartHour);
+               SetAttribute(ccCal.Shift_Start_Minute, p.Shift[j].StartMinute);
+               SetAttribute(ccCal.Shift_String_Value, p.Shift[j].ShiftCode);
+            }
+         }
+         if (p.TimeCount != null) {
+            TimeCount tc = p.TimeCount;
+            if (tc != null) {
+               SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
+               SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
+               SetAttribute(ccCal.Time_Count_End_Value, tc.End);
+               SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
+               SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
+            }
+         }
          if (p.Logos != null) {
             foreach (Logo l in p.Logos.Logo) {
 
@@ -308,26 +327,6 @@ namespace EIP_Lib {
                      SetAttribute(ccCal.Substitute_DayOfWeek, s.DayOfWeek);
                   }
                }
-
-               // Process Time Count
-               TimeCount tc = date.TimeCount;
-               if (tc != null) {
-                  SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
-                  SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
-                  SetAttribute(ccCal.Time_Count_End_Value, tc.End);
-                  SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
-                  SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
-               }
-
-               // Process Shift
-               if (date.Shift != null) {
-                  for (int j = 0; j < date.Shift.Length; j++) {
-                     SetAttribute(ccIDX.Calendar_Block, j + 1);
-                     SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
-                     SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
-                     SetAttribute(ccCal.Shift_String_Value, date.Shift[j].ShiftCode);
-                  }
-               }
             }
          }
       }
@@ -384,7 +383,7 @@ namespace EIP_Lib {
       public string RetrieveXMLAsSerialization(bool UseIJPLibNames) {
          this.UseIJPLibNames = UseIJPLibNames;
          string xml = string.Empty;
-         UseAutomaticReflection = false; // Never want Auto Reflescion on
+         UseAutomaticReflection = false; // Never want Auto Reflection on
          if (StartSession(true)) {
             if (ForwardOpen()) {
                try {
@@ -456,6 +455,8 @@ namespace EIP_Lib {
                ChargeRule = GetAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
             Substitution = RetrieveSubstitutions(),
+            Shift = RetrieveShifts(),
+            TimeCount = RetrieveShiftTimeCount(),
             Logos = RetrieveLogos(),
          };
 
@@ -463,15 +464,80 @@ namespace EIP_Lib {
          return p;
       }
 
+      private Shift[] RetrieveShifts() {
+         List<Shift> s = new List<Shift>();
+         string endHour;
+         string endMinute;
+         int shift = 1;
+         do {
+            SetAttribute(ccIDX.Item, shift);
+            s.Add(new Shift() {
+               ShiftNumber = shift,
+               StartHour = GetAttribute(ccCal.Shift_Start_Hour),
+               StartMinute = GetAttribute(ccCal.Shift_Start_Minute),
+               EndHour = endHour = GetAttribute(ccCal.Shift_End_Hour),
+               EndMinute = endMinute = GetAttribute(ccCal.Shift_End_Minute),
+               ShiftCode = GetAttribute(ccCal.Shift_String_Value),
+            });
+            shift++;
+         } while (endHour != "23" || endMinute != "59");
+         return s.ToArray();
+      }
+
+      private TimeCount RetrieveShiftTimeCount() {
+         TimeCount TimeCount = new TimeCount() {
+            Interval = GetAttribute(ccCal.Update_Interval_Value),
+            Start = GetAttribute(ccCal.Time_Count_Start_Value),
+            End = GetAttribute(ccCal.Time_Count_End_Value),
+            ResetTime = GetAttribute(ccCal.Reset_Time_Value),
+            ResetValue = GetAttribute(ccCal.Time_Count_Reset_Value),
+         };
+         return TimeCount;
+      }
+
       private Substitution RetrieveSubstitutions() {
+         bool need;
+         bool needYear = false;
+         bool needMonth = false;
+         bool needDay = false;
+         bool needHour = false;
+         bool needMinute = false;
+         bool needWeeks = false;
+         bool needDayOfWeek = false;
+         GetAttribute(ccUI.Maximum_Calendar_And_Count, out int n);
+         for (int i = 1; i <= n; i++) {
+            SetAttribute(ccIDX.Calendar_Block, i);
+            GetAttribute(ccCal.Substitute_Year, out need);
+            needYear |= need;
+            GetAttribute(ccCal.Substitute_Month, out need);
+            needMonth |= need;
+            GetAttribute(ccCal.Substitute_Day, out need);
+            needDay |= need;
+            GetAttribute(ccCal.Substitute_Hour, out need);
+            needHour |= need;
+            GetAttribute(ccCal.Substitute_Minute, out need);
+            needMinute |= need;
+            GetAttribute(ccCal.Substitute_Weeks, out need);
+            needDayOfWeek |= need; // Printer reports wrong setting?
+            GetAttribute(ccCal.Substitute_DayOfWeek, out need);
+            needWeeks |= need;
+         }
+
          List<SubstitutionRule> sr = new List<SubstitutionRule>();
-         //WriteSubstitution(sr, ccSR.Year, 0, 23);
-         RetrieveSubstitution(sr, ccSR.Month, 1, 12);
-         //WriteSubstitution(sr, ccSR.Day, 1, 31);
-         //WriteSubstitution(sr, ccSR.Hour, 0, 23);
-         //WriteSubstitution(sr, ccSR.Minute, 0, 59);
-         //WriteSubstitution(ccSR.Week, 1, 53);
-         RetrieveSubstitution(sr, ccSR.DayOfWeek, 1, 7);
+         if (needYear)
+            RetrieveSubstitution(sr, ccSR.Year);
+         if (needMonth)
+            RetrieveSubstitution(sr, ccSR.Month);
+         if (needDay)
+            RetrieveSubstitution(sr, ccSR.Day);
+         if (needHour)
+            RetrieveSubstitution(sr, ccSR.Hour);
+         if (needMinute)
+            RetrieveSubstitution(sr, ccSR.Minute);
+         if (needWeeks)
+            RetrieveSubstitution(sr, ccSR.Week);
+         if (needDayOfWeek)
+            RetrieveSubstitution(sr, ccSR.DayOfWeek);
          Substitution substitution = new Substitution() {
             Delimiter = "/",
             StartYear = GetAttribute(ccSR.Start_Year),
@@ -481,16 +547,17 @@ namespace EIP_Lib {
          return substitution;
       }
 
-      private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR attr, int start, int end) {
-         int n = end - start + 1;
+      private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR rule) {
+         AttrData attr = GetAttrData(rule);
+         int n = (int)(attr.Get.Max - attr.Get.Min + 1);
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
-            subCode[i] = GetAttribute(attr, i + start);
+            subCode[i] = GetAttribute(rule, i + (int)attr.Get.Min);
          }
          for (int i = 0; i < n; i += 10) {
             sr.Add(new SubstitutionRule() {
-               Type = attr.ToString().Replace("_", ""),
-               Base = (i + start).ToString(),
+               Type = rule.ToString().Replace("_", ""),
+               Base = (i + attr.Get.Min).ToString(),
                Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
             });
          }
@@ -536,7 +603,7 @@ namespace EIP_Lib {
                   BarCode = new BarCode(),
                };
                string barcode = GetAttribute(ccPF.Barcode_Type);
-               if (barcode != "None") {
+               if (barcode != GetDropDownNames((int)fmtDD.BarcodeType)[0]) {
                   item.BarCode.HumanReadableFont = GetAttribute(ccPF.Readable_Code);
                   item.BarCode.EANPrefix = GetAttribute(ccPF.Prefix_Code);
                   item.BarCode.DotMatrix = barcode;
@@ -612,35 +679,6 @@ namespace EIP_Lib {
                   item.Date[i].Substitute.Week = GetAttribute(ccCal.Substitute_Weeks);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
                   item.Date[i].Substitute.DayOfWeek = GetAttribute(ccCal.Substitute_DayOfWeek);
-            }
-            if ((mask[i] & (int)ba.Shift) > 0) {
-               List<Shift> s = new List<Shift>();
-               string endHour;
-               string endMinute;
-               int shift = 1;
-               do {
-                  SetAttribute(ccIDX.Item, shift);
-                  s.Add(new Shift() {
-                     ShiftNumber = shift,
-                     StartHour = GetAttribute(ccCal.Shift_Start_Hour),
-                     StartMinute = GetAttribute(ccCal.Shift_Start_Minute),
-                     EndHour = (endHour = GetAttribute(ccCal.Shift_End_Hour)),
-                     EndMinute = (endMinute = GetAttribute(ccCal.Shift_End_Minute)),
-                     ShiftCode = GetAttribute(ccCal.Shift_String_Value),
-                  });
-                  shift++;
-               } while (endHour != "23" || endMinute != "59");
-               item.Date[i].Shift = s.ToArray();
-            }
-
-            if ((mask[i] & (int)ba.TimeCount) > 0) {
-               item.Date[i].TimeCount = new TimeCount() {
-                  Interval = GetAttribute(ccCal.Update_Interval_Value),
-                  Start = GetAttribute(ccCal.Time_Count_Start_Value),
-                  End = GetAttribute(ccCal.Time_Count_End_Value),
-                  ResetTime = GetAttribute(ccCal.Reset_Time_Value),
-                  ResetValue = GetAttribute(ccCal.Time_Count_Reset_Value),
-               };
             }
          }
       }

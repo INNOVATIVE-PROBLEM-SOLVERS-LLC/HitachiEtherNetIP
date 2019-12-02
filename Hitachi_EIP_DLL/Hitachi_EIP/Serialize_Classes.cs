@@ -46,6 +46,10 @@ namespace EIP_Lib {
 
       [XmlIgnore]
       public Location Location;
+
+      public bool ShouldSerializeBarCode() {
+         return BarCode.DotMatrix != null;
+      }
    }
 
    public class Location {
@@ -141,9 +145,9 @@ namespace EIP_Lib {
       public Offset Offset;
       public ZeroSuppress ZeroSuppress;
       public Substitute Substitute;
-      public TimeCount TimeCount;
-      [XmlElement("Shift")]
-      public Shift[] Shift;
+      public bool ShouldSerializeOffset() {
+         return Offset != null  && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
+      }
    }
 
    public class Offset {
@@ -157,6 +161,21 @@ namespace EIP_Lib {
       public string Hour;
       [XmlAttribute]
       public string Minute;
+      public bool ShouldSerializeYear() {
+         return this.Year != "0";
+      }
+      public bool ShouldSerializeMonth() {
+         return this.Month != "0";
+      }
+      public bool ShouldSerializeDay() {
+         return this.Day != "0";
+      }
+      public bool ShouldSerializeHour() {
+         return this.Hour != "0";
+      }
+      public bool ShouldSerializeMinute() {
+         return this.Minute != "0";
+      }
    }
 
    public class ZeroSuppress {
@@ -200,9 +219,9 @@ namespace EIP_Lib {
       public string StartHour;
       [XmlAttribute]
       public string StartMinute;
-      [XmlAttribute]
+      [XmlIgnore]
       public string EndHour;
-      [XmlAttribute]
+      [XmlIgnore]
       public string EndMinute;
       [XmlAttribute]
       public string ShiftCode;
@@ -238,6 +257,10 @@ namespace EIP_Lib {
       public EncoderSettings EncoderSettings;
       public InkStream InkStream;
       public Substitution Substitution;
+      [XmlArray("Shifts")]
+      [XmlArrayItem("Shift")]
+      public Shift[] Shift;
+      public TimeCount TimeCount;
       public Logos Logos;
    }
 

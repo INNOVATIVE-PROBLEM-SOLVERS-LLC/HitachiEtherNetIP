@@ -588,11 +588,9 @@ namespace EIP_Lib {
                                              case ItemType.Text:
                                                 break;
                                              case ItemType.Date:
-                                                // Missing multiple calendar block logic
                                                 RetrieveCalendarSettings(writer, mask);
                                                 break;
                                              case ItemType.Counter:
-                                                // Missing multiple counter block logic
                                                 RetrieveCounterSettings(writer);
                                                 break;
                                              case ItemType.Logo:
@@ -713,9 +711,55 @@ namespace EIP_Lib {
 
             RetrieveSubstitutions(writer);
 
+            RetrieveShiftTimeCount(writer);
+
             RetrieveLogos(writer);
          }
          writer.WriteEndElement(); // Printer
+      }
+
+      private void RetrieveShiftTimeCount(XmlTextWriter writer) {
+         int n = Convert.ToInt32(GetAttribute(ccPF.Number_Of_Items));
+         int[] mask = new int[1 + 8];
+         for (int i = 1; i <= n; i++) {
+            SetAttribute(ccIDX.Item, i);
+            GetAttribute(ccPF.Print_Character_String, out string text);
+            GetItemType(text, ref mask, false);
+         }
+         bool shiftExists = false;
+         bool timeCountExists = false;
+         for (int i = 0; i < mask.Length; i++) {
+            shiftExists |= (mask[i] & (int)ba.Shift) > 0;
+            timeCountExists |= (mask[i] & (int)ba.TimeCount) > 0;
+         }
+         if (shiftExists) {
+            writer.WriteStartElement("Shifts"); // Start Shifts
+            int shift = 1;
+            do {
+               writer.WriteStartElement("Shift"); // Start Shift
+               {
+                  SetAttribute(ccIDX.Item, shift);
+                  writer.WriteAttributeString("ShiftNumber", shift.ToString());
+                  writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
+                  writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
+                  writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
+               }
+               writer.WriteEndElement(); // End Shift
+               shift++;
+            } while (GetAttribute(ccCal.Shift_End_Hour) != "23" || GetAttribute(ccCal.Shift_End_Minute) != "59");
+            writer.WriteEndElement(); // End Shifts
+         }
+         if (timeCountExists) {
+            writer.WriteStartElement("TimeCount"); // Start TimeCount
+            {
+               writer.WriteAttributeString("Interval", GetAttribute(ccCal.Update_Interval_Value));
+               writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
+               writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
+               writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
+               writer.WriteAttributeString("ResetValue", GetAttribute(ccCal.Time_Count_Reset_Value));
+            }
+            writer.WriteEndElement(); // End TimeCount
+         }
       }
 
       private void RetrieveLogos(XmlTextWriter writer) {
@@ -732,36 +776,72 @@ namespace EIP_Lib {
 
       // This is a work in progress
       private void RetrieveSubstitutions(XmlTextWriter writer) {
-         // We need to figure out what substitution rules are being used
-         // and which substitutions within the rule are needed.
-         writer.WriteStartElement("Substitution");
-         {
-            writer.WriteAttributeString("Delimiter", "/");
-            writer.WriteAttributeString("StartYear", GetAttribute(ccSR.Start_Year));
-            writer.WriteAttributeString("RuleNumber", "1");
-            //WriteSubstitution(writer, ccSR.Year, 0, 23);
-            RetrieveSubstitution(writer, ccSR.Month, 1, 12);
-            //WriteSubstitution(writer, ccSR.Day, 1, 31);
-            //WriteSubstitution(writer, ccSR.Hour, 0, 23);
-            //WriteSubstitution(writer, ccSR.Minute, 0, 59);
-            //WriteSubstitution(writer, ccSR.Week, 1, 53);
-            RetrieveSubstitution(writer, ccSR.DayOfWeek, 1, 7);
+         bool need;
+         bool needYear = false;
+         bool needMonth = false;
+         bool needDay = false;
+         bool needHour = false;
+         bool needMinute = false;
+         bool needWeeks = false;
+         bool needDayOfWeek = false;
+         GetAttribute(ccUI.Maximum_Calendar_And_Count, out int n);
+         for (int i = 1; i <= n; i++) {
+            SetAttribute(ccIDX.Calendar_Block, i);
+            GetAttribute(ccCal.Substitute_Year, out need);
+            needYear |= need;
+            GetAttribute(ccCal.Substitute_Month, out need);
+            needMonth |= need;
+            GetAttribute(ccCal.Substitute_Day, out need);
+            needDay |= need;
+            GetAttribute(ccCal.Substitute_Hour, out need);
+            needHour |= need;
+            GetAttribute(ccCal.Substitute_Minute, out need);
+            needMinute |= need;
+            GetAttribute(ccCal.Substitute_Weeks, out need);
+            needDayOfWeek |= need; // Printer reports wrong setting?
+            GetAttribute(ccCal.Substitute_DayOfWeek, out need);
+            needWeeks |= need;
          }
-         writer.WriteEndElement(); // Substitution
+
+         if (needYear || needMonth || needDay || needHour || needMinute || needWeeks || needDayOfWeek) {
+            writer.WriteStartElement("Substitution");
+            {
+               writer.WriteAttributeString("Delimiter", "/");
+               writer.WriteAttributeString("StartYear", GetAttribute(ccSR.Start_Year));
+               writer.WriteAttributeString("RuleNumber", "1");
+               if (needYear)
+                  RetrieveSubstitution(writer, ccSR.Year);
+               if (needMonth)
+                  RetrieveSubstitution(writer, ccSR.Month);
+               if (needDay)
+                  RetrieveSubstitution(writer, ccSR.Day);
+               if (needHour)
+                  RetrieveSubstitution(writer, ccSR.Hour);
+               if (needMinute)
+                  RetrieveSubstitution(writer, ccSR.Minute);
+               if (needWeeks)
+                  RetrieveSubstitution(writer, ccSR.Week);
+               if (needDayOfWeek)
+                  RetrieveSubstitution(writer, ccSR.DayOfWeek);
+            }
+            writer.WriteEndElement(); // Substitution
+         }
       }
 
       // Retrieve a single rule
-      private void RetrieveSubstitution(XmlTextWriter writer, ccSR attr, int start, int end) {
-         int n = end - start + 1;
+      private void RetrieveSubstitution(XmlTextWriter writer, ccSR rule) {
+         AttrData attr = GetAttrData(rule);
+
+         int n = (int)(attr.Get.Max - attr.Get.Min + 1);
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
-            subCode[i] = GetAttribute(attr, i + start);
+            subCode[i] = GetAttribute(rule, (int)(i + attr.Get.Min));
          }
          for (int i = 0; i < n; i += 10) {
             writer.WriteStartElement("Rule");
             {
-               writer.WriteAttributeString("Type", attr.ToString().Replace("_", ""));
-               writer.WriteAttributeString("Base", (i + start).ToString());
+               writer.WriteAttributeString("Type", rule.ToString().Replace("_", ""));
+               writer.WriteAttributeString("Base", (i + attr.Get.Min).ToString());
                writer.WriteString(string.Join("/", subCode, i, Math.Min(10, n - i)));
             }
             writer.WriteEndElement(); // Rule
@@ -778,16 +858,16 @@ namespace EIP_Lib {
          }
          writer.WriteEndElement(); // End Font
 
-         writer.WriteStartElement("BarCode"); // Start Barcode
-         {
-            string BarCode = GetAttribute(ccPF.Barcode_Type);
-            if (BarCode != GetDropDownNames((int)fmtDD.BarcodeType)[0]) {
+         string BarCode = GetAttribute(ccPF.Barcode_Type);
+         if (BarCode != GetDropDownNames((int)fmtDD.BarcodeType)[0]) {
+            writer.WriteStartElement("BarCode"); // Start Barcode
+            {
                writer.WriteAttributeString("HumanReadableFont", GetAttribute(ccPF.Readable_Code));
                writer.WriteAttributeString("EANPrefix", GetAttribute(ccPF.Prefix_Code));
                writer.WriteAttributeString("DotMatrix", BarCode);
             }
+            writer.WriteEndElement(); // End BarCode
          }
-         writer.WriteEndElement(); // End BarCode
       }
 
       // Retrieve the Calendar Settings
@@ -806,14 +886,25 @@ namespace EIP_Lib {
                   writer.WriteAttributeString("RuleName", "");
                }
 
-               if ((mask[i] & DateOffset) > 0) { // Not always needed
+               GetAttribute(ccCal.Offset_Year, out int oYear);
+               GetAttribute(ccCal.Offset_Month, out int oMonth);
+               GetAttribute(ccCal.Offset_Day, out int oDay);
+               GetAttribute(ccCal.Offset_Hour, out int oHour);
+               GetAttribute(ccCal.Offset_Year, out int oMinute);
+               if ((mask[i] & DateOffset) > 0 && 
+                  (oYear > 0 || oMonth > 0 || oDay > 0 || oHour > 0 || oMinute > 0)) {
                   writer.WriteStartElement("Offset"); // Start Offset
                   {
-                     writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
-                     writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
-                     writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
-                     writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
-                     writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
+                     if (oYear > 0)
+                        writer.WriteAttributeString("Year", GetAttribute(ccCal.Offset_Year));
+                     if (oMonth > 0)
+                        writer.WriteAttributeString("Month", GetAttribute(ccCal.Offset_Month));
+                     if (oDay > 0)
+                        writer.WriteAttributeString("Day", GetAttribute(ccCal.Offset_Day));
+                     if (oHour > 0)
+                        writer.WriteAttributeString("Hour", GetAttribute(ccCal.Offset_Hour));
+                     if (oMinute > 0)
+                        writer.WriteAttributeString("Minute", GetAttribute(ccCal.Offset_Minute));
                   }
                   writer.WriteEndElement(); // End Offset
                }
@@ -858,32 +949,6 @@ namespace EIP_Lib {
                   writer.WriteEndElement(); // End EnableSubstitution
                }
 
-               if ((mask[i] & (int)ba.Shift) > 0) {
-                  int shift = 1;
-                  do {
-                     writer.WriteStartElement("Shift"); // Start Shift
-                     {
-                        SetAttribute(ccIDX.Item, shift);
-                        writer.WriteAttributeString("ShiftNumber", shift.ToString());
-                        writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
-                        writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
-                        writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
-                     }
-                     writer.WriteEndElement(); // End Shift
-                     shift++;
-                  } while (GetAttribute(ccCal.Shift_End_Hour) != "23" || GetAttribute(ccCal.Shift_End_Minute) != "59");
-               }
-               if ((mask[i] & (int)ba.TimeCount) > 0) {
-                  writer.WriteStartElement("TimeCount"); // Start TimeCount
-                  {
-                     writer.WriteAttributeString("Interval", GetAttribute(ccCal.Update_Interval_Value));
-                     writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
-                     writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
-                     writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
-                     writer.WriteAttributeString("ResetValue", GetAttribute(ccCal.Time_Count_Reset_Value));
-                  }
-                  writer.WriteEndElement(); // End TimeCount
-               }
             }
             writer.WriteEndElement(); // End Date
          }
@@ -1507,9 +1572,11 @@ namespace EIP_Lib {
       }
 
       // Examine the contents of a print message to determine its type
-      private ItemType GetItemType(string text, ref int[] mask) {
+      private ItemType GetItemType(string text, ref int[] mask, bool reset = true) {
          int l = 0;
-         mask[l] = 0;
+         if (reset) {
+            mask[l] = 0;
+         }
          string[] s = text.Split('{');
          for (int i = 0; i < s.Length; i++) {
             int n = s[i].IndexOf('}');
