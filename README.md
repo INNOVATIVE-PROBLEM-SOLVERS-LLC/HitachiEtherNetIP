@@ -17,6 +17,8 @@ The solution is broken into six projects:
   <li>Hitachi_EIP_Test -- A starting point for developing an application that uses the "Browser" and "EIP" DLLs.</li>
   <li>HitachiProtocol -- A Class Library "HitachiPrinter" for the Hitachi Protocol interface to all printers.</li>
   <li>HitachiProtocol_Test -- A test program the instantiates the "HitachiPrinter" Class and shows simple commands.</li>
+  <li>IJPLib_Test -- A test program to drive the IJPLibXML DLL.</li>
+  <li>IJPLibXML -- A Class Library that uses EIPLib/Modbus to send/receive messages in XML format.</li>
 </ul>
 
 A record of all traffic to/from the printer is kept in an Excel Spreadsheet.  You will need Microsoft Office installed to execute the application as it is.
