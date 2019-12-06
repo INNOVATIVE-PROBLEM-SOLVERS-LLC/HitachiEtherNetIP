@@ -38,10 +38,19 @@ namespace EIP_Lib {
       public string Type;
       public FontDef Font;
       public BarCode BarCode;
+
       [XmlElement("Date")]
       public Date[] Date;
+
       [XmlElement("Counter")]
       public Counter[] Counter;
+
+      [XmlArray("Shifts")]
+      [XmlArrayItem("Shift")]
+      public Shift[] Shift;
+
+      public TimeCount TimeCount;
+
       public string Text;
 
       [XmlIgnore]
@@ -257,10 +266,6 @@ namespace EIP_Lib {
       public EncoderSettings EncoderSettings;
       public InkStream InkStream;
       public Substitution Substitution;
-      [XmlArray("Shifts")]
-      [XmlArrayItem("Shift")]
-      public Shift[] Shift;
-      public TimeCount TimeCount;
       public Logos Logos;
    }
 

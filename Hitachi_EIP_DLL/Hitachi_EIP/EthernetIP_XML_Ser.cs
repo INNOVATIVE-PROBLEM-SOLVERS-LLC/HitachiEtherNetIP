@@ -97,25 +97,6 @@ namespace EIP_Lib {
             SetAttribute(ccPS.Ink_Drop_Use, p.InkStream.InkDropUse);
             SetAttribute(ccPS.Ink_Drop_Charge_Rule, p.InkStream.ChargeRule);
          }
-         if (p.Shift != null) {
-            // Process Shift
-            for (int j = 0; j < p.Shift.Length; j++) {
-               SetAttribute(ccIDX.Calendar_Block, j + 1);
-               SetAttribute(ccCal.Shift_Start_Hour, p.Shift[j].StartHour);
-               SetAttribute(ccCal.Shift_Start_Minute, p.Shift[j].StartMinute);
-               SetAttribute(ccCal.Shift_String_Value, p.Shift[j].ShiftCode);
-            }
-         }
-         if (p.TimeCount != null) {
-            TimeCount tc = p.TimeCount;
-            if (tc != null) {
-               SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
-               SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
-               SetAttribute(ccCal.Time_Count_End_Value, tc.End);
-               SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
-               SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
-            }
-         }
          if (p.Logos != null) {
             foreach (Logo l in p.Logos.Logo) {
 
@@ -241,6 +222,12 @@ namespace EIP_Lib {
                if (item.Counter != null) {
                   SetAttribute(ccIDX.Item, index + 1);
                   SendCount(item);
+               }
+               if (item.Shift != null) {
+                  SendShift(item);
+               }
+               if (item.TimeCount != null) {
+                  SendTimeCount(item);
                }
             }
          }
@@ -376,6 +363,27 @@ namespace EIP_Lib {
          }
       }
 
+      private void SendShift(Item item) {
+         // Process Shift
+         for (int j = 0; j < item.Shift.Length; j++) {
+            SetAttribute(ccIDX.Calendar_Block, j + 1);
+            SetAttribute(ccCal.Shift_Start_Hour, item.Shift[j].StartHour);
+            SetAttribute(ccCal.Shift_Start_Minute, item.Shift[j].StartMinute);
+            SetAttribute(ccCal.Shift_String_Value, item.Shift[j].ShiftCode);
+         }
+      }
+
+      private void SendTimeCount(Item item) {
+         TimeCount tc = item.TimeCount;
+         if (tc != null) {
+            SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
+            SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
+            SetAttribute(ccCal.Time_Count_End_Value, tc.End);
+            SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
+            SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
+         }
+      }
+
       #endregion
 
       #region Retrieve XML from printer using Serialization
@@ -455,44 +463,11 @@ namespace EIP_Lib {
                ChargeRule = GetAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
             Substitution = RetrieveSubstitutions(),
-            Shift = RetrieveShifts(),
-            TimeCount = RetrieveShiftTimeCount(),
             Logos = RetrieveLogos(),
          };
 
          // Logos TBD
          return p;
-      }
-
-      private Shift[] RetrieveShifts() {
-         List<Shift> s = new List<Shift>();
-         string endHour;
-         string endMinute;
-         int shift = 1;
-         do {
-            SetAttribute(ccIDX.Item, shift);
-            s.Add(new Shift() {
-               ShiftNumber = shift,
-               StartHour = GetAttribute(ccCal.Shift_Start_Hour),
-               StartMinute = GetAttribute(ccCal.Shift_Start_Minute),
-               EndHour = endHour = GetAttribute(ccCal.Shift_End_Hour),
-               EndMinute = endMinute = GetAttribute(ccCal.Shift_End_Minute),
-               ShiftCode = GetAttribute(ccCal.Shift_String_Value),
-            });
-            shift++;
-         } while (endHour != "23" || endMinute != "59");
-         return s.ToArray();
-      }
-
-      private TimeCount RetrieveShiftTimeCount() {
-         TimeCount TimeCount = new TimeCount() {
-            Interval = GetAttribute(ccCal.Update_Interval_Value),
-            Start = GetAttribute(ccCal.Time_Count_Start_Value),
-            End = GetAttribute(ccCal.Time_Count_End_Value),
-            ResetTime = GetAttribute(ccCal.Reset_Time_Value),
-            ResetValue = GetAttribute(ccCal.Time_Count_Reset_Value),
-         };
-         return TimeCount;
       }
 
       private Substitution RetrieveSubstitutions() {
@@ -608,17 +583,26 @@ namespace EIP_Lib {
                   item.BarCode.EANPrefix = GetAttribute(ccPF.Prefix_Code);
                   item.BarCode.DotMatrix = barcode;
                }
-
                item.Location = new Location() { Index = index, Row = row, Col = col };
+               int[] mask = new int[1 + 8];
+               ItemType itemType = GetItemType(item.Text, ref mask);
                GetAttribute(ccCal.Number_of_Calendar_Blocks, out item.Location.calCount);
                if (item.Location.calCount > 0) {
                   GetAttribute(ccCal.First_Calendar_Block, out item.Location.calStart);
-                  RetrieveCalendarSettings(item);
+                  RetrieveCalendarSettings(item, mask);
                }
                GetAttribute(ccCount.Number_Of_Count_Blocks, out item.Location.countCount);
                if (item.Location.countCount > 0) {
                   GetAttribute(ccCount.First_Count_Block, out item.Location.countStart);
                   RetrieveCountSettings(item);
+               }
+               for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
+                  if (item.Shift == null && (mask[i] & (int)ba.Shift) > 0) {
+                     item.Shift = RetrieveShifts();
+                  }
+                  if (item.TimeCount == null && (mask[i] & (int)ba.TimeCount) > 0) {
+                     item.TimeCount = RetrieveTimeCount();
+                  }
                }
                m.Column[col].Item[row] = item;
                index++;
@@ -626,9 +610,7 @@ namespace EIP_Lib {
          }
       }
 
-      private void RetrieveCalendarSettings(Item item) {
-         int[] mask = new int[1 + item.Location.calCount];
-         ItemType itemType = GetItemType(item.Text, ref mask);
+      private void RetrieveCalendarSettings(Item item, int[] mask) {
          item.Date = new Date[item.Location.calCount];
          for (int i = 0; i < item.Location.calCount; i++) {
             SetAttribute(ccIDX.Calendar_Block, item.Location.calStart + i);
@@ -712,6 +694,37 @@ namespace EIP_Lib {
                SkipCount = GetAttribute(ccCount.Count_Skip),
             };
          }
+      }
+
+      private Shift[] RetrieveShifts() {
+         List<Shift> s = new List<Shift>();
+         string endHour;
+         string endMinute;
+         int shift = 1;
+         do {
+            SetAttribute(ccIDX.Item, shift);
+            s.Add(new Shift() {
+               ShiftNumber = shift,
+               StartHour = GetAttribute(ccCal.Shift_Start_Hour),
+               StartMinute = GetAttribute(ccCal.Shift_Start_Minute),
+               EndHour = endHour = GetAttribute(ccCal.Shift_End_Hour),
+               EndMinute = endMinute = GetAttribute(ccCal.Shift_End_Minute),
+               ShiftCode = GetAttribute(ccCal.Shift_String_Value),
+            });
+            shift++;
+         } while (endHour != "23" || endMinute != "59");
+         return s.ToArray();
+      }
+
+      private TimeCount RetrieveTimeCount() {
+         TimeCount TimeCount = new TimeCount() {
+            Interval = GetAttribute(ccCal.Update_Interval_Value),
+            Start = GetAttribute(ccCal.Time_Count_Start_Value),
+            End = GetAttribute(ccCal.Time_Count_End_Value),
+            ResetTime = GetAttribute(ccCal.Reset_Time_Value),
+            ResetValue = GetAttribute(ccCal.Time_Count_Reset_Value),
+         };
+         return TimeCount;
       }
 
       #endregion

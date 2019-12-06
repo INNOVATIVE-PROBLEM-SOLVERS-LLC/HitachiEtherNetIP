@@ -353,6 +353,14 @@ namespace EIP_Lib {
                SetAttribute(ccIDX.Item, i + 1);
                LoadCount(Items[i], countCount[i], countStart[i]);
             }
+            XmlNode shifts = Items[i].SelectSingleNode("Shifts");
+            if (shifts != null) {
+               LoadShifts(shifts);
+            }
+            XmlNode timeCount = Items[i].SelectSingleNode("TimeCount");
+            if (timeCount != null) {
+               LoadTimeCount(timeCount);
+            }
          }
 
          Items = null;
@@ -399,51 +407,6 @@ namespace EIP_Lib {
                            if (!IsDefaultValue(fmtDD.EnableDisable, a.Value)) {
                               if (Enum.TryParse($"Substitute_{a.Name}", out ccCal attr)) {
                                  SetAttribute(attr, a.Value);
-                              }
-                           }
-                        }
-                        break;
-                     case "TimeCount":
-                        foreach (XmlAttribute a in n.Attributes) {
-                           switch (a.Name) {
-                              case "Start":
-                                 SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
-                                 break;
-                              case "End":
-                                 SetAttribute(ccCal.Time_Count_End_Value, a.Value);
-                                 break;
-                              case "ResetValue":
-                                 SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
-                                 break;
-                              case "ResetTime":
-                                 SetAttribute(ccCal.Reset_Time_Value, a.Value);
-                                 break;
-                              case "Interval":
-                                 SetAttribute(ccCal.Update_Interval_Value, a.Value);
-                                 break;
-                           }
-                        }
-                        break;
-                     case "Shift":
-                        if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
-                           SetAttribute(ccIDX.Calendar_Block, shift);
-                           foreach (XmlAttribute a in n.Attributes) {
-                              switch (a.Name) {
-                                 case "StartHour":
-                                    SetAttribute(ccCal.Shift_Start_Hour, a.Value);
-                                    break;
-                                 case "StartMinute":
-                                    SetAttribute(ccCal.Shift_Start_Minute, a.Value);
-                                    break;
-                                 case "EndHour":
-                                    //SetAttribute(ccCal.Shift_End_Hour, a.Value);  // Read Only
-                                    break;
-                                 case "EndMinute":
-                                    //SetAttribute(ccCal.Shift_End_Minute, a.Value); // Read Only
-                                    break;
-                                 case "ShiftCode":
-                                    SetAttribute(ccCal.Shift_String_Value, a.Value);
-                                    break;
                               }
                            }
                         }
@@ -542,6 +505,59 @@ namespace EIP_Lib {
          return success;
       }
 
+      private bool LoadShifts(XmlNode obj) {
+         foreach (XmlNode n in obj.ChildNodes) {
+            if (n is XmlWhitespace)
+               continue;
+            if (int.TryParse(GetXmlAttr(n, "ShiftNumber"), out int shift)) {
+               SetAttribute(ccIDX.Calendar_Block, shift);
+               foreach (XmlAttribute a in n.Attributes) {
+                  switch (a.Name) {
+                     case "StartHour":
+                        SetAttribute(ccCal.Shift_Start_Hour, a.Value);
+                        break;
+                     case "StartMinute":
+                        SetAttribute(ccCal.Shift_Start_Minute, a.Value);
+                        break;
+                     case "EndHour":
+                        //SetAttribute(ccCal.Shift_End_Hour, a.Value);  // Read Only
+                        break;
+                     case "EndMinute":
+                        //SetAttribute(ccCal.Shift_End_Minute, a.Value); // Read Only
+                        break;
+                     case "ShiftCode":
+                        SetAttribute(ccCal.Shift_String_Value, a.Value);
+                        break;
+                  }
+               }
+            }
+         }
+         return true;
+      }
+
+      private bool LoadTimeCount(XmlNode tc) {
+         foreach (XmlAttribute a in tc.Attributes) {
+            switch (a.Name) {
+               case "Start":
+                  SetAttribute(ccCal.Time_Count_Start_Value, a.Value);
+                  break;
+               case "End":
+                  SetAttribute(ccCal.Time_Count_End_Value, a.Value);
+                  break;
+               case "ResetValue":
+                  SetAttribute(ccCal.Time_Count_Reset_Value, a.Value);
+                  break;
+               case "ResetTime":
+                  SetAttribute(ccCal.Reset_Time_Value, a.Value);
+                  break;
+               case "Interval":
+                  SetAttribute(ccCal.Update_Interval_Value, a.Value);
+                  break;
+            }
+         }
+         return true;
+      }
+
       #endregion
 
       #region Retrieve XML from printer
@@ -599,7 +615,8 @@ namespace EIP_Lib {
                                              default:
                                                 break;
                                           }
-
+                                          RetrieveShift(writer, mask);
+                                          RetrieveTimeCount(writer, mask);
                                           writer.WriteElementString("Text", text);
                                        }
                                        writer.WriteEndElement(); // End Item
@@ -711,55 +728,9 @@ namespace EIP_Lib {
 
             RetrieveSubstitutions(writer);
 
-            RetrieveShiftTimeCount(writer);
-
             RetrieveLogos(writer);
          }
          writer.WriteEndElement(); // Printer
-      }
-
-      private void RetrieveShiftTimeCount(XmlTextWriter writer) {
-         int n = Convert.ToInt32(GetAttribute(ccPF.Number_Of_Items));
-         int[] mask = new int[1 + 8];
-         for (int i = 1; i <= n; i++) {
-            SetAttribute(ccIDX.Item, i);
-            GetAttribute(ccPF.Print_Character_String, out string text);
-            GetItemType(text, ref mask, false);
-         }
-         bool shiftExists = false;
-         bool timeCountExists = false;
-         for (int i = 0; i < mask.Length; i++) {
-            shiftExists |= (mask[i] & (int)ba.Shift) > 0;
-            timeCountExists |= (mask[i] & (int)ba.TimeCount) > 0;
-         }
-         if (shiftExists) {
-            writer.WriteStartElement("Shifts"); // Start Shifts
-            int shift = 1;
-            do {
-               writer.WriteStartElement("Shift"); // Start Shift
-               {
-                  SetAttribute(ccIDX.Item, shift);
-                  writer.WriteAttributeString("ShiftNumber", shift.ToString());
-                  writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
-                  writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
-                  writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
-               }
-               writer.WriteEndElement(); // End Shift
-               shift++;
-            } while (GetAttribute(ccCal.Shift_End_Hour) != "23" || GetAttribute(ccCal.Shift_End_Minute) != "59");
-            writer.WriteEndElement(); // End Shifts
-         }
-         if (timeCountExists) {
-            writer.WriteStartElement("TimeCount"); // Start TimeCount
-            {
-               writer.WriteAttributeString("Interval", GetAttribute(ccCal.Update_Interval_Value));
-               writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
-               writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
-               writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
-               writer.WriteAttributeString("ResetValue", GetAttribute(ccCal.Time_Count_Reset_Value));
-            }
-            writer.WriteEndElement(); // End TimeCount
-         }
       }
 
       private void RetrieveLogos(XmlTextWriter writer) {
@@ -1053,6 +1024,46 @@ namespace EIP_Lib {
          //for (int j = 0; j < p.ItemText.Length; j++) {
          //   LogoText += ((short)p.ItemText[j]).ToString("X4");
          //}
+      }
+
+      private void RetrieveShift(XmlTextWriter writer, int[] mask) {
+         for (int i = 0; i < mask.Length; i++) {
+            if ((mask[i] & (int)ba.Shift) > 0) {
+               writer.WriteStartElement("Shifts"); // Start Shifts
+               int shift = 1;
+               do {
+                  writer.WriteStartElement("Shift"); // Start Shift
+                  {
+                     SetAttribute(ccIDX.Item, shift);
+                     writer.WriteAttributeString("ShiftNumber", shift.ToString());
+                     writer.WriteAttributeString("StartHour", GetAttribute(ccCal.Shift_Start_Hour));
+                     writer.WriteAttributeString("StartMinute", GetAttribute(ccCal.Shift_Start_Minute));
+                     writer.WriteAttributeString("ShiftCode", GetAttribute(ccCal.Shift_String_Value));
+                  }
+                  writer.WriteEndElement(); // End Shift
+                  shift++;
+               } while (GetAttribute(ccCal.Shift_End_Hour) != "23" || GetAttribute(ccCal.Shift_End_Minute) != "59");
+               writer.WriteEndElement(); // End Shifts
+               break;
+            }
+         }
+      }
+
+      private void RetrieveTimeCount(XmlTextWriter writer, int [] mask) {
+         for (int i = 0; i < mask.Length; i++) {
+            if ((mask[i] & (int)ba.TimeCount) > 0) {
+               writer.WriteStartElement("TimeCount"); // Start TimeCount
+               {
+                  writer.WriteAttributeString("Interval", GetAttribute(ccCal.Update_Interval_Value));
+                  writer.WriteAttributeString("Start", GetAttribute(ccCal.Time_Count_Start_Value));
+                  writer.WriteAttributeString("End", GetAttribute(ccCal.Time_Count_End_Value));
+                  writer.WriteAttributeString("ResetTime", GetAttribute(ccCal.Reset_Time_Value));
+                  writer.WriteAttributeString("ResetValue", GetAttribute(ccCal.Time_Count_Reset_Value));
+               }
+               writer.WriteEndElement(); // End TimeCount
+               break;
+            }
+         }
       }
 
       #endregion
@@ -1590,7 +1601,7 @@ namespace EIP_Lib {
                   }
                }
             }
-            if (s[i].IndexOf('}', n + 1) > 0) {
+            if (s[i].IndexOf('}', n + 1) > 0  && l < mask.GetUpperBound(0)) {
                l++;
             }
          }
