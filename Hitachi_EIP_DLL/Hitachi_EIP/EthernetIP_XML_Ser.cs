@@ -407,11 +407,9 @@ namespace EIP_Lib {
                   XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
                   ns.Add("", "");
                   using (MemoryStream ms = new MemoryStream()) {
-
                      serializer.Serialize(ms, Label, ns);
                      ms.Position = 0;
                      xml = new StreamReader(ms).ReadToEnd();
-
                   }
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error

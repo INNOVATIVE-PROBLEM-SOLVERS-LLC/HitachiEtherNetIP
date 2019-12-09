@@ -41,7 +41,6 @@ namespace EIP_Lib {
       Button cmdSendDisplayToPrinter;
       CheckBox chkIJPLibNames;
       CheckBox chkErrorsOnly;
-      CheckBox chkSerialize;
       CheckBox chkTraffic;
 
       Label lblSelectHardTest;
@@ -257,7 +256,6 @@ namespace EIP_Lib {
 
          chkIJPLibNames = new CheckBox() { Text = "IJPLib Names", Checked = false };
          chkErrorsOnly = new CheckBox() { Text = "Errors Only", Checked = true };
-         chkSerialize = new CheckBox() { Text = "Serialize", Checked = false };
          chkTraffic = new CheckBox() { Text = "Log Traffic", Checked = false };
          chkTraffic.CheckedChanged += ChkTraffic_CheckedChanged;
 
@@ -277,7 +275,6 @@ namespace EIP_Lib {
          tab.Controls.Add(cmdSendDisplayToPrinter);
          tab.Controls.Add(chkIJPLibNames);
          tab.Controls.Add(chkErrorsOnly);
-         tab.Controls.Add(chkSerialize);
          tab.Controls.Add(chkTraffic);
 
          // Testing controls
@@ -438,8 +435,7 @@ namespace EIP_Lib {
 
             Utils.ResizeObject(ref R, chkIJPLibNames, tclHeight - 6, 1, 1.5f, 4);
             Utils.ResizeObject(ref R, chkErrorsOnly, tclHeight - 4.5f, 1, 1.5f, 4);
-            Utils.ResizeObject(ref R, chkSerialize, tclHeight - 3, 1, 1.5f, 4);
-            Utils.ResizeObject(ref R, chkTraffic, tclHeight - 1.5f, 1, 1.5f, 4);
+            Utils.ResizeObject(ref R, chkTraffic, tclHeight - 3, 1, 1.5f, 4);
 
             Utils.ResizeObject(ref R, cmdOpen, tclHeight - 6, 5, 2.5f, 4);
             Utils.ResizeObject(ref R, cmdRetrieve, tclHeight - 3, 5, 2.5f, 4);
