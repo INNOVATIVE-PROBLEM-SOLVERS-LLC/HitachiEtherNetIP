@@ -20,80 +20,88 @@ namespace EIP_Lib {
 
    public class Msg {
       [XmlAttribute]
-      public string Layout;
+      public string Layout;    // Supports only individual at the moment
       [XmlElement("Column")]
-      public Column[] Column;
+      public Column[] Column;  // Message made up of columns and items within column
    }
 
    public class Column {
       [XmlAttribute]
-      public string InterLineSpacing;
+      public string InterLineSpacing;  // Spacing between items
       [XmlElement("Item")]
-      public Item[] Item;
+      public Item[] Item;              // Items within a column
    }
 
    public class Item {
-      [XmlIgnore]
       [XmlAttribute]
-      public string Type;
-      public FontDef Font;
-      public BarCode BarCode;
+      public string Type;              // Not needed here.  Used for cijConnect
+      public FontDef Font;             // DotMatrix code
+      public BarCode BarCode;          // Only used if barcode exists
 
       [XmlElement("Date")]
-      public Date[] Date;
+      public Date[] Date;              // Multiple calendars can appear in an item
 
       [XmlElement("Counter")]
-      public Counter[] Counter;
+      public Counter[] Counter;        // Multiple counters can appear within an item
 
       [XmlArray("Shifts")]
       [XmlArrayItem("Shift")]
-      public Shift[] Shift;
+      public Shift[] Shift;            // Shift code appears in item even though it is printer wide.
 
-      public TimeCount TimeCount;
+      public TimeCount TimeCount;      // Time Count appears in item even though it is printer wide.
 
-      public string Text;
+      public string Text;              // Message Text
 
       [XmlIgnore]
-      public Location Location;
+      public Location Location;        // Use for internal processing only
 
       public bool ShouldSerializeBarCode() {
-         return BarCode.DotMatrix != null;
+         return BarCode.DotMatrix != null;  // Write our BarCode only if it is used.
       }
    }
 
    public class Location {
-      public int Row;     // 0-Origin
-      public int Col;     // 0-Origin
-      public int Index;   // 0-Origin
-      public int X;       // 0-Origin
-      public int Y;       // 0-Origin
-      public int calStart = 0;
-      public int calCount = 0;
-      public int countStart = 0;
-      public int countCount = 0;
+      public int Row;                  // 0-Origin
+      public int Col;                  // 0-Origin
+      public int Index;                // 0-Origin
+      public int X;                    // 0-Origin == Will be needed for Free Layout
+      public int Y;                    // 0-Origin == Will be needed for Free Layout
+      public int calStart = 0;         // 1-Origin == First calendar object in item
+      public int calCount = 0;         // Number of calendar objects used in item
+      public int countStart = 0;       // 1-Origin == First count object in item
+      public int countCount = 0;       // Number of counter objects in item
    }
 
    public class FontDef {
       [XmlAttribute]
-      public string InterCharacterSpace;
+      public string InterCharacterSpace; // Space between characters
       [XmlAttribute]
-      public string IncreasedWidth;
+      public string IncreasedWidth;      // Bolding
       [XmlAttribute]
-      public string DotMatrix;
+      public string IW {                 // Bolding abbreviation
+         get { return IncreasedWidth; }
+         set { IncreasedWidth = value; }
+      }
+      [XmlAttribute]
+      public string DotMatrix;           // Font face
+
+      public bool ShouldSerializeIW() {
+         return false;                    // Load IW but save as IncreasedWidth.
+      }
    }
 
    public class BarCode {
       [XmlAttribute]
-      public string HumanReadableFont;
+      public string HumanReadableFont;   // Human readable font face
       [XmlAttribute]
-      public string EANPrefix;
+      public string EANPrefix;           // EAN Prefix
       [XmlAttribute]
-      public string DotMatrix;
+      public string DotMatrix;           // Barcode symbology
    }
 
    public class Counter {
       [XmlAttribute]
-      public int Block;
+      public int Block;                  // 1-Origin designation of counter within item
 
       public Range Range;
       public Count Count;
@@ -155,7 +163,7 @@ namespace EIP_Lib {
       public ZeroSuppress ZeroSuppress;
       public Substitute Substitute;
       public bool ShouldSerializeOffset() {
-         return Offset != null  && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
+         return Offset != null && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
       }
    }
 
@@ -228,9 +236,9 @@ namespace EIP_Lib {
       public string StartHour;
       [XmlAttribute]
       public string StartMinute;
-      [XmlIgnore]
+      [XmlAttribute]
       public string EndHour;
-      [XmlIgnore]
+      [XmlAttribute]
       public string EndMinute;
       [XmlAttribute]
       public string ShiftCode;

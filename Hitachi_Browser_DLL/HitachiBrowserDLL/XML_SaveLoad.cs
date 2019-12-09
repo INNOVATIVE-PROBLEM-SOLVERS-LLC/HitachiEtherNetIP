@@ -33,13 +33,7 @@ namespace EIP_Lib {
       // Send xlmDoc from display to printer
       private void SendDisplayToPrinter_Click(object sender, EventArgs e) {
          bool success = true;
-         if (chkSerialize.Checked) {
-            success = EIP.SendXMLAsSerialization(txtIndentedView.Text, true);
-         } else {
-            xmlDoc = new XmlDocument() { PreserveWhitespace = true };
-            xmlDoc.LoadXml(txtIndentedView.Text);
-            success = EIP.SendXmlToPrinter(xmlDoc, true);
-         }
+         success = EIP.SendXMLAsSerialization(txtIndentedView.Text, true);
          if (success) {
             EIP.LogIt("Load Successful!");
          } else {
@@ -55,11 +49,7 @@ namespace EIP_Lib {
             Open_Click(null, null);
          }
          if (xmlDoc != null) {
-            if (chkSerialize.Checked) {
-               success = EIP.SendXMLAsSerialization(XMLFileName, true);
-            } else {
-               success = EIP.SendXmlToPrinter(xmlDoc, true);
-            }
+            success = EIP.SendXMLAsSerialization(XMLFileName, true);
          }
          if (success) {
             EIP.LogIt("Load Successful!");
@@ -70,11 +60,7 @@ namespace EIP_Lib {
 
       // Generate an XML Doc from the printer contents
       private void Retrieve_Click(object sender, EventArgs e) {
-         if (chkSerialize.Checked) {
-            XMLText = EIP.RetrieveXMLAsSerialization(chkIJPLibNames.Checked);
-         } else {
-            XMLText = EIP.RetrieveXML(chkIJPLibNames.Checked);
-         }
+         XMLText = EIP.RetrieveXMLAsSerialization(chkIJPLibNames.Checked);
          ProcessLabel(XMLText);
          SetButtonEnables();
       }
