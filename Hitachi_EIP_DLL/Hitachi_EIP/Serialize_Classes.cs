@@ -56,7 +56,7 @@ namespace EIP_Lib {
       public Location Location;        // Use for internal processing only
 
       public bool ShouldSerializeBarCode() {
-         return BarCode.DotMatrix != null;  // Write our BarCode only if it is used.
+         return BarCode.DotMatrix != null;  // Write out BarCode only if it is used.
       }
    }
 
@@ -162,8 +162,17 @@ namespace EIP_Lib {
       public Offset Offset;
       public ZeroSuppress ZeroSuppress;
       public Substitute Substitute;
+
       public bool ShouldSerializeOffset() {
          return Offset != null && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
+      }
+      public bool ShouldSerializeZeroSuppress() {
+         return ZeroSuppress != null && (ZeroSuppress.Year != null || ZeroSuppress.Month != null || ZeroSuppress.Day != null ||
+            ZeroSuppress.Hour != null || ZeroSuppress.Minute != null || ZeroSuppress.Week != null || ZeroSuppress.DayOfWeek != null);
+      }
+      public bool ShouldSerializeSubstitute() {
+         return Substitute != null && (Substitute.Year != null || Substitute.Month != null || Substitute.Day != null ||
+            Substitute.Hour != null || Substitute.Minute != null || Substitute.Week != null || Substitute.DayOfWeek != null);
       }
    }
 
