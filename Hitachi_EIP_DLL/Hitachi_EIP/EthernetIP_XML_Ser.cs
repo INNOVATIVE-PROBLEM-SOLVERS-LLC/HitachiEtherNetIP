@@ -397,9 +397,11 @@ namespace EIP_Lib {
                try {
                   Lab Label = new Lab() { Version = "Serialization-1" };
 
+                  Label.Message = RetrieveMessage();
+
                   Label.Printer = RetrievePrinterSettings();
 
-                  Label.Message = RetrieveMessage();
+                  Label.Printer.Substitution = RetrieveSubstitutions(Label.Message);
 
                   XmlSerializer serializer = new XmlSerializer(typeof(Lab));
                   //TextWriter writer = new StreamWriter(FileName);
@@ -460,7 +462,6 @@ namespace EIP_Lib {
                InkDropUse = GetAttribute(ccPS.Ink_Drop_Use),
                ChargeRule = GetAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
-            Substitution = RetrieveSubstitutions(),
             Logos = RetrieveLogos(),
          };
 
@@ -468,32 +469,33 @@ namespace EIP_Lib {
          return p;
       }
 
-      private Substitution RetrieveSubstitutions() {
-         bool need;
+      private Substitution RetrieveSubstitutions(Msg m) {
          bool needYear = false;
          bool needMonth = false;
          bool needDay = false;
          bool needHour = false;
          bool needMinute = false;
-         bool needWeeks = false;
+         bool needWeek = false;
          bool needDayOfWeek = false;
-         GetAttribute(ccUI.Maximum_Calendar_And_Count, out int n);
-         for (int i = 1; i <= n; i++) {
-            SetAttribute(ccIDX.Calendar_Block, i);
-            GetAttribute(ccCal.Substitute_Year, out need);
-            needYear |= need;
-            GetAttribute(ccCal.Substitute_Month, out need);
-            needMonth |= need;
-            GetAttribute(ccCal.Substitute_Day, out need);
-            needDay |= need;
-            GetAttribute(ccCal.Substitute_Hour, out need);
-            needHour |= need;
-            GetAttribute(ccCal.Substitute_Minute, out need);
-            needMinute |= need;
-            GetAttribute(ccCal.Substitute_Weeks, out need);
-            needDayOfWeek |= need; // Printer reports wrong setting?
-            GetAttribute(ccCal.Substitute_DayOfWeek, out need);
-            needWeeks |= need;
+         for (int c = 0; c < m.Column.Length; c++) {
+            Column col = m.Column[c];
+            for (int r = 0; r < col.Item.Length; r++) {
+               Item item = col.Item[r];
+               if (item.Date != null) {
+                  for (int i = 0; i < item.Date.Length; i++) {
+                     Substitute sub = item.Date[i].Substitute;
+                     if (sub != null) {
+                        needYear |= sub.Year != null;
+                        needMonth |= sub.Month != null;
+                        needDay |= sub.Day != null;
+                        needHour |= sub.Hour != null;
+                        needMinute |= sub.Minute != null;
+                        needDayOfWeek |= sub.DayOfWeek != null;
+                        needWeek |= sub.Week != null;
+                     }
+                  }
+               }
+            }
          }
 
          List<SubstitutionRule> sr = new List<SubstitutionRule>();
@@ -507,7 +509,7 @@ namespace EIP_Lib {
             RetrieveSubstitution(sr, ccSR.Hour);
          if (needMinute)
             RetrieveSubstitution(sr, ccSR.Minute);
-         if (needWeeks)
+         if (needWeek)
             RetrieveSubstitution(sr, ccSR.Week);
          if (needDayOfWeek)
             RetrieveSubstitution(sr, ccSR.DayOfWeek);
@@ -629,36 +631,51 @@ namespace EIP_Lib {
             }
             if ((mask[i] & DateSubZS) > 0) {
                item.Date[i].ZeroSuppress = new ZeroSuppress();
+               string s;
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].ZeroSuppress.Year = GetAttribute(ccCal.Zero_Suppress_Year);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Year)))
+                     item.Date[i].ZeroSuppress.Year = s;
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].ZeroSuppress.Month = GetAttribute(ccCal.Zero_Suppress_Month);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Month)))
+                     item.Date[i].ZeroSuppress.Month = s;
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].ZeroSuppress.Day = GetAttribute(ccCal.Zero_Suppress_Day);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Day)))
+                     item.Date[i].ZeroSuppress.Day = s;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].ZeroSuppress.Hour = GetAttribute(ccCal.Zero_Suppress_Hour);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Hour)))
+                     item.Date[i].ZeroSuppress.Hour = s;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].ZeroSuppress.Minute = GetAttribute(ccCal.Zero_Suppress_Minute);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Minute)))
+                     item.Date[i].ZeroSuppress.Minute = s;
                if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].ZeroSuppress.Week = GetAttribute(ccCal.Zero_Suppress_Weeks);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Weeks)))
+                     item.Date[i].ZeroSuppress.Week = s;
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].ZeroSuppress.DayOfWeek = GetAttribute(ccCal.Zero_Suppress_DayOfWeek);
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_DayOfWeek)))
+                     item.Date[i].ZeroSuppress.DayOfWeek = s;
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].Substitute.Year = GetAttribute(ccCal.Substitute_Year);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Year)))
+                     item.Date[i].Substitute.Year = s;
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].Substitute.Month = GetAttribute(ccCal.Substitute_Month);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Month)))
+                     item.Date[i].Substitute.Month = s;
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].Substitute.Day = GetAttribute(ccCal.Substitute_Day);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Day)))
+                     item.Date[i].Substitute.Day = s;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].Substitute.Hour = GetAttribute(ccCal.Substitute_Hour);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Hour)))
+                     item.Date[i].Substitute.Hour = s;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].Substitute.Minute = GetAttribute(ccCal.Substitute_Minute);
-               if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].Substitute.Week = GetAttribute(ccCal.Substitute_Weeks);
-               if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = GetAttribute(ccCal.Substitute_DayOfWeek);
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Minute)))
+                     item.Date[i].Substitute.Minute = s;
+               if ((mask[i] & (int)ba.Week) > 0) // Printer reports these wrong
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek)))
+                     item.Date[i].Substitute.Week = s;
+               if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks)))
+                     item.Date[i].Substitute.DayOfWeek = s;
             }
          }
       }
