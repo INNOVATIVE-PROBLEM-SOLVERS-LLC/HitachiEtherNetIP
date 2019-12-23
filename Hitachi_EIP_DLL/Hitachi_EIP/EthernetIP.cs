@@ -468,7 +468,6 @@ namespace EIP_Lib {
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
      };
 
-
       public int port { get; set; }
       public string IPAddress { get; set; }
 
