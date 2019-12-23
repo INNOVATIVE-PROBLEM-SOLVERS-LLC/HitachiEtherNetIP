@@ -49,6 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataII.cs" />
+    <Compile Include="RetrieveXML.cs" />
+    <Compile Include="Serialize_Classes.cs" />
     <Compile Include="UI161.cs">
       <SubType>Form</SubType>
     </Compile>

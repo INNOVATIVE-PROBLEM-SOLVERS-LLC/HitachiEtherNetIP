@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace ModBus161 {
    public partial class UI161 : Form {
@@ -58,14 +59,22 @@ namespace ModBus161 {
 
       #region Form Control Events
 
-      //private void cmdSendText_Click(object sender, EventArgs e) {
-      //   //cmds = new List<byte[]>();
-      //   //cmds.Add(BuildStartStop(true));
-      //   //cmds.Add(BuildCharacterCount(1, "ABC123"));
-      //   //cmds.Add(BuildText(1, "ABC123"));
-      //   //cmds.Add(BuildStartStop(false));
-      //   //SendNextCmd();
-      //}
+      // Connect to printer and turn COM on
+      private void cmdConnect_Click(object sender, EventArgs e) {
+         if (IPAddress.TryParse(txtIPAddress.Text, out IPAddress ipAddress) &&
+            int.TryParse(txtIPPort.Text, out IPPort)) {
+            client = new TcpClient(txtIPAddress.Text, IPPort);
+            stream = client.GetStream();
+            Log("Connection Accepted");
+            byte[] b = GetAttribute(ccIJP.Online_Offline);
+            Log($"Com status is {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
+            if (GetDecValue(b) == 0) {
+               SetAttribute(ccIJP.Online_Offline, 1);
+               b = GetAttribute(ccIJP.Online_Offline);
+               Log($"Com status is now {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
+            }
+         }
+      }
 
       // Turn com on
       private void comOn_Click(object sender, EventArgs e) {
@@ -90,24 +99,53 @@ namespace ModBus161 {
 
       }
 
+      // Retrieve message from printer and convert to XML
+      private void cmdRetrieve_Click(object sender, EventArgs e) {
+         RetrieveXML retrieve = new RetrieveXML(this);
+         string xml = retrieve.Retrieve();
+         try {
+            // Can be called with a Filename or XML text
+            int xmlStart = xml.IndexOf("<Label");
+            if (xmlStart == -1) {
+               xml = File.ReadAllText(xml);
+               xmlStart = xml.IndexOf("<Label");
+            }
+            // No label found, exit
+            if (xmlStart == -1) {
+               return;
+            }
+            int xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
+            if (xmlEnd > 0) {
+               xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
+               XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
+               xmlDoc.LoadXml(xml);
+               xml = ToIndentedString(xml);
+               xmlStart = xml.IndexOf("<Label");
+               if (xmlStart > 0) {
+                  xml = xml.Substring(xmlStart);
+                  txtIndentedView.Text = xml;
+
+                  tvXML.Nodes.Clear();
+                  tvXML.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
+                  TreeNode tNode = new TreeNode();
+                  tNode = tvXML.Nodes[0];
+
+                  AddNode(xmlDoc.DocumentElement, tNode);
+                  tvXML.ExpandAll();
+
+               }
+            }
+         } catch {
+
+         }
+      }
+
       // Exit the program
       private void cmdExit_Click(object sender, EventArgs e) {
          this.Close();
       }
 
       #endregion
-
-      private void DisplayInput(byte[] input, int len = -1) {
-         string s = byte_to_string(input, len);
-         Log($"{len} data bytes arrived");
-         Log(s);
-      }
-
-      private void DisplayOutput(byte[] output, int len = -1) {
-         string s = byte_to_string(output, len);
-         Log($"{len} data bytes sent");
-         Log(s);
-      }
 
       #region Modbus command builders
 
@@ -188,22 +226,6 @@ namespace ModBus161 {
 
       #region Ethernet interface
 
-      private void cmdConnect_Click(object sender, EventArgs e) {
-         if (IPAddress.TryParse(txtIPAddress.Text, out IPAddress ipAddress) &&
-            int.TryParse(txtIPPort.Text, out IPPort)) {
-            client = new TcpClient(txtIPAddress.Text, IPPort);
-            stream = client.GetStream();
-            Log("Connection Accepted");
-            byte[] b = GetAttribute(ccIJP.Online_Offline);
-            Log($"Com status is {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
-            if (GetDecValue(b) == 0) {
-               SetAttribute(ccIJP.Online_Offline, 1);
-               b = GetAttribute(ccIJP.Online_Offline);
-               Log($"Com status is now {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
-            }
-         }
-      }
-
       // Issue Modbus read request
       private bool Read(out byte[] data, out int bytes) {
          bool successful = false;
@@ -248,6 +270,72 @@ namespace ModBus161 {
 
       #region Service Routines
 
+      // Convert an XML Document into an indented text string
+      private string ToIndentedString(string unformattedXml) {
+         string result;
+         XmlReaderSettings readeroptions = new XmlReaderSettings { IgnoreWhitespace = true };
+         XmlReader reader = XmlReader.Create(new StringReader(unformattedXml), readeroptions);
+         StringBuilder sb = new StringBuilder();
+         XmlWriterSettings xmlSettingsWithIndentation = new XmlWriterSettings { Indent = true };
+         using (XmlWriter writer = XmlWriter.Create(sb, xmlSettingsWithIndentation)) {
+            writer.WriteNode(reader, true);
+         }
+         result = sb.ToString();
+         return result;
+      }
+
+      // Add a node to the tree view
+      private void AddNode(XmlNode inXmlNode, TreeNode inTreeNode) {
+         if (inXmlNode is XmlWhitespace)
+            return;
+         XmlNode xNode;
+         XmlNodeList nodeList;
+         if (inXmlNode.HasChildNodes) {
+            inTreeNode.Text = GetNameAttr(inXmlNode);
+            nodeList = inXmlNode.ChildNodes;
+            int j = 0;
+            for (int i = 0; i < nodeList.Count; i++) {
+               xNode = inXmlNode.ChildNodes[i];
+               if (xNode is XmlWhitespace)
+                  continue;
+               if (xNode.Name == "#text") {
+                  inTreeNode.Text = inXmlNode.OuterXml.Trim();
+               } else {
+                  if (!(xNode is XmlWhitespace)) {
+                     inTreeNode.Nodes.Add(new TreeNode(GetNameAttr(xNode)));
+                     AddNode(xNode, inTreeNode.Nodes[j]);
+                  }
+               }
+               j++;
+            }
+         } else {
+            inTreeNode.Text = inXmlNode.OuterXml.Trim();
+         }
+      }
+
+      // Get the attributes associated with a node
+      private string GetNameAttr(XmlNode n) {
+         string result = n.Name;
+         if (n.Attributes != null && n.Attributes.Count > 0) {
+            foreach (XmlAttribute attribute in n.Attributes) {
+               result += $" {attribute.Name}=\"{attribute.Value}\"";
+            }
+         }
+         return result;
+      }
+
+      private void DisplayInput(byte[] input, int len = -1) {
+         string s = byte_to_string(input, len);
+         Log($"{len} data bytes arrived");
+         Log(s);
+      }
+
+      private void DisplayOutput(byte[] output, int len = -1) {
+         string s = byte_to_string(output, len);
+         Log($"{len} data bytes sent");
+         Log(s);
+      }
+
       private byte[] string_to_byte(string sIn) {
          string[] s = sIn.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
          byte[] b = new byte[s.Length];
@@ -270,8 +358,10 @@ namespace ModBus161 {
          return s;
       }
 
-      private void Log(string msg) {
+      public void Log(string msg) {
          lstMessages.Items.Add(msg);
+         lstMessages.SelectedIndex = lstMessages.Items.Count - 1;
+         lstMessages.Update();
       }
 
       #endregion
@@ -344,7 +434,7 @@ namespace ModBus161 {
       }
 
       // Get the contents of one attribute
-      private bool GetAttribute(int addr, int Len, out byte[] result) {
+      public bool GetAttribute(int addr, int Len, out byte[] result) {
          bool success = false;
          byte[] data = null;
          int len = 10;
@@ -366,11 +456,85 @@ namespace ModBus161 {
       }
 
       // Get the contents of one attribute
-      private byte[] GetAttribute<T>(T Attribute) where T : Enum {
+      public byte[] GetAttribute<T>(T Attribute) where T : Enum {
          byte[] result;
          AttrData attr = GetAttrData(Attribute);
          if (!GetAttribute(attr, out result)) {
             result = null;
+         }
+         return result;
+      }
+
+      // Get the contents of one attribute
+      public byte[] GetAttribute<T>(T Attribute, int offset) where T : Enum {
+         byte[] result;
+         AttrData attr = GetAttrData(Attribute).Clone();
+         attr.Val += offset;
+         if (!GetAttribute(attr, out result)) {
+            result = null;
+         }
+         return result;
+      }
+
+      // Get the contents of one attribute
+      public byte[] GetAttribute(AttrData attr) {
+         byte[] result;
+         if (!GetAttribute(attr, out result)) {
+            result = null;
+         }
+         return result;
+      }
+
+      // Get the decimal value of the attribute
+      public int GetDecAttribute<T>(T Attribute) where T : Enum {
+         return GetDecValue(GetAttribute(Attribute));
+      }
+
+      // Get the decimal value of the attribute
+      public int GetDecAttribute<T>(T Attribute, int offset) where T : Enum {
+         return GetDecValue(GetAttribute(Attribute, offset));
+      }
+
+      // Get the decimal value of the attribute
+      public int GetDecAttribute(AttrData attr) {
+         return GetDecValue(GetAttribute(attr));
+      }
+
+      // Get the decimal value of the attribute
+      public int GetDecAttribute(AttrData attr, int offset) {
+         AttrData ad = attr.Clone();
+         ad.Val += offset;
+         return GetDecValue(GetAttribute(ad));
+      }
+
+      // Get human readable value of the attribute
+      public string GetHRAttribute<T>(T Attribute) where T : Enum {
+         byte[] b = GetAttribute(Attribute);
+         long n = GetDecValue(b);
+         string result = n.ToString();
+         AttrData attr = GetAttrData(Attribute);
+         if (attr.Data.DropDown != fmtDD.None) {
+            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
+            n = n - attr.Data.Min;
+            if (n >= 0 && n < dd.Length) {
+               result = dd[n];
+            }
+         }
+         return result;
+      }
+
+      // Get human readable value of the attribute
+      public string GetHRAttribute<T>(T Attribute, int offset) where T : Enum {
+         byte[] b = GetAttribute(Attribute, offset);
+         long n = GetDecValue(b);
+         string result = n.ToString();
+         AttrData attr = GetAttrData(Attribute);
+         if (attr.Data.DropDown != fmtDD.None) {
+            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
+            n = n - attr.Data.Min;
+            if (n >= 0 && n < dd.Length) {
+               result = dd[n];
+            }
          }
          return result;
       }
@@ -407,16 +571,16 @@ namespace ModBus161 {
       }
 
       // Convert result to decimal value
-      private int GetDecValue(byte[] b) {
-         int n = b[0];
-         for (int i = 1; i < b.Length; i++) {
+      public int GetDecValue(byte[] b) {
+         int n = 0;
+         for (int i = 0; i < b.Length; i++) {
             n = (n << 8) + b[i];
          }
          return n;
       }
 
       // Convert the decimal value to human readable
-      private string GetHumanReadableValue<T>(T Attribute, byte[] b) where T : Enum {
+      public string GetHumanReadableValue<T>(T Attribute, byte[] b) where T : Enum {
          long n = GetDecValue(b);
          string result = n.ToString();
          AttrData attr = GetAttrData(Attribute);
