@@ -57,14 +57,16 @@ namespace ModBus161 {
       Adding_Print_Items = 0x6E,
       Deleting_Print_Items = 0x6F,
       Print_Character_String = 0x71,
-      Line_Count = 0x72,
-      Line_Spacing = 0x73,
-      Dot_Matrix = 0x74,
-      InterCharacter_Space = 0x75,
-      Character_Bold = 0x76,
-      Barcode_Type = 0x77,
-      Readable_Code = 0x78,
-      Prefix_Code = 0x79,
+
+      Line_Count = 0x1040,
+      Line_Spacing = 0x1041,
+      Dot_Matrix = 0x1042,
+      InterCharacter_Space = 0x1043,
+      Character_Bold = 0x1044,
+      Barcode_Type = 0x1045,
+      Readable_Code = 0x1046,
+      Prefix_Code = 0x1047,
+
       X_and_Y_Coordinate = 0x7A,
       InterCharacter_SpaceII = 0x7B,
       Add_To_End_Of_String = 0x8A,
@@ -104,8 +106,8 @@ namespace ModBus161 {
    // Attributes within Calendar class 0x69
    public enum ccCal {
       Shift_Code_Condition = 0x65,
-      First_Calendar_Block = 0x66,
-      Number_of_Calendar_Blocks = 0x67,
+      First_Calendar_Block = 0x1048,
+      Number_of_Calendar_Blocks = 0x1049,
 
       // This block appears only once
       Offset_Year = 0x19C0,
@@ -236,8 +238,8 @@ namespace ModBus161 {
 
    // Attributes within Count class 0x79
    public enum ccCount {
-      First_Count_Block = 0x65,
-      Number_Of_Count_Blocks = 0x66,
+      First_Count_Block = 0x104A,
+      Number_Of_Count_Blocks = 0x104B,
 
       // This block repeats every 20 bytes for 8 times
       Initial_Value = 0x1FE0,          // Thru 0x1FF3 - 20 Digits
@@ -1382,6 +1384,10 @@ namespace ModBus161 {
             this.Get = Data2;
             this.Set = Data3;
          }
+      }
+
+      public AttrData Clone() {
+         return (AttrData)this.MemberwiseClone();
       }
 
       #endregion
