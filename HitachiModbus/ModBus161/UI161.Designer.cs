@@ -23,6 +23,7 @@
       /// the contents of this method with the code editor.
       /// </summary>
       private void InitializeComponent() {
+         this.components = new System.ComponentModel.Container();
          this.lblIPAddress = new System.Windows.Forms.Label();
          this.lblIPPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
@@ -32,6 +33,9 @@
          this.cmdConnect = new System.Windows.Forms.Button();
          this.cmdExit = new System.Windows.Forms.Button();
          this.lstMessages = new System.Windows.Forms.ListBox();
+         this.cmLog = new System.Windows.Forms.ContextMenuStrip(this.components);
+         this.cmLogClear = new System.Windows.Forms.ToolStripMenuItem();
+         this.cmLogToNotepad = new System.Windows.Forms.ToolStripMenuItem();
          this.cmdComOff = new System.Windows.Forms.Button();
          this.comOn = new System.Windows.Forms.Button();
          this.cmdWriteData = new System.Windows.Forms.Button();
@@ -51,6 +55,7 @@
          this.tabObject = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.cmdRetrieve = new System.Windows.Forms.Button();
+         this.cmLog.SuspendLayout();
          this.tabControl1.SuspendLayout();
          this.tabXML.SuspendLayout();
          this.tabIndented.SuspendLayout();
@@ -134,12 +139,36 @@
          // 
          // lstMessages
          // 
+         this.lstMessages.ContextMenuStrip = this.cmLog;
          this.lstMessages.FormattingEnabled = true;
          this.lstMessages.ItemHeight = 16;
          this.lstMessages.Location = new System.Drawing.Point(15, 20);
          this.lstMessages.Name = "lstMessages";
          this.lstMessages.Size = new System.Drawing.Size(737, 404);
          this.lstMessages.TabIndex = 12;
+         // 
+         // cmLog
+         // 
+         this.cmLog.ImageScalingSize = new System.Drawing.Size(20, 20);
+         this.cmLog.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmLogClear,
+            this.cmLogToNotepad});
+         this.cmLog.Name = "cmLog";
+         this.cmLog.Size = new System.Drawing.Size(189, 52);
+         // 
+         // cmLogClear
+         // 
+         this.cmLogClear.Name = "cmLogClear";
+         this.cmLogClear.Size = new System.Drawing.Size(188, 24);
+         this.cmLogClear.Text = "Clear";
+         this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
+         // 
+         // cmLogToNotepad
+         // 
+         this.cmLogToNotepad.Name = "cmLogToNotepad";
+         this.cmLogToNotepad.Size = new System.Drawing.Size(188, 24);
+         this.cmLogToNotepad.Text = "Load in NotePad";
+         this.cmLogToNotepad.Click += new System.EventHandler(this.cmLogToNotepad_Click);
          // 
          // cmdComOff
          // 
@@ -352,6 +381,7 @@
          this.Controls.Add(this.lblIPAddress);
          this.Name = "UI161";
          this.Text = "Modbus for Hitachi UX Model 161 Printer";
+         this.cmLog.ResumeLayout(false);
          this.tabControl1.ResumeLayout(false);
          this.tabXML.ResumeLayout(false);
          this.tabIndented.ResumeLayout(false);
@@ -392,6 +422,9 @@
       private System.Windows.Forms.Button cmdRetrieve;
       private System.Windows.Forms.TextBox txtIndentedView;
       private System.Windows.Forms.TreeView tvXML;
+      private System.Windows.Forms.ContextMenuStrip cmLog;
+      private System.Windows.Forms.ToolStripMenuItem cmLogClear;
+      private System.Windows.Forms.ToolStripMenuItem cmLogToNotepad;
    }
 }
 

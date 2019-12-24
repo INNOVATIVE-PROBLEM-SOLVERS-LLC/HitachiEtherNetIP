@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -497,14 +497,20 @@ namespace ModBus161 {
 
       // Get the decimal value of the attribute
       public int GetDecAttribute(AttrData attr) {
-         return GetDecValue(GetAttribute(attr));
+         int result = GetDecValue(GetAttribute(attr));
+         Log($"{GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log(" ");
+         return result;
       }
 
       // Get the decimal value of the attribute
       public int GetDecAttribute(AttrData attr, int offset) {
          AttrData ad = attr.Clone();
          ad.Val += offset;
-         return GetDecValue(GetAttribute(ad));
+         int result = GetDecValue(GetAttribute(ad));
+         Log($"{GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log(" ");
+         return result;
       }
 
       // Get human readable value of the attribute
@@ -520,6 +526,8 @@ namespace ModBus161 {
                result = dd[n];
             }
          }
+         Log($"{GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log(" ");
          return result;
       }
 
@@ -536,6 +544,8 @@ namespace ModBus161 {
                result = dd[n];
             }
          }
+         Log($"{GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log(" ");
          return result;
       }
 
@@ -628,7 +638,32 @@ namespace ModBus161 {
          return result;
       }
 
+      // get the human readable name
+      public string GetAttributeName(ClassCode Class, int v) {
+         string result;
+         int i = Array.IndexOf(ClassCodes, Class);
+         if (i >= 0) {
+            Type at = ClassCodeAttributes[i];
+            result = Enum.GetName(at, v);
+         } else {
+            result = $"Addr[{v.ToString("X4")}]";
+         }
+         return result;
+      }
+
       #endregion
+
+      // Clear the task log
+      private void cmLogClear_Click(object sender, EventArgs e) {
+         lstMessages.Items.Clear();
+      }
+
+      // View the task log in NotePad
+      private void cmLogToNotepad_Click(object sender, EventArgs e) {
+         string ViewFilename = @"c:\Temp\Err.txt";
+         File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
+         Process.Start("notepad.exe", ViewFilename);
+      }
 
    }
 
