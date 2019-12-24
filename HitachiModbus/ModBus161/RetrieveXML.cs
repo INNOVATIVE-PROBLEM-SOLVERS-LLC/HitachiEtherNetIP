@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
@@ -393,21 +391,28 @@ namespace ModBus161 {
                   case 0x56:
                   case 0x66:
                   case 0x76:
-                     result += "{T}";
+                     result += "{s}";
                      break;
                   case 0x57:
                   case 0x67:
                   case 0x77:
-                     result += "{7}";
+                     result += "{T}";
                      break;
                   case 0x58:
                   case 0x68:
                   case 0x78:
-                     result += "{E}";
+                     result += "{W}";
                      break;
                   case 0x59:
                   case 0x69:
                   case 0x79:
+                     result += "{7}";
+                     break;
+                  case 0x5B:
+                     result += "{E}";
+                     break;
+                  case 0x6C:
+                  case 0x7C:
                      result += "{F}";
                      break;
                   case 0x5A:
@@ -437,7 +442,7 @@ namespace ModBus161 {
                      result += "{!}";
                      break;
                   default:
-
+                     result += "*";
                      break;
                }
             } else {
