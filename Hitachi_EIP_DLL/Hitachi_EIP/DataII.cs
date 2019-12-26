@@ -850,18 +850,18 @@ namespace EIP_Lib {
       // Reformat the raw data tables in this module to make them easier to read and modify
       public void ReformatTables(StreamWriter RFS) {
 
-         DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
-         DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
-         DumpTable(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
-         DumpTable(RFS, ccCal_Addrs, ClassCode.Calendar, typeof(ccCal));
-         DumpTable(RFS, ccUP_Addrs, ClassCode.User_pattern, typeof(ccUP));
-         DumpTable(RFS, ccSR_Addrs, ClassCode.Substitution_rules, typeof(ccSR));
-         DumpTable(RFS, ccES_Addrs, ClassCode.Enviroment_setting, typeof(ccES));
-         DumpTable(RFS, ccUI_Addrs, ClassCode.Unit_Information, typeof(ccUI));
-         DumpTable(RFS, ccOM_Addrs, ClassCode.Operation_management, typeof(ccOM));
-         DumpTable(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
-         DumpTable(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
-         DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
+         DumpTableII(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
+         DumpTableII(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
+         DumpTableII(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
+         DumpTableII(RFS, ccCal_Addrs, ClassCode.Calendar, typeof(ccCal));
+         DumpTableII(RFS, ccUP_Addrs, ClassCode.User_pattern, typeof(ccUP));
+         DumpTableII(RFS, ccSR_Addrs, ClassCode.Substitution_rules, typeof(ccSR));
+         DumpTableII(RFS, ccES_Addrs, ClassCode.Enviroment_setting, typeof(ccES));
+         DumpTableII(RFS, ccUI_Addrs, ClassCode.Unit_Information, typeof(ccUI));
+         DumpTableII(RFS, ccOM_Addrs, ClassCode.Operation_management, typeof(ccOM));
+         DumpTableII(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
+         DumpTableII(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
+         DumpTableII(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
 
       }
 
