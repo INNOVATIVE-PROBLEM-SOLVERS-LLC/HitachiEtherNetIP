@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataII.cs" />
     <Compile Include="RetrieveXML.cs" />
     <Compile Include="Serialize_Classes.cs" />
     <Compile Include="UI161.cs">
@@ -83,6 +82,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HitachiModbus_DLL\Modbus\Modbus_DLL.csproj">
+      <Project>{54c291ec-95c0-4c2b-af50-6fedd2e4a382}</Project>
+      <Name>Modbus_DLL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

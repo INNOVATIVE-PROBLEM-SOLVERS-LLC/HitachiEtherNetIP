@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace ModBus161 {
+namespace Modbus_DLL {
 
    #region EtherNetIP Definitions (Modified for Modbus)
 
@@ -46,7 +46,7 @@ namespace ModBus161 {
    // Attributes within Print Format class 0x67
    public enum ccPF {
       Message_Name = 0x64,
-      Number_Of_Items = 0x65,
+      Number_Of_Items = 0x0008,
       Number_Of_Columns = 0x66,
       Format_Type = 0x67,
       Insert_Column = 0x69,
@@ -344,14 +344,15 @@ namespace ModBus161 {
       N1Char = 15,    // 1-byte number + UTF8 String + 0x00
       N1N1 = 16,      // 2 1-byte numbers
       N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
+      AttrText = 18,  // 4-bytes per character attributed Text
    }
 
    #endregion
 
    // Completely describe the Hitachi Model 161 data
-   public class DataII {
+   public class Data {
 
-      public DataII() {
+      public Data() {
          ClassCodeAttrData = new AttrData[][] {
             ccPDM_Addrs,           // 0x66 Print data management function
             ccPF_Addrs,            // 0x67 Print format function
@@ -455,10 +456,10 @@ namespace ModBus161 {
          new AttrData((int)ccPF.Deleting_Print_Items, GSS.Service, false, 9,   // Deleting Print Items 0x6F
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Service
-         new AttrData((int)ccPF.Print_Character_String, GSS.GetSet, false, 24, // Print Character String 0x71
-            new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.AttributedCharacters),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Set
+         new AttrData((int)ccPF.Print_Character_String, GSS.GetSet, false, 24,  // Print Character String 0x71
+            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None),              //   Data
+            new Prop(0, DataFormats.AttrText, 0, 0, fmtDD.None),                //   Get
+            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None)),             //   Set
          new AttrData((int)ccPF.Line_Count, GSS.GetSet, false, 18,             // Line Count 0x72
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None),                 //   Data
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
@@ -1176,39 +1177,6 @@ namespace ModBus161 {
       }
 
       private void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
-         int count = 1;
-         int stride = 0;
-         // Calculate number and stride
-         switch (cc) {
-            case ClassCode.Print_data_management:
-               break;
-            case ClassCode.Print_format:
-               break;
-            case ClassCode.Print_specification:
-               break;
-            case ClassCode.Calendar:
-               count = 8;
-               stride = 0x20; 
-               break;
-            case ClassCode.User_pattern:
-               break;
-            case ClassCode.Substitution_rules:
-               break;
-            case ClassCode.Enviroment_setting:
-               break;
-            case ClassCode.Unit_Information:
-               break;
-            case ClassCode.Operation_management:
-               break;
-            case ClassCode.IJP_operation:
-               break;
-            case ClassCode.Count:
-               break;
-            case ClassCode.Index:
-               break;
-            default:
-               break;
-         }
          // Now process each attribute within the Class
          string[] attrNames = Enum.GetNames(at);
          for (int i = 0; i < tbl.Length; i++) {
@@ -1232,6 +1200,43 @@ namespace ModBus161 {
 
       // Process the tables one at a time
       private void DumpTableII(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
+         int count = 1;
+         int stride = 0;
+         // Calculate number and stride
+         switch (cc) {
+            case ClassCode.Print_data_management:
+               break;
+            case ClassCode.Print_format:
+               count = 100;
+               stride = 0x18; // 24
+               break;
+            case ClassCode.Print_specification:
+               break;
+            case ClassCode.Calendar:
+               count = 8;
+               stride = 0x20; // 32
+               break;
+            case ClassCode.User_pattern:
+               break;
+            case ClassCode.Substitution_rules:
+               break;
+            case ClassCode.Enviroment_setting:
+               break;
+            case ClassCode.Unit_Information:
+               break;
+            case ClassCode.Operation_management:
+               break;
+            case ClassCode.IJP_operation:
+               break;
+            case ClassCode.Count:
+               count = 8;
+               stride = 0x94; // 148
+               break;
+            case ClassCode.Index:
+               break;
+            default:
+               break;
+         }
          string name = at.ToString();
          name = name.Substring(name.IndexOf('.') + 1);
 
@@ -1264,7 +1269,7 @@ namespace ModBus161 {
             string ignore = tbl[i].Ignore ? "true" : "false";
 
             // Space the comment at the end of the line for readability
-            string printLine = $"{t2}new AttrData((int){name}.{attrNames[i]}, GSS.{access}, {ignore}, {tbl[i].Order},";
+            string printLine = $"{t2}new AttrData((int){name}.{attrNames[i]}, GSS.{access}, {count}, {stride},";
             string spaces = new string(' ', Math.Max(80 - printLine.Length, 1));
             RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")} 0x{tbl[i].Val:X2}");
 
@@ -1339,6 +1344,8 @@ namespace ModBus161 {
          new string[] { "5 Minutes", "6 Minutes", "10 Minutes", "15 Minutes", "20 Minutes", "30 Minutes" },
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
+         new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
+         //new string[] { "CharacterInput", "MessageFormat" },          // 25 - Attributed Data
      };
 
       // Attribute DropDown conversion (IJPLib Names)
@@ -1379,6 +1386,7 @@ namespace ModBus161 {
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
+         //new string[] { "CharacterInput", "MessageFormat" },          // 25 - Attributed Data
      };
 
    }
@@ -1388,12 +1396,14 @@ namespace ModBus161 {
       #region Properties and Constructor
 
       public ClassCode Class { get; set; }           // The class code is set when the dictionary is built
-      public int Val { get; set; } = 0;             // The Attribute (Makes the tables easier to read)
+      public int Val { get; set; } = 0;              // The Attribute (Makes the tables easier to read)
       public bool HasSet { get; set; } = false;      // Supports a Set Request
       public bool HasGet { get; set; } = false;      // Supports a Get Request
       public bool HasService { get; set; } = false;  // Supports a Service Request
       public int Order { get; set; } = 0;            // Sort Order if Alpha Sort is requested
       public bool Ignore { get; set; } = false;      // Indicates that the request will hang printer
+      public int Count { get; set; } = 1;            // Indicates max number of repetitions
+      public int Stride { get; set; } = 0;           // Indicates the distance between repetitions
 
       // Four views of the printer data
       public Prop Data { get; set; }     // As it appears in the printer
@@ -1409,6 +1419,25 @@ namespace ModBus161 {
          this.HasService = acc == GSS.Service;
          this.Ignore = Ignore;
          this.Order = Order;
+
+         // This is what the data looks like in the printer
+         this.Data = Data;
+         if (this.HasService) {
+            this.Service = Data2;
+         } else {
+            this.Get = Data2;
+            this.Set = Data3;
+         }
+      }
+
+      // A description of the data from four points of view.
+      public AttrData(int Val, GSS acc, int Count, int Stride, Prop Data, Prop Data2 = null, Prop Data3 = null) {
+         this.Val = Val;
+         this.HasSet = acc == GSS.Set || acc == GSS.GetSet;
+         this.HasGet = acc == GSS.Get || acc == GSS.GetSet;
+         this.HasService = acc == GSS.Service;
+         this.Count = Count;
+         this.Stride = Stride;
 
          // This is what the data looks like in the printer
          this.Data = Data;

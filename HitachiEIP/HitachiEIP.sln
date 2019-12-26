@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IJPLibXML", "..\IJPLibXML\I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModBus161", "..\HitachiModbus\ModBus161\ModBus161.csproj", "{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus_DLL", "..\HitachiModbus_DLL\Modbus\Modbus_DLL.csproj", "{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

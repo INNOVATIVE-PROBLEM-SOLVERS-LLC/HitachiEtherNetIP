@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
-using System.Windows.Forms;
+//using System.Windows.Forms;
+using Modbus_DLL;
 
 namespace ModBus161 {
    public class RetrieveXML {
@@ -65,8 +66,10 @@ namespace ModBus161 {
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
-      UI161 p;
+      UI161 parent;
+      Modbus p;
 
+      // Used for arbitrary address read
       Prop prop;
       AttrData attr;
 
@@ -74,8 +77,9 @@ namespace ModBus161 {
 
       #region Constructors and destructors
 
-      public RetrieveXML(UI161 parent) {
-         p = parent;
+      public RetrieveXML(UI161 parent, Modbus printer) {
+         this.parent = parent;
+         p = printer;
          prop = new Prop(2, DataFormats.Decimal, long.MinValue, long.MaxValue, fmtDD.None);
          attr = new AttrData(0, GSS.Get, false, 0, prop);
       }
@@ -85,7 +89,7 @@ namespace ModBus161 {
          if (p.GetDecAttribute(ccIJP.Online_Offline) == 0) {
             p.SetAttribute(ccIJP.Online_Offline, 1);
             if (p.GetDecAttribute(ccIJP.Online_Offline) == 0) {
-               p.Log("Cannot turn com on!  Retrieve aborted!");
+               parent.Log("Cannot turn com on!  Retrieve aborted!");
                return xml;
             }
          }
@@ -103,7 +107,7 @@ namespace ModBus161 {
                xml = new StreamReader(ms).ReadToEnd();
             }
          } catch (Exception e2) {
-            p.Log(e2.Message);
+            parent.Log(e2.Message);
          }
          return xml;
       }
@@ -122,8 +126,7 @@ namespace ModBus161 {
 
       // Retrieve row/column/items
       private void RetrieveRowsColumns(Msg m) {
-         attr.Val = 0x08;
-         int itemCount = p.GetDecAttribute(attr);
+         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
          int lineCount;
          int n = 0;
          int stride = 0x1058 - 0x1040;                // Distance between print items
@@ -148,9 +151,7 @@ namespace ModBus161 {
                Item item = new Item();
                attr.Val = 0x0020 + n;
                int characterCount = p.GetDecAttribute(attr);
-               attr.Val = 0x0084 + 2 * totalCharacters;
-               p.GetAttribute(attr.Val, characterCount * 4, out byte[] text);
-               item.Text = formatText(text);
+               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters * 2, characterCount * 4);
                item.Font = new FontDef();
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, offset);
                item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, offset);
@@ -276,27 +277,27 @@ namespace ModBus161 {
          for (int i = 0; i < item.Location.countCount; i++) {
             item.Counter[i] = new Counter() { Block = i + 1 };
             item.Counter[i].Range = new Range() {
-               Range1 = p.GetHRAttribute(ccCount.Count_Range_1),
-               Range2 = p.GetHRAttribute(ccCount.Count_Range_2),
-               JumpFrom = p.GetHRAttribute(ccCount.Jump_From),
-               JumpTo = p.GetHRAttribute(ccCount.Jump_To),
+               Range1 = p.GetHRAttribute(ccCount.Count_Range_1, offset),
+               Range2 = p.GetHRAttribute(ccCount.Count_Range_2, offset),
+               JumpFrom = p.GetHRAttribute(ccCount.Jump_From, offset),
+               JumpTo = p.GetHRAttribute(ccCount.Jump_To, offset),
             };
             item.Counter[i].Count = new Count() {
-               InitialValue = p.GetHRAttribute(ccCount.Initial_Value),
-               Increment = p.GetHRAttribute(ccCount.Increment_Value),
-               Direction = p.GetHRAttribute(ccCount.Direction_Value),
-               ZeroSuppression = p.GetHRAttribute(ccCount.Zero_Suppression),
+               InitialValue = p.GetHRAttribute(ccCount.Initial_Value, offset),
+               Increment = p.GetHRAttribute(ccCount.Increment_Value, offset),
+               Direction = p.GetHRAttribute(ccCount.Direction_Value, offset),
+               ZeroSuppression = p.GetHRAttribute(ccCount.Zero_Suppression, offset),
             };
             item.Counter[i].Reset = new Reset() {
-               Type = p.GetHRAttribute(ccCount.Type_Of_Reset_Signal),
-               Value = p.GetHRAttribute(ccCount.Reset_Value),
+               Type = p.GetHRAttribute(ccCount.Type_Of_Reset_Signal, offset),
+               Value = p.GetHRAttribute(ccCount.Reset_Value, offset),
             };
             item.Counter[i].Misc = new Misc() {
-               UpdateIP = p.GetHRAttribute(ccCount.Update_Unit_Halfway),
-               UpdateUnit = p.GetHRAttribute(ccCount.Update_Unit_Unit),
-               ExternalCount = p.GetHRAttribute(ccCount.External_Count),
-               Multiplier = p.GetHRAttribute(ccCount.Count_Multiplier),
-               SkipCount = p.GetHRAttribute(ccCount.Count_Skip),
+               UpdateIP = p.GetHRAttribute(ccCount.Update_Unit_Halfway, offset),
+               UpdateUnit = p.GetHRAttribute(ccCount.Update_Unit_Unit, offset),
+               ExternalCount = p.GetHRAttribute(ccCount.External_Count, offset),
+               Multiplier = p.GetHRAttribute(ccCount.Count_Multiplier, offset),
+               SkipCount = p.GetHRAttribute(ccCount.Count_Skip, offset),
             };
             offset += stride;
          }
@@ -353,106 +354,6 @@ namespace ModBus161 {
          return s;
       }
 
-      #region Service Routines
-
-      // Text is 4 bytes per character
-      private string formatText(byte[] text) {
-         string result = "";
-         for (int i = 0; i < text.Length; i += 4) {
-            if (text[i] == 0) {
-               result += (char)text[i + 3];
-            } else if (text[i] == 0xF2) {
-               switch (text[i + 1]) {
-                  case 0x50:
-                  case 0x60:
-                  case 0x70:
-                     result += "{Y}";
-                     break;
-                  case 0x51:
-                  case 0x61:
-                  case 0x71:
-                     result += "{M}";
-                     break;
-                  case 0x52:
-                  case 0x62:
-                  case 0x72:
-                     result += "{D}";
-                     break;
-                  case 0x54:
-                  case 0x64:
-                  case 0x74:
-                     result += "{h}";
-                     break;
-                  case 0x55:
-                  case 0x65:
-                  case 0x75:
-                     result += "{m}";
-                     break;
-                  case 0x56:
-                  case 0x66:
-                  case 0x76:
-                     result += "{s}";
-                     break;
-                  case 0x57:
-                  case 0x67:
-                  case 0x77:
-                     result += "{T}";
-                     break;
-                  case 0x58:
-                  case 0x68:
-                  case 0x78:
-                     result += "{W}";
-                     break;
-                  case 0x59:
-                  case 0x69:
-                  case 0x79:
-                     result += "{7}";
-                     break;
-                  case 0x5B:
-                     result += "{E}";
-                     break;
-                  case 0x6C:
-                  case 0x7C:
-                     result += "{F}";
-                     break;
-                  case 0x5A:
-                  case 0x6A:
-                  case 0x7A:
-                     result += "{C}";
-                     break;
-                  case 0X40:
-                     result += "{'}";
-                     break;
-                  case 0X41:
-                     result += "{.}";
-                     break;
-                  case 0X42:
-                     result += "{:}";
-                     break;
-                  case 0X43:
-                     result += "{,}";
-                     break;
-                  case 0X44:
-                     result += "{ }";
-                     break;
-                  case 0X45:
-                     result += "{;}";
-                     break;
-                  case 0X46:
-                     result += "{!}";
-                     break;
-                  default:
-                     result += "*";
-                     break;
-               }
-            } else {
-               result += "*";
-            }
-         }
-         return result.Replace("}{", "");
-      }
-
-      // Avoid output of property if default value is specified
       private bool IsDefaultValue(fmtDD fmt, string s) {
          if (string.IsNullOrEmpty(s)) {
             return true;
@@ -464,19 +365,17 @@ namespace ModBus161 {
             return !b;
          }
          s = s.ToLower();
-         val = Array.FindIndex(DataII.DropDowns[(int)fmt], x => x.ToLower().Contains(s));
+         val = Array.FindIndex(Data.DropDowns[(int)fmt], x => x.ToLower().Contains(s));
          if (val < 0) {
-            val = Array.FindIndex(DataII.DropDownsIJPLib[(int)fmt], x => x.ToLower().Contains(s));
+            val = Array.FindIndex(Data.DropDownsIJPLib[(int)fmt], x => x.ToLower().Contains(s));
          }
          return val == 0;
       }
 
       // Examine the contents of a print message to determine its type
-      private ItemType GetItemType(string text, ref int[] mask, bool reset = true) {
+      private ItemType GetItemType(string text, ref int[] mask) {
          int l = 0;
-         if (reset) {
-            mask[l] = 0;
-         }
+         mask[l] = 0;
          string[] s = text.Split('{');
          for (int i = 0; i < s.Length; i++) {
             int n = s[i].IndexOf('}');
@@ -490,7 +389,7 @@ namespace ModBus161 {
                   }
                }
             }
-            if (s[i].IndexOf('}', n + 1) > 0 && l < mask.GetUpperBound(0)) {
+            if (s[i].IndexOf('}', n + 1) > 0) {
                l++;
             }
          }
@@ -503,8 +402,6 @@ namespace ModBus161 {
             return ItemType.Text;
          }
       }
-
-      #endregion
 
    }
 }

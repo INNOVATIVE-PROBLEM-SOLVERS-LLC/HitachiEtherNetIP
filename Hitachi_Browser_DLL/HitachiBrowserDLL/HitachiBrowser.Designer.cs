@@ -664,7 +664,6 @@
          this.btnReformat.TabIndex = 48;
          this.btnReformat.Text = "Reformat";
          this.btnReformat.UseVisualStyleBackColor = true;
-         this.btnReformat.Visible = false;
          this.btnReformat.Click += new System.EventHandler(this.btnReformat_Click);
          // 
          // btnRefresh
@@ -675,6 +674,7 @@
          this.btnRefresh.TabIndex = 49;
          this.btnRefresh.Text = "Refresh";
          this.btnRefresh.UseVisualStyleBackColor = true;
+         this.btnRefresh.Visible = false;
          this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
          // 
          // btnResetTraffic

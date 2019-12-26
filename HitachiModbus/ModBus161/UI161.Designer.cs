@@ -55,6 +55,7 @@
          this.tabObject = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.cmdRetrieve = new System.Windows.Forms.Button();
+         this.cmdReformat = new System.Windows.Forms.Button();
          this.cmLog.SuspendLayout();
          this.tabControl1.SuspendLayout();
          this.tabXML.SuspendLayout();
@@ -129,9 +130,9 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(617, 17);
+         this.cmdExit.Location = new System.Drawing.Point(617, 12);
          this.cmdExit.Name = "cmdExit";
-         this.cmdExit.Size = new System.Drawing.Size(127, 45);
+         this.cmdExit.Size = new System.Drawing.Size(127, 35);
          this.cmdExit.TabIndex = 11;
          this.cmdExit.Text = "Exit";
          this.cmdExit.UseVisualStyleBackColor = true;
@@ -215,7 +216,7 @@
          this.txtDataAddress.Name = "txtDataAddress";
          this.txtDataAddress.Size = new System.Drawing.Size(137, 22);
          this.txtDataAddress.TabIndex = 21;
-         this.txtDataAddress.Text = "0x2490";
+         this.txtDataAddress.Text = "2490";
          this.txtDataAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
          // 
          // lblDataLength
@@ -224,7 +225,7 @@
          this.lblDataLength.Name = "lblDataLength";
          this.lblDataLength.Size = new System.Drawing.Size(107, 28);
          this.lblDataLength.TabIndex = 20;
-         this.lblDataLength.Text = "Length";
+         this.lblDataLength.Text = "Byte Length";
          this.lblDataLength.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // lblDataAddress
@@ -233,7 +234,7 @@
          this.lblDataAddress.Name = "lblDataAddress";
          this.lblDataAddress.Size = new System.Drawing.Size(107, 22);
          this.lblDataAddress.TabIndex = 19;
-         this.lblDataAddress.Text = "Data Address";
+         this.lblDataAddress.Text = "Hex Address";
          this.lblDataAddress.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // txtData
@@ -353,11 +354,22 @@
          this.cmdRetrieve.UseVisualStyleBackColor = true;
          this.cmdRetrieve.Click += new System.EventHandler(this.cmdRetrieve_Click);
          // 
+         // cmdReformat
+         // 
+         this.cmdReformat.Location = new System.Drawing.Point(617, 53);
+         this.cmdReformat.Name = "cmdReformat";
+         this.cmdReformat.Size = new System.Drawing.Size(127, 35);
+         this.cmdReformat.TabIndex = 29;
+         this.cmdReformat.Text = "Reformat";
+         this.cmdReformat.UseVisualStyleBackColor = true;
+         this.cmdReformat.Click += new System.EventHandler(this.cmdReformat_Click);
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 683);
+         this.Controls.Add(this.cmdReformat);
          this.Controls.Add(this.cmdRetrieve);
          this.Controls.Add(this.tabControl1);
          this.Controls.Add(this.optInputRegister);
@@ -425,6 +437,7 @@
       private System.Windows.Forms.ContextMenuStrip cmLog;
       private System.Windows.Forms.ToolStripMenuItem cmLogClear;
       private System.Windows.Forms.ToolStripMenuItem cmLogToNotepad;
+      private System.Windows.Forms.Button cmdReformat;
    }
 }
 
