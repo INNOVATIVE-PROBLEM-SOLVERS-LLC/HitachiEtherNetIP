@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -227,10 +228,11 @@ namespace Modbus_DLL {
       }
 
       // Get the contents of one attribute
-      public byte[] GetAttribute<T>(T Attribute, int offset) where T : Enum {
+      public byte[] GetAttribute<T>(T Attribute, int n) where T : Enum {
          byte[] result;
          AttrData attr = GetAttrData(Attribute).Clone();
-         attr.Val += offset;
+         Debug.Assert(n < attr.Count);
+         attr.Val += n * attr.Stride;
          if (!GetAttribute(attr, out result)) {
             result = null;
          }
@@ -238,10 +240,11 @@ namespace Modbus_DLL {
       }
 
       // Get the contents of one attribute
-      public byte[] GetAttribute<T>(T Attribute, int offset, int length) where T : Enum {
+      public byte[] GetAttribute<T>(T Attribute, int n, int length) where T : Enum {
          byte[] result;
          AttrData attr = GetAttrData(Attribute).Clone();
-         attr.Val += offset;
+         Debug.Assert(n < attr.Count);
+         attr.Val += n * attr.Stride;
          attr.Data.Len = length;
          if (!GetAttribute(attr, out result)) {
             result = null;
@@ -268,10 +271,11 @@ namespace Modbus_DLL {
       }
 
       // Get the decimal value of the attribute
-      public int GetDecAttribute<T>(T Attribute, int offset) where T : Enum {
-         int result = GetDecValue(GetAttribute(Attribute, offset));
+      public int GetDecAttribute<T>(T Attribute, int n) where T : Enum {
+         int result = GetDecValue(GetAttribute(Attribute, n));
          AttrData attr = GetAttrData(Attribute);
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{offset:X4}] {GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Debug.Assert(n < attr.Count);
+         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -285,11 +289,12 @@ namespace Modbus_DLL {
       }
 
       // Get the decimal value of the attribute
-      public int GetDecAttribute(AttrData attr, int offset) {
+      public int GetDecAttribute(AttrData attr, int n) {
          AttrData ad = attr.Clone();
-         ad.Val += offset;
+         Debug.Assert(n < attr.Count);
+         ad.Val += n * attr.Stride;
          int result = GetDecValue(GetAttribute(ad));
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{offset:X4}] {GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -317,45 +322,46 @@ namespace Modbus_DLL {
       }
 
       // Get human readable value of the attribute
-      public string GetHRAttribute<T>(T Attribute, int offset) where T : Enum {
-         byte[] b = GetAttribute(Attribute, offset);
-         long n = GetDecValue(b);
-         string result = n.ToString();
+      public string GetHRAttribute<T>(T Attribute, int n) where T : Enum {
+         byte[] b = GetAttribute(Attribute, n);
+         long d = GetDecValue(b);
+         string result = d.ToString();
          AttrData attr = GetAttrData(Attribute);
+         Debug.Assert(n < attr.Count);
          if (attr.Data.DropDown != fmtDD.None) {
             string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            n = n - attr.Data.Min;
-            if (n >= 0 && n < dd.Length) {
-               result = dd[n];
+            d = d - attr.Data.Min;
+            if (d >= 0 && d < dd.Length) {
+               result = dd[d];
             }
          } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{offset:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"");
+         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
          Log?.Invoke(this, " ");
          return result;
       }
 
       // Get human readable value of the attribute
-      public string GetHRAttribute<T>(T Attribute, int offset, int length) where T : Enum {
-         byte[] b = GetAttribute(Attribute, offset, length);
-         long n = GetDecValue(b);
-         string result = n.ToString();
+      public string GetHRAttribute<T>(T Attribute, int n, int length) where T : Enum {
+         byte[] b = GetAttribute(Attribute, n, length);
+         long d = GetDecValue(b);
+         string result = d.ToString();
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
             string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            n = n - attr.Data.Min;
-            if (n >= 0 && n < dd.Length) {
-               result = dd[n];
+            d = d - attr.Data.Min;
+            if (d >= 0 && d < dd.Length) {
+               result = dd[d];
             }
          } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{offset:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"");
+         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -380,7 +386,7 @@ namespace Modbus_DLL {
       public bool SetAttribute<T>(T Attribute, int n) where T : Enum {
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
-         data = FormatOutput(attr.Set, n);
+         data = FormatOutput(attr.Data, n);
          return SetAttribute(attr, data);
       }
 
@@ -531,61 +537,98 @@ namespace Modbus_DLL {
             } else if (text[i] == 0xF2) {
                switch (text[i + 1]) {
                   case 0x50:
-                  case 0x60:
-                  case 0x70:
                      result += "{Y}";
                      break;
+                  case 0x60:
+                     result += "{{Y}";
+                     break;
+                  case 0x70:
+                     result += "{Y}}";
+                     break;
                   case 0x51:
-                  case 0x61:
-                  case 0x71:
                      result += "{M}";
                      break;
+                  case 0x61:
+                     result += "{{M}";
+                     break;
+                  case 0x71:
+                     result += "{M}}";
+                     break;
                   case 0x52:
-                  case 0x62:
-                  case 0x72:
                      result += "{D}";
                      break;
-                  case 0x54:
-                  case 0x64:
-                  case 0x74:
+                  case 0x62:
+                     result += "{{D}";
+                     break;
+                  case 0x72:
+                     result += "{D}}";
+                     break;
+                  case 0x53:
+                  case 0x63:
+                  case 0x73:
                      result += "{h}";
                      break;
-                  case 0x55:
-                  case 0x65:
-                  case 0x75:
+                  case 0x54:
                      result += "{m}";
                      break;
-                  case 0x56:
-                  case 0x66:
-                  case 0x76:
+                  case 0x64:
+                     result += "{{m}";
+                     break;
+                  case 0x74:
+                     result += "{m}}";
+                     break;
+                  case 0x55:
                      result += "{s}";
                      break;
-                  case 0x57:
-                  case 0x67:
-                  case 0x77:
+                  case 0x65:
+                     result += "{{s}";
+                     break;
+                  case 0x75:
+                     result += "{s}}";
+                     break;
+                  case 0x56:
                      result += "{T}";
                      break;
+                  case 0x66:
+                     result += "{{T}";
+                     break;
+                  case 0x76:
+                     result += "{T}}";
+                     break;
                   case 0x58:
-                  case 0x68:
-                  case 0x78:
                      result += "{W}";
                      break;
+                  case 0x68:
+                     result += "{{W}";
+                     break;
+                  case 0x78:
+                     result += "{W}}";
+                     break;
                   case 0x59:
-                  case 0x69:
-                  case 0x79:
                      result += "{7}";
+                     break;
+                  case 0x69:
+                     result += "{{7}";
+                     break;
+                  case 0x79:
+                     result += "{7}}";
                      break;
                   case 0x5B:
                      result += "{E}";
                      break;
+                  case 0x5C:
                   case 0x6C:
                   case 0x7C:
                      result += "{F}";
                      break;
                   case 0x5A:
-                  case 0x6A:
-                  case 0x7A:
                      result += "{C}";
+                     break;
+                  case 0x6A:
+                     result += "{{C}";
+                     break;
+                  case 0x7A:
+                     result += "{C}}";
                      break;
                   case 0X40:
                      result += "{'}";

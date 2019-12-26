@@ -53,7 +53,7 @@ namespace Modbus_DLL {
       Delete_Column = 0x6A,
       Add_Column = 0x6B,
       Number_Of_Print_Line_And_Print_Format = 0x6C,
-      Format_Setup = 0x6D,
+      Format_Setup = 0x103F,
       Adding_Print_Items = 0x6E,
       Deleting_Print_Items = 0x6F,
       Print_Character_String = 0x0084,
@@ -373,778 +373,419 @@ namespace Modbus_DLL {
       #region Data Tables
 
       // Print_data_management (Class Code 0x66)
-      private readonly AttrData[] ccPDM_Addrs = new AttrData[] {
-         new AttrData((int)ccPDM.Select_Message, GSS.Service, false, 9,        // Select Message 0x64
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Service
-         new AttrData((int)ccPDM.Store_Print_Data, GSS.Set, false, 10,         // Store Print Data 0x65
-            new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(15, DataFormats.N2Char, 0, 14, fmtDD.None)),               //   Set
-         new AttrData((int)ccPDM.Delete_Print_Data, GSS.Set, false, 3,         // Delete Print Data 0x67
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
-         new AttrData((int)ccPDM.Print_Data_Name, GSS.Set, false, 7,           // Print Data Name 0x69
-            new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(10, DataFormats.N2Char, 0, 14, fmtDD.None)),               //   Set
-         new AttrData((int)ccPDM.List_of_Messages, GSS.Get, true, 6,           // List of Messages 0x6A
-            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None),              //   Data
-            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None),              //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccPDM.Print_Data_Number, GSS.Set, false, 8,         // Print Data Number 0x6B
-            new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(4, DataFormats.N2N2, 1, 2000, fmtDD.None)),                //   Set
-         new AttrData((int)ccPDM.Change_Create_Group_Name, GSS.Set, false, 1,  // Change Create Group Name 0x6C
-            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(14, DataFormats.N1Char, 0, 14, fmtDD.None)),               //   Set
-         new AttrData((int)ccPDM.Group_Deletion, GSS.Set, false, 4,            // Group Deletion 0x6D
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPDM.List_of_Groups, GSS.Get, false, 5,            // List of Groups 0x6F
-            new Prop(500, DataFormats.Bytes, 0, 99, fmtDD.None),                //   Data
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccPDM.Change_Group_Number, GSS.Set, false, 2,       // Change Group Number 0x70
-            new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.N1N1, 1, 99, fmtDD.None)),                  //   Set
+      private AttrData[] ccPDM_Addrs = new AttrData[] {
+         new AttrData((int)ccPDM.Select_Message, GSS.Service, 1, 0,             // Select Message 0x64
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPDM.Store_Print_Data, GSS.Set, 1, 0,               // Store Print Data 0x65
+            new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPDM.Delete_Print_Data, GSS.Set, 1, 0,              // Delete Print Data 0x67
+            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPDM.Print_Data_Name, GSS.Set, 1, 0,                // Print Data Name 0x69
+            new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPDM.List_of_Messages, GSS.Get, 1, 0,               // List of Messages 0x6A
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPDM.Print_Data_Number, GSS.Set, 1, 0,              // Print Data Number 0x6B
+            new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPDM.Change_Create_Group_Name, GSS.Set, 1, 0,       // Change Create Group Name 0x6C
+            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPDM.Group_Deletion, GSS.Set, 1, 0,                 // Group Deletion 0x6D
+            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPDM.List_of_Groups, GSS.Get, 1, 0,                 // List of Groups 0x6F
+            new Prop(500, DataFormats.Bytes, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPDM.Change_Group_Number, GSS.Set, 1, 0,            // Change Group Number 0x70
+            new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
       };
 
       // Print_format (Class Code 0x67)
-      private readonly AttrData[] ccPF_Addrs = new AttrData[] {
-         new AttrData((int)ccPF.Message_Name, GSS.Get, false, 20,              // Message Name 0x64
-            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Set
-         new AttrData((int)ccPF.Number_Of_Items, GSS.Get, false, 25,           // Number Of Items 0x65
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Set
-         new AttrData((int)ccPF.Number_Of_Columns, GSS.Get, false, 21,         // Number Of Columns 0x66
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Set
-         new AttrData((int)ccPF.Format_Type, GSS.Get, false, 14,               // Format Type 0x67
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Set
-         new AttrData((int)ccPF.Insert_Column, GSS.Service, false, 15,         // Insert Column 0x69
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccPF.Delete_Column, GSS.Service, false, 8,          // Delete Column 0x6A
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccPF.Add_Column, GSS.Service, false, 1,             // Add Column 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, GSS.Set, false, 22, // Number Of Print Line And Print Format 0x6C
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Set
-         new AttrData((int)ccPF.Format_Setup, GSS.Set, false, 13,              // Format Setup 0x6D
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Set
-         new AttrData((int)ccPF.Adding_Print_Items, GSS.Service, false, 3,     // Adding Print Items 0x6E
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccPF.Deleting_Print_Items, GSS.Service, false, 9,   // Deleting Print Items 0x6F
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None),               //   Data
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Service
-         new AttrData((int)ccPF.Print_Character_String, GSS.GetSet, false, 24,  // Print Character String 0x71
-            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.AttrText, 0, 0, fmtDD.None),                //   Get
-            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None)),             //   Set
-         new AttrData((int)ccPF.Line_Count, GSS.GetSet, false, 18,             // Line Count 0x72
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Set
-         new AttrData((int)ccPF.Line_Spacing, GSS.GetSet, false, 19,           // Line Spacing 0x73
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Set
-         new AttrData((int)ccPF.Dot_Matrix, GSS.GetSet, false, 11,             // Dot Matrix 0x74
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),           //   Set
-         new AttrData((int)ccPF.InterCharacter_Space, GSS.GetSet, false, 16,   // InterCharacter Space 0x75
-            new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None)),               //   Set
-         new AttrData((int)ccPF.Character_Bold, GSS.GetSet, false, 7,          // Character Bold 0x76
-            new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Set
-         new AttrData((int)ccPF.Barcode_Type, GSS.GetSet, false, 5,            // BarCode Type 0x77
-            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType),         //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Set
-         new AttrData((int)ccPF.Readable_Code, GSS.GetSet, false, 27,          // Readable Code 0x78
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode),         //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode)),        //   Set
-         new AttrData((int)ccPF.Prefix_Code, GSS.GetSet, false, 23,            // Prefix Code 0x79
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPF.X_and_Y_Coordinate, GSS.GetSet, false, 28,     // X and Y Coordinate 0x7A
-            new Prop(3, DataFormats.XY, 0, 0, fmtDD.None),                      //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(3, DataFormats.XY, 0, 0, fmtDD.None)),                     //   Set
-         new AttrData((int)ccPF.InterCharacter_SpaceII, GSS.GetSet, false, 17, // InterCharacter SpaceII 0x7B
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPF.Add_To_End_Of_String, GSS.Set, false, 2,       // Add To End Of String 0x8A
-            new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Set
-         new AttrData((int)ccPF.Calendar_Offset, GSS.GetSet, false, 6,         // Calendar Offset 0x8D
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday),       //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),      //   Set
-         new AttrData((int)ccPF.DIN_Print, GSS.GetSet, false, 10,              // DIN Print 0x8E
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccPF.EAN_Prefix, GSS.GetSet, false, 12,             // EAN Prefix 0x8F
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Set
-         new AttrData((int)ccPF.Barcode_Printing, GSS.GetSet, false, 4,        // BarCode Printing 0x90
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Set
-         new AttrData((int)ccPF.QR_Error_Correction_Level, GSS.GetSet, false, 26, // QR Error Correction Level 0x91
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Set
+      private AttrData[] ccPF_Addrs = new AttrData[] {
+         new AttrData((int)ccPF.Number_Of_Items, GSS.Get, 100, 24,              // Number Of Items 0x08
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+         new AttrData((int)ccPF.Message_Name, GSS.Get, 100, 24,                 // Message Name 0x64
+            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPF.Number_Of_Columns, GSS.Get, 100, 24,            // Number Of Columns 0x66
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+         new AttrData((int)ccPF.Format_Type, GSS.Get, 100, 24,                  // Format Type 0x67
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
+         new AttrData((int)ccPF.Insert_Column, GSS.Service, 100, 24,            // Insert Column 0x69
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Delete_Column, GSS.Service, 100, 24,            // Delete Column 0x6A
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Add_Column, GSS.Service, 100, 24,               // Add Column 0x6B
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, GSS.Set, 100, 24, // Number Of Print Line And Print Format 0x6C
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Format_Setup, GSS.Set, 1, 0,                    // Format Setup 0x6D
+            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
+         new AttrData((int)ccPF.Adding_Print_Items, GSS.Service, 100, 24,       // Adding Print Items 0x6E
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Deleting_Print_Items, GSS.Service, 100, 24,     // Deleting Print Items 0x6F
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+         new AttrData((int)ccPF.InterCharacter_SpaceII, GSS.GetSet, 100, 24,    // InterCharacter SpaceII 0x7B
+            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Print_Character_String, GSS.GetSet, 1000, 2,    // Print Character String 0x84
+            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None)),             //   Data
+         new AttrData((int)ccPF.Add_To_End_Of_String, GSS.Set, 100, 24,         // Add To End Of String 0x8A
+            new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPF.Line_Count, GSS.GetSet, 100, 24,                // Line Count 0x1040
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Line_Spacing, GSS.GetSet, 100, 24,              // Line Spacing 0x1041
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Dot_Matrix, GSS.GetSet, 100, 24,                // Dot Matrix 0x1042
+            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),           //   Data
+         new AttrData((int)ccPF.InterCharacter_Space, GSS.GetSet, 100, 24,      // InterCharacter Space 0x1043
+            new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Character_Bold, GSS.GetSet, 100, 24,            // Character Bold 0x1044
+            new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Data
+         new AttrData((int)ccPF.Barcode_Type, GSS.GetSet, 100, 24,              // Barcode Type 0x1045
+            new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Data
+         new AttrData((int)ccPF.Readable_Code, GSS.GetSet, 100, 24,             // Readable Code 0x1046
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode)),        //   Data
+         new AttrData((int)ccPF.Prefix_Code, GSS.GetSet, 100, 24,               // Prefix Code 0x1047
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.X_and_Y_Coordinate, GSS.GetSet, 100, 24,        // X and Y Coordinate 0x104C
+            new Prop(3, DataFormats.XY, 0, 0, fmtDD.None)),                     //   Data
+         new AttrData((int)ccPF.QR_Error_Correction_Level, GSS.GetSet, 100, 24, // QR Error Correction Level 0x2084
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
+         new AttrData((int)ccPF.Calendar_Offset, GSS.GetSet, 100, 24,           // Calendar Offset 0x2480
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),      //   Data
+         new AttrData((int)ccPF.DIN_Print, GSS.GetSet, 100, 24,                 // DIN Print 0x2481
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccPF.EAN_Prefix, GSS.GetSet, 100, 24,                // EAN Prefix 0x2482
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Data
+         new AttrData((int)ccPF.Barcode_Printing, GSS.GetSet, 100, 24,          // Barcode Printing 0x2483
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Data
       };
 
       // Print_specification (Class Code 0x68)
-      private readonly AttrData[] ccPS_Addrs = new AttrData[] {
-         new AttrData((int)ccPS.Character_Height, GSS.GetSet, false, 2,        // Character Height 0x64
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPS.Ink_Drop_Use, GSS.GetSet, false, 8,            // Ink Drop Use 0x65
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.None)),               //   Set
-         new AttrData((int)ccPS.High_Speed_Print, GSS.GetSet, false, 6,        // High Speed Print 0x66
-            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.HighSpeedPrint),       //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.HighSpeedPrint)),      //   Set
-         new AttrData((int)ccPS.Character_Width, GSS.GetSet, false, 4,         // Character Width 0x67
-            new Prop(2, DataFormats.Decimal, 0, 3999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 3999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Character_Orientation, GSS.GetSet, false, 3,   // Character Orientation 0x68
-            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.Orientation),          //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.Orientation)),         //   Set
-         new AttrData((int)ccPS.Print_Start_Delay_Forward, GSS.GetSet, false, 11, // Print Start Delay Forward 0x69
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Print_Start_Delay_Reverse, GSS.GetSet, false, 10, // Print Start Delay Reverse 0x6A
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Product_Speed_Matching, GSS.GetSet, false, 14, // Product Speed Matching 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ProductSpeedMatching), //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ProductSpeedMatching)), //   Set
-         new AttrData((int)ccPS.Pulse_Rate_Division_Factor, GSS.GetSet, false, 15, // Pulse Rate Division Factor 0x6C
-            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Set
-         new AttrData((int)ccPS.Speed_Compensation, GSS.GetSet, false, 18,     // Speed Compensation 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccPS.Line_Speed, GSS.GetSet, false, 9,              // Line Speed 0x6E
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Distance_Between_Print_Head_And_Object, GSS.GetSet, false, 5, // Distance Between Print Head And Object 0x6F
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPS.Print_Target_Width, GSS.GetSet, false, 13,     // Print Target Width 0x70
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPS.Actual_Print_Width, GSS.GetSet, false, 1,      // Actual Print Width 0x71
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccPS.Repeat_Count, GSS.GetSet, false, 16,           // Repeat Count 0x72
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Repeat_Interval, GSS.GetSet, false, 17,        // Repeat Interval 0x73
-            new Prop(3, DataFormats.Decimal, 0, 99999, fmtDD.None),             //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(3, DataFormats.Decimal, 0, 99999, fmtDD.None)),            //   Set
-         new AttrData((int)ccPS.Target_Sensor_Timer, GSS.GetSet, false, 21,    // Target Sensor Timer 0x74
-            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Set
-         new AttrData((int)ccPS.Target_Sensor_Filter, GSS.GetSet, false, 20,   // Target Sensor Filter 0x75
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter),   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter)),  //   Set
-         new AttrData((int)ccPS.Target_Sensor_Filter_Value, GSS.GetSet, false, 19, // Target Sensor Filter Value 0x76
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Set
-         new AttrData((int)ccPS.Ink_Drop_Charge_Rule, GSS.GetSet, false, 7,    // Ink Drop Charge Rule 0x77
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule),           //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule)),          //   Set
-         new AttrData((int)ccPS.Print_Start_Position_Adjustment_Value, GSS.GetSet, false, 12, // Print Start Position Adjustment Value 0x78
-            new Prop(2, DataFormats.Decimal, -50, 50, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, -50, 50, fmtDD.None)),             //   Set
+      private AttrData[] ccPS_Addrs = new AttrData[] {
+         new AttrData((int)ccPS.Character_Height, GSS.GetSet, 1, 0,             // Character Height 0x19A0
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPS.Ink_Drop_Use, GSS.GetSet, 1, 0,                 // Ink Drop Use 0x19A1
+            new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.None)),               //   Data
+         new AttrData((int)ccPS.High_Speed_Print, GSS.GetSet, 1, 0,             // High Speed Print 0x19A2
+            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.HighSpeedPrint)),      //   Data
+         new AttrData((int)ccPS.Character_Width, GSS.GetSet, 1, 0,              // Character Width 0x19A3
+            new Prop(2, DataFormats.Decimal, 0, 3999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Character_Orientation, GSS.GetSet, 1, 0,        // Character Orientation 0x19A4
+            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.Orientation)),         //   Data
+         new AttrData((int)ccPS.Print_Start_Delay_Forward, GSS.GetSet, 1, 0,    // Print Start Delay Forward 0x19A5
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Print_Start_Delay_Reverse, GSS.GetSet, 1, 0,    // Print Start Delay Reverse 0x19A6
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Product_Speed_Matching, GSS.GetSet, 1, 0,       // Product Speed Matching 0x19A7
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ProductSpeedMatching)), //   Data
+         new AttrData((int)ccPS.Pulse_Rate_Division_Factor, GSS.GetSet, 1, 0,   // Pulse Rate Division Factor 0x19A8
+            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Data
+         new AttrData((int)ccPS.Speed_Compensation, GSS.GetSet, 1, 0,           // Speed Compensation 0x19A9
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccPS.Line_Speed, GSS.GetSet, 1, 0,                   // Line Speed 0x19AA
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Distance_Between_Print_Head_And_Object, GSS.GetSet, 1, 0, // Distance Between Print Head And Object 0x19AB
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPS.Print_Target_Width, GSS.GetSet, 1, 0,           // Print Target Width 0x19AC
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPS.Actual_Print_Width, GSS.GetSet, 1, 0,           // Actual Print Width 0x19AD
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPS.Repeat_Count, GSS.GetSet, 1, 0,                 // Repeat Count 0x19AE
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Repeat_Interval, GSS.GetSet, 1, 0,              // Repeat Interval 0x19AF
+            new Prop(3, DataFormats.Decimal, 0, 99999, fmtDD.None)),            //   Data
+         new AttrData((int)ccPS.Target_Sensor_Timer, GSS.GetSet, 1, 0,          // Target Sensor Timer 0x19B1
+            new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Data
+         new AttrData((int)ccPS.Target_Sensor_Filter, GSS.GetSet, 1, 0,         // Target Sensor Filter 0x19B2
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter)),  //   Data
+         new AttrData((int)ccPS.Target_Sensor_Filter_Value, GSS.GetSet, 1, 0,   // Target Sensor Filter Value 0x19B3
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+         new AttrData((int)ccPS.Ink_Drop_Charge_Rule, GSS.GetSet, 1, 0,         // Ink Drop Charge Rule 0x19B4
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule)),          //   Data
+         new AttrData((int)ccPS.Print_Start_Position_Adjustment_Value, GSS.GetSet, 1, 0, // Print Start Position Adjustment Value 0x19B5
+            new Prop(2, DataFormats.Decimal, -50, 50, fmtDD.None)),             //   Data
       };
 
       // Calendar (Class Code 0x69)
-      private readonly AttrData[] ccCal_Addrs = new AttrData[] {
-         new AttrData((int)ccCal.Shift_Code_Condition, GSS.Get, true, 10,      // Shift Code Condition 0x65
-            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccCal.First_Calendar_Block, GSS.Get, false, 3,      // First Calendar Block 0x66
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
-         new AttrData((int)ccCal.Number_of_Calendar_Blocks, GSS.Get, false, 1, // Number of Calendar Blocks 0x67
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
-         new AttrData((int)ccCal.Offset_Year, GSS.GetSet, false, 8,            // Offset Year 0x68
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Offset_Month, GSS.GetSet, false, 7,           // Offset Month 0x69
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Offset_Day, GSS.GetSet, false, 4,             // Offset Day 0x6A
-            new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Set
-         new AttrData((int)ccCal.Offset_Hour, GSS.GetSet, false, 5,            // Offset Hour 0x6B
-            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None),             //   Data
-            new Prop(0, DataFormats.SDecimal, 0, 0, fmtDD.None),                //   Get
-            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Set
-         new AttrData((int)ccCal.Offset_Minute, GSS.GetSet, false, 6,          // Offset Minute 0x6C
-            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None),             //   Data
-            new Prop(0, DataFormats.SDecimal, 0, 0, fmtDD.None),                //   Get
-            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Year, GSS.GetSet, false, 32,    // Zero Suppress Year 0x6D
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Month, GSS.GetSet, false, 30,   // Zero Suppress Month 0x6E
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Day, GSS.GetSet, false, 26,     // Zero Suppress Day 0x6F
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Hour, GSS.GetSet, false, 28,    // Zero Suppress Hour 0x70
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Minute, GSS.GetSet, false, 29,  // Zero Suppress Minute 0x71
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_Weeks, GSS.GetSet, false, 31,   // Zero Suppress Weeks 0x72
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Zero_Suppress_DayOfWeek, GSS.GetSet, false, 27, // Zero Suppress Day Of Week 0x73
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar),     //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.DisableSpaceChar),     //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Set
-         new AttrData((int)ccCal.Substitute_Year, GSS.GetSet, false, 21,       // Substitute Year 0x74
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_Month, GSS.GetSet, false, 19,      // Substitute Month 0x75
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_Day, GSS.GetSet, false, 15,        // Substitute Day 0x76
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_Hour, GSS.GetSet, false, 17,       // Substitute Hour 0x77
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_Minute, GSS.GetSet, false, 18,     // Substitute Minute 0x78
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_Weeks, GSS.GetSet, false, 20,      // Substitute Weeks 0x79
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Substitute_DayOfWeek, GSS.GetSet, false, 16,  // Substitute Day Of Week 0x7A
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCal.Time_Count_Start_Value, GSS.GetSet, false, 24, // Time Count Start Value 0x7B
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccCal.Time_Count_End_Value, GSS.GetSet, false, 22,  // Time Count End Value 0x7C
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccCal.Time_Count_Reset_Value, GSS.GetSet, false, 23, // Time Count Reset Value 0x7D
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccCal.Reset_Time_Value, GSS.GetSet, false, 9,       // Reset Time Value 0x7E
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Update_Interval_Value, GSS.GetSet, false, 25, // Update Interval Value 0x7F
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount)),           //   Set
-         new AttrData((int)ccCal.Shift_Start_Hour, GSS.GetSet, false, 13,      // Shift Start Hour 0x80
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Shift_Start_Minute, GSS.GetSet, false, 14,    // Shift Start Minute 0x81
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Shift_End_Hour, GSS.Get, false, 11,           // Shift End Hour 0x82
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Shift_End_Minute, GSS.Get, false, 12,         // Shift End Minute 0x83
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Set
-         new AttrData((int)ccCal.Shift_String_Value, GSS.GetSet, false, 2,     // Shift String Value 0x84
-            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Set
+      private AttrData[] ccCal_Addrs = new AttrData[] {
+         new AttrData((int)ccCal.Shift_Code_Condition, GSS.Get, 8, 32,          // Shift Code Condition 0x65
+            new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCal.First_Calendar_Block, GSS.Get, 8, 32,          // First Calendar Block 0x1048
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccCal.Number_of_Calendar_Blocks, GSS.Get, 8, 32,     // Number of Calendar Blocks 0x1049
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccCal.Offset_Year, GSS.GetSet, 8, 32,                // Offset Year 0x19C0
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Offset_Month, GSS.GetSet, 8, 32,               // Offset Month 0x19C1
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Offset_Day, GSS.GetSet, 8, 32,                 // Offset Day 0x19C2
+            new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Data
+         new AttrData((int)ccCal.Offset_Hour, GSS.GetSet, 8, 32,                // Offset Hour 0x19C3
+            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Data
+         new AttrData((int)ccCal.Offset_Minute, GSS.GetSet, 8, 32,              // Offset Minute 0x19C4
+            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Year, GSS.GetSet, 8, 32,         // Zero Suppress Year 0x19C5
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Month, GSS.GetSet, 8, 32,        // Zero Suppress Month 0x19C6
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Day, GSS.GetSet, 8, 32,          // Zero Suppress Day 0x19C7
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Hour, GSS.GetSet, 8, 32,         // Zero Suppress Hour 0x19C8
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Minute, GSS.GetSet, 8, 32,       // Zero Suppress Minute 0x19C9
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Substitute_Year, GSS.GetSet, 8, 32,            // Substitute Year 0x19CA
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Substitute_Month, GSS.GetSet, 8, 32,           // Substitute Month 0x19CB
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Substitute_Day, GSS.GetSet, 8, 32,             // Substitute Day 0x19CC
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Substitute_Hour, GSS.GetSet, 8, 32,            // Substitute Hour 0x19CD
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Substitute_Minute, GSS.GetSet, 8, 32,          // Substitute Minute 0x19CE
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Substitute_Weeks, GSS.GetSet, 8, 32,           // Substitute Weeks 0x19D0
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Zero_Suppress_Weeks, GSS.GetSet, 8, 32,        // Zero Suppress Weeks 0x19D1
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Substitute_DayOfWeek, GSS.GetSet, 8, 32,       // Substitute DayOfWeek 0x19D2
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCal.Zero_Suppress_DayOfWeek, GSS.GetSet, 8, 32,    // Zero Suppress DayOfWeek 0x19D3
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccCal.Time_Count_Start_Value, GSS.GetSet, 1, 0,      // Time Count Start Value 0x1CD4
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccCal.Time_Count_End_Value, GSS.GetSet, 1, 0,        // Time Count End Value 0x1CD7
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccCal.Time_Count_Reset_Value, GSS.GetSet, 1, 0,      // Time Count Reset Value 0x1CDA
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccCal.Reset_Time_Value, GSS.GetSet, 1, 0,            // Reset Time Value 0x1CDD
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Update_Interval_Value, GSS.GetSet, 1, 0,       // Update Interval Value 0x1CDE
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount)),           //   Data
+         new AttrData((int)ccCal.Shift_Start_Hour, GSS.GetSet, 48, 16,          // Shift Start Hour 0x1CE0
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Shift_Start_Minute, GSS.GetSet, 48, 16,        // Shift Start Minute 0x1CE1
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Shift_End_Hour, GSS.Get, 48, 16,               // Shift End Hour 0x1CE2
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Shift_End_Minute, GSS.Get, 48, 16,             // Shift End Minute 0x1CE3
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccCal.Shift_String_Value, GSS.GetSet, 48, 16,        // Shift String Value 0x1CE4
+            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Data
       };
 
       // User_pattern (Class Code 0x6B)
-      private readonly AttrData[] ccUP_Addrs = new AttrData[] {
-         new AttrData((int)ccUP.User_Pattern_Fixed, GSS.GetSet, true, 1,       // User Pattern Fixed 0x64
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(2, DataFormats.N1N1, 0, 0, fmtDD.None),                    //   Get
-            new Prop(2, DataFormats.N1N1, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUP.User_Pattern_Free, GSS.GetSet, true, 2,        // User Pattern Free 0x65
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(4, DataFormats.N1N2N1, 0, 0, fmtDD.None),                  //   Get
-            new Prop(4, DataFormats.N1N2N1, 0, 0, fmtDD.None)),                 //   Set
+      private AttrData[] ccUP_Addrs = new AttrData[] {
+         new AttrData((int)ccUP.User_Pattern_Fixed, GSS.GetSet, 1, 0,           // User Pattern Fixed 0x64
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUP.User_Pattern_Free, GSS.GetSet, 1, 0,            // User Pattern Free 0x65
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       // Substitution_rules (Class Code 0x6C)
-      private readonly AttrData[] ccSR_Addrs = new AttrData[] {
-         new AttrData((int)ccSR.Number, GSS.GetSet, false, 3,                  // Number 0x64
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccSR.Name, GSS.GetSet, false, 2,                    // Name 0x65
-            new Prop(13, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(13, DataFormats.Item, 0, 0, fmtDD.None),                   //   Get
-            new Prop(13, DataFormats.ItemChar, 0, 0, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Start_Year, GSS.GetSet, false, 1,              // Start Year 0x66
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccSR.Year, GSS.GetSet, false, 10,                   // Year 0x67
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),                   //   Get
-            new Prop(2, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Month, GSS.GetSet, false, 8,                   // Month 0x68
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 1, 12, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.ItemChar, 1, 12, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Day, GSS.GetSet, false, 4,                     // Day 0x69
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 1, 31, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.ItemChar, 1, 31, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Hour, GSS.GetSet, false, 6,                    // Hour 0x6A
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 0, 23, fmtDD.None),                   //   Get
-            new Prop(2, DataFormats.ItemChar, 0, 23, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Minute, GSS.GetSet, false, 7,                  // Minute 0x6B
-            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 0, 59, fmtDD.None),                   //   Get
-            new Prop(2, DataFormats.ItemChar, 0, 59, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.Week, GSS.GetSet, false, 9,                    // Week 0x6C
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 1, 53, fmtDD.None),                   //   Get
-            new Prop(3, DataFormats.ItemChar, 1, 53, fmtDD.None)),              //   Set
-         new AttrData((int)ccSR.DayOfWeek, GSS.GetSet, false, 5,               // Day Of Week 0x6D
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(1, DataFormats.Item, 1, 7, fmtDD.None),                    //   Get
-            new Prop(3, DataFormats.ItemChar, 1, 7, fmtDD.None)),               //   Set
+      private AttrData[] ccSR_Addrs = new AttrData[] {
+         new AttrData((int)ccSR.Name, GSS.GetSet, 1, 0,                         // Name 0x65
+            new Prop(13, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccSR.Number, GSS.GetSet, 1, 0,                       // Number 0x1AC0
+            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Start_Year, GSS.GetSet, 1, 0,                   // Start Year 0x1AC1
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccSR.Year, GSS.GetSet, 1, 0,                         // Year 0x1AC2
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Month, GSS.GetSet, 1, 0,                        // Month 0x1AF4
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Day, GSS.GetSet, 1, 0,                          // Day 0x1B18
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Hour, GSS.GetSet, 1, 0,                         // Hour 0x1B75
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Minute, GSS.GetSet, 1, 0,                       // Minute 0x1BA5
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Week, GSS.GetSet, 1, 0,                         // Week 0x1C1D
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.DayOfWeek, GSS.GetSet, 1, 0,                    // DayOfWeek 0x1CBC
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
       // Enviroment_setting (Class Code 0x71)
-      private readonly AttrData[] ccES_Addrs = new AttrData[] {
-         new AttrData((int)ccES.Current_Time, GSS.GetSet, false, 5,            // Current Time 0x65
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccES.Calendar_Date_Time, GSS.GetSet, false, 1,      // Calendar Date Time 0x66
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccES.Calendar_Date_Time_Availibility, GSS.GetSet, false, 2, // Calendar Date Time Availibility 0x67
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.CurrentTime_StopClock), //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.CurrentTime_StopClock)), //   Set
-         new AttrData((int)ccES.Clock_System, GSS.GetSet, false, 4,            // Clock System 0x68
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.Hour12_24),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.Hour12_24)),           //   Set
-         new AttrData((int)ccES.User_Environment_Information, GSS.Get, false, 8, // User Environment Information 0x69
-            new Prop(16, DataFormats.Bytes, 0, 0, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(16, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Set
-         new AttrData((int)ccES.Cirulation_Control_Setting_Value, GSS.Get, false, 3, // Cirulation Control Setting Value 0x6A
-            new Prop(12, DataFormats.Bytes, 0, 0, fmtDD.None),                  //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(12, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Set
-         new AttrData((int)ccES.Usage_Time_Of_Circulation_Control, GSS.Set, false, 7, // Usage Time Of Circulation Control 0x6B
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccES.Reset_Usage_Time_Of_Circulation_Control, GSS.Set, false, 6, // Reset Usage Time Of Circulation Control 0x6C
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+      private AttrData[] ccES_Addrs = new AttrData[] {
+         new AttrData((int)ccES.Current_Time, GSS.GetSet, 1, 0,                 // Current Time 0x65
+            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccES.Calendar_Date_Time, GSS.GetSet, 1, 0,           // Calendar Date Time 0x66
+            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccES.Calendar_Date_Time_Availibility, GSS.GetSet, 1, 0, // Calendar Date Time Availibility 0x67
+            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.CurrentTime_StopClock)), //   Data
+         new AttrData((int)ccES.Clock_System, GSS.GetSet, 1, 0,                 // Clock System 0x68
+            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.Hour12_24)),           //   Data
+         new AttrData((int)ccES.User_Environment_Information, GSS.Get, 1, 0,    // User Environment Information 0x69
+            new Prop(16, DataFormats.Bytes, 0, 0, fmtDD.None)),                 //   Data
+         new AttrData((int)ccES.Cirulation_Control_Setting_Value, GSS.Get, 1, 0, // Cirulation Control Setting Value 0x6A
+            new Prop(12, DataFormats.Bytes, 0, 0, fmtDD.None)),                 //   Data
+         new AttrData((int)ccES.Usage_Time_Of_Circulation_Control, GSS.Set, 1, 0, // Usage Time Of Circulation Control 0x6B
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Reset_Usage_Time_Of_Circulation_Control, GSS.Set, 1, 0, // Reset Usage Time Of Circulation Control 0x6C
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       // Unit_Information (Class Code 0x73)
-      private readonly AttrData[] ccUI_Addrs = new AttrData[] {
-         new AttrData((int)ccUI.Unit_Information, GSS.Get, false, 20,          // Unit Information 0x64
-            new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccUI.Model_Name, GSS.Get, false, 15,                // Model Name 0x6B
-            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccUI.Serial_Number, GSS.Get, false, 17,             // Serial Number 0x6C
-            new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None)),       //   Set
-         new AttrData((int)ccUI.Ink_Name, GSS.Get, false, 8,                   // Ink Name 0x6D
-            new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccUI.Input_Mode, GSS.Get, false, 9,                 // Input Mode 0x6E
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Maximum_Character_Count, GSS.Get, false, 11,   // Maximum Character Count 0x6F
-            new Prop(2, DataFormats.Decimal, 240, 1000, fmtDD.None),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 240, 1000, fmtDD.None)),           //   Set
-         new AttrData((int)ccUI.Maximum_Registered_Message_Count, GSS.Get, false, 13, // Maximum Registered Message Count 0x70
-            new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Set
-         new AttrData((int)ccUI.Barcode_Information, GSS.Get, false, 1,        // BarCode Information 0x71
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Usable_Character_Size, GSS.Get, false, 21,     // Usable Character Size 0x72
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Maximum_Calendar_And_Count, GSS.Get, false, 10, // Maximum Calendar And Count 0x73
-            new Prop(1, DataFormats.Decimal, 3, 8, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 3, 8, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Maximum_Substitution_Rule, GSS.Get, false, 14, // Maximum Substitution Rule 0x74
-            new Prop(1, DataFormats.Decimal, 48, 99, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 48, 99, fmtDD.None)),              //   Set
-         new AttrData((int)ccUI.Shift_Code_And_Time_Count, GSS.Get, false, 18, // Shift Code And Time Count 0x75
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccUI.Chimney_And_DIN_Print, GSS.Get, false, 3,      // Chimney And DIN Print 0x76
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Maximum_Line_Count, GSS.Get, false, 12,        // Maximum Line Count 0x77
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccUI.Basic_Software_Version, GSS.Get, false, 2,     // Basic Software Version 0x78
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.Controller_Software_Version, GSS.Get, false, 4, // Controller Software Version 0x79
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.Engine_M_Software_Version, GSS.Get, false, 5,  // Engine M Software Version 0x7A
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.Engine_S_Software_Version, GSS.Get, false, 6,  // Engine S Software Version 0x7B
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.First_Language_Version, GSS.Get, false, 7,     // First Language Version 0x7C
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.Second_Language_Version, GSS.Get, false, 16,   // Second Language Version 0x7D
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
-         new AttrData((int)ccUI.Software_Option_Version, GSS.Get, false, 19,   // Software Option Version 0x7E
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+      private AttrData[] ccUI_Addrs = new AttrData[] {
+         new AttrData((int)ccUI.Unit_Information, GSS.Get, 1, 0,                // Unit Information 0x64
+            new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccUI.Model_Name, GSS.Get, 1, 0,                      // Model Name 0x6B
+            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccUI.Serial_Number, GSS.Get, 1, 0,                   // Serial Number 0x6C
+            new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None)),       //   Data
+         new AttrData((int)ccUI.Ink_Name, GSS.Get, 1, 0,                        // Ink Name 0x6D
+            new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccUI.Input_Mode, GSS.Get, 1, 0,                      // Input Mode 0x6E
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Maximum_Character_Count, GSS.Get, 1, 0,         // Maximum Character Count 0x6F
+            new Prop(2, DataFormats.Decimal, 240, 1000, fmtDD.None)),           //   Data
+         new AttrData((int)ccUI.Maximum_Registered_Message_Count, GSS.Get, 1, 0, // Maximum Registered Message Count 0x70
+            new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Data
+         new AttrData((int)ccUI.Barcode_Information, GSS.Get, 1, 0,             // Barcode Information 0x71
+            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Usable_Character_Size, GSS.Get, 1, 0,           // Usable Character Size 0x72
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Maximum_Calendar_And_Count, GSS.Get, 1, 0,      // Maximum Calendar And Count 0x73
+            new Prop(1, DataFormats.Decimal, 3, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Maximum_Substitution_Rule, GSS.Get, 1, 0,       // Maximum Substitution Rule 0x74
+            new Prop(1, DataFormats.Decimal, 48, 99, fmtDD.None)),              //   Data
+         new AttrData((int)ccUI.Shift_Code_And_Time_Count, GSS.Get, 1, 0,       // Shift Code And Time Count 0x75
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccUI.Chimney_And_DIN_Print, GSS.Get, 1, 0,           // Chimney And DIN Print 0x76
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Maximum_Line_Count, GSS.Get, 1, 0,              // Maximum Line Count 0x77
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUI.Basic_Software_Version, GSS.Get, 1, 0,          // Basic Software Version 0x78
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.Controller_Software_Version, GSS.Get, 1, 0,     // Controller Software Version 0x79
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.Engine_M_Software_Version, GSS.Get, 1, 0,       // Engine M Software Version 0x7A
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.Engine_S_Software_Version, GSS.Get, 1, 0,       // Engine S Software Version 0x7B
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.First_Language_Version, GSS.Get, 1, 0,          // First Language Version 0x7C
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.Second_Language_Version, GSS.Get, 1, 0,         // Second Language Version 0x7D
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccUI.Software_Option_Version, GSS.Get, 1, 0,         // Software Option Version 0x7E
+            new Prop(5, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
       // Operation_management (Class Code 0x74)
-      private readonly AttrData[] ccOM_Addrs = new AttrData[] {
-         new AttrData((int)ccOM.Operating_Management, GSS.Get, false, 12,      // Operating Management 0x64
-            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Get
-            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccOM.Ink_Operating_Time, GSS.GetSet, false, 9,      // Ink Operating Time 0x65
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Alarm_Time, GSS.GetSet, false, 1,              // Alarm Time 0x66
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Print_Count, GSS.GetSet, false, 13,            // Print Count 0x67
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Communications_Environment, GSS.Get, false, 3, // Communications Environment 0x68
-            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Cumulative_Operation_Time, GSS.Get, false, 4,  // Cumulative Operation Time 0x69
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Ink_And_Makeup_Name, GSS.Get, false, 8,        // Ink And Makeup Name 0x6A
-            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccOM.Ink_Viscosity, GSS.Get, false, 11,             // Ink Viscosity 0x6B
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Ink_Pressure, GSS.Get, false, 10,              // Ink Pressure 0x6C
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Ambient_Temperature, GSS.Get, false, 2,        // Ambient Temperature 0x6D
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Deflection_Voltage, GSS.Get, false, 5,         // Deflection Voltage 0x6E
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Excitation_VRef_Setup_Value, GSS.Get, false, 7, // Excitation VRef Setup Value 0x6F
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccOM.Excitation_Frequency, GSS.Get, false, 6,       // Excitation Frequency 0x70
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
+      private AttrData[] ccOM_Addrs = new AttrData[] {
+         new AttrData((int)ccOM.Operating_Management, GSS.Get, 1, 0,            // Operating Management 0x64
+            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccOM.Communications_Environment, GSS.Get, 1, 0,      // Communications Environment 0x68
+            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccOM.Cumulative_Operation_Time, GSS.Get, 1, 0,       // Cumulative Operation Time 0x69
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Ink_And_Makeup_Name, GSS.Get, 1, 0,             // Ink And Makeup Name 0x6A
+            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccOM.Ink_Viscosity, GSS.Get, 1, 0,                   // Ink Viscosity 0x6B
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Ink_Pressure, GSS.Get, 1, 0,                    // Ink Pressure 0x6C
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Ambient_Temperature, GSS.Get, 1, 0,             // Ambient Temperature 0x6D
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Deflection_Voltage, GSS.Get, 1, 0,              // Deflection Voltage 0x6E
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Excitation_VRef_Setup_Value, GSS.Get, 1, 0,     // Excitation VRef Setup Value 0x6F
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Excitation_Frequency, GSS.Get, 1, 0,            // Excitation Frequency 0x70
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Ink_Operating_Time, GSS.GetSet, 1, 0,           // Ink Operating Time 0x25B0
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Alarm_Time, GSS.GetSet, 1, 0,                   // Alarm Time 0x25B1
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccOM.Print_Count, GSS.GetSet, 1, 0,                  // Print Count 0x25B2
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       // IJP_operation (Class Code 0x75)
-      private readonly AttrData[] ccIJP_Addrs = new AttrData[] {
-         new AttrData((int)ccIJP.Remote_operation_information, GSS.Get, false, 7, // Remote operation information 0x64
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccIJP.Fault_and_warning_history, GSS.Get, false, 4, // Fault and warning history 0x66
-            new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccIJP.Operating_condition, GSS.Get, false, 6,       // Operating condition 0x67
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccIJP.Warning_condition, GSS.Get, false, 10,        // Warning condition 0x68
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccIJP.Date_and_time_information, GSS.Get, false, 1, // Date and time information 0x6A
-            new Prop(10, DataFormats.Date, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(10, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccIJP.Error_code, GSS.Get, false, 3,                // Error code 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccIJP.Start_Remote_Operation, GSS.Service, false, 8, // Start Remote Operation 0x6C
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccIJP.Stop_Remote_Operation, GSS.Service, false, 9, // Stop Remote Operation 0x6D
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccIJP.Deflection_voltage_control, GSS.Service, false, 2, // Deflection voltage control 0x6E
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Service
-         new AttrData((int)ccIJP.Online_Offline, GSS.GetSet, false, 5,         // Online Offline 0x6F
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OnlineOffline),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OnlineOffline)),       //   Set
+      private AttrData[] ccIJP_Addrs = new AttrData[] {
+         new AttrData((int)ccIJP.Remote_operation_information, GSS.Get, 1, 0,   // Remote operation information 0x64
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccIJP.Fault_and_warning_history, GSS.Get, 1, 0,      // Fault and warning history 0x66
+            new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccIJP.Operating_condition, GSS.Get, 1, 0,            // Operating condition 0x67
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccIJP.Warning_condition, GSS.Get, 1, 0,              // Warning condition 0x68
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccIJP.Date_and_time_information, GSS.Get, 1, 0,      // Date and time information 0x6A
+            new Prop(10, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccIJP.Error_code, GSS.Get, 1, 0,                     // Error code 0x6B
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccIJP.Start_Remote_Operation, GSS.Service, 1, 0,     // Start Remote Operation 0x6C
+            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccIJP.Stop_Remote_Operation, GSS.Service, 1, 0,      // Stop Remote Operation 0x6D
+            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccIJP.Deflection_voltage_control, GSS.Service, 1, 0, // Deflection voltage control 0x6E
+            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccIJP.Online_Offline, GSS.GetSet, 1, 0,              // Online Offline 0x2490
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OnlineOffline)),       //   Data
       };
 
       // Count (Class Code 0x79)
-      private readonly AttrData[] ccCount_Addrs = new AttrData[] {
-         new AttrData((int)ccCount.First_Count_Block, GSS.Get, false, 12,      // First Count Block 0x65
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
-         new AttrData((int)ccCount.Number_Of_Count_Blocks, GSS.Get, false, 12, // Number Of Count Blocks 0x66
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Set
-         new AttrData((int)ccCount.Initial_Value, GSS.GetSet, false, 9,        // Initial Value 0x67
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Count_Range_1, GSS.GetSet, false, 4,        // Count Range 1 0x68
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Count_Range_2, GSS.GetSet, false, 5,        // Count Range 2 0x69
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Update_Unit_Halfway, GSS.GetSet, false, 15, // Update Unit Halfway 0x6A
-            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Set
-         new AttrData((int)ccCount.Update_Unit_Unit, GSS.GetSet, false, 16,    // Update Unit Unit 0x6B
-            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Set
-         new AttrData((int)ccCount.Increment_Value, GSS.GetSet, false, 8,      // Increment Value 0x6C
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Set
-         new AttrData((int)ccCount.Direction_Value, GSS.GetSet, false, 7,      // Direction Value 0x6D
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Set
-         new AttrData((int)ccCount.Jump_From, GSS.GetSet, false, 10,           // Jump From 0x6E
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Jump_To, GSS.GetSet, false, 11,             // Jump To 0x6F
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Reset_Value, GSS.GetSet, false, 13,         // Reset Value 0x70
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Type_Of_Reset_Signal, GSS.GetSet, false, 14, // Type Of Reset Signal 0x71
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2),      //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),     //   Set
-         new AttrData((int)ccCount.External_Count, GSS.GetSet, false, 1,       // External Count 0x72
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCount.Zero_Suppression, GSS.GetSet, false, 2,     // Zero Suppression 0x73
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable),        //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Set
-         new AttrData((int)ccCount.Count_Multiplier, GSS.GetSet, false, 3,     // Count Multiplier 0x74
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None),                   //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Set
-         new AttrData((int)ccCount.Count_Skip, GSS.GetSet, false, 6,           // Count Skip 0x75
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None),                    //   Data
-            new Prop(0, DataFormats.UTF8N, 0, 0, fmtDD.None),                   //   Get
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Set
+      private AttrData[] ccCount_Addrs = new AttrData[] {
+         new AttrData((int)ccCount.First_Count_Block, GSS.Get, 8, 148,          // First Count Block 0x104A
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccCount.Number_Of_Count_Blocks, GSS.Get, 8, 148,     // Number Of Count Blocks 0x104B
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccCount.Initial_Value, GSS.GetSet, 8, 148,           // Initial Value 0x1FE0
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Count_Range_1, GSS.GetSet, 8, 148,           // Count Range 1 0x1FF4
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Count_Range_2, GSS.GetSet, 8, 148,           // Count Range 2 0x2008
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Update_Unit_Halfway, GSS.GetSet, 8, 148,     // Update Unit Halfway 0x201C
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Data
+         new AttrData((int)ccCount.Update_Unit_Unit, GSS.GetSet, 8, 148,        // Update Unit Unit 0x201E
+            new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Data
+         new AttrData((int)ccCount.Increment_Value, GSS.GetSet, 8, 148,         // Increment Value 0x2020
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccCount.Direction_Value, GSS.GetSet, 8, 148,         // Direction Value 0x2021
+            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Data
+         new AttrData((int)ccCount.Jump_From, GSS.GetSet, 8, 148,               // Jump From 0x2022
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Jump_To, GSS.GetSet, 8, 148,                 // Jump To 0x2036
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Reset_Value, GSS.GetSet, 8, 148,             // Reset Value 0x204A
+            new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Type_Of_Reset_Signal, GSS.GetSet, 8, 148,    // Type Of Reset Signal 0x205E
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),     //   Data
+         new AttrData((int)ccCount.External_Count, GSS.GetSet, 8, 148,          // External Count 0x205F
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCount.Zero_Suppression, GSS.GetSet, 8, 148,        // Zero Suppression 0x2060
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+         new AttrData((int)ccCount.Count_Multiplier, GSS.GetSet, 8, 148,        // Count Multiplier 0x2061
+            new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccCount.Count_Skip, GSS.GetSet, 8, 148,              // Count Skip 0x206B
+            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
       // Index (Class Code 0x7A)
-      private readonly AttrData[] ccIDX_Addrs = new AttrData[] {
-         new AttrData((int)ccIDX.Start_Stop_Management_Flag, GSS.GetSet, false, 10, // Start Stop Management Flag 0x64
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None),                 //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Set
-         new AttrData((int)ccIDX.Automatic_reflection, GSS.GetSet, false, 1,   // Automatic reflection 0x65
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.OffOn),                //   Get
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn)),               //   Set
-         new AttrData((int)ccIDX.Item, GSS.GetSet, false, 6,                   // Item 0x66
-            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None),               //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Set
-         new AttrData((int)ccIDX.Column, GSS.GetSet, false, 4,                 // Column 0x67
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccIDX.Line, GSS.GetSet, false, 7,                   // Line 0x68
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Set
-         new AttrData((int)ccIDX.Character_position, GSS.GetSet, false, 3,     // Character position 0x69
-            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Set
-         new AttrData((int)ccIDX.Message_Number, GSS.GetSet, false, 9,         // Message Number 0x6A
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Set
-         new AttrData((int)ccIDX.Group_Number, GSS.GetSet, false, 8,           // Group Number 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccIDX.Substitution_Rule, GSS.GetSet, false, 11,     // Substitution Rule 0x6C
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None),                //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Set
-         new AttrData((int)ccIDX.User_Pattern_Size, GSS.GetSet, false, 12,     // User Pattern Size 0x6D
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType),            //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Set
-         new AttrData((int)ccIDX.Count_Block, GSS.GetSet, false, 5,            // Count Block 0x6E
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Set
-         new AttrData((int)ccIDX.Calendar_Block, GSS.GetSet, false, 2,         // Calendar Block 0x6F
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal),              //   Data
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None),                 //   Get
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Set
+      private AttrData[] ccIDX_Addrs = new AttrData[] {
+         new AttrData((int)ccIDX.Start_Stop_Management_Flag, GSS.GetSet, 1, 0,  // Start Stop Management Flag 0x00
+            new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
+         new AttrData((int)ccIDX.Automatic_reflection, GSS.GetSet, 1, 0,        // Automatic reflection 0x65
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn)),               //   Data
+         new AttrData((int)ccIDX.Item, GSS.GetSet, 1, 0,                        // Item 0x66
+            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
+         new AttrData((int)ccIDX.Column, GSS.GetSet, 1, 0,                      // Column 0x67
+            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccIDX.Line, GSS.GetSet, 1, 0,                        // Line 0x68
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
+         new AttrData((int)ccIDX.Character_position, GSS.GetSet, 1, 0,          // Character position 0x69
+            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
+         new AttrData((int)ccIDX.Message_Number, GSS.GetSet, 1, 0,              // Message Number 0x6A
+            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccIDX.Group_Number, GSS.GetSet, 1, 0,                // Group Number 0x6B
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccIDX.Substitution_Rule, GSS.GetSet, 1, 0,           // Substitution Rule 0x6C
+            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccIDX.User_Pattern_Size, GSS.GetSet, 1, 0,           // User Pattern Size 0x6D
+            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
+         new AttrData((int)ccIDX.Count_Block, GSS.GetSet, 1, 0,                 // Count Block 0x6E
+            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
+         new AttrData((int)ccIDX.Calendar_Block, GSS.GetSet, 1, 0,              // Calendar Block 0x6F
+            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
       };
 
       #endregion
@@ -1254,36 +895,38 @@ namespace Modbus_DLL {
 
          // Now process each attribute within the Class
          string[] attrNames = Enum.GetNames(at);
+         int[] attrValues = (int[])Enum.GetValues(at);
          for (int i = 0; i < tbl.Length; i++) {
-
+            // Allow for the names to be reordered
+            AttrData attr = Array.Find<AttrData>(tbl, x => x.Val == attrValues[i]);
             // Turn Access into an enum
             string access = string.Empty;
-            if (tbl[i].HasGet)
+            if (attr.HasGet)
                access += "Get";
-            if (tbl[i].HasSet)
+            if (attr.HasSet)
                access += "Set";
-            if (tbl[i].HasService)
+            if (attr.HasService)
                access += "Service";
 
             // Format Ignore as true/false and Data Format to an enum
-            string ignore = tbl[i].Ignore ? "true" : "false";
+            string ignore = attr.Ignore ? "true" : "false";
 
             // Space the comment at the end of the line for readability
             string printLine = $"{t2}new AttrData((int){name}.{attrNames[i]}, GSS.{access}, {count}, {stride},";
             string spaces = new string(' ', Math.Max(80 - printLine.Length, 1));
-            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")} 0x{tbl[i].Val:X2}");
+            RFS.WriteLine($"{printLine}{spaces}// {attrNames[i].Replace("_", " ")} 0x{attr.Val:X2}");
 
             // See how many properties are needed
             string[] s = null;
             p.Clear();
-            p.Add(tbl[i].Data);
-            if (tbl[i].HasService) {
-               //p.Add(tbl[i].Service);
+            p.Add(attr.Data);
+            if (attr.HasService) {
+               //p.Add(attr.Service);
                s = new string[] { "Data" };
             } else {
-               if (tbl[i].HasGet || tbl[i].HasSet) {
-                  //p.Add(tbl[i].Get);
-                  //p.Add(tbl[i].Set);
+               if (attr.HasGet || attr.HasSet) {
+                  //p.Add(attr.Get);
+                  //p.Add(attr.Set);
                   s = new string[] { "Data" };
                }
             }

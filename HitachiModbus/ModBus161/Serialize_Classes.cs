@@ -56,7 +56,7 @@ namespace ModBus161 {
       public Location Location;        // Use for internal processing only
 
       public bool ShouldSerializeBarCode() {
-         return BarCode.DotMatrix != null;  // Write out BarCode only if it is used.
+         return BarCode != null;  // Write out BarCode only if it is used.
       }
    }
 

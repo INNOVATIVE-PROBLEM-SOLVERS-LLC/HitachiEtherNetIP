@@ -129,18 +129,16 @@ namespace ModBus161 {
          int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
          int lineCount;
          int n = 0;
-         int stride = 0x1058 - 0x1040;                // Distance between print items
          List<int> cols = new List<int>();            // Holds the number of rows in each column
          List<string> spacing = new List<string>();   // Holds the line spacing
          while (n < itemCount) {
-            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n * stride));
-            spacing.Add(p.GetHRAttribute(ccPF.Line_Count, n * stride));
+            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
+            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
             n += lineCount;
          }
 
          // Fill in the items
          m.Column = new Column[cols.Count];           // Allocate the columns    
-         int offset = 0;
          n = 0;
          int totalCharacters = 0;
          for (int col = 0; col < m.Column.Length; col++) {
@@ -151,33 +149,31 @@ namespace ModBus161 {
                Item item = new Item();
                attr.Val = 0x0020 + n;
                int characterCount = p.GetDecAttribute(attr);
-               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters * 2, characterCount * 4);
+               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount * 4);
                item.Font = new FontDef();
-               item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, offset);
-               item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, offset);
-               item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, offset);
-               item.Font.IncreasedWidth = p.GetHRAttribute(ccPF.Character_Bold, offset);
-               item.BarCode = new BarCode();
-               item.BarCode.DotMatrix = p.GetHRAttribute(ccPF.Barcode_Type, offset);
-               item.BarCode.HumanReadableFont = p.GetHRAttribute(ccPF.Readable_Code, offset);
-               item.BarCode.EANPrefix = p.GetHRAttribute(ccPF.EAN_Prefix, offset);
-               // Get calendar condition
-               int calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, offset);
-
-               // Get count condition
-               int cntCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, offset);
+               item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
+               item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);
+               item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
+               item.Font.IncreasedWidth = p.GetHRAttribute(ccPF.Character_Bold, n);
+               int bcType = p.GetDecAttribute(ccPF.Barcode_Type, n);
+               if (bcType > 0) {
+                  item.BarCode = new BarCode();
+                  item.BarCode.DotMatrix = p.GetHRAttribute(ccPF.Barcode_Type, n);
+                  item.BarCode.HumanReadableFont = p.GetHRAttribute(ccPF.Readable_Code, n);
+                  item.BarCode.EANPrefix = p.GetHRAttribute(ccPF.EAN_Prefix, n);
+               }
 
                item.Location = new Location() { Index = n, Row = row, Col = col };
                int[] mask = new int[1 + 8];
                ItemType itemType = GetItemType(item.Text, ref mask);
-               item.Location.calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, offset);
+               item.Location.calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, n);
                if (item.Location.calCount > 0) {
-                  item.Location.calStart = p.GetDecAttribute(ccCal.First_Calendar_Block, offset);
+                  item.Location.calStart = p.GetDecAttribute(ccCal.First_Calendar_Block, n);
                   RetrieveCalendarSettings(item, mask);
                }
-               item.Location.countCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, offset);
+               item.Location.countCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, n);
                if (item.Location.countCount > 0) {
-                  item.Location.countStart = p.GetDecAttribute(ccCount.First_Count_Block, offset);
+                  item.Location.countStart = p.GetDecAttribute(ccCount.First_Count_Block, n);
                   RetrieveCountSettings(item);
                }
                for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
@@ -189,7 +185,6 @@ namespace ModBus161 {
                   }
                }
                m.Column[col].Item[row] = item;
-               offset += stride;
                n++;
                totalCharacters += characterCount;
             }
@@ -198,8 +193,7 @@ namespace ModBus161 {
 
       // Retrieve Calendar settings
       private void RetrieveCalendarSettings(Item item, int[] mask) {
-         int stride = 0x19E0 - 0x19C0;
-         int offset = (item.Location.calStart - 1) * stride;
+         int n = item.Location.calStart - 1;
          item.Date = new Date[item.Location.calCount];
          for (int i = 0; i < item.Location.calCount; i++) {
             // Where do you get Substitution rule number
@@ -210,96 +204,95 @@ namespace ModBus161 {
             }
             if ((mask[i] & DateOffset) > 0) {
                item.Date[i].Offset = new Offset() {
-                  Year = p.GetHRAttribute(ccCal.Offset_Year, offset),
-                  Month = p.GetHRAttribute(ccCal.Offset_Month, offset),
-                  Day = p.GetHRAttribute(ccCal.Offset_Day, offset),
-                  Hour = p.GetHRAttribute(ccCal.Offset_Hour, offset),
-                  Minute = p.GetHRAttribute(ccCal.Offset_Minute, offset)
+                  Year = p.GetHRAttribute(ccCal.Offset_Year, n),
+                  Month = p.GetHRAttribute(ccCal.Offset_Month, n),
+                  Day = p.GetHRAttribute(ccCal.Offset_Day, n),
+                  Hour = p.GetHRAttribute(ccCal.Offset_Hour, n),
+                  Minute = p.GetHRAttribute(ccCal.Offset_Minute, n)
                };
             }
             if ((mask[i] & DateSubZS) > 0) {
                item.Date[i].ZeroSuppress = new ZeroSuppress();
                string s;
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Year, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Year, n)))
                      item.Date[i].ZeroSuppress.Year = s;
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Month, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Month, n)))
                      item.Date[i].ZeroSuppress.Month = s;
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Day, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Day, n)))
                      item.Date[i].ZeroSuppress.Day = s;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Hour, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Hour, n)))
                      item.Date[i].ZeroSuppress.Hour = s;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Minute, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Minute, n)))
                      item.Date[i].ZeroSuppress.Minute = s;
                if ((mask[i] & (int)ba.Week) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Weeks, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Weeks, n)))
                      item.Date[i].ZeroSuppress.Week = s;
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_DayOfWeek, offset)))
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_DayOfWeek, n)))
                      item.Date[i].ZeroSuppress.DayOfWeek = s;
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Year, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Year, n)))
                      item.Date[i].Substitute.Year = s;
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Month, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Month, n)))
                      item.Date[i].Substitute.Month = s;
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Day, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Day, n)))
                      item.Date[i].Substitute.Day = s;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Hour, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Hour, n)))
                      item.Date[i].Substitute.Hour = s;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, n)))
                      item.Date[i].Substitute.Minute = s;
                if ((mask[i] & (int)ba.Week) > 0) // Printer reports these wrong
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n)))
                      item.Date[i].Substitute.Week = s;
                if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, offset)))
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, n)))
                      item.Date[i].Substitute.DayOfWeek = s;
             }
-            offset += stride;
+            n++;
          }
       }
 
       // Retrieve Count Settings
       private void RetrieveCountSettings(Item item) {
-         int stride = 0x2074 - 0x1FE0;
-         int offset = (item.Location.countCount - 1) * stride;
+         int n = item.Location.countCount - 1;
          item.Counter = new Counter[item.Location.countCount];
          for (int i = 0; i < item.Location.countCount; i++) {
             item.Counter[i] = new Counter() { Block = i + 1 };
             item.Counter[i].Range = new Range() {
-               Range1 = p.GetHRAttribute(ccCount.Count_Range_1, offset),
-               Range2 = p.GetHRAttribute(ccCount.Count_Range_2, offset),
-               JumpFrom = p.GetHRAttribute(ccCount.Jump_From, offset),
-               JumpTo = p.GetHRAttribute(ccCount.Jump_To, offset),
+               Range1 = p.GetHRAttribute(ccCount.Count_Range_1, n),
+               Range2 = p.GetHRAttribute(ccCount.Count_Range_2, n),
+               JumpFrom = p.GetHRAttribute(ccCount.Jump_From, n),
+               JumpTo = p.GetHRAttribute(ccCount.Jump_To, n),
             };
             item.Counter[i].Count = new Count() {
-               InitialValue = p.GetHRAttribute(ccCount.Initial_Value, offset),
-               Increment = p.GetHRAttribute(ccCount.Increment_Value, offset),
-               Direction = p.GetHRAttribute(ccCount.Direction_Value, offset),
-               ZeroSuppression = p.GetHRAttribute(ccCount.Zero_Suppression, offset),
+               InitialValue = p.GetHRAttribute(ccCount.Initial_Value, n),
+               Increment = p.GetHRAttribute(ccCount.Increment_Value, n),
+               Direction = p.GetHRAttribute(ccCount.Direction_Value, n),
+               ZeroSuppression = p.GetHRAttribute(ccCount.Zero_Suppression, n),
             };
             item.Counter[i].Reset = new Reset() {
-               Type = p.GetHRAttribute(ccCount.Type_Of_Reset_Signal, offset),
-               Value = p.GetHRAttribute(ccCount.Reset_Value, offset),
+               Type = p.GetHRAttribute(ccCount.Type_Of_Reset_Signal, n),
+               Value = p.GetHRAttribute(ccCount.Reset_Value, n),
             };
             item.Counter[i].Misc = new Misc() {
-               UpdateIP = p.GetHRAttribute(ccCount.Update_Unit_Halfway, offset),
-               UpdateUnit = p.GetHRAttribute(ccCount.Update_Unit_Unit, offset),
-               ExternalCount = p.GetHRAttribute(ccCount.External_Count, offset),
-               Multiplier = p.GetHRAttribute(ccCount.Count_Multiplier, offset),
-               SkipCount = p.GetHRAttribute(ccCount.Count_Skip, offset),
+               UpdateIP = p.GetHRAttribute(ccCount.Update_Unit_Halfway, n),
+               UpdateUnit = p.GetHRAttribute(ccCount.Update_Unit_Unit, n),
+               ExternalCount = p.GetHRAttribute(ccCount.External_Count, n),
+               Multiplier = p.GetHRAttribute(ccCount.Count_Multiplier, n),
+               SkipCount = p.GetHRAttribute(ccCount.Count_Skip, n),
             };
-            offset += stride;
+            n++;
          }
       }
 
@@ -308,20 +301,17 @@ namespace ModBus161 {
          List<Shift> s = new List<Shift>();
          string endHour;
          string endMinute;
-         int shift = 1;
-         int offset = 0;
-         int stride = 0x1CF0 - 0x1CE0;
+         int n = 0;
          do {
             s.Add(new Shift() {
-               ShiftNumber = shift,
-               StartHour = p.GetHRAttribute(ccCal.Shift_Start_Hour, offset),
-               StartMinute = p.GetHRAttribute(ccCal.Shift_Start_Minute, offset),
-               EndHour = endHour = p.GetHRAttribute(ccCal.Shift_End_Hour, offset),
-               EndMinute = endMinute = p.GetHRAttribute(ccCal.Shift_End_Minute, offset),
-               ShiftCode = p.GetHRAttribute(ccCal.Shift_String_Value, offset),
+               ShiftNumber = n + 1,
+               StartHour = p.GetHRAttribute(ccCal.Shift_Start_Hour, n),
+               StartMinute = p.GetHRAttribute(ccCal.Shift_Start_Minute, n),
+               EndHour = endHour = p.GetHRAttribute(ccCal.Shift_End_Hour, n),
+               EndMinute = endMinute = p.GetHRAttribute(ccCal.Shift_End_Minute, n),
+               ShiftCode = p.GetHRAttribute(ccCal.Shift_String_Value, n),
             });
-            offset += stride;
-            shift++;
+            n++;
          } while (endHour != "23" || endMinute != "59");
          return s.ToArray();
       }
