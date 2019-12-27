@@ -32,10 +32,16 @@ namespace Modbus_DLL {
       TcpClient client = null;
       NetworkStream stream = null;
 
+      bool comIsOn = false;
+
       Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
       // Data Tables describing Hitachi Model 161
       static public Data M161 = new Data();
+
+      // Check on connection and Com State
+      public bool IsConnected { get { return stream != null; } }
+      public bool ComIsOn { get { return comIsOn; } }
 
       #endregion
 
@@ -72,7 +78,7 @@ namespace Modbus_DLL {
             Log?.Invoke(this, "Connection Accepted");
             byte[] b = GetAttribute(ccIJP.Online_Offline);
             Log?.Invoke(this, $"Com status is {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
-            if (GetDecValue(b) == 0) {
+            if (!comIsOn) {
                SetAttribute(ccIJP.Online_Offline, 1);
                b = GetAttribute(ccIJP.Online_Offline);
                Log?.Invoke(this, $"Com status is now {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
@@ -80,6 +86,23 @@ namespace Modbus_DLL {
             }
          }
          return success;
+      }
+
+      // Disconnect from TcpClient ad stream
+      public void Disconnect() {
+         if (stream != null) {
+            stream.Close();
+            stream.Dispose();
+         }
+         if (client != null) {
+            if(client.Connected) {
+               client.Close();
+            }
+            client.Dispose();
+         }
+         stream = null;
+         client = null;
+         comIsOn = false;
       }
 
       #endregion
@@ -228,6 +251,11 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          if (!GetAttribute(attr, out result)) {
             result = null;
+            comIsOn = false;
+         } else {
+            if (attr.Class == ClassCode.IJP_operation && attr.Val == (int)ccIJP.Online_Offline) {
+               comIsOn = GetDecValue(result) > 0;
+            }
          }
          return result;
       }
@@ -393,11 +421,18 @@ namespace Modbus_DLL {
       }
 
       // Set one attribute based on the Set Property
-      public bool SetAttribute<T>(T Attribute, int n) where T : Enum {
+      public bool SetAttribute<T>(T Attribute, int val) where T : Enum {
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
-         data = FormatOutput(attr.Data, n);
-         return SetAttribute(attr, data);
+         data = FormatOutput(attr.Data, val);
+         if (SetAttribute(attr, data)) {
+            if (attr.Class == ClassCode.IJP_operation && attr.Val == (int)ccIJP.Online_Offline) {
+               comIsOn = val > 0;
+            }
+            return true;
+         } else {
+            return false;
+         }
       }
 
       #endregion

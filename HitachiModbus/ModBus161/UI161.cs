@@ -23,6 +23,8 @@ namespace ModBus161 {
 
       Modbus modbus;
 
+      Properties.Settings ps;
+
       #endregion
 
       #region Constructors an destructors
@@ -31,6 +33,7 @@ namespace ModBus161 {
          InitializeComponent();
          modbus = new Modbus();
          modbus.Log += Modbus_Log;
+         SetButtonEnables();
       }
 
       private void Modbus_Log(Modbus sender, string msg) {
@@ -46,10 +49,6 @@ namespace ModBus161 {
 
       #endregion
 
-      #region Form Level Events
-
-      #endregion
-
       #region Form Control Events
 
       // Connect to printer and turn COM on
@@ -57,16 +56,25 @@ namespace ModBus161 {
          if (modbus.Connect(txtIPAddress.Text, txtIPPort.Text)) {
 
          }
+         SetButtonEnables();
+      }
+
+      // Disconnect from the printer
+      private void cmdDisconnect_Click(object sender, EventArgs e) {
+         modbus.Disconnect();
+         SetButtonEnables();
       }
 
       // Turn com on
-      private void comOn_Click(object sender, EventArgs e) {
+      private void cmdComOn_Click(object sender, EventArgs e) {
          modbus.SetAttribute(ccIJP.Online_Offline, 1);
+         SetButtonEnables();
       }
 
       // Turn com off
       private void cmdComOff_Click(object sender, EventArgs e) {
          modbus.SetAttribute(ccIJP.Online_Offline, 0);
+         SetButtonEnables();
       }
 
       // Read data from the printer
@@ -75,6 +83,7 @@ namespace ModBus161 {
             && int.TryParse(txtDataLength.Text, out int len)) {
             modbus.GetAttribute(addr, len, optHoldingRegister.Checked, out byte[] data);
          }
+         SetButtonEnables();
       }
 
       // Send data to the printer
@@ -87,47 +96,14 @@ namespace ModBus161 {
             modbus.SetAttribute(addr, data);
             modbus.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
+         SetButtonEnables();
       }
 
       // Retrieve message from printer and convert to XML
       private void cmdRetrieve_Click(object sender, EventArgs e) {
          RetrieveXML retrieve = new RetrieveXML(this, modbus);
-         string xml = retrieve.Retrieve();
-         try {
-            // Can be called with a Filename or XML text
-            int xmlStart = xml.IndexOf("<Label");
-            if (xmlStart == -1) {
-               xml = File.ReadAllText(xml);
-               xmlStart = xml.IndexOf("<Label");
-            }
-            // No label found, exit
-            if (xmlStart == -1) {
-               return;
-            }
-            int xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
-            if (xmlEnd > 0) {
-               xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
-               XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
-               xmlDoc.LoadXml(xml);
-               xml = ToIndentedString(xml);
-               xmlStart = xml.IndexOf("<Label");
-               if (xmlStart > 0) {
-                  xml = xml.Substring(xmlStart);
-                  txtIndentedView.Text = xml;
-
-                  tvXML.Nodes.Clear();
-                  tvXML.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
-                  TreeNode tNode = new TreeNode();
-                  tNode = tvXML.Nodes[0];
-
-                  AddNode(xmlDoc.DocumentElement, tNode);
-                  tvXML.ExpandAll();
-
-               }
-            }
-         } catch {
-
-         }
+         LoadXmlToDisplay(retrieve.Retrieve());
+         SetButtonEnables();
       }
 
       // Exit the program
@@ -135,9 +111,94 @@ namespace ModBus161 {
          this.Close();
       }
 
+      // Browse for a new message folder
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog()
+         { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtMessageFolder.Text = dlg.SelectedPath;
+         }
+         SetButtonEnables();
+      }
+
+      // Save indented view as am HML file
+      private void cmdSaveAs_Click(object sender, EventArgs e) {
+         string fileName = "XMLIndented.HML";
+         string fileText = txtIndentedView.Text;
+         using (SaveFileDialog sfd = new SaveFileDialog()) {
+            sfd.DefaultExt = "hml";
+            sfd.Filter = "HML|*.hml";
+            sfd.Title = "Save Printer Image to HML file";
+            sfd.CheckFileExists = false;
+            sfd.CheckPathExists = true;
+            sfd.InitialDirectory = txtMessageFolder.Text;
+            sfd.FileName = fileName;
+            if (sfd.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty(sfd.FileName)) {
+               fileName = Path.Combine(txtMessageFolder.Text, sfd.FileName);
+               File.WriteAllText(fileName, fileText);
+            }
+         }
+         SetButtonEnables();
+      }
+
+      // Open an HML file for processing
+      private void cmdOpen_Click(object sender, EventArgs e) {
+         // Clear out any currently loaded file
+         using (OpenFileDialog dlg = new OpenFileDialog()) {
+            dlg.AutoUpgradeEnabled = true;
+            dlg.CheckFileExists = true;
+            dlg.CheckPathExists = true;
+            dlg.Multiselect = false;
+            dlg.ValidateNames = true;
+            dlg.Title = "Select HML formatted file!";
+            dlg.Filter = "HML (*.hml)|*.hml|All (*.*)|*.*";
+            DialogResult dlgResult = DialogResult.Retry;
+            while (dlgResult == DialogResult.Retry) {
+               dlgResult = dlg.ShowDialog();
+               if (dlgResult == DialogResult.OK) {
+                  try {
+                     LoadXmlToDisplay(File.ReadAllText(dlg.FileName));
+                     tclViews.SelectedTab = tabIndented;
+                  } catch (Exception ex) {
+                     MessageBox.Show(this, ex.Message, "Cannot load HML File!");
+                  }
+               }
+            }
+         }
+         SetButtonEnables();
+      }
+
+      // Reformat the main data table after major changes.
+      private void cmdReformat_Click(object sender, EventArgs e) {
+
+         string RFN = @"c:\temp\Reformat.txt";
+         StreamWriter RFS = new StreamWriter(RFN, false, Encoding.UTF8);
+
+         Modbus.M161.ReformatTables(RFS);
+
+         RFS.Flush();
+         RFS.Close();
+         Process.Start("notepad.exe", RFN);
+         SetButtonEnables();
+      }
+
+      // Clear the task log
+      private void cmLogClear_Click(object sender, EventArgs e) {
+         lstMessages.Items.Clear();
+         SetButtonEnables();
+      }
+
+      // View the task log in NotePad
+      private void cmLogToNotepad_Click(object sender, EventArgs e) {
+         string ViewFilename = @"c:\Temp\Err.txt";
+         File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
+         Process.Start("notepad.exe", ViewFilename);
+         SetButtonEnables();
+      }
+
       #endregion
 
-     #region Service Routines
+      #region Service Routines
 
       // Convert an XML Document into an indented text string
       private string ToIndentedString(string unformattedXml) {
@@ -193,37 +254,83 @@ namespace ModBus161 {
          return result;
       }
 
+      // Enter a message into the log file display
       public void Log(string msg) {
          lstMessages.Items.Add(msg);
          lstMessages.SelectedIndex = lstMessages.Items.Count - 1;
          lstMessages.Update();
       }
 
+      // Avoid extra tests by enabling only the buttons that can be used
+      private void SetButtonEnables() {
+         int addr;
+         int len;
+         bool isConnected = modbus == null ? false : modbus.IsConnected;
+         bool comIsOn = isConnected && modbus.ComIsOn;
+         cmdConnect.Enabled = !isConnected;
+         cmdDisconnect.Enabled = isConnected;
+         cmdComOff.Enabled = comIsOn;
+         cmdComOn.Enabled = isConnected && !comIsOn;
+
+         cmdReadData.Enabled = comIsOn
+            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
+            && int.TryParse(txtDataLength.Text, out len);
+         cmdWriteData.Enabled = comIsOn
+            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
+            && int.TryParse(txtDataLength.Text, out len)
+            && txtData.Text.Length > 0;
+
+         cmdRetrieve.Enabled = comIsOn;
+         cmdSaveAs.Enabled = txtIndentedView.Text.Length > 0;
+         cmdOpen.Enabled = true; // For now
+         cmdSend.Enabled = txtIndentedView.Text.Length > 0;
+      }
+
+      // Load an XML file into the displays
+      private void LoadXmlToDisplay(string xml) {
+         try {
+            // Can be called with a Filename or XML text
+            int xmlStart = xml.IndexOf("<Label");
+            if (xmlStart == -1) {
+               xml = File.ReadAllText(xml);
+               xmlStart = xml.IndexOf("<Label");
+            }
+            // No label found, exit
+            if (xmlStart == -1) {
+               return;
+            }
+            int xmlEnd = xml.IndexOf("</Label>", xmlStart + 7);
+            if (xmlEnd > 0) {
+               xml = xml.Substring(xmlStart, xmlEnd - xmlStart + 8);
+               XmlDocument xmlDoc = new XmlDocument() { PreserveWhitespace = true };
+               xmlDoc.LoadXml(xml);
+               xml = ToIndentedString(xml);
+               xmlStart = xml.IndexOf("<Label");
+               if (xmlStart > 0) {
+                  xml = xml.Substring(xmlStart);
+                  txtIndentedView.Text = xml;
+
+                  tvXML.Nodes.Clear();
+                  tvXML.Nodes.Add(new TreeNode(xmlDoc.DocumentElement.Name));
+                  TreeNode tNode = new TreeNode();
+                  tNode = tvXML.Nodes[0];
+
+                  AddNode(xmlDoc.DocumentElement, tNode);
+                  tvXML.ExpandAll();
+
+               }
+            }
+         } catch {
+
+         }
+      }
+
       #endregion
 
-      // Clear the task log
-      private void cmLogClear_Click(object sender, EventArgs e) {
-         lstMessages.Items.Clear();
+      private void cmdSend_Click(object sender, EventArgs e) {
+
       }
 
-      // View the task log in NotePad
-      private void cmLogToNotepad_Click(object sender, EventArgs e) {
-         string ViewFilename = @"c:\Temp\Err.txt";
-         File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
-         Process.Start("notepad.exe", ViewFilename);
-      }
-
-      private void cmdReformat_Click(object sender, EventArgs e) {
-
-         string RFN = @"c:\temp\Reformat.txt";
-         StreamWriter RFS = new StreamWriter(RFN, false, Encoding.UTF8);
-
-         Modbus.M161.ReformatTables(RFS);
-
-         RFS.Flush();
-         RFS.Close();
-         Process.Start("notepad.exe", RFN);
-      }
    }
 
 }
