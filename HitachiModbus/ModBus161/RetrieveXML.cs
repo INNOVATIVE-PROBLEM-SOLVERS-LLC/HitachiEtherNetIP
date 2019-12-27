@@ -81,7 +81,7 @@ namespace ModBus161 {
          this.parent = parent;
          p = printer;
          prop = new Prop(2, DataFormats.Decimal, long.MinValue, long.MaxValue, fmtDD.None);
-         attr = new AttrData(0, GSS.Get, false, 0, prop);
+         attr = new AttrData(0, true, 1, 0, prop);
       }
 
       public string Retrieve() {
@@ -330,20 +330,135 @@ namespace ModBus161 {
 
       #endregion
 
+      #region Retrieve printer settings
+
       // Retrieve printer settings
       private Printer RetrievePrinterSettings() {
-         Printer p = new Printer();
+         Printer ptr = new Printer() {
+            Make = "Hitachi",
+            Model = p.GetHRAttribute(ccUI.Model_Name),
+            PrintHead = new PrintHead() {
+               Orientation = p.GetHRAttribute(ccPS.Character_Orientation)
+            },
+            ContinuousPrinting = new ContinuousPrinting() {
+               RepeatInterval = p.GetHRAttribute(ccPS.Repeat_Interval),
+               PrintsPerTrigger = p.GetHRAttribute(ccPS.Repeat_Count)
+            },
+            TargetSensor = new TargetSensor() {
+               Filter = p.GetHRAttribute(ccPS.Target_Sensor_Filter),
+               SetupValue = p.GetHRAttribute(ccPS.Target_Sensor_Filter_Value),
+               Timer = p.GetHRAttribute(ccPS.Target_Sensor_Timer)
+            },
+            CharacterSize = new CharacterSize() {
+               Width = p.GetHRAttribute(ccPS.Character_Width),
+               Height = p.GetHRAttribute(ccPS.Character_Height)
+            },
+            PrintStartDelay = new PrintStartDelay() {
+               Forward = p.GetHRAttribute(ccPS.Print_Start_Delay_Forward),
+               Reverse = p.GetHRAttribute(ccPS.Print_Start_Delay_Reverse)
+            },
+            EncoderSettings = new EncoderSettings() {
+               HighSpeedPrinting = p.GetHRAttribute(ccPS.High_Speed_Print),
+               Divisor = p.GetHRAttribute(ccPS.Pulse_Rate_Division_Factor),
+               ExternalEncoder = p.GetHRAttribute(ccPS.Product_Speed_Matching)
+            },
+            InkStream = new InkStream() {
+               InkDropUse = p.GetHRAttribute(ccPS.Ink_Drop_Use),
+               ChargeRule = p.GetHRAttribute(ccPS.Ink_Drop_Charge_Rule)
+            },
+            Logos = RetrieveLogos(),
+         };
 
-         return p;
+
+         return ptr;
+      }
+
+      private Logos RetrieveLogos() {
+         return null;
       }
 
       // Retrieve Substitution rules
-      private Substitution RetrieveSubstitutions(Msg message) {
-         Substitution s = new Substitution();
+      private Substitution RetrieveSubstitutions(Msg m) {
+         bool needYear = false;
+         bool needMonth = false;
+         bool needDay = false;
+         bool needHour = false;
+         bool needMinute = false;
+         bool needWeek = false;
+         bool needDayOfWeek = false;
+         string ruleNumber = "01";
+         for (int c = 0; c < m.Column.Length; c++) {
+            Column col = m.Column[c];
+            for (int r = 0; r < col.Item.Length; r++) {
+               Item item = col.Item[r];
+               if (item.Date != null) {
+                  for (int i = 0; i < item.Date.Length; i++) {
+                     ruleNumber = item.Date[i].SubstitutionRule;
+                     Substitute sub = item.Date[i].Substitute;
+                     if (sub != null) {
+                        needYear |= sub.Year != null;
+                        needMonth |= sub.Month != null;
+                        needDay |= sub.Day != null;
+                        needHour |= sub.Hour != null;
+                        needMinute |= sub.Minute != null;
+                        needDayOfWeek |= sub.DayOfWeek != null;
+                        needWeek |= sub.Week != null;
+                     }
+                  }
+               }
+            }
+         }
+         // Need to load the rule (just use 1 for now)
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Substitution_Rule, 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         return s;
+         List<SubstitutionRule> sr = new List<SubstitutionRule>();
+         if (needYear)
+            RetrieveSubstitution(sr, ccSR.Year);
+         if (needMonth)
+            RetrieveSubstitution(sr, ccSR.Month);
+         if (needDay)
+            RetrieveSubstitution(sr, ccSR.Day);
+         if (needHour)
+            RetrieveSubstitution(sr, ccSR.Hour);
+         if (needMinute)
+            RetrieveSubstitution(sr, ccSR.Minute);
+         if (needWeek)
+            RetrieveSubstitution(sr, ccSR.Week);
+         if (needDayOfWeek)
+            RetrieveSubstitution(sr, ccSR.DayOfWeek);
+         Substitution substitution = new Substitution() {
+            Delimiter = "/",
+            StartYear = p.GetHRAttribute(ccSR.Start_Year),
+            RuleNumber = "1",
+            SubRule = sr.ToArray()
+         };
+         return substitution;
       }
 
+      // Retrieve one substitution type
+      private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR rule) {
+         AttrData attr = p.GetAttrData(rule);
+         int n = (int)(attr.Data.Max - attr.Data.Min + 1);
+         string[] subCode = new string[n];
+         for (int i = 0; i < n; i++) {
+            subCode[i] = p.GetHRAttribute(rule, i);
+         }
+         for (int i = 0; i < n; i += 10) {
+            sr.Add(new SubstitutionRule() {
+               Type = rule.ToString().Replace("_", ""),
+               Base = (i + attr.Data.Min).ToString(),
+               Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
+            });
+         }
+      }
+
+      #endregion
+
+      #region Service Routines
+
+      // Check if string value is first entry in dropdown
       private bool IsDefaultValue(fmtDD fmt, string s) {
          if (string.IsNullOrEmpty(s)) {
             return true;
@@ -392,6 +507,8 @@ namespace ModBus161 {
             return ItemType.Text;
          }
       }
+
+      #endregion
 
    }
 }
