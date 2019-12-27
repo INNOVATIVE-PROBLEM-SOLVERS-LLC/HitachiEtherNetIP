@@ -73,13 +73,20 @@ namespace ModBus161 {
       private void cmdReadData_Click(object sender, EventArgs e) {
          if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
             && int.TryParse(txtDataLength.Text, out int len)) {
-            modbus.GetAttribute(addr, len, out byte[] data);
+            modbus.GetAttribute(addr, len, optHoldingRegister.Checked, out byte[] data);
          }
       }
 
       // Send data to the printer
       private void cmdWriteData_Click(object sender, EventArgs e) {
-
+         if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
+            && int.TryParse(txtDataLength.Text, out int len)
+            && txtData.Text.Length > 0) {
+            byte[] data = modbus.string_to_byte(txtData.Text);
+            modbus.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            modbus.SetAttribute(addr, data);
+            modbus.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
       }
 
       // Retrieve message from printer and convert to XML

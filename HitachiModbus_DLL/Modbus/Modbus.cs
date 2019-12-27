@@ -41,6 +41,7 @@ namespace Modbus_DLL {
 
       #region Constructors and Destructors
 
+      // Create object and build dictionary of attributes
       public Modbus() {
          BuildAttributeDictionary();
       }
@@ -53,6 +54,7 @@ namespace Modbus_DLL {
 
       #region Methods
 
+      // Connect to printer and turn COM on
       public bool Connect(string ipAddress, string ipPort) {
          bool success = false;
          if (int.TryParse(ipPort, out int port)) {
@@ -128,6 +130,7 @@ namespace Modbus_DLL {
 
       #region Modbus Buffer Builders
 
+      // Build a Modbus write packet with room for data
       private byte[] BuildModbusWrite(FunctionCode fc, int loc, int dataBytes) {
          int n = dataBytes + (dataBytes & 1);          // Make even number of bytes
          byte[] r = new byte[6 + 7 + n];             // Allocate the buffer
@@ -147,6 +150,7 @@ namespace Modbus_DLL {
          return r;
       }
 
+      // Build a Modbus write packet and include the data
       private byte[] BuildModbusWrite(FunctionCode fc, int loc, byte[] data) {
          byte[] r = BuildModbusWrite(fc, loc, data.Length); // Get a buffer without data
          int n = r.Length - data.Length;                    // Calculate location where data will be placed
@@ -156,6 +160,7 @@ namespace Modbus_DLL {
          return r;
       }
 
+      // Build a Modbus read packet
       private byte[] BuildModbusRead(FunctionCode fc, int loc, int dataBytes) {
          byte[] r = new byte[12];
          r[4] = 0;                                   // Packet length high byte
@@ -178,7 +183,7 @@ namespace Modbus_DLL {
          bool success = false;
          byte[] data = null;
          int len = 10;
-         byte[] request = BuildModbusRead(FunctionCode.ReadHolding, attr.Val, attr.Data.Len);
+         byte[] request = BuildModbusRead(attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, attr.Val, attr.Data.Len);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -196,11 +201,11 @@ namespace Modbus_DLL {
       }
 
       // Get the contents of one attribute
-      public bool GetAttribute(int addr, int Len, out byte[] result) {
+      public bool GetAttribute(int addr, int Len, bool HoldingReg, out byte[] result) {
          bool success = false;
          byte[] data = null;
          int len = 10;
-         byte[] request = BuildModbusRead(FunctionCode.ReadHolding, addr, Len);
+         byte[] request = BuildModbusRead(HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, addr, Len);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -370,16 +375,21 @@ namespace Modbus_DLL {
 
       #region Set Attribute Routines
 
-      // Write one attribute
-      public bool SetAttribute(AttrData attr, byte[] DataOut) {
+      // Write to a specific address
+      public bool SetAttribute(int addr, byte[] DataOut) {
          bool Successful = false;
-         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, attr.Val, DataOut);
+         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, addr, DataOut);
          if (Write(request)) {
             if (Read(out byte[] data, out int bytesRead)) {
                Successful = true;
             }
          }
          return Successful;
+      }
+
+      // Write one attribute
+      public bool SetAttribute(AttrData attr, byte[] DataOut) {
+         return SetAttribute(attr.Val, DataOut);
       }
 
       // Set one attribute based on the Set Property
@@ -483,19 +493,22 @@ namespace Modbus_DLL {
          return result;
       }
 
+      // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
          string s = byte_to_string(input, len);
          Log?.Invoke(this, $"{len} data bytes arrived");
          Log?.Invoke(this, s);
       }
 
+      // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
          string s = byte_to_string(output, len);
          Log?.Invoke(this, $"{len} data bytes sent");
          Log?.Invoke(this, s);
       }
 
-      private byte[] string_to_byte(string sIn) {
+      // Convert UTF8 string to byte array
+      public byte[] string_to_byte(string sIn) {
          string[] s = sIn.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
          byte[] b = new byte[s.Length];
          for (int i = 0; i < s.Length; i++) {
@@ -506,6 +519,7 @@ namespace Modbus_DLL {
          return b;
       }
 
+      // Convert byte array to UTF8 string
       private string byte_to_string(byte[] b, int len = -1) {
          string s = "";
          if (len == -1) {
@@ -533,7 +547,7 @@ namespace Modbus_DLL {
             if (text[i] == 0) {
                result += (char)text[i + 3];
             } else if (text[i] == 0xF1) {
-
+               result += $"{{X/{text[i + 1] - 0x40}}}";
             } else if (text[i] == 0xF2) {
                switch (text[i + 1]) {
                   case 0x50:
