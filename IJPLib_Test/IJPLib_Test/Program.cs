@@ -102,6 +102,7 @@ namespace IJPLib_Test {
       }
 
       internal static void IJPTest_FormClosing(object sender, FormClosingEventArgs e) {
+         ThisProgram.FormClosing -= IJPTest_FormClosing;
          p.IPAddress = ThisProgram.ipAddressTextBox.Text;
          p.MessageFolder = ThisProgram.txtMessageFolder.Text;
          p.LogFolder = ThisProgram.txtLogFolder.Text;

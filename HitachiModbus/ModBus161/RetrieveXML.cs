@@ -138,26 +138,26 @@ namespace ModBus161 {
          }
 
          // Fill in the items
-         m.Column = new Column[cols.Count];           // Allocate the columns    
+         m.Column = new Column[cols.Count];                               // Allocate the columns array  
          n = 0;
          int totalCharacters = 0;
          for (int col = 0; col < m.Column.Length; col++) {
-            m.Column[col] = new Column();
+            m.Column[col] = new Column();                                 // Allocate the column
             m.Column[col].InterLineSpacing = spacing[col];
-            m.Column[col].Item = new Item[cols[col]];
+            m.Column[col].Item = new Item[cols[col]];                     // Allocate the items array
             for (int row = 0; row < m.Column[col].Item.Length; row++) {
-               Item item = new Item();
+               Item item = new Item();                                    // Allocate the item
                attr.Val = 0x0020 + n;
                int characterCount = p.GetDecAttribute(attr);
                item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount * 4);
-               item.Font = new FontDef();
+               item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.IncreasedWidth = p.GetHRAttribute(ccPF.Character_Bold, n);
                int bcType = p.GetDecAttribute(ccPF.Barcode_Type, n);
                if (bcType > 0) {
-                  item.BarCode = new BarCode();
+                  item.BarCode = new BarCode();                           // Build barcode only if needed
                   item.BarCode.DotMatrix = p.GetHRAttribute(ccPF.Barcode_Type, n);
                   item.BarCode.HumanReadableFont = p.GetHRAttribute(ccPF.Readable_Code, n);
                   item.BarCode.EANPrefix = p.GetHRAttribute(ccPF.EAN_Prefix, n);
