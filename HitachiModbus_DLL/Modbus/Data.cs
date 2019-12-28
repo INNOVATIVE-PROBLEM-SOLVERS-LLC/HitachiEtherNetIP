@@ -587,17 +587,17 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.Start_Year, true, 1, 0,                         // Start Year 0x1AC1
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccSR.Year, true, 25, 2,                              // Year 0x1AC2
-            new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+            new Prop(2, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
          new AttrData((int)ccSR.Month, true, 12, 3,                             // Month 0x1AF4
-            new Prop(6, DataFormats.UTF8, 1, 12, fmtDD.None)),                  //   Data
+            new Prop(3, DataFormats.UTF8, 1, 12, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Day, true, 31, 3,                               // Day 0x1B18
-            new Prop(6, DataFormats.UTF8, 1, 31, fmtDD.None)),                  //   Data
+            new Prop(3, DataFormats.UTF8, 1, 31, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Hour, true, 24, 2,                              // Hour 0x1B75
-            new Prop(4, DataFormats.UTF8, 0, 23, fmtDD.None)),                  //   Data
+            new Prop(2, DataFormats.UTF8, 0, 23, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Minute, true, 60, 2,                            // Minute 0x1BA5
-            new Prop(4, DataFormats.UTF8, 0, 59, fmtDD.None)),                  //   Data
+            new Prop(2, DataFormats.UTF8, 0, 59, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Week, true, 53, 3,                              // Week 0x1C1D
-            new Prop(6, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
+            new Prop(3, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
             new Prop(6, DataFormats.UTF8, 0, 6, fmtDD.None)),                   //   Data
       };
