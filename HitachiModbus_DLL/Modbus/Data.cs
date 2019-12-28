@@ -506,9 +506,9 @@ namespace Modbus_DLL {
       private AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((int)ccCal.Shift_Code_Condition, true, 8, 32,             // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCal.First_Calendar_Block, true, 8, 32,             // First Calendar Block 0x1048
+         new AttrData((int)ccCal.First_Calendar_Block, true, 8, 24,             // First Calendar Block 0x1048
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccCal.Number_of_Calendar_Blocks, true, 8, 32,        // Number of Calendar Blocks 0x1049
+         new AttrData((int)ccCal.Number_of_Calendar_Blocks, true, 8, 24,        // Number of Calendar Blocks 0x1049
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccCal.Offset_Year, true, 8, 32,                      // Offset Year 0x19C0
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
@@ -724,9 +724,9 @@ namespace Modbus_DLL {
 
       // Count (Class Code 0x79)
       private AttrData[] ccCount_Addrs = new AttrData[] {
-         new AttrData((int)ccCount.First_Count_Block, true, 8, 148,             // First Count Block 0x104A
+         new AttrData((int)ccCount.First_Count_Block, true, 8, 24,              // First Count Block 0x104A
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccCount.Number_Of_Count_Blocks, true, 8, 148,        // Number Of Count Blocks 0x104B
+         new AttrData((int)ccCount.Number_Of_Count_Blocks, true, 8, 24,         // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccCount.Initial_Value, true, 8, 148,                 // Initial Value 0x1FE0
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
