@@ -7,7 +7,7 @@ using System.IO;
 using Modbus_DLL;
 
 namespace ModBus161 {
-   public class RetrieveXML {
+   public partial class SendRetrieveXML {
 
       #region Data Declarations
 
@@ -77,7 +77,7 @@ namespace ModBus161 {
 
       #region Constructors and destructors
 
-      public RetrieveXML(UI161 parent, Modbus printer) {
+      public SendRetrieveXML(UI161 parent, Modbus printer) {
          this.parent = parent;
          p = printer;
          prop = new Prop(2, DataFormats.Decimal, long.MinValue, long.MaxValue, fmtDD.None);
@@ -149,7 +149,7 @@ namespace ModBus161 {
                Item item = new Item();                                    // Allocate the item
                attr.Val = 0x0020 + n;
                int characterCount = p.GetDecAttribute(attr);
-               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount * 4);
+               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount);
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);

@@ -99,9 +99,16 @@ namespace ModBus161 {
          SetButtonEnables();
       }
 
+      // Send an XML message to the printer
+      private void cmdSend_Click(object sender, EventArgs e) {
+         SendRetrieveXML send = new SendRetrieveXML(this, modbus);
+         send.SendXML(txtIndentedView.Text);
+         SetButtonEnables();
+      }
+
       // Retrieve message from printer and convert to XML
       private void cmdRetrieve_Click(object sender, EventArgs e) {
-         RetrieveXML retrieve = new RetrieveXML(this, modbus);
+         SendRetrieveXML retrieve = new SendRetrieveXML(this, modbus);
          LoadXmlToDisplay(retrieve.Retrieve());
          SetButtonEnables();
       }
@@ -261,31 +268,6 @@ namespace ModBus161 {
          lstMessages.Update();
       }
 
-      // Avoid extra tests by enabling only the buttons that can be used
-      private void SetButtonEnables() {
-         int addr;
-         int len;
-         bool isConnected = modbus == null ? false : modbus.IsConnected;
-         bool comIsOn = isConnected && modbus.ComIsOn;
-         cmdConnect.Enabled = !isConnected;
-         cmdDisconnect.Enabled = isConnected;
-         cmdComOff.Enabled = comIsOn;
-         cmdComOn.Enabled = isConnected && !comIsOn;
-
-         cmdReadData.Enabled = comIsOn
-            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
-            && int.TryParse(txtDataLength.Text, out len);
-         cmdWriteData.Enabled = comIsOn
-            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
-            && int.TryParse(txtDataLength.Text, out len)
-            && txtData.Text.Length > 0;
-
-         cmdRetrieve.Enabled = comIsOn;
-         cmdSaveAs.Enabled = txtIndentedView.Text.Length > 0;
-         cmdOpen.Enabled = true; // For now
-         cmdSend.Enabled = txtIndentedView.Text.Length > 0;
-      }
-
       // Load an XML file into the displays
       private void LoadXmlToDisplay(string xml) {
          try {
@@ -325,11 +307,32 @@ namespace ModBus161 {
          }
       }
 
-      #endregion
+      // Avoid extra tests by enabling only the buttons that can be used
+      private void SetButtonEnables() {
+         int addr;
+         int len;
+         bool isConnected = modbus == null ? false : modbus.IsConnected;
+         bool comIsOn = isConnected && modbus.ComIsOn;
+         cmdConnect.Enabled = !isConnected;
+         cmdDisconnect.Enabled = isConnected;
+         cmdComOff.Enabled = comIsOn;
+         cmdComOn.Enabled = isConnected && !comIsOn;
 
-      private void cmdSend_Click(object sender, EventArgs e) {
+         cmdReadData.Enabled = comIsOn
+            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
+            && int.TryParse(txtDataLength.Text, out len);
+         cmdWriteData.Enabled = comIsOn
+            && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
+            && int.TryParse(txtDataLength.Text, out len)
+            && txtData.Text.Length > 0;
 
+         cmdRetrieve.Enabled = comIsOn;
+         cmdSaveAs.Enabled = txtIndentedView.Text.Length > 0;
+         cmdOpen.Enabled = true; // For now
+         cmdSend.Enabled = comIsOn && txtIndentedView.Text.Length > 0;
       }
+
+      #endregion
 
    }
 

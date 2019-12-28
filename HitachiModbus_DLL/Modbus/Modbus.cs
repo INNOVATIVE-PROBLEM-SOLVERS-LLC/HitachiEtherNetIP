@@ -205,8 +205,53 @@ namespace Modbus_DLL {
       private bool GetAttribute(AttrData attr, out byte[] result) {
          bool success = false;
          byte[] data = null;
-         int len = 10;
-         byte[] request = BuildModbusRead(attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, attr.Val, attr.Data.Len);
+         int len = attr.Data.Len;
+         switch (attr.Data.Fmt) {
+            case DataFormats.None:
+               break;
+            case DataFormats.Decimal:
+               break;
+            case DataFormats.DecimalLE:
+               break;
+            case DataFormats.SDecimal:
+               break;
+            case DataFormats.SDecimalLE:
+               break;
+            case DataFormats.UTF8:
+            case DataFormats.UTF8N:
+               len *= 2;
+               break;
+            case DataFormats.Date:
+               break;
+            case DataFormats.Bytes:
+               break;
+            case DataFormats.XY:
+               break;
+            case DataFormats.N2N2:
+               break;
+            case DataFormats.N2Char:
+               break;
+            case DataFormats.ItemChar:
+               break;
+            case DataFormats.Item:
+               break;
+            case DataFormats.GroupChar:
+               break;
+            case DataFormats.MsgChar:
+               break;
+            case DataFormats.N1Char:
+               break;
+            case DataFormats.N1N1:
+               break;
+            case DataFormats.N1N2N1:
+               break;
+            case DataFormats.AttrText:
+               len *= 4;
+               break;
+            default:
+               break;
+         }
+         byte[] request = BuildModbusRead(attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, attr.Val, len);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -530,15 +575,15 @@ namespace Modbus_DLL {
 
       // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
-         string s = byte_to_string(input, len);
-         Log?.Invoke(this, $"{len} data bytes arrived");
+         string s = $"[{len}] << " + byte_to_string(input, len);
+         //Log?.Invoke(this, $"{len} data bytes arrived");
          Log?.Invoke(this, s);
       }
 
       // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
-         string s = byte_to_string(output, len);
-         Log?.Invoke(this, $"{len} data bytes sent");
+         string s = $"[{len}] >> " + byte_to_string(output, len);
+         //Log?.Invoke(this, $"{len} data bytes sent");
          Log?.Invoke(this, s);
       }
 
@@ -572,7 +617,7 @@ namespace Modbus_DLL {
          for (int i = 0; i < b.Length; i += 2) {
             result += (char)b[i + 1];
          }
-         return result;
+         return result.Replace("\x00", "");
       }
 
       // Text is 4 bytes per character
@@ -708,7 +753,7 @@ namespace Modbus_DLL {
                result += "*";
             }
          }
-         return result.Replace("}{", "");
+         return result.Replace("}{", "").Replace("\x00", "");
       }
 
       // Format Output
