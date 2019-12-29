@@ -21,9 +21,18 @@ namespace ModBus161 {
 
       Encoding encode = Encoding.GetEncoding("ISO-8859-1");
 
-      Modbus modbus;
+      Modbus p;
 
-      Properties.Settings ps;
+      // Used to manage dropdowns
+      string[] ccNames;
+      string[] ccNamesSorted;
+      int[] ccValues;
+
+      string[] attrNames;
+      string[] attrNamesSorted;
+      int[] attValues;
+
+      AttrData attr;
 
       #endregion
 
@@ -31,13 +40,17 @@ namespace ModBus161 {
 
       public UI161() {
          InitializeComponent();
-         modbus = new Modbus();
-         modbus.Log += Modbus_Log;
+         p = new Modbus();
+         p.Log += Modbus_Log;
+         ccNames = Enum.GetNames(typeof(ClassCode));
+         ccNamesSorted = Enum.GetNames(typeof(ClassCode));
+         Array.Sort(ccNamesSorted);
+         ccValues = (int[])Enum.GetValues(typeof(ClassCode));
+         cbClass.Items.AddRange(ccNamesSorted);
          SetButtonEnables();
       }
 
-      private void Modbus_Log(Modbus sender, string msg) {
-         Log(msg);
+      private void LoadDropDowns() {
       }
 
       enum FunctionCode {
@@ -53,7 +66,7 @@ namespace ModBus161 {
 
       // Connect to printer and turn COM on
       private void cmdConnect_Click(object sender, EventArgs e) {
-         if (modbus.Connect(txtIPAddress.Text, txtIPPort.Text)) {
+         if (p.Connect(txtIPAddress.Text, txtIPPort.Text)) {
 
          }
          SetButtonEnables();
@@ -61,19 +74,19 @@ namespace ModBus161 {
 
       // Disconnect from the printer
       private void cmdDisconnect_Click(object sender, EventArgs e) {
-         modbus.Disconnect();
+         p.Disconnect();
          SetButtonEnables();
       }
 
       // Turn com on
       private void cmdComOn_Click(object sender, EventArgs e) {
-         modbus.SetAttribute(ccIJP.Online_Offline, 1);
+         p.SetAttribute(ccIJP.Online_Offline, 1);
          SetButtonEnables();
       }
 
       // Turn com off
       private void cmdComOff_Click(object sender, EventArgs e) {
-         modbus.SetAttribute(ccIJP.Online_Offline, 0);
+         p.SetAttribute(ccIJP.Online_Offline, 0);
          SetButtonEnables();
       }
 
@@ -81,7 +94,8 @@ namespace ModBus161 {
       private void cmdReadData_Click(object sender, EventArgs e) {
          if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
             && int.TryParse(txtDataLength.Text, out int len)) {
-            modbus.GetAttribute(addr, len, optHoldingRegister.Checked, out byte[] data);
+            p.GetAttribute(addr, len, optHoldingRegister.Checked, out byte[] data);
+            txtData.Text = p.byte_to_string(data);
          }
          SetButtonEnables();
       }
@@ -91,24 +105,24 @@ namespace ModBus161 {
          if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
             && int.TryParse(txtDataLength.Text, out int len)
             && txtData.Text.Length > 0) {
-            byte[] data = modbus.string_to_byte(txtData.Text);
-            modbus.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            modbus.SetAttribute(addr, data);
-            modbus.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            byte[] data = p.string_to_byte(txtData.Text);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(addr, data);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          SetButtonEnables();
       }
 
       // Send an XML message to the printer
       private void cmdSend_Click(object sender, EventArgs e) {
-         SendRetrieveXML send = new SendRetrieveXML(this, modbus);
+         SendRetrieveXML send = new SendRetrieveXML(this, p);
          send.SendXML(txtIndentedView.Text);
          SetButtonEnables();
       }
 
       // Retrieve message from printer and convert to XML
       private void cmdRetrieve_Click(object sender, EventArgs e) {
-         SendRetrieveXML retrieve = new SendRetrieveXML(this, modbus);
+         SendRetrieveXML retrieve = new SendRetrieveXML(this, p);
          LoadXmlToDisplay(retrieve.Retrieve());
          SetButtonEnables();
       }
@@ -120,8 +134,7 @@ namespace ModBus161 {
 
       // Browse for a new message folder
       private void cmdBrowse_Click(object sender, EventArgs e) {
-         FolderBrowserDialog dlg = new FolderBrowserDialog()
-         { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
          if (dlg.ShowDialog() == DialogResult.OK) {
             txtMessageFolder.Text = dlg.SelectedPath;
          }
@@ -203,6 +216,47 @@ namespace ModBus161 {
          SetButtonEnables();
       }
 
+      // Class selection changed
+      private void cbClass_SelectedIndexChanged(object sender, EventArgs e) {
+         cbAttribute.Items.Clear();
+         cbInstance.Items.Clear();
+         if (cbClass.SelectedIndex >= 0) {
+            int n = Array.FindIndex(ccNames, x => x == cbClass.Text);
+            Type cc = p.ClassCodeAttributes[n];
+            attrNames = Enum.GetNames(p.ClassCodeAttributes[n]);
+            attrNamesSorted = Enum.GetNames(p.ClassCodeAttributes[n]);
+            Array.Sort(attrNamesSorted);
+            cbAttribute.Items.AddRange(attrNamesSorted);
+         }
+
+      }
+
+      // Attribute selection changed
+      private void cbAttribute_SelectedIndexChanged(object sender, EventArgs e) {
+         cbInstance.Items.Clear();
+         if (cbAttribute.SelectedIndex >= 0) {
+            int n1 = Array.FindIndex(ccNames, x => x == cbClass.Text);
+            attValues = (int[])Enum.GetValues(p.ClassCodeAttributes[n1]);
+            int n2 = Array.FindIndex(attrNames, x => x == cbAttribute.Text);
+            attr = p.GetAttrData(p.ClassCodes[n1], attValues[n2]);
+            int n = attr.Count;
+            for (int i = 0; i < n; i++) {
+               cbInstance.Items.Add(i);
+            }
+            cbInstance.SelectedIndex = 0;
+         }
+      }
+
+      // Instance selection changed
+      private void cbInstance_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbInstance.SelectedIndex >= 0) {
+            txtDataAddress.Text = (attr.Val + cbInstance.SelectedIndex * attr.Stride).ToString("X4");
+            txtDataLength.Text = attr.Data.Len.ToString();
+            txtData.Text = "";
+         }
+      }
+
+
       #endregion
 
       #region Service Routines
@@ -268,6 +322,11 @@ namespace ModBus161 {
          lstMessages.Update();
       }
 
+      // Log messages generated by modbus
+      private void Modbus_Log(Modbus sender, string msg) {
+         Log(msg);
+      }
+
       // Load an XML file into the displays
       private void LoadXmlToDisplay(string xml) {
          try {
@@ -311,8 +370,8 @@ namespace ModBus161 {
       private void SetButtonEnables() {
          int addr;
          int len;
-         bool isConnected = modbus == null ? false : modbus.IsConnected;
-         bool comIsOn = isConnected && modbus.ComIsOn;
+         bool isConnected = p == null ? false : p.IsConnected;
+         bool comIsOn = isConnected && p.ComIsOn;
          cmdConnect.Enabled = !isConnected;
          cmdDisconnect.Enabled = isConnected;
          cmdComOff.Enabled = comIsOn;
@@ -330,9 +389,53 @@ namespace ModBus161 {
          cmdSaveAs.Enabled = txtIndentedView.Text.Length > 0;
          cmdOpen.Enabled = true; // For now
          cmdSend.Enabled = comIsOn && txtIndentedView.Text.Length > 0;
+
+         cmdExperiment.Enabled = comIsOn;
       }
 
       #endregion
+
+      // Just playing around to see how things work
+      private void cmdExperiment_Click(object sender, EventArgs e) {
+         int lineCount;
+         int n = 0;
+         string text = "Hello World";
+         List<int> cols = new List<int>();            // Holds the number of rows in each column
+         List<string> spacing = new List<string>();   // Holds the line spacing
+         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
+         while (n < itemCount) {
+            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
+            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
+            n += lineCount;
+         }
+
+         for (int i = 0; i < cols.Count - 1; i++) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPF.Delete_Column, cols.Count - i);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Column, 1);
+         p.SetAttribute(ccIDX.Line, 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccPF.Dot_Matrix, "5X7");
+         //p.SetAttribute(ccIDX.Characters_per_Item, 0, text.Length);
+         //p.SetAttribute(ccPF.Print_Character_String, 0, text);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPF.Line_Count, 0, 3);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         //p.SetAttribute(ccIDX.Characters_per_Item, 0, text.Length);
+         //p.SetAttribute(ccPF.Print_Character_String, 0, text);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+
+      }
 
    }
 

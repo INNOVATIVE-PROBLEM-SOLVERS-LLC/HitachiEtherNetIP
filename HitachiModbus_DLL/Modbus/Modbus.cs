@@ -34,7 +34,7 @@ namespace Modbus_DLL {
 
       bool comIsOn = false;
 
-      Encoding encode = Encoding.GetEncoding("ISO-8859-1");
+      Encoding Encode = Encoding.GetEncoding("ISO-8859-1");
 
       // Data Tables describing Hitachi Model 161
       static public Data M161 = new Data();
@@ -76,12 +76,10 @@ namespace Modbus_DLL {
             client = new TcpClient(ipAddress, ipPort);
             stream = client.GetStream();
             Log?.Invoke(this, "Connection Accepted");
-            byte[] b = GetAttribute(ccIJP.Online_Offline);
-            Log?.Invoke(this, $"Com status is {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
+            int n = GetDecAttribute(ccIJP.Online_Offline);
             if (!comIsOn) {
                SetAttribute(ccIJP.Online_Offline, 1);
-               b = GetAttribute(ccIJP.Online_Offline);
-               Log?.Invoke(this, $"Com status is now {GetHumanReadableValue(ccIJP.Online_Offline, b)}");
+               n = GetDecAttribute(ccIJP.Online_Offline);
                success = true;
             }
          }
@@ -211,11 +209,7 @@ namespace Modbus_DLL {
                break;
             case DataFormats.Decimal:
                break;
-            case DataFormats.DecimalLE:
-               break;
             case DataFormats.SDecimal:
-               break;
-            case DataFormats.SDecimalLE:
                break;
             case DataFormats.UTF8:
             case DataFormats.UTF8N:
@@ -343,7 +337,7 @@ namespace Modbus_DLL {
       public int GetDecAttribute<T>(T Attribute) where T : Enum {
          int result = GetDecValue(GetAttribute(Attribute));
          AttrData attr = GetAttrData(Attribute);
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, result)}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -353,7 +347,7 @@ namespace Modbus_DLL {
          int result = GetDecValue(GetAttribute(Attribute, n));
          AttrData attr = GetAttrData(Attribute);
          Debug.Assert(n < attr.Count);
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -361,7 +355,7 @@ namespace Modbus_DLL {
       // Get the decimal value of the attribute
       public int GetDecAttribute(AttrData attr) {
          int result = GetDecValue(GetAttribute(attr));
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {result}");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, result)}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -372,7 +366,7 @@ namespace Modbus_DLL {
          Debug.Assert(n < attr.Count);
          ad.Val += n * attr.Stride;
          int result = GetDecValue(GetAttribute(ad));
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -394,7 +388,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -417,7 +411,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -439,7 +433,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Addr[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
+         Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
          Log?.Invoke(this, " ");
          return result;
       }
@@ -460,25 +454,64 @@ namespace Modbus_DLL {
          return Successful;
       }
 
-      // Write one attribute
-      public bool SetAttribute(AttrData attr, byte[] DataOut) {
-         return SetAttribute(attr.Val, DataOut);
-      }
-
-      // Set one attribute based on the Set Property
+      // Set one attribute based on the Data Property
       public bool SetAttribute<T>(T Attribute, int val) where T : Enum {
+         bool success = false;
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
          data = FormatOutput(attr.Data, val);
-         if (SetAttribute(attr, data)) {
+         if (SetAttribute(attr.Val, data)) {
             if (attr.Class == ClassCode.IJP_operation && attr.Val == (int)ccIJP.Online_Offline) {
                comIsOn = val > 0;
             }
-            return true;
-         } else {
-            return false;
+            success = true;
          }
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, val)}");
+         Log?.Invoke(this, " ");
+         return success;
       }
+
+      // Set one attribute based on the Data Property
+      public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
+         bool success = true;
+         AttrData attr = GetAttrData(Attribute);
+         if (!string.IsNullOrEmpty(s)) {
+            //AutomaticReflect(AccessCode.Set);
+            byte[] data = FormatOutput(attr.Data, s);
+            success = SetAttribute(attr.Val, data);
+         }
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"");
+         Log?.Invoke(this, " ");
+         return success;
+      }
+
+      // Set one indexed attribute based on the Data Property
+      public bool SetAttribute<T>(T Attribute, int n, string s) where T : Enum {
+         bool success = true;
+         AttrData attr = GetAttrData(Attribute);
+         if (!string.IsNullOrEmpty(s)) {
+            //AutomaticReflect(AccessCode.Set);
+            byte[] data = FormatOutput(attr.Data, s);
+            success = SetAttribute(attr.Val + attr.Stride * n, data);
+         }
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"");
+         Log?.Invoke(this, " ");
+         return success;
+      }
+
+      // Set one indexed attribute based on the Data Property
+      public bool SetAttribute<T>(T Attribute, int n, int val) where T : Enum {
+         bool success = true;
+         AttrData attr = GetAttrData(Attribute);
+         //AutomaticReflect(AccessCode.Set);
+         byte[] data = FormatOutput(attr.Data, val);
+         success = SetAttribute(attr.Val + attr.Stride * n, data);
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {val}");
+         Log?.Invoke(this, " ");
+         return success;
+      }
+
+
 
       #endregion
 
@@ -522,7 +555,7 @@ namespace Modbus_DLL {
       }
 
       // Get attribute data for an arbitrary class/attribute
-      AttrData GetAttrData(ClassCode Class, int attr) {
+      public AttrData GetAttrData(ClassCode Class, int attr) {
          AttrData[] tab = M161.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
          AttrData result = Array.Find(tab, at => at.Val == attr);
          result.Class = Class;
@@ -540,7 +573,7 @@ namespace Modbus_DLL {
             Type at = ClassCodeAttributes[i];
             result = Enum.GetName(at, v);
          } else {
-            result = " "; //  $"Addr[{v.ToString("X4")}]";
+            result = " "; //  $"Get[{v.ToString("X4")}]";
          }
          return result;
       }
@@ -559,10 +592,8 @@ namespace Modbus_DLL {
       }
 
       // Convert the decimal value to human readable
-      public string GetHumanReadableValue<T>(T Attribute, byte[] b) where T : Enum {
-         long n = GetDecValue(b);
+      public string GetHRValue(AttrData attr, int n) {
          string result = n.ToString();
-         AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
             string[] dd = GetDropDownNames((int)attr.Data.DropDown);
             n = n - attr.Data.Min;
@@ -571,6 +602,11 @@ namespace Modbus_DLL {
             }
          }
          return result;
+      }
+
+      // Convert the decimal value to human readable
+      public string GetHRValue<T>(T Attribute, int n) where T : Enum {
+         return GetHRValue(GetAttrData(Attribute), n);
       }
 
       // Display the input byte array as hex
@@ -600,7 +636,7 @@ namespace Modbus_DLL {
       }
 
       // Convert byte array to UTF8 string
-      private string byte_to_string(byte[] b, int len = -1) {
+      public string byte_to_string(byte[] b, int len = -1) {
          string s = "";
          if (len == -1) {
             len = b.Length;
@@ -787,6 +823,167 @@ namespace Modbus_DLL {
             return Data.DropDownsIJPLib[n];
          } else {
             return Data.DropDowns[n];
+         }
+      }
+
+      // Format output
+      public byte[] FormatOutput(Prop prop, string s) {
+         if (prop.Len == 0) {
+            return new byte[0];
+         }
+         int val;
+         byte[] result = null;
+         string[] sa;
+         switch (prop.Fmt) {
+            case DataFormats.Decimal:
+            case DataFormats.SDecimal:
+               if (int.TryParse(s, out val)) {
+                  result = ToBytes(val, prop.Len);
+               } else if (bool.TryParse(s, out bool b)) {
+                  val = b ? 1 : 0;
+                  result = ToBytes(val, prop.Len);
+               } else {
+                  // Translate dropdown back to a number
+                  if (prop.DropDown != fmtDD.None) {
+                     s = s.ToLower();
+                     val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     if (val < 0) {
+                        val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
+                     }
+                     if (val >= 0) {
+                        val += (int)prop.Min;
+                        result = ToBytes(val, prop.Len);
+                     }
+                  }
+               }
+               break;
+            case DataFormats.UTF8:
+            case DataFormats.UTF8N:
+            case DataFormats.AttrText:
+               string s2 = s;
+               int width;
+               if (s2.Length > 1 && s2.StartsWith("\"") && s2.EndsWith("\"")) {
+                  s2 = FromQuoted(s2);
+               }
+               // This is an issue since the data in the printer is not UTF-8
+               if (prop.Fmt == DataFormats.AttrText) {
+                  width = 4;
+               } else {
+                  s2 = s2.PadRight(prop.Len);
+                  width = 2;
+               }
+               byte[] b2 = Encode.GetBytes(s2.PadRight(prop.Len));
+               result = new byte[b2.Length * width];
+               for (int i = 0; i < b2.Length; i++) {
+                  result[(i + 1) * width - 1] = b2[i];
+               }
+               break;
+            case DataFormats.Date:
+               if (DateTime.TryParse(s, out DateTime d)) {
+                  byte[] year = ToBytes(d.Year, 2, mem.LittleEndian);
+                  byte[] month = ToBytes(d.Month, 2, mem.LittleEndian);
+                  byte[] day = ToBytes(d.Day, 2, mem.LittleEndian);
+                  byte[] hour = ToBytes(d.Hour, 2, mem.LittleEndian);
+                  byte[] minute = ToBytes(d.Minute, 2, mem.LittleEndian);
+                  byte[] second = ToBytes(d.Second, 2, mem.LittleEndian);
+                  result = Merge(year, month, day, hour, minute, second);
+               }
+               break;
+            case DataFormats.Bytes:
+               sa = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+               result = new byte[prop.Len];
+               for (int i = 0; i < Math.Min(sa.Length, prop.Len); i++) {
+                  if (int.TryParse(sa[i], System.Globalization.NumberStyles.HexNumber, null, out int n)) {
+                     result[i] = (byte)n;
+                  }
+               }
+               break;
+            case DataFormats.XY:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint x) && uint.TryParse(sa[1].Trim(), out uint y)) {
+                     result = Merge(ToBytes(x, 2), ToBytes(y, 1));
+                  }
+               }
+               break;
+            case DataFormats.N1N1:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
+                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 1));
+                  }
+               }
+               break;
+            case DataFormats.N2N2:
+               sa = s.Split(',');
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
+                     result = Merge(ToBytes(n1, 2), ToBytes(n2, 2));
+                  }
+               }
+               break;
+            case DataFormats.N2Char:
+               sa = s.Split(new char[] { ',' }, 2);
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
+                     result = Merge(ToBytes(n, 2), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
+                  }
+               }
+               break;
+            case DataFormats.N1Char:
+               sa = s.Split(new char[] { ',' }, 2);
+               if (sa.Length == 2) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
+                     result = Merge(ToBytes(n, 1), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
+                  }
+               }
+               break;
+            case DataFormats.N1N2N1:
+               sa = s.Split(',');
+               if (sa.Length == 3) {
+                  if (uint.TryParse(sa[0].Trim(), out uint n1) &&
+                     uint.TryParse(sa[1].Trim(), out uint n2) &&
+                     uint.TryParse(sa[2].Trim(), out uint n3)) {
+                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 2), ToBytes(n3, 1));
+                  }
+               }
+               break;
+         }
+         if (result == null) {
+            result = new byte[0];
+         }
+         return result;
+      }
+
+      // Merge parts of a byte array into a single byte array
+      public byte[] Merge(params byte[][] b) {
+         // Calculate the needed length
+         int n = 0;
+         for (int i = 0; i < b.Length; i++) {
+            n += b[i].Length;
+         }
+         byte[] result = new byte[n];
+         // Stuff away the pieces into the result
+         n = 0;
+         for (int i = 0; i < b.Length; i++) {
+            for (int j = 0; j < b[i].Length; j++) {
+               result[n++] = b[i][j];
+            }
+         }
+         return result;
+      }
+
+      // Convert string to quoted string
+      public string ToQuoted(string s) {
+         return $"\"{s.Replace("\"", "\"\"")}\"";
+      }
+
+      // Convert quoted string to string
+      public string FromQuoted(string s) {
+         if (s.Length > 1 && s.StartsWith("\"") && s.EndsWith("\"")) {
+            return s.Substring(1, s.Length - 2).Replace("\"\"", "\"");
+         } else {
+            return s;
          }
       }
 

@@ -49,8 +49,8 @@ namespace Modbus_DLL {
       Number_Of_Items = 0x0008,
       Number_Of_Columns = 0x66,
       Format_Type = 0x67,
-      Insert_Column = 0x69,
-      Delete_Column = 0x6A,
+      Insert_Column = 0x1021,
+      Delete_Column = 0x1022,
       Add_Column = 0x6B,
       Number_Of_Print_Line_And_Print_Format = 0x6C,
       Format_Setup = 0x103F,
@@ -183,7 +183,7 @@ namespace Modbus_DLL {
    public enum ccUI {
       Unit_Information = 0x64,
       Model_Name = 0x0010,
-      Serial_Number = 0x6C,
+      Serial_Number = 0x0020,
       Ink_Name = 0x6D,
       Input_Mode = 0x6E,
       Maximum_Character_Count = 0x6F,
@@ -264,9 +264,9 @@ namespace Modbus_DLL {
       Start_Stop_Management_Flag = 0x0000,
       Automatic_reflection = 0x65,
       Item = 0x66,
-      Column = 0x67,
-      Line = 0x68,
-      Character_position = 0x69,
+      Column = 0x1024,
+      Line = 0x1025,
+      Characters_per_Item = 0x0020,
       Message_Number = 0x6A,
       Group_Number = 0x6B,
       Substitution_Rule = 0x0012,
@@ -327,9 +327,7 @@ namespace Modbus_DLL {
    public enum DataFormats {
       None = -1,      // No formating
       Decimal = 0,    // Unsigned Decimal numbers up to 8 digits (Big Endian)
-      DecimalLE = 1,  // Unsigned Decimal numbers up to 8 digits (Little Endian)
       SDecimal = 2,   // Signed Decimal numbers up to 8 digits (Big Endian)
-      SDecimalLE = 3, // Signed Decimal numbers up to 8 digits (Little Endian)
       UTF8 = 4,       // UTF8 characters followed by a Null character
       UTF8N = 5,      // UTF8 characters without the null character
       Date = 6,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
@@ -423,7 +421,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccPF.InterCharacter_SpaceII, true, 100, 24,          // InterCharacter SpaceII 0x7B
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Print_Character_String, true, 1000, 2,          // Print Character String 0x84
-            new Prop(750, DataFormats.AttrText, 0, 0, fmtDD.None)),             //   Data
+            new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 100, 24,            // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
          new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
@@ -628,8 +626,8 @@ namespace Modbus_DLL {
             new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccUI.Model_Name, false, 1, 0,                        // Model Name 0x6B
             new Prop(16, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccUI.Serial_Number, true, 1, 0,                      // Serial Number 0x6C
-            new Prop(8, DataFormats.DecimalLE, 0, 99999999, fmtDD.None)),       //   Data
+         new AttrData((int)ccUI.Serial_Number, false, 1, 0,                     // Serial Number 0x6C
+            new Prop(4, DataFormats.Decimal, 0, 99999999, fmtDD.None)),         //   Data
          new AttrData((int)ccUI.Ink_Name, true, 1, 0,                           // Ink Name 0x6D
             new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccUI.Input_Mode, true, 1, 0,                         // Input Mode 0x6E
@@ -772,7 +770,7 @@ namespace Modbus_DLL {
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.Line, true, 1, 0,                              // Line 0x68
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
-         new AttrData((int)ccIDX.Character_position, true, 1, 0,                // Character position 0x69
+         new AttrData((int)ccIDX.Characters_per_Item, true, 1000, 1,            // Character per Item 0x0020
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x6A
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
@@ -1040,11 +1038,11 @@ namespace Modbus_DLL {
 
       public int Len { get; set; }
       public DataFormats Fmt { get; set; }
-      public long Min { get; set; }
-      public long Max { get; set; }
+      public int Min { get; set; }
+      public int Max { get; set; }
       public fmtDD DropDown { get; set; }
 
-      public Prop(int Len, DataFormats Fmt, long Min, long Max, fmtDD DropDown = fmtDD.None) {
+      public Prop(int Len, DataFormats Fmt, int Min, int Max, fmtDD DropDown = fmtDD.None) {
          this.Len = Len;
          this.Fmt = Fmt;
          this.Min = Min;
