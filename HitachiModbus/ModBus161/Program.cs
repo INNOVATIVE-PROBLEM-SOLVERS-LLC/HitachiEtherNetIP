@@ -113,6 +113,7 @@ namespace ModBus161 {
          p.HexAddress = ThisProgram.txtDataAddress.Text;
          p.Length = ThisProgram.txtDataLength.Text;
          p.Data = ThisProgram.txtData.Text;
+         p.HoldingReg = ThisProgram.optHoldingRegister.Checked;
          p.Save();
       }
 

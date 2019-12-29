@@ -6,12 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Windows.Forms;
+using Modbus_DLL;
 
 namespace ModBus161 {
 
    public partial class SendRetrieveXML {
 
+      #region Data Declarations
+
       bool UseAutomaticReflection;
+
+      public Encoding Encode = Encoding.UTF8;
+
+      #endregion
 
       #region Methods
 
@@ -63,16 +70,124 @@ namespace ModBus161 {
 
       #region Sent Message to printer
 
-      private void SendMessage(Msg message) {
+      private void SendMessage(Msg m) {
+         // Set to only one item in printer
+         DeleteAllButOne();
 
+         if (m.Column != null) {
+            //AllocateRowsColumns(m);
+         }
+      }
+
+      // Simulate Delete All But One
+      public void DeleteAllButOne() {
+         int lineCount;
+         int n = 0;
+         List<int> cols = new List<int>();            // Holds the number of rows in each column
+         List<string> spacing = new List<string>();   // Holds the line spacing
+         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
+         while (n < itemCount) {
+            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
+            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
+            n += lineCount;
+         }
+
+         for (int i = 0; i < cols.Count - 1; i++) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPF.Delete_Column, cols.Count - i);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Column, 1);
+         p.SetAttribute(ccIDX.Line, 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         p.SetAttribute(ccPF.Dot_Matrix, "5x8");           // Clear any barcodes
+         p.SetAttribute(ccPF.Barcode_Type, "None");
+         p.SetAttribute(ccPF.Print_Character_String, "1"); // Set simple text in case Calendar or Counter was used
       }
 
       #endregion
 
       #region Send Printer Settings to printer
 
-      private void SendPrinterSettings(Printer printer) {
+      private void SendPrinterSettings(Printer ptr) {
+         if (ptr.PrintHead != null) {
+            p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
+         }
+         if (ptr.ContinuousPrinting != null) {
+            p.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
+            p.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
+         }
+         if (ptr.TargetSensor != null) {
+            p.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
+            p.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
+            p.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
+         }
+         if (ptr.CharacterSize != null) {
+            p.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
+            p.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
+         }
+         if (ptr.PrintStartDelay != null) {
+            p.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
+            p.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
+         }
+         if (ptr.EncoderSettings != null) {
+            p.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
+            p.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
+            p.SetAttribute(ccPS.Product_Speed_Matching, ptr.EncoderSettings.ExternalEncoder);
+         }
+         if (ptr.InkStream != null) {
+            p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
+            p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
+         }
+         if (ptr.Logos != null) {
+            foreach (Logo l in ptr.Logos.Logo) {
 
+            }
+         }
+         if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
+            if (int.TryParse(ptr.Substitution.RuleNumber, out int ruleNumber)
+               && int.TryParse(ptr.Substitution.StartYear, out int year)
+               && ptr.Substitution.Delimiter.Length == 1) {
+               // Substitution rules cannot be set with Auto Reflection on
+               bool saveAR = UseAutomaticReflection;
+               UseAutomaticReflection = false;
+
+               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               p.SetAttribute(ccSR.Start_Year, year);
+               SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
+
+               UseAutomaticReflection = saveAR;
+            }
+         }
+      }
+
+      private void SendSubstitution(Substitution s, string delimiter) {
+         for (int i = 0; i < s.SubRule.Length; i++) {
+            SubstitutionRule r = s.SubRule[i];
+            if (Enum.TryParse(r.Type, true, out ccSR type)) {
+               SetSubValues(type, r, delimiter);
+            } else {
+               parent.Log($"Unknown substitution rule type =>{r.Type}<=");
+            }
+         }
+      }
+
+      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
+         if (int.TryParse(r.Base, out int b)) {
+            Prop prop = p.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
+            string[] s = r.Text.Split(delimeter[0]);
+            for (int i = 0; i < s.Length; i++) {
+               int n = b + i;
+               // Avoid user errors
+               if (n >= prop.Min && n <= prop.Max) {
+                  // <TODO>
+                  //byte[] data = FormatOutput(prop, n, 1, s[i]);
+                  //p.SetAttribute((byte)attribute, data);
+               }
+            }
+         }
       }
 
       #endregion

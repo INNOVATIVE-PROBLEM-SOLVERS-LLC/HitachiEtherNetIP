@@ -62,6 +62,13 @@
          this.lblMessageFolder = new System.Windows.Forms.Label();
          this.txtMessageFolder = new System.Windows.Forms.TextBox();
          this.cmdBrowse = new System.Windows.Forms.Button();
+         this.cmdExperiment = new System.Windows.Forms.Button();
+         this.lblInstance = new System.Windows.Forms.Label();
+         this.lblAttribute = new System.Windows.Forms.Label();
+         this.lblClass = new System.Windows.Forms.Label();
+         this.cbClass = new System.Windows.Forms.ComboBox();
+         this.cbAttribute = new System.Windows.Forms.ComboBox();
+         this.cbInstance = new System.Windows.Forms.ComboBox();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabXML.SuspendLayout();
@@ -107,7 +114,7 @@
          // 
          // cmdReadData
          // 
-         this.cmdReadData.Location = new System.Drawing.Point(16, 576);
+         this.cmdReadData.Location = new System.Drawing.Point(653, 578);
          this.cmdReadData.Name = "cmdReadData";
          this.cmdReadData.Size = new System.Drawing.Size(127, 40);
          this.cmdReadData.TabIndex = 8;
@@ -200,7 +207,7 @@
          // 
          // cmdWriteData
          // 
-         this.cmdWriteData.Location = new System.Drawing.Point(16, 631);
+         this.cmdWriteData.Location = new System.Drawing.Point(653, 629);
          this.cmdWriteData.Name = "cmdWriteData";
          this.cmdWriteData.Size = new System.Drawing.Size(127, 40);
          this.cmdWriteData.TabIndex = 18;
@@ -210,7 +217,7 @@
          // 
          // txtDataLength
          // 
-         this.txtDataLength.Location = new System.Drawing.Point(251, 609);
+         this.txtDataLength.Location = new System.Drawing.Point(416, 611);
          this.txtDataLength.Name = "txtDataLength";
          this.txtDataLength.Size = new System.Drawing.Size(81, 22);
          this.txtDataLength.TabIndex = 22;
@@ -219,7 +226,7 @@
          // 
          // txtDataAddress
          // 
-         this.txtDataAddress.Location = new System.Drawing.Point(251, 577);
+         this.txtDataAddress.Location = new System.Drawing.Point(416, 579);
          this.txtDataAddress.Name = "txtDataAddress";
          this.txtDataAddress.Size = new System.Drawing.Size(73, 22);
          this.txtDataAddress.TabIndex = 21;
@@ -228,7 +235,7 @@
          // 
          // lblDataLength
          // 
-         this.lblDataLength.Location = new System.Drawing.Point(158, 609);
+         this.lblDataLength.Location = new System.Drawing.Point(323, 611);
          this.lblDataLength.Name = "lblDataLength";
          this.lblDataLength.Size = new System.Drawing.Size(87, 28);
          this.lblDataLength.TabIndex = 20;
@@ -237,7 +244,7 @@
          // 
          // lblDataAddress
          // 
-         this.lblDataAddress.Location = new System.Drawing.Point(155, 577);
+         this.lblDataAddress.Location = new System.Drawing.Point(320, 579);
          this.lblDataAddress.Name = "lblDataAddress";
          this.lblDataAddress.Size = new System.Drawing.Size(90, 22);
          this.lblDataAddress.TabIndex = 19;
@@ -246,14 +253,14 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(251, 641);
+         this.txtData.Location = new System.Drawing.Point(416, 643);
          this.txtData.Name = "txtData";
          this.txtData.Size = new System.Drawing.Size(222, 22);
          this.txtData.TabIndex = 24;
          // 
          // lblData
          // 
-         this.lblData.Location = new System.Drawing.Point(158, 641);
+         this.lblData.Location = new System.Drawing.Point(323, 643);
          this.lblData.Name = "lblData";
          this.lblData.Size = new System.Drawing.Size(87, 28);
          this.lblData.TabIndex = 23;
@@ -263,7 +270,7 @@
          // optHoldingRegister
          // 
          this.optHoldingRegister.Checked = true;
-         this.optHoldingRegister.Location = new System.Drawing.Point(339, 578);
+         this.optHoldingRegister.Location = new System.Drawing.Point(504, 580);
          this.optHoldingRegister.Name = "optHoldingRegister";
          this.optHoldingRegister.Size = new System.Drawing.Size(134, 21);
          this.optHoldingRegister.TabIndex = 25;
@@ -273,7 +280,7 @@
          // 
          // optInputRegister
          // 
-         this.optInputRegister.Location = new System.Drawing.Point(339, 610);
+         this.optInputRegister.Location = new System.Drawing.Point(504, 612);
          this.optInputRegister.Name = "optInputRegister";
          this.optInputRegister.Size = new System.Drawing.Size(134, 21);
          this.optInputRegister.TabIndex = 26;
@@ -351,9 +358,9 @@
          // 
          // cmdRetrieve
          // 
-         this.cmdRetrieve.Location = new System.Drawing.Point(503, 576);
+         this.cmdRetrieve.Location = new System.Drawing.Point(19, 701);
          this.cmdRetrieve.Name = "cmdRetrieve";
-         this.cmdRetrieve.Size = new System.Drawing.Size(127, 40);
+         this.cmdRetrieve.Size = new System.Drawing.Size(105, 40);
          this.cmdRetrieve.TabIndex = 28;
          this.cmdRetrieve.Text = "Retrieve";
          this.cmdRetrieve.UseVisualStyleBackColor = true;
@@ -362,7 +369,7 @@
          // cmdReformat
          // 
          this.cmdReformat.Enabled = false;
-         this.cmdReformat.Location = new System.Drawing.Point(675, 61);
+         this.cmdReformat.Location = new System.Drawing.Point(675, 59);
          this.cmdReformat.Name = "cmdReformat";
          this.cmdReformat.Size = new System.Drawing.Size(105, 35);
          this.cmdReformat.TabIndex = 29;
@@ -372,9 +379,9 @@
          // 
          // cmdSaveAs
          // 
-         this.cmdSaveAs.Location = new System.Drawing.Point(503, 631);
+         this.cmdSaveAs.Location = new System.Drawing.Point(130, 701);
          this.cmdSaveAs.Name = "cmdSaveAs";
-         this.cmdSaveAs.Size = new System.Drawing.Size(127, 40);
+         this.cmdSaveAs.Size = new System.Drawing.Size(105, 40);
          this.cmdSaveAs.TabIndex = 30;
          this.cmdSaveAs.Text = "Save As";
          this.cmdSaveAs.UseVisualStyleBackColor = true;
@@ -382,9 +389,9 @@
          // 
          // cmdOpen
          // 
-         this.cmdOpen.Location = new System.Drawing.Point(657, 631);
+         this.cmdOpen.Location = new System.Drawing.Point(241, 701);
          this.cmdOpen.Name = "cmdOpen";
-         this.cmdOpen.Size = new System.Drawing.Size(127, 40);
+         this.cmdOpen.Size = new System.Drawing.Size(105, 40);
          this.cmdOpen.TabIndex = 32;
          this.cmdOpen.Text = "Open";
          this.cmdOpen.UseVisualStyleBackColor = true;
@@ -392,9 +399,9 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(657, 576);
+         this.cmdSend.Location = new System.Drawing.Point(352, 701);
          this.cmdSend.Name = "cmdSend";
-         this.cmdSend.Size = new System.Drawing.Size(127, 40);
+         this.cmdSend.Size = new System.Drawing.Size(105, 40);
          this.cmdSend.TabIndex = 31;
          this.cmdSend.Text = "Send";
          this.cmdSend.UseVisualStyleBackColor = true;
@@ -427,11 +434,86 @@
          this.cmdBrowse.UseVisualStyleBackColor = true;
          this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
          // 
+         // cmdExperiment
+         // 
+         this.cmdExperiment.Enabled = false;
+         this.cmdExperiment.Location = new System.Drawing.Point(653, 701);
+         this.cmdExperiment.Name = "cmdExperiment";
+         this.cmdExperiment.Size = new System.Drawing.Size(127, 40);
+         this.cmdExperiment.TabIndex = 36;
+         this.cmdExperiment.Text = "Experiment";
+         this.cmdExperiment.UseVisualStyleBackColor = true;
+         this.cmdExperiment.Click += new System.EventHandler(this.cmdExperiment_Click);
+         // 
+         // lblInstance
+         // 
+         this.lblInstance.Location = new System.Drawing.Point(19, 646);
+         this.lblInstance.Name = "lblInstance";
+         this.lblInstance.Size = new System.Drawing.Size(87, 28);
+         this.lblInstance.TabIndex = 39;
+         this.lblInstance.Text = "Instance";
+         this.lblInstance.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // lblAttribute
+         // 
+         this.lblAttribute.Location = new System.Drawing.Point(19, 614);
+         this.lblAttribute.Name = "lblAttribute";
+         this.lblAttribute.Size = new System.Drawing.Size(87, 28);
+         this.lblAttribute.TabIndex = 38;
+         this.lblAttribute.Text = "Attribute";
+         this.lblAttribute.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // lblClass
+         // 
+         this.lblClass.Location = new System.Drawing.Point(16, 582);
+         this.lblClass.Name = "lblClass";
+         this.lblClass.Size = new System.Drawing.Size(90, 22);
+         this.lblClass.TabIndex = 37;
+         this.lblClass.Text = "Class";
+         this.lblClass.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cbClass
+         // 
+         this.cbClass.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbClass.FormattingEnabled = true;
+         this.cbClass.Location = new System.Drawing.Point(112, 579);
+         this.cbClass.Name = "cbClass";
+         this.cbClass.Size = new System.Drawing.Size(184, 24);
+         this.cbClass.TabIndex = 40;
+         this.cbClass.SelectedIndexChanged += new System.EventHandler(this.cbClass_SelectedIndexChanged);
+         // 
+         // cbAttribute
+         // 
+         this.cbAttribute.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAttribute.FormattingEnabled = true;
+         this.cbAttribute.Location = new System.Drawing.Point(112, 615);
+         this.cbAttribute.Name = "cbAttribute";
+         this.cbAttribute.Size = new System.Drawing.Size(184, 24);
+         this.cbAttribute.TabIndex = 41;
+         this.cbAttribute.SelectedIndexChanged += new System.EventHandler(this.cbAttribute_SelectedIndexChanged);
+         // 
+         // cbInstance
+         // 
+         this.cbInstance.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbInstance.FormattingEnabled = true;
+         this.cbInstance.Location = new System.Drawing.Point(112, 650);
+         this.cbInstance.Name = "cbInstance";
+         this.cbInstance.Size = new System.Drawing.Size(184, 24);
+         this.cbInstance.TabIndex = 42;
+         this.cbInstance.SelectedIndexChanged += new System.EventHandler(this.cbInstance_SelectedIndexChanged);
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(800, 683);
+         this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.cbInstance);
+         this.Controls.Add(this.cbAttribute);
+         this.Controls.Add(this.cbClass);
+         this.Controls.Add(this.lblInstance);
+         this.Controls.Add(this.lblAttribute);
+         this.Controls.Add(this.lblClass);
+         this.Controls.Add(this.cmdExperiment);
          this.Controls.Add(this.cmdBrowse);
          this.Controls.Add(this.txtMessageFolder);
          this.Controls.Add(this.lblMessageFolder);
@@ -513,6 +595,13 @@
       public System.Windows.Forms.RadioButton optHoldingRegister;
       public System.Windows.Forms.RadioButton optInputRegister;
       public System.Windows.Forms.TextBox txtMessageFolder;
+      private System.Windows.Forms.Button cmdExperiment;
+      private System.Windows.Forms.Label lblInstance;
+      private System.Windows.Forms.Label lblAttribute;
+      private System.Windows.Forms.Label lblClass;
+      private System.Windows.Forms.ComboBox cbClass;
+      private System.Windows.Forms.ComboBox cbAttribute;
+      private System.Windows.Forms.ComboBox cbInstance;
    }
 }
 

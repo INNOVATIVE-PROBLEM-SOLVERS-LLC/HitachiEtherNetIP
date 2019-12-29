@@ -69,10 +69,6 @@ namespace ModBus161 {
       UI161 parent;
       Modbus p;
 
-      // Used for arbitrary address read
-      Prop prop;
-      AttrData attr;
-
       #endregion
 
       #region Constructors and destructors
@@ -80,8 +76,6 @@ namespace ModBus161 {
       public SendRetrieveXML(UI161 parent, Modbus printer) {
          this.parent = parent;
          p = printer;
-         prop = new Prop(2, DataFormats.Decimal, long.MinValue, long.MaxValue, fmtDD.None);
-         attr = new AttrData(0, true, 1, 0, prop);
       }
 
       public string Retrieve() {
@@ -147,8 +141,7 @@ namespace ModBus161 {
             m.Column[col].Item = new Item[cols[col]];                     // Allocate the items array
             for (int row = 0; row < m.Column[col].Item.Length; row++) {
                Item item = new Item();                                    // Allocate the item
-               attr.Val = 0x0020 + n;
-               int characterCount = p.GetDecAttribute(attr);
+               int characterCount = p.GetDecAttribute(ccIDX.Characters_per_Item, n);
                item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount);
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
