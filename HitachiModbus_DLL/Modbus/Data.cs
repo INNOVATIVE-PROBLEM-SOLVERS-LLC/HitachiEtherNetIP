@@ -597,7 +597,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.Week, true, 53, 3,                              // Week 0x1C1D
             new Prop(3, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
-            new Prop(6, DataFormats.UTF8, 0, 6, fmtDD.None)),                   //   Data
+            new Prop(6, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
       };
 
       // Enviroment_setting (Class Code 0x71)

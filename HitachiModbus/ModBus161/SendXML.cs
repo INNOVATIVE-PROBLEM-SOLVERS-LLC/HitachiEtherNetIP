@@ -58,7 +58,7 @@ namespace ModBus161 {
             }
 
             if (Lab.Printer != null) {
-               //SendPrinterSettings(Lab.Printer); // Must be done last
+               SendPrinterSettings(Lab.Printer); // Must be done last
             }
          } catch (Exception e2) {
             parent.Log(e2.Message);
@@ -399,10 +399,14 @@ namespace ModBus161 {
                // Substitution rules cannot be set with Auto Reflection on
                bool saveAR = UseAutomaticReflection;
                UseAutomaticReflection = false;
-
+               // Force rule to be loaded
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                p.SetAttribute(ccSR.Start_Year, year);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                UseAutomaticReflection = saveAR;
             }
@@ -422,15 +426,13 @@ namespace ModBus161 {
 
       private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
          if (int.TryParse(r.Base, out int b)) {
-            Prop prop = p.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
+            Prop prop = p.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
             string[] s = r.Text.Split(delimeter[0]);
             for (int i = 0; i < s.Length; i++) {
                int n = b + i;
                // Avoid user errors
                if (n >= prop.Min && n <= prop.Max) {
-                  // <TODO>
-                  //byte[] data = FormatOutput(prop, n, 1, s[i]);
-                  //p.SetAttribute((byte)attribute, data);
+                  p.SetAttribute(attribute, n - prop.Min, s[i]);
                }
             }
          }
