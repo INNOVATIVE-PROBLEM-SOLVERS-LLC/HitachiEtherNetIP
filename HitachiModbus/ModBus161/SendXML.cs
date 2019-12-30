@@ -58,7 +58,7 @@ namespace ModBus161 {
             }
 
             if (Lab.Printer != null) {
-               SendPrinterSettings(Lab.Printer); // Must be done last
+               //SendPrinterSettings(Lab.Printer); // Must be done last
             }
          } catch (Exception e2) {
             parent.Log(e2.Message);
@@ -102,9 +102,12 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Line, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         //p.SetAttribute(ccPF.Dot_Matrix, "5x8");           // Clear any barcodes
-         //p.SetAttribute(ccPF.Barcode_Type, "None");
-         //p.SetAttribute(ccPF.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");           // Clear any barcodes
+         p.SetAttribute(ccPF.Barcode_Type, 0, "None");
+         p.SetAttribute(ccIDX.Characters_per_Item, 0, 1);
+         p.SetAttribute(ccPF.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       private void AllocateRowsColumns(Msg m) {
@@ -141,13 +144,212 @@ namespace ModBus161 {
                p.SetAttribute(ccPF.Print_Character_String, charPosition, s);
                charPosition += item.Text.Length;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               hasDateOrCount |= item.Date != null | item.Counter != null;
+               hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
                m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
             }
          }
          // Process calendar and count if needed
          if (hasDateOrCount) {
-            //SendDateCount(m);
+            SendDateCount(m);
+         }
+      }
+
+      private void SendDateCount(Msg m) {
+         // Need a combination of sets and gets.  Turn AutoReflection off
+         bool saveAR = UseAutomaticReflection;
+         UseAutomaticReflection = false;
+         // Get calendar and count blocks assigned by the printer
+         for (int c = 0; c < m.Column.Length; c++) {
+            for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               Item item = m.Column[c].Item[r];
+               int index = m.Column[c].Item[r].Location.Index;
+               if (item.Date != null) {
+                  //p.SetAttribute(ccIDX.Item, index);
+                  item.Location.calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, index);
+                  item.Location.calStart = p.GetDecAttribute(ccCal.First_Calendar_Block, index);
+               }
+               if (item.Counter != null) {
+                  //p.SetAttribute(ccIDX.Item, index);
+                  item.Location.countCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, index);
+                  item.Location.countStart = p.GetDecAttribute(ccCount.First_Count_Block, index);
+               }
+            }
+         }
+
+         // Restore previous AutoReflection to previous state
+         UseAutomaticReflection = saveAR;
+         for (int c = 0; c < m.Column.Length; c++) {
+            for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               Item item = m.Column[c].Item[r];
+               if (item.Date != null) {
+                  SendCalendar(item);
+               }
+               if (item.Counter != null) {
+                  SendCount(item);
+               }
+               if (item.Shift != null) {
+                  SendShift(item);
+               }
+               if (item.TimeCount != null) {
+                  SendTimeCount(item);
+               }
+            }
+         }
+      }
+
+      private void SendCalendar(Item item) {
+         int calStart = item.Location.calStart;
+         int calCount = item.Location.calCount;
+         for (int i = 0; i < item.Date.Length; i++) {
+            Date date = item.Date[i];
+            if (date.Block <= calCount) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               p.SetAttribute(ccIDX.Substitution_Rule, 1); // date.SubstitutionRule
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+               int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
+               // Process Offset
+               Offset o = date.Offset;
+               int n;
+               if (o != null) {
+                  if (int.TryParse(o.Year, out n) && n != 0) {
+                     p.SetAttribute(ccCal.Offset_Year, index, n);
+                  }
+                  if (int.TryParse(o.Month, out n) && n != 0) {
+                     p.SetAttribute(ccCal.Offset_Month, index, n);
+                  }
+                  if (int.TryParse(o.Day, out n) && n != 0) {
+                     p.SetAttribute(ccCal.Offset_Day, index, n);
+                  }
+                  if (int.TryParse(o.Hour, out n) && n != 0) {
+                     p.SetAttribute(ccCal.Offset_Hour, index, n);
+                  }
+                  if (int.TryParse(o.Minute, out n) && n != 0) {
+                     p.SetAttribute(ccCal.Offset_Minute, index, n);
+                  }
+               }
+
+               // Process Zero Suppress
+               ZeroSuppress zs = date.ZeroSuppress;
+               if (zs != null) {
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
+                  }
+                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
+                     p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
+                  }
+               }
+
+               // Process Substitutions
+               Substitute s = date.Substitute;
+               if (s != null) {
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Year)) {
+                     p.SetAttribute(ccCal.Substitute_Year, index, s.Year);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Month)) {
+                     p.SetAttribute(ccCal.Substitute_Month, index, s.Month);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Day)) {
+                     p.SetAttribute(ccCal.Substitute_Day, index, s.Day);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Hour)) {
+                     p.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Minute)) {
+                     p.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Week)) {
+                     p.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
+                  }
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s.DayOfWeek)) {
+                     p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
+                  }
+               }
+            }
+         }
+      }
+
+      private void SendCount(Item item) {
+         int countStart = item.Location.countStart;
+         int countCount = item.Location.countCount;
+         for (int i = 0; i < item.Counter.Length; i++) {
+            Counter c = item.Counter[i];
+            if (c.Block <= countCount) {
+               int index = countStart + c.Block - 2; // Both count start and count block are 1-origin
+               // Process Range
+               Range r = c.Range;
+               if (r != null) {
+                  p.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
+                  p.SetAttribute(ccCount.Count_Range_2, index, r.Range2);
+                  p.SetAttribute(ccCount.Jump_From, index, r.JumpFrom);
+                  p.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
+               }
+
+               // Process Count
+               Count cc = c.Count;
+               if (cc != null) {
+                  p.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
+                  p.SetAttribute(ccCount.Increment_Value, index, cc.Increment);
+                  p.SetAttribute(ccCount.Direction_Value, index, cc.Direction);
+                  p.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
+               }
+
+               // Process Reset
+               Reset rr = c.Reset;
+               if (rr != null) {
+                  p.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
+                  p.SetAttribute(ccCount.Reset_Value, index, rr.Value);
+               }
+
+               // Process Misc
+               Misc m = c.Misc;
+               if (m != null) {
+                  p.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
+                  p.SetAttribute(ccCount.Update_Unit_Halfway, index, m.UpdateIP);
+                  p.SetAttribute(ccCount.External_Count, index, m.ExternalCount);
+                  p.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
+                  p.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
+               }
+            }
+         }
+      }
+
+      private void SendShift(Item item) {
+         // Process Shift
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         for (int j = 0; j < item.Shift.Length; j++) {
+            p.SetAttribute(ccCal.Shift_Start_Hour, j, item.Shift[j].StartHour);
+            p.SetAttribute(ccCal.Shift_Start_Minute, j, item.Shift[j].StartMinute);
+            p.SetAttribute(ccCal.Shift_String_Value, j, item.Shift[j].ShiftCode);
+         }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+      }
+
+      private void SendTimeCount(Item item) {
+         TimeCount tc = item.TimeCount;
+         if (tc != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
+            p.SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
+            p.SetAttribute(ccCal.Time_Count_End_Value, tc.End);
+            p.SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
+            p.SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
       }
 
