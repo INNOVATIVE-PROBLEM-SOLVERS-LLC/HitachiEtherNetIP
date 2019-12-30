@@ -555,7 +555,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccCal.Reset_Time_Value, true, 1, 0,                  // Reset Time Value 0x1CDD
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
          new AttrData((int)ccCal.Update_Interval_Value, true, 1, 0,             // Update Interval Value 0x1CDE
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.TimeCount)),           //   Data
+            new Prop(1, DataFormats.Decimal, 0, 5, fmtDD.TimeCount)),           //   Data
          new AttrData((int)ccCal.Shift_Start_Hour, true, 48, 16,                // Shift Start Hour 0x1CE0
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
          new AttrData((int)ccCal.Shift_Start_Minute, true, 48, 16,              // Shift Start Minute 0x1CE1
