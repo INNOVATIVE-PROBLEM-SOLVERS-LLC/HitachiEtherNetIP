@@ -1,0 +1,52 @@
+<Label Version="1">
+  <Printer Make="Hitachi">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <ClockSystem HourMode24="True" />
+  </Printer>
+  <Message Layout="SeparateSetup" Name="SAMPLE 1    ">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Text>SELL BY MMM/DD/YY  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Text>USE BY  MMM/DD/YY  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Text>PACKED  TTT 777 </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Text>Shift E</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Text>TCount FF </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Text># CCCCCC </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <BarCode />
+        <Text>XML</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

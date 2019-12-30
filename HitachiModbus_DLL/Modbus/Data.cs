@@ -51,7 +51,7 @@ namespace Modbus_DLL {
       Format_Type = 0x67,
       Insert_Column = 0x1021,
       Delete_Column = 0x1022,
-      Add_Column = 0x6B,
+      Add_Column = 0x1023,
       Number_Of_Print_Line_And_Print_Format = 0x6C,
       Format_Setup = 0x103F,
       Adding_Print_Items = 0x6E,

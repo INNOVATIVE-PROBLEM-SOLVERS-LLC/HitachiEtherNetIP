@@ -75,7 +75,7 @@ namespace ModBus161 {
          DeleteAllButOne();
 
          if (m.Column != null) {
-            //AllocateRowsColumns(m);
+            AllocateRowsColumns(m);
          }
       }
 
@@ -102,9 +102,53 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Line, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         p.SetAttribute(ccPF.Dot_Matrix, "5x8");           // Clear any barcodes
-         p.SetAttribute(ccPF.Barcode_Type, "None");
-         p.SetAttribute(ccPF.Print_Character_String, "1"); // Set simple text in case Calendar or Counter was used
+         //p.SetAttribute(ccPF.Dot_Matrix, "5x8");           // Clear any barcodes
+         //p.SetAttribute(ccPF.Barcode_Type, "None");
+         //p.SetAttribute(ccPF.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
+      }
+
+      private void AllocateRowsColumns(Msg m) {
+         int index = 0;
+         bool hasDateOrCount = false; // Save some time if no need to look
+         int charPosition = 0;
+         for (int c = 0; c < m.Column.Length; c++) {
+            if (c > 0) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               p.SetAttribute(ccPF.Add_Column, 0);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
+            // Should this be Column and not Item?
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccIDX.Column, c + 1);
+            p.SetAttribute(ccIDX.Line, m.Column[c].Item.Length);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            if (m.Column[c].Item.Length > 1) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               p.SetAttribute(ccIDX.Column, c + 1);
+               p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
+            for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               Item item = m.Column[c].Item[r];
+               if (item.Font != null) {
+                  p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
+                  p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
+                  p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
+               }
+               string s = p.HandleBraces(item.Text);
+               p.SetAttribute(ccIDX.Characters_per_Item, index, s.Length);
+               p.SetAttribute(ccPF.Print_Character_String, charPosition, s);
+               charPosition += item.Text.Length;
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               hasDateOrCount |= item.Date != null | item.Counter != null;
+               m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
+            }
+         }
+         // Process calendar and count if needed
+         if (hasDateOrCount) {
+            //SendDateCount(m);
+         }
       }
 
       #endregion
