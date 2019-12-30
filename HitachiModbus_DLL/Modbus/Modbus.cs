@@ -494,7 +494,7 @@ namespace Modbus_DLL {
             byte[] data = FormatOutput(attr.Data, s);
             success = SetAttribute(attr.Val + attr.Stride * n, data);
          }
-         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"");
+         Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{s}\"");
          Log?.Invoke(this, " ");
          return success;
       }
@@ -506,7 +506,7 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          byte[] data = FormatOutput(attr.Data, val);
          success = SetAttribute(attr.Val + attr.Stride * n, data);
-         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {val}");
+         Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {val}");
          Log?.Invoke(this, " ");
          return success;
       }
