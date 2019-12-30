@@ -1,0 +1,81 @@
+<Label Version="1">
+  <Printer Make="Hitachi">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <ClockSystem HourMode24="True" />
+  </Printer>
+  <Message Layout="SeparateSetup" Name="SAMPLE 1    ">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+          <ZeroSuppress Year="None" Month="None" Day="Space" />
+          <Substitute Year="False" Month="False" Day="False" />
+        </Date>
+        <Text>SELL BY {MMM/DD/YY}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
+          <ZeroSuppress Year="None" Month="None" Day="Space" />
+          <Substitute Year="False" Month="False" Day="False" />
+        </Date>
+        <Text>USE BY  {MMM/DD/YY}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
+          <ZeroSuppress DayOfWeek="None" />
+          <Substitute DayOfWeek="False" />
+        </Date>
+        <Text>PACKED  TTT 777 </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Shifts>
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="0" />
+          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="0" />
+        </Shifts>
+        <Text>Shift E</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <TimeCount Interval="HalfHour" Start="00" End="X2" ResetTime="6" ResetValue="A1" />
+        <Text>TCount {FF} </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <BarCode />
+        <Counter Block="1">
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="True" />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" />
+        </Counter>
+        <Text># {CCCCCC} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <BarCode />
+        <Text />
+      </Item>
+    </Column>
+  </Message>
+</Label>

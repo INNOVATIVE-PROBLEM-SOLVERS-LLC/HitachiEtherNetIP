@@ -417,7 +417,22 @@ namespace ModBus161 {
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccIDX.Column, 1);
+         p.SetAttribute(ccIDX.Line, 2);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPF.Add_Column, 2);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Column, 3);
          p.SetAttribute(ccIDX.Line, 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccPF.Add_Column, 0);
+         p.SetAttribute(ccIDX.Column, 5);
+         p.SetAttribute(ccIDX.Line, 2);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -426,9 +441,9 @@ namespace ModBus161 {
          //p.SetAttribute(ccPF.Print_Character_String, 0, text);
          //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Line_Count, 0, 3);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccPF.Line_Count, 0, 3);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          //p.SetAttribute(ccIDX.Characters_per_Item, 0, text.Length);
          //p.SetAttribute(ccPF.Print_Character_String, 0, text);

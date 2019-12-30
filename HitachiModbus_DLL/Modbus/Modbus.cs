@@ -511,7 +511,16 @@ namespace Modbus_DLL {
          return success;
       }
 
-
+      // Set one indexed attribute based on the Data Property
+      public bool SetAttribute<T>(T Attribute, int n, byte[] data) where T : Enum {
+         bool success = true;
+         AttrData attr = GetAttrData(Attribute);
+         //AutomaticReflect(AccessCode.Set);
+         success = SetAttribute(attr.Val + attr.Stride * n, data);
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
+         Log?.Invoke(this, " ");
+         return success;
+      }
 
       #endregion
 
@@ -868,14 +877,20 @@ namespace Modbus_DLL {
                // This is an issue since the data in the printer is not UTF-8
                if (prop.Fmt == DataFormats.AttrText) {
                   width = 4;
+                  //s2 = HandleBraces(s2);
                } else {
                   s2 = s2.PadRight(prop.Len);
                   width = 2;
                }
-               byte[] b2 = Encode.GetBytes(s2.PadRight(prop.Len));
-               result = new byte[b2.Length * width];
-               for (int i = 0; i < b2.Length; i++) {
-                  result[(i + 1) * width - 1] = b2[i];
+               result = new byte[s2.Length * width];
+               for (int i = 0; i < s2.Length; i++) {
+                  char c = s2[i];
+                  if (c > 0xff) {
+                     result[i * width] = (byte)(c >> 8);
+                     result[i * width + 1] = (byte)c;
+                  } else {
+                     result[(i + 1) * width - 1] = (byte)c;
+                  }
                }
                break;
             case DataFormats.Date:
@@ -951,6 +966,61 @@ namespace Modbus_DLL {
          }
          if (result == null) {
             result = new byte[0];
+         }
+         return result;
+      }
+
+      public string HandleBraces(string s2) {
+         // Braced Characters (count, date, half-size, logos
+         int firstFound = s2.Length;
+         int lastFound = -1;
+         char[,] bc = new char[,]
+         { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
+           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
+           {'E', '\uF25B'}, {'F', '\uF25C'} };
+         //char[,] bc = new char[,]
+         //{ {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
+         //  {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
+         //  {'E', '\uF25B'}, {'F', '\uF25C'}, {' ', '\uF244'}, {'\'', '\uF240'}, {'.', '\uF241'},
+         //  {';', '\uF245'}, {':', '\uF242'}, {'!', '\uF246'}, {',', '\uF243'}, {'X', '\uF200'},
+         //  {'Z', '\uF200' } };
+
+         string result = "";
+         int bCount = 0;
+         for (int i = 0; i < s2.Length; i++) {
+            char c = s2[i];
+            switch (c) {
+               case '{':
+                  bCount++;
+                  break;
+               case '}':
+                  bCount--;
+                  break;
+               default:
+                  if (bCount == 0) {
+                     result += c;
+                  } else {
+                     bool found = false;
+                     for (int j = 0; j < bc.GetLength(0) && !found; j++) {
+                        if (bc[j, 0] == c) {
+                           firstFound = Math.Min(firstFound, result.Length);
+                           lastFound = Math.Max(lastFound, result.Length);
+                           result += bc[j, 1];
+                           found = true;
+                        }
+                     }
+                     if (!found) {
+                        result += c;
+                     }
+                  }
+                  break;
+            }
+         }
+         if (firstFound < s2.Length) {
+            result = result.Substring(0, firstFound) + (char)(result[firstFound] + 0x10) + result.Substring(firstFound + 1);
+         }
+         if (lastFound >= 0) {
+            result = result.Substring(0, lastFound) + (char)(result[lastFound] + 0x20) + result.Substring(lastFound + 1);
          }
          return result;
       }
