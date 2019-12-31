@@ -368,7 +368,6 @@
          // 
          // cmdReformat
          // 
-         this.cmdReformat.Enabled = false;
          this.cmdReformat.Location = new System.Drawing.Point(675, 59);
          this.cmdReformat.Name = "cmdReformat";
          this.cmdReformat.Size = new System.Drawing.Size(105, 35);

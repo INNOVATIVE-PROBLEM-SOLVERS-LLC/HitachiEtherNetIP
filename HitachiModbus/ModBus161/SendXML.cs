@@ -85,7 +85,7 @@ namespace ModBus161 {
          int n = 0;
          List<int> cols = new List<int>();            // Holds the number of rows in each column
          List<string> spacing = new List<string>();   // Holds the line spacing
-         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
+         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          while (n < itemCount) {
             cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
             spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
@@ -98,15 +98,15 @@ namespace ModBus161 {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccIDX.Column, 1);
-         p.SetAttribute(ccIDX.Line, 1);
+         p.SetAttribute(ccPF.Column, 1);
+         p.SetAttribute(ccPF.Line, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");           // Clear any barcodes
          p.SetAttribute(ccPF.Barcode_Type, 0, "None");
          p.SetAttribute(ccIDX.Characters_per_Item, 0, 1);
-         p.SetAttribute(ccPF.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
+         p.SetAttribute(ccIDX.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
@@ -122,12 +122,12 @@ namespace ModBus161 {
             }
             // Should this be Column and not Item?
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccIDX.Column, c + 1);
-            p.SetAttribute(ccIDX.Line, m.Column[c].Item.Length);
+            p.SetAttribute(ccPF.Column, c + 1);
+            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             if (m.Column[c].Item.Length > 1) {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Column, c + 1);
+               p.SetAttribute(ccPF.Column, c + 1);
                p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
@@ -141,7 +141,7 @@ namespace ModBus161 {
                }
                string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Characters_per_Item, index, s.Length);
-               p.SetAttribute(ccPF.Print_Character_String, charPosition, s);
+               p.SetAttribute(ccIDX.Print_Character_String, charPosition, s);
                charPosition += item.Text.Length;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
@@ -165,13 +165,13 @@ namespace ModBus161 {
                int index = m.Column[c].Item[r].Location.Index;
                if (item.Date != null) {
                   //p.SetAttribute(ccIDX.Item, index);
-                  item.Location.calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, index);
-                  item.Location.calStart = p.GetDecAttribute(ccCal.First_Calendar_Block, index);
+                  item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, index);
+                  item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, index);
                }
                if (item.Counter != null) {
                   //p.SetAttribute(ccIDX.Item, index);
-                  item.Location.countCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, index);
-                  item.Location.countStart = p.GetDecAttribute(ccCount.First_Count_Block, index);
+                  item.Location.countCount = p.GetDecAttribute(ccPF.Number_Of_Count_Blocks, index);
+                  item.Location.countStart = p.GetDecAttribute(ccPF.First_Count_Block, index);
                }
             }
          }

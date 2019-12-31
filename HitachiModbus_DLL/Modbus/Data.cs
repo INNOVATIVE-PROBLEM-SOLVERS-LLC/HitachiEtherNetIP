@@ -46,17 +46,17 @@ namespace Modbus_DLL {
    // Attributes within Print Format class 0x67
    public enum ccPF {
       Message_Name = 0x64,
-      Number_Of_Items = 0x0008,
       Number_Of_Columns = 0x66,
       Format_Type = 0x67,
+      Number_Of_Print_Line_And_Print_Format = 0x1020,
       Insert_Column = 0x1021,
       Delete_Column = 0x1022,
       Add_Column = 0x1023,
-      Number_Of_Print_Line_And_Print_Format = 0x6C,
+      Column = 0x1024,
+      Line = 0x1025,
       Format_Setup = 0x103F,
       Adding_Print_Items = 0x6E,
       Deleting_Print_Items = 0x6F,
-      Print_Character_String = 0x0084,
 
       Line_Count = 0x1040,
       Line_Spacing = 0x1041,
@@ -66,6 +66,10 @@ namespace Modbus_DLL {
       Barcode_Type = 0x1045,
       Readable_Code = 0x1046,
       Prefix_Code = 0x1047,
+      First_Calendar_Block = 0x1048,
+      Number_of_Calendar_Blocks = 0x1049,
+      First_Count_Block = 0x104A,
+      Number_Of_Count_Blocks = 0x104B,
 
       X_and_Y_Coordinate = 0x104C,
       InterCharacter_SpaceII = 0x7B,
@@ -106,8 +110,6 @@ namespace Modbus_DLL {
    // Attributes within Calendar class 0x69
    public enum ccCal {
       Shift_Code_Condition = 0x65,
-      First_Calendar_Block = 0x1048,
-      Number_of_Calendar_Blocks = 0x1049,
 
       // This block appears only once
       Offset_Year = 0x19C0,
@@ -238,8 +240,6 @@ namespace Modbus_DLL {
 
    // Attributes within Count class 0x79
    public enum ccCount {
-      First_Count_Block = 0x104A,
-      Number_Of_Count_Blocks = 0x104B,
 
       // This block repeats every 20 bytes for 8 times
       Initial_Value = 0x1FE0,          // Thru 0x1FF3 - 20 Digits
@@ -264,15 +264,15 @@ namespace Modbus_DLL {
       Start_Stop_Management_Flag = 0x0000,
       Automatic_reflection = 0x65,
       Item = 0x66,
-      Column = 0x1024,
-      Line = 0x1025,
       Characters_per_Item = 0x0020,
-      Message_Number = 0x6A,
+      Number_Of_Items = 0x0008,
+      Message_Number = 0x0010,
       Group_Number = 0x6B,
       Substitution_Rule = 0x0012,
-      User_Pattern_Size = 0x6D,
-      Count_Block = 0x6E,
-      Calendar_Block = 0x6F,
+      User_Pattern_Size = 0x0013,
+      //Count_Block = 0x6E,
+      //Calendar_Block = 0x6F,
+      Print_Character_String = 0x0084,
    }
 
    #endregion
@@ -396,8 +396,6 @@ namespace Modbus_DLL {
 
       // Print_format (Class Code 0x67)
       private AttrData[] ccPF_Addrs = new AttrData[] {
-         new AttrData((int)ccPF.Number_Of_Items, true, 100, 24,                 // Number Of Items 0x08
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.Message_Name, true, 100, 24,                    // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
          new AttrData((int)ccPF.Number_Of_Columns, true, 100, 24,               // Number Of Columns 0x66
@@ -420,10 +418,12 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.InterCharacter_SpaceII, true, 100, 24,          // InterCharacter SpaceII 0x7B
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Print_Character_String, true, 1000, 2,          // Print Character String 0x84
-            new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 100, 24,            // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
+         new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x67
+            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x68
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
          new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Line_Spacing, true, 100, 24,                    // Line Spacing 0x1041
@@ -440,6 +440,14 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode)),        //   Data
          new AttrData((int)ccPF.Prefix_Code, true, 100, 24,                     // Prefix Code 0x1047
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.First_Calendar_Block, true, 8, 24,              // First Calendar Block 0x1048
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 8, 24,         // Number of Calendar Blocks 0x1049
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.First_Count_Block, true, 8, 24,              // First Count Block 0x104A
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24,         // Number Of Count Blocks 0x104B
+            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.X_and_Y_Coordinate, true, 100, 24,              // X and Y Coordinate 0x104C
             new Prop(3, DataFormats.XY, 0, 0, fmtDD.None)),                     //   Data
          new AttrData((int)ccPF.QR_Error_Correction_Level, true, 100, 24,       // QR Error Correction Level 0x2084
@@ -504,10 +512,6 @@ namespace Modbus_DLL {
       private AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((int)ccCal.Shift_Code_Condition, true, 8, 32,             // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCal.First_Calendar_Block, true, 8, 24,             // First Calendar Block 0x1048
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccCal.Number_of_Calendar_Blocks, true, 8, 24,        // Number of Calendar Blocks 0x1049
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccCal.Offset_Year, true, 8, 32,                      // Offset Year 0x19C0
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccCal.Offset_Month, true, 8, 32,                     // Offset Month 0x19C1
@@ -722,10 +726,6 @@ namespace Modbus_DLL {
 
       // Count (Class Code 0x79)
       private AttrData[] ccCount_Addrs = new AttrData[] {
-         new AttrData((int)ccCount.First_Count_Block, true, 8, 24,              // First Count Block 0x104A
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccCount.Number_Of_Count_Blocks, true, 8, 24,         // Number Of Count Blocks 0x104B
-            new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccCount.Initial_Value, true, 8, 148,                 // Initial Value 0x1FE0
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccCount.Count_Range_1, true, 8, 148,                 // Count Range 1 0x1FF4
@@ -762,14 +762,12 @@ namespace Modbus_DLL {
       private AttrData[] ccIDX_Addrs = new AttrData[] {
          new AttrData((int)ccIDX.Start_Stop_Management_Flag, true, 1, 0,        // Start Stop Management Flag 0x00
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
+         new AttrData((int)ccIDX.Number_Of_Items, true, 100, 24,                // Number Of Items 0x08
+            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Automatic_reflection, true, 1, 0,              // Automatic reflection 0x65
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn)),               //   Data
          new AttrData((int)ccIDX.Item, true, 1, 0,                              // Item 0x66
             new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccIDX.Column, true, 1, 0,                            // Column 0x67
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccIDX.Line, true, 1, 0,                              // Line 0x68
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
          new AttrData((int)ccIDX.Characters_per_Item, true, 1000, 1,            // Character per Item 0x0020
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x6A
@@ -780,10 +778,12 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x6D
             new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
-         new AttrData((int)ccIDX.Count_Block, true, 1, 0,                       // Count Block 0x6E
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
-         new AttrData((int)ccIDX.Calendar_Block, true, 1, 0,                    // Calendar Block 0x6F
-            new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
+          new AttrData((int)ccIDX.Print_Character_String, true, 1000, 2,        // Print Character String 0x84
+            new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
+        //new AttrData((int)ccIDX.Count_Block, true, 1, 0,                       // Count Block 0x6E
+         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
+         //new AttrData((int)ccIDX.Calendar_Block, true, 1, 0,                    // Calendar Block 0x6F
+         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
       };
 
       #endregion
@@ -800,38 +800,35 @@ namespace Modbus_DLL {
       // Reformat the raw data tables in this module to make them easier to read and modify
       public void ReformatTables(StreamWriter RFS) {
 
-         DumpTableII(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
-         DumpTableII(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
-         DumpTableII(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
-         DumpTableII(RFS, ccCal_Addrs, ClassCode.Calendar, typeof(ccCal));
-         DumpTableII(RFS, ccUP_Addrs, ClassCode.User_pattern, typeof(ccUP));
-         DumpTableII(RFS, ccSR_Addrs, ClassCode.Substitution_rules, typeof(ccSR));
-         DumpTableII(RFS, ccES_Addrs, ClassCode.Enviroment_setting, typeof(ccES));
-         DumpTableII(RFS, ccUI_Addrs, ClassCode.Unit_Information, typeof(ccUI));
-         DumpTableII(RFS, ccOM_Addrs, ClassCode.Operation_management, typeof(ccOM));
-         DumpTableII(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
-         DumpTableII(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
-         DumpTableII(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
+         DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
+         DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
+         DumpTable(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
+         DumpTable(RFS, ccCal_Addrs, ClassCode.Calendar, typeof(ccCal));
+         DumpTable(RFS, ccUP_Addrs, ClassCode.User_pattern, typeof(ccUP));
+         DumpTable(RFS, ccSR_Addrs, ClassCode.Substitution_rules, typeof(ccSR));
+         DumpTable(RFS, ccES_Addrs, ClassCode.Enviroment_setting, typeof(ccES));
+         DumpTable(RFS, ccUI_Addrs, ClassCode.Unit_Information, typeof(ccUI));
+         DumpTable(RFS, ccOM_Addrs, ClassCode.Operation_management, typeof(ccOM));
+         DumpTable(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
+         DumpTable(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
+         DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
 
       }
 
+      // Export table to tab delimited
       private void DumpTable(StreamWriter RFS, AttrData[] tbl, ClassCode cc, Type at) {
          // Now process each attribute within the Class
          string[] attrNames = Enum.GetNames(at);
+         int[] addrValues = (int[])Enum.GetValues(at);
          for (int i = 0; i < tbl.Length; i++) {
+            AttrData attr = Array.Find<AttrData>(tbl, z => z.Val == addrValues[i]);
+            string printLine = $"(0x{((int)cc).ToString("X2")}){cc}\t(0x{attr.Val:X4}){attrNames[i]}\t";
 
-            string printLine = $"(0x{((int)cc).ToString("X2")}){cc}\t(0x{tbl[i].Val:X2}){attrNames[i]}\t";
+            printLine += $"{attr.Count}\t{attr.Stride}\t{attr.HoldingReg}\t";
+            Prop x = attr.Data;
+            printLine += $"{x.Len}\t{typeof(DataFormats)}.{x.Fmt}\t{x.Min}\t{x.Max}\t{typeof(fmtDD)}.{x.DropDown}";
 
-            if (tbl[i].HasGet)
-               printLine += "Get";
-            printLine += "\t";
-            if (tbl[i].HasSet)
-               printLine += "Set";
-            printLine += "\t";
-            if (tbl[i].HasService)
-               printLine += "Service";
-            printLine += "\t";
-            RFS.WriteLine(printLine.Replace('_',' '));
+            RFS.WriteLine(printLine);
 
          }
          RFS.WriteLine(" ");
@@ -862,15 +859,15 @@ namespace Modbus_DLL {
             AttrData attr = Array.Find<AttrData>(tbl, x => x.Val == attrValues[i]);
             // Turn Access into an enum
             string access = string.Empty;
-            if (attr.HasGet)
-               access += "Get";
-            if (attr.HasSet)
-               access += "Set";
-            if (attr.HasService)
-               access += "Service";
+            //if (attr.HasGet)
+            //   access += "Get";
+            //if (attr.HasSet)
+            //   access += "Set";
+            //if (attr.HasService)
+            //   access += "Service";
 
             // Format Ignore as true/false and Data Format to an enum
-            string ignore = attr.Ignore ? "true" : "false";
+            //string ignore = attr.Ignore ? "true" : "false";
 
             // Space the comment at the end of the line for readability
             string printLine = $"{t2}new AttrData((int){name}.{attrNames[i]}, {attr.HoldingReg}, {attr.Count}, {attr.Stride},";
@@ -992,20 +989,20 @@ namespace Modbus_DLL {
 
       public ClassCode Class { get; set; }           // The class code is set when the dictionary is built
       public int Val { get; set; } = 0;              // The Attribute (Makes the tables easier to read)
-      public bool HasSet { get; set; } = false;      // Supports a Set Request
-      public bool HasGet { get; set; } = false;      // Supports a Get Request
-      public bool HasService { get; set; } = false;  // Supports a Service Request
-      public int Order { get; set; } = 0;            // Sort Order if Alpha Sort is requested
-      public bool Ignore { get; set; } = false;      // Indicates that the request will hang printer
+      //public bool HasSet { get; set; } = false;      // Supports a Set Request
+      //public bool HasGet { get; set; } = false;      // Supports a Get Request
+      //public bool HasService { get; set; } = false;  // Supports a Service Request
+      //public int Order { get; set; } = 0;            // Sort Order if Alpha Sort is requested
+      //public bool Ignore { get; set; } = false;      // Indicates that the request will hang printer
       public int Count { get; set; } = 1;            // Indicates max number of repetitions
       public int Stride { get; set; } = 0;           // Indicates the distance between repetitions
       public bool HoldingReg { get; set; } = true;   // Input vs Holding register
 
       // Four views of the printer data
       public Prop Data { get; set; }     // As it appears in the printer
-      public Prop Get { get; set; }      // Data to be passed on a Get Request
-      public Prop Set { get; set; }      // Data to be passed on a Set Request
-      public Prop Service { get; set; }  // Data to be passed on a Service Request
+      //public Prop Get { get; set; }      // Data to be passed on a Get Request
+      //public Prop Set { get; set; }      // Data to be passed on a Set Request
+      //public Prop Service { get; set; }  // Data to be passed on a Service Request
 
       // A description of the data from four points of view.
       public AttrData(int Val, bool HoldingReg, int Count, int Stride, Prop Data, Prop Data2 = null, Prop Data3 = null) {
@@ -1016,12 +1013,12 @@ namespace Modbus_DLL {
 
          // This is what the data looks like in the printer
          this.Data = Data;
-         if (this.HasService) {
-            this.Service = Data2;
-         } else {
-            this.Get = Data2;
-            this.Set = Data3;
-         }
+         //if (this.HasService) {
+         //   this.Service = Data2;
+         //} else {
+         //   this.Get = Data2;
+         //   this.Set = Data3;
+         //}
       }
 
       public AttrData Clone() {

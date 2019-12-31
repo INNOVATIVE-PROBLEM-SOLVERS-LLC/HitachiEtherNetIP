@@ -225,7 +225,7 @@ namespace ModBus161 {
             Type cc = p.ClassCodeAttributes[n];
             attrNames = Enum.GetNames(p.ClassCodeAttributes[n]);
             attrNamesSorted = Enum.GetNames(p.ClassCodeAttributes[n]);
-            Array.Sort(attrNamesSorted);
+            //Array.Sort(attrNamesSorted);
             cbAttribute.Items.AddRange(attrNamesSorted);
          }
 
@@ -402,7 +402,7 @@ namespace ModBus161 {
          string text = "Hello World";
          List<int> cols = new List<int>();            // Holds the number of rows in each column
          List<string> spacing = new List<string>();   // Holds the line spacing
-         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
+         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          while (n < itemCount) {
             cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
             spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
@@ -416,8 +416,8 @@ namespace ModBus161 {
          }
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccIDX.Column, 1);
-         p.SetAttribute(ccIDX.Line, 2);
+         p.SetAttribute(ccPF.Column, 1);
+         p.SetAttribute(ccPF.Line, 2);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -425,14 +425,14 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccIDX.Column, 3);
-         p.SetAttribute(ccIDX.Line, 1);
+         p.SetAttribute(ccPF.Column, 3);
+         p.SetAttribute(ccPF.Line, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          //p.SetAttribute(ccPF.Add_Column, 0);
-         p.SetAttribute(ccIDX.Column, 5);
-         p.SetAttribute(ccIDX.Line, 2);
+         p.SetAttribute(ccPF.Column, 5);
+         p.SetAttribute(ccPF.Line, 2);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
