@@ -132,19 +132,6 @@ namespace Modbus_DLL {
       Substitute_Weeks = 0x19D0,
       Substitute_DayOfWeek = 0x19D2,
 
-      // This block appears only once
-      Time_Count_Start_Value = 0x1CD4, // Thru 0x1CD6 - 3 characters
-      Time_Count_End_Value = 0x1CD7,   // Thru 0x1CD9 - 3 characters
-      Time_Count_Reset_Value = 0x1CDA, // Thru 0x1CDC - 3 characters
-      Reset_Time_Value = 0x1CDD,
-      Update_Interval_Value = 0x1CDE,
-
-      // This block repeats every 16 bytes for 48 times
-      Shift_Start_Hour = 0x1CE0,
-      Shift_Start_Minute = 0x1CE1,
-      Shift_End_Hour = 0x1CE2,
-      Shift_End_Minute = 0x1CE3,
-      Shift_String_Value = 0x1CE4,     // Thru 0x1CED - 10 characters
    }
 
    // Attributes within User Pattern class 0x6B
@@ -167,6 +154,20 @@ namespace Modbus_DLL {
       Minute = 0x1BA5,    // Thru 0x1C1C == 120 locations - 2 char max
       Week = 0x1C1D,      // Thru 0x1CBB == 159 locations - 3 char max
       DayOfWeek = 0x1CBC, // Thru 0x1CD0 == 21 locations - 3 char max
+
+      // This block appears only once
+      Time_Count_Start_Value = 0x1CD4, // Thru 0x1CD6 - 3 char max
+      Time_Count_End_Value = 0x1CD7,   // Thru 0x1CD9 - 3 char max
+      Time_Count_Reset_Value = 0x1CDA, // Thru 0x1CDC - 3 char max
+      Reset_Time_Value = 0x1CDD,
+      Update_Interval_Value = 0x1CDE,
+
+      // This block repeats every 16 bytes for 48 times
+      Shift_Start_Hour = 0x1CE0,
+      Shift_Start_Minute = 0x1CE1,
+      Shift_End_Hour = 0x1CE2,
+      Shift_End_Minute = 0x1CE3,
+      Shift_String_Value = 0x1CE4,     // Thru 0x1CED - 10 characters
    }
 
    // Attributes within Enviroment Setting class 0x71
@@ -550,26 +551,6 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
          new AttrData((int)ccCal.Zero_Suppress_DayOfWeek, true, 8, 32,          // Zero Suppress DayOfWeek 0x19D3
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Time_Count_Start_Value, true, 1, 0,            // Time Count Start Value 0x1CD4
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccCal.Time_Count_End_Value, true, 1, 0,              // Time Count End Value 0x1CD7
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccCal.Time_Count_Reset_Value, true, 1, 0,            // Time Count Reset Value 0x1CDA
-            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccCal.Reset_Time_Value, true, 1, 0,                  // Reset Time Value 0x1CDD
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Update_Interval_Value, true, 1, 0,             // Update Interval Value 0x1CDE
-            new Prop(1, DataFormats.Decimal, 0, 5, fmtDD.TimeCount)),           //   Data
-         new AttrData((int)ccCal.Shift_Start_Hour, true, 48, 16,                // Shift Start Hour 0x1CE0
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Shift_Start_Minute, true, 48, 16,              // Shift Start Minute 0x1CE1
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Shift_End_Hour, true, 48, 16,                  // Shift End Hour 0x1CE2
-            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Shift_End_Minute, true, 48, 16,                // Shift End Minute 0x1CE3
-            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Shift_String_Value, true, 48, 16,              // Shift String Value 0x1CE4
-            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Data
       };
 
       // User_pattern (Class Code 0x6B)
@@ -602,6 +583,26 @@ namespace Modbus_DLL {
             new Prop(3, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
             new Prop(6, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Time_Count_Start_Value, true, 1, 0,             // Time Count Start Value 0x1CD4
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Time_Count_End_Value, true, 1, 0,               // Time Count End Value 0x1CD7
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Time_Count_Reset_Value, true, 1, 0,             // Time Count Reset Value 0x1CDA
+            new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
+         new AttrData((int)ccSR.Reset_Time_Value, true, 1, 0,                   // Reset Time Value 0x1CDD
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Update_Interval_Value, true, 1, 0,              // Update Interval Value 0x1CDE
+            new Prop(1, DataFormats.Decimal, 0, 5, fmtDD.TimeCount)),           //   Data
+         new AttrData((int)ccSR.Shift_Start_Hour, true, 48, 16,                 // Shift Start Hour 0x1CE0
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Shift_Start_Minute, true, 48, 16,               // Shift Start Minute 0x1CE1
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Shift_End_Hour, true, 48, 16,                   // Shift End Hour 0x1CE2
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Shift_End_Minute, true, 48, 16,                 // Shift End Minute 0x1CE3
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccSR.Shift_String_Value, true, 48, 16,               // Shift String Value 0x1CE4
+            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Data
       };
 
       // Enviroment_setting (Class Code 0x71)

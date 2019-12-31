@@ -669,10 +669,10 @@ namespace Modbus_DLL {
       private string FormatAttrText(byte[] text) {
          string result = "";
          for (int i = 0; i < text.Length; i += 4) {
-            if (text[i] == 0) {
+            if (text[i] == 0 && text[i + 2] == 0) {
                result += (char)text[i + 3];
-            } else if (text[i] == 0xF1) {
-               result += $"{{X/{text[i + 1] - 0x40}}}";
+            } else if (text[i + 2] == 0xF1) {
+               result += $"{{X/{text[i + 3] - 0x40}}}";
             } else if (text[i] == 0xF2) {
                switch (text[i + 1]) {
                   case 0x50:
@@ -877,7 +877,6 @@ namespace Modbus_DLL {
                // This is an issue since the data in the printer is not UTF-8
                if (prop.Fmt == DataFormats.AttrText) {
                   width = 4;
-                  //s2 = HandleBraces(s2);
                } else {
                   s2 = s2.PadRight(prop.Len);
                   width = 2;
@@ -885,11 +884,14 @@ namespace Modbus_DLL {
                result = new byte[s2.Length * width];
                for (int i = 0; i < s2.Length; i++) {
                   char c = s2[i];
-                  if (c > 0xff) {
+                  if (c < 0x100) {
+                     result[(i + 1) * width - 1] = (byte)c;
+                  } else if ((c >> 8) == 0xF1) {
+                     result[(i + 1) * width - 2] = (byte)(c >> 8);
+                     result[(i + 1) * width - 1] = (byte)c;
+                  } else {
                      result[i * width] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
-                  } else {
-                     result[(i + 1) * width - 1] = (byte)c;
                   }
                }
                break;
@@ -970,21 +972,37 @@ namespace Modbus_DLL {
          return result;
       }
 
-      public string HandleBraces(string s2) {
+      public string HandleBraces(string s1) {
          // Braced Characters (count, date, half-size, logos
-         int firstFound = s2.Length;
-         int lastFound = -1;
+         string s2 = s1;
+         // Calendar and count
          char[,] bc = new char[,]
          { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
            {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
            {'E', '\uF25B'}, {'F', '\uF25C'} };
-         //char[,] bc = new char[,]
-         //{ {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
-         //  {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
-         //  {'E', '\uF25B'}, {'F', '\uF25C'}, {' ', '\uF244'}, {'\'', '\uF240'}, {'.', '\uF241'},
-         //  {';', '\uF245'}, {':', '\uF242'}, {'!', '\uF246'}, {',', '\uF243'}, {'X', '\uF200'},
-         //  {'Z', '\uF200' } };
 
+         // Half size characters
+         string[,] hs = new string[,]
+         { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
+           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
+
+         for (int i = 0; i < hs.GetLength(0); i++) {
+            s2 = s2.Replace(hs[i, 0], hs[i, 1]);
+         }
+
+         for (int i = 0; i < s2.Length; i++) {
+            int j;
+            i = s2.IndexOf("{X/", i);
+            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
+               int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
+               s2 = s2.Substring(0, i) + (char)('\uF140' + n) + s2.Substring(j + 1);
+            } else {
+               break;
+            }
+         }
+
+         int firstFound = s2.Length;
+         int lastFound = -1;
          string result = "";
          int bCount = 0;
          for (int i = 0; i < s2.Length; i++) {

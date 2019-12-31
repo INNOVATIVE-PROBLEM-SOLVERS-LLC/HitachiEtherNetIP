@@ -298,11 +298,11 @@ namespace ModBus161 {
          do {
             s.Add(new Shift() {
                ShiftNumber = n + 1,
-               StartHour = p.GetHRAttribute(ccCal.Shift_Start_Hour, n),
-               StartMinute = p.GetHRAttribute(ccCal.Shift_Start_Minute, n),
-               EndHour = endHour = p.GetHRAttribute(ccCal.Shift_End_Hour, n),
-               EndMinute = endMinute = p.GetHRAttribute(ccCal.Shift_End_Minute, n),
-               ShiftCode = p.GetHRAttribute(ccCal.Shift_String_Value, n),
+               StartHour = p.GetHRAttribute(ccSR.Shift_Start_Hour, n),
+               StartMinute = p.GetHRAttribute(ccSR.Shift_Start_Minute, n),
+               EndHour = endHour = p.GetHRAttribute(ccSR.Shift_End_Hour, n),
+               EndMinute = endMinute = p.GetHRAttribute(ccSR.Shift_End_Minute, n),
+               ShiftCode = p.GetHRAttribute(ccSR.Shift_String_Value, n),
             });
             n++;
          } while (endHour != "23" || endMinute != "59");
@@ -312,11 +312,11 @@ namespace ModBus161 {
       // Retrieve Time count settings
       private TimeCount RetrieveTimeCount() {
          TimeCount TimeCount = new TimeCount() {
-            Interval = p.GetHRAttribute(ccCal.Update_Interval_Value),
-            Start = p.GetHRAttribute(ccCal.Time_Count_Start_Value),
-            End = p.GetHRAttribute(ccCal.Time_Count_End_Value),
-            ResetTime = p.GetHRAttribute(ccCal.Reset_Time_Value),
-            ResetValue = p.GetHRAttribute(ccCal.Time_Count_Reset_Value),
+            Interval = p.GetHRAttribute(ccSR.Update_Interval_Value),
+            Start = p.GetHRAttribute(ccSR.Time_Count_Start_Value),
+            End = p.GetHRAttribute(ccSR.Time_Count_End_Value),
+            ResetTime = p.GetHRAttribute(ccSR.Reset_Time_Value),
+            ResetValue = p.GetHRAttribute(ccSR.Time_Count_Reset_Value),
          };
          return TimeCount;
       }
