@@ -120,7 +120,7 @@ namespace ModBus161 {
 
       // Retrieve row/column/items
       private void RetrieveRowsColumns(Msg m) {
-         int itemCount = p.GetDecAttribute(ccPF.Number_Of_Items);
+         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          int lineCount;
          int n = 0;
          List<int> cols = new List<int>();            // Holds the number of rows in each column
@@ -142,7 +142,7 @@ namespace ModBus161 {
             for (int row = 0; row < m.Column[col].Item.Length; row++) {
                Item item = new Item();                                    // Allocate the item
                int characterCount = p.GetDecAttribute(ccIDX.Characters_per_Item, n);
-               item.Text = p.GetHRAttribute(ccPF.Print_Character_String, totalCharacters, characterCount);
+               item.Text = p.GetHRAttribute(ccIDX.Print_Character_String, totalCharacters, characterCount);
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);
@@ -159,14 +159,14 @@ namespace ModBus161 {
                item.Location = new Location() { Index = n, Row = row, Col = col };
                int[] mask = new int[1 + 8];
                ItemType itemType = GetItemType(item.Text, ref mask);
-               item.Location.calCount = p.GetDecAttribute(ccCal.Number_of_Calendar_Blocks, n);
+               item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, n);
                if (item.Location.calCount > 0) {
-                  item.Location.calStart = p.GetDecAttribute(ccCal.First_Calendar_Block, n);
+                  item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, n);
                   RetrieveCalendarSettings(item, mask);
                }
-               item.Location.countCount = p.GetDecAttribute(ccCount.Number_Of_Count_Blocks, n);
+               item.Location.countCount = p.GetDecAttribute(ccPF.Number_Of_Count_Blocks, n);
                if (item.Location.countCount > 0) {
-                  item.Location.countStart = p.GetDecAttribute(ccCount.First_Count_Block, n);
+                  item.Location.countStart = p.GetDecAttribute(ccPF.First_Count_Block, n);
                   RetrieveCountSettings(item);
                }
                for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
