@@ -333,9 +333,9 @@ namespace ModBus161 {
          // Process Shift
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          for (int j = 0; j < item.Shift.Length; j++) {
-            p.SetAttribute(ccCal.Shift_Start_Hour, j, item.Shift[j].StartHour);
-            p.SetAttribute(ccCal.Shift_Start_Minute, j, item.Shift[j].StartMinute);
-            p.SetAttribute(ccCal.Shift_String_Value, j, item.Shift[j].ShiftCode);
+            p.SetAttribute(ccSR.Shift_Start_Hour, j, item.Shift[j].StartHour);
+            p.SetAttribute(ccSR.Shift_Start_Minute, j, item.Shift[j].StartMinute);
+            p.SetAttribute(ccSR.Shift_String_Value, j, item.Shift[j].ShiftCode);
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
@@ -344,11 +344,11 @@ namespace ModBus161 {
          TimeCount tc = item.TimeCount;
          if (tc != null) {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
-            p.SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
-            p.SetAttribute(ccCal.Time_Count_End_Value, tc.End);
-            p.SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
-            p.SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
+            p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
+            p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
+            p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
+            p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
+            p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
       }
