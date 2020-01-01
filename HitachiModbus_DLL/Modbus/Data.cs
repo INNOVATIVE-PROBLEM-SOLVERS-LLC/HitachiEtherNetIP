@@ -407,14 +407,16 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.Format_Type, true, 100, 24,                     // Format Type 0x67
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
-         new AttrData((int)ccPF.Insert_Column, true, 100, 24,                   // Insert Column 0x69
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Delete_Column, true, 100, 24,                   // Delete Column 0x6A
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Add_Column, true, 100, 24,                      // Add Column 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 100, 24, // Number Of Print Line And Print Format 0x6C
+         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 100, 24, // Number Of Print Line And Print Format 0x1020
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Insert_Column, true, 100, 24,                   // Insert Column 0x1021
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Delete_Column, true, 100, 24,                   // Delete Column 0x1022
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Add_Column, true, 100, 24,                      // Add Column 0x1023
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x1025
+            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.Adding_Print_Items, true, 100, 24,              // Adding Print Items 0x6E
@@ -427,8 +429,6 @@ namespace Modbus_DLL {
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
          new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x67
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x68
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
          new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Line_Spacing, true, 100, 24,                    // Line Spacing 0x1041
@@ -449,9 +449,9 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 8, 24,         // Number of Calendar Blocks 0x1049
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.First_Count_Block, true, 8, 24,              // First Count Block 0x104A
+         new AttrData((int)ccPF.First_Count_Block, true, 8, 24,                 // First Count Block 0x104A
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24,         // Number Of Count Blocks 0x104B
+         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24,            // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.X_and_Y_Coordinate, true, 100, 24,              // X and Y Coordinate 0x104C
             new Prop(3, DataFormats.XY, 0, 0, fmtDD.None)),                     //   Data

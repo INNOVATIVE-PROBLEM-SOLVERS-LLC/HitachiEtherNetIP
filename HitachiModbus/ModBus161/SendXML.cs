@@ -88,20 +88,20 @@ namespace ModBus161 {
       public void DeleteAllButOne() {
          int lineCount;
          int n = 0;
-         List<int> cols = new List<int>();            // Holds the number of rows in each column
-         List<string> spacing = new List<string>();   // Holds the line spacing
+         int cols = 0;            // Holds the number of rows in each column
          int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          while (n < itemCount) {
-            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
-            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
+            lineCount = p.GetDecAttribute(ccPF.Line_Count, n);
             n += lineCount;
+            cols++;
          }
 
-         for (int i = 0; i < cols.Count - 1; i++) {
+         for (int i = 0; i < cols - 1; i++) {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPF.Delete_Column, cols.Count - i);
+            p.SetAttribute(ccPF.Delete_Column, cols - i);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
+
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccPF.Column, 1);
          p.SetAttribute(ccPF.Line, 1);
@@ -130,13 +130,10 @@ namespace ModBus161 {
             p.SetAttribute(ccPF.Column, c + 1);
             p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            if (m.Column[c].Item.Length > 1) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccPF.Column, c + 1);
-               p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            }
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               if (m.Column[c].Item.Length > 1) {
+                  p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
+               }
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {

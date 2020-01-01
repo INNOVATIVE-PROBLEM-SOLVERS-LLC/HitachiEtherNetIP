@@ -256,7 +256,6 @@ namespace ModBus161 {
          }
       }
 
-
       #endregion
 
       #region Service Routines

@@ -22,6 +22,8 @@ namespace Modbus_DLL {
 
       bool UseIJPLibNames = true;
 
+      bool LogIOs = true;
+
       enum FunctionCode {
          WriteMultiple = 0x10,
          WriteSingle = 0x06,
@@ -338,7 +340,8 @@ namespace Modbus_DLL {
          int result = GetDecValue(GetAttribute(Attribute));
          AttrData attr = GetAttrData(Attribute);
          Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, result)}");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -348,7 +351,8 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          Debug.Assert(n < attr.Count);
          Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -356,7 +360,8 @@ namespace Modbus_DLL {
       public int GetDecAttribute(AttrData attr) {
          int result = GetDecValue(GetAttribute(attr));
          Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, result)}");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -367,7 +372,8 @@ namespace Modbus_DLL {
          ad.Val += n * attr.Stride;
          int result = GetDecValue(GetAttribute(ad));
          Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {result}");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -385,7 +391,8 @@ namespace Modbus_DLL {
             result = FormatAttrText(b);
          }
          Log?.Invoke(this, $"Get[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -404,7 +411,8 @@ namespace Modbus_DLL {
             result = FormatAttrText(b);
          }
          Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -422,7 +430,8 @@ namespace Modbus_DLL {
             result = FormatAttrText(b);
          }
          Log?.Invoke(this, $"Get[{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{result}\"");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return result;
       }
 
@@ -454,8 +463,9 @@ namespace Modbus_DLL {
             }
             success = true;
          }
-         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, val)}");
-         Log?.Invoke(this, " ");
+         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, val + attr.Data.Min)}");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return success;
       }
 
@@ -469,7 +479,8 @@ namespace Modbus_DLL {
             success = SetAttribute(attr.Val, data);
          }
          Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return success;
       }
 
@@ -483,7 +494,8 @@ namespace Modbus_DLL {
             success = SetAttribute(attr.Val + attr.Stride * n, data);
          }
          Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = \"{s}\"");
-         Log?.Invoke(this, " ");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return success;
       }
 
@@ -494,8 +506,9 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          byte[] data = FormatOutput(attr.Data, val);
          success = SetAttribute(attr.Val + attr.Stride * n, data);
-         Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n}] = {val}");
-         Log?.Invoke(this, " ");
+         Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n + attr.Data.Min}] = {val}");
+         if (LogIOs)
+            Log?.Invoke(this, " ");
          return success;
       }
 
@@ -506,7 +519,8 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr.Val + attr.Stride * n, data);
          Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
-         Log?.Invoke(this, " ");
+                if (LogIOs)
+  Log?.Invoke(this, " ");
          return success;
       }
 
@@ -606,16 +620,14 @@ namespace Modbus_DLL {
 
       // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
-         string s = $"[{len}] << " + byte_to_string(input, len);
-         //Log?.Invoke(this, $"{len} data bytes arrived");
-         Log?.Invoke(this, s);
+         if (LogIOs)
+            Log?.Invoke(this, $"[{len}] << " + byte_to_string(input, len));
       }
 
       // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
-         string s = $"[{len}] >> " + byte_to_string(output, len);
-         //Log?.Invoke(this, $"{len} data bytes sent");
-         Log?.Invoke(this, s);
+         if (LogIOs)
+            Log?.Invoke(this, $"[{len}] >> " + byte_to_string(output, len));
       }
 
       // Convert UTF8 string to byte array

@@ -24,6 +24,7 @@
       /// </summary>
       private void InitializeComponent() {
          this.components = new System.ComponentModel.Container();
+         System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UI161));
          this.lblIPAddress = new System.Windows.Forms.Label();
          this.lblIPPort = new System.Windows.Forms.Label();
          this.txtIPAddress = new System.Windows.Forms.TextBox();
@@ -360,7 +361,7 @@
          // 
          this.cmdRetrieve.Location = new System.Drawing.Point(19, 701);
          this.cmdRetrieve.Name = "cmdRetrieve";
-         this.cmdRetrieve.Size = new System.Drawing.Size(105, 40);
+         this.cmdRetrieve.Size = new System.Drawing.Size(87, 40);
          this.cmdRetrieve.TabIndex = 28;
          this.cmdRetrieve.Text = "Retrieve";
          this.cmdRetrieve.UseVisualStyleBackColor = true;
@@ -368,9 +369,10 @@
          // 
          // cmdReformat
          // 
-         this.cmdReformat.Location = new System.Drawing.Point(675, 59);
+         this.cmdReformat.Enabled = false;
+         this.cmdReformat.Location = new System.Drawing.Point(391, 701);
          this.cmdReformat.Name = "cmdReformat";
-         this.cmdReformat.Size = new System.Drawing.Size(105, 35);
+         this.cmdReformat.Size = new System.Drawing.Size(87, 40);
          this.cmdReformat.TabIndex = 29;
          this.cmdReformat.Text = "Reformat";
          this.cmdReformat.UseVisualStyleBackColor = true;
@@ -378,9 +380,9 @@
          // 
          // cmdSaveAs
          // 
-         this.cmdSaveAs.Location = new System.Drawing.Point(130, 701);
+         this.cmdSaveAs.Location = new System.Drawing.Point(112, 701);
          this.cmdSaveAs.Name = "cmdSaveAs";
-         this.cmdSaveAs.Size = new System.Drawing.Size(105, 40);
+         this.cmdSaveAs.Size = new System.Drawing.Size(87, 40);
          this.cmdSaveAs.TabIndex = 30;
          this.cmdSaveAs.Text = "Save As";
          this.cmdSaveAs.UseVisualStyleBackColor = true;
@@ -388,9 +390,9 @@
          // 
          // cmdOpen
          // 
-         this.cmdOpen.Location = new System.Drawing.Point(241, 701);
+         this.cmdOpen.Location = new System.Drawing.Point(205, 701);
          this.cmdOpen.Name = "cmdOpen";
-         this.cmdOpen.Size = new System.Drawing.Size(105, 40);
+         this.cmdOpen.Size = new System.Drawing.Size(87, 40);
          this.cmdOpen.TabIndex = 32;
          this.cmdOpen.Text = "Open";
          this.cmdOpen.UseVisualStyleBackColor = true;
@@ -398,9 +400,9 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(352, 701);
+         this.cmdSend.Location = new System.Drawing.Point(298, 701);
          this.cmdSend.Name = "cmdSend";
-         this.cmdSend.Size = new System.Drawing.Size(105, 40);
+         this.cmdSend.Size = new System.Drawing.Size(87, 40);
          this.cmdSend.TabIndex = 31;
          this.cmdSend.Text = "Send";
          this.cmdSend.UseVisualStyleBackColor = true;
@@ -541,6 +543,7 @@
          this.Controls.Add(this.txtIPAddress);
          this.Controls.Add(this.lblIPPort);
          this.Controls.Add(this.lblIPAddress);
+         this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "UI161";
          this.Text = "Modbus for Hitachi UX Model 161 Printer";
          this.cmLog.ResumeLayout(false);
