@@ -21,6 +21,8 @@ namespace ModBus161 {
    public class Msg {
       [XmlAttribute]
       public string Layout;    // Supports only individual at the moment
+      [XmlAttribute]
+      public string Name;     // Supports only individual at the moment
       [XmlElement("Column")]
       public Column[] Column;  // Message made up of columns and items within column
    }
@@ -282,6 +284,7 @@ namespace ModBus161 {
       public PrintStartDelay PrintStartDelay;
       public EncoderSettings EncoderSettings;
       public InkStream InkStream;
+      public ClockSystem ClockSystem;
       public Substitution Substitution;
       public Logos Logos;
    }
@@ -335,6 +338,11 @@ namespace ModBus161 {
       public string InkDropUse;
       [XmlAttribute]
       public string ChargeRule;
+   }
+
+   public class ClockSystem {
+      [XmlAttribute]
+      public string HourMode24;
    }
 
    public class Logos {

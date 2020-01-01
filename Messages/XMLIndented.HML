@@ -17,7 +17,7 @@
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress Year="None" Month="None" Day="Space" />
-          <Substitute Year="False" Month="False" Day="False" />
+          <Substitute Year="False" Month="True" Day="False" />
         </Date>
         <Text>SELL BY {MMM/DD/YY}  </Text>
       </Item>
@@ -27,7 +27,7 @@
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="20" Hour="0" Minute="0" />
           <ZeroSuppress Year="None" Month="None" Day="Space" />
-          <Substitute Year="False" Month="False" Day="False" />
+          <Substitute Year="False" Month="True" Day="False" />
         </Date>
         <Text>USE BY  {MMM/DD/YY}  </Text>
       </Item>
@@ -37,9 +37,9 @@
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Year="0" Month="0" Day="0" Hour="0" Minute="0" />
           <ZeroSuppress DayOfWeek="None" />
-          <Substitute DayOfWeek="False" />
+          <Substitute DayOfWeek="True" />
         </Date>
-        <Text>PACKED  TTT 777 </Text>
+        <Text>PACKED  {TTT  777} </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="2">
@@ -47,11 +47,11 @@
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <BarCode />
         <Shifts>
-          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="0" />
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
           <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
-          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="0" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
         </Shifts>
-        <Text>Shift E</Text>
+        <Text>Shift {E}</Text>
       </Item>
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
@@ -74,7 +74,7 @@
       <Item>
         <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
         <BarCode />
-        <Text />
+        <Text>{X/0} </Text>
       </Item>
     </Column>
   </Message>
