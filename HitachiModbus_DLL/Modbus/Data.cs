@@ -136,8 +136,12 @@ namespace Modbus_DLL {
 
    // Attributes within User Pattern class 0x6B
    public enum ccUP { // 0x6B
-      User_Pattern_Fixed = 0x64,
-      User_Pattern_Free = 0x65,
+      User_Pattern_Fixed_Registration = 0x2D00,
+      User_Pattern_Fixed_Data = 0x2D20,
+      User_Pattern_Free_Registration = 0x6500,
+      User_Pattern_Free_Height = 0x6510,
+      User_Pattern_Free_Width = 0x6511,
+      User_Pattern_Free_Data = 0x6512,
    }
 
    // Attributes within Substitution Rules class 0x6C
@@ -555,9 +559,17 @@ namespace Modbus_DLL {
 
       // User_pattern (Class Code 0x6B)
       private AttrData[] ccUP_Addrs = new AttrData[] {
-         new AttrData((int)ccUP.User_Pattern_Fixed, true, 1, 0,                 // User Pattern Fixed 0x64
+         new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 1, 12,   // User Pattern Fixed Registration 0x2D00
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 1, 0,            // User Pattern Fixed Data 0x2D20
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUP.User_Pattern_Free, true, 1, 0,                  // User Pattern Free 0x65
+         new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 1, 4,     // User Pattern Free Registration 0x6500
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUP.User_Pattern_Free_Height, true, 1, 0,           // User Pattern Free Height 0x6510
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUP.User_Pattern_Free_Width, true, 1, 0,            // User Pattern Free Width 0x6511
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUP.User_Pattern_Free_Data, true, 1, 0,             // User Pattern Free Data 0x6512
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
@@ -771,20 +783,20 @@ namespace Modbus_DLL {
             new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Characters_per_Item, true, 1000, 1,            // Character per Item 0x0020
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
-         new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x6A
+         new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x6B
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x6C
+         new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x6D
+         new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
             new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
-          new AttrData((int)ccIDX.Print_Character_String, true, 1000, 2,        // Print Character String 0x84
+          new AttrData((int)ccIDX.Print_Character_String, true, 1000, 2,        // Print Character String 0x0084
             new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
-        //new AttrData((int)ccIDX.Count_Block, true, 1, 0,                       // Count Block 0x6E
-         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
-         //new AttrData((int)ccIDX.Calendar_Block, true, 1, 0,                    // Calendar Block 0x6F
-         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),             //   Data
+        //new AttrData((int)ccIDX.Count_Block, true, 1, 0,                      // Count Block 0x6E
+         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),           //   Data
+         //new AttrData((int)ccIDX.Calendar_Block, true, 1, 0,                  // Calendar Block 0x6F
+         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),           //   Data
       };
 
       #endregion

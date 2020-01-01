@@ -374,15 +374,11 @@ namespace Modbus_DLL {
       // Get human readable value of the attribute
       public string GetHRAttribute<T>(T Attribute) where T : Enum {
          byte[] b = GetAttribute(Attribute);
-         long n = GetDecValue(b);
+         int n = GetDecValue(b);
          string result = n.ToString();
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
-            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            n = n - attr.Data.Min;
-            if (n >= 0 && n < dd.Length) {
-               result = dd[n];
-            }
+            result = ToDropdownString(attr.Data, n);
          } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
@@ -396,16 +392,12 @@ namespace Modbus_DLL {
       // Get human readable value of the attribute
       public string GetHRAttribute<T>(T Attribute, int n) where T : Enum {
          byte[] b = GetAttribute(Attribute, n);
-         long d = GetDecValue(b);
+         int d = GetDecValue(b);
          string result = d.ToString();
          AttrData attr = GetAttrData(Attribute);
          Debug.Assert(n < attr.Count);
          if (attr.Data.DropDown != fmtDD.None) {
-            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            d = d - attr.Data.Min;
-            if (d >= 0 && d < dd.Length) {
-               result = dd[d];
-            }
+            result = ToDropdownString(attr.Data, d);
          } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
@@ -419,15 +411,11 @@ namespace Modbus_DLL {
       // Get human readable value of the attribute
       public string GetHRAttribute<T>(T Attribute, int n, int length) where T : Enum {
          byte[] b = GetAttribute(Attribute, n, length);
-         long d = GetDecValue(b);
+         int d = GetDecValue(b);
          string result = d.ToString();
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
-            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            d = d - attr.Data.Min;
-            if (d >= 0 && d < dd.Length) {
-               result = dd[d];
-            }
+            result = ToDropdownString(attr.Data, d);
          } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
@@ -602,13 +590,11 @@ namespace Modbus_DLL {
 
       // Convert the decimal value to human readable
       public string GetHRValue(AttrData attr, int n) {
-         string result = n.ToString();
+         string result;
          if (attr.Data.DropDown != fmtDD.None) {
-            string[] dd = GetDropDownNames((int)attr.Data.DropDown);
-            n = n - attr.Data.Min;
-            if (n >= 0 && n < dd.Length) {
-               result = dd[n];
-            }
+            result = ToDropdownString(attr.Data, n);
+         } else {
+            result = n.ToString();
          }
          return result;
       }
@@ -854,15 +840,7 @@ namespace Modbus_DLL {
                } else {
                   // Translate dropdown back to a number
                   if (prop.DropDown != fmtDD.None) {
-                     s = s.ToLower();
-                     val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
-                     if (val < 0) {
-                        val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
-                     }
-                     if (val >= 0) {
-                        val += (int)prop.Min;
-                        result = ToBytes(val, prop.Len);
-                     }
+                     result = ToBytes(ToDropdownValue(prop, s), prop.Len);
                   }
                }
                break;
@@ -972,6 +950,7 @@ namespace Modbus_DLL {
          return result;
       }
 
+      // Convert Hitachi Braced notation to characters
       public string HandleBraces(string s1) {
          // Braced Characters (count, date, half-size, logos
          string s2 = s1;
@@ -1073,6 +1052,33 @@ namespace Modbus_DLL {
          } else {
             return s;
          }
+      }
+
+      // Convert Dropdown HR string to Dropdown value
+      public int ToDropdownValue(Prop prop, string s) {
+         int val;
+         s = s.ToLower();
+         val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+         if (val < 0) {
+            val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
+         }
+         if (val >= 0) {
+            val += (int)prop.Min;
+         }
+         return val;
+      }
+
+      // Convert Dropdown value to Dropdown HR string
+      public string ToDropdownString(Prop prop, int n) {
+         string result;
+         string[] dd = GetDropDownNames((int)prop.DropDown);
+         n = n - prop.Min;
+         if (n >= 0 && n < dd.Length) {
+            result = dd[n];
+         } else {
+            result = n.ToString();
+         }
+         return result;
       }
 
       #endregion
