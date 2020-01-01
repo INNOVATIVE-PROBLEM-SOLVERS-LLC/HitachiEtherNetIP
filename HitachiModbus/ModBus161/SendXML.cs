@@ -53,6 +53,11 @@ namespace ModBus161 {
       public void SendXML(Lab Lab, bool AutoReflect = true) {
          UseAutomaticReflection = AutoReflect; // Speed up processing
          try {
+
+            if (Lab.Printer != null && Lab.Printer.Logos != null) {
+               SendLogos(Lab.Printer.Logos);
+            }
+
             if (Lab.Message != null) {
                SendMessage(Lab.Message);
             }
@@ -387,11 +392,6 @@ namespace ModBus161 {
             p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
             p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
          }
-         if (ptr.Logos != null) {
-            foreach (Logo l in ptr.Logos.Logo) {
-
-            }
-         }
          if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
             if (int.TryParse(ptr.Substitution.RuleNumber, out int ruleNumber)
                && int.TryParse(ptr.Substitution.StartYear, out int year)
@@ -409,6 +409,38 @@ namespace ModBus161 {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                UseAutomaticReflection = saveAR;
+            }
+         }
+      }
+
+      private void SendLogos(Logos logos) {
+         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
+         foreach (Logo l in logos.Logo) {
+            // Load the logo into the pattern area
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccIDX.User_Pattern_Size, l.DotMatrix);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               // Write the registration bit
+               int regLoc = loc / 16;
+               int regBit = 15 - (loc % 16);
+               AttrData attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+               int regMask = p.GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
+               regMask |= 1 << regBit;
+               p.SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               // Write the pattern
+               int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
+               byte[] data = new byte[logoLen[n]];
+               byte[] rawdata = p.string_to_byte(l.RawData);
+               for (int i = 0; i < Math.Min(data.Length, rawdata.Length); i++) {
+                  data[i] = rawdata[i];
+               }
+               // Write the pattern data
+               attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data);
+               int addr = attr.Val + loc * (logoLen[n] / 2);
+               p.SetAttribute(addr, data);
             }
          }
       }

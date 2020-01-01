@@ -1,0 +1,25 @@
+<Label Version="1">
+  <Printer Make="Hitachi">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <ClockSystem HourMode24="True" />
+    <Logos Folder="C:\GitHubEtherNetIP\Messages">
+      <Logo Layout="Fixed" DotMatrix="18x24" Location="0" FileName="XML" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" />
+      <Logo Layout="Fixed" DotMatrix="18x24" Location="1" FileName="XML" RawData="F0 F0 FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" />
+    </Logos>
+  </Printer>
+  <Message Layout="SeparateSetup" Name="SAMPLE 1    ">
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <BarCode />
+        <Text>XML {X/0}{X/1}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>
