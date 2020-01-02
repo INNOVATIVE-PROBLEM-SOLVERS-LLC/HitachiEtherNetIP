@@ -107,18 +107,16 @@ namespace ModBus161 {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
 
-         parent.Log(" \n// Set first column to line count of 1\n ");
+         parent.Log(" \n// Set first column to line count of 1 and clear the item\n ");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccPF.Column, 1);
          p.SetAttribute(ccPF.Line, 1);
+         p.SetAttribute(ccPC.Print_Erasure, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         parent.Log(" \n// Clear out first item in case if has barcode/etc\n ");
+         parent.Log(" \n// Set the format to the smallest size\n ");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");           // Clear any barcodes
-         p.SetAttribute(ccPF.Barcode_Type, 0, "None");
-         p.SetAttribute(ccIDX.Characters_per_Item, 0, 1);
-         p.SetAttribute(ccIDX.Print_Character_String, 0, "1"); // Set simple text in case Calendar or Counter was used
+         p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
@@ -140,12 +138,18 @@ namespace ModBus161 {
             p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
+            if (m.Column[c].Item.Length > 1) {
+               parent.Log($" \n// Set ILS for items {index + 1} to {index + m.Column[c].Item.Length}\n ");
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               for (int j = 0; j < m.Column[c].Item.Length; j++) {
+                  p.SetAttribute(ccPF.Line_Spacing, index + j, m.Column[c].InterLineSpacing);
+               }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
+
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                parent.Log($" \n// Fill in item {index + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               if (m.Column[c].Item.Length > 1) {
-                  //p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
-               }
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
@@ -153,8 +157,8 @@ namespace ModBus161 {
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
                }
                string s = p.HandleBraces(item.Text);
-               p.SetAttribute(ccIDX.Characters_per_Item, index, s.Length);
-               p.SetAttribute(ccIDX.Print_Character_String, charPosition, s);
+               p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
+               p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
                charPosition += s.Length;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
