@@ -316,7 +316,16 @@ namespace ModBus161 {
 
       // Enter a message into the log file display
       public void Log(string msg) {
-         lstMessages.Items.Add(msg);
+         string s = "";
+         for (int i = 0; i < msg.Length;i++) {
+            char c = msg[i];
+            if (c >= 0x100) {
+               s += $"<{c >> 8:X2}><{c & 0xFF:X2}>";
+            } else {
+               s += msg.Substring(i, 1);
+            }
+         }
+         lstMessages.Items.Add(s);
          lstMessages.SelectedIndex = lstMessages.Items.Count - 1;
          lstMessages.Update();
       }
