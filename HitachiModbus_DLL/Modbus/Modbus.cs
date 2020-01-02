@@ -22,7 +22,7 @@ namespace Modbus_DLL {
 
       bool UseIJPLibNames = true;
 
-      bool LogIOs = true;
+      bool LogIOs = false;
 
       enum FunctionCode {
          WriteMultiple = 0x10,
@@ -214,33 +214,12 @@ namespace Modbus_DLL {
             case DataFormats.SDecimal:
                break;
             case DataFormats.UTF8:
-            case DataFormats.UTF8N:
                len *= 2;
                break;
             case DataFormats.Date:
                break;
             case DataFormats.Bytes:
                break;
-            case DataFormats.XY:
-               break;
-            case DataFormats.N2N2:
-               break;
-            case DataFormats.N2Char:
-               break;
-            case DataFormats.ItemChar:
-               break;
-            case DataFormats.Item:
-               break;
-            case DataFormats.GroupChar:
-               break;
-            case DataFormats.MsgChar:
-               break;
-            //case DataFormats.N1Char:
-            //   break;
-            //case DataFormats.N1N1:
-            //   break;
-            //case DataFormats.N1N2N1:
-            //   break;
             case DataFormats.AttrText:
                len *= 4;
                break;
@@ -385,7 +364,7 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
             result = ToDropdownString(attr.Data, n);
-         } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
+         } else if (attr.Data.Fmt == DataFormats.UTF8) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
@@ -405,7 +384,7 @@ namespace Modbus_DLL {
          Debug.Assert(n < attr.Count);
          if (attr.Data.DropDown != fmtDD.None) {
             result = ToDropdownString(attr.Data, d);
-         } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
+         } else if (attr.Data.Fmt == DataFormats.UTF8) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
@@ -424,7 +403,7 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
             result = ToDropdownString(attr.Data, d);
-         } else if (attr.Data.Fmt == DataFormats.UTF8 || attr.Data.Fmt == DataFormats.UTF8N) {
+         } else if (attr.Data.Fmt == DataFormats.UTF8) {
             result = FormatText(b);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
@@ -542,6 +521,7 @@ namespace Modbus_DLL {
             typeof(ccIJP),   // 0x75 IJP operation function
             typeof(ccCount), // 0x79 Count function
             typeof(ccIDX),   // 0x7A Index function
+            typeof(ccPC),    // 0x7B Print Contents function
       };
 
       // Lookup for getting attributes associated with a Class/Function
@@ -813,21 +793,11 @@ namespace Modbus_DLL {
       }
 
       // Convert unsigned integer to byte array
-      public byte[] ToBytes(long v, int length, mem order = mem.BigEndian) {
+      public byte[] ToBytes(long v, int length) {
          byte[] result = new byte[length];
-         switch (order) {
-            case mem.BigEndian:
-               for (int i = length - 1; i >= 0; i--) {
-                  result[i] = (byte)(v & 0xFF);
-                  v >>= 8;
-               }
-               break;
-            case mem.LittleEndian:
-               for (int i = 0; i < length; i++) {
-                  result[i] = (byte)(v & 0xFF);
-                  v >>= 8;
-               }
-               break;
+         for (int i = length - 1; i >= 0; i--) {
+            result[i] = (byte)(v & 0xFF);
+            v >>= 8;
          }
          return result;
       }
@@ -865,7 +835,6 @@ namespace Modbus_DLL {
                }
                break;
             case DataFormats.UTF8:
-            case DataFormats.UTF8N:
             case DataFormats.AttrText:
                string s2 = s;
                int width;
@@ -893,47 +862,12 @@ namespace Modbus_DLL {
                   }
                }
                break;
-            case DataFormats.Date:
-               if (DateTime.TryParse(s, out DateTime d)) {
-                  byte[] year = ToBytes(d.Year, 2, mem.LittleEndian);
-                  byte[] month = ToBytes(d.Month, 2, mem.LittleEndian);
-                  byte[] day = ToBytes(d.Day, 2, mem.LittleEndian);
-                  byte[] hour = ToBytes(d.Hour, 2, mem.LittleEndian);
-                  byte[] minute = ToBytes(d.Minute, 2, mem.LittleEndian);
-                  byte[] second = ToBytes(d.Second, 2, mem.LittleEndian);
-                  result = Merge(year, month, day, hour, minute, second);
-               }
-               break;
             case DataFormats.Bytes:
                sa = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                result = new byte[prop.Len];
                for (int i = 0; i < Math.Min(sa.Length, prop.Len); i++) {
                   if (int.TryParse(sa[i], System.Globalization.NumberStyles.HexNumber, null, out int n)) {
                      result[i] = (byte)n;
-                  }
-               }
-               break;
-            case DataFormats.XY:
-               sa = s.Split(',');
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint x) && uint.TryParse(sa[1].Trim(), out uint y)) {
-                     result = Merge(ToBytes(x, 2), ToBytes(y, 1));
-                  }
-               }
-               break;
-            case DataFormats.N2N2:
-               sa = s.Split(',');
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
-                     result = Merge(ToBytes(n1, 2), ToBytes(n2, 2));
-                  }
-               }
-               break;
-            case DataFormats.N2Char:
-               sa = s.Split(new char[] { ',' }, 2);
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 2), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
                   }
                }
                break;

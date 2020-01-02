@@ -27,6 +27,7 @@ namespace Modbus_DLL {
       IJP_operation = 0x75,
       Count = 0x79,
       Index = 0x7A,
+      Print_Contents = 0x7B,
    }
 
    // Attributes within Print Data Management class 0x66
@@ -71,7 +72,8 @@ namespace Modbus_DLL {
       First_Count_Block = 0x104A,
       Number_Of_Count_Blocks = 0x104B,
 
-      X_and_Y_Coordinate = 0x104C,
+      X_Coordinate = 0x104C,
+      Y_Coordinate = 0x104D,
       InterCharacter_SpaceII = 0x7B,
       Add_To_End_Of_String = 0x8A,
 
@@ -267,17 +269,18 @@ namespace Modbus_DLL {
    // Attributes within Index class 0x7A
    public enum ccIDX {
       Start_Stop_Management_Flag = 0x0000,
-      Automatic_reflection = 0x65,
-      Item = 0x66,
-      Characters_per_Item = 0x0020,
       Number_Of_Items = 0x0008,
       Message_Number = 0x0010,
-      Group_Number = 0x6B,
       Substitution_Rule = 0x0012,
       User_Pattern_Size = 0x0013,
-      //Count_Block = 0x6E,
-      //Calendar_Block = 0x6F,
+      Group_Number = 0x0014,
+   }
+
+   // Attributes within Print Contents class 0x7B
+   public enum ccPC {
+      Characters_per_Item = 0x0020,
       Print_Character_String = 0x0084,
+      Print_Erasure = 0x1000,
    }
 
    #endregion
@@ -291,11 +294,6 @@ namespace Modbus_DLL {
       Set,
       GetSet,
       Service,
-   }
-
-   public enum mem {
-      BigEndian,
-      LittleEndian
    }
 
    // Dropdowns to be used in the display when discrete values are returned.
@@ -326,28 +324,16 @@ namespace Modbus_DLL {
       TimeCount = 22,
       OffOn = 23,
       EANRule = 24,
-      AttributedCharacters = 25,
    }
 
    public enum DataFormats {
       None = -1,      // No formating
       Decimal = 0,    // Unsigned Decimal numbers up to 8 digits (Big Endian)
-      SDecimal = 2,   // Signed Decimal numbers up to 8 digits (Big Endian)
-      UTF8 = 4,       // UTF8 characters followed by a Null character
-      UTF8N = 5,      // UTF8 characters without the null character
-      Date = 6,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
-      Bytes = 7,      // Raw data in 2-digit hex notation
-      XY = 8,         // x = 2 bytes, y = 1 byte
-      N2N2 = 9,       // 2 2-byte numbers
-      N2Char = 10,    // 2-byte number + UTF8 String + 0x00
-      ItemChar = 11,  // 1-byte item number + UTF8 String + 0x00
-      Item = 12,      // 1-byte item number
-      GroupChar = 13, // 1-byte group number + UTF8 String + 0x00
-      MsgChar = 14,   // 2-byte message number + UTF8 String + 0x00
-      //N1Char = 15,    // 1-byte number + UTF8 String + 0x00
-      //N1N1 = 16,      // 2 1-byte numbers
-      //N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
-      AttrText = 18,  // 4-bytes per character attributed Text
+      SDecimal = 1,   // Signed Decimal numbers up to 8 digits (Big Endian)
+      UTF8 = 2,       // UTF8 characters
+      Date = 3,       // YYYY MM DD HH MM SS 6 2-byte values in Little Endian format
+      Bytes = 4,      // Raw data in 2-digit hex notation
+      AttrText = 5,   // 4-bytes per character attributed Text
    }
 
    #endregion
@@ -369,7 +355,7 @@ namespace Modbus_DLL {
             ccIJP_Addrs,           // 0x75 IJP operation function
             ccCount_Addrs,         // 0x79 Count function
             ccIDX_Addrs,           // 0x7A Index function
-
+            ccPC_Addrs,            // 0x7B Print Contents function
          };
       }
 
@@ -416,8 +402,10 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_Column, true, 1, 0,                         // Add Column 0x1023
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x1024
+            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x1025
-            new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.Adding_Print_Items, true, 1, 0,                 // Adding Print Items 0x6E
@@ -428,8 +416,6 @@ namespace Modbus_DLL {
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 1, 0,               // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
-         new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x67
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          // The following data is repeated
          new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
@@ -455,8 +441,10 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24,            // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.X_and_Y_Coordinate, true, 100, 24,              // X and Y Coordinate 0x104C
-            new Prop(3, DataFormats.XY, 0, 0, fmtDD.None)),                     //   Data
+         new AttrData((int)ccPF.X_Coordinate, true, 100, 24,                    // X Coordinate 0x104C
+            new Prop(3, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
+         new AttrData((int)ccPF.Y_Coordinate, true, 100, 24,                    // Y Coordinate 0x104D
+            new Prop(3, DataFormats.Decimal, 0, 29, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.QR_Error_Correction_Level, true, 100, 24,       // QR Error Correction Level 0x2084
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
          new AttrData((int)ccPF.Calendar_Offset, true, 100, 24,                 // Calendar Offset 0x2480
@@ -618,7 +606,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.Shift_End_Minute, true, 48, 16,                 // Shift End Minute 0x1CE3
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
          new AttrData((int)ccSR.Shift_String_Value, true, 48, 16,               // Shift String Value 0x1CE4
-            new Prop(1, DataFormats.UTF8N, 0, 0, fmtDD.None)),                  //   Data
+            new Prop(1, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
       // Enviroment_setting (Class Code 0x71)
@@ -779,28 +767,26 @@ namespace Modbus_DLL {
       private AttrData[] ccIDX_Addrs = new AttrData[] {
          new AttrData((int)ccIDX.Start_Stop_Management_Flag, true, 1, 0,        // Start Stop Management Flag 0x00
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
-         new AttrData((int)ccIDX.Number_Of_Items, true, 100, 24,                // Number Of Items 0x08
+         new AttrData((int)ccIDX.Number_Of_Items, true, 100, 24,                // Number Of Items 0x0008
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccIDX.Automatic_reflection, true, 1, 0,              // Automatic reflection 0x65
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OffOn)),               //   Data
-         new AttrData((int)ccIDX.Item, true, 1, 0,                              // Item 0x66
-            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccIDX.Characters_per_Item, true, 1000, 1,            // Character per Item 0x0020
-            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
-         new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
             new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
-          new AttrData((int)ccIDX.Print_Character_String, true, 1000, 2,        // Print Character String 0x0084
+         new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x0014
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+      };
+
+      // Print Contents (Class Code 0x7B)
+      private AttrData[] ccPC_Addrs = new AttrData[] {
+         new AttrData((int)ccPC.Characters_per_Item, true, 100, 1,              // Character per Item 0x0020
+            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPC.Print_Character_String, true, 1000, 2,          // Print Character String 0x0084
             new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
-        //new AttrData((int)ccIDX.Count_Block, true, 1, 0,                      // Count Block 0x6E
-         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),           //   Data
-         //new AttrData((int)ccIDX.Calendar_Block, true, 1, 0,                  // Calendar Block 0x6F
-         //   new Prop(1, DataFormats.Decimal, 1, 8, fmtDD.Decimal)),           //   Data
+         new AttrData((int)ccPC.Print_Erasure, true, 1, 0,                      // Print Erasure 0x1000
+            new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
       };
 
       #endregion
