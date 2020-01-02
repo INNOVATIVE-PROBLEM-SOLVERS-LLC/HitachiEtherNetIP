@@ -39,7 +39,7 @@
           <ZeroSuppress DayOfWeek="None" />
           <Substitute DayOfWeek="True" />
         </Date>
-        <Text>PACKED  {TTT  777} </Text>
+        <Text>PACKED  {TTT}  {777} </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="2">

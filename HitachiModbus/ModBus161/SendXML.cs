@@ -88,25 +88,32 @@ namespace ModBus161 {
       public void DeleteAllButOne() {
          int lineCount;
          int n = 0;
-         int cols = 0;            // Holds the number of rows in each column
+         int cols = 0;
+
+         parent.Log(" \n// Get number of items\n ");
          int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
+
+         parent.Log(" \n// Calculate number of columns\n ");
          while (n < itemCount) {
             lineCount = p.GetDecAttribute(ccPF.Line_Count, n);
             n += lineCount;
             cols++;
          }
 
+         parent.Log(" \n// Delete all columns but the first one\n ");
          for (int i = 0; i < cols - 1; i++) {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPF.Delete_Column, cols - i);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
 
+         parent.Log(" \n// Set first column to line count of 1\n ");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccPF.Column, 1);
          p.SetAttribute(ccPF.Line, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
+         parent.Log(" \n// Clear out first item in case if has barcode/etc\n ");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");           // Clear any barcodes
          p.SetAttribute(ccPF.Barcode_Type, 0, "None");
@@ -121,20 +128,24 @@ namespace ModBus161 {
          int charPosition = 0;
          for (int c = 0; c < m.Column.Length; c++) {
             if (c > 0) {
+               parent.Log($" \n// Add column {c + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccPF.Add_Column, 0);
+               p.SetAttribute(ccPF.Add_Column, c + 1);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
-            // Should this be Column and not Item?
+
+            parent.Log($" \n// Set column {c + 1} to {m.Column[c].Item.Length} items\n ");
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPF.Column, c + 1);
             p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
-               if (m.Column[c].Item.Length > 1) {
-                  p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
-               }
+               parent.Log($" \n// Fill in item {index + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               if (m.Column[c].Item.Length > 1) {
+                  //p.SetAttribute(ccPF.Line_Spacing, index, m.Column[c].InterLineSpacing);
+               }
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
@@ -144,7 +155,7 @@ namespace ModBus161 {
                string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Characters_per_Item, index, s.Length);
                p.SetAttribute(ccIDX.Print_Character_String, charPosition, s);
-               charPosition += item.Text.Length;
+               charPosition += s.Length;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
                m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
@@ -160,18 +171,18 @@ namespace ModBus161 {
          // Need a combination of sets and gets.  Turn AutoReflection off
          bool saveAR = UseAutomaticReflection;
          UseAutomaticReflection = false;
+
          // Get calendar and count blocks assigned by the printer
+         parent.Log($" \n// Get number of Calendar and Count blocks used\n ");
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
                int index = m.Column[c].Item[r].Location.Index;
                if (item.Date != null) {
-                  //p.SetAttribute(ccIDX.Item, index);
                   item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, index);
                   item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, index);
                }
                if (item.Counter != null) {
-                  //p.SetAttribute(ccIDX.Item, index);
                   item.Location.countCount = p.GetDecAttribute(ccPF.Number_Of_Count_Blocks, index);
                   item.Location.countStart = p.GetDecAttribute(ccPF.First_Count_Block, index);
                }
@@ -205,11 +216,15 @@ namespace ModBus161 {
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
             if (date.Block <= calCount) {
+
+               parent.Log($" \n// Load settings for Substitution rule {1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, 1); // date.SubstitutionRule
+               p.SetAttribute(ccIDX.Substitution_Rule, 0); // date.SubstitutionRule
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
+               parent.Log($" \n// Set up calendar {index + 1}\n ");
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                // Process Offset
                Offset o = date.Offset;
                int n;
@@ -282,6 +297,7 @@ namespace ModBus161 {
                      p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
                   }
                }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
       }
@@ -293,6 +309,9 @@ namespace ModBus161 {
             Counter c = item.Counter[i];
             if (c.Block <= countCount) {
                int index = countStart + c.Block - 2; // Both count start and count block are 1-origin
+
+               parent.Log($" \n// Set up count {index + 1}\n ");
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                // Process Range
                Range r = c.Range;
                if (r != null) {
@@ -327,11 +346,14 @@ namespace ModBus161 {
                   p.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
                   p.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
                }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
       }
 
       private void SendShift(Item item) {
+
+         parent.Log($" \n// Set up shifts\n ");
          // Process Shift
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          for (int j = 0; j < item.Shift.Length; j++) {
@@ -343,6 +365,8 @@ namespace ModBus161 {
       }
 
       private void SendTimeCount(Item item) {
+
+         parent.Log($" \n// Set up Time Count\n ");
          TimeCount tc = item.TimeCount;
          if (tc != null) {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -360,6 +384,9 @@ namespace ModBus161 {
       #region Send Printer Settings to printer
 
       private void SendPrinterSettings(Printer ptr) {
+
+         parent.Log($" \n// Send printer settings\n ");
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          if (ptr.PrintHead != null) {
             p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
          }
@@ -408,6 +435,7 @@ namespace ModBus161 {
                UseAutomaticReflection = saveAR;
             }
          }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       private void SendLogos(Logos logos) {
