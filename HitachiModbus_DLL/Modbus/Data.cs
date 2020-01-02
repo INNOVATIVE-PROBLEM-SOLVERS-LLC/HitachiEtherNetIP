@@ -1002,36 +1002,30 @@ namespace Modbus_DLL {
 
       public ClassCode Class { get; set; }           // The class code is set when the dictionary is built
       public int Val { get; set; } = 0;              // The Attribute (Makes the tables easier to read)
-      //public bool HasSet { get; set; } = false;      // Supports a Set Request
-      //public bool HasGet { get; set; } = false;      // Supports a Get Request
-      //public bool HasService { get; set; } = false;  // Supports a Service Request
-      //public int Order { get; set; } = 0;            // Sort Order if Alpha Sort is requested
-      //public bool Ignore { get; set; } = false;      // Indicates that the request will hang printer
       public int Count { get; set; } = 1;            // Indicates max number of repetitions
       public int Stride { get; set; } = 0;           // Indicates the distance between repetitions
       public bool HoldingReg { get; set; } = true;   // Input vs Holding register
+      public int Origin { get; set; } = 1;           // Indicates 0-Origin or 1-origin indexing
 
-      // Four views of the printer data
-      public Prop Data { get; set; }     // As it appears in the printer
-      //public Prop Get { get; set; }      // Data to be passed on a Get Request
-      //public Prop Set { get; set; }      // Data to be passed on a Set Request
-      //public Prop Service { get; set; }  // Data to be passed on a Service Request
+      // View of the printer data
+      public Prop Data { get; set; }                 // As it appears in the printer
 
       // A description of the data from four points of view.
-      public AttrData(int Val, bool HoldingReg, int Count, int Stride, Prop Data, Prop Data2 = null, Prop Data3 = null) {
+      public AttrData(int Val, bool HoldingReg, int Count, int Stride, Prop Data) {
          this.Val = Val;
          this.HoldingReg = HoldingReg;
          this.Count = Count;
          this.Stride = Stride;
-
-         // This is what the data looks like in the printer
          this.Data = Data;
-         //if (this.HasService) {
-         //   this.Service = Data2;
-         //} else {
-         //   this.Get = Data2;
-         //   this.Set = Data3;
-         //}
+      }
+
+      public AttrData(int Val, bool HoldingReg, int Count, int Stride, int Origin, Prop Data) {
+         this.Val = Val;
+         this.HoldingReg = HoldingReg;
+         this.Count = Count;
+         this.Stride = Stride;
+         this.Data = Data;
+         this.Origin = Origin;
       }
 
       public AttrData Clone() {
