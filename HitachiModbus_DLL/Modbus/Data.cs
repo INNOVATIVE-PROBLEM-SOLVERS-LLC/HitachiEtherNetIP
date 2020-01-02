@@ -344,9 +344,9 @@ namespace Modbus_DLL {
       Item = 12,      // 1-byte item number
       GroupChar = 13, // 1-byte group number + UTF8 String + 0x00
       MsgChar = 14,   // 2-byte message number + UTF8 String + 0x00
-      N1Char = 15,    // 1-byte number + UTF8 String + 0x00
-      N1N1 = 16,      // 2 1-byte numbers
-      N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
+      //N1Char = 15,    // 1-byte number + UTF8 String + 0x00
+      //N1N1 = 16,      // 2 1-byte numbers
+      //N1N2N1 = 17,    // 1-byte, 2-byte, 1-byte
       AttrText = 18,  // 4-bytes per character attributed Text
    }
 
@@ -401,34 +401,36 @@ namespace Modbus_DLL {
 
       // Print_format (Class Code 0x67)
       private AttrData[] ccPF_Addrs = new AttrData[] {
-         new AttrData((int)ccPF.Message_Name, true, 100, 24,                    // Message Name 0x64
+         // The first section of data appears only once
+         new AttrData((int)ccPF.Message_Name, true, 1, 0,                       // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
-         new AttrData((int)ccPF.Number_Of_Columns, true, 100, 24,               // Number Of Columns 0x66
+         new AttrData((int)ccPF.Number_Of_Columns, true, 1, 0,                  // Number Of Columns 0x66
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccPF.Format_Type, true, 100, 24,                     // Format Type 0x67
+         new AttrData((int)ccPF.Format_Type, true, 1, 0,                        // Format Type 0x67
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
-         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 100, 24, // Number Of Print Line And Print Format 0x1020
+         new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 1, 0, // Number Of Print Line And Print Format 0x1020
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Insert_Column, true, 100, 24,                   // Insert Column 0x1021
+         new AttrData((int)ccPF.Insert_Column, true, 1, 0,                      // Insert Column 0x1021
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Delete_Column, true, 100, 24,                   // Delete Column 0x1022
+         new AttrData((int)ccPF.Delete_Column, true, 1, 0,                      // Delete Column 0x1022
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Add_Column, true, 100, 24,                      // Add Column 0x1023
+         new AttrData((int)ccPF.Add_Column, true, 1, 0,                         // Add Column 0x1023
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x1025
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.Decimal)),             //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
-         new AttrData((int)ccPF.Adding_Print_Items, true, 100, 24,              // Adding Print Items 0x6E
+         new AttrData((int)ccPF.Adding_Print_Items, true, 1, 0,                 // Adding Print Items 0x6E
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Deleting_Print_Items, true, 100, 24,            // Deleting Print Items 0x6F
+         new AttrData((int)ccPF.Deleting_Print_Items, true, 1, 0,               // Deleting Print Items 0x6F
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccPF.InterCharacter_SpaceII, true, 100, 24,          // InterCharacter SpaceII 0x7B
+         new AttrData((int)ccPF.InterCharacter_SpaceII, true, 1, 0,             // InterCharacter SpaceII 0x7B
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Add_To_End_Of_String, true, 100, 24,            // Add To End Of String 0x8A
+         new AttrData((int)ccPF.Add_To_End_Of_String, true, 1, 0,               // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
          new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x67
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         // The following data is repeated
          new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Line_Spacing, true, 100, 24,                    // Line Spacing 0x1041
@@ -595,6 +597,7 @@ namespace Modbus_DLL {
             new Prop(3, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
             new Prop(6, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
+         // Time Count block (moved to here from calendar block)
          new AttrData((int)ccSR.Time_Count_Start_Value, true, 1, 0,             // Time Count Start Value 0x1CD4
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
          new AttrData((int)ccSR.Time_Count_End_Value, true, 1, 0,               // Time Count End Value 0x1CD7
@@ -605,6 +608,7 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
          new AttrData((int)ccSR.Update_Interval_Value, true, 1, 0,              // Update Interval Value 0x1CDE
             new Prop(1, DataFormats.Decimal, 0, 5, fmtDD.TimeCount)),           //   Data
+         // Shift (moved to here from calendar block)
          new AttrData((int)ccSR.Shift_Start_Hour, true, 48, 16,                 // Shift Start Hour 0x1CE0
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
          new AttrData((int)ccSR.Shift_Start_Minute, true, 48, 16,               // Shift Start Minute 0x1CE1
@@ -950,7 +954,6 @@ namespace Modbus_DLL {
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
-         //new string[] { "CharacterInput", "MessageFormat" },          // 25 - Attributed Data
      };
 
       // Attribute DropDown conversion (IJPLib Names)

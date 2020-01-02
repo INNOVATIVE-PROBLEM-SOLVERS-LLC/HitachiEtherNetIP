@@ -235,12 +235,12 @@ namespace Modbus_DLL {
                break;
             case DataFormats.MsgChar:
                break;
-            case DataFormats.N1Char:
-               break;
-            case DataFormats.N1N1:
-               break;
-            case DataFormats.N1N2N1:
-               break;
+            //case DataFormats.N1Char:
+            //   break;
+            //case DataFormats.N1N1:
+            //   break;
+            //case DataFormats.N1N2N1:
+            //   break;
             case DataFormats.AttrText:
                len *= 4;
                break;
@@ -701,9 +701,13 @@ namespace Modbus_DLL {
                      result += "{D}}";
                      break;
                   case 0x53:
-                  case 0x63:
-                  case 0x73:
                      result += "{h}";
+                     break;
+                  case 0x63:
+                     result += "{{h}";
+                     break;
+                  case 0x73:
+                     result += "{h}}";
                      break;
                   case 0x54:
                      result += "{m}";
@@ -754,9 +758,13 @@ namespace Modbus_DLL {
                      result += "{E}";
                      break;
                   case 0x5C:
-                  case 0x6C:
-                  case 0x7C:
                      result += "{F}";
+                     break;
+                  case 0x6C:
+                     result += "{{F}";
+                     break;
+                  case 0x7C:
+                     result += "{F}}";
                      break;
                   case 0x5A:
                      result += "{C}";
@@ -913,14 +921,6 @@ namespace Modbus_DLL {
                   }
                }
                break;
-            case DataFormats.N1N1:
-               sa = s.Split(',');
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n1) && uint.TryParse(sa[1].Trim(), out uint n2)) {
-                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 1));
-                  }
-               }
-               break;
             case DataFormats.N2N2:
                sa = s.Split(',');
                if (sa.Length == 2) {
@@ -934,24 +934,6 @@ namespace Modbus_DLL {
                if (sa.Length == 2) {
                   if (uint.TryParse(sa[0].Trim(), out uint n)) {
                      result = Merge(ToBytes(n, 2), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
-                  }
-               }
-               break;
-            case DataFormats.N1Char:
-               sa = s.Split(new char[] { ',' }, 2);
-               if (sa.Length == 2) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n)) {
-                     result = Merge(ToBytes(n, 1), Encode.GetBytes(FromQuoted(sa[1]) + "\x00"));
-                  }
-               }
-               break;
-            case DataFormats.N1N2N1:
-               sa = s.Split(',');
-               if (sa.Length == 3) {
-                  if (uint.TryParse(sa[0].Trim(), out uint n1) &&
-                     uint.TryParse(sa[1].Trim(), out uint n2) &&
-                     uint.TryParse(sa[2].Trim(), out uint n3)) {
-                     result = Merge(ToBytes(n1, 1), ToBytes(n2, 2), ToBytes(n3, 1));
                   }
                }
                break;
@@ -1025,10 +1007,10 @@ namespace Modbus_DLL {
                   break;
             }
          }
-         if (firstFound < s2.Length) {
+         if (firstFound != lastFound && firstFound < s2.Length) {
             result = result.Substring(0, firstFound) + (char)(result[firstFound] + 0x10) + result.Substring(firstFound + 1);
          }
-         if (lastFound >= 0) {
+         if (firstFound != lastFound && lastFound >= 0) {
             result = result.Substring(0, lastFound) + (char)(result[lastFound] + 0x20) + result.Substring(lastFound + 1);
          }
          return result;
