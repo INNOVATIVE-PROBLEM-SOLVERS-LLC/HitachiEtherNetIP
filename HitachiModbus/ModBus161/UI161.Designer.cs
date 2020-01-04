@@ -110,7 +110,7 @@
          // 
          this.txtIPAddress.Location = new System.Drawing.Point(142, 47);
          this.txtIPAddress.Name = "txtIPAddress";
-         this.txtIPAddress.Size = new System.Drawing.Size(137, 22);
+         this.txtIPAddress.Size = new System.Drawing.Size(110, 22);
          this.txtIPAddress.TabIndex = 2;
          this.txtIPAddress.Text = "192.168.168.100";
          this.txtIPAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -119,7 +119,7 @@
          // 
          this.txtIPPort.Location = new System.Drawing.Point(142, 75);
          this.txtIPPort.Name = "txtIPPort";
-         this.txtIPPort.Size = new System.Drawing.Size(137, 22);
+         this.txtIPPort.Size = new System.Drawing.Size(110, 22);
          this.txtIPPort.TabIndex = 3;
          this.txtIPPort.Text = "502";
          this.txtIPPort.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -137,9 +137,9 @@
          // cmdDisconnect
          // 
          this.cmdDisconnect.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdDisconnect.Location = new System.Drawing.Point(285, 88);
+         this.cmdDisconnect.Location = new System.Drawing.Point(258, 88);
          this.cmdDisconnect.Name = "cmdDisconnect";
-         this.cmdDisconnect.Size = new System.Drawing.Size(86, 35);
+         this.cmdDisconnect.Size = new System.Drawing.Size(98, 35);
          this.cmdDisconnect.TabIndex = 9;
          this.cmdDisconnect.Text = "Disconnect";
          this.cmdDisconnect.UseVisualStyleBackColor = false;
@@ -148,9 +148,9 @@
          // cmdConnect
          // 
          this.cmdConnect.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdConnect.Location = new System.Drawing.Point(285, 47);
+         this.cmdConnect.Location = new System.Drawing.Point(258, 47);
          this.cmdConnect.Name = "cmdConnect";
-         this.cmdConnect.Size = new System.Drawing.Size(86, 35);
+         this.cmdConnect.Size = new System.Drawing.Size(98, 35);
          this.cmdConnect.TabIndex = 10;
          this.cmdConnect.Text = "Connect";
          this.cmdConnect.UseVisualStyleBackColor = false;
@@ -202,9 +202,9 @@
          // cmdComOff
          // 
          this.cmdComOff.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdComOff.Location = new System.Drawing.Point(377, 88);
+         this.cmdComOff.Location = new System.Drawing.Point(362, 88);
          this.cmdComOff.Name = "cmdComOff";
-         this.cmdComOff.Size = new System.Drawing.Size(86, 35);
+         this.cmdComOff.Size = new System.Drawing.Size(98, 35);
          this.cmdComOff.TabIndex = 16;
          this.cmdComOff.Text = "Com Off";
          this.cmdComOff.UseVisualStyleBackColor = false;
@@ -213,9 +213,9 @@
          // cmdComOn
          // 
          this.cmdComOn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdComOn.Location = new System.Drawing.Point(377, 47);
+         this.cmdComOn.Location = new System.Drawing.Point(362, 47);
          this.cmdComOn.Name = "cmdComOn";
-         this.cmdComOn.Size = new System.Drawing.Size(86, 35);
+         this.cmdComOn.Size = new System.Drawing.Size(98, 35);
          this.cmdComOn.TabIndex = 17;
          this.cmdComOn.Text = "Com On";
          this.cmdComOn.UseVisualStyleBackColor = false;
@@ -434,7 +434,7 @@
          // 
          // txtMessageFolder
          // 
-         this.txtMessageFolder.Location = new System.Drawing.Point(142, 10);
+         this.txtMessageFolder.Location = new System.Drawing.Point(136, 10);
          this.txtMessageFolder.Name = "txtMessageFolder";
          this.txtMessageFolder.Size = new System.Drawing.Size(518, 22);
          this.txtMessageFolder.TabIndex = 34;
@@ -554,7 +554,7 @@
          // 
          this.chkTwinNozzle.Location = new System.Drawing.Point(142, 103);
          this.chkTwinNozzle.Name = "chkTwinNozzle";
-         this.chkTwinNozzle.Size = new System.Drawing.Size(128, 20);
+         this.chkTwinNozzle.Size = new System.Drawing.Size(110, 20);
          this.chkTwinNozzle.TabIndex = 1;
          this.chkTwinNozzle.Text = "Twin Nozzle";
          this.chkTwinNozzle.UseVisualStyleBackColor = true;
@@ -572,9 +572,9 @@
          // cmdReady
          // 
          this.cmdReady.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdReady.Location = new System.Drawing.Point(472, 47);
+         this.cmdReady.Location = new System.Drawing.Point(466, 47);
          this.cmdReady.Name = "cmdReady";
-         this.cmdReady.Size = new System.Drawing.Size(86, 35);
+         this.cmdReady.Size = new System.Drawing.Size(98, 35);
          this.cmdReady.TabIndex = 48;
          this.cmdReady.Text = "Ready";
          this.cmdReady.UseVisualStyleBackColor = false;
@@ -583,9 +583,9 @@
          // cmdStandby
          // 
          this.cmdStandby.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdStandby.Location = new System.Drawing.Point(472, 88);
+         this.cmdStandby.Location = new System.Drawing.Point(466, 88);
          this.cmdStandby.Name = "cmdStandby";
-         this.cmdStandby.Size = new System.Drawing.Size(86, 35);
+         this.cmdStandby.Size = new System.Drawing.Size(98, 35);
          this.cmdStandby.TabIndex = 47;
          this.cmdStandby.Text = "Standby";
          this.cmdStandby.UseVisualStyleBackColor = false;
@@ -594,9 +594,9 @@
          // cmdStartUp
          // 
          this.cmdStartUp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdStartUp.Location = new System.Drawing.Point(564, 47);
+         this.cmdStartUp.Location = new System.Drawing.Point(570, 47);
          this.cmdStartUp.Name = "cmdStartUp";
-         this.cmdStartUp.Size = new System.Drawing.Size(86, 35);
+         this.cmdStartUp.Size = new System.Drawing.Size(98, 35);
          this.cmdStartUp.TabIndex = 50;
          this.cmdStartUp.Text = "Start Up";
          this.cmdStartUp.UseVisualStyleBackColor = false;
@@ -605,9 +605,9 @@
          // cmdShutDown
          // 
          this.cmdShutDown.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdShutDown.Location = new System.Drawing.Point(564, 88);
+         this.cmdShutDown.Location = new System.Drawing.Point(570, 88);
          this.cmdShutDown.Name = "cmdShutDown";
-         this.cmdShutDown.Size = new System.Drawing.Size(86, 35);
+         this.cmdShutDown.Size = new System.Drawing.Size(98, 35);
          this.cmdShutDown.TabIndex = 49;
          this.cmdShutDown.Text = "Shut Down";
          this.cmdShutDown.UseVisualStyleBackColor = false;
@@ -616,9 +616,9 @@
          // cmdGetStatus
          // 
          this.cmdGetStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdGetStatus.Location = new System.Drawing.Point(656, 47);
+         this.cmdGetStatus.Location = new System.Drawing.Point(674, 47);
          this.cmdGetStatus.Name = "cmdGetStatus";
-         this.cmdGetStatus.Size = new System.Drawing.Size(86, 35);
+         this.cmdGetStatus.Size = new System.Drawing.Size(98, 35);
          this.cmdGetStatus.TabIndex = 52;
          this.cmdGetStatus.Text = "Get Status";
          this.cmdGetStatus.UseVisualStyleBackColor = false;
@@ -627,9 +627,9 @@
          // cmdReset
          // 
          this.cmdReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-         this.cmdReset.Location = new System.Drawing.Point(656, 88);
+         this.cmdReset.Location = new System.Drawing.Point(674, 88);
          this.cmdReset.Name = "cmdReset";
-         this.cmdReset.Size = new System.Drawing.Size(86, 35);
+         this.cmdReset.Size = new System.Drawing.Size(98, 35);
          this.cmdReset.TabIndex = 51;
          this.cmdReset.Text = "Reset Alarm";
          this.cmdReset.UseVisualStyleBackColor = false;
