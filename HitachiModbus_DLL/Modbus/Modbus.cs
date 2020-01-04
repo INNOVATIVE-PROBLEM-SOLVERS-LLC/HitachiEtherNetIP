@@ -545,6 +545,7 @@ namespace Modbus_DLL {
             typeof(ccCount), // 0x79 Count function
             typeof(ccIDX),   // 0x7A Index function
             typeof(ccPC),    // 0x7B Print Contents function
+            typeof(ccAPP),   // 0x7C Adjust Print Parameters
       };
 
       // Lookup for getting attributes associated with a Class/Function

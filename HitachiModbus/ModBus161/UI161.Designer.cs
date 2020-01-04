@@ -75,6 +75,12 @@
          this.chkHex = new System.Windows.Forms.CheckBox();
          this.chkTwinNozzle = new System.Windows.Forms.CheckBox();
          this.chkLogIO = new System.Windows.Forms.CheckBox();
+         this.cmdReady = new System.Windows.Forms.Button();
+         this.cmdStandby = new System.Windows.Forms.Button();
+         this.cmdStartUp = new System.Windows.Forms.Button();
+         this.cmdShutDown = new System.Windows.Forms.Button();
+         this.cmdGetStatus = new System.Windows.Forms.Button();
+         this.cmdReset = new System.Windows.Forms.Button();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabXML.SuspendLayout();
@@ -130,27 +136,29 @@
          // 
          // cmdDisconnect
          // 
+         this.cmdDisconnect.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
          this.cmdDisconnect.Location = new System.Drawing.Point(285, 88);
          this.cmdDisconnect.Name = "cmdDisconnect";
-         this.cmdDisconnect.Size = new System.Drawing.Size(105, 35);
+         this.cmdDisconnect.Size = new System.Drawing.Size(86, 35);
          this.cmdDisconnect.TabIndex = 9;
          this.cmdDisconnect.Text = "Disconnect";
-         this.cmdDisconnect.UseVisualStyleBackColor = true;
+         this.cmdDisconnect.UseVisualStyleBackColor = false;
          this.cmdDisconnect.Click += new System.EventHandler(this.cmdDisconnect_Click);
          // 
          // cmdConnect
          // 
+         this.cmdConnect.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
          this.cmdConnect.Location = new System.Drawing.Point(285, 47);
          this.cmdConnect.Name = "cmdConnect";
-         this.cmdConnect.Size = new System.Drawing.Size(105, 35);
+         this.cmdConnect.Size = new System.Drawing.Size(86, 35);
          this.cmdConnect.TabIndex = 10;
          this.cmdConnect.Text = "Connect";
-         this.cmdConnect.UseVisualStyleBackColor = true;
+         this.cmdConnect.UseVisualStyleBackColor = false;
          this.cmdConnect.Click += new System.EventHandler(this.cmdConnect_Click);
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(674, 88);
+         this.cmdExit.Location = new System.Drawing.Point(674, 706);
          this.cmdExit.Name = "cmdExit";
          this.cmdExit.Size = new System.Drawing.Size(105, 35);
          this.cmdExit.TabIndex = 11;
@@ -193,22 +201,24 @@
          // 
          // cmdComOff
          // 
-         this.cmdComOff.Location = new System.Drawing.Point(391, 88);
+         this.cmdComOff.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdComOff.Location = new System.Drawing.Point(377, 88);
          this.cmdComOff.Name = "cmdComOff";
-         this.cmdComOff.Size = new System.Drawing.Size(105, 35);
+         this.cmdComOff.Size = new System.Drawing.Size(86, 35);
          this.cmdComOff.TabIndex = 16;
          this.cmdComOff.Text = "Com Off";
-         this.cmdComOff.UseVisualStyleBackColor = true;
+         this.cmdComOff.UseVisualStyleBackColor = false;
          this.cmdComOff.Click += new System.EventHandler(this.cmdComOff_Click);
          // 
          // cmdComOn
          // 
-         this.cmdComOn.Location = new System.Drawing.Point(391, 47);
+         this.cmdComOn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdComOn.Location = new System.Drawing.Point(377, 47);
          this.cmdComOn.Name = "cmdComOn";
-         this.cmdComOn.Size = new System.Drawing.Size(105, 35);
+         this.cmdComOn.Size = new System.Drawing.Size(86, 35);
          this.cmdComOn.TabIndex = 17;
          this.cmdComOn.Text = "Com On";
-         this.cmdComOn.UseVisualStyleBackColor = true;
+         this.cmdComOn.UseVisualStyleBackColor = false;
          this.cmdComOn.Click += new System.EventHandler(this.cmdComOn_Click);
          // 
          // cmdWriteData
@@ -443,7 +453,7 @@
          // cmdExperiment
          // 
          this.cmdExperiment.Enabled = false;
-         this.cmdExperiment.Location = new System.Drawing.Point(653, 701);
+         this.cmdExperiment.Location = new System.Drawing.Point(490, 701);
          this.cmdExperiment.Name = "cmdExperiment";
          this.cmdExperiment.Size = new System.Drawing.Size(127, 40);
          this.cmdExperiment.TabIndex = 36;
@@ -542,28 +552,100 @@
          // 
          // chkTwinNozzle
          // 
-         this.chkTwinNozzle.Location = new System.Drawing.Point(136, 103);
+         this.chkTwinNozzle.Location = new System.Drawing.Point(142, 103);
          this.chkTwinNozzle.Name = "chkTwinNozzle";
-         this.chkTwinNozzle.Size = new System.Drawing.Size(143, 24);
+         this.chkTwinNozzle.Size = new System.Drawing.Size(128, 20);
          this.chkTwinNozzle.TabIndex = 1;
          this.chkTwinNozzle.Text = "Twin Nozzle";
          this.chkTwinNozzle.UseVisualStyleBackColor = true;
          // 
          // chkLogIO
          // 
-         this.chkLogIO.Location = new System.Drawing.Point(674, 53);
+         this.chkLogIO.Location = new System.Drawing.Point(12, 99);
          this.chkLogIO.Name = "chkLogIO";
-         this.chkLogIO.Size = new System.Drawing.Size(106, 24);
+         this.chkLogIO.Size = new System.Drawing.Size(106, 29);
          this.chkLogIO.TabIndex = 46;
          this.chkLogIO.Text = "Log I/O";
          this.chkLogIO.UseVisualStyleBackColor = true;
          this.chkLogIO.CheckedChanged += new System.EventHandler(this.chkLogIO_CheckedChanged);
+         // 
+         // cmdReady
+         // 
+         this.cmdReady.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdReady.Location = new System.Drawing.Point(472, 47);
+         this.cmdReady.Name = "cmdReady";
+         this.cmdReady.Size = new System.Drawing.Size(86, 35);
+         this.cmdReady.TabIndex = 48;
+         this.cmdReady.Text = "Ready";
+         this.cmdReady.UseVisualStyleBackColor = false;
+         this.cmdReady.Click += new System.EventHandler(this.cmdReady_Click);
+         // 
+         // cmdStandby
+         // 
+         this.cmdStandby.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdStandby.Location = new System.Drawing.Point(472, 88);
+         this.cmdStandby.Name = "cmdStandby";
+         this.cmdStandby.Size = new System.Drawing.Size(86, 35);
+         this.cmdStandby.TabIndex = 47;
+         this.cmdStandby.Text = "Standby";
+         this.cmdStandby.UseVisualStyleBackColor = false;
+         this.cmdStandby.Click += new System.EventHandler(this.cmdStandby_Click);
+         // 
+         // cmdStartUp
+         // 
+         this.cmdStartUp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdStartUp.Location = new System.Drawing.Point(564, 47);
+         this.cmdStartUp.Name = "cmdStartUp";
+         this.cmdStartUp.Size = new System.Drawing.Size(86, 35);
+         this.cmdStartUp.TabIndex = 50;
+         this.cmdStartUp.Text = "Start Up";
+         this.cmdStartUp.UseVisualStyleBackColor = false;
+         this.cmdStartUp.Click += new System.EventHandler(this.cmdStartUp_Click);
+         // 
+         // cmdShutDown
+         // 
+         this.cmdShutDown.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdShutDown.Location = new System.Drawing.Point(564, 88);
+         this.cmdShutDown.Name = "cmdShutDown";
+         this.cmdShutDown.Size = new System.Drawing.Size(86, 35);
+         this.cmdShutDown.TabIndex = 49;
+         this.cmdShutDown.Text = "Shut Down";
+         this.cmdShutDown.UseVisualStyleBackColor = false;
+         this.cmdShutDown.Click += new System.EventHandler(this.cmdShutDown_Click);
+         // 
+         // cmdGetStatus
+         // 
+         this.cmdGetStatus.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdGetStatus.Location = new System.Drawing.Point(656, 47);
+         this.cmdGetStatus.Name = "cmdGetStatus";
+         this.cmdGetStatus.Size = new System.Drawing.Size(86, 35);
+         this.cmdGetStatus.TabIndex = 52;
+         this.cmdGetStatus.Text = "Get Status";
+         this.cmdGetStatus.UseVisualStyleBackColor = false;
+         this.cmdGetStatus.Click += new System.EventHandler(this.cmdGetStatus_Click);
+         // 
+         // cmdReset
+         // 
+         this.cmdReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+         this.cmdReset.Location = new System.Drawing.Point(656, 88);
+         this.cmdReset.Name = "cmdReset";
+         this.cmdReset.Size = new System.Drawing.Size(86, 35);
+         this.cmdReset.TabIndex = 51;
+         this.cmdReset.Text = "Reset Alarm";
+         this.cmdReset.UseVisualStyleBackColor = false;
+         this.cmdReset.Click += new System.EventHandler(this.cmdReset_Click);
          // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.cmdGetStatus);
+         this.Controls.Add(this.cmdReset);
+         this.Controls.Add(this.cmdStartUp);
+         this.Controls.Add(this.cmdShutDown);
+         this.Controls.Add(this.cmdReady);
+         this.Controls.Add(this.cmdStandby);
          this.Controls.Add(this.chkLogIO);
          this.Controls.Add(this.chkTwinNozzle);
          this.Controls.Add(this.chkHex);
@@ -670,6 +752,12 @@
       public System.Windows.Forms.ComboBox cbNozzle;
       public System.Windows.Forms.CheckBox chkHex;
       public System.Windows.Forms.CheckBox chkLogIO;
+      private System.Windows.Forms.Button cmdReady;
+      private System.Windows.Forms.Button cmdStandby;
+      private System.Windows.Forms.Button cmdStartUp;
+      private System.Windows.Forms.Button cmdShutDown;
+      private System.Windows.Forms.Button cmdGetStatus;
+      private System.Windows.Forms.Button cmdReset;
    }
 }
 
