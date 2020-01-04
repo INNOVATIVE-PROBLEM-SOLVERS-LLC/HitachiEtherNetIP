@@ -15,6 +15,7 @@ namespace Modbus_DLL {
 
    // Class codes
    public enum ClassCode {
+      Print_data_registration = 0x65,
       Print_data_management = 0x66,
       Print_format = 0x67,
       Print_specification = 0x68,
@@ -28,6 +29,14 @@ namespace Modbus_DLL {
       Count = 0x79,
       Index = 0x7A,
       Print_Contents = 0x7B,
+   }
+
+   // Attributes within Print Data Registration class 0x66
+   public enum ccPDR {
+      Recall_Message = 0x1006,
+      Group_Number = 0x100C,
+      Message_Number = 0x100D,
+      MessageName = 0x100E,
    }
 
    // Attributes within Print Data Management class 0x66
@@ -288,12 +297,10 @@ namespace Modbus_DLL {
 
    #region Public enumerations
 
-   // Get, Set, or Service
-   public enum GSS {
-      Get,
-      Set,
-      GetSet,
-      Service,
+   public enum Noz {
+      None = 0,
+      Current = 1,
+      Both = 2,
    }
 
    // Dropdowns to be used in the display when discrete values are returned.
@@ -343,6 +350,7 @@ namespace Modbus_DLL {
 
       public Data() {
          ClassCodeAttrData = new AttrData[][] {
+            ccPDR_Addrs,           // 0x65 Print data registration function
             ccPDM_Addrs,           // 0x66 Print data management function
             ccPF_Addrs,            // 0x67 Print format function
             ccPS_Addrs,            // 0x68 Print specification function
@@ -360,6 +368,18 @@ namespace Modbus_DLL {
       }
 
       #region Data Tables
+
+      // Print_data_management (Class Code 0x66)
+      private AttrData[] ccPDR_Addrs = new AttrData[] {
+         new AttrData((int)ccPDR.Recall_Message, true, 1, 0,                    // Recall Message 0x1006
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccPDR.Group_Number, true, 1, 0,                      // Group Number 0x100C
+            new Prop(15, DataFormats.Decimal, 0, 99, fmtDD.None)),              //   Data
+         new AttrData((int)ccPDR.Message_Number, true, 1, 0,                    // Message Number 0x100D
+            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPDR.MessageName, true, 1, 0,                       // Message Name 0x100E
+            new Prop(10, DataFormats.UTF8, 0, 12, fmtDD.None)),                 //   Data
+      };
 
       // Print_data_management (Class Code 0x66)
       private AttrData[] ccPDM_Addrs = new AttrData[] {
@@ -396,15 +416,15 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 1, 0, // Number Of Print Line And Print Format 0x1020
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Insert_Column, true, 1, 0,                      // Insert Column 0x1021
+         new AttrData((int)ccPF.Insert_Column, true, 1, 0, Noz.Current,         // Insert Column 0x1021
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Delete_Column, true, 1, 0,                      // Delete Column 0x1022
+         new AttrData((int)ccPF.Delete_Column, true, 1, 0, Noz.Current,         // Delete Column 0x1022
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Add_Column, true, 1, 0,                         // Add Column 0x1023
+         new AttrData((int)ccPF.Add_Column, true, 1, 0, Noz.Current,            // Add Column 0x1023
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Column, true, 1, 0,                             // Column 0x1024
+         new AttrData((int)ccPF.Column, true, 1, 0, Noz.Current,                // Column 0x1024
             new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccPF.Line, true, 1, 0,                               // Line 0x1025
+         new AttrData((int)ccPF.Line, true, 1, 0, Noz.Current,                  // Line 0x1025
             new Prop(1, DataFormats.Decimal, 0, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
@@ -417,34 +437,36 @@ namespace Modbus_DLL {
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 1, 0,               // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
          // The following data is repeated
-         new AttrData((int)ccPF.Line_Count, true, 100, 24,                      // Line Count 0x1040
+         new AttrData((int)ccPF.Line_Count, true, 100, 24, Noz.Current,         // Line Count 0x1040
             new Prop(1, DataFormats.Decimal, 1, 6, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Line_Spacing, true, 100, 24,                    // Line Spacing 0x1041
+         new AttrData((int)ccPF.Line_Spacing, true, 100, 24, Noz.Current,       // Line Spacing 0x1041
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Dot_Matrix, true, 100, 24,                      // Dot Matrix 0x1042
+         new AttrData((int)ccPF.Dot_Matrix, true, 100, 24, Noz.Current,         // Dot Matrix 0x1042
             new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.FontType)),           //   Data
-         new AttrData((int)ccPF.InterCharacter_Space, true, 100, 24,            // InterCharacter Space 0x1043
+         new AttrData((int)ccPF.InterCharacter_Space, true, 100, 24, Noz.Current, // InterCharacter Space 0x1043
             new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.Character_Bold, true, 100, 24,                  // Character Bold 0x1044
+         new AttrData((int)ccPF.Character_Bold, true, 100, 24, Noz.Current,     // Character Bold 0x1044
             new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Data
-         new AttrData((int)ccPF.Barcode_Type, true, 100, 24,                    // Barcode Type 0x1045
+         new AttrData((int)ccPF.Barcode_Type, true, 100, 24, Noz.Current,       // Barcode Type 0x1045
             new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Data
-         new AttrData((int)ccPF.Readable_Code, true, 100, 24,                   // Readable Code 0x1046
+         new AttrData((int)ccPF.Readable_Code, true, 100, 24, Noz.Current,      // Readable Code 0x1046
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode)),        //   Data
-         new AttrData((int)ccPF.Prefix_Code, true, 100, 24,                     // Prefix Code 0x1047
+         new AttrData((int)ccPF.Prefix_Code, true, 100, 24, Noz.Current,        // Prefix Code 0x1047
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.First_Calendar_Block, true, 8, 24,              // First Calendar Block 0x1048
+         new AttrData((int)ccPF.First_Calendar_Block, true, 8, 24, Noz.Current, // First Calendar Block 0x1048
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 8, 24,         // Number of Calendar Blocks 0x1049
+         new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 8, 24, Noz.Current, // Number of Calendar Blocks 0x1049
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.First_Count_Block, true, 8, 24,                 // First Count Block 0x104A
+         new AttrData((int)ccPF.First_Count_Block, true, 8, 24, Noz.Current,    // First Count Block 0x104A
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24,            // Number Of Count Blocks 0x104B
+         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24, Noz.Current, // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.X_Coordinate, true, 100, 24,                    // X Coordinate 0x104C
+         new AttrData((int)ccPF.X_Coordinate, true, 100, 24, Noz.Current,       // X Coordinate 0x104C
             new Prop(3, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
-         new AttrData((int)ccPF.Y_Coordinate, true, 100, 24,                    // Y Coordinate 0x104D
+         new AttrData((int)ccPF.Y_Coordinate, true, 100, 24, Noz.Current,       // Y Coordinate 0x104D
             new Prop(3, DataFormats.Decimal, 0, 29, fmtDD.None)),               //   Data
+
+         // This does not belong here
          new AttrData((int)ccPF.QR_Error_Correction_Level, true, 100, 24,       // QR Error Correction Level 0x2084
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
          new AttrData((int)ccPF.Calendar_Offset, true, 100, 24,                 // Calendar Offset 0x2480
@@ -459,47 +481,47 @@ namespace Modbus_DLL {
 
       // Print_specification (Class Code 0x68)
       private AttrData[] ccPS_Addrs = new AttrData[] {
-         new AttrData((int)ccPS.Character_Height, true, 1, 0,                   // Character Height 0x19A0
+         new AttrData((int)ccPS.Character_Height, true, 1, 0, Noz.Current,      // Character Height 0x19A0
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPS.Ink_Drop_Use, true, 1, 0,                       // Ink Drop Use 0x19A1
+         new AttrData((int)ccPS.Ink_Drop_Use, true, 1, 0, Noz.Current,          // Ink Drop Use 0x19A1
             new Prop(1, DataFormats.Decimal, 1, 16, fmtDD.None)),               //   Data
-         new AttrData((int)ccPS.High_Speed_Print, true, 1, 0,                   // High Speed Print 0x19A2
+         new AttrData((int)ccPS.High_Speed_Print, true, 1, 0, Noz.Current,      // High Speed Print 0x19A2
             new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.HighSpeedPrint)),      //   Data
-         new AttrData((int)ccPS.Character_Width, true, 1, 0,                    // Character Width 0x19A3
+         new AttrData((int)ccPS.Character_Width, true, 1, 0, Noz.Current,       // Character Width 0x19A3
             new Prop(2, DataFormats.Decimal, 0, 3999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Character_Orientation, true, 1, 0,              // Character Orientation 0x19A4
+         new AttrData((int)ccPS.Character_Orientation, true, 1, 0, Noz.Current, // Character Orientation 0x19A4
             new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.Orientation)),         //   Data
-         new AttrData((int)ccPS.Print_Start_Delay_Forward, true, 1, 0,          // Print Start Delay Forward 0x19A5
+         new AttrData((int)ccPS.Print_Start_Delay_Forward, true, 1, 0, Noz.Current, // Print Start Delay Forward 0x19A5
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Print_Start_Delay_Reverse, true, 1, 0,          // Print Start Delay Reverse 0x19A6
+         new AttrData((int)ccPS.Print_Start_Delay_Reverse, true, 1, 0, Noz.Current, // Print Start Delay Reverse 0x19A6
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Product_Speed_Matching, true, 1, 0,             // Product Speed Matching 0x19A7
+         new AttrData((int)ccPS.Product_Speed_Matching, true, 1, 0, Noz.Current, // Product Speed Matching 0x19A7
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ProductSpeedMatching)), //   Data
-         new AttrData((int)ccPS.Pulse_Rate_Division_Factor, true, 1, 0,         // Pulse Rate Division Factor 0x19A8
+         new AttrData((int)ccPS.Pulse_Rate_Division_Factor, true, 1, 0, Noz.Current, // Pulse Rate Division Factor 0x19A8
             new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Data
-         new AttrData((int)ccPS.Speed_Compensation, true, 1, 0,                 // Speed Compensation 0x19A9
+         new AttrData((int)ccPS.Speed_Compensation, true, 1, 0, Noz.Current,    // Speed Compensation 0x19A9
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccPS.Line_Speed, true, 1, 0,                         // Line Speed 0x19AA
+         new AttrData((int)ccPS.Line_Speed, true, 1, 0, Noz.Current,            // Line Speed 0x19AA
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Distance_Between_Print_Head_And_Object, true, 1, 0, // Distance Between Print Head And Object 0x19AB
+         new AttrData((int)ccPS.Distance_Between_Print_Head_And_Object, true, 1, 0, Noz.Current, // Distance Between Print Head And Object 0x19AB
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPS.Print_Target_Width, true, 1, 0,                 // Print Target Width 0x19AC
+         new AttrData((int)ccPS.Print_Target_Width, true, 1, 0, Noz.Current,    // Print Target Width 0x19AC
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPS.Actual_Print_Width, true, 1, 0,                 // Actual Print Width 0x19AD
+         new AttrData((int)ccPS.Actual_Print_Width, true, 1, 0, Noz.Current,    // Actual Print Width 0x19AD
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPS.Repeat_Count, true, 1, 0,                       // Repeat Count 0x19AE
+         new AttrData((int)ccPS.Repeat_Count, true, 1, 0, Noz.Current,          // Repeat Count 0x19AE
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Repeat_Interval, true, 1, 0,                    // Repeat Interval 0x19AF
+         new AttrData((int)ccPS.Repeat_Interval, true, 1, 0, Noz.Current,       // Repeat Interval 0x19AF
             new Prop(3, DataFormats.Decimal, 0, 99999, fmtDD.None)),            //   Data
-         new AttrData((int)ccPS.Target_Sensor_Timer, true, 1, 0,                // Target Sensor Timer 0x19B1
+         new AttrData((int)ccPS.Target_Sensor_Timer, true, 1, 0, Noz.Current,   // Target Sensor Timer 0x19B1
             new Prop(2, DataFormats.Decimal, 0, 999, fmtDD.None)),              //   Data
-         new AttrData((int)ccPS.Target_Sensor_Filter, true, 1, 0,               // Target Sensor Filter 0x19B2
+         new AttrData((int)ccPS.Target_Sensor_Filter, true, 1, 0, Noz.Current,  // Target Sensor Filter 0x19B2
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.TargetSensorFilter)),  //   Data
-         new AttrData((int)ccPS.Target_Sensor_Filter_Value, true, 1, 0,         // Target Sensor Filter Value 0x19B3
+         new AttrData((int)ccPS.Target_Sensor_Filter_Value, true, 1, 0, Noz.Current, // Target Sensor Filter Value 0x19B3
             new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.Ink_Drop_Charge_Rule, true, 1, 0,               // Ink Drop Charge Rule 0x19B4
+         new AttrData((int)ccPS.Ink_Drop_Charge_Rule, true, 1, 0, Noz.Current,  // Ink Drop Charge Rule 0x19B4
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ChargeRule)),          //   Data
-         new AttrData((int)ccPS.Print_Start_Position_Adjustment_Value, true, 1, 0, // Print Start Position Adjustment Value 0x19B5
+         new AttrData((int)ccPS.Print_Start_Position_Adjustment_Value, true, 1, 0, Noz.Current, // Print Start Position Adjustment Value 0x19B5
             new Prop(2, DataFormats.Decimal, -50, 50, fmtDD.None)),             //   Data
       };
 
@@ -507,43 +529,43 @@ namespace Modbus_DLL {
       private AttrData[] ccCal_Addrs = new AttrData[] {
          new AttrData((int)ccCal.Shift_Code_Condition, true, 8, 32,             // Shift Code Condition 0x65
             new Prop(1, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCal.Offset_Year, true, 8, 32,                      // Offset Year 0x19C0
+         new AttrData((int)ccCal.Offset_Year, true, 8, 32, Noz.Current,         // Offset Year 0x19C0
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Offset_Month, true, 8, 32,                     // Offset Month 0x19C1
+         new AttrData((int)ccCal.Offset_Month, true, 8, 32, Noz.Current,        // Offset Month 0x19C1
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccCal.Offset_Day, true, 8, 32,                       // Offset Day 0x19C2
+         new AttrData((int)ccCal.Offset_Day, true, 8, 32, Noz.Current,          // Offset Day 0x19C2
             new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Data
-         new AttrData((int)ccCal.Offset_Hour, true, 8, 32,                      // Offset Hour 0x19C3
+         new AttrData((int)ccCal.Offset_Hour, true, 8, 32, Noz.Current,         // Offset Hour 0x19C3
             new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Data
-         new AttrData((int)ccCal.Offset_Minute, true, 8, 32,                    // Offset Minute 0x19C4
+         new AttrData((int)ccCal.Offset_Minute, true, 8, 32, Noz.Current,       // Offset Minute 0x19C4
             new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Year, true, 8, 32,               // Zero Suppress Year 0x19C5
+         new AttrData((int)ccCal.Zero_Suppress_Year, true, 8, 32, Noz.Current,  // Zero Suppress Year 0x19C5
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Month, true, 8, 32,              // Zero Suppress Month 0x19C6
+         new AttrData((int)ccCal.Zero_Suppress_Month, true, 8, 32, Noz.Current, // Zero Suppress Month 0x19C6
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Day, true, 8, 32,                // Zero Suppress Day 0x19C7
+         new AttrData((int)ccCal.Zero_Suppress_Day, true, 8, 32, Noz.Current,   // Zero Suppress Day 0x19C7
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Hour, true, 8, 32,               // Zero Suppress Hour 0x19C8
+         new AttrData((int)ccCal.Zero_Suppress_Hour, true, 8, 32, Noz.Current,  // Zero Suppress Hour 0x19C8
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Minute, true, 8, 32,             // Zero Suppress Minute 0x19C9
+         new AttrData((int)ccCal.Zero_Suppress_Minute, true, 8, 32, Noz.Current,// Zero Suppress Minute 0x19C9
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Substitute_Year, true, 8, 32,                  // Substitute Year 0x19CA
+         new AttrData((int)ccCal.Substitute_Year, true, 8, 32, Noz.Current,     // Substitute Year 0x19CA
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Substitute_Month, true, 8, 32,                 // Substitute Month 0x19CB
+         new AttrData((int)ccCal.Substitute_Month, true, 8, 32, Noz.Current,    // Substitute Month 0x19CB
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Substitute_Day, true, 8, 32,                   // Substitute Day 0x19CC
+         new AttrData((int)ccCal.Substitute_Day, true, 8, 32, Noz.Current,      // Substitute Day 0x19CC
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Substitute_Hour, true, 8, 32,                  // Substitute Hour 0x19CD
+         new AttrData((int)ccCal.Substitute_Hour, true, 8, 32, Noz.Current,     // Substitute Hour 0x19CD
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Substitute_Minute, true, 8, 32,                // Substitute Minute 0x19CE
+         new AttrData((int)ccCal.Substitute_Minute, true, 8, 32, Noz.Current,   // Substitute Minute 0x19CE
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Substitute_Weeks, true, 8, 32,                 // Substitute Weeks 0x19D0
+         new AttrData((int)ccCal.Substitute_Weeks, true, 8, 32, Noz.Current,    // Substitute Weeks 0x19D0
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Zero_Suppress_Weeks, true, 8, 32,              // Zero Suppress Weeks 0x19D1
+         new AttrData((int)ccCal.Zero_Suppress_Weeks, true, 8, 32, Noz.Current, // Zero Suppress Weeks 0x19D1
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccCal.Substitute_DayOfWeek, true, 8, 32,             // Substitute DayOfWeek 0x19D2
+         new AttrData((int)ccCal.Substitute_DayOfWeek, true, 8, 32, Noz.Current,// Substitute DayOfWeek 0x19D2
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCal.Zero_Suppress_DayOfWeek, true, 8, 32,          // Zero Suppress DayOfWeek 0x19D3
+         new AttrData((int)ccCal.Zero_Suppress_DayOfWeek, true, 8, 32, Noz.Current, // Zero Suppress DayOfWeek 0x19D3
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
       };
 
@@ -586,26 +608,26 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
             new Prop(6, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
          // Time Count block (moved to here from calendar block)
-         new AttrData((int)ccSR.Time_Count_Start_Value, true, 1, 0,             // Time Count Start Value 0x1CD4
+         new AttrData((int)ccSR.Time_Count_Start_Value, true, 1, 0, Noz.Current, // Time Count Start Value 0x1CD4
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccSR.Time_Count_End_Value, true, 1, 0,               // Time Count End Value 0x1CD7
+         new AttrData((int)ccSR.Time_Count_End_Value, true, 1, 0, Noz.Current,  // Time Count End Value 0x1CD7
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccSR.Time_Count_Reset_Value, true, 1, 0,             // Time Count Reset Value 0x1CDA
+         new AttrData((int)ccSR.Time_Count_Reset_Value, true, 1, 0, Noz.Current, // Time Count Reset Value 0x1CDA
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
-         new AttrData((int)ccSR.Reset_Time_Value, true, 1, 0,                   // Reset Time Value 0x1CDD
+         new AttrData((int)ccSR.Reset_Time_Value, true, 1, 0, Noz.Current,      // Reset Time Value 0x1CDD
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccSR.Update_Interval_Value, true, 1, 0,              // Update Interval Value 0x1CDE
+         new AttrData((int)ccSR.Update_Interval_Value, true, 1, 0, Noz.Current, // Update Interval Value 0x1CDE
             new Prop(1, DataFormats.Decimal, 0, 5, fmtDD.TimeCount)),           //   Data
          // Shift (moved to here from calendar block)
-         new AttrData((int)ccSR.Shift_Start_Hour, true, 48, 16,                 // Shift Start Hour 0x1CE0
+         new AttrData((int)ccSR.Shift_Start_Hour, true, 48, 16, Noz.Current,    // Shift Start Hour 0x1CE0
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccSR.Shift_Start_Minute, true, 48, 16,               // Shift Start Minute 0x1CE1
+         new AttrData((int)ccSR.Shift_Start_Minute, true, 48, 16, Noz.Current,  // Shift Start Minute 0x1CE1
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
-         new AttrData((int)ccSR.Shift_End_Hour, true, 48, 16,                   // Shift End Hour 0x1CE2
+         new AttrData((int)ccSR.Shift_End_Hour, true, 48, 16, Noz.Current,      // Shift End Hour 0x1CE2
             new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
-         new AttrData((int)ccSR.Shift_End_Minute, true, 48, 16,                 // Shift End Minute 0x1CE3
+         new AttrData((int)ccSR.Shift_End_Minute, true, 48, 16, Noz.Current,    // Shift End Minute 0x1CE3
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
-         new AttrData((int)ccSR.Shift_String_Value, true, 48, 16,               // Shift String Value 0x1CE4
+         new AttrData((int)ccSR.Shift_String_Value, true, 48, 16, Noz.Current,  // Shift String Value 0x1CE4
             new Prop(1, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
@@ -731,35 +753,35 @@ namespace Modbus_DLL {
 
       // Count (Class Code 0x79)
       private AttrData[] ccCount_Addrs = new AttrData[] {
-         new AttrData((int)ccCount.Initial_Value, true, 8, 148,                 // Initial Value 0x1FE0
+         new AttrData((int)ccCount.Initial_Value, true, 8, 148, Noz.Current,    // Initial Value 0x1FE0
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Count_Range_1, true, 8, 148,                 // Count Range 1 0x1FF4
+         new AttrData((int)ccCount.Count_Range_1, true, 8, 148, Noz.Current,    // Count Range 1 0x1FF4
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Count_Range_2, true, 8, 148,                 // Count Range 2 0x2008
+         new AttrData((int)ccCount.Count_Range_2, true, 8, 148, Noz.Current,    // Count Range 2 0x2008
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Update_Unit_Halfway, true, 8, 148,           // Update Unit Halfway 0x201C
+         new AttrData((int)ccCount.Update_Unit_Halfway, true, 8, 148, Noz.Current, // Update Unit Halfway 0x201C
             new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Data
-         new AttrData((int)ccCount.Update_Unit_Unit, true, 8, 148,              // Update Unit Unit 0x201E
+         new AttrData((int)ccCount.Update_Unit_Unit, true, 8, 148, Noz.Current, // Update Unit Unit 0x201E
             new Prop(3, DataFormats.Decimal, 0, 999999, fmtDD.None)),           //   Data
-         new AttrData((int)ccCount.Increment_Value, true, 8, 148,               // Increment Value 0x2020
+         new AttrData((int)ccCount.Increment_Value, true, 8, 148, Noz.Current,  // Increment Value 0x2020
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccCount.Direction_Value, true, 8, 148,               // Direction Value 0x2021
+         new AttrData((int)ccCount.Direction_Value, true, 8, 148, Noz.Current,  // Direction Value 0x2021
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Data
-         new AttrData((int)ccCount.Jump_From, true, 8, 148,                     // Jump From 0x2022
+         new AttrData((int)ccCount.Jump_From, true, 8, 148, Noz.Current,        // Jump From 0x2022
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Jump_To, true, 8, 148,                       // Jump To 0x2036
+         new AttrData((int)ccCount.Jump_To, true, 8, 148, Noz.Current,          // Jump To 0x2036
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Reset_Value, true, 8, 148,                   // Reset Value 0x204A
+         new AttrData((int)ccCount.Reset_Value, true, 8, 148, Noz.Current,      // Reset Value 0x204A
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Type_Of_Reset_Signal, true, 8, 148,          // Type Of Reset Signal 0x205E
+         new AttrData((int)ccCount.Type_Of_Reset_Signal, true, 8, 148, Noz.Current, // Type Of Reset Signal 0x205E
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None_Signal_1_2)),     //   Data
-         new AttrData((int)ccCount.External_Count, true, 8, 148,                // External Count 0x205F
+         new AttrData((int)ccCount.External_Count, true, 8, 148, Noz.Current,   // External Count 0x205F
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCount.Zero_Suppression, true, 8, 148,              // Zero Suppression 0x2060
+         new AttrData((int)ccCount.Zero_Suppression, true, 8, 148, Noz.Current, // Zero Suppression 0x2060
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
-         new AttrData((int)ccCount.Count_Multiplier, true, 8, 148,              // Count Multiplier 0x2061
+         new AttrData((int)ccCount.Count_Multiplier, true, 8, 148, Noz.Current, // Count Multiplier 0x2061
             new Prop(10, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccCount.Count_Skip, true, 8, 148,                    // Count Skip 0x206B
+         new AttrData((int)ccCount.Count_Skip, true, 8, 148, Noz.Current,       // Count Skip 0x206B
             new Prop(4, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
       };
 
@@ -767,7 +789,7 @@ namespace Modbus_DLL {
       private AttrData[] ccIDX_Addrs = new AttrData[] {
          new AttrData((int)ccIDX.Start_Stop_Management_Flag, true, 1, 0,        // Start Stop Management Flag 0x00
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
-         new AttrData((int)ccIDX.Number_Of_Items, true, 100, 24,                // Number Of Items 0x0008
+         new AttrData((int)ccIDX.Number_Of_Items, true, 1, 0, Noz.Current,      // Number Of Items 0x0008
             new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
             new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
@@ -781,11 +803,11 @@ namespace Modbus_DLL {
 
       // Print Contents (Class Code 0x7B)
       private AttrData[] ccPC_Addrs = new AttrData[] {
-         new AttrData((int)ccPC.Characters_per_Item, true, 100, 1,              // Character per Item 0x0020
+         new AttrData((int)ccPC.Characters_per_Item, true, 100, 1, Noz.Current, // Character per Item 0x0020
             new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
-         new AttrData((int)ccPC.Print_Character_String, true, 1000, 2,          // Print Character String 0x0084
+         new AttrData((int)ccPC.Print_Character_String, true, 1000, 2, Noz.Current, // Print Character String 0x0084
             new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
-         new AttrData((int)ccPC.Print_Erasure, true, 1, 0,                      // Print Erasure 0x1000
+         new AttrData((int)ccPC.Print_Erasure, true, 1, 0, Noz.Current,         // Print Erasure 0x1000
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
       };
 
@@ -803,6 +825,7 @@ namespace Modbus_DLL {
       // Reformat the raw data tables in this module to make them easier to read and modify
       public void ReformatTables(StreamWriter RFS) {
 
+         DumpTable(RFS, ccPDR_Addrs, ClassCode.Print_data_registration, typeof(ccPDR));
          DumpTable(RFS, ccPDM_Addrs, ClassCode.Print_data_management, typeof(ccPDM));
          DumpTable(RFS, ccPF_Addrs, ClassCode.Print_format, typeof(ccPF));
          DumpTable(RFS, ccPS_Addrs, ClassCode.Print_specification, typeof(ccPS));
@@ -815,6 +838,7 @@ namespace Modbus_DLL {
          DumpTable(RFS, ccIJP_Addrs, ClassCode.IJP_operation, typeof(ccIJP));
          DumpTable(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
          DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
+         DumpTable(RFS, ccPC_Addrs, ClassCode.Print_Contents, typeof(ccPC));
 
       }
 
@@ -989,15 +1013,16 @@ namespace Modbus_DLL {
 
       #region Properties and Constructor
 
-      public ClassCode Class { get; set; }           // The class code is set when the dictionary is built
-      public int Val { get; set; } = 0;              // The Attribute (Makes the tables easier to read)
-      public int Count { get; set; } = 1;            // Indicates max number of repetitions
-      public int Stride { get; set; } = 0;           // Indicates the distance between repetitions
-      public bool HoldingReg { get; set; } = true;   // Input vs Holding register
-      public int Origin { get; set; } = 1;           // Indicates 0-Origin or 1-origin indexing
+      public ClassCode Class { get; set; }                        // The class code is set when the dictionary is built
+      public int Val { get; set; } = 0;                           // The Attribute (Makes the tables easier to read)
+      public int Count { get; set; } = 1;                         // Indicates max number of repetitions
+      public int Stride { get; set; } = 0;                        // Indicates the distance between repetitions
+      public bool HoldingReg { get; set; } = true;                // Input vs Holding register
+      public Noz Nozzle { get; set; } = Noz.None; // Indicates Nozzle number needed
+      public int Origin { get; set; } = 1;                        // Indicates Nozzle number needed
 
       // View of the printer data
-      public Prop Data { get; set; }                 // As it appears in the printer
+      public Prop Data { get; set; }                              // As it appears in the printer
 
       // A description of the data from four points of view.
       public AttrData(int Val, bool HoldingReg, int Count, int Stride, Prop Data) {
@@ -1008,13 +1033,13 @@ namespace Modbus_DLL {
          this.Data = Data;
       }
 
-      public AttrData(int Val, bool HoldingReg, int Count, int Stride, int Origin, Prop Data) {
+      public AttrData(int Val, bool HoldingReg, int Count, int Stride, Noz Nozzle, Prop Data) {
          this.Val = Val;
          this.HoldingReg = HoldingReg;
          this.Count = Count;
          this.Stride = Stride;
          this.Data = Data;
-         this.Origin = Origin;
+         this.Nozzle = Nozzle;
       }
 
       public AttrData Clone() {

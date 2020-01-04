@@ -106,5 +106,53 @@ namespace ModBus161.Properties {
                 this["HoldingReg"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TwinNozzle {
+            get {
+                return ((bool)(this["TwinNozzle"]));
+            }
+            set {
+                this["TwinNozzle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Nozzle {
+            get {
+                return ((int)(this["Nozzle"]));
+            }
+            set {
+                this["Nozzle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HexData {
+            get {
+                return ((bool)(this["HexData"]));
+            }
+            set {
+                this["HexData"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LogIO {
+            get {
+                return ((bool)(this["LogIO"]));
+            }
+            set {
+                this["LogIO"] = value;
+            }
+        }
     }
 }

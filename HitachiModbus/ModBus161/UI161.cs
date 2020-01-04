@@ -19,45 +19,49 @@ namespace ModBus161 {
 
       #region Data Declarations
 
-      Encoding encode = Encoding.GetEncoding("ISO-8859-1");
+      // Nozzle selection for Twin-Nozzle printers
+      public enum Nozzle {
+         Printer = 0,
+         Nozzle1 = 1,
+         Nozzle2 = 2,
+         Both = 3,
+      }
 
-      Modbus p;
+      // Single instance of the printer
+      private Modbus p;
 
       // Used to manage dropdowns
-      string[] ccNames;
-      string[] ccNamesSorted;
-      int[] ccValues;
+      private string[] ccNames;
+      private string[] ccNamesSorted;
+      private int[] ccValues;
 
-      string[] attrNames;
-      string[] attrNamesSorted;
-      int[] attValues;
+      private string[] attrNames;
+      private string[] attrNamesSorted;
+      private int[] attValues;
 
-      AttrData attr;
+      private AttrData attr;
 
       #endregion
 
       #region Constructors an destructors
 
+      // Constructor
       public UI161() {
          InitializeComponent();
+
+         // Instantiate Modbus printer and register for log events
          p = new Modbus();
          p.Log += Modbus_Log;
+
+         // Initialize all dropdowns
          ccNames = Enum.GetNames(typeof(ClassCode));
          ccNamesSorted = Enum.GetNames(typeof(ClassCode));
          Array.Sort(ccNamesSorted);
          ccValues = (int[])Enum.GetValues(typeof(ClassCode));
          cbClass.Items.AddRange(ccNamesSorted);
+
+         // Ready to go
          SetButtonEnables();
-      }
-
-      private void LoadDropDowns() {
-      }
-
-      enum FunctionCode {
-         WriteMultiple = 0x10,
-         WriteSingle = 0x06,
-         ReadHolding = 0x03,
-         ReadInput = 0x04,
       }
 
       #endregion
@@ -66,6 +70,7 @@ namespace ModBus161 {
 
       // Connect to printer and turn COM on
       private void cmdConnect_Click(object sender, EventArgs e) {
+         p.TwinNozzle = chkTwinNozzle.Checked;
          if (p.Connect(txtIPAddress.Text, txtIPPort.Text)) {
 
          }
@@ -94,7 +99,9 @@ namespace ModBus161 {
       private void cmdReadData_Click(object sender, EventArgs e) {
          if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
             && int.TryParse(txtDataLength.Text, out int len)) {
-            p.GetAttribute(addr, len, optHoldingRegister.Checked, out byte[] data);
+            Modbus.FunctionCode fc = optHoldingRegister.Checked ? Modbus.FunctionCode.ReadHolding : Modbus.FunctionCode.ReadInput;
+            byte devAddr = GetDevAddr();
+            p.GetAttribute(fc, devAddr, addr, len, out byte[] data);
             txtData.Text = p.byte_to_string(data);
          }
          SetButtonEnables();
@@ -105,9 +112,21 @@ namespace ModBus161 {
          if (int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out int addr)
             && int.TryParse(txtDataLength.Text, out int len)
             && txtData.Text.Length > 0) {
-            byte[] data = p.string_to_byte(txtData.Text);
+            byte devAddr = GetDevAddr();
+            byte[] data;
+            if (chkHex.Checked) {
+               data = p.string_to_byte(txtData.Text);
+            } else {
+               data = new byte[len];
+               if (int.TryParse(txtData.Text, out int n)) {
+                  for (int i = len; i > 0; i--) {
+                     data[i - 1] = (byte)n;
+                     n >>= 8;
+                  }
+               }
+            }
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(addr, data);
+            p.SetAttribute(devAddr, addr, data);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          SetButtonEnables();
@@ -256,6 +275,16 @@ namespace ModBus161 {
          }
       }
 
+      // Just playing around to see how things work
+      private void cmdExperiment_Click(object sender, EventArgs e) {
+         // Place any test code here
+      }
+
+      // Show I/O packets in Log File.
+      private void chkLogIO_CheckedChanged(object sender, EventArgs e) {
+         p.LogIOs = chkLogIO.Checked;
+      }
+
       #endregion
 
       #region Service Routines
@@ -374,6 +403,30 @@ namespace ModBus161 {
          }
       }
 
+      // Get device address to use
+      private byte GetDevAddr() {
+         byte devAddr = 0;
+         if (chkTwinNozzle.Checked) {
+            switch ((Nozzle)cbNozzle.SelectedIndex) {
+               case Nozzle.Printer:
+                  devAddr = 1;
+                  break;
+               case Nozzle.Nozzle1:
+                  devAddr = 1;
+                  break;
+               case Nozzle.Nozzle2:
+                  devAddr = 2;
+                  break;
+               case Nozzle.Both:
+                  devAddr = 3;
+                  break;
+               default:
+                  break;
+            }
+         }
+         return devAddr;
+      }
+
       // Avoid extra tests by enabling only the buttons that can be used
       private void SetButtonEnables() {
          int addr;
@@ -399,66 +452,10 @@ namespace ModBus161 {
          cmdSend.Enabled = comIsOn && txtIndentedView.Text.Length > 0;
 
          cmdExperiment.Enabled = comIsOn;
+         chkTwinNozzle.Enabled = !isConnected;
       }
 
       #endregion
-
-      // Just playing around to see how things work
-      private void cmdExperiment_Click(object sender, EventArgs e) {
-         int lineCount;
-         int n = 0;
-         string text = "Hello World";
-         List<int> cols = new List<int>();            // Holds the number of rows in each column
-         List<string> spacing = new List<string>();   // Holds the line spacing
-         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
-         while (n < itemCount) {
-            cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
-            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
-            n += lineCount;
-         }
-
-         for (int i = 0; i < cols.Count - 1; i++) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPF.Delete_Column, cols.Count - i);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         }
-
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Column, 1);
-         p.SetAttribute(ccPF.Line, 2);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Add_Column, 2);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Column, 3);
-         p.SetAttribute(ccPF.Line, 1);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //p.SetAttribute(ccPF.Add_Column, 0);
-         p.SetAttribute(ccPF.Column, 5);
-         p.SetAttribute(ccPF.Line, 2);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //p.SetAttribute(ccPF.Dot_Matrix, "5X7");
-         //p.SetAttribute(ccIDX.Characters_per_Item, 0, text.Length);
-         //p.SetAttribute(ccPF.Print_Character_String, 0, text);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //p.SetAttribute(ccPF.Line_Count, 0, 3);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         //p.SetAttribute(ccIDX.Characters_per_Item, 0, text.Length);
-         //p.SetAttribute(ccPF.Print_Character_String, 0, text);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-
-      }
 
    }
 

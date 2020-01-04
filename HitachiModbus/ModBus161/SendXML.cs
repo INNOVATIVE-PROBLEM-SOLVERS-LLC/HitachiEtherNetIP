@@ -18,6 +18,8 @@ namespace ModBus161 {
 
       public Encoding Encode = Encoding.UTF8;
 
+      public int NozzleCount { get; set; } = 1;
+
       #endregion
 
       #region Methods
@@ -53,17 +55,19 @@ namespace ModBus161 {
       public void SendXML(Lab Lab, bool AutoReflect = true) {
          UseAutomaticReflection = AutoReflect; // Speed up processing
          try {
+            for (int nozzle = 0; nozzle < NozzleCount; nozzle++) {
+               p.Nozzle = nozzle;
+               if (Lab.Printer != null && Lab.Printer[nozzle].Logos != null) {
+                  SendLogos(Lab.Printer[nozzle].Logos);
+               }
 
-            if (Lab.Printer != null && Lab.Printer.Logos != null) {
-               SendLogos(Lab.Printer.Logos);
-            }
+               if (Lab.Message != null) {
+                  SendMessage(Lab.Message[nozzle]);
+               }
 
-            if (Lab.Message != null) {
-               SendMessage(Lab.Message);
-            }
-
-            if (Lab.Printer != null) {
-               SendPrinterSettings(Lab.Printer); // Must be done last
+               if (Lab.Printer != null) {
+                  SendPrinterSettings(Lab.Printer[nozzle]); // Must be done last
+               }
             }
          } catch (Exception e2) {
             parent.Log(e2.Message);
@@ -157,10 +161,12 @@ namespace ModBus161 {
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
                }
                string s = p.HandleBraces(item.Text);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
                p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
-               charPosition += s.Length;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               charPosition += s.Length;
                hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
                m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
             }
@@ -468,8 +474,8 @@ namespace ModBus161 {
                }
                // Write the pattern data
                attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data);
-               int addr = attr.Val + loc * (logoLen[n] / 2);
-               p.SetAttribute(addr, data);
+               int addr = attr.Val;
+               p.SetAttribute(attr, loc * (logoLen[n] / 2), data);
             }
          }
       }

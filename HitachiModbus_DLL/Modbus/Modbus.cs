@@ -20,21 +20,46 @@ namespace Modbus_DLL {
 
       #region Data Declarations
 
-      bool UseIJPLibNames = true;
+      // Choose between IJPLib names and EtherNet/IP names
+      private bool UseIJPLibNames = true;
 
-      bool LogIOs = false;
+      // Log I/O buffers with traffic
+      public bool LogIOs = true;
 
-      enum FunctionCode {
+      // Modbus function codes
+      public enum FunctionCode {
          WriteMultiple = 0x10,
          WriteSingle = 0x06,
          ReadHolding = 0x03,
          ReadInput = 0x04,
       }
 
-      TcpClient client = null;
-      NetworkStream stream = null;
+      // Error codes
+      public enum ErrorCodes {
+         None = 0,
+         Not_Supported = 1,
+         Illegal_Address = 2,
+         Illegal_Data = 3,
+      }
 
-      bool comIsOn = false;
+      // Modbus traffic uses Network Streams
+      private TcpClient client = null;
+      private NetworkStream stream = null;
+
+      // Must be turned on before connecting
+      private bool twinNozzle = false;
+
+      public bool TwinNozzle {
+         get { return twinNozzle; }
+         set { twinNozzle = value;
+            NozzleCount = twinNozzle ? 2 : 1;
+         }
+      }
+      public int NozzleCount { get; set; } = 1;
+      public int Nozzle { get; set; } = 0;
+
+      // Modbus read packet is of fixed length
+      private byte[] ModbusReadPkt = new byte[] { 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0 };
 
       Encoding Encode = Encoding.GetEncoding("ISO-8859-1");
 
@@ -43,7 +68,7 @@ namespace Modbus_DLL {
 
       // Check on connection and Com State
       public bool IsConnected { get { return stream != null; } }
-      public bool ComIsOn { get { return comIsOn; } }
+      public bool ComIsOn { get; private set; } = false;
 
       #endregion
 
@@ -54,6 +79,7 @@ namespace Modbus_DLL {
          BuildAttributeDictionary();
       }
 
+      // Nothing to do here
       ~Modbus() {
 
       }
@@ -79,7 +105,7 @@ namespace Modbus_DLL {
             stream = client.GetStream();
             Log?.Invoke(this, "Connection Accepted");
             int n = GetDecAttribute(ccIJP.Online_Offline);
-            if (!comIsOn) {
+            if (!ComIsOn) {
                SetAttribute(ccIJP.Online_Offline, 1);
                n = GetDecAttribute(ccIJP.Online_Offline);
                success = true;
@@ -102,7 +128,7 @@ namespace Modbus_DLL {
          }
          stream = null;
          client = null;
-         comIsOn = false;
+         ComIsOn = false;
       }
 
       #endregion
@@ -116,16 +142,19 @@ namespace Modbus_DLL {
          bytes = -1;
          if (stream != null) {
             try {
-               // Allow for up to 5 seconds for a response
-               stream.ReadTimeout = 5000;
-               bytes = stream.Read(data, 0, data.Length);
-               successful = bytes >= 0;
-               DisplayInput(data, bytes);
+               stream.ReadTimeout = 2000;                 // Allow for up to 2 seconds for a response
+               bytes = stream.Read(data, 0, data.Length); // Get number of bytes read
+               successful = bytes >= 8;                   // Need to at least get the packet + devAddr, Function code, and length
+               DisplayInput(data, bytes);                 // Display the input returned
             } catch (Exception e) {
                Log?.Invoke(this, e.Message);
             }
          }
-         if (!successful) {
+         if (successful) {
+            if ((data[7] & 0x80) > 0) {
+               Log?.Invoke(this, $"Device rejected the reqest{(ErrorCodes)data[8]}.");
+            }
+         } else {
             Log?.Invoke(this, "Read Failed.");
          }
          return successful;
@@ -154,19 +183,19 @@ namespace Modbus_DLL {
       #region Modbus Buffer Builders
 
       // Build a Modbus write packet with room for data
-      private byte[] BuildModbusWrite(FunctionCode fc, int loc, int dataBytes) {
-         int n = dataBytes + (dataBytes & 1);          // Make even number of bytes
-         byte[] r = new byte[6 + 7 + n];             // Allocate the buffer
+      private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, int dataBytes) {
+         int n = dataBytes + (dataBytes & 1);        // Make even number of bytes
+         byte[] r = new byte[6 + 7 + n];             // 6 header + 7 packet + n bytes
          r[0] = 0;                                   // Transaction ID
          r[1] = 0;                                   // Transaction ID
          r[2] = 0;                                   // Protocol ID
          r[3] = 0;                                   // Protocol ID
          r[4] = (byte)((7 + n) >> 8);                // Packet length high byte
          r[5] = (byte)(7 + n);                       // Packet length low byte
-         r[6] = 0;                                   // Device address (Always 0)
+         r[6] = DevAddr;                             // Device address (Always 0)
          r[7] = (byte)fc;                            // Function Code
-         r[8] = (byte)(loc >> 8);                    // Start address high byte
-         r[9] = (byte)loc;                           // Start address low byte
+         r[8] = (byte)(addr >> 8);                   // Start address high byte
+         r[9] = (byte)addr;                          // Start address low byte
          r[10] = (byte)(n >> 9);                     // Number of words to write high byte
          r[11] = (byte)(n >> 1);                     // Number of words to write low byte
          r[12] = (byte)n;                            // Number of bytes to write
@@ -174,27 +203,25 @@ namespace Modbus_DLL {
       }
 
       // Build a Modbus write packet and include the data
-      private byte[] BuildModbusWrite(FunctionCode fc, int loc, byte[] data) {
-         byte[] r = BuildModbusWrite(fc, loc, data.Length); // Get a buffer without data
-         int n = r.Length - data.Length;                    // Calculate location where data will be placed
-         for (int i = 0; i < data.Length; i++) {            // Step thru the input buffer
-            r[n + i] = data[i];                             // move the data to the end of the buffer
+      private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, byte[] data) {
+         byte[] r = BuildModbusWrite(fc, DevAddr, addr, data.Length); // Get a buffer without data
+         int n = r.Length - data.Length;                              // Calculate location where data will be placed
+         for (int i = 0; i < data.Length; i++) {                      // Step thru the input buffer
+            r[n + i] = data[i];                                       // move the data to the end of the buffer
          }
          return r;
       }
 
       // Build a Modbus read packet
-      private byte[] BuildModbusRead(FunctionCode fc, int loc, int dataBytes) {
-         byte[] r = new byte[12];
-         r[4] = 0;                                   // Packet length high byte
-         r[5] = 6;                                   // Packet length low byte
-         r[6] = 0;                                   // Device address
-         r[7] = (byte)fc;                            // Function Code
-         r[8] = (byte)(loc >> 8);                    // Character position high byte
-         r[9] = (byte)loc;                           // Character position low byte
-         r[10] = 0;                                  // high byte number of words to read
-         r[11] = (byte)((dataBytes + 1) >> 1);       // low byte number of words write
-         return r;
+      private byte[] BuildModbusRead(FunctionCode fc, byte DevAddr, int addr, int dataBytes) {
+         int words = (dataBytes + (dataBytes & 1)) >> 1;         // Round to nearest word
+         ModbusReadPkt[6] = DevAddr;                             // Device address
+         ModbusReadPkt[7] = (byte)fc;                            // Function Code
+         ModbusReadPkt[8] = (byte)(addr >> 8);                   // Character position high byte
+         ModbusReadPkt[9] = (byte)addr;                          // Character position low byte
+         ModbusReadPkt[10] = (byte)(words >> 8);                 // high byte number of words to read
+         ModbusReadPkt[11] = (byte)words;                        // low byte number of words to read
+         return ModbusReadPkt;
       }
 
       #endregion
@@ -207,26 +234,16 @@ namespace Modbus_DLL {
          byte[] data = null;
          int len = attr.Data.Len;
          switch (attr.Data.Fmt) {
-            case DataFormats.None:
-               break;
-            case DataFormats.Decimal:
-               break;
-            case DataFormats.SDecimal:
-               break;
             case DataFormats.UTF8:
                len *= 2;
-               break;
-            case DataFormats.Date:
-               break;
-            case DataFormats.Bytes:
                break;
             case DataFormats.AttrText:
                len *= 4;
                break;
-            default:
-               break;
          }
-         byte[] request = BuildModbusRead(attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, attr.Val, len);
+         FunctionCode fc = attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput;
+         byte devAddr = GetDevAdd(attr);
+         byte[] request = BuildModbusRead(fc, devAddr, attr.Val, len);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -244,11 +261,11 @@ namespace Modbus_DLL {
       }
 
       // Get the contents of one attribute
-      public bool GetAttribute(int addr, int Len, bool HoldingReg, out byte[] result) {
+      public bool GetAttribute(FunctionCode fc, byte DevAddr, int addr, int Len, out byte[] result) {
          bool success = false;
          byte[] data = null;
          int len = 10;
-         byte[] request = BuildModbusRead(HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput, addr, Len);
+         byte[] request = BuildModbusRead(fc, DevAddr, addr, Len);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -271,10 +288,10 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          if (!GetAttribute(attr, out result)) {
             result = null;
-            comIsOn = false;
+            ComIsOn = false;
          } else {
             if (attr.Class == ClassCode.IJP_operation && attr.Val == (int)ccIJP.Online_Offline) {
-               comIsOn = GetDecValue(result) > 0;
+               ComIsOn = GetDecValue(result) > 0;
             }
          }
          return result;
@@ -419,9 +436,9 @@ namespace Modbus_DLL {
       #region Set Attribute Routines
 
       // Write to a specific address
-      public bool SetAttribute(int addr, byte[] DataOut) {
+      public bool SetAttribute(byte devAddr, int addr, byte[] DataOut) {
          bool Successful = false;
-         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, addr, DataOut);
+         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, devAddr, addr, DataOut);
          if (Write(request)) {
             if (Read(out byte[] data, out int bytesRead)) {
                Successful = true;
@@ -430,15 +447,20 @@ namespace Modbus_DLL {
          return Successful;
       }
 
+      // Write to a specific address
+      public bool SetAttribute(AttrData attr, int offset, byte[] DataOut) {
+         return SetAttribute(GetDevAdd(attr), attr.Val + offset, DataOut);
+      }
+
       // Set one attribute based on the Data Property
       public bool SetAttribute<T>(T Attribute, int val) where T : Enum {
          bool success = false;
          byte[] data;
          AttrData attr = GetAttrData(Attribute);
          data = FormatOutput(attr.Data, val);
-         if (SetAttribute(attr.Val, data)) {
+         if (SetAttribute(attr, 0, data)) {
             if (attr.Class == ClassCode.IJP_operation && attr.Val == (int)ccIJP.Online_Offline) {
-               comIsOn = val > 0;
+               ComIsOn = val > 0;
             }
             success = true;
          }
@@ -455,7 +477,7 @@ namespace Modbus_DLL {
          if (!string.IsNullOrEmpty(s)) {
             //AutomaticReflect(AccessCode.Set);
             byte[] data = FormatOutput(attr.Data, s);
-            success = SetAttribute(attr.Val, data);
+            success = SetAttribute(attr, 0, data);
          }
          Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"");
          if (LogIOs)
@@ -470,7 +492,7 @@ namespace Modbus_DLL {
          if (!string.IsNullOrEmpty(s)) {
             //AutomaticReflect(AccessCode.Set);
             byte[] data = FormatOutput(attr.Data, s);
-            success = SetAttribute(attr.Val + attr.Stride * n, data);
+            success = SetAttribute(attr, attr.Stride * n, data);
          }
          Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{s}\"");
          if (LogIOs)
@@ -484,7 +506,7 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          //AutomaticReflect(AccessCode.Set);
          byte[] data = FormatOutput(attr.Data, val);
-         success = SetAttribute(attr.Val + attr.Stride * n, data);
+         success = SetAttribute(attr, attr.Stride * n, data);
          Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {val}");
          if (LogIOs)
             Log?.Invoke(this, " ");
@@ -496,7 +518,7 @@ namespace Modbus_DLL {
          bool success = true;
          AttrData attr = GetAttrData(Attribute);
          //AutomaticReflect(AccessCode.Set);
-         success = SetAttribute(attr.Val + attr.Stride * n, data);
+         success = SetAttribute(attr, attr.Stride * n, data);
          Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
          if (LogIOs)
             Log?.Invoke(this, " ");
@@ -509,6 +531,7 @@ namespace Modbus_DLL {
 
       // Class Codes to Attributes
       public Type[] ClassCodeAttributes = new Type[] {
+            typeof(ccPDR),   // 0x66 Print data registration function
             typeof(ccPDM),   // 0x66 Print data management function
             typeof(ccPF),    // 0x67 Print format function
             typeof(ccPS),    // 0x68 Print specification function
@@ -556,7 +579,7 @@ namespace Modbus_DLL {
       // Class Codes
       public ClassCode[] ClassCodes = (ClassCode[])Enum.GetValues(typeof(ClassCode));
 
-      // get the human readable name
+      // Get the human readable name
       public string GetAttributeName(ClassCode Class, int v) {
          string result;
          int i = Array.IndexOf(ClassCodes, Class);
@@ -572,6 +595,29 @@ namespace Modbus_DLL {
       #endregion
 
       #region ServiceRoutines
+
+      // Get the device address
+      private byte GetDevAdd(AttrData attr) {
+         byte devAdd = 0;
+         if (twinNozzle) {
+            if (attr != null) {
+               switch (attr.Nozzle) {
+                  case Noz.None:
+                     devAdd = 1;
+                     break;
+                  case Noz.Current:
+                     devAdd = (byte)(Nozzle + 1);
+                     break;
+                  case Noz.Both:
+                     devAdd = 3;
+                     break;
+               }
+            } else {
+
+            }
+         }
+         return devAdd;
+      }
 
       // Convert result to decimal value
       public int GetDecValue(byte[] b) {

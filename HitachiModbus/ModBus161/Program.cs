@@ -31,6 +31,10 @@ namespace ModBus161 {
             ThisProgram.txtDataLength.Text = p.Length;
             ThisProgram.txtData.Text = p.Data;
             ThisProgram.optHoldingRegister.Checked = p.HoldingReg;
+            ThisProgram.chkTwinNozzle.Checked = p.TwinNozzle;
+            ThisProgram.cbNozzle.SelectedIndex = p.Nozzle;
+            ThisProgram.chkHex.Checked = p.HexData;
+            ThisProgram.chkLogIO.Checked = p.LogIO;
             ThisProgram.FormClosing += UI161_FormClosing;
             Application.Run(ThisProgram);
          } catch (Exception ex) {
@@ -114,6 +118,10 @@ namespace ModBus161 {
          p.Length = ThisProgram.txtDataLength.Text;
          p.Data = ThisProgram.txtData.Text;
          p.HoldingReg = ThisProgram.optHoldingRegister.Checked;
+         p.TwinNozzle = ThisProgram.chkTwinNozzle.Checked;
+         p.Nozzle = ThisProgram.cbNozzle.SelectedIndex;
+         p.HexData = ThisProgram.chkHex.Checked;
+         p.LogIO = ThisProgram.chkLogIO.Checked;
          p.Save();
       }
 

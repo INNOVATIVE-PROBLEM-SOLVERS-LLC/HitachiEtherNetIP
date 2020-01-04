@@ -70,6 +70,11 @@
          this.cbClass = new System.Windows.Forms.ComboBox();
          this.cbAttribute = new System.Windows.Forms.ComboBox();
          this.cbInstance = new System.Windows.Forms.ComboBox();
+         this.lblNozzle = new System.Windows.Forms.Label();
+         this.cbNozzle = new System.Windows.Forms.ComboBox();
+         this.chkHex = new System.Windows.Forms.CheckBox();
+         this.chkTwinNozzle = new System.Windows.Forms.CheckBox();
+         this.chkLogIO = new System.Windows.Forms.CheckBox();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabXML.SuspendLayout();
@@ -79,7 +84,7 @@
          // 
          // lblIPAddress
          // 
-         this.lblIPAddress.Location = new System.Drawing.Point(30, 61);
+         this.lblIPAddress.Location = new System.Drawing.Point(29, 47);
          this.lblIPAddress.Name = "lblIPAddress";
          this.lblIPAddress.Size = new System.Drawing.Size(107, 22);
          this.lblIPAddress.TabIndex = 0;
@@ -88,7 +93,7 @@
          // 
          // lblIPPort
          // 
-         this.lblIPPort.Location = new System.Drawing.Point(30, 89);
+         this.lblIPPort.Location = new System.Drawing.Point(29, 75);
          this.lblIPPort.Name = "lblIPPort";
          this.lblIPPort.Size = new System.Drawing.Size(107, 28);
          this.lblIPPort.TabIndex = 1;
@@ -97,7 +102,7 @@
          // 
          // txtIPAddress
          // 
-         this.txtIPAddress.Location = new System.Drawing.Point(143, 61);
+         this.txtIPAddress.Location = new System.Drawing.Point(142, 47);
          this.txtIPAddress.Name = "txtIPAddress";
          this.txtIPAddress.Size = new System.Drawing.Size(137, 22);
          this.txtIPAddress.TabIndex = 2;
@@ -106,7 +111,7 @@
          // 
          // txtIPPort
          // 
-         this.txtIPPort.Location = new System.Drawing.Point(143, 89);
+         this.txtIPPort.Location = new System.Drawing.Point(142, 75);
          this.txtIPPort.Name = "txtIPPort";
          this.txtIPPort.Size = new System.Drawing.Size(137, 22);
          this.txtIPPort.TabIndex = 3;
@@ -125,7 +130,7 @@
          // 
          // cmdDisconnect
          // 
-         this.cmdDisconnect.Location = new System.Drawing.Point(286, 102);
+         this.cmdDisconnect.Location = new System.Drawing.Point(285, 88);
          this.cmdDisconnect.Name = "cmdDisconnect";
          this.cmdDisconnect.Size = new System.Drawing.Size(105, 35);
          this.cmdDisconnect.TabIndex = 9;
@@ -135,7 +140,7 @@
          // 
          // cmdConnect
          // 
-         this.cmdConnect.Location = new System.Drawing.Point(286, 61);
+         this.cmdConnect.Location = new System.Drawing.Point(285, 47);
          this.cmdConnect.Name = "cmdConnect";
          this.cmdConnect.Size = new System.Drawing.Size(105, 35);
          this.cmdConnect.TabIndex = 10;
@@ -145,7 +150,7 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(675, 102);
+         this.cmdExit.Location = new System.Drawing.Point(674, 88);
          this.cmdExit.Name = "cmdExit";
          this.cmdExit.Size = new System.Drawing.Size(105, 35);
          this.cmdExit.TabIndex = 11;
@@ -188,7 +193,7 @@
          // 
          // cmdComOff
          // 
-         this.cmdComOff.Location = new System.Drawing.Point(392, 102);
+         this.cmdComOff.Location = new System.Drawing.Point(391, 88);
          this.cmdComOff.Name = "cmdComOff";
          this.cmdComOff.Size = new System.Drawing.Size(105, 35);
          this.cmdComOff.TabIndex = 16;
@@ -198,7 +203,7 @@
          // 
          // cmdComOn
          // 
-         this.cmdComOn.Location = new System.Drawing.Point(392, 61);
+         this.cmdComOn.Location = new System.Drawing.Point(391, 47);
          this.cmdComOn.Name = "cmdComOn";
          this.cmdComOn.Size = new System.Drawing.Size(105, 35);
          this.cmdComOn.TabIndex = 17;
@@ -218,9 +223,9 @@
          // 
          // txtDataLength
          // 
-         this.txtDataLength.Location = new System.Drawing.Point(416, 611);
+         this.txtDataLength.Location = new System.Drawing.Point(416, 633);
          this.txtDataLength.Name = "txtDataLength";
-         this.txtDataLength.Size = new System.Drawing.Size(81, 22);
+         this.txtDataLength.Size = new System.Drawing.Size(73, 22);
          this.txtDataLength.TabIndex = 22;
          this.txtDataLength.Text = "1";
          this.txtDataLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -236,7 +241,7 @@
          // 
          // lblDataLength
          // 
-         this.lblDataLength.Location = new System.Drawing.Point(323, 611);
+         this.lblDataLength.Location = new System.Drawing.Point(315, 629);
          this.lblDataLength.Name = "lblDataLength";
          this.lblDataLength.Size = new System.Drawing.Size(87, 28);
          this.lblDataLength.TabIndex = 20;
@@ -254,14 +259,14 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(416, 643);
+         this.txtData.Location = new System.Drawing.Point(416, 661);
          this.txtData.Name = "txtData";
          this.txtData.Size = new System.Drawing.Size(222, 22);
          this.txtData.TabIndex = 24;
          // 
          // lblData
          // 
-         this.lblData.Location = new System.Drawing.Point(323, 643);
+         this.lblData.Location = new System.Drawing.Point(315, 661);
          this.lblData.Name = "lblData";
          this.lblData.Size = new System.Drawing.Size(87, 28);
          this.lblData.TabIndex = 23;
@@ -281,7 +286,7 @@
          // 
          // optInputRegister
          // 
-         this.optInputRegister.Location = new System.Drawing.Point(504, 612);
+         this.optInputRegister.Location = new System.Drawing.Point(504, 607);
          this.optInputRegister.Name = "optInputRegister";
          this.optInputRegister.Size = new System.Drawing.Size(134, 21);
          this.optInputRegister.TabIndex = 26;
@@ -410,7 +415,7 @@
          // 
          // lblMessageFolder
          // 
-         this.lblMessageFolder.Location = new System.Drawing.Point(16, 27);
+         this.lblMessageFolder.Location = new System.Drawing.Point(15, 13);
          this.lblMessageFolder.Name = "lblMessageFolder";
          this.lblMessageFolder.Size = new System.Drawing.Size(121, 22);
          this.lblMessageFolder.TabIndex = 33;
@@ -419,7 +424,7 @@
          // 
          // txtMessageFolder
          // 
-         this.txtMessageFolder.Location = new System.Drawing.Point(143, 24);
+         this.txtMessageFolder.Location = new System.Drawing.Point(142, 10);
          this.txtMessageFolder.Name = "txtMessageFolder";
          this.txtMessageFolder.Size = new System.Drawing.Size(518, 22);
          this.txtMessageFolder.TabIndex = 34;
@@ -427,7 +432,7 @@
          // 
          // cmdBrowse
          // 
-         this.cmdBrowse.Location = new System.Drawing.Point(675, 18);
+         this.cmdBrowse.Location = new System.Drawing.Point(674, 4);
          this.cmdBrowse.Name = "cmdBrowse";
          this.cmdBrowse.Size = new System.Drawing.Size(105, 35);
          this.cmdBrowse.TabIndex = 35;
@@ -503,11 +508,67 @@
          this.cbInstance.TabIndex = 42;
          this.cbInstance.SelectedIndexChanged += new System.EventHandler(this.cbInstance_SelectedIndexChanged);
          // 
+         // lblNozzle
+         // 
+         this.lblNozzle.Location = new System.Drawing.Point(315, 601);
+         this.lblNozzle.Name = "lblNozzle";
+         this.lblNozzle.Size = new System.Drawing.Size(87, 28);
+         this.lblNozzle.TabIndex = 43;
+         this.lblNozzle.Text = "Nozzle";
+         this.lblNozzle.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+         // 
+         // cbNozzle
+         // 
+         this.cbNozzle.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbNozzle.FormattingEnabled = true;
+         this.cbNozzle.Items.AddRange(new object[] {
+            "Printer",
+            "N-1",
+            "N-2",
+            "Both"});
+         this.cbNozzle.Location = new System.Drawing.Point(416, 604);
+         this.cbNozzle.Name = "cbNozzle";
+         this.cbNozzle.Size = new System.Drawing.Size(73, 24);
+         this.cbNozzle.TabIndex = 44;
+         // 
+         // chkHex
+         // 
+         this.chkHex.Location = new System.Drawing.Point(504, 635);
+         this.chkHex.Name = "chkHex";
+         this.chkHex.Size = new System.Drawing.Size(113, 26);
+         this.chkHex.TabIndex = 45;
+         this.chkHex.Text = "Data is Hex";
+         this.chkHex.UseVisualStyleBackColor = true;
+         // 
+         // chkTwinNozzle
+         // 
+         this.chkTwinNozzle.Location = new System.Drawing.Point(136, 103);
+         this.chkTwinNozzle.Name = "chkTwinNozzle";
+         this.chkTwinNozzle.Size = new System.Drawing.Size(143, 24);
+         this.chkTwinNozzle.TabIndex = 1;
+         this.chkTwinNozzle.Text = "Twin Nozzle";
+         this.chkTwinNozzle.UseVisualStyleBackColor = true;
+         // 
+         // chkLogIO
+         // 
+         this.chkLogIO.Location = new System.Drawing.Point(674, 53);
+         this.chkLogIO.Name = "chkLogIO";
+         this.chkLogIO.Size = new System.Drawing.Size(106, 24);
+         this.chkLogIO.TabIndex = 46;
+         this.chkLogIO.Text = "Log I/O";
+         this.chkLogIO.UseVisualStyleBackColor = true;
+         this.chkLogIO.CheckedChanged += new System.EventHandler(this.chkLogIO_CheckedChanged);
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.chkLogIO);
+         this.Controls.Add(this.chkTwinNozzle);
+         this.Controls.Add(this.chkHex);
+         this.Controls.Add(this.cbNozzle);
+         this.Controls.Add(this.lblNozzle);
          this.Controls.Add(this.cbInstance);
          this.Controls.Add(this.cbAttribute);
          this.Controls.Add(this.cbClass);
@@ -604,6 +665,11 @@
       private System.Windows.Forms.ComboBox cbClass;
       private System.Windows.Forms.ComboBox cbAttribute;
       private System.Windows.Forms.ComboBox cbInstance;
+      private System.Windows.Forms.Label lblNozzle;
+      public System.Windows.Forms.CheckBox chkTwinNozzle;
+      public System.Windows.Forms.ComboBox cbNozzle;
+      public System.Windows.Forms.CheckBox chkHex;
+      public System.Windows.Forms.CheckBox chkLogIO;
    }
 }
 

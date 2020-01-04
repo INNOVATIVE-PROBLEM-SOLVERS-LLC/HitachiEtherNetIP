@@ -11,9 +11,11 @@ namespace ModBus161 {
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {
       [XmlAttribute]
-      public string Version;   // Keep track of version to allow for changes
-      public Printer Printer;  // Information that pertains to the printer
-      public Msg Message;      // Information that pertains to the message
+      public string Version;     // Keep track of version to allow for changes
+      [XmlElement("Printer")]
+      public Printer[] Printer;  // Information that pertains to the printer
+      [XmlElement("Message")]
+      public Msg[] Message;      // Information that pertains to the message
    }
 
    #region Message Classes
@@ -22,7 +24,9 @@ namespace ModBus161 {
       [XmlAttribute]
       public string Layout;    // Supports only individual at the moment
       [XmlAttribute]
-      public string Name;     // Supports only individual at the moment
+      public string Name;      // Supports only individual at the moment
+      [XmlAttribute]
+      public string Nozzle;
       [XmlElement("Column")]
       public Column[] Column;  // Message made up of columns and items within column
    }
@@ -277,6 +281,8 @@ namespace ModBus161 {
       public string Make;
       [XmlAttribute]
       public string Model;
+      [XmlAttribute]
+      public string Nozzle;
       public PrintHead PrintHead;
       public ContinuousPrinting ContinuousPrinting;
       public TargetSensor TargetSensor;
