@@ -89,9 +89,15 @@ namespace ModBus161 {
          }
          try {
             Lab Label = new Lab() { Version = "Serialization-1" };
-            Label.Message = RetrieveMessage();
-            Label.Printer = RetrievePrinterSettings();
-            Label.Printer.Substitution = RetrieveSubstitutions(Label.Message);
+            Label.Message = new Msg[NozzleCount];
+            Label.Printer = new Printer[NozzleCount];
+            for (int nozzle = 0; nozzle < NozzleCount; nozzle++) {
+               Label.Message[nozzle] = RetrieveMessage();
+               Label.Printer[nozzle] = RetrievePrinterSettings();
+               Label.Printer[nozzle].Substitution = RetrieveSubstitutions(Label.Message[nozzle]);
+               Label.Message[nozzle].Nozzle = (nozzle + 1).ToString();
+               Label.Printer[nozzle].Nozzle = (nozzle + 1).ToString();
+            }
             XmlSerializer serializer = new XmlSerializer(typeof(Lab));
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
             ns.Add("", "");
