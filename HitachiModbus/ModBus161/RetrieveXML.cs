@@ -159,7 +159,7 @@ namespace ModBus161 {
                   item.BarCode = new BarCode();                           // Build barcode only if needed
                   item.BarCode.DotMatrix = p.GetHRAttribute(ccPF.Barcode_Type, n);
                   item.BarCode.HumanReadableFont = p.GetHRAttribute(ccPF.Readable_Code, n);
-                  item.BarCode.EANPrefix = p.GetHRAttribute(ccPF.EAN_Prefix, n);
+                  item.BarCode.EANPrefix = p.GetHRAttribute(ccAPP.EAN_Prefix, n);
                }
 
                item.Location = new Location() { Index = n, Row = row, Col = col };

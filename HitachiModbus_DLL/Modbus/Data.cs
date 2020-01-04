@@ -29,6 +29,7 @@ namespace Modbus_DLL {
       Count = 0x79,
       Index = 0x7A,
       Print_Contents = 0x7B,
+      Adjust_Print_Parameters = 0x7C,
    }
 
    // Attributes within Print Data Registration class 0x66
@@ -80,12 +81,17 @@ namespace Modbus_DLL {
       Number_of_Calendar_Blocks = 0x1049,
       First_Count_Block = 0x104A,
       Number_Of_Count_Blocks = 0x104B,
-
       X_Coordinate = 0x104C,
       Y_Coordinate = 0x104D,
+      Composit_Character_Item = 0x104E,
+
       InterCharacter_SpaceII = 0x7B,
       Add_To_End_Of_String = 0x8A,
 
+   }
+
+   // Attributes within Adjust Print Parameters 0x68 (Modbus ready)
+   public enum ccAPP {
       Calendar_Offset = 0x2480,
       DIN_Print = 0x2481,
       EAN_Prefix = 0x2482,
@@ -93,7 +99,7 @@ namespace Modbus_DLL {
       QR_Error_Correction_Level = 0x2084,
    }
 
-   // Attributes within Print Specification class 0x68 (Modbus ready)
+   // Attributes within Print Specification class 0x68
    public enum ccPS {
       Character_Height = 0x19A0,
       Ink_Drop_Use = 0x19A1,
@@ -241,7 +247,7 @@ namespace Modbus_DLL {
 
    // Attributes within IJP Operation class 0x75
    public enum ccIJP {
-      Remote_operation_information = 0x64,
+      Remote_operation = 0x2494,
       Fault_and_warning_history = 0x66,
       Operating_condition = 0x67,
       Warning_condition = 0x68,
@@ -364,6 +370,7 @@ namespace Modbus_DLL {
             ccCount_Addrs,         // 0x79 Count function
             ccIDX_Addrs,           // 0x7A Index function
             ccPC_Addrs,            // 0x7B Print Contents function
+            ccAPP_Addrs,           // 0x7B Print Contents function
          };
       }
 
@@ -465,17 +472,23 @@ namespace Modbus_DLL {
             new Prop(3, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
          new AttrData((int)ccPF.Y_Coordinate, true, 100, 24, Noz.Current,       // Y Coordinate 0x104D
             new Prop(3, DataFormats.Decimal, 0, 29, fmtDD.None)),               //   Data
+         new AttrData((int)ccPF.Composit_Character_Item, true, 100, 24, Noz.Current, // Composit Character Item 0x104E
+            new Prop(1, DataFormats.Decimal, 0, 50, fmtDD.None)),               //   Data
 
          // This does not belong here
-         new AttrData((int)ccPF.QR_Error_Correction_Level, true, 100, 24,       // QR Error Correction Level 0x2084
+      };
+
+      // Adjust Print Parameters
+      private AttrData[] ccAPP_Addrs = new AttrData[] {
+         new AttrData((int)ccAPP.QR_Error_Correction_Level, true, 100, 24,      // QR Error Correction Level 0x2084
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
-         new AttrData((int)ccPF.Calendar_Offset, true, 100, 24,                 // Calendar Offset 0x2480
+         new AttrData((int)ccAPP.Calendar_Offset, true, 100, 24,                // Calendar Offset 0x2480
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),      //   Data
-         new AttrData((int)ccPF.DIN_Print, true, 100, 24,                       // DIN Print 0x2481
+         new AttrData((int)ccAPP.DIN_Print, true, 100, 24,                      // DIN Print 0x2481
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccPF.EAN_Prefix, true, 100, 24,                      // EAN Prefix 0x2482
+         new AttrData((int)ccAPP.EAN_Prefix, true, 100, 24,                     // EAN Prefix 0x2482
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Data
-         new AttrData((int)ccPF.Barcode_Printing, true, 100, 24,                // Barcode Printing 0x2483
+         new AttrData((int)ccAPP.Barcode_Printing, true, 100, 24,               // Barcode Printing 0x2483
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Data
       };
 
@@ -729,7 +742,7 @@ namespace Modbus_DLL {
 
       // IJP_operation (Class Code 0x75)
       private AttrData[] ccIJP_Addrs = new AttrData[] {
-         new AttrData((int)ccIJP.Remote_operation_information, true, 1, 0,      // Remote operation information 0x64
+         new AttrData((int)ccIJP.Remote_operation, true, 1, 0,                  // Remote operation information 0x64
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccIJP.Fault_and_warning_history, true, 1, 0,         // Fault and warning history 0x66
             new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
@@ -839,6 +852,7 @@ namespace Modbus_DLL {
          DumpTable(RFS, ccCount_Addrs, ClassCode.Count, typeof(ccCount));
          DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
          DumpTable(RFS, ccPC_Addrs, ClassCode.Print_Contents, typeof(ccPC));
+         DumpTable(RFS, ccAPP_Addrs, ClassCode.Adjust_Print_Parameters, typeof(ccAPP));
 
       }
 

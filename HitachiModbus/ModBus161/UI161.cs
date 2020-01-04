@@ -41,6 +41,15 @@ namespace ModBus161 {
 
       private AttrData attr;
 
+      // Remote Operations
+      private enum RemoteOps {
+         Start = 0,
+         Stop = 1,
+         Ready = 2,
+         StandBy = 3,
+         ClearFault = 4,
+      }
+
       #endregion
 
       #region Constructors an destructors
@@ -92,6 +101,36 @@ namespace ModBus161 {
       // Turn com off
       private void cmdComOff_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Online_Offline, 0);
+         SetButtonEnables();
+      }
+
+      private void cmdReset_Click(object sender, EventArgs e) {
+         p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.ClearFault);
+         SetButtonEnables();
+      }
+
+      private void cmdGetStatus_Click(object sender, EventArgs e) {
+
+         SetButtonEnables();
+      }
+
+      private void cmdShutDown_Click(object sender, EventArgs e) {
+         p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Stop);
+         SetButtonEnables();
+      }
+
+      private void cmdStartUp_Click(object sender, EventArgs e) {
+         p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Start);
+         SetButtonEnables();
+      }
+
+      private void cmdStandby_Click(object sender, EventArgs e) {
+         p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.StandBy);
+         SetButtonEnables();
+      }
+
+      private void cmdReady_Click(object sender, EventArgs e) {
+         p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Ready);
          SetButtonEnables();
       }
 
@@ -437,6 +476,12 @@ namespace ModBus161 {
          cmdDisconnect.Enabled = isConnected;
          cmdComOff.Enabled = comIsOn;
          cmdComOn.Enabled = isConnected && !comIsOn;
+         cmdStartUp.Enabled = comIsOn;
+         cmdShutDown.Enabled = comIsOn;
+         cmdReady.Enabled = comIsOn;
+         cmdStandby.Enabled = comIsOn;
+         cmdGetStatus.Enabled = comIsOn;
+         cmdReset.Enabled = comIsOn;
 
          cmdReadData.Enabled = comIsOn
             && int.TryParse(txtDataAddress.Text, NumberStyles.HexNumber, null, out addr)
