@@ -364,11 +364,24 @@ namespace ModBus161 {
       [XmlAttribute]
       public string DotMatrix;
       [XmlAttribute]
+      public string Height;
+      [XmlAttribute]
+      public string Width;
+      [XmlAttribute]
       public string Location;
       [XmlAttribute]
       public string FileName;
       [XmlAttribute]
       public string RawData;
+      public bool ShouldSerializeDotMatrix() {
+         return this.Layout == "Fixed";
+      }
+      public bool ShouldSerializeDotWidth() {
+         return this.Layout == "Free";
+      }
+      public bool ShouldSerializeDotHeight() {
+         return this.Layout == "Free";
+      }
    }
 
    public class Substitution {

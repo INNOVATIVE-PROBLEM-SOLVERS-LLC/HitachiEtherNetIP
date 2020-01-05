@@ -160,8 +160,9 @@ namespace ModBus161 {
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
                }
-               string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+               string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
                p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
@@ -449,34 +450,85 @@ namespace ModBus161 {
       }
 
       private void SendLogos(Logos logos) {
-         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
          foreach (Logo l in logos.Logo) {
-            // Load the logo into the pattern area
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccIDX.User_Pattern_Size, l.DotMatrix);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               // Write the registration bit
-               int regLoc = loc / 16;
-               int regBit = 15 - (loc % 16);
-               AttrData attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
-               int regMask = p.GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
-               regMask |= 1 << regBit;
-               p.SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               // Write the pattern
-               int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
-               byte[] data = new byte[logoLen[n]];
-               byte[] rawdata = p.string_to_byte(l.RawData);
-               for (int i = 0; i < Math.Min(data.Length, rawdata.Length); i++) {
-                  data[i] = rawdata[i];
-               }
-               // Write the pattern data
-               attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data);
-               int addr = attr.Val;
-               p.SetAttribute(attr, loc * (logoLen[n] / 2), data);
+            switch (l.Layout) {
+               case "Free":
+                  SendFreeLogo(l);
+                  break;
+               case "Fixed":
+                  SendFixedLogo(l) ;
+                  break;
             }
+         }
+      }
+
+      private void SendFreeLogo(Logo l) {
+         if (int.TryParse(l.Location, out int loc)
+            && int.TryParse(l.Height, out int height) && height <= 32
+            && int.TryParse(l.Width, out int width) && width <= 320
+            && l.RawData.Length > 0) {
+
+            // Set the registration bit
+            int regLoc = loc / 16;
+            int regBit = 15 - (loc % 16);
+            int regMask = p.GetDecAttribute(ccUP.User_Pattern_Free_Registration, regLoc);
+            regMask |= 1 << regBit;
+
+            // Build the write data
+            int n = (height + 7) / 8;  // Calculate source height in bytes
+            byte[] rawdata = p.string_to_byte(l.RawData);
+            byte[] data = new byte[(rawdata.Length / n) * 4];
+            if (n == 4) {
+               rawdata.CopyTo(data, 0);
+            } else {
+               int k = 0;
+               for (int i = 0; i < data.Length; i += 4) {
+                  for (int j = 0; j < n; j++) {
+                     data[i + j] = rawdata[k++];
+                  }
+               }
+            }
+
+            // Write the pattern
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
+            p.SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
+            p.SetAttribute(ccUP.User_Pattern_Free_Data, loc, data);
+            p.SetAttribute(ccUP.User_Pattern_Free_Registration, regLoc, regMask);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         }
+      }
+
+      private void SendFixedLogo(Logo l) {
+         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
+         // Load the logo into the pattern area
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.User_Pattern_Size, l.DotMatrix);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
+
+            // Write the registration bit
+            int regLoc = loc / 16;
+            int regBit = 15 - (loc % 16);
+            AttrData attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+            int regMask = p.GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
+            regMask |= 1 << regBit;
+
+            // Write the pattern
+            int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
+            byte[] data = new byte[logoLen[n]];
+            byte[] rawdata = p.string_to_byte(l.RawData);
+            for (int i = 0; i < Math.Min(data.Length, rawdata.Length); i++) {
+               data[i] = rawdata[i];
+            }
+            // Write the pattern data
+            attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data);
+            int addr = attr.Val;
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * (logoLen[n] / 2), data);
+            p.SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
       }
 

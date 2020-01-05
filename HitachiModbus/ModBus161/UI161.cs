@@ -316,7 +316,10 @@ namespace ModBus161 {
 
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
-         // Place any test code here
+         string s = p.HandleBraces("SELL BY MMM/DD/YY  ");
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPC.Print_Character_String, 0, s);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       // Show I/O packets in Log File.
