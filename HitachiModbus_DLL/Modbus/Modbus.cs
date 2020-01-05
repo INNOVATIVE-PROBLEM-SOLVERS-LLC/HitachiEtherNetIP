@@ -152,7 +152,7 @@ namespace Modbus_DLL {
          }
          if (successful) {
             if ((data[7] & 0x80) > 0) {
-               Log?.Invoke(this, $"Device rejected the reqest{(ErrorCodes)data[8]}.");
+               Log?.Invoke(this, $"Device rejected the request \"{(ErrorCodes)data[8]}\".");
             }
          } else {
             Log?.Invoke(this, "Read Failed.");
@@ -519,11 +519,22 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr, attr.Stride * n, data);
-         Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
+         Log?.Invoke(this, $"Set[{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
          if (LogIOs)
             Log?.Invoke(this, " ");
          return success;
       }
+
+      // Write to a specific address
+      //public bool SetAttributeByAddr<T>(T Attribute, int offset, byte[] DataOut) where T : Enum {
+      //   bool success = true;
+      //   AttrData attr = GetAttrData(Attribute);
+      //   success =  SetAttribute(GetDevAdd(attr), attr.Val + offset, DataOut);
+      //   Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{DataOut.Length}]");
+      //   if (LogIOs)
+      //      Log?.Invoke(this, " ");
+      //   return success;
+      //}
 
       #endregion
 
@@ -898,14 +909,18 @@ namespace Modbus_DLL {
                result = new byte[s2.Length * width];
                for (int i = 0; i < s2.Length; i++) {
                   char c = s2[i];
-                  if (c < 0x100) {
-                     result[(i + 1) * width - 1] = (byte)c;
-                  } else if ((c >> 8) == 0xF1) {
-                     result[(i + 1) * width - 2] = (byte)(c >> 8);
-                     result[(i + 1) * width - 1] = (byte)c;
-                  } else {
+                  bool CalOrCnt = false;
+                  for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
+                     if (M161.CalCnt[j, 1] == c) {
+                        CalOrCnt = true;
+                     }
+                  }
+                  if (CalOrCnt) {
                      result[i * width] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
+                  } else {
+                     result[(i + 1) * width - 2] = (byte)(c >> 8);
+                     result[(i + 1) * width - 1] = (byte)c;
                   }
                }
                break;
@@ -929,19 +944,9 @@ namespace Modbus_DLL {
       public string HandleBraces(string s1) {
          // Braced Characters (count, date, half-size, logos
          string s2 = s1;
-         // Calendar and count
-         char[,] bc = new char[,]
-         { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
-           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
-           {'E', '\uF25B'}, {'F', '\uF25C'} };
 
-         // Half size characters
-         string[,] hs = new string[,]
-         { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
-           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
-
-         for (int i = 0; i < hs.GetLength(0); i++) {
-            s2 = s2.Replace(hs[i, 0], hs[i, 1]);
+         for (int i = 0; i < M161.HalfSize.GetLength(0); i++) {
+            s2 = s2.Replace(M161.HalfSize[i, 0], M161.HalfSize[i, 1]);
          }
 
          for (int i = 0; i < s2.Length; i++) {
@@ -949,7 +954,22 @@ namespace Modbus_DLL {
             i = s2.IndexOf("{X/", i);
             if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
                int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
-               s2 = s2.Substring(0, i) + (char)('\uF140' + n) + s2.Substring(j + 1);
+               if (n < 192) {
+                  s2 = s2.Substring(0, i) + (char)('\uF140' + n) + s2.Substring(j + 1);
+               } else {
+                  s2 = s2.Substring(0, i) + (char)('\uF220' + n - 192) + s2.Substring(j + 1);
+               }
+            } else {
+               break;
+            }
+         }
+
+         for (int i = 0; i < s2.Length; i++) {
+            int j;
+            i = s2.IndexOf("{Z/", i);
+            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
+               int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
+               s2 = s2.Substring(0, i) + (char)('\uF640' + n) + s2.Substring(j + 1);
             } else {
                break;
             }
@@ -973,11 +993,11 @@ namespace Modbus_DLL {
                      result += c;
                   } else {
                      bool found = false;
-                     for (int j = 0; j < bc.GetLength(0) && !found; j++) {
-                        if (bc[j, 0] == c) {
+                     for (int j = 0; j < M161.CalCnt.GetLength(0) && !found; j++) {
+                        if (M161.CalCnt[j, 0] == c) {
                            firstFound = Math.Min(firstFound, result.Length);
                            lastFound = Math.Max(lastFound, result.Length);
-                           result += bc[j, 1];
+                           result += M161.CalCnt[j, 1];
                            found = true;
                         }
                      }

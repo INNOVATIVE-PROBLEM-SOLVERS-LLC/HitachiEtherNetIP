@@ -460,13 +460,13 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ReadableCode)),        //   Data
          new AttrData((int)ccPF.Prefix_Code, true, 100, 24, Noz.Current,        // Prefix Code 0x1047
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPF.First_Calendar_Block, true, 8, 24, Noz.Current, // First Calendar Block 0x1048
+         new AttrData((int)ccPF.First_Calendar_Block, true, 100, 24, Noz.Current, // First Calendar Block 0x1048
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 8, 24, Noz.Current, // Number of Calendar Blocks 0x1049
+         new AttrData((int)ccPF.Number_of_Calendar_Blocks, true, 100, 24, Noz.Current, // Number of Calendar Blocks 0x1049
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.First_Count_Block, true, 8, 24, Noz.Current,    // First Count Block 0x104A
+         new AttrData((int)ccPF.First_Count_Block, true, 100, 24, Noz.Current,  // First Count Block 0x104A
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 8, 24, Noz.Current, // Number Of Count Blocks 0x104B
+         new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 100, 24, Noz.Current, // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.X_Coordinate, true, 100, 24, Noz.Current,       // X Coordinate 0x104C
             new Prop(3, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
@@ -586,7 +586,7 @@ namespace Modbus_DLL {
       private AttrData[] ccUP_Addrs = new AttrData[] {
          new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 1, 12,   // User Pattern Fixed Registration 0x2D00
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 1, 0,            // User Pattern Fixed Data 0x2D20
+         new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 14304, 1,        // User Pattern Fixed Data 0x2D20
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 1, 4,     // User Pattern Free Registration 0x6500
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
@@ -1020,6 +1020,17 @@ namespace Modbus_DLL {
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
          //new string[] { "CharacterInput", "MessageFormat" },          // 25 - Attributed Data
      };
+
+      // Calendar and count
+      public char[,] CalCnt = new char[,]
+      { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
+           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
+           {'E', '\uF25B'}, {'F', '\uF25C'} };
+
+      // Half size characters
+      public string[,] HalfSize = new string[,]
+      { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
+           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
 
    }
 
