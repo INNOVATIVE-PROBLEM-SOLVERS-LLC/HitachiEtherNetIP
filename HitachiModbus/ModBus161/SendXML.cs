@@ -475,17 +475,13 @@ namespace ModBus161 {
             regMask |= 1 << regBit;
 
             // Build the write data
-            int n = (height + 7) / 8;  // Calculate source height in bytes
-            byte[] rawdata = p.string_to_byte(l.RawData);
-            byte[] data = new byte[(rawdata.Length / n) * 4];
-            if (n == 4) {
-               rawdata.CopyTo(data, 0);
-            } else {
-               int k = 0;
-               for (int i = 0; i < data.Length; i += 4) {
-                  for (int j = 0; j < n; j++) {
-                     data[i + j] = rawdata[k++];
-                  }
+            int n = (height + 7) / 8;                          // Calculate source height in bytes
+            byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
+            byte[] data = new byte[(rawdata.Length / n) * 4];  // Free logos are always 4 bytes per stripe
+            int k = 0;
+            for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
+               for (int j = 0; j < n; j++) {
+                  data[i + j] = rawdata[k++];
                }
             }
 

@@ -525,17 +525,6 @@ namespace Modbus_DLL {
          return success;
       }
 
-      // Write to a specific address
-      //public bool SetAttributeByAddr<T>(T Attribute, int offset, byte[] DataOut) where T : Enum {
-      //   bool success = true;
-      //   AttrData attr = GetAttrData(Attribute);
-      //   success =  SetAttribute(GetDevAdd(attr), attr.Val + offset, DataOut);
-      //   Log?.Invoke(this, $"Set[{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{DataOut.Length}]");
-      //   if (LogIOs)
-      //      Log?.Invoke(this, " ");
-      //   return success;
-      //}
-
       #endregion
 
       #region Attribute Routines
