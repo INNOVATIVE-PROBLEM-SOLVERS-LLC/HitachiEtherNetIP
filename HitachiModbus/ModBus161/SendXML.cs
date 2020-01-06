@@ -55,18 +55,60 @@ namespace ModBus161 {
       public void SendXML(Lab Lab, bool AutoReflect = true) {
          UseAutomaticReflection = AutoReflect; // Speed up processing
          try {
-            for (int nozzle = 0; nozzle < NozzleCount; nozzle++) {
-               p.Nozzle = nozzle;
-               if (Lab.Printer != null && Lab.Printer[nozzle].Logos != null) {
-                  SendLogos(Lab.Printer[nozzle].Logos);
-               }
+            if (Lab.Printer != null) {
+               for (int i = 0; i < Lab.Printer.Length; i++) {
+                  int n = 0;
+                  if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
+                     if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
+                        n = Math.Max(0, n - 1);
+                     }
+                  }
+                  p.Nozzle = n;
+                  if (Lab.Printer[i].Logos != null) {
+                     foreach (Logo l in Lab.Printer[i].Logos.Logo) {
+                        switch (l.Layout) {
+                           case "Free":
+                              SendFreeLogo(l);
+                              break;
+                           case "Fixed":
+                              SendFixedLogo(l);
+                              break;
+                        }
+                     }
+                  }
 
-               if (Lab.Message != null) {
-                  SendMessage(Lab.Message[nozzle]);
                }
+            }
 
-               if (Lab.Printer != null) {
-                  SendPrinterSettings(Lab.Printer[nozzle]); // Must be done last
+            // Send message settings
+            if (Lab.Message != null) {
+               for (int i = 0; i < Lab.Message.Length; i++) {
+                  if (Lab.Message[i] != null) {
+                     int n = 0;
+                     if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Message[i].Nozzle)) {
+                        if (int.TryParse(Lab.Message[i].Nozzle, out n)) {
+                           n = Math.Max(0, n - 1);
+                        }
+                     }
+                     p.Nozzle = n;
+                     SendMessage(Lab.Message[i]);
+                  }
+               }
+            }
+
+            // Send printer settings
+            if (Lab.Printer != null) {
+               for (int i = 0; i < Lab.Printer.Length; i++) {
+                  if (Lab.Printer[i] != null) {
+                     int n = 0;
+                     if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
+                        if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
+                           n = Math.Max(0, n - 1);
+                        }
+                     }
+                     p.Nozzle = n;
+                     SendPrinterSettings(Lab.Printer[i]); // Must be done last
+                  }
                }
             }
          } catch (Exception e2) {
@@ -449,24 +491,13 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
-      private void SendLogos(Logos logos) {
-         foreach (Logo l in logos.Logo) {
-            switch (l.Layout) {
-               case "Free":
-                  SendFreeLogo(l);
-                  break;
-               case "Fixed":
-                  SendFixedLogo(l) ;
-                  break;
-            }
-         }
-      }
-
       private void SendFreeLogo(Logo l) {
          if (int.TryParse(l.Location, out int loc)
             && int.TryParse(l.Height, out int height) && height <= 32
             && int.TryParse(l.Width, out int width) && width <= 320
             && l.RawData.Length > 0) {
+
+            parent.Log($" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
 
             // Set the registration bit
             int regLoc = loc / 16;
@@ -481,7 +512,8 @@ namespace ModBus161 {
             int k = 0;
             for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
                for (int j = 0; j < n; j++) {
-                  data[i + j] = rawdata[k++];
+                  data[i + j] = rawdata[k];
+                  k = Math.Min(k + 1, data.Length - 1);
                }
             }
 
@@ -503,6 +535,8 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.User_Pattern_Size, l.DotMatrix);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
+
+            parent.Log($" \n// Set {l.DotMatrix} Fixed Logo to  location {loc}\n ");
 
             // Write the registration bit
             int regLoc = loc / 16;
