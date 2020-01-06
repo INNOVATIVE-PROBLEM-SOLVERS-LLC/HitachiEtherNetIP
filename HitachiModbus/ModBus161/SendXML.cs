@@ -51,13 +51,13 @@ namespace ModBus161 {
       }
 
       public void SendXML(Lab Lab, bool AutoReflect = true) {
-         UseAutomaticReflection = AutoReflect; // Speed up processing
          try {
             if (Lab.Printer != null) {
                for (int i = 0; i < Lab.Printer.Length; i++) {
+                  Printer ptr = Lab.Printer[i];
                   int n = 0;
-                  if (!string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
-                     if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
+                  if (!string.IsNullOrEmpty(ptr.Nozzle)) {
+                     if (int.TryParse(ptr.Nozzle, out n)) {
                         n = Math.Max(0, n - 1);
                      }
                   }
@@ -66,7 +66,7 @@ namespace ModBus161 {
                   }
                   p.Nozzle = n;
                   if (Lab.Printer[i].Logos != null) {
-                     foreach (Logo l in Lab.Printer[i].Logos.Logo) {
+                     foreach (Logo l in ptr.Logos.Logo) {
                         switch (l.Layout) {
                            case "Free":
                               SendFreeLogo(l);
@@ -77,7 +77,9 @@ namespace ModBus161 {
                         }
                      }
                   }
-
+                  if (n > 0) // Load substitutions associated with nozzle 1 only
+                     continue;
+                  SendSubstitutionRules(ptr);
                }
             }
 
@@ -121,7 +123,6 @@ namespace ModBus161 {
          } catch (Exception e2) {
             parent.Log(e2.Message);
          }
-         UseAutomaticReflection = false;
       }
 
       #endregion
@@ -476,25 +477,6 @@ namespace ModBus161 {
             p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
             p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
          }
-         if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
-            if (int.TryParse(ptr.Substitution.RuleNumber, out int ruleNumber)
-               && int.TryParse(ptr.Substitution.StartYear, out int year)
-               && ptr.Substitution.Delimiter.Length == 1) {
-               // Substitution rules cannot be set with Auto Reflection on
-               bool saveAR = UseAutomaticReflection;
-               UseAutomaticReflection = false;
-               // Force rule to be loaded
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               p.SetAttribute(ccSR.Start_Year, year);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-               UseAutomaticReflection = saveAR;
-            }
-         }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
@@ -566,6 +548,24 @@ namespace ModBus161 {
             p.SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * (logoLen[n] / 2), data);
             p.SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+      }
+
+      // Send substitution rules
+      private void SendSubstitutionRules(Printer ptr) {
+         if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
+            if (int.TryParse(ptr.Substitution.RuleNumber, out int ruleNumber)
+               && int.TryParse(ptr.Substitution.StartYear, out int year)
+               && ptr.Substitution.Delimiter.Length == 1) {
+               // Force rule to be loaded
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               p.SetAttribute(ccSR.Start_Year, year);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
          }
       }
 

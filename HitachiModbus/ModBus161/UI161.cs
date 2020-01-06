@@ -105,31 +105,37 @@ namespace ModBus161 {
          SetButtonEnables();
       }
 
+      // Reset alarm
       private void cmdReset_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.ClearFault);
          SetButtonEnables();
       }
 
+      // Get printer status
       private void cmdGetStatus_Click(object sender, EventArgs e) {
 
          SetButtonEnables();
       }
 
+      // Hydralic pump shutdown
       private void cmdShutDown_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Stop);
          SetButtonEnables();
       }
 
+      // Hydralic pump startup
       private void cmdStartUp_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Start);
          SetButtonEnables();
       }
 
+      // Printer to standby
       private void cmdStandby_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.StandBy);
          SetButtonEnables();
       }
 
+      // Printer to ready
       private void cmdReady_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Ready);
          SetButtonEnables();
@@ -359,7 +365,7 @@ namespace ModBus161 {
             int minute = p.GetDecAttribute(ccAH.Minute, i);
             int second = p.GetDecAttribute(ccAH.Second, i);
             int fault = p.GetDecAttribute(ccAH.Fault_Number, i);
-            lbErrors.Items.Add($"{fault:##0} {year}/{month:#0}/{day:#0} {hour:#0}:{minute:#0}:{second:#0}");
+            lbErrors.Items.Add($"{fault:###} {year}/{month:##}/{day:##} {hour:##}:{minute:##}:{second:##}");
             lbErrors.Update();
          }
       }
@@ -539,8 +545,8 @@ namespace ModBus161 {
          cmdExperiment.Enabled = comIsOn;
          chkTwinNozzle.Enabled = !isConnected;
 
-         cmdErrorRefresh.Enabled = comIsOn;
-         cmdErrorClear.Enabled = comIsOn;
+         cmdErrorRefresh.Enabled = false; // comIsOn;
+         cmdErrorClear.Enabled = false; // comIsOn;
       }
 
       #endregion
