@@ -552,9 +552,9 @@
          // 
          // chkTwinNozzle
          // 
-         this.chkTwinNozzle.Location = new System.Drawing.Point(142, 103);
+         this.chkTwinNozzle.Location = new System.Drawing.Point(112, 108);
          this.chkTwinNozzle.Name = "chkTwinNozzle";
-         this.chkTwinNozzle.Size = new System.Drawing.Size(110, 20);
+         this.chkTwinNozzle.Size = new System.Drawing.Size(140, 20);
          this.chkTwinNozzle.TabIndex = 1;
          this.chkTwinNozzle.Text = "Twin Nozzle";
          this.chkTwinNozzle.UseVisualStyleBackColor = true;
@@ -563,7 +563,7 @@
          // 
          this.chkLogIO.Location = new System.Drawing.Point(12, 99);
          this.chkLogIO.Name = "chkLogIO";
-         this.chkLogIO.Size = new System.Drawing.Size(106, 29);
+         this.chkLogIO.Size = new System.Drawing.Size(94, 29);
          this.chkLogIO.TabIndex = 46;
          this.chkLogIO.Text = "Log I/O";
          this.chkLogIO.UseVisualStyleBackColor = true;
