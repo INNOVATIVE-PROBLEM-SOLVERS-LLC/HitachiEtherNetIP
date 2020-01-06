@@ -61,6 +61,7 @@ namespace ModBus161 {
          // Instantiate Modbus printer and register for log events
          p = new Modbus();
          p.Log += Modbus_Log;
+         p.LogIOs = chkLogIO.Checked;
 
          // Initialize all dropdowns
          ccNames = Enum.GetNames(typeof(ClassCode));
@@ -297,6 +298,24 @@ namespace ModBus161 {
             attValues = (int[])Enum.GetValues(p.ClassCodeAttributes[n1]);
             int n2 = Array.FindIndex(attrNames, x => x == cbAttribute.Text);
             attr = p.GetAttrData(p.ClassCodes[n1], attValues[n2]);
+            if (attr.HoldingReg) {
+               optHoldingRegister.Checked = true;
+            } else {
+               optInputRegister.Checked = true;
+            }
+            switch (attr.Nozzle) {
+               case Noz.None:
+                  cbNozzle.SelectedIndex = 0;
+                  break;
+               case Noz.Current:
+                  cbNozzle.SelectedIndex = p.Nozzle + 1;
+                  break;
+               case Noz.Both:
+                  cbNozzle.SelectedIndex = 3;
+                  break;
+               default:
+                  break;
+            }
             int n = attr.Count;
             for (int i = 0; i < n; i++) {
                cbInstance.Items.Add(i);
@@ -325,6 +344,24 @@ namespace ModBus161 {
       // Show I/O packets in Log File.
       private void chkLogIO_CheckedChanged(object sender, EventArgs e) {
          p.LogIOs = chkLogIO.Checked;
+      }
+
+      // Retrieve the error log from the printer
+      private void cmdErrorRefresh_Click(object sender, EventArgs e) {
+         lbErrors.Items.Clear();
+         int errCount = p.GetDecAttribute(ccAH.Message_Count);
+         lbErrors.Items.Add($"There are {errCount} errors to report!");
+         for (int i = 0; i < errCount; i++) {
+            int year = p.GetDecAttribute(ccAH.Year, i);
+            int month = p.GetDecAttribute(ccAH.Month, i);
+            int day = p.GetDecAttribute(ccAH.Day, i);
+            int hour = p.GetDecAttribute(ccAH.Hour, i);
+            int minute = p.GetDecAttribute(ccAH.Minute, i);
+            int second = p.GetDecAttribute(ccAH.Second, i);
+            int fault = p.GetDecAttribute(ccAH.Fault_Number, i);
+            lbErrors.Items.Add($"{fault:##0} {year}/{month:#0}/{day:#0} {hour:#0}:{minute:#0}:{second:#0}");
+            lbErrors.Update();
+         }
       }
 
       #endregion
@@ -501,6 +538,9 @@ namespace ModBus161 {
 
          cmdExperiment.Enabled = comIsOn;
          chkTwinNozzle.Enabled = !isConnected;
+
+         cmdErrorRefresh.Enabled = comIsOn;
+         cmdErrorClear.Enabled = comIsOn;
       }
 
       #endregion

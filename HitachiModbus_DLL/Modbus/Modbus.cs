@@ -100,16 +100,26 @@ namespace Modbus_DLL {
       // Connect to printer and turn COM on
       public bool Connect(string ipAddress, int ipPort) {
          bool success = false;
-         if (IPAddress.TryParse(ipAddress, out IPAddress ipAddr)) {
-            client = new TcpClient(ipAddress, ipPort);
-            stream = client.GetStream();
-            Log?.Invoke(this, "Connection Accepted");
-            int n = GetDecAttribute(ccIJP.Online_Offline);
-            if (!ComIsOn) {
-               SetAttribute(ccIJP.Online_Offline, 1);
-               n = GetDecAttribute(ccIJP.Online_Offline);
-               success = true;
+         try {
+            if (IPAddress.TryParse(ipAddress, out IPAddress ipAddr)) {
+               client = new TcpClient();
+               if (!client.ConnectAsync(ipAddress, ipPort).Wait(1000)) {
+                  Log?.Invoke(this, "Connection Failed");
+                  client = null;
+                  return false;
+               }
+               stream = client.GetStream();
+               Log?.Invoke(this, "Connection Accepted");
+               int n = GetDecAttribute(ccIJP.Online_Offline);
+               if (!ComIsOn) {
+                  SetAttribute(ccIJP.Online_Offline, 1);
+                  n = GetDecAttribute(ccIJP.Online_Offline);
+                  success = true;
+               }
             }
+         } catch (Exception e) {
+            Log?.Invoke(this, $"Connection Failed\n{ e.StackTrace}");
+            Disconnect();
          }
          return success;
       }
@@ -147,7 +157,7 @@ namespace Modbus_DLL {
                successful = bytes >= 8;                   // Need to at least get the packet + devAddr, Function code, and length
                DisplayInput(data, bytes);                 // Display the input returned
             } catch (Exception e) {
-               Log?.Invoke(this, e.Message);
+               throw new ModbusException(e.Message);
             }
          }
          if (successful) {
@@ -244,6 +254,7 @@ namespace Modbus_DLL {
          FunctionCode fc = attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput;
          byte devAddr = GetDevAdd(attr);
          byte[] request = BuildModbusRead(fc, devAddr, attr.Val, len);
+         Task.Delay(50);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -266,6 +277,7 @@ namespace Modbus_DLL {
          byte[] data = null;
          int len = 10;
          byte[] request = BuildModbusRead(fc, DevAddr, addr, Len);
+         Task.Delay(50);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -439,6 +451,7 @@ namespace Modbus_DLL {
       public bool SetAttribute(byte devAddr, int addr, byte[] DataOut) {
          bool Successful = false;
          byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, devAddr, addr, DataOut);
+         Task.Delay(50);
          if (Write(request)) {
             if (Read(out byte[] data, out int bytesRead)) {
                Successful = true;
@@ -546,6 +559,7 @@ namespace Modbus_DLL {
             typeof(ccIDX),   // 0x7A Index function
             typeof(ccPC),    // 0x7B Print Contents function
             typeof(ccAPP),   // 0x7C Adjust Print Parameters
+            typeof(ccAH),    // 0x7D Alarm History Parameters
       };
 
       // Lookup for getting attributes associated with a Class/Function
@@ -600,21 +614,17 @@ namespace Modbus_DLL {
       // Get the device address
       private byte GetDevAdd(AttrData attr) {
          byte devAdd = 0;
-         if (twinNozzle) {
-            if (attr != null) {
-               switch (attr.Nozzle) {
-                  case Noz.None:
-                     devAdd = 1;
-                     break;
-                  case Noz.Current:
-                     devAdd = (byte)(Nozzle + 1);
-                     break;
-                  case Noz.Both:
-                     devAdd = 3;
-                     break;
-               }
-            } else {
-
+         if (twinNozzle && attr != null) {
+            switch (attr.Nozzle) {
+               case Noz.None:
+                  devAdd = 1;
+                  break;
+               case Noz.Current:
+                  devAdd = (byte)(Nozzle + 1);
+                  break;
+               case Noz.Both:
+                  devAdd = 3;
+                  break;
             }
          }
          return devAdd;
@@ -698,6 +708,10 @@ namespace Modbus_DLL {
                result += (char)text[i + 3];
             } else if (text[i + 2] == 0xF1) {
                result += $"{{X/{text[i + 3] - 0x40}}}";
+            } else if (text[i + 2] == 0xF6) {
+               result += $"{{Z/{text[i + 3] - 0x40}}}";
+            } else if (text[i] == 0xF2 && text[i + 3] >= 0x20 && text[i + 3] <= 0x27) {
+               result += $"{{Z/{text[i + 3] - 0x20 + 192}}}";
             } else if (text[i] == 0xF2) {
                switch (text[i + 1]) {
                   case 0x50:
@@ -761,7 +775,7 @@ namespace Modbus_DLL {
                      result += "{{T}";
                      break;
                   case 0x76:
-                     result += "{T}}";
+                     result += "{T}";
                      break;
                   case 0x58:
                      result += "{W}";
@@ -782,16 +796,14 @@ namespace Modbus_DLL {
                      result += "{7}}";
                      break;
                   case 0x5B:
+                  case 0x6B:
+                  case 0x7B:
                      result += "{E}";
                      break;
                   case 0x5C:
-                     result += "{F}";
-                     break;
                   case 0x6C:
-                     result += "{{F}";
-                     break;
                   case 0x7C:
-                     result += "{F}}";
+                     result += "{F}";
                      break;
                   case 0x5A:
                      result += "{C}";
@@ -831,7 +843,24 @@ namespace Modbus_DLL {
                result += "*";
             }
          }
-         return result.Replace("}{", "").Replace("\x00", "");
+         result = result.Replace("\x00", "");
+         int n = result.IndexOf("}{", 1);
+         while (n >= 0) {
+            char c = result[n - 1];
+            bool CalOrCnt = false;
+            for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
+               if (M161.CalCnt[j, 0] == c) {
+                  CalOrCnt = true;
+               }
+            }
+            if (CalOrCnt) {
+               result = result.Substring(0, n) + result.Substring(n + 2);
+            } else {
+               n = n + 2;
+            }
+            n = result.IndexOf("}{", n);
+         }
+         return result.Replace("\x00", "");
       }
 
       // Format Output
@@ -1066,6 +1095,27 @@ namespace Modbus_DLL {
       }
 
       #endregion
+
+   }
+   public class ModbusException : Exception {
+
+      public AccessCode AccessCode;
+      public ClassCode ClassCode;
+      public byte Attribute;
+
+      public ModbusException() : base() {
+
+      }
+
+      public ModbusException(string message) : base(message) {
+
+      }
+
+      public ModbusException(string message, AccessCode AccessCode, ClassCode ClassCode, byte Attribute) : base(message) {
+         this.AccessCode = AccessCode;
+         this.ClassCode = ClassCode;
+         this.Attribute = Attribute;
+      }
 
    }
 }
