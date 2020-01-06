@@ -18,8 +18,6 @@ namespace ModBus161 {
 
       public Encoding Encode = Encoding.UTF8;
 
-      public int NozzleCount { get; set; } = 1;
-
       #endregion
 
       #region Methods
@@ -58,10 +56,13 @@ namespace ModBus161 {
             if (Lab.Printer != null) {
                for (int i = 0; i < Lab.Printer.Length; i++) {
                   int n = 0;
-                  if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
+                  if (!string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
                      if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
                         n = Math.Max(0, n - 1);
                      }
+                  }
+                  if (n > 0 && !p.TwinNozzle) {
+                     continue;
                   }
                   p.Nozzle = n;
                   if (Lab.Printer[i].Logos != null) {
@@ -85,10 +86,13 @@ namespace ModBus161 {
                for (int i = 0; i < Lab.Message.Length; i++) {
                   if (Lab.Message[i] != null) {
                      int n = 0;
-                     if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Message[i].Nozzle)) {
+                     if (!string.IsNullOrEmpty(Lab.Message[i].Nozzle)) {
                         if (int.TryParse(Lab.Message[i].Nozzle, out n)) {
                            n = Math.Max(0, n - 1);
                         }
+                     }
+                     if (n > 0 && !p.TwinNozzle) {
+                        continue;
                      }
                      p.Nozzle = n;
                      SendMessage(Lab.Message[i]);
@@ -101,10 +105,13 @@ namespace ModBus161 {
                for (int i = 0; i < Lab.Printer.Length; i++) {
                   if (Lab.Printer[i] != null) {
                      int n = 0;
-                     if (p.TwinNozzle && !string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
+                     if (!string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
                         if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
                            n = Math.Max(0, n - 1);
                         }
+                     }
+                     if (n > 0 && !p.TwinNozzle) {
+                        continue;
                      }
                      p.Nozzle = n;
                      SendPrinterSettings(Lab.Printer[i]); // Must be done last

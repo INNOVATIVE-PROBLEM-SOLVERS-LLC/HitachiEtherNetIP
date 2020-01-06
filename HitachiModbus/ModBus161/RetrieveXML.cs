@@ -89,9 +89,9 @@ namespace ModBus161 {
          }
          try {
             Lab Label = new Lab() { Version = "Serialization-1" };
-            Label.Message = new Msg[NozzleCount];
-            Label.Printer = new Printer[NozzleCount];
-            for (int nozzle = 0; nozzle < NozzleCount; nozzle++) {
+            Label.Message = new Msg[p.NozzleCount];
+            Label.Printer = new Printer[p.NozzleCount];
+            for (int nozzle = 0; nozzle < p.NozzleCount; nozzle++) {
                Label.Message[nozzle] = RetrieveMessage();
                Label.Printer[nozzle] = RetrievePrinterSettings();
                Label.Printer[nozzle].Substitution = RetrieveSubstitutions(Label.Message[nozzle]);

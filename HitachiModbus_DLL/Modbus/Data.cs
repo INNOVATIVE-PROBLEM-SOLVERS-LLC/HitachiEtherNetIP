@@ -30,6 +30,7 @@ namespace Modbus_DLL {
       Index = 0x7A,
       Print_Contents = 0x7B,
       Adjust_Print_Parameters = 0x7C,
+      Alarm_History = 0x7D,
    }
 
    // Attributes within Print Data Registration class 0x66
@@ -42,9 +43,9 @@ namespace Modbus_DLL {
 
    // Attributes within Print Data Management class 0x66
    public enum ccPDM {
-      Select_Message = 0x64,
+      Select_Message = 0x1006,
       Store_Print_Data = 0x65,
-      Delete_Print_Data = 0x67,
+      Delete_Print_Data = 0x25F0,
       Print_Data_Name = 0x69,
       List_of_Messages = 0x6A,
       Print_Data_Number = 0x6B,
@@ -298,6 +299,18 @@ namespace Modbus_DLL {
       Print_Erasure = 0x1000,
    }
 
+   // Attributes for Alarm History Class 0x7D
+   public enum ccAH {
+      Message_Count = 0x0070,
+      Year = 0x0074,
+      Month = 0x0075,
+      Day = 0x0076,
+      Hour = 0x0077,
+      Minute = 0x0078,
+      Second = 0x0079,
+      Fault_Number = 0x007A,
+   }
+
    #endregion
 
 
@@ -370,7 +383,8 @@ namespace Modbus_DLL {
             ccCount_Addrs,         // 0x79 Count function
             ccIDX_Addrs,           // 0x7A Index function
             ccPC_Addrs,            // 0x7B Print Contents function
-            ccAPP_Addrs,           // 0x7B Print Contents function
+            ccAPP_Addrs,           // 0x7C Adjust Print Parameters function
+            ccAH_Addrs,            // 0x7D Alarm History function
          };
       }
 
@@ -824,6 +838,26 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
       };
 
+      // Alarm History (Class Code 0x7c)
+      private AttrData[] ccAH_Addrs = new AttrData[] {
+         new AttrData((int)ccAH.Message_Count, false, 1, 0,                     // Message Count 0x0070
+            new Prop(1, DataFormats.Decimal, 0, 90, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Year, false, 90, 8,                             // Year x0074
+            new Prop(2, DataFormats.Decimal, 2000, 2099, fmtDD.None)),          //   Data
+         new AttrData((int)ccAH.Month, false, 90, 8,                            // Month 0x0075
+            new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Day, false, 90, 8,                              // Day 0x0076
+            new Prop(1, DataFormats.Decimal, 1, 31, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Hour, false, 90, 8,                             // Hour 0x0077
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Minute, false, 90, 8,                           // Minute 0x0078
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Second, false, 90, 8,                           // Second 0x0079
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccAH.Fault_Number, false, 90, 8,                     // Fault Number 0x007A
+            new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+      };
+
       #endregion
 
       #region Class Codes => Attributes => Attribute Data lookup tables
@@ -853,6 +887,7 @@ namespace Modbus_DLL {
          DumpTable(RFS, ccIDX_Addrs, ClassCode.Index, typeof(ccIDX));
          DumpTable(RFS, ccPC_Addrs, ClassCode.Print_Contents, typeof(ccPC));
          DumpTable(RFS, ccAPP_Addrs, ClassCode.Adjust_Print_Parameters, typeof(ccAPP));
+         DumpTable(RFS, ccAH_Addrs, ClassCode.Alarm_History, typeof(ccAH));
 
       }
 
@@ -1018,7 +1053,6 @@ namespace Modbus_DLL {
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
-         //new string[] { "CharacterInput", "MessageFormat" },          // 25 - Attributed Data
      };
 
       // Calendar and count

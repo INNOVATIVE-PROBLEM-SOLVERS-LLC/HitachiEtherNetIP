@@ -8,8 +8,17 @@
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
     <InkStream InkDropUse="2" ChargeRule="Normal" />
     <ClockSystem HourMode24="True" />
+    <Substitution Delimiter="/" StartYear="2019" RuleNumber="1">
+      <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
+    </Substitution>
+    <Logos Folder="C:\GitHubEtherNetIP\Messages">
+      <Logo Layout="Fixed" DotMatrix="18x24" Location="0" FileName="XML" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" />
+      <Logo Layout="Free" Height="24" Width="24" Location="0" FileName="XML" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" />
+    </Logos>
   </Printer>
-  <Message Layout="SeparateSetup" Name="SAMPLE 1    ">
+  <Message Layout="SeparateSetup" Name="SAMPLE 1" Nozzle="1">
     <Column InterLineSpacing="2">
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
@@ -74,7 +83,16 @@
       <Item>
         <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
         <BarCode />
-        <Text>{X/0} </Text>
+        <Text>{X/0}{Z/0} </Text>
+      </Item>
+    </Column>
+  </Message>
+  <Message Layout="SeparateSetup" Name="SAMPLE 1" Nozzle="2" >
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <BarCode />
+        <Text>XML {X/0}{Z/0}</Text>
       </Item>
     </Column>
   </Message>

@@ -81,11 +81,16 @@
          this.cmdShutDown = new System.Windows.Forms.Button();
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
+         this.tabErrors = new System.Windows.Forms.TabPage();
+         this.lbErrors = new System.Windows.Forms.ListBox();
+         this.cmdErrorClear = new System.Windows.Forms.Button();
+         this.cmdErrorRefresh = new System.Windows.Forms.Button();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabXML.SuspendLayout();
          this.tabIndented.SuspendLayout();
          this.tabLog.SuspendLayout();
+         this.tabErrors.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -309,6 +314,7 @@
          this.tclViews.Controls.Add(this.tabIndented);
          this.tclViews.Controls.Add(this.tabObject);
          this.tclViews.Controls.Add(this.tabLog);
+         this.tclViews.Controls.Add(this.tabErrors);
          this.tclViews.Location = new System.Drawing.Point(8, 148);
          this.tclViews.Name = "tclViews";
          this.tclViews.SelectedIndex = 0;
@@ -635,6 +641,47 @@
          this.cmdReset.UseVisualStyleBackColor = false;
          this.cmdReset.Click += new System.EventHandler(this.cmdReset_Click);
          // 
+         // tabErrors
+         // 
+         this.tabErrors.Controls.Add(this.cmdErrorRefresh);
+         this.tabErrors.Controls.Add(this.cmdErrorClear);
+         this.tabErrors.Controls.Add(this.lbErrors);
+         this.tabErrors.Location = new System.Drawing.Point(4, 25);
+         this.tabErrors.Name = "tabErrors";
+         this.tabErrors.Size = new System.Drawing.Size(768, 393);
+         this.tabErrors.TabIndex = 4;
+         this.tabErrors.Text = "Errors";
+         this.tabErrors.UseVisualStyleBackColor = true;
+         // 
+         // lbErrors
+         // 
+         this.lbErrors.ContextMenuStrip = this.cmLog;
+         this.lbErrors.FormattingEnabled = true;
+         this.lbErrors.ItemHeight = 16;
+         this.lbErrors.Location = new System.Drawing.Point(16, 18);
+         this.lbErrors.Name = "lbErrors";
+         this.lbErrors.Size = new System.Drawing.Size(737, 308);
+         this.lbErrors.TabIndex = 13;
+         // 
+         // cmdErrorClear
+         // 
+         this.cmdErrorClear.Location = new System.Drawing.Point(626, 341);
+         this.cmdErrorClear.Name = "cmdErrorClear";
+         this.cmdErrorClear.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorClear.TabIndex = 14;
+         this.cmdErrorClear.Text = "Clear";
+         this.cmdErrorClear.UseVisualStyleBackColor = true;
+         // 
+         // cmdErrorRefresh
+         // 
+         this.cmdErrorRefresh.Location = new System.Drawing.Point(492, 341);
+         this.cmdErrorRefresh.Name = "cmdErrorRefresh";
+         this.cmdErrorRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorRefresh.TabIndex = 15;
+         this.cmdErrorRefresh.Text = "Refresh";
+         this.cmdErrorRefresh.UseVisualStyleBackColor = true;
+         this.cmdErrorRefresh.Click += new System.EventHandler(this.cmdErrorRefresh_Click);
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -695,6 +742,7 @@
          this.tabIndented.ResumeLayout(false);
          this.tabIndented.PerformLayout();
          this.tabLog.ResumeLayout(false);
+         this.tabErrors.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -758,6 +806,10 @@
       private System.Windows.Forms.Button cmdShutDown;
       private System.Windows.Forms.Button cmdGetStatus;
       private System.Windows.Forms.Button cmdReset;
+      private System.Windows.Forms.TabPage tabErrors;
+      private System.Windows.Forms.Button cmdErrorRefresh;
+      private System.Windows.Forms.Button cmdErrorClear;
+      private System.Windows.Forms.ListBox lbErrors;
    }
 }
 
