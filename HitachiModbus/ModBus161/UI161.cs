@@ -19,6 +19,8 @@ namespace ModBus161 {
 
       #region Data Declarations
 
+      Properties.Settings prop = Properties.Settings.Default;
+
       // Nozzle selection for Twin-Nozzle printers
       public enum Nozzle {
          Printer = 0,
@@ -50,7 +52,15 @@ namespace ModBus161 {
          ClearFault = 4,
       }
 
+
+
       #endregion
+
+      #region Application data
+
+      TwinApp twinApp;
+
+         #endregion
 
       #region Constructors an destructors
 
@@ -63,6 +73,19 @@ namespace ModBus161 {
          p.Log += Modbus_Log;
          p.LogIOs = chkLogIO.Checked;
 
+         // Get persistant data
+         txtIPAddress.Text = prop.IPAddress;
+         txtIPPort.Text = prop.IPPort;
+         txtMessageFolder.Text = prop.MessageFolder;
+         txtDataAddress.Text = prop.HexAddress;
+         txtDataLength.Text = prop.Length;
+         txtData.Text = prop.Data;
+         optHoldingRegister.Checked = prop.HoldingReg;
+         chkTwinNozzle.Checked = prop.TwinNozzle;
+         cbNozzle.SelectedIndex = prop.Nozzle;
+         chkHex.Checked = prop.HexData;
+         chkLogIO.Checked = prop.LogIO;
+
          // Initialize all dropdowns
          ccNames = Enum.GetNames(typeof(ClassCode));
          ccNamesSorted = Enum.GetNames(typeof(ClassCode));
@@ -70,8 +93,43 @@ namespace ModBus161 {
          ccValues = (int[])Enum.GetValues(typeof(ClassCode));
          cbClass.Items.AddRange(ccNamesSorted);
 
+         // Initilize the Twin Nozzle Application
+         txtAppExcel.Text = prop.AppSpreadsheet;
+         if (File.Exists(txtAppExcel.Text)) {
+            cmdAppStart_Click(null, null);
+            cbAppSpreadsheet.SelectedIndex = prop.AppWorksheet;
+            cbAppPrimaryKey.SelectedIndex = prop.AppPrimaryKey;
+            cbAppTemplate.SelectedIndex = prop.AppTemplate;
+         }
+
          // Ready to go
          SetButtonEnables();
+      }
+
+      #endregion
+
+      #region Form Level Events
+
+      private void UI161_FormClosing(object sender, FormClosingEventArgs e) {
+         prop.IPAddress = txtIPAddress.Text;
+         prop.IPPort = txtIPPort.Text;
+         prop.MessageFolder = txtMessageFolder.Text;
+         prop.HexAddress = txtDataAddress.Text;
+         prop.Length = txtDataLength.Text;
+         prop.Data = txtData.Text;
+         prop.HoldingReg = optHoldingRegister.Checked;
+         prop.TwinNozzle = chkTwinNozzle.Checked;
+         prop.Nozzle = cbNozzle.SelectedIndex;
+         prop.HexData = chkHex.Checked;
+         prop.LogIO = chkLogIO.Checked;
+         prop.AppSpreadsheet = txtAppExcel.Text;
+         prop.AppWorksheet= cbAppSpreadsheet.SelectedIndex;
+         prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
+         prop.AppTemplate  =cbAppTemplate.SelectedIndex;
+         prop.AppWorksheet = cbAppSpreadsheet.SelectedIndex;
+         prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
+         prop.AppTemplate = cbAppTemplate.SelectedIndex;
+         prop.Save();
       }
 
       #endregion
@@ -341,10 +399,11 @@ namespace ModBus161 {
 
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
-         string s = p.HandleBraces("SELL BY MMM/DD/YY  ");
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPC.Print_Character_String, 0, s);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPDR.MessageName, "HELLO WORLD ");
+         p.SetAttribute(ccPDR.Message_Number, 5);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         SetButtonEnables();
       }
 
       // Show I/O packets in Log File.
@@ -403,6 +462,49 @@ namespace ModBus161 {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             SetButtonEnables();
          }
+      }
+
+      #endregion
+
+      #region Twin Nozzle Application Events
+
+      // Find the excel spreadsheet associated with the application
+      private void cmdAppBrowse_Click(object sender, EventArgs e) {
+         txtAppExcel.Text = GetExcelFile(txtAppExcel.Text);
+         SetButtonEnables();
+      }
+
+      // Start the Twin Nozzle Application
+      private void cmdAppStart_Click(object sender, EventArgs e) {
+         twinApp = new TwinApp();
+         cbAppSpreadsheet.Items.Clear();
+         cbAppPrimaryKey.Items.Clear();
+         cbAppTemplate.Items.Clear();
+         if (twinApp.Open(txtAppExcel.Text)) {
+            cbAppSpreadsheet.Items.AddRange(twinApp.workSheets.ToArray());
+         }
+         SetButtonEnables();
+      }
+
+      // The selected spreadsheet changed, reload the primary keys and templates
+      private void cbAppSpreadsheet_SelectedIndexChanged(object sender, EventArgs e) {
+         cbAppPrimaryKey.Items.Clear();
+         cbAppTemplate.Items.Clear();
+         if (cbAppSpreadsheet.SelectedIndex >= 0) {
+            string[] keys = twinApp.workSheetVariables[cbAppSpreadsheet.SelectedIndex];
+            cbAppPrimaryKey.Items.AddRange(keys);
+            cbAppTemplate.Items.AddRange(keys);
+         }
+         SetButtonEnables();
+      }
+
+      // The primary key changed, reload the parts list
+      private void cbAppPrimaryKey_SelectedIndexChanged(object sender, EventArgs e) {
+         cbAppParts.Items.Clear();
+         if (cbAppPrimaryKey.SelectedIndex >= 0) {
+            cbAppParts.Items.AddRange(twinApp.PartNumbers(cbAppSpreadsheet.Text, cbAppPrimaryKey.Text));
+         }
+         SetButtonEnables();
       }
 
       #endregion
@@ -547,6 +649,22 @@ namespace ModBus161 {
          return devAddr;
       }
 
+      // Get the Excel spreadsheet with part numbers and print specs
+      private string GetExcelFile(string fileName) {
+         string result = fileName;
+         using (OpenFileDialog dlg = new OpenFileDialog() { CheckFileExists = true, CheckPathExists = true, Multiselect = false, ValidateNames = true }) {
+            if (File.Exists(fileName)) {
+               dlg.InitialDirectory = Path.GetDirectoryName(fileName);
+            }
+            dlg.Title = "Part List Spread Sheet";
+            dlg.Filter = "Parts File|*.xlsx;*.xlsm;*.xlsb;*.xls";
+            if (dlg.ShowDialog(this) == DialogResult.OK) {
+               result = dlg.FileName;
+            }
+         }
+         return result;
+      }
+
       // Avoid extra tests by enabling only the buttons that can be used
       private void SetButtonEnables() {
          int addr;
@@ -586,10 +704,16 @@ namespace ModBus161 {
          cmdGroupRefresh.Enabled = comIsOn;
          cmdMessageRefresh.Enabled = comIsOn;
          cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
+
+         cmdAppStart.Enabled = File.Exists(txtAppExcel.Text);
+
       }
 
       #endregion
 
+      private void cbAppParts_SelectedIndexChanged(object sender, EventArgs e) {
+
+      }
    }
 
 }

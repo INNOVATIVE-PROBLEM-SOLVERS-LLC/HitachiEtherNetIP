@@ -154,5 +154,53 @@ namespace ModBus161.Properties {
                 this["LogIO"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AppSpreadsheet {
+            get {
+                return ((string)(this["AppSpreadsheet"]));
+            }
+            set {
+                this["AppSpreadsheet"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AppWorksheet {
+            get {
+                return ((int)(this["AppWorksheet"]));
+            }
+            set {
+                this["AppWorksheet"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AppPrimaryKey {
+            get {
+                return ((int)(this["AppPrimaryKey"]));
+            }
+            set {
+                this["AppPrimaryKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AppTemplate {
+            get {
+                return ((int)(this["AppTemplate"]));
+            }
+            set {
+                this["AppTemplate"] = value;
+            }
+        }
     }
 }

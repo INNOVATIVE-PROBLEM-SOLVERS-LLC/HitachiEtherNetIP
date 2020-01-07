@@ -49,25 +49,52 @@
          this.optHoldingRegister = new System.Windows.Forms.RadioButton();
          this.optInputRegister = new System.Windows.Forms.RadioButton();
          this.tclViews = new System.Windows.Forms.TabControl();
-         this.tabXML = new System.Windows.Forms.TabPage();
-         this.tvXML = new System.Windows.Forms.TreeView();
-         this.tabIndented = new System.Windows.Forms.TabPage();
-         this.txtIndentedView = new System.Windows.Forms.TextBox();
-         this.tabLog = new System.Windows.Forms.TabPage();
-         this.tabErrors = new System.Windows.Forms.TabPage();
-         this.cmdErrorRefresh = new System.Windows.Forms.Button();
-         this.cmdErrorClear = new System.Windows.Forms.Button();
-         this.lbErrors = new System.Windows.Forms.ListBox();
+         this.tabMessages = new System.Windows.Forms.TabPage();
+         this.cmdMessageLoad = new System.Windows.Forms.Button();
+         this.cmdMessageRefresh = new System.Windows.Forms.Button();
+         this.dgMessages = new System.Windows.Forms.DataGridView();
+         this.colGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.tabGroups = new System.Windows.Forms.TabPage();
          this.cmdGroupRefresh = new System.Windows.Forms.Button();
          this.dgGroups = new System.Windows.Forms.DataGridView();
          this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.tabMessages = new System.Windows.Forms.TabPage();
-         this.dgMessages = new System.Windows.Forms.DataGridView();
-         this.colGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.colMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.tabXML = new System.Windows.Forms.TabPage();
+         this.tvXML = new System.Windows.Forms.TreeView();
+         this.tabIndented = new System.Windows.Forms.TabPage();
+         this.txtIndentedView = new System.Windows.Forms.TextBox();
+         this.tabErrors = new System.Windows.Forms.TabPage();
+         this.cmdErrorRefresh = new System.Windows.Forms.Button();
+         this.cmdErrorClear = new System.Windows.Forms.Button();
+         this.lbErrors = new System.Windows.Forms.ListBox();
+         this.tabLog = new System.Windows.Forms.TabPage();
+         this.tabApplication = new System.Windows.Forms.TabPage();
+         this.cmdAppStart = new System.Windows.Forms.Button();
+         this.textBox2 = new System.Windows.Forms.TextBox();
+         this.textBox6 = new System.Windows.Forms.TextBox();
+         this.textBox7 = new System.Windows.Forms.TextBox();
+         this.label8 = new System.Windows.Forms.Label();
+         this.label9 = new System.Windows.Forms.Label();
+         this.button3 = new System.Windows.Forms.Button();
+         this.button2 = new System.Windows.Forms.Button();
+         this.textBox5 = new System.Windows.Forms.TextBox();
+         this.textBox4 = new System.Windows.Forms.TextBox();
+         this.label6 = new System.Windows.Forms.Label();
+         this.label7 = new System.Windows.Forms.Label();
+         this.textBox3 = new System.Windows.Forms.TextBox();
+         this.label5 = new System.Windows.Forms.Label();
+         this.label4 = new System.Windows.Forms.Label();
+         this.cbAppParts = new System.Windows.Forms.ComboBox();
+         this.lblAppParts = new System.Windows.Forms.Label();
+         this.cmdAppBrowse = new System.Windows.Forms.Button();
+         this.txtAppExcel = new System.Windows.Forms.TextBox();
+         this.lblAppExcel = new System.Windows.Forms.Label();
+         this.comboBox2 = new System.Windows.Forms.ComboBox();
+         this.comboBox1 = new System.Windows.Forms.ComboBox();
+         this.label1 = new System.Windows.Forms.Label();
+         this.lblMsgSource = new System.Windows.Forms.Label();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
@@ -95,18 +122,23 @@
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
          this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-         this.cmdMessageRefresh = new System.Windows.Forms.Button();
-         this.cmdMessageLoad = new System.Windows.Forms.Button();
+         this.cbAppPrimaryKey = new System.Windows.Forms.ComboBox();
+         this.cbAppSpreadsheet = new System.Windows.Forms.ComboBox();
+         this.lblAppPrimaryKey = new System.Windows.Forms.Label();
+         this.lblAppSpreadsheet = new System.Windows.Forms.Label();
+         this.cbAppTemplate = new System.Windows.Forms.ComboBox();
+         this.lblAppTemplate = new System.Windows.Forms.Label();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
-         this.tabXML.SuspendLayout();
-         this.tabIndented.SuspendLayout();
-         this.tabLog.SuspendLayout();
-         this.tabErrors.SuspendLayout();
-         this.tabGroups.SuspendLayout();
-         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).BeginInit();
          this.tabMessages.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).BeginInit();
+         this.tabGroups.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).BeginInit();
+         this.tabXML.SuspendLayout();
+         this.tabIndented.SuspendLayout();
+         this.tabErrors.SuspendLayout();
+         this.tabLog.SuspendLayout();
+         this.tabApplication.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -332,101 +364,82 @@
          this.tclViews.Controls.Add(this.tabIndented);
          this.tclViews.Controls.Add(this.tabErrors);
          this.tclViews.Controls.Add(this.tabLog);
-         this.tclViews.Location = new System.Drawing.Point(8, 148);
+         this.tclViews.Controls.Add(this.tabApplication);
+         this.tclViews.Location = new System.Drawing.Point(4, 150);
          this.tclViews.Name = "tclViews";
          this.tclViews.SelectedIndex = 0;
          this.tclViews.Size = new System.Drawing.Size(776, 422);
          this.tclViews.TabIndex = 27;
          // 
-         // tabXML
+         // tabMessages
          // 
-         this.tabXML.Controls.Add(this.tvXML);
-         this.tabXML.Location = new System.Drawing.Point(4, 25);
-         this.tabXML.Name = "tabXML";
-         this.tabXML.Padding = new System.Windows.Forms.Padding(3);
-         this.tabXML.Size = new System.Drawing.Size(768, 393);
-         this.tabXML.TabIndex = 0;
-         this.tabXML.Text = "XML View";
-         this.tabXML.UseVisualStyleBackColor = true;
+         this.tabMessages.Controls.Add(this.cmdMessageLoad);
+         this.tabMessages.Controls.Add(this.cmdMessageRefresh);
+         this.tabMessages.Controls.Add(this.dgMessages);
+         this.tabMessages.Location = new System.Drawing.Point(4, 25);
+         this.tabMessages.Name = "tabMessages";
+         this.tabMessages.Size = new System.Drawing.Size(768, 393);
+         this.tabMessages.TabIndex = 5;
+         this.tabMessages.Text = "Messages";
+         this.tabMessages.UseVisualStyleBackColor = true;
          // 
-         // tvXML
+         // cmdMessageLoad
          // 
-         this.tvXML.Location = new System.Drawing.Point(15, 19);
-         this.tvXML.Name = "tvXML";
-         this.tvXML.Size = new System.Drawing.Size(727, 353);
-         this.tvXML.TabIndex = 0;
+         this.cmdMessageLoad.Location = new System.Drawing.Point(478, 339);
+         this.cmdMessageLoad.Name = "cmdMessageLoad";
+         this.cmdMessageLoad.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageLoad.TabIndex = 11;
+         this.cmdMessageLoad.Text = "Load";
+         this.cmdMessageLoad.UseVisualStyleBackColor = true;
+         this.cmdMessageLoad.Click += new System.EventHandler(this.cmdMessageLoad_Click);
          // 
-         // tabIndented
+         // cmdMessageRefresh
          // 
-         this.tabIndented.Controls.Add(this.txtIndentedView);
-         this.tabIndented.Location = new System.Drawing.Point(4, 25);
-         this.tabIndented.Name = "tabIndented";
-         this.tabIndented.Padding = new System.Windows.Forms.Padding(3);
-         this.tabIndented.Size = new System.Drawing.Size(768, 393);
-         this.tabIndented.TabIndex = 1;
-         this.tabIndented.Text = "Indented View";
-         this.tabIndented.UseVisualStyleBackColor = true;
+         this.cmdMessageRefresh.Location = new System.Drawing.Point(617, 339);
+         this.cmdMessageRefresh.Name = "cmdMessageRefresh";
+         this.cmdMessageRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageRefresh.TabIndex = 10;
+         this.cmdMessageRefresh.Text = "Refresh";
+         this.cmdMessageRefresh.UseVisualStyleBackColor = true;
+         this.cmdMessageRefresh.Click += new System.EventHandler(this.cmdMessageRefresh_Click);
          // 
-         // txtIndentedView
+         // dgMessages
          // 
-         this.txtIndentedView.ContextMenuStrip = this.cmLog;
-         this.txtIndentedView.Location = new System.Drawing.Point(15, 6);
-         this.txtIndentedView.Multiline = true;
-         this.txtIndentedView.Name = "txtIndentedView";
-         this.txtIndentedView.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-         this.txtIndentedView.Size = new System.Drawing.Size(728, 376);
-         this.txtIndentedView.TabIndex = 0;
+         this.dgMessages.AllowUserToDeleteRows = false;
+         this.dgMessages.AllowUserToOrderColumns = true;
+         this.dgMessages.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgMessages.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colGroup,
+            this.colMessage,
+            this.colName});
+         this.dgMessages.Location = new System.Drawing.Point(10, 16);
+         this.dgMessages.MultiSelect = false;
+         this.dgMessages.Name = "dgMessages";
+         this.dgMessages.ReadOnly = true;
+         this.dgMessages.RowTemplate.Height = 24;
+         this.dgMessages.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+         this.dgMessages.Size = new System.Drawing.Size(734, 308);
+         this.dgMessages.TabIndex = 1;
          // 
-         // tabLog
+         // colGroup
          // 
-         this.tabLog.Controls.Add(this.lstMessages);
-         this.tabLog.Location = new System.Drawing.Point(4, 25);
-         this.tabLog.Name = "tabLog";
-         this.tabLog.Size = new System.Drawing.Size(768, 393);
-         this.tabLog.TabIndex = 3;
-         this.tabLog.Text = "Log";
-         this.tabLog.UseVisualStyleBackColor = true;
+         this.colGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+         this.colGroup.HeaderText = "Group #";
+         this.colGroup.Name = "colGroup";
+         this.colGroup.ReadOnly = true;
+         this.colGroup.Width = 89;
          // 
-         // tabErrors
+         // colMessage
          // 
-         this.tabErrors.Controls.Add(this.cmdErrorRefresh);
-         this.tabErrors.Controls.Add(this.cmdErrorClear);
-         this.tabErrors.Controls.Add(this.lbErrors);
-         this.tabErrors.Location = new System.Drawing.Point(4, 25);
-         this.tabErrors.Name = "tabErrors";
-         this.tabErrors.Size = new System.Drawing.Size(768, 393);
-         this.tabErrors.TabIndex = 4;
-         this.tabErrors.Text = "Errors";
-         this.tabErrors.UseVisualStyleBackColor = true;
+         this.colMessage.HeaderText = "Msg #";
+         this.colMessage.Name = "colMessage";
+         this.colMessage.ReadOnly = true;
          // 
-         // cmdErrorRefresh
+         // colName
          // 
-         this.cmdErrorRefresh.Location = new System.Drawing.Point(492, 341);
-         this.cmdErrorRefresh.Name = "cmdErrorRefresh";
-         this.cmdErrorRefresh.Size = new System.Drawing.Size(127, 40);
-         this.cmdErrorRefresh.TabIndex = 15;
-         this.cmdErrorRefresh.Text = "Refresh";
-         this.cmdErrorRefresh.UseVisualStyleBackColor = true;
-         this.cmdErrorRefresh.Click += new System.EventHandler(this.cmdErrorRefresh_Click);
-         // 
-         // cmdErrorClear
-         // 
-         this.cmdErrorClear.Location = new System.Drawing.Point(626, 341);
-         this.cmdErrorClear.Name = "cmdErrorClear";
-         this.cmdErrorClear.Size = new System.Drawing.Size(127, 40);
-         this.cmdErrorClear.TabIndex = 14;
-         this.cmdErrorClear.Text = "Clear";
-         this.cmdErrorClear.UseVisualStyleBackColor = true;
-         // 
-         // lbErrors
-         // 
-         this.lbErrors.ContextMenuStrip = this.cmLog;
-         this.lbErrors.FormattingEnabled = true;
-         this.lbErrors.ItemHeight = 16;
-         this.lbErrors.Location = new System.Drawing.Point(16, 18);
-         this.lbErrors.Name = "lbErrors";
-         this.lbErrors.Size = new System.Drawing.Size(737, 308);
-         this.lbErrors.TabIndex = 13;
+         this.colName.HeaderText = "Name";
+         this.colName.Name = "colName";
+         this.colName.ReadOnly = true;
          // 
          // tabGroups
          // 
@@ -478,56 +491,339 @@
          this.dataGridViewTextBoxColumn2.ReadOnly = true;
          this.dataGridViewTextBoxColumn2.Width = 74;
          // 
-         // tabMessages
+         // tabXML
          // 
-         this.tabMessages.Controls.Add(this.cmdMessageLoad);
-         this.tabMessages.Controls.Add(this.cmdMessageRefresh);
-         this.tabMessages.Controls.Add(this.dgMessages);
-         this.tabMessages.Location = new System.Drawing.Point(4, 25);
-         this.tabMessages.Name = "tabMessages";
-         this.tabMessages.Size = new System.Drawing.Size(768, 393);
-         this.tabMessages.TabIndex = 5;
-         this.tabMessages.Text = "Messages";
-         this.tabMessages.UseVisualStyleBackColor = true;
+         this.tabXML.Controls.Add(this.tvXML);
+         this.tabXML.Location = new System.Drawing.Point(4, 25);
+         this.tabXML.Name = "tabXML";
+         this.tabXML.Padding = new System.Windows.Forms.Padding(3);
+         this.tabXML.Size = new System.Drawing.Size(768, 393);
+         this.tabXML.TabIndex = 0;
+         this.tabXML.Text = "XML View";
+         this.tabXML.UseVisualStyleBackColor = true;
          // 
-         // dgMessages
+         // tvXML
          // 
-         this.dgMessages.AllowUserToAddRows = false;
-         this.dgMessages.AllowUserToDeleteRows = false;
-         this.dgMessages.AllowUserToOrderColumns = true;
-         this.dgMessages.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-         this.dgMessages.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colGroup,
-            this.colMessage,
-            this.colName});
-         this.dgMessages.Location = new System.Drawing.Point(10, 16);
-         this.dgMessages.MultiSelect = false;
-         this.dgMessages.Name = "dgMessages";
-         this.dgMessages.ReadOnly = true;
-         this.dgMessages.RowTemplate.Height = 24;
-         this.dgMessages.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-         this.dgMessages.Size = new System.Drawing.Size(734, 308);
-         this.dgMessages.TabIndex = 1;
+         this.tvXML.Location = new System.Drawing.Point(15, 19);
+         this.tvXML.Name = "tvXML";
+         this.tvXML.Size = new System.Drawing.Size(727, 353);
+         this.tvXML.TabIndex = 0;
          // 
-         // colGroup
+         // tabIndented
          // 
-         this.colGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-         this.colGroup.HeaderText = "Group #";
-         this.colGroup.Name = "colGroup";
-         this.colGroup.ReadOnly = true;
-         this.colGroup.Width = 89;
+         this.tabIndented.Controls.Add(this.txtIndentedView);
+         this.tabIndented.Location = new System.Drawing.Point(4, 25);
+         this.tabIndented.Name = "tabIndented";
+         this.tabIndented.Padding = new System.Windows.Forms.Padding(3);
+         this.tabIndented.Size = new System.Drawing.Size(768, 393);
+         this.tabIndented.TabIndex = 1;
+         this.tabIndented.Text = "Indented View";
+         this.tabIndented.UseVisualStyleBackColor = true;
          // 
-         // colMessage
+         // txtIndentedView
          // 
-         this.colMessage.HeaderText = "Msg #";
-         this.colMessage.Name = "colMessage";
-         this.colMessage.ReadOnly = true;
+         this.txtIndentedView.ContextMenuStrip = this.cmLog;
+         this.txtIndentedView.Location = new System.Drawing.Point(15, 6);
+         this.txtIndentedView.Multiline = true;
+         this.txtIndentedView.Name = "txtIndentedView";
+         this.txtIndentedView.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+         this.txtIndentedView.Size = new System.Drawing.Size(728, 376);
+         this.txtIndentedView.TabIndex = 0;
          // 
-         // colName
+         // tabErrors
          // 
-         this.colName.HeaderText = "Name";
-         this.colName.Name = "colName";
-         this.colName.ReadOnly = true;
+         this.tabErrors.Controls.Add(this.cmdErrorRefresh);
+         this.tabErrors.Controls.Add(this.cmdErrorClear);
+         this.tabErrors.Controls.Add(this.lbErrors);
+         this.tabErrors.Location = new System.Drawing.Point(4, 25);
+         this.tabErrors.Name = "tabErrors";
+         this.tabErrors.Size = new System.Drawing.Size(768, 393);
+         this.tabErrors.TabIndex = 4;
+         this.tabErrors.Text = "Errors";
+         this.tabErrors.UseVisualStyleBackColor = true;
+         // 
+         // cmdErrorRefresh
+         // 
+         this.cmdErrorRefresh.Location = new System.Drawing.Point(492, 341);
+         this.cmdErrorRefresh.Name = "cmdErrorRefresh";
+         this.cmdErrorRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorRefresh.TabIndex = 15;
+         this.cmdErrorRefresh.Text = "Refresh";
+         this.cmdErrorRefresh.UseVisualStyleBackColor = true;
+         this.cmdErrorRefresh.Click += new System.EventHandler(this.cmdErrorRefresh_Click);
+         // 
+         // cmdErrorClear
+         // 
+         this.cmdErrorClear.Location = new System.Drawing.Point(626, 341);
+         this.cmdErrorClear.Name = "cmdErrorClear";
+         this.cmdErrorClear.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorClear.TabIndex = 14;
+         this.cmdErrorClear.Text = "Clear";
+         this.cmdErrorClear.UseVisualStyleBackColor = true;
+         // 
+         // lbErrors
+         // 
+         this.lbErrors.ContextMenuStrip = this.cmLog;
+         this.lbErrors.FormattingEnabled = true;
+         this.lbErrors.ItemHeight = 16;
+         this.lbErrors.Location = new System.Drawing.Point(16, 18);
+         this.lbErrors.Name = "lbErrors";
+         this.lbErrors.Size = new System.Drawing.Size(737, 308);
+         this.lbErrors.TabIndex = 13;
+         // 
+         // tabLog
+         // 
+         this.tabLog.Controls.Add(this.lstMessages);
+         this.tabLog.Location = new System.Drawing.Point(4, 25);
+         this.tabLog.Name = "tabLog";
+         this.tabLog.Size = new System.Drawing.Size(768, 393);
+         this.tabLog.TabIndex = 3;
+         this.tabLog.Text = "Log";
+         this.tabLog.UseVisualStyleBackColor = true;
+         // 
+         // tabApplication
+         // 
+         this.tabApplication.Controls.Add(this.cbAppTemplate);
+         this.tabApplication.Controls.Add(this.lblAppTemplate);
+         this.tabApplication.Controls.Add(this.cbAppPrimaryKey);
+         this.tabApplication.Controls.Add(this.cbAppSpreadsheet);
+         this.tabApplication.Controls.Add(this.lblAppPrimaryKey);
+         this.tabApplication.Controls.Add(this.lblAppSpreadsheet);
+         this.tabApplication.Controls.Add(this.cmdAppStart);
+         this.tabApplication.Controls.Add(this.textBox2);
+         this.tabApplication.Controls.Add(this.textBox6);
+         this.tabApplication.Controls.Add(this.textBox7);
+         this.tabApplication.Controls.Add(this.label8);
+         this.tabApplication.Controls.Add(this.label9);
+         this.tabApplication.Controls.Add(this.button3);
+         this.tabApplication.Controls.Add(this.button2);
+         this.tabApplication.Controls.Add(this.textBox5);
+         this.tabApplication.Controls.Add(this.textBox4);
+         this.tabApplication.Controls.Add(this.label6);
+         this.tabApplication.Controls.Add(this.label7);
+         this.tabApplication.Controls.Add(this.textBox3);
+         this.tabApplication.Controls.Add(this.label5);
+         this.tabApplication.Controls.Add(this.label4);
+         this.tabApplication.Controls.Add(this.cbAppParts);
+         this.tabApplication.Controls.Add(this.lblAppParts);
+         this.tabApplication.Controls.Add(this.cmdAppBrowse);
+         this.tabApplication.Controls.Add(this.txtAppExcel);
+         this.tabApplication.Controls.Add(this.lblAppExcel);
+         this.tabApplication.Controls.Add(this.comboBox2);
+         this.tabApplication.Controls.Add(this.comboBox1);
+         this.tabApplication.Controls.Add(this.label1);
+         this.tabApplication.Controls.Add(this.lblMsgSource);
+         this.tabApplication.Location = new System.Drawing.Point(4, 25);
+         this.tabApplication.Name = "tabApplication";
+         this.tabApplication.Size = new System.Drawing.Size(768, 393);
+         this.tabApplication.TabIndex = 7;
+         this.tabApplication.Text = "Application";
+         this.tabApplication.UseVisualStyleBackColor = true;
+         // 
+         // cmdAppStart
+         // 
+         this.cmdAppStart.Location = new System.Drawing.Point(431, 346);
+         this.cmdAppStart.Name = "cmdAppStart";
+         this.cmdAppStart.Size = new System.Drawing.Size(153, 37);
+         this.cmdAppStart.TabIndex = 24;
+         this.cmdAppStart.Text = "Start Application";
+         this.cmdAppStart.UseVisualStyleBackColor = true;
+         this.cmdAppStart.Click += new System.EventHandler(this.cmdAppStart_Click);
+         // 
+         // textBox2
+         // 
+         this.textBox2.Location = new System.Drawing.Point(246, 347);
+         this.textBox2.Name = "textBox2";
+         this.textBox2.Size = new System.Drawing.Size(138, 22);
+         this.textBox2.TabIndex = 23;
+         // 
+         // textBox6
+         // 
+         this.textBox6.Location = new System.Drawing.Point(213, 71);
+         this.textBox6.Name = "textBox6";
+         this.textBox6.Size = new System.Drawing.Size(529, 22);
+         this.textBox6.TabIndex = 22;
+         // 
+         // textBox7
+         // 
+         this.textBox7.Location = new System.Drawing.Point(213, 99);
+         this.textBox7.Name = "textBox7";
+         this.textBox7.Size = new System.Drawing.Size(529, 22);
+         this.textBox7.TabIndex = 21;
+         // 
+         // label8
+         // 
+         this.label8.Location = new System.Drawing.Point(11, 99);
+         this.label8.Name = "label8";
+         this.label8.Size = new System.Drawing.Size(196, 18);
+         this.label8.TabIndex = 20;
+         this.label8.Text = "Modbus Message Text[N2]";
+         this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // label9
+         // 
+         this.label9.Location = new System.Drawing.Point(11, 71);
+         this.label9.Name = "label9";
+         this.label9.Size = new System.Drawing.Size(196, 18);
+         this.label9.TabIndex = 19;
+         this.label9.Text = "Readable Message Text [N2]";
+         this.label9.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // button3
+         // 
+         this.button3.Location = new System.Drawing.Point(601, 346);
+         this.button3.Name = "button3";
+         this.button3.Size = new System.Drawing.Size(153, 37);
+         this.button3.TabIndex = 18;
+         this.button3.Text = "Send To Printer";
+         this.button3.UseVisualStyleBackColor = true;
+         // 
+         // button2
+         // 
+         this.button2.Location = new System.Drawing.Point(601, 303);
+         this.button2.Name = "button2";
+         this.button2.Size = new System.Drawing.Size(153, 37);
+         this.button2.TabIndex = 17;
+         this.button2.Text = "Refresh Display";
+         this.button2.UseVisualStyleBackColor = true;
+         // 
+         // textBox5
+         // 
+         this.textBox5.Location = new System.Drawing.Point(213, 13);
+         this.textBox5.Name = "textBox5";
+         this.textBox5.Size = new System.Drawing.Size(529, 22);
+         this.textBox5.TabIndex = 16;
+         // 
+         // textBox4
+         // 
+         this.textBox4.Location = new System.Drawing.Point(213, 43);
+         this.textBox4.Name = "textBox4";
+         this.textBox4.Size = new System.Drawing.Size(529, 22);
+         this.textBox4.TabIndex = 15;
+         // 
+         // label6
+         // 
+         this.label6.Location = new System.Drawing.Point(11, 43);
+         this.label6.Name = "label6";
+         this.label6.Size = new System.Drawing.Size(196, 18);
+         this.label6.TabIndex = 14;
+         this.label6.Text = "Modbus Message Text[N1]";
+         this.label6.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // label7
+         // 
+         this.label7.Location = new System.Drawing.Point(11, 13);
+         this.label7.Name = "label7";
+         this.label7.Size = new System.Drawing.Size(196, 18);
+         this.label7.TabIndex = 13;
+         this.label7.Text = "Readable Message Text [N1]";
+         this.label7.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // textBox3
+         // 
+         this.textBox3.Location = new System.Drawing.Point(246, 318);
+         this.textBox3.Name = "textBox3";
+         this.textBox3.Size = new System.Drawing.Size(138, 22);
+         this.textBox3.TabIndex = 12;
+         // 
+         // label5
+         // 
+         this.label5.Location = new System.Drawing.Point(17, 313);
+         this.label5.Name = "label5";
+         this.label5.Size = new System.Drawing.Size(223, 18);
+         this.label5.TabIndex = 10;
+         this.label5.Text = "AuxA";
+         this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // label4
+         // 
+         this.label4.Location = new System.Drawing.Point(17, 347);
+         this.label4.Name = "label4";
+         this.label4.Size = new System.Drawing.Size(223, 18);
+         this.label4.TabIndex = 9;
+         this.label4.Text = "AuxB";
+         this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cbAppParts
+         // 
+         this.cbAppParts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppParts.FormattingEnabled = true;
+         this.cbAppParts.Location = new System.Drawing.Point(246, 280);
+         this.cbAppParts.Name = "cbAppParts";
+         this.cbAppParts.Size = new System.Drawing.Size(138, 24);
+         this.cbAppParts.TabIndex = 8;
+         this.cbAppParts.SelectedIndexChanged += new System.EventHandler(this.cbAppParts_SelectedIndexChanged);
+         // 
+         // lblAppParts
+         // 
+         this.lblAppParts.Location = new System.Drawing.Point(17, 280);
+         this.lblAppParts.Name = "lblAppParts";
+         this.lblAppParts.Size = new System.Drawing.Size(223, 18);
+         this.lblAppParts.TabIndex = 7;
+         this.lblAppParts.Text = "Part Number";
+         this.lblAppParts.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cmdAppBrowse
+         // 
+         this.cmdAppBrowse.Location = new System.Drawing.Point(663, 241);
+         this.cmdAppBrowse.Name = "cmdAppBrowse";
+         this.cmdAppBrowse.Size = new System.Drawing.Size(91, 26);
+         this.cmdAppBrowse.TabIndex = 6;
+         this.cmdAppBrowse.Text = "Browse";
+         this.cmdAppBrowse.UseVisualStyleBackColor = true;
+         this.cmdAppBrowse.Click += new System.EventHandler(this.cmdAppBrowse_Click);
+         // 
+         // txtAppExcel
+         // 
+         this.txtAppExcel.Location = new System.Drawing.Point(246, 245);
+         this.txtAppExcel.Name = "txtAppExcel";
+         this.txtAppExcel.Size = new System.Drawing.Size(411, 22);
+         this.txtAppExcel.TabIndex = 5;
+         // 
+         // lblAppExcel
+         // 
+         this.lblAppExcel.Location = new System.Drawing.Point(17, 245);
+         this.lblAppExcel.Name = "lblAppExcel";
+         this.lblAppExcel.Size = new System.Drawing.Size(223, 18);
+         this.lblAppExcel.TabIndex = 4;
+         this.lblAppExcel.Text = "Spreadsheet Location";
+         this.lblAppExcel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // comboBox2
+         // 
+         this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.comboBox2.FormattingEnabled = true;
+         this.comboBox2.Location = new System.Drawing.Point(246, 208);
+         this.comboBox2.Name = "comboBox2";
+         this.comboBox2.Size = new System.Drawing.Size(138, 24);
+         this.comboBox2.TabIndex = 3;
+         // 
+         // comboBox1
+         // 
+         this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.comboBox1.FormattingEnabled = true;
+         this.comboBox1.Location = new System.Drawing.Point(246, 175);
+         this.comboBox1.Name = "comboBox1";
+         this.comboBox1.Size = new System.Drawing.Size(138, 24);
+         this.comboBox1.TabIndex = 2;
+         // 
+         // label1
+         // 
+         this.label1.Location = new System.Drawing.Point(17, 208);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(223, 18);
+         this.label1.TabIndex = 1;
+         this.label1.Text = "Template Destination Location";
+         this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // lblMsgSource
+         // 
+         this.lblMsgSource.Location = new System.Drawing.Point(17, 175);
+         this.lblMsgSource.Name = "lblMsgSource";
+         this.lblMsgSource.Size = new System.Drawing.Size(223, 18);
+         this.lblMsgSource.TabIndex = 0;
+         this.lblMsgSource.Text = "Template Source Location";
+         this.lblMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // cmdRetrieve
          // 
@@ -798,25 +1094,61 @@
          this.contextMenuStrip1.Name = "contextMenuStrip1";
          this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
          // 
-         // cmdMessageRefresh
+         // cbAppPrimaryKey
          // 
-         this.cmdMessageRefresh.Location = new System.Drawing.Point(617, 339);
-         this.cmdMessageRefresh.Name = "cmdMessageRefresh";
-         this.cmdMessageRefresh.Size = new System.Drawing.Size(127, 40);
-         this.cmdMessageRefresh.TabIndex = 10;
-         this.cmdMessageRefresh.Text = "Refresh";
-         this.cmdMessageRefresh.UseVisualStyleBackColor = true;
-         this.cmdMessageRefresh.Click += new System.EventHandler(this.cmdMessageRefresh_Click);
+         this.cbAppPrimaryKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppPrimaryKey.FormattingEnabled = true;
+         this.cbAppPrimaryKey.Location = new System.Drawing.Point(604, 174);
+         this.cbAppPrimaryKey.Name = "cbAppPrimaryKey";
+         this.cbAppPrimaryKey.Size = new System.Drawing.Size(138, 24);
+         this.cbAppPrimaryKey.TabIndex = 28;
+         this.cbAppPrimaryKey.SelectedIndexChanged += new System.EventHandler(this.cbAppPrimaryKey_SelectedIndexChanged);
          // 
-         // cmdMessageLoad
+         // cbAppSpreadsheet
          // 
-         this.cmdMessageLoad.Location = new System.Drawing.Point(478, 339);
-         this.cmdMessageLoad.Name = "cmdMessageLoad";
-         this.cmdMessageLoad.Size = new System.Drawing.Size(127, 40);
-         this.cmdMessageLoad.TabIndex = 11;
-         this.cmdMessageLoad.Text = "Load";
-         this.cmdMessageLoad.UseVisualStyleBackColor = true;
-         this.cmdMessageLoad.Click += new System.EventHandler(this.cmdMessageLoad_Click);
+         this.cbAppSpreadsheet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppSpreadsheet.FormattingEnabled = true;
+         this.cbAppSpreadsheet.Location = new System.Drawing.Point(604, 141);
+         this.cbAppSpreadsheet.Name = "cbAppSpreadsheet";
+         this.cbAppSpreadsheet.Size = new System.Drawing.Size(138, 24);
+         this.cbAppSpreadsheet.TabIndex = 27;
+         this.cbAppSpreadsheet.SelectedIndexChanged += new System.EventHandler(this.cbAppSpreadsheet_SelectedIndexChanged);
+         // 
+         // lblAppPrimaryKey
+         // 
+         this.lblAppPrimaryKey.Location = new System.Drawing.Point(485, 177);
+         this.lblAppPrimaryKey.Name = "lblAppPrimaryKey";
+         this.lblAppPrimaryKey.Size = new System.Drawing.Size(113, 18);
+         this.lblAppPrimaryKey.TabIndex = 26;
+         this.lblAppPrimaryKey.Text = "Primary Key";
+         this.lblAppPrimaryKey.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // lblAppSpreadsheet
+         // 
+         this.lblAppSpreadsheet.Location = new System.Drawing.Point(485, 144);
+         this.lblAppSpreadsheet.Name = "lblAppSpreadsheet";
+         this.lblAppSpreadsheet.Size = new System.Drawing.Size(113, 18);
+         this.lblAppSpreadsheet.TabIndex = 25;
+         this.lblAppSpreadsheet.Text = "Spreadsheet";
+         this.lblAppSpreadsheet.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cbAppTemplate
+         // 
+         this.cbAppTemplate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppTemplate.FormattingEnabled = true;
+         this.cbAppTemplate.Location = new System.Drawing.Point(604, 204);
+         this.cbAppTemplate.Name = "cbAppTemplate";
+         this.cbAppTemplate.Size = new System.Drawing.Size(138, 24);
+         this.cbAppTemplate.TabIndex = 30;
+         // 
+         // lblAppTemplate
+         // 
+         this.lblAppTemplate.Location = new System.Drawing.Point(493, 207);
+         this.lblAppTemplate.Name = "lblAppTemplate";
+         this.lblAppTemplate.Size = new System.Drawing.Size(113, 18);
+         this.lblAppTemplate.TabIndex = 29;
+         this.lblAppTemplate.Text = "Template";
+         this.lblAppTemplate.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // UI161
          // 
@@ -872,17 +1204,20 @@
          this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Name = "UI161";
          this.Text = "Modbus for Hitachi UX Model 161 Printer";
+         this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI161_FormClosing);
          this.cmLog.ResumeLayout(false);
          this.tclViews.ResumeLayout(false);
+         this.tabMessages.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).EndInit();
+         this.tabGroups.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).EndInit();
          this.tabXML.ResumeLayout(false);
          this.tabIndented.ResumeLayout(false);
          this.tabIndented.PerformLayout();
-         this.tabLog.ResumeLayout(false);
          this.tabErrors.ResumeLayout(false);
-         this.tabGroups.ResumeLayout(false);
-         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).EndInit();
-         this.tabMessages.ResumeLayout(false);
-         ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).EndInit();
+         this.tabLog.ResumeLayout(false);
+         this.tabApplication.ResumeLayout(false);
+         this.tabApplication.PerformLayout();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -962,6 +1297,37 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn colName;
       private System.Windows.Forms.Button cmdMessageLoad;
       private System.Windows.Forms.Button cmdMessageRefresh;
+      private System.Windows.Forms.TabPage tabApplication;
+      private System.Windows.Forms.TextBox textBox2;
+      private System.Windows.Forms.TextBox textBox6;
+      private System.Windows.Forms.TextBox textBox7;
+      private System.Windows.Forms.Label label8;
+      private System.Windows.Forms.Label label9;
+      private System.Windows.Forms.Button button3;
+      private System.Windows.Forms.Button button2;
+      private System.Windows.Forms.TextBox textBox5;
+      private System.Windows.Forms.TextBox textBox4;
+      private System.Windows.Forms.Label label6;
+      private System.Windows.Forms.Label label7;
+      private System.Windows.Forms.TextBox textBox3;
+      private System.Windows.Forms.Label label5;
+      private System.Windows.Forms.Label label4;
+      private System.Windows.Forms.ComboBox cbAppParts;
+      private System.Windows.Forms.Label lblAppParts;
+      private System.Windows.Forms.Button cmdAppBrowse;
+      private System.Windows.Forms.Label lblAppExcel;
+      private System.Windows.Forms.ComboBox comboBox2;
+      private System.Windows.Forms.ComboBox comboBox1;
+      private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.Label lblMsgSource;
+      private System.Windows.Forms.Button cmdAppStart;
+      public System.Windows.Forms.TextBox txtAppExcel;
+      private System.Windows.Forms.ComboBox cbAppTemplate;
+      private System.Windows.Forms.Label lblAppTemplate;
+      private System.Windows.Forms.ComboBox cbAppPrimaryKey;
+      private System.Windows.Forms.ComboBox cbAppSpreadsheet;
+      private System.Windows.Forms.Label lblAppPrimaryKey;
+      private System.Windows.Forms.Label lblAppSpreadsheet;
    }
 }
 
