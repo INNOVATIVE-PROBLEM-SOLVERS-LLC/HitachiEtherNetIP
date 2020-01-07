@@ -413,7 +413,7 @@ namespace Modbus_DLL {
       // Print_data_management (Class Code 0x66)
       private AttrData[] ccPDR_Addrs = new AttrData[] {
          new AttrData((int)ccPDR.Recall_Message, true, 1, 0,                    // Recall Message 0x1006
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPDR.Group_Number, true, 1, 0,                      // Group Number 0x100C
             new Prop(15, DataFormats.Decimal, 0, 99, fmtDD.None)),              //   Data
          new AttrData((int)ccPDR.Message_Number, true, 1, 0,                    // Message Number 0x100D
@@ -823,13 +823,13 @@ namespace Modbus_DLL {
          new AttrData((int)ccIDX.Start_Stop_Management_Flag, true, 1, 0,        // Start Stop Management Flag 0x00
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
          new AttrData((int)ccIDX.Number_Of_Items, true, 1, 0, Noz.Current,      // Number Of Items 0x0008
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+            new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
+            new Prop(1, DataFormats.Decimal, 0, 19, fmtDD.FontType)),           //   Data
          new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x0014
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
       };

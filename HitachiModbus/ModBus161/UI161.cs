@@ -370,6 +370,41 @@ namespace ModBus161 {
          }
       }
 
+      // Get all messages from the printer and display them in a data view
+      private void cmdMessageRefresh_Click(object sender, EventArgs e) {
+         string[] s = new string[3];
+         dgMessages.Rows.Clear();
+         // For now, look at the first 48 only.  Need to implement block read
+         AttrData attrCount = p.GetAttrData(ccMM.Registration);
+         for (int i = 0; i < Math.Min(3, attrCount.Count); i++) {
+            int reg = p.GetDecAttribute(ccMM.Registration, i);
+            for (int j = 15; j >= 0; j--) {
+               if ((reg & (1 << j)) > 0) {
+                  int n = i * 16 - j + 15; // 1-origin
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  p.SetAttribute(ccIDX.Message_Number, n + 1);         // Load the message into input registers
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                  s[0] = p.GetHRAttribute(ccMM.Group_Number);
+                  s[1] = p.GetHRAttribute(ccMM.Message_Number);
+                  s[2] = p.GetHRAttribute(ccMM.Message_Name);
+                  dgMessages.Rows.Add(s);
+                  dgMessages.Update();
+               }
+            }
+         }
+         SetButtonEnables();
+      }
+
+      // Recall a message that has beed stored in the printer
+      private void cmdMessageLoad_Click(object sender, EventArgs e) {
+         if (int.TryParse((string)dgMessages.SelectedRows[0].Cells[1].Value, out int n)) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPDR.Recall_Message, n);                   // Load the message into input registers
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            SetButtonEnables();
+         }
+      }
+
       #endregion
 
       #region Service Routines
@@ -547,6 +582,10 @@ namespace ModBus161 {
 
          cmdErrorRefresh.Enabled = false; // comIsOn;
          cmdErrorClear.Enabled = false; // comIsOn;
+
+         cmdGroupRefresh.Enabled = comIsOn;
+         cmdMessageRefresh.Enabled = comIsOn;
+         cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
       }
 
       #endregion
