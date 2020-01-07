@@ -31,6 +31,8 @@ namespace Modbus_DLL {
       Print_Contents = 0x7B,
       Adjust_Print_Parameters = 0x7C,
       Alarm_History = 0x7D,
+      Manage_Messages = 0x7E,
+      Manage_Groups = 0x7F,
    }
 
    // Attributes within Print Data Registration class 0x66
@@ -311,6 +313,21 @@ namespace Modbus_DLL {
       Fault_Number = 0x007A,
    }
 
+   // Attributes for Manage Messages 0x7E
+   public enum ccMM {
+      Message_Number = 0x0E40,
+      Group_Number = 0x0E41,
+      Message_Name = 0x0E42,
+      Registration = 0x0E53,
+   }
+
+   // Attributes for Manage Groups 0x7F
+   public enum ccMG {
+      Group_Number = 0x0ED0,
+      Group_Name = 0x0ED1,
+      Registration = 0x0EE9,
+   }
+
    #endregion
 
 
@@ -352,6 +369,7 @@ namespace Modbus_DLL {
       EANRule = 24,
    }
 
+   // Data formats that exist in the printer
    public enum DataFormats {
       None = -1,      // No formating
       Decimal = 0,    // Unsigned Decimal numbers up to 8 digits (Big Endian)
@@ -385,6 +403,8 @@ namespace Modbus_DLL {
             ccPC_Addrs,            // 0x7B Print Contents function
             ccAPP_Addrs,           // 0x7C Adjust Print Parameters function
             ccAH_Addrs,            // 0x7D Alarm History function
+            ccMM_Addrs,            // 0x7E Manage Messages function
+            ccMG_Addrs,            // 0x7F Manage Groups function
          };
       }
 
@@ -393,7 +413,7 @@ namespace Modbus_DLL {
       // Print_data_management (Class Code 0x66)
       private AttrData[] ccPDR_Addrs = new AttrData[] {
          new AttrData((int)ccPDR.Recall_Message, true, 1, 0,                    // Recall Message 0x1006
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPDR.Group_Number, true, 1, 0,                      // Group Number 0x100C
             new Prop(15, DataFormats.Decimal, 0, 99, fmtDD.None)),              //   Data
          new AttrData((int)ccPDR.Message_Number, true, 1, 0,                    // Message Number 0x100D
@@ -490,20 +510,6 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 50, fmtDD.None)),               //   Data
 
          // This does not belong here
-      };
-
-      // Adjust Print Parameters
-      private AttrData[] ccAPP_Addrs = new AttrData[] {
-         new AttrData((int)ccAPP.QR_Error_Correction_Level, true, 100, 24,      // QR Error Correction Level 0x2084
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
-         new AttrData((int)ccAPP.Calendar_Offset, true, 100, 24,                // Calendar Offset 0x2480
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),      //   Data
-         new AttrData((int)ccAPP.DIN_Print, true, 100, 24,                      // DIN Print 0x2481
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Data
-         new AttrData((int)ccAPP.EAN_Prefix, true, 100, 24,                     // EAN Prefix 0x2482
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Data
-         new AttrData((int)ccAPP.Barcode_Printing, true, 100, 24,               // Barcode Printing 0x2483
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Data
       };
 
       // Print_specification (Class Code 0x68)
@@ -817,13 +823,13 @@ namespace Modbus_DLL {
          new AttrData((int)ccIDX.Start_Stop_Management_Flag, true, 1, 0,        // Start Stop Management Flag 0x00
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.None)),                //   Data
          new AttrData((int)ccIDX.Number_Of_Items, true, 1, 0, Noz.Current,      // Number Of Items 0x0008
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+            new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
-            new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
+            new Prop(1, DataFormats.Decimal, 0, 19, fmtDD.FontType)),           //   Data
          new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x0014
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
       };
@@ -838,7 +844,7 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
       };
 
-      // Alarm History (Class Code 0x7c)
+      // Alarm History (Class Code 0x7C)
       private AttrData[] ccAH_Addrs = new AttrData[] {
          new AttrData((int)ccAH.Message_Count, false, 1, 0,                     // Message Count 0x0070
             new Prop(1, DataFormats.Decimal, 0, 90, fmtDD.None)),               //   Data
@@ -856,6 +862,42 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
          new AttrData((int)ccAH.Fault_Number, false, 90, 8,                     // Fault Number 0x007A
             new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+      };
+
+      // Adjust Print Parameters (Class Code 0x7D)
+      private AttrData[] ccAPP_Addrs = new AttrData[] {
+         new AttrData((int)ccAPP.QR_Error_Correction_Level, true, 100, 24,      // QR Error Correction Level 0x2084
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.M15Q25)),              //   Data
+         new AttrData((int)ccAPP.Calendar_Offset, true, 100, 24,                // Calendar Offset 0x2480
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.YesterdayToday)),      //   Data
+         new AttrData((int)ccAPP.DIN_Print, true, 100, 24,                      // DIN Print 0x2481
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.DisableSpaceChar)),    //   Data
+         new AttrData((int)ccAPP.EAN_Prefix, true, 100, 24,                     // EAN Prefix 0x2482
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EditPrint)),           //   Data
+         new AttrData((int)ccAPP.Barcode_Printing, true, 100, 24,               // Barcode Printing 0x2483
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.NormalReverse)),       //   Data
+      };
+
+      // Manage Messages (Class Code 0x7E)
+      private AttrData[] ccMM_Addrs = new AttrData[] {
+         new AttrData((int)ccMM.Message_Number, false, 1, 0,                   // Message Number 0x0E40
+            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccMM.Group_Number, false, 1, 0,                      // Group Number 0x0E41
+            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccMM.Message_Name, false, 1, 0,                      // Message Name0x0E42
+            new Prop(12, DataFormats.UTF8, 0, 100, fmtDD.None)),                //   Data
+         new AttrData((int)ccMM.Registration, false, 125, 1,                    // Registration 0x0E53
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+      };
+
+      // Manage Groups (Class Code 0x7F)
+      private AttrData[] ccMG_Addrs = new AttrData[] {
+         new AttrData((int)ccMG.Group_Number, false, 1000, 2,                   // Group Number 0x0ED0
+            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+         new AttrData((int)ccMG.Group_Name, false, 1, 0,                        // Message Name0x0ED1
+            new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         new AttrData((int)ccMG.Registration, false, 7, 1,                      // Registration 0x0EE9
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       #endregion
@@ -888,6 +930,8 @@ namespace Modbus_DLL {
          DumpTable(RFS, ccPC_Addrs, ClassCode.Print_Contents, typeof(ccPC));
          DumpTable(RFS, ccAPP_Addrs, ClassCode.Adjust_Print_Parameters, typeof(ccAPP));
          DumpTable(RFS, ccAH_Addrs, ClassCode.Alarm_History, typeof(ccAH));
+         DumpTable(RFS, ccMM_Addrs, ClassCode.Alarm_History, typeof(ccMM));
+         DumpTable(RFS, ccMG_Addrs, ClassCode.Alarm_History, typeof(ccMG));
 
       }
 

@@ -560,6 +560,8 @@ namespace Modbus_DLL {
             typeof(ccPC),    // 0x7B Print Contents function
             typeof(ccAPP),   // 0x7C Adjust Print Parameters
             typeof(ccAH),    // 0x7D Alarm History Parameters
+            typeof(ccMM),    // 0x7E Manage Messages
+            typeof(ccMG),    // 0x7F Manage Groups
       };
 
       // Lookup for getting attributes associated with a Class/Function

@@ -53,8 +53,21 @@
          this.tvXML = new System.Windows.Forms.TreeView();
          this.tabIndented = new System.Windows.Forms.TabPage();
          this.txtIndentedView = new System.Windows.Forms.TextBox();
-         this.tabObject = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
+         this.tabErrors = new System.Windows.Forms.TabPage();
+         this.cmdErrorRefresh = new System.Windows.Forms.Button();
+         this.cmdErrorClear = new System.Windows.Forms.Button();
+         this.lbErrors = new System.Windows.Forms.ListBox();
+         this.tabGroups = new System.Windows.Forms.TabPage();
+         this.cmdGroupRefresh = new System.Windows.Forms.Button();
+         this.dgGroups = new System.Windows.Forms.DataGridView();
+         this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.tabMessages = new System.Windows.Forms.TabPage();
+         this.dgMessages = new System.Windows.Forms.DataGridView();
+         this.colGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+         this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
@@ -81,16 +94,19 @@
          this.cmdShutDown = new System.Windows.Forms.Button();
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
-         this.tabErrors = new System.Windows.Forms.TabPage();
-         this.lbErrors = new System.Windows.Forms.ListBox();
-         this.cmdErrorClear = new System.Windows.Forms.Button();
-         this.cmdErrorRefresh = new System.Windows.Forms.Button();
+         this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+         this.cmdMessageRefresh = new System.Windows.Forms.Button();
+         this.cmdMessageLoad = new System.Windows.Forms.Button();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabXML.SuspendLayout();
          this.tabIndented.SuspendLayout();
          this.tabLog.SuspendLayout();
          this.tabErrors.SuspendLayout();
+         this.tabGroups.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).BeginInit();
+         this.tabMessages.SuspendLayout();
+         ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).BeginInit();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -310,11 +326,12 @@
          // 
          // tclViews
          // 
+         this.tclViews.Controls.Add(this.tabMessages);
+         this.tclViews.Controls.Add(this.tabGroups);
          this.tclViews.Controls.Add(this.tabXML);
          this.tclViews.Controls.Add(this.tabIndented);
-         this.tclViews.Controls.Add(this.tabObject);
-         this.tclViews.Controls.Add(this.tabLog);
          this.tclViews.Controls.Add(this.tabErrors);
+         this.tclViews.Controls.Add(this.tabLog);
          this.tclViews.Location = new System.Drawing.Point(8, 148);
          this.tclViews.Name = "tclViews";
          this.tclViews.SelectedIndex = 0;
@@ -352,21 +369,13 @@
          // 
          // txtIndentedView
          // 
+         this.txtIndentedView.ContextMenuStrip = this.cmLog;
          this.txtIndentedView.Location = new System.Drawing.Point(15, 6);
          this.txtIndentedView.Multiline = true;
          this.txtIndentedView.Name = "txtIndentedView";
          this.txtIndentedView.ScrollBars = System.Windows.Forms.ScrollBars.Both;
          this.txtIndentedView.Size = new System.Drawing.Size(728, 376);
          this.txtIndentedView.TabIndex = 0;
-         // 
-         // tabObject
-         // 
-         this.tabObject.Location = new System.Drawing.Point(4, 25);
-         this.tabObject.Name = "tabObject";
-         this.tabObject.Size = new System.Drawing.Size(768, 393);
-         this.tabObject.TabIndex = 2;
-         this.tabObject.Text = "Object View";
-         this.tabObject.UseVisualStyleBackColor = true;
          // 
          // tabLog
          // 
@@ -377,6 +386,148 @@
          this.tabLog.TabIndex = 3;
          this.tabLog.Text = "Log";
          this.tabLog.UseVisualStyleBackColor = true;
+         // 
+         // tabErrors
+         // 
+         this.tabErrors.Controls.Add(this.cmdErrorRefresh);
+         this.tabErrors.Controls.Add(this.cmdErrorClear);
+         this.tabErrors.Controls.Add(this.lbErrors);
+         this.tabErrors.Location = new System.Drawing.Point(4, 25);
+         this.tabErrors.Name = "tabErrors";
+         this.tabErrors.Size = new System.Drawing.Size(768, 393);
+         this.tabErrors.TabIndex = 4;
+         this.tabErrors.Text = "Errors";
+         this.tabErrors.UseVisualStyleBackColor = true;
+         // 
+         // cmdErrorRefresh
+         // 
+         this.cmdErrorRefresh.Location = new System.Drawing.Point(492, 341);
+         this.cmdErrorRefresh.Name = "cmdErrorRefresh";
+         this.cmdErrorRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorRefresh.TabIndex = 15;
+         this.cmdErrorRefresh.Text = "Refresh";
+         this.cmdErrorRefresh.UseVisualStyleBackColor = true;
+         this.cmdErrorRefresh.Click += new System.EventHandler(this.cmdErrorRefresh_Click);
+         // 
+         // cmdErrorClear
+         // 
+         this.cmdErrorClear.Location = new System.Drawing.Point(626, 341);
+         this.cmdErrorClear.Name = "cmdErrorClear";
+         this.cmdErrorClear.Size = new System.Drawing.Size(127, 40);
+         this.cmdErrorClear.TabIndex = 14;
+         this.cmdErrorClear.Text = "Clear";
+         this.cmdErrorClear.UseVisualStyleBackColor = true;
+         // 
+         // lbErrors
+         // 
+         this.lbErrors.ContextMenuStrip = this.cmLog;
+         this.lbErrors.FormattingEnabled = true;
+         this.lbErrors.ItemHeight = 16;
+         this.lbErrors.Location = new System.Drawing.Point(16, 18);
+         this.lbErrors.Name = "lbErrors";
+         this.lbErrors.Size = new System.Drawing.Size(737, 308);
+         this.lbErrors.TabIndex = 13;
+         // 
+         // tabGroups
+         // 
+         this.tabGroups.Controls.Add(this.cmdGroupRefresh);
+         this.tabGroups.Controls.Add(this.dgGroups);
+         this.tabGroups.Location = new System.Drawing.Point(4, 25);
+         this.tabGroups.Name = "tabGroups";
+         this.tabGroups.Size = new System.Drawing.Size(768, 393);
+         this.tabGroups.TabIndex = 6;
+         this.tabGroups.Text = "Groups";
+         this.tabGroups.UseVisualStyleBackColor = true;
+         // 
+         // cmdGroupRefresh
+         // 
+         this.cmdGroupRefresh.Location = new System.Drawing.Point(617, 338);
+         this.cmdGroupRefresh.Name = "cmdGroupRefresh";
+         this.cmdGroupRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdGroupRefresh.TabIndex = 9;
+         this.cmdGroupRefresh.Text = "Refresh";
+         this.cmdGroupRefresh.UseVisualStyleBackColor = true;
+         // 
+         // dgGroups
+         // 
+         this.dgGroups.AllowUserToAddRows = false;
+         this.dgGroups.AllowUserToDeleteRows = false;
+         this.dgGroups.AllowUserToOrderColumns = true;
+         this.dgGroups.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgGroups.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn2});
+         this.dgGroups.Location = new System.Drawing.Point(10, 13);
+         this.dgGroups.Name = "dgGroups";
+         this.dgGroups.ReadOnly = true;
+         this.dgGroups.RowTemplate.Height = 24;
+         this.dgGroups.Size = new System.Drawing.Size(734, 295);
+         this.dgGroups.TabIndex = 0;
+         // 
+         // dataGridViewTextBoxColumn1
+         // 
+         this.dataGridViewTextBoxColumn1.HeaderText = "Group #";
+         this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+         this.dataGridViewTextBoxColumn1.ReadOnly = true;
+         // 
+         // dataGridViewTextBoxColumn2
+         // 
+         this.dataGridViewTextBoxColumn2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+         this.dataGridViewTextBoxColumn2.HeaderText = "Name";
+         this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
+         this.dataGridViewTextBoxColumn2.ReadOnly = true;
+         this.dataGridViewTextBoxColumn2.Width = 74;
+         // 
+         // tabMessages
+         // 
+         this.tabMessages.Controls.Add(this.cmdMessageLoad);
+         this.tabMessages.Controls.Add(this.cmdMessageRefresh);
+         this.tabMessages.Controls.Add(this.dgMessages);
+         this.tabMessages.Location = new System.Drawing.Point(4, 25);
+         this.tabMessages.Name = "tabMessages";
+         this.tabMessages.Size = new System.Drawing.Size(768, 393);
+         this.tabMessages.TabIndex = 5;
+         this.tabMessages.Text = "Messages";
+         this.tabMessages.UseVisualStyleBackColor = true;
+         // 
+         // dgMessages
+         // 
+         this.dgMessages.AllowUserToAddRows = false;
+         this.dgMessages.AllowUserToDeleteRows = false;
+         this.dgMessages.AllowUserToOrderColumns = true;
+         this.dgMessages.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+         this.dgMessages.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colGroup,
+            this.colMessage,
+            this.colName});
+         this.dgMessages.Location = new System.Drawing.Point(10, 16);
+         this.dgMessages.MultiSelect = false;
+         this.dgMessages.Name = "dgMessages";
+         this.dgMessages.ReadOnly = true;
+         this.dgMessages.RowTemplate.Height = 24;
+         this.dgMessages.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+         this.dgMessages.Size = new System.Drawing.Size(734, 308);
+         this.dgMessages.TabIndex = 1;
+         // 
+         // colGroup
+         // 
+         this.colGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+         this.colGroup.HeaderText = "Group #";
+         this.colGroup.Name = "colGroup";
+         this.colGroup.ReadOnly = true;
+         this.colGroup.Width = 89;
+         // 
+         // colMessage
+         // 
+         this.colMessage.HeaderText = "Msg #";
+         this.colMessage.Name = "colMessage";
+         this.colMessage.ReadOnly = true;
+         // 
+         // colName
+         // 
+         this.colName.HeaderText = "Name";
+         this.colName.Name = "colName";
+         this.colName.ReadOnly = true;
          // 
          // cmdRetrieve
          // 
@@ -641,46 +792,31 @@
          this.cmdReset.UseVisualStyleBackColor = false;
          this.cmdReset.Click += new System.EventHandler(this.cmdReset_Click);
          // 
-         // tabErrors
+         // contextMenuStrip1
          // 
-         this.tabErrors.Controls.Add(this.cmdErrorRefresh);
-         this.tabErrors.Controls.Add(this.cmdErrorClear);
-         this.tabErrors.Controls.Add(this.lbErrors);
-         this.tabErrors.Location = new System.Drawing.Point(4, 25);
-         this.tabErrors.Name = "tabErrors";
-         this.tabErrors.Size = new System.Drawing.Size(768, 393);
-         this.tabErrors.TabIndex = 4;
-         this.tabErrors.Text = "Errors";
-         this.tabErrors.UseVisualStyleBackColor = true;
+         this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+         this.contextMenuStrip1.Name = "contextMenuStrip1";
+         this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
          // 
-         // lbErrors
+         // cmdMessageRefresh
          // 
-         this.lbErrors.ContextMenuStrip = this.cmLog;
-         this.lbErrors.FormattingEnabled = true;
-         this.lbErrors.ItemHeight = 16;
-         this.lbErrors.Location = new System.Drawing.Point(16, 18);
-         this.lbErrors.Name = "lbErrors";
-         this.lbErrors.Size = new System.Drawing.Size(737, 308);
-         this.lbErrors.TabIndex = 13;
+         this.cmdMessageRefresh.Location = new System.Drawing.Point(617, 339);
+         this.cmdMessageRefresh.Name = "cmdMessageRefresh";
+         this.cmdMessageRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageRefresh.TabIndex = 10;
+         this.cmdMessageRefresh.Text = "Refresh";
+         this.cmdMessageRefresh.UseVisualStyleBackColor = true;
+         this.cmdMessageRefresh.Click += new System.EventHandler(this.cmdMessageRefresh_Click);
          // 
-         // cmdErrorClear
+         // cmdMessageLoad
          // 
-         this.cmdErrorClear.Location = new System.Drawing.Point(626, 341);
-         this.cmdErrorClear.Name = "cmdErrorClear";
-         this.cmdErrorClear.Size = new System.Drawing.Size(127, 40);
-         this.cmdErrorClear.TabIndex = 14;
-         this.cmdErrorClear.Text = "Clear";
-         this.cmdErrorClear.UseVisualStyleBackColor = true;
-         // 
-         // cmdErrorRefresh
-         // 
-         this.cmdErrorRefresh.Location = new System.Drawing.Point(492, 341);
-         this.cmdErrorRefresh.Name = "cmdErrorRefresh";
-         this.cmdErrorRefresh.Size = new System.Drawing.Size(127, 40);
-         this.cmdErrorRefresh.TabIndex = 15;
-         this.cmdErrorRefresh.Text = "Refresh";
-         this.cmdErrorRefresh.UseVisualStyleBackColor = true;
-         this.cmdErrorRefresh.Click += new System.EventHandler(this.cmdErrorRefresh_Click);
+         this.cmdMessageLoad.Location = new System.Drawing.Point(478, 339);
+         this.cmdMessageLoad.Name = "cmdMessageLoad";
+         this.cmdMessageLoad.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageLoad.TabIndex = 11;
+         this.cmdMessageLoad.Text = "Load";
+         this.cmdMessageLoad.UseVisualStyleBackColor = true;
+         this.cmdMessageLoad.Click += new System.EventHandler(this.cmdMessageLoad_Click);
          // 
          // UI161
          // 
@@ -743,6 +879,10 @@
          this.tabIndented.PerformLayout();
          this.tabLog.ResumeLayout(false);
          this.tabErrors.ResumeLayout(false);
+         this.tabGroups.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).EndInit();
+         this.tabMessages.ResumeLayout(false);
+         ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).EndInit();
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -766,7 +906,6 @@
       private System.Windows.Forms.TabControl tclViews;
       private System.Windows.Forms.TabPage tabXML;
       private System.Windows.Forms.TabPage tabIndented;
-      private System.Windows.Forms.TabPage tabObject;
       private System.Windows.Forms.TabPage tabLog;
       private System.Windows.Forms.Button cmdRetrieve;
       private System.Windows.Forms.TextBox txtIndentedView;
@@ -810,6 +949,19 @@
       private System.Windows.Forms.Button cmdErrorRefresh;
       private System.Windows.Forms.Button cmdErrorClear;
       private System.Windows.Forms.ListBox lbErrors;
+      private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+      private System.Windows.Forms.TabPage tabGroups;
+      private System.Windows.Forms.Button cmdGroupRefresh;
+      private System.Windows.Forms.DataGridView dgGroups;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+      private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
+      private System.Windows.Forms.TabPage tabMessages;
+      private System.Windows.Forms.DataGridView dgMessages;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colGroup;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colMessage;
+      private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+      private System.Windows.Forms.Button cmdMessageLoad;
+      private System.Windows.Forms.Button cmdMessageRefresh;
    }
 }
 

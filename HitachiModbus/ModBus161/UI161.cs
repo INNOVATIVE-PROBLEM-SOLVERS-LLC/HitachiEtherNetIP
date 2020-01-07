@@ -105,31 +105,37 @@ namespace ModBus161 {
          SetButtonEnables();
       }
 
+      // Reset alarm
       private void cmdReset_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.ClearFault);
          SetButtonEnables();
       }
 
+      // Get printer status
       private void cmdGetStatus_Click(object sender, EventArgs e) {
 
          SetButtonEnables();
       }
 
+      // Hydralic pump shutdown
       private void cmdShutDown_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Stop);
          SetButtonEnables();
       }
 
+      // Hydralic pump startup
       private void cmdStartUp_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Start);
          SetButtonEnables();
       }
 
+      // Printer to standby
       private void cmdStandby_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.StandBy);
          SetButtonEnables();
       }
 
+      // Printer to ready
       private void cmdReady_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Ready);
          SetButtonEnables();
@@ -359,8 +365,43 @@ namespace ModBus161 {
             int minute = p.GetDecAttribute(ccAH.Minute, i);
             int second = p.GetDecAttribute(ccAH.Second, i);
             int fault = p.GetDecAttribute(ccAH.Fault_Number, i);
-            lbErrors.Items.Add($"{fault:##0} {year}/{month:#0}/{day:#0} {hour:#0}:{minute:#0}:{second:#0}");
+            lbErrors.Items.Add($"{fault:###} {year}/{month:##}/{day:##} {hour:##}:{minute:##}:{second:##}");
             lbErrors.Update();
+         }
+      }
+
+      // Get all messages from the printer and display them in a data view
+      private void cmdMessageRefresh_Click(object sender, EventArgs e) {
+         string[] s = new string[3];
+         dgMessages.Rows.Clear();
+         // For now, look at the first 48 only.  Need to implement block read
+         AttrData attrCount = p.GetAttrData(ccMM.Registration);
+         for (int i = 0; i < Math.Min(3, attrCount.Count); i++) {
+            int reg = p.GetDecAttribute(ccMM.Registration, i);
+            for (int j = 15; j >= 0; j--) {
+               if ((reg & (1 << j)) > 0) {
+                  int n = i * 16 - j + 15; // 1-origin
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  p.SetAttribute(ccIDX.Message_Number, n + 1);         // Load the message into input registers
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                  s[0] = p.GetHRAttribute(ccMM.Group_Number);
+                  s[1] = p.GetHRAttribute(ccMM.Message_Number);
+                  s[2] = p.GetHRAttribute(ccMM.Message_Name);
+                  dgMessages.Rows.Add(s);
+                  dgMessages.Update();
+               }
+            }
+         }
+         SetButtonEnables();
+      }
+
+      // Recall a message that has beed stored in the printer
+      private void cmdMessageLoad_Click(object sender, EventArgs e) {
+         if (int.TryParse((string)dgMessages.SelectedRows[0].Cells[1].Value, out int n)) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPDR.Recall_Message, n);                   // Load the message into input registers
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            SetButtonEnables();
          }
       }
 
@@ -539,8 +580,12 @@ namespace ModBus161 {
          cmdExperiment.Enabled = comIsOn;
          chkTwinNozzle.Enabled = !isConnected;
 
-         cmdErrorRefresh.Enabled = comIsOn;
-         cmdErrorClear.Enabled = comIsOn;
+         cmdErrorRefresh.Enabled = false; // comIsOn;
+         cmdErrorClear.Enabled = false; // comIsOn;
+
+         cmdGroupRefresh.Enabled = comIsOn;
+         cmdMessageRefresh.Enabled = comIsOn;
+         cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
       }
 
       #endregion
