@@ -6,8 +6,6 @@ namespace ModBus161 {
    static class Program {
       static internal UI161 ThisProgram;
       private static TextWriter twError = null;
-      static Properties.Settings p;
-
 
       /// <summary>
       /// The main entry point for the application.
@@ -23,19 +21,6 @@ namespace ModBus161 {
          Application.SetCompatibleTextRenderingDefault(false);
          try {
             ThisProgram = new UI161();
-            p = Properties.Settings.Default;
-            ThisProgram.txtIPAddress.Text = p.IPAddress;
-            ThisProgram.txtIPPort.Text = p.IPPort;
-            ThisProgram.txtMessageFolder.Text = p.MessageFolder;
-            ThisProgram.txtDataAddress.Text = p.HexAddress;
-            ThisProgram.txtDataLength.Text = p.Length;
-            ThisProgram.txtData.Text = p.Data;
-            ThisProgram.optHoldingRegister.Checked = p.HoldingReg;
-            ThisProgram.chkTwinNozzle.Checked = p.TwinNozzle;
-            ThisProgram.cbNozzle.SelectedIndex = p.Nozzle;
-            ThisProgram.chkHex.Checked = p.HexData;
-            ThisProgram.chkLogIO.Checked = p.LogIO;
-            ThisProgram.FormClosing += UI161_FormClosing;
             Application.Run(ThisProgram);
          } catch (Exception ex) {
             try {
@@ -107,22 +92,6 @@ namespace ModBus161 {
                twError = null;
             }
          }
-      }
-
-      internal static void UI161_FormClosing(object sender, FormClosingEventArgs e) {
-         ThisProgram.FormClosing -= UI161_FormClosing;
-         p.IPAddress = ThisProgram.txtIPAddress.Text;
-         p.IPPort = ThisProgram.txtIPPort.Text;
-         p.MessageFolder = ThisProgram.txtMessageFolder.Text;
-         p.HexAddress = ThisProgram.txtDataAddress.Text;
-         p.Length = ThisProgram.txtDataLength.Text;
-         p.Data = ThisProgram.txtData.Text;
-         p.HoldingReg = ThisProgram.optHoldingRegister.Checked;
-         p.TwinNozzle = ThisProgram.chkTwinNozzle.Checked;
-         p.Nozzle = ThisProgram.cbNozzle.SelectedIndex;
-         p.HexData = ThisProgram.chkHex.Checked;
-         p.LogIO = ThisProgram.chkLogIO.Checked;
-         p.Save();
       }
 
    }

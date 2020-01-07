@@ -54,6 +54,7 @@
     <Compile Include="RetrieveXML.cs" />
     <Compile Include="SendXML.cs" />
     <Compile Include="Serialize_Classes.cs" />
+    <Compile Include="TwinApp.cs" />
     <Compile Include="UI161.cs">
       <SubType>Form</SubType>
     </Compile>

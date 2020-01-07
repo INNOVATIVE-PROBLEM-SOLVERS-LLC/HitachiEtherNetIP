@@ -45,16 +45,17 @@ namespace Modbus_DLL {
 
    // Attributes within Print Data Management class 0x66
    public enum ccPDM {
-      Select_Message = 0x1006,
       Store_Print_Data = 0x65,
-      Delete_Print_Data = 0x25F0,
       Print_Data_Name = 0x69,
       List_of_Messages = 0x6A,
       Print_Data_Number = 0x6B,
       Change_Create_Group_Name = 0x6C,
-      Group_Deletion = 0x6D,
       List_of_Groups = 0x6F,
       Change_Group_Number = 0x70,
+
+      Recall_Message = 0x1006,
+      Delete_Print_Data = 0x25F0,
+      Group_Deletion = 0x262F,
    }
 
    // Attributes within Print Format class 0x67
@@ -424,7 +425,7 @@ namespace Modbus_DLL {
 
       // Print_data_management (Class Code 0x66)
       private AttrData[] ccPDM_Addrs = new AttrData[] {
-         new AttrData((int)ccPDM.Select_Message, true, 1, 0,                    // Select Message 0x64
+         new AttrData((int)ccPDM.Recall_Message, true, 1, 0,                    // Select Message 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPDM.Store_Print_Data, true, 1, 0,                  // Store Print Data 0x65
             new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
