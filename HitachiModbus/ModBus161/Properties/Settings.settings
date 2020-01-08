@@ -17,9 +17,6 @@
     <Setting Name="Length" Type="System.String" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="Data" Type="System.String" Scope="User">
-      <Value Profile="(Default)">01</Value>
-    </Setting>
     <Setting Name="HoldingReg" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -46,6 +43,15 @@
     </Setting>
     <Setting Name="AppTemplate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="AppSrc" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="AppDst" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="StopOnErrors" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

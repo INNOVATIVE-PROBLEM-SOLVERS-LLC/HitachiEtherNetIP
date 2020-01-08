@@ -22,6 +22,7 @@ namespace Modbus_DLL {
       User_pattern = 0x6B,
       Substitution_rules = 0x6C,
       Enviroment_setting = 0x71,
+      Unit_Status = 0x72,
       Unit_Information = 0x73,
       Operation_management = 0x74,
       IJP_operation = 0x75,
@@ -44,13 +45,14 @@ namespace Modbus_DLL {
 
    // Attributes within Print Data Management class 0x66
    public enum ccPDM {
-      Store_Print_Data = 0x65,
-      Print_Data_Name = 0x69,
-      List_of_Messages = 0x6A,
-      Print_Data_Number = 0x6B,
-      Change_Create_Group_Name = 0x6C,
-      List_of_Groups = 0x6F,
-      Change_Group_Number = 0x70,
+      //Store_Print_Data = 0x65,
+      //List_of_Messages = 0x6A,
+      //Change_Create_Group_Name = 0x6C,
+      //List_of_Groups = 0x6F,
+      //Change_Group_Number = 0x70,
+
+      Change_Message_Name = 0x25E0,
+      Message_Name = 0x25E1,
 
       Recall_Message = 0x1006,
       Delete_Print_Data = 0x25F0,
@@ -60,8 +62,8 @@ namespace Modbus_DLL {
    // Attributes within Print Format class 0x67
    public enum ccPF {
       Message_Name = 0x64,
-      Number_Of_Columns = 0x66,
-      Format_Type = 0x67,
+      //Number_Of_Columns = 0x66,
+      //Format_Type = 0x67,
       Number_Of_Print_Line_And_Print_Format = 0x1020,
       Insert_Column = 0x1021,
       Delete_Column = 0x1022,
@@ -69,8 +71,8 @@ namespace Modbus_DLL {
       Column = 0x1024,
       Line = 0x1025,
       Format_Setup = 0x103F,
-      Adding_Print_Items = 0x6E,
-      Deleting_Print_Items = 0x6F,
+      //Adding_Print_Items = 0x6E,
+      //Deleting_Print_Items = 0x6F,
 
       Line_Count = 0x1040,
       Line_Spacing = 0x1041,
@@ -204,6 +206,18 @@ namespace Modbus_DLL {
       Cirulation_Control_Setting_Value = 0x6A,
       Usage_Time_Of_Circulation_Control = 0x6B,
       Reset_Usage_Time_Of_Circulation_Control = 0x6C,
+   }
+
+   // Attributes within Unit Status class 0x72
+   public enum ccUS {
+      Communication_Status = 0x0000,
+      Receive_Status = 0x0001,
+      Operation_Status = 0x0002,
+      Warning_Status = 0x0003,
+      Analysis_Info_1 = 0x0004,
+      Analysis_Info_2 = 0x0005,
+      Analysis_Info_3 = 0x0006,
+      Analysis_Info_4 = 0x0007,
    }
 
    // Attributes within Unit Information class 0x73
@@ -396,6 +410,7 @@ namespace Modbus_DLL {
             ccUP_Addrs,            // 0x6B User pattern function
             ccSR_Addrs,            // 0x6C Substitution rules function
             ccES_Addrs,            // 0x71 Enviroment setting function
+            ccUS_Addrs,            // 0x72 Unit Status function
             ccUI_Addrs,            // 0x73 Unit Information function
             ccOM_Addrs,            // 0x74 Operation management function
             ccIJP_Addrs,           // 0x75 IJP operation function
@@ -418,7 +433,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccPDR.Group_Number, true, 1, 0,                      // Group Number 0x100C
             new Prop(15, DataFormats.Decimal, 0, 99, fmtDD.None)),              //   Data
          new AttrData((int)ccPDR.Message_Number, true, 1, 0,                    // Message Number 0x100D
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
+            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccPDR.MessageName, true, 1, 0,                       // Message Name 0x100E
             new Prop(10, DataFormats.UTF8, 0, 12, fmtDD.None)),                 //   Data
       };
@@ -427,24 +442,24 @@ namespace Modbus_DLL {
       private AttrData[] ccPDM_Addrs = new AttrData[] {
          new AttrData((int)ccPDM.Recall_Message, true, 1, 0,                    // Select Message 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccPDM.Store_Print_Data, true, 1, 0,                  // Store Print Data 0x65
-            new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         //new AttrData((int)ccPDM.Store_Print_Data, true, 1, 0,                  // Store Print Data 0x65
+         //   new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
          new AttrData((int)ccPDM.Delete_Print_Data, true, 1, 0,                 // Delete Print Data 0x67
-            new Prop(2, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
-         new AttrData((int)ccPDM.Print_Data_Name, true, 1, 0,                   // Print Data Name 0x69
-            new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
-         new AttrData((int)ccPDM.List_of_Messages, true, 1, 0,                  // List of Messages 0x6A
             new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
-         new AttrData((int)ccPDM.Print_Data_Number, true, 1, 0,                 // Print Data Number 0x6B
+         new AttrData((int)ccPDM.Message_Name, true, 1, 0,                      // Print Data Name 0x69
+            new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         //new AttrData((int)ccPDM.List_of_Messages, true, 1, 0,                  // List of Messages 0x6A
+         //   new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPDM.Change_Message_Name, true, 1, 0,               // Print Data Number 0x6B
             new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
-         new AttrData((int)ccPDM.Change_Create_Group_Name, true, 1, 0,          // Change Create Group Name 0x6C
-            new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
+         //new AttrData((int)ccPDM.Change_Create_Group_Name, true, 1, 0,          // Change Create Group Name 0x6C
+         //   new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
          new AttrData((int)ccPDM.Group_Deletion, true, 1, 0,                    // Group Deletion 0x6D
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPDM.List_of_Groups, true, 1, 0,                    // List of Groups 0x6F
-            new Prop(500, DataFormats.Bytes, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccPDM.Change_Group_Number, true, 1, 0,               // Change Group Number 0x70
-            new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
+         //new AttrData((int)ccPDM.List_of_Groups, true, 1, 0,                    // List of Groups 0x6F
+         //   new Prop(500, DataFormats.Bytes, 0, 99, fmtDD.None)),               //   Data
+         //new AttrData((int)ccPDM.Change_Group_Number, true, 1, 0,               // Change Group Number 0x70
+         //   new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
       };
 
       // Print_format (Class Code 0x67)
@@ -452,10 +467,10 @@ namespace Modbus_DLL {
          // The first section of data appears only once
          new AttrData((int)ccPF.Message_Name, true, 1, 0,                       // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
-         new AttrData((int)ccPF.Number_Of_Columns, true, 1, 0,                  // Number Of Columns 0x66
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
-         new AttrData((int)ccPF.Format_Type, true, 1, 0,                        // Format Type 0x67
-            new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
+         //new AttrData((int)ccPF.Number_Of_Columns, true, 1, 0,                  // Number Of Columns 0x66
+         //   new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+         //new AttrData((int)ccPF.Format_Type, true, 1, 0,                        // Format Type 0x67
+         //   new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 1, 0, // Number Of Print Line And Print Format 0x1020
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Insert_Column, true, 1, 0, Noz.Current,         // Insert Column 0x1021
@@ -470,10 +485,10 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
-         new AttrData((int)ccPF.Adding_Print_Items, true, 1, 0,                 // Adding Print Items 0x6E
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccPF.Deleting_Print_Items, true, 1, 0,               // Deleting Print Items 0x6F
-            new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
+         //new AttrData((int)ccPF.Adding_Print_Items, true, 1, 0,                 // Adding Print Items 0x6E
+         //   new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         //new AttrData((int)ccPF.Deleting_Print_Items, true, 1, 0,               // Deleting Print Items 0x6F
+         //   new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.InterCharacter_SpaceII, true, 1, 0,             // InterCharacter SpaceII 0x7B
             new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 1, 0,               // Add To End Of String 0x8A
@@ -684,6 +699,27 @@ namespace Modbus_DLL {
          new AttrData((int)ccES.Reset_Usage_Time_Of_Circulation_Control, true, 1, 0, // Reset Usage Time Of Circulation Control 0x6C
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
+
+      // Unit Status (Class Code 0x72) 
+      private AttrData[] ccUS_Addrs = new AttrData[] {
+         new AttrData((int)ccUS.Communication_Status, false, 1, 0,              // Communication Status 0x0000
+            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.OnlineOffline)), //   Data
+         new AttrData((int)ccUS.Receive_Status, false, 1, 0,                    // Receive Status 0x0001
+            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.None)),               //   Data
+         new AttrData((int)ccUS.Operation_Status, false, 1, 0,                  // Operation Status 0x0002
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUS.Warning_Status, false, 1, 0,                    // Warning Status 0x0003
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Data
+         new AttrData((int)ccUS.Analysis_Info_1, false, 1, 0,                   // Analysis Info 1 0x0004
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUS.Analysis_Info_2, false, 1, 0,                   // Analysis Info 2 0x0005
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUS.Analysis_Info_3, false, 1, 0,                   // Analysis Info 3 0x0006
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccUS.Analysis_Info_4, false, 1, 0,                   // Analysis Info 4 0x0007
+            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+      };
+
 
       // Unit_Information (Class Code 0x73)
       private AttrData[] ccUI_Addrs = new AttrData[] {
