@@ -119,7 +119,7 @@ namespace ModBus161 {
       // Retrieve the Message portion of the XML
       private Msg RetrieveMessage() {
          Msg m = new Msg();
-         m.Layout = p.GetHRAttribute(ccPF.Format_Type);
+         m.Layout = p.GetHRAttribute(ccPF.Format_Setup);
          RetrieveRowsColumns(m);
          return m;
       }

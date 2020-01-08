@@ -85,18 +85,6 @@ namespace ModBus161.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("01")]
-        public string Data {
-            get {
-                return ((string)(this["Data"]));
-            }
-            set {
-                this["Data"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool HoldingReg {
             get {
@@ -200,6 +188,42 @@ namespace ModBus161.Properties {
             }
             set {
                 this["AppTemplate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AppSrc {
+            get {
+                return ((int)(this["AppSrc"]));
+            }
+            set {
+                this["AppSrc"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AppDst {
+            get {
+                return ((int)(this["AppDst"]));
+            }
+            set {
+                this["AppDst"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool StopOnErrors {
+            get {
+                return ((bool)(this["StopOnErrors"]));
+            }
+            set {
+                this["StopOnErrors"] = value;
             }
         }
     }

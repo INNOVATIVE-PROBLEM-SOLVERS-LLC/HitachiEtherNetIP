@@ -25,6 +25,7 @@ namespace Modbus_DLL {
 
       // Log I/O buffers with traffic
       public bool LogIOs = true;
+      public bool StopOnAllErrors = true;
 
       // Modbus function codes
       public enum FunctionCode {
@@ -157,7 +158,9 @@ namespace Modbus_DLL {
                successful = bytes >= 8;                   // Need to at least get the packet + devAddr, Function code, and length
                DisplayInput(data, bytes);                 // Display the input returned
             } catch (Exception e) {
-               throw new ModbusException(e.Message);
+               if (StopOnAllErrors) {
+                  throw new ModbusException(e.Message);
+               }
             }
          }
          if (successful) {
@@ -554,6 +557,7 @@ namespace Modbus_DLL {
             typeof(ccUP),    // 0x6B User pattern function
             typeof(ccSR),    // 0x6C Substitution rules function
             typeof(ccES),    // 0x71 Enviroment setting function
+            typeof(ccUS),    // 0x72 Unit Status function
             typeof(ccUI),    // 0x73 Unit Information function
             typeof(ccOM),    // 0x74 Operation management function
             typeof(ccIJP),   // 0x75 IJP operation function
@@ -649,6 +653,19 @@ namespace Modbus_DLL {
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+      }
+
+      // Delete message if it exists
+      public bool DeleteMessage(int n) {
+         int word = (n - 1) / 16;
+         int bit = 15 - (n - 1) % 16;
+         int reg = GetDecAttribute(ccMM.Registration, word);
+         if ((reg & (1 << bit)) > 0) {
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            SetAttribute(ccPDM.Delete_Print_Data, n);
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+         return true;
       }
 
       #endregion

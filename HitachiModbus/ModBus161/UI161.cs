@@ -75,7 +75,6 @@ namespace ModBus161 {
          // Instantiate Modbus printer and register for log events
          p = new Modbus();
          p.Log += Modbus_Log;
-         p.LogIOs = chkLogIO.Checked;
 
          // Get persistant data
          txtIPAddress.Text = prop.IPAddress;
@@ -83,12 +82,12 @@ namespace ModBus161 {
          txtMessageFolder.Text = prop.MessageFolder;
          txtDataAddress.Text = prop.HexAddress;
          txtDataLength.Text = prop.Length;
-         txtData.Text = prop.Data;
          optHoldingRegister.Checked = prop.HoldingReg;
          chkTwinNozzle.Checked = prop.TwinNozzle;
          cbNozzle.SelectedIndex = prop.Nozzle;
          chkHex.Checked = prop.HexData;
          chkLogIO.Checked = prop.LogIO;
+         chkStopOnAllErrors.Checked = prop.StopOnErrors;
 
          // Initialize all dropdowns
          ccNames = Enum.GetNames(typeof(ClassCode));
@@ -104,7 +103,11 @@ namespace ModBus161 {
             cbAppSpreadsheet.SelectedIndex = prop.AppWorksheet;
             cbAppPrimaryKey.SelectedIndex = prop.AppPrimaryKey;
             cbAppTemplate.SelectedIndex = prop.AppTemplate;
+            cbAppMsgSource.SelectedIndex = prop.AppSrc;
+            cbAppMsgDestination.SelectedIndex = prop.AppDst;
          }
+         p.LogIOs = chkLogIO.Checked;
+         p.StopOnAllErrors = chkStopOnAllErrors.Checked;
 
          // Ready to go
          SetButtonEnables();
@@ -120,12 +123,12 @@ namespace ModBus161 {
          prop.MessageFolder = txtMessageFolder.Text;
          prop.HexAddress = txtDataAddress.Text;
          prop.Length = txtDataLength.Text;
-         prop.Data = txtData.Text;
          prop.HoldingReg = optHoldingRegister.Checked;
          prop.TwinNozzle = chkTwinNozzle.Checked;
          prop.Nozzle = cbNozzle.SelectedIndex;
          prop.HexData = chkHex.Checked;
          prop.LogIO = chkLogIO.Checked;
+         prop.StopOnErrors = chkStopOnAllErrors.Checked;
          prop.AppSpreadsheet = txtAppExcel.Text;
          prop.AppWorksheet= cbAppSpreadsheet.SelectedIndex;
          prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
@@ -133,6 +136,8 @@ namespace ModBus161 {
          prop.AppWorksheet = cbAppSpreadsheet.SelectedIndex;
          prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
          prop.AppTemplate = cbAppTemplate.SelectedIndex;
+         prop.AppSrc = cbAppMsgSource.SelectedIndex;
+         prop.AppDst = cbAppMsgDestination.SelectedIndex;
          prop.Save();
       }
 
@@ -408,8 +413,10 @@ namespace ModBus161 {
 
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
+         p.DeleteMessage(5);
+         p.SetAttribute(ccPDR.Recall_Message, 6);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPDR.MessageName, "HELLO WORLD ");
+         p.SetAttribute(ccPDR.MessageName, "TWIN MSG 3  ");
          p.SetAttribute(ccPDR.Message_Number, 5);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          SetButtonEnables();
@@ -765,6 +772,8 @@ namespace ModBus161 {
       // Clean up the current mesage and load new text
       private void cmdAppToPrinter_Click(object sender, EventArgs e) {
          // Cleanup the current display
+         p.DeleteMessage(cbAppMsgDestination.SelectedIndex + 1);
+         p.SetAttribute(ccPDR.Recall_Message, cbAppMsgSource.SelectedIndex + 1);
          if (modbusTextN1.Length > 0) {
             p.Nozzle = 0;
             p.DeleteAllButOne();
@@ -773,12 +782,30 @@ namespace ModBus161 {
             p.SetAttribute(ccPC.Print_Character_String, 0, modbusTextN1);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPDR.MessageName, "TWIN MSG 3  ");
+         p.SetAttribute(ccPDR.Message_Number, cbAppMsgDestination.SelectedIndex + 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         SetButtonEnables();
+
+
          //p.DeleteAllButOne();
          //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          //p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
          //p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
          //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
+
+      // Re-evaluate enables if selection changes
+      private void cbAppMsgSource_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
+      }
+
+      // Re-evaluate enables if selection changes
+      private void cbAppMsgDestination_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
+      }
+
    }
 
 }

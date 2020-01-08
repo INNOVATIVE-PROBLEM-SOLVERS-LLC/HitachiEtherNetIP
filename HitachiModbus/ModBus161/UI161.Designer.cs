@@ -69,8 +69,8 @@
          this.cmdErrorRefresh = new System.Windows.Forms.Button();
          this.cmdErrorClear = new System.Windows.Forms.Button();
          this.lbErrors = new System.Windows.Forms.ListBox();
-         this.tabLog = new System.Windows.Forms.TabPage();
          this.tabApplication = new System.Windows.Forms.TabPage();
+         this.cmdAppQuit = new System.Windows.Forms.Button();
          this.cbAppTemplate = new System.Windows.Forms.ComboBox();
          this.lblAppTemplate = new System.Windows.Forms.Label();
          this.cbAppPrimaryKey = new System.Windows.Forms.ComboBox();
@@ -97,10 +97,11 @@
          this.cmdAppBrowse = new System.Windows.Forms.Button();
          this.txtAppExcel = new System.Windows.Forms.TextBox();
          this.lblAppExcel = new System.Windows.Forms.Label();
-         this.cbMessageDestination = new System.Windows.Forms.ComboBox();
-         this.cbMessageSource = new System.Windows.Forms.ComboBox();
+         this.cbAppMsgDestination = new System.Windows.Forms.ComboBox();
+         this.cbAppMsgSource = new System.Windows.Forms.ComboBox();
          this.lblMessageDestination = new System.Windows.Forms.Label();
          this.lblMsgSource = new System.Windows.Forms.Label();
+         this.tabLog = new System.Windows.Forms.TabPage();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
@@ -127,7 +128,9 @@
          this.cmdShutDown = new System.Windows.Forms.Button();
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
-         this.cmdAppQuit = new System.Windows.Forms.Button();
+         this.chkStopOnAllErrors = new System.Windows.Forms.CheckBox();
+         this.label1 = new System.Windows.Forms.Label();
+         this.txtPrinterStatus = new System.Windows.Forms.TextBox();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -137,8 +140,8 @@
          this.tabXML.SuspendLayout();
          this.tabIndented.SuspendLayout();
          this.tabErrors.SuspendLayout();
-         this.tabLog.SuspendLayout();
          this.tabApplication.SuspendLayout();
+         this.tabLog.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -236,19 +239,19 @@
             this.cmLogClear,
             this.cmLogToNotepad});
          this.cmLog.Name = "cmLog";
-         this.cmLog.Size = new System.Drawing.Size(211, 80);
+         this.cmLog.Size = new System.Drawing.Size(189, 52);
          // 
          // cmLogClear
          // 
          this.cmLogClear.Name = "cmLogClear";
-         this.cmLogClear.Size = new System.Drawing.Size(210, 24);
+         this.cmLogClear.Size = new System.Drawing.Size(188, 24);
          this.cmLogClear.Text = "Clear";
          this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
          // 
          // cmLogToNotepad
          // 
          this.cmLogToNotepad.Name = "cmLogToNotepad";
-         this.cmLogToNotepad.Size = new System.Drawing.Size(210, 24);
+         this.cmLogToNotepad.Size = new System.Drawing.Size(188, 24);
          this.cmLogToNotepad.Text = "Load in NotePad";
          this.cmLogToNotepad.Click += new System.EventHandler(this.cmLogToNotepad_Click);
          // 
@@ -571,16 +574,6 @@
          this.lbErrors.Size = new System.Drawing.Size(737, 308);
          this.lbErrors.TabIndex = 13;
          // 
-         // tabLog
-         // 
-         this.tabLog.Controls.Add(this.lstMessages);
-         this.tabLog.Location = new System.Drawing.Point(4, 25);
-         this.tabLog.Name = "tabLog";
-         this.tabLog.Size = new System.Drawing.Size(768, 393);
-         this.tabLog.TabIndex = 3;
-         this.tabLog.Text = "Log";
-         this.tabLog.UseVisualStyleBackColor = true;
-         // 
          // tabApplication
          // 
          this.tabApplication.Controls.Add(this.cmdAppQuit);
@@ -610,8 +603,8 @@
          this.tabApplication.Controls.Add(this.cmdAppBrowse);
          this.tabApplication.Controls.Add(this.txtAppExcel);
          this.tabApplication.Controls.Add(this.lblAppExcel);
-         this.tabApplication.Controls.Add(this.cbMessageDestination);
-         this.tabApplication.Controls.Add(this.cbMessageSource);
+         this.tabApplication.Controls.Add(this.cbAppMsgDestination);
+         this.tabApplication.Controls.Add(this.cbAppMsgSource);
          this.tabApplication.Controls.Add(this.lblMessageDestination);
          this.tabApplication.Controls.Add(this.lblMsgSource);
          this.tabApplication.Location = new System.Drawing.Point(4, 25);
@@ -620,6 +613,16 @@
          this.tabApplication.TabIndex = 7;
          this.tabApplication.Text = "Application";
          this.tabApplication.UseVisualStyleBackColor = true;
+         // 
+         // cmdAppQuit
+         // 
+         this.cmdAppQuit.Location = new System.Drawing.Point(426, 347);
+         this.cmdAppQuit.Name = "cmdAppQuit";
+         this.cmdAppQuit.Size = new System.Drawing.Size(153, 37);
+         this.cmdAppQuit.TabIndex = 31;
+         this.cmdAppQuit.Text = "Quit Application";
+         this.cmdAppQuit.UseVisualStyleBackColor = true;
+         this.cmdAppQuit.Click += new System.EventHandler(this.cmdAppQuit_Click);
          // 
          // cbAppTemplate
          // 
@@ -848,11 +851,11 @@
          this.lblAppExcel.Text = "Spreadsheet Location";
          this.lblAppExcel.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
-         // cbMessageDestination
+         // cbAppMsgDestination
          // 
-         this.cbMessageDestination.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbMessageDestination.FormattingEnabled = true;
-         this.cbMessageDestination.Items.AddRange(new object[] {
+         this.cbAppMsgDestination.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppMsgDestination.FormattingEnabled = true;
+         this.cbAppMsgDestination.Items.AddRange(new object[] {
             "1",
             "2",
             "3",
@@ -862,16 +865,17 @@
             "7",
             "8",
             "9"});
-         this.cbMessageDestination.Location = new System.Drawing.Point(246, 208);
-         this.cbMessageDestination.Name = "cbMessageDestination";
-         this.cbMessageDestination.Size = new System.Drawing.Size(138, 24);
-         this.cbMessageDestination.TabIndex = 3;
+         this.cbAppMsgDestination.Location = new System.Drawing.Point(246, 208);
+         this.cbAppMsgDestination.Name = "cbAppMsgDestination";
+         this.cbAppMsgDestination.Size = new System.Drawing.Size(138, 24);
+         this.cbAppMsgDestination.TabIndex = 3;
+         this.cbAppMsgDestination.SelectedIndexChanged += new System.EventHandler(this.cbAppMsgDestination_SelectedIndexChanged);
          // 
-         // cbMessageSource
+         // cbAppMsgSource
          // 
-         this.cbMessageSource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbMessageSource.FormattingEnabled = true;
-         this.cbMessageSource.Items.AddRange(new object[] {
+         this.cbAppMsgSource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbAppMsgSource.FormattingEnabled = true;
+         this.cbAppMsgSource.Items.AddRange(new object[] {
             "1",
             "2",
             "3",
@@ -881,10 +885,11 @@
             "7",
             "8",
             "9"});
-         this.cbMessageSource.Location = new System.Drawing.Point(246, 175);
-         this.cbMessageSource.Name = "cbMessageSource";
-         this.cbMessageSource.Size = new System.Drawing.Size(138, 24);
-         this.cbMessageSource.TabIndex = 2;
+         this.cbAppMsgSource.Location = new System.Drawing.Point(246, 175);
+         this.cbAppMsgSource.Name = "cbAppMsgSource";
+         this.cbAppMsgSource.Size = new System.Drawing.Size(138, 24);
+         this.cbAppMsgSource.TabIndex = 2;
+         this.cbAppMsgSource.SelectedIndexChanged += new System.EventHandler(this.cbAppMsgSource_SelectedIndexChanged);
          // 
          // lblMessageDestination
          // 
@@ -903,6 +908,16 @@
          this.lblMsgSource.TabIndex = 0;
          this.lblMsgSource.Text = "Template Source Location";
          this.lblMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // tabLog
+         // 
+         this.tabLog.Controls.Add(this.lstMessages);
+         this.tabLog.Location = new System.Drawing.Point(4, 25);
+         this.tabLog.Name = "tabLog";
+         this.tabLog.Size = new System.Drawing.Size(768, 393);
+         this.tabLog.TabIndex = 3;
+         this.tabLog.Text = "Log";
+         this.tabLog.UseVisualStyleBackColor = true;
          // 
          // cmdRetrieve
          // 
@@ -968,9 +983,8 @@
          // 
          this.txtMessageFolder.Location = new System.Drawing.Point(136, 10);
          this.txtMessageFolder.Name = "txtMessageFolder";
-         this.txtMessageFolder.Size = new System.Drawing.Size(518, 22);
+         this.txtMessageFolder.Size = new System.Drawing.Size(529, 22);
          this.txtMessageFolder.TabIndex = 34;
-         this.txtMessageFolder.Text = "192.168.168.100";
          // 
          // cmdBrowse
          // 
@@ -1084,7 +1098,7 @@
          // 
          // chkTwinNozzle
          // 
-         this.chkTwinNozzle.Location = new System.Drawing.Point(112, 108);
+         this.chkTwinNozzle.Location = new System.Drawing.Point(112, 103);
          this.chkTwinNozzle.Name = "chkTwinNozzle";
          this.chkTwinNozzle.Size = new System.Drawing.Size(140, 20);
          this.chkTwinNozzle.TabIndex = 1;
@@ -1167,21 +1181,41 @@
          this.cmdReset.UseVisualStyleBackColor = false;
          this.cmdReset.Click += new System.EventHandler(this.cmdReset_Click);
          // 
-         // cmdAppQuit
+         // chkStopOnAllErrors
          // 
-         this.cmdAppQuit.Location = new System.Drawing.Point(426, 347);
-         this.cmdAppQuit.Name = "cmdAppQuit";
-         this.cmdAppQuit.Size = new System.Drawing.Size(153, 37);
-         this.cmdAppQuit.TabIndex = 31;
-         this.cmdAppQuit.Text = "Quit Application";
-         this.cmdAppQuit.UseVisualStyleBackColor = true;
-         this.cmdAppQuit.Click += new System.EventHandler(this.cmdAppQuit_Click);
+         this.chkStopOnAllErrors.Location = new System.Drawing.Point(11, 129);
+         this.chkStopOnAllErrors.Name = "chkStopOnAllErrors";
+         this.chkStopOnAllErrors.Size = new System.Drawing.Size(161, 20);
+         this.chkStopOnAllErrors.TabIndex = 53;
+         this.chkStopOnAllErrors.Text = "Stop on All Errors";
+         this.chkStopOnAllErrors.UseVisualStyleBackColor = true;
+         // 
+         // label1
+         // 
+         this.label1.Location = new System.Drawing.Point(255, 130);
+         this.label1.Name = "label1";
+         this.label1.Size = new System.Drawing.Size(109, 22);
+         this.label1.TabIndex = 54;
+         this.label1.Text = "Printer Status";
+         this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // txtPrinterStatus
+         // 
+         this.txtPrinterStatus.Location = new System.Drawing.Point(370, 127);
+         this.txtPrinterStatus.Name = "txtPrinterStatus";
+         this.txtPrinterStatus.ReadOnly = true;
+         this.txtPrinterStatus.Size = new System.Drawing.Size(402, 22);
+         this.txtPrinterStatus.TabIndex = 55;
+         this.txtPrinterStatus.Text = "Unknown";
          // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.txtPrinterStatus);
+         this.Controls.Add(this.label1);
+         this.Controls.Add(this.chkStopOnAllErrors);
          this.Controls.Add(this.cmdGetStatus);
          this.Controls.Add(this.cmdReset);
          this.Controls.Add(this.cmdStartUp);
@@ -1242,9 +1276,9 @@
          this.tabIndented.ResumeLayout(false);
          this.tabIndented.PerformLayout();
          this.tabErrors.ResumeLayout(false);
-         this.tabLog.ResumeLayout(false);
          this.tabApplication.ResumeLayout(false);
          this.tabApplication.PerformLayout();
+         this.tabLog.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -1342,8 +1376,8 @@
       private System.Windows.Forms.Label lblAppParts;
       private System.Windows.Forms.Button cmdAppBrowse;
       private System.Windows.Forms.Label lblAppExcel;
-      private System.Windows.Forms.ComboBox cbMessageDestination;
-      private System.Windows.Forms.ComboBox cbMessageSource;
+      private System.Windows.Forms.ComboBox cbAppMsgDestination;
+      private System.Windows.Forms.ComboBox cbAppMsgSource;
       private System.Windows.Forms.Label lblMessageDestination;
       private System.Windows.Forms.Label lblMsgSource;
       private System.Windows.Forms.Button cmdAppStart;
@@ -1355,6 +1389,9 @@
       private System.Windows.Forms.Label lblAppPrimaryKey;
       private System.Windows.Forms.Label lblAppSpreadsheet;
       private System.Windows.Forms.Button cmdAppQuit;
+      public System.Windows.Forms.CheckBox chkStopOnAllErrors;
+      private System.Windows.Forms.Label label1;
+      public System.Windows.Forms.TextBox txtPrinterStatus;
    }
 }
 
