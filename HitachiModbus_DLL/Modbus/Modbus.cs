@@ -1119,20 +1119,25 @@ namespace Modbus_DLL {
       #endregion
 
    }
+
+   // Modbus exception when something goes wrong
    public class ModbusException : Exception {
 
       public AccessCode AccessCode;
       public ClassCode ClassCode;
       public byte Attribute;
 
+      // Just use the base definition
       public ModbusException() : base() {
 
       }
 
+      // Just use the base definition
       public ModbusException(string message) : base(message) {
 
       }
 
+      // More info but may never need
       public ModbusException(string message, AccessCode AccessCode, ClassCode ClassCode, byte Attribute) : base(message) {
          this.AccessCode = AccessCode;
          this.ClassCode = ClassCode;

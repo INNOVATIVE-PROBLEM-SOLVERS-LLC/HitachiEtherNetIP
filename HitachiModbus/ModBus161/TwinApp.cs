@@ -13,17 +13,26 @@ namespace ModBus161 {
    // Twin Nozzle Application
    public class TwinApp {
 
+      #region Events
+
+      // Event Logging
+      public event LogHandler Log;
+      public delegate void LogHandler(TwinApp sender, string msg);
+
+      #endregion
+
       #region Data Declarations
 
       string fileName;
       public List<string> workSheets;
       public string[][] workSheetVariables;
+      public DataRow CurrentEdbRow = null;
 
       string error;
       OleDbConnection edbConnection = null;
       string[] edbConnectionString = { @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties=Excel 12.0",
                                          @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties=Excel 8.0" };
-      
+
       #endregion
 
       #region Constructors and Destructors
@@ -41,7 +50,7 @@ namespace ModBus161 {
          Access = 1,
          SQLServer = 2
       }
-      // At the moment, Excel is all that is supported
+      // At the moment, Excel is all that is needed
       dbArchitecture architecture = dbArchitecture.Excel;
 
       // Open the database and retrieve worksheet and column information
@@ -72,7 +81,7 @@ namespace ModBus161 {
       }
 
       // Establish the database connection
-      internal static OleDbConnection ConnectToDatabase(dbArchitecture Architecture, string FileName, out string error) {
+      public static OleDbConnection ConnectToDatabase(dbArchitecture Architecture, string FileName, out string error) {
          string[] edbConnectionString = null;
          string ext = Path.GetExtension(FileName).ToUpper();
          switch (Architecture) {
@@ -201,7 +210,7 @@ namespace ModBus161 {
          return result;
       }
 
-      // Get a list of part numbers b ased on worksheet and primary key
+      // Get a list of part numbers based on worksheet and primary key
       public string[] PartNumbers(string worksheet, string primaryKey) {
          string[] result = null;
          string SQL;
@@ -209,7 +218,7 @@ namespace ModBus161 {
             if (edbConnection.State == ConnectionState.Open && worksheet.Length > 0
                 && primaryKey.Length > 0) {
                using (DataTable dt = new DataTable()) {
-                     SQL = $"SELECT DISTINCT A.[{primaryKey}] FROM {TableName(worksheet)} AS A WHERE NOT A.[{primaryKey}] IS NULL";
+                  SQL = $"SELECT DISTINCT A.[{primaryKey}] FROM {TableName(worksheet)} AS A WHERE NOT A.[{primaryKey}] IS NULL";
                   SQL += $" ORDER BY A.[{primaryKey}]";
                   using (OleDbCommand cmd = new OleDbCommand(SQL, edbConnection)) {
                      dt.Load(cmd.ExecuteReader());
@@ -232,6 +241,80 @@ namespace ModBus161 {
             result = $"[{s[0]}].[{s[1]}]";
          } else {
             result = $"[{WorkSheet}]";
+         }
+         return result;
+      }
+
+      // Resolve data values that contain single quote marks
+      public static string QS(string keyValue) {
+         return "'" + keyValue.Replace("'", "''") + "'";
+      }
+
+      // Get the row in the data table that contains this primary key value
+      public bool GetDataRow(string sheetName, string primaryKey, string primaryKeyValue) {
+         CurrentEdbRow = null;
+         using (DataTable dt = new DataTable()) {
+            try {
+               if (edbConnection.State == ConnectionState.Open && primaryKeyValue.Length > 0) {
+                  string SQL = $"SELECT * FROM {TableName(sheetName)} AS A WHERE A.[{primaryKey}] = {QS(primaryKeyValue)}";
+                  OleDbCommand cmd = new OleDbCommand(SQL, edbConnection);
+                  dt.Load(cmd.ExecuteReader());
+                  if (dt.Rows.Count > 0) {
+                     CurrentEdbRow = dt.Rows[0];
+                  }
+               }
+            } catch (Exception e) {
+               error = e.Message;
+               Log?.Invoke(this, $"GetDataRow failed: {e.Message}");
+            }
+         }
+         return CurrentEdbRow != null;
+      }
+
+      // Get the value in a column of the current row
+      public string GetData(string colName) {
+         string result = string.Empty;
+         if (CurrentEdbRow != null) {
+            try {
+               result = CurrentEdbRow[colName].ToString();
+               if (string.IsNullOrEmpty(result)) {
+                  result = string.Empty;
+               }
+            } catch (Exception e) {
+               Log?.Invoke(this, $"GetData failed: {e.Message}");
+            }
+         }
+         return result;
+      }
+
+      // Get the value in a column of the current row
+      public string GetData(int colNumber) {
+         string result = string.Empty;
+         if (CurrentEdbRow != null) {
+            try {
+               result = CurrentEdbRow[colNumber].ToString();
+               if (string.IsNullOrEmpty(result)) {
+                  result = string.Empty;
+               }
+            } catch (Exception e) {
+               Log?.Invoke(this, $"GetData failed: {e.Message}");
+            }
+         }
+         return result;
+      }
+
+      public string ResolveReferences(string templateText) {
+         string result = "";
+         if (templateText.Length > 0) {
+            string[] s = templateText.Split(new string[] { "[" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < s.Length; i++) {
+               int n;
+               if ((n = s[i].IndexOf(']')) >= 0) {
+                  result += GetData(s[i].Substring(0, n)) + s[i].Substring(n + 1);
+               } else {
+                  result += s[i];
+               }
+            }
          }
          return result;
       }
