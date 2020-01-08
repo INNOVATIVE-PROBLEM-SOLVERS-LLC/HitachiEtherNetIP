@@ -22,7 +22,8 @@ namespace ModBus161 {
 
       #region Methods
 
-      public bool SendXML(string xml, bool AutoReflect = true) {
+      // Serialize the XML to a Lab and send it to the printer
+      public bool SendXML(string xml) {
          if (xml.IndexOf("<Label", StringComparison.OrdinalIgnoreCase) < 0) {
             xml = File.ReadAllText(xml);
          }
@@ -36,7 +37,7 @@ namespace ModBus161 {
             using (TextReader reader = new StringReader(xml)) {
                // Deserialize the file contents
                Lab = (Lab)serializer.Deserialize(reader);
-               SendXML(Lab, AutoReflect);
+               SendXML(Lab);
             }
          } catch (Exception e) {
             success = false;
@@ -50,7 +51,8 @@ namespace ModBus161 {
          return success;
       }
 
-      public void SendXML(Lab Lab, bool AutoReflect = true) {
+      // Send a Serialized Lab to the printer
+      public void SendXML(Lab Lab) {
          try {
             if (Lab.Printer != null) {
                for (int i = 0; i < Lab.Printer.Length; i++) {
@@ -133,51 +135,17 @@ namespace ModBus161 {
 
       #region Sent Message to printer
 
+      // Send the message portion of the Lab
       private void SendMessage(Msg m) {
          // Set to only one item in printer
-         DeleteAllButOne();
+         p.DeleteAllButOne();
 
          if (m.Column != null) {
             AllocateRowsColumns(m);
          }
       }
 
-      // Simulate Delete All But One
-      public void DeleteAllButOne() {
-         int lineCount;
-         int n = 0;
-         int cols = 0;
-
-         parent.Log(" \n// Get number of items\n ");
-         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
-
-         parent.Log(" \n// Calculate number of columns\n ");
-         while (n < itemCount) {
-            lineCount = p.GetDecAttribute(ccPF.Line_Count, n);
-            n += lineCount;
-            cols++;
-         }
-
-         parent.Log(" \n// Delete all columns but the first one\n ");
-         for (int i = 0; i < cols - 1; i++) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPF.Delete_Column, cols - i);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         }
-
-         parent.Log(" \n// Set first column to line count of 1 and clear the item\n ");
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Column, 1);
-         p.SetAttribute(ccPF.Line, 1);
-         p.SetAttribute(ccPC.Print_Erasure, 1);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         parent.Log(" \n// Set the format to the smallest size\n ");
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-      }
-
+      // Use the column/item structure of a Lab to allocate items in the printer
       private void AllocateRowsColumns(Msg m) {
          int index = 0;
          bool hasDateOrCount = false; // Save some time if no need to look
@@ -232,11 +200,8 @@ namespace ModBus161 {
          }
       }
 
+      // Send the Calendar and Counter settings
       private void SendDateCount(Msg m) {
-         // Need a combination of sets and gets.  Turn AutoReflection off
-         bool saveAR = UseAutomaticReflection;
-         UseAutomaticReflection = false;
-
          // Get calendar and count blocks assigned by the printer
          parent.Log($" \n// Get number of Calendar and Count blocks used\n ");
          for (int c = 0; c < m.Column.Length; c++) {
@@ -255,7 +220,6 @@ namespace ModBus161 {
          }
 
          // Restore previous AutoReflection to previous state
-         UseAutomaticReflection = saveAR;
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
