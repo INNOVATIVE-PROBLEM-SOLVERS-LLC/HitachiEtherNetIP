@@ -65,6 +65,7 @@ namespace ModBus161 {
                      continue;
                   }
                   p.Nozzle = n;
+                  parent.Log($" \n// Sending Logos for nozzle {n + 1}\n ");
                   if (Lab.Printer[i].Logos != null) {
                      foreach (Logo l in ptr.Logos.Logo) {
                         switch (l.Layout) {
@@ -79,6 +80,7 @@ namespace ModBus161 {
                   }
                   if (n > 0) // Load substitutions associated with nozzle 1 only
                      continue;
+                  parent.Log($" \n// Sending Substitutions for nozzle {n + 1}\n ");
                   SendSubstitutionRules(ptr);
                }
             }
@@ -97,6 +99,7 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
+                     parent.Log($" \n// Sending Message for nozzle {n + 1}\n ");
                      SendMessage(Lab.Message[i]);
                   }
                }
@@ -116,6 +119,7 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
+                     parent.Log($" \n// Sending Printer Settings for nozzle {n + 1}\n ");
                      SendPrinterSettings(Lab.Printer[i]); // Must be done last
                   }
                }
@@ -276,11 +280,11 @@ namespace ModBus161 {
          int calCount = item.Location.calCount;
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
-            if (date.Block <= calCount) {
+            if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber >  0) {
 
                parent.Log($" \n// Load settings for Substitution rule {1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, 0); // date.SubstitutionRule
+               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber); // date.SubstitutionRule
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
@@ -376,36 +380,51 @@ namespace ModBus161 {
                // Process Range
                Range r = c.Range;
                if (r != null) {
-                  p.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
-                  p.SetAttribute(ccCount.Count_Range_2, index, r.Range2);
-                  p.SetAttribute(ccCount.Jump_From, index, r.JumpFrom);
-                  p.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
+                  if (r.Range1 != null)
+                     p.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
+                  if (r.Range2 != null)
+                     p.SetAttribute(ccCount.Count_Range_2, index, r.Range2);
+                  if (r.JumpFrom != null)
+                     p.SetAttribute(ccCount.Jump_From, index, r.JumpFrom);
+                  if (r.JumpTo != null)
+                     p.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
                }
 
                // Process Count
                Count cc = c.Count;
                if (cc != null) {
-                  p.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
-                  p.SetAttribute(ccCount.Increment_Value, index, cc.Increment);
-                  p.SetAttribute(ccCount.Direction_Value, index, cc.Direction);
-                  p.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
+                  if (cc.InitialValue != null)
+                     p.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
+                  if (cc.Increment != null)
+                     p.SetAttribute(ccCount.Increment_Value, index, cc.Increment);
+                  if (cc.Direction != null)
+                     p.SetAttribute(ccCount.Direction_Value, index, cc.Direction);
+                  if (cc.ZeroSuppression != null)
+                     p.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
                }
 
                // Process Reset
                Reset rr = c.Reset;
                if (rr != null) {
-                  p.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
-                  p.SetAttribute(ccCount.Reset_Value, index, rr.Value);
+                  if (rr.Type != null)
+                     p.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
+                  if (rr.Value != null)
+                     p.SetAttribute(ccCount.Reset_Value, index, rr.Value);
                }
 
                // Process Misc
                Misc m = c.Misc;
                if (m != null) {
-                  p.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
-                  p.SetAttribute(ccCount.Update_Unit_Halfway, index, m.UpdateIP);
-                  p.SetAttribute(ccCount.External_Count, index, m.ExternalCount);
-                  p.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
-                  p.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
+                  if (m.UpdateUnit != null)
+                     p.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
+                  if (m.UpdateIP != null)
+                     p.SetAttribute(ccCount.Update_Unit_Halfway, index, m.UpdateIP);
+                  if (m.ExternalCount != null)
+                     p.SetAttribute(ccCount.External_Count, index, m.ExternalCount);
+                  if (m.Multiplier != null)
+                     p.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
+                  if (m.SkipCount != null)
+                     p.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
                }
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }

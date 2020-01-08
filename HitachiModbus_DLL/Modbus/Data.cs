@@ -368,6 +368,7 @@ namespace Modbus_DLL {
       TimeCount = 22,
       OffOn = 23,
       EANRule = 24,
+      RemoteOps = 25,
    }
 
    // Data formats that exist in the printer
@@ -763,8 +764,8 @@ namespace Modbus_DLL {
 
       // IJP_operation (Class Code 0x75)
       private AttrData[] ccIJP_Addrs = new AttrData[] {
-         new AttrData((int)ccIJP.Remote_operation, true, 1, 0,                  // Remote operation information 0x64
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         new AttrData((int)ccIJP.Remote_operation, true, 1, 0,                  // Remote operation information 0x2494
+            new Prop(1, DataFormats.Decimal, 0, 4, fmtDD.RemoteOps)),           //   Data
          new AttrData((int)ccIJP.Fault_and_warning_history, true, 1, 0,         // Fault and warning history 0x66
             new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccIJP.Operating_condition, true, 1, 0,               // Operating condition 0x67
@@ -800,7 +801,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccCount.Increment_Value, true, 8, 148, Noz.Current,  // Increment Value 0x2020
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccCount.Direction_Value, true, 8, 148, Noz.Current,  // Direction Value 0x2021
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.UpDown)),              //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.UpDown)),              //   Data
          new AttrData((int)ccCount.Jump_From, true, 8, 148, Noz.Current,        // Jump From 0x2022
             new Prop(20, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccCount.Jump_To, true, 8, 148, Noz.Current,          // Jump To 0x2036
@@ -1058,6 +1059,8 @@ namespace Modbus_DLL {
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
+         new string[] { "Start", "Stop", "Ready", "Standby", "Clear Fault" },
+                                                                      // 25 - Remote Ops
      };
 
       // Attribute DropDown conversion (IJPLib Names)
@@ -1098,6 +1101,8 @@ namespace Modbus_DLL {
                                                                       // 22 - Time Count renewal period
          new string[] { "Off", "On" },                                // 23 - On/Off for Auto Reflection
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
+         new string[] { "Start", "Stop", "Ready", "Standby", "Clear Fault" },
+                                                                      // 25 - Remote Ops
      };
 
       // Calendar and count
