@@ -127,7 +127,6 @@
          this.cmdShutDown = new System.Windows.Forms.Button();
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
-         this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.cmdAppQuit = new System.Windows.Forms.Button();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
@@ -237,19 +236,19 @@
             this.cmLogClear,
             this.cmLogToNotepad});
          this.cmLog.Name = "cmLog";
-         this.cmLog.Size = new System.Drawing.Size(189, 52);
+         this.cmLog.Size = new System.Drawing.Size(211, 80);
          // 
          // cmLogClear
          // 
          this.cmLogClear.Name = "cmLogClear";
-         this.cmLogClear.Size = new System.Drawing.Size(188, 24);
+         this.cmLogClear.Size = new System.Drawing.Size(210, 24);
          this.cmLogClear.Text = "Clear";
          this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
          // 
          // cmLogToNotepad
          // 
          this.cmLogToNotepad.Name = "cmLogToNotepad";
-         this.cmLogToNotepad.Size = new System.Drawing.Size(188, 24);
+         this.cmLogToNotepad.Size = new System.Drawing.Size(210, 24);
          this.cmLogToNotepad.Text = "Load in NotePad";
          this.cmLogToNotepad.Click += new System.EventHandler(this.cmLogToNotepad_Click);
          // 
@@ -735,6 +734,7 @@
          this.cmdAppToPrinter.TabIndex = 18;
          this.cmdAppToPrinter.Text = "Send To Printer";
          this.cmdAppToPrinter.UseVisualStyleBackColor = true;
+         this.cmdAppToPrinter.Click += new System.EventHandler(this.cmdAppToPrinter_Click);
          // 
          // cmdAppRefresh
          // 
@@ -852,6 +852,16 @@
          // 
          this.cbMessageDestination.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cbMessageDestination.FormattingEnabled = true;
+         this.cbMessageDestination.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"});
          this.cbMessageDestination.Location = new System.Drawing.Point(246, 208);
          this.cbMessageDestination.Name = "cbMessageDestination";
          this.cbMessageDestination.Size = new System.Drawing.Size(138, 24);
@@ -861,6 +871,16 @@
          // 
          this.cbMessageSource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
          this.cbMessageSource.FormattingEnabled = true;
+         this.cbMessageSource.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"});
          this.cbMessageSource.Location = new System.Drawing.Point(246, 175);
          this.cbMessageSource.Name = "cbMessageSource";
          this.cbMessageSource.Size = new System.Drawing.Size(138, 24);
@@ -1147,12 +1167,6 @@
          this.cmdReset.UseVisualStyleBackColor = false;
          this.cmdReset.Click += new System.EventHandler(this.cmdReset_Click);
          // 
-         // contextMenuStrip1
-         // 
-         this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-         this.contextMenuStrip1.Name = "contextMenuStrip1";
-         this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-         // 
          // cmdAppQuit
          // 
          this.cmdAppQuit.Location = new System.Drawing.Point(426, 347);
@@ -1161,6 +1175,7 @@
          this.cmdAppQuit.TabIndex = 31;
          this.cmdAppQuit.Text = "Quit Application";
          this.cmdAppQuit.UseVisualStyleBackColor = true;
+         this.cmdAppQuit.Click += new System.EventHandler(this.cmdAppQuit_Click);
          // 
          // UI161
          // 
@@ -1296,7 +1311,6 @@
       private System.Windows.Forms.Button cmdErrorRefresh;
       private System.Windows.Forms.Button cmdErrorClear;
       private System.Windows.Forms.ListBox lbErrors;
-      private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
       private System.Windows.Forms.TabPage tabGroups;
       private System.Windows.Forms.Button cmdGroupRefresh;
       private System.Windows.Forms.DataGridView dgGroups;

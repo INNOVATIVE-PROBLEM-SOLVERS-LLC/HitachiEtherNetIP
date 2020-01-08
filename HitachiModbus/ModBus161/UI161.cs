@@ -32,6 +32,10 @@ namespace ModBus161 {
       // Single instance of the printer
       private Modbus p;
 
+      // Modbus data to send to each nozzle
+      string modbusTextN1 = string.Empty;
+      string modbusTextN2 = string.Empty;
+
       // Used to manage dropdowns
       private string[] ccNames;
       private string[] ccNamesSorted;
@@ -327,7 +331,12 @@ namespace ModBus161 {
 
       // Clear the task log
       private void cmLogClear_Click(object sender, EventArgs e) {
-         lstMessages.Items.Clear();
+         if (tclViews.SelectedTab == tabLog) {
+            lstMessages.Items.Clear();
+         } else if (tclViews.SelectedTab == tabIndented) {
+            txtIndentedView.Text = string.Empty;
+            tvXML.Nodes.Clear();
+         }
          SetButtonEnables();
       }
 
@@ -507,6 +516,34 @@ namespace ModBus161 {
          SetButtonEnables();
       }
 
+      // resolve the templates
+      private void cbAppParts_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbAppParts.SelectedIndex >= 0) {
+            if (twinApp.GetDataRow(cbAppSpreadsheet.Text, cbAppPrimaryKey.Text, cbAppParts.Text)) {
+               int n = twinApp.CurrentEdbRow.Table.Columns[cbAppTemplate.Text].Ordinal;
+
+               txtAppN1Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n));
+               modbusTextN1 = p.HandleBraces(txtAppN1Readable.Text);
+               txtAppN1Modbus.Text = Readable(modbusTextN1);
+
+               txtAppN2Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n + 1));
+               modbusTextN2 = p.HandleBraces(txtAppN2Readable.Text);
+               txtAppN2Modbus.Text = Readable(modbusTextN2);
+            }
+         }
+
+      }
+
+      // Force template re-evaluation
+      private void cmdAppRefresh_Click(object sender, EventArgs e) {
+         cbAppParts_SelectedIndexChanged(null, null);
+      }
+
+      // All done.  Close it out
+      private void cmdAppQuit_Click(object sender, EventArgs e) {
+         twinApp.Close();
+         twinApp = null;
+      }
       #endregion
 
       #region Service Routines
@@ -567,16 +604,10 @@ namespace ModBus161 {
 
       // Enter a message into the log file display
       public void Log(string msg) {
-         string s = "";
-         for (int i = 0; i < msg.Length;i++) {
-            char c = msg[i];
-            if (c >= 0x100) {
-               s += $"<{c >> 8:X2}><{c & 0xFF:X2}>";
-            } else {
-               s += msg.Substring(i, 1);
-            }
+         while(lstMessages.Items.Count > 1000) {
+            lstMessages.Items.RemoveAt(0);
          }
-         lstMessages.Items.Add(s);
+         lstMessages.Items.Add(Readable(msg));
          lstMessages.SelectedIndex = lstMessages.Items.Count - 1;
          lstMessages.Update();
       }
@@ -685,6 +716,8 @@ namespace ModBus161 {
          int len;
          bool isConnected = p == null ? false : p.IsConnected;
          bool comIsOn = isConnected && p.ComIsOn;
+         bool appIsOpen = twinApp != null;
+
          cmdConnect.Enabled = !isConnected;
          cmdDisconnect.Enabled = isConnected;
          cmdComOff.Enabled = comIsOn;
@@ -720,28 +753,31 @@ namespace ModBus161 {
          cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
 
          cmdAppStart.Enabled = File.Exists(txtAppExcel.Text);
-
+         cmdAppQuit.Enabled = appIsOpen;
+         cbAppSpreadsheet.Enabled = appIsOpen;
+         cbAppPrimaryKey.Enabled = appIsOpen;
+         cbAppTemplate.Enabled = appIsOpen;
+         cbAppParts.Enabled = appIsOpen;
       }
 
       #endregion
 
-      // resolve the templates
-      private void cbAppParts_SelectedIndexChanged(object sender, EventArgs e) {
-         if (cbAppParts.SelectedIndex >= 0) {
-            if (twinApp.GetDataRow(cbAppSpreadsheet.Text, cbAppPrimaryKey.Text, cbAppParts.Text)) {
-               int n = twinApp.CurrentEdbRow.Table.Columns[cbAppTemplate.Text].Ordinal;
-               txtAppN1Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n));
-               txtAppN1Modbus.Text = Readable(p.HandleBraces(txtAppN1Readable.Text));
-               txtAppN2Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n + 1));
-               txtAppN2Modbus.Text = Readable(p.HandleBraces(txtAppN2Readable.Text));
-            }
+      // Clean up the current mesage and load new text
+      private void cmdAppToPrinter_Click(object sender, EventArgs e) {
+         // Cleanup the current display
+         if (modbusTextN1.Length > 0) {
+            p.Nozzle = 0;
+            p.DeleteAllButOne();
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPC.Characters_per_Item, 0, modbusTextN1.Length);
+            p.SetAttribute(ccPC.Print_Character_String, 0, modbusTextN1);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
-
-      }
-
-      // Force template re-evaluation
-      private void cmdAppRefresh_Click(object sender, EventArgs e) {
-         cbAppParts_SelectedIndexChanged(null, null);
+         //p.DeleteAllButOne();
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
+         //p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
    }
 
