@@ -162,7 +162,9 @@ namespace Modbus_DLL {
          }
          if (successful) {
             if ((data[7] & 0x80) > 0) {
-               Log?.Invoke(this, $"Device rejected the request \"{(ErrorCodes)data[8]}\".");
+               string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
+               Log?.Invoke(this, s);
+               throw new ModbusException(s);
             }
          } else {
             Log?.Invoke(this, "Read Failed.");
