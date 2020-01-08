@@ -10,7 +10,6 @@ namespace Modbus_DLL {
    public enum AccessCode {
       Set = 0x32,
       Get = 0x33,
-      Service = 0x34,
    }
 
    // Class codes

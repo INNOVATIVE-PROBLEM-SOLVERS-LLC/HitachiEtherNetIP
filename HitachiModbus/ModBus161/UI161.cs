@@ -665,6 +665,20 @@ namespace ModBus161 {
          return result;
       }
 
+      // Make string readable
+      private string Readable(string msg) {
+         string s = "";
+         for (int i = 0; i < msg.Length; i++) {
+            char c = msg[i];
+            if (c >= 0x100) {
+               s += $"<{c >> 8:X2}><{c & 0xFF:X2}>";
+            } else {
+               s += msg.Substring(i, 1);
+            }
+         }
+         return s;
+      }
+
       // Avoid extra tests by enabling only the buttons that can be used
       private void SetButtonEnables() {
          int addr;
@@ -711,8 +725,23 @@ namespace ModBus161 {
 
       #endregion
 
+      // resolve the templates
       private void cbAppParts_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbAppParts.SelectedIndex >= 0) {
+            if (twinApp.GetDataRow(cbAppSpreadsheet.Text, cbAppPrimaryKey.Text, cbAppParts.Text)) {
+               int n = twinApp.CurrentEdbRow.Table.Columns[cbAppTemplate.Text].Ordinal;
+               txtAppN1Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n));
+               txtAppN1Modbus.Text = Readable(p.HandleBraces(txtAppN1Readable.Text));
+               txtAppN2Readable.Text = twinApp.ResolveReferences(twinApp.GetData(n + 1));
+               txtAppN2Modbus.Text = Readable(p.HandleBraces(txtAppN2Readable.Text));
+            }
+         }
 
+      }
+
+      // Force template re-evaluation
+      private void cmdAppRefresh_Click(object sender, EventArgs e) {
+         cbAppParts_SelectedIndexChanged(null, null);
       }
    }
 
