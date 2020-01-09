@@ -149,7 +149,7 @@ namespace ModBus161 {
       private void cmdConnect_Click(object sender, EventArgs e) {
          p.TwinNozzle = chkTwinNozzle.Checked;
          if (p.Connect(txtIPAddress.Text, txtIPPort.Text)) {
-
+            cmdGetStatus_Click(null, null);
          }
          SetButtonEnables();
       }
@@ -163,24 +163,31 @@ namespace ModBus161 {
       // Turn com on
       private void cmdComOn_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Online_Offline, 1);
+         cmdGetStatus_Click(null, null);
          SetButtonEnables();
       }
 
       // Turn com off
       private void cmdComOff_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Online_Offline, 0);
+         cmdGetStatus_Click(null, null);
          SetButtonEnables();
       }
 
       // Reset alarm
       private void cmdReset_Click(object sender, EventArgs e) {
          p.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.ClearFault);
+         cmdGetStatus_Click(null, null);
          SetButtonEnables();
       }
 
       // Get printer status
       private void cmdGetStatus_Click(object sender, EventArgs e) {
-
+         string comm = Status.TranslateStatus(Status.StatusAreas.Connection, p.GetDecAttribute(ccUS.Communication_Status));
+         string receive = Status.TranslateStatus(Status.StatusAreas.Reception, p.GetDecAttribute(ccUS.Receive_Status));
+         string operation = Status.TranslateStatus(Status.StatusAreas.Operation, p.GetDecAttribute(ccUS.Operation_Status));
+         string warn = Status.TranslateStatus(Status.StatusAreas.Warning, p.GetDecAttribute(ccUS.Warning_Status));
+         txtPrinterStatus.Text = $"{comm}/{receive}/{operation}/{warn}";
          SetButtonEnables();
       }
 
@@ -733,7 +740,7 @@ namespace ModBus161 {
          cmdShutDown.Enabled = comIsOn;
          cmdReady.Enabled = comIsOn;
          cmdStandby.Enabled = comIsOn;
-         cmdGetStatus.Enabled = comIsOn;
+         cmdGetStatus.Enabled = isConnected;
          cmdReset.Enabled = comIsOn;
 
          cmdReadData.Enabled = comIsOn

@@ -107,14 +107,14 @@ namespace Modbus_DLL {
                if (!client.ConnectAsync(ipAddress, ipPort).Wait(1000)) {
                   Log?.Invoke(this, "Connection Failed");
                   client = null;
-                  return false;
-               }
-               stream = client.GetStream();
-               Log?.Invoke(this, "Connection Accepted");
-               int n = GetDecAttribute(ccIJP.Online_Offline);
-               if (!ComIsOn) {
-                  SetAttribute(ccIJP.Online_Offline, 1);
-                  n = GetDecAttribute(ccIJP.Online_Offline);
+               } else {
+                  stream = client.GetStream();
+                  Log?.Invoke(this, "Connection Accepted");
+                  int n = GetDecAttribute(ccIJP.Online_Offline);
+                  if (!ComIsOn) {
+                     SetAttribute(ccIJP.Online_Offline, 1);
+                     n = GetDecAttribute(ccIJP.Online_Offline);
+                  }
                   success = true;
                }
             }
