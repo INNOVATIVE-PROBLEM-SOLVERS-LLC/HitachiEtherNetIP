@@ -724,8 +724,8 @@ namespace Modbus_DLL {
 
       // Unit_Information (Class Code 0x73)
       private AttrData[] ccUI_Addrs = new AttrData[] {
-         new AttrData((int)ccUI.Unit_Information, true, 1, 0,                   // Unit Information 0x64
-            new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccUI.Unit_Information, true, 1, 0,                   // Unit Information 0x64
+         //   new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccUI.Model_Name, false, 1, 0,                        // Model Name 0x6B
             new Prop(16, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccUI.Serial_Number, false, 1, 0,                     // Serial Number 0x6C
@@ -770,10 +770,10 @@ namespace Modbus_DLL {
 
       // Operation_management (Class Code 0x74)
       private AttrData[] ccOM_Addrs = new AttrData[] {
-         new AttrData((int)ccOM.Operating_Management, true, 1, 0,               // Operating Management 0x64
-            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccOM.Communications_Environment, true, 1, 0,         // Communications Environment 0x68
-            new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccOM.Operating_Management, true, 1, 0,               // Operating Management 0x64
+         //   new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccOM.Communications_Environment, true, 1, 0,         // Communications Environment 0x68
+         //   new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccOM.Cumulative_Operation_Time, true, 1, 0,          // Cumulative Operation Time 0x69
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Ink_And_Makeup_Type, true, 1, 0,                // Ink And Makeup Name 0x6A
@@ -802,24 +802,24 @@ namespace Modbus_DLL {
       private AttrData[] ccIJP_Addrs = new AttrData[] {
          new AttrData((int)ccIJP.Remote_operation, true, 1, 0,                  // Remote operation information 0x2494
             new Prop(1, DataFormats.Decimal, 0, 4, fmtDD.RemoteOps)),           //   Data
-         new AttrData((int)ccIJP.Fault_and_warning_history, true, 1, 0,         // Fault and warning history 0x66
-            new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccIJP.Operating_condition, true, 1, 0,               // Operating condition 0x67
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccIJP.Warning_condition, true, 1, 0,                 // Warning condition 0x68
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccIJP.Date_and_time_information, true, 1, 0,         // Date and time information 0x6A
-            new Prop(10, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccIJP.Error_code, true, 1, 0,                        // Error code 0x6B
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccIJP.Start_Remote_Operation, true, 1, 0,            // Start Remote Operation 0x6C
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccIJP.Stop_Remote_Operation, true, 1, 0,             // Stop Remote Operation 0x6D
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccIJP.Deflection_voltage_control, true, 1, 0,        // Deflection voltage control 0x6E
-            new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccIJP.Online_Offline, true, 1, 0,                    // Online Offline 0x2490
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.OnlineOffline)),       //   Data
+         //new AttrData((int)ccIJP.Fault_and_warning_history, true, 1, 0,         // Fault and warning history 0x66
+         //   new Prop(6, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccIJP.Operating_condition, true, 1, 0,               // Operating condition 0x67
+         //   new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         //new AttrData((int)ccIJP.Warning_condition, true, 1, 0,                 // Warning condition 0x68
+         //   new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         //new AttrData((int)ccIJP.Date_and_time_information, true, 1, 0,         // Date and time information 0x6A
+         //   new Prop(10, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccIJP.Error_code, true, 1, 0,                        // Error code 0x6B
+         //   new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+         //new AttrData((int)ccIJP.Start_Remote_Operation, true, 1, 0,            // Start Remote Operation 0x6C
+         //   new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccIJP.Stop_Remote_Operation, true, 1, 0,             // Stop Remote Operation 0x6D
+         //   new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
+         //new AttrData((int)ccIJP.Deflection_voltage_control, true, 1, 0,        // Deflection voltage control 0x6E
+         //   new Prop(0, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
       };
 
       // Count (Class Code 0x79)

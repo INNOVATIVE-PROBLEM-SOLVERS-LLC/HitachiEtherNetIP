@@ -452,9 +452,21 @@ namespace Modbus_DLL {
 
       #region Set Attribute Routines
 
+      // Start of the Start/Stop flag
+      bool SSFlag = false;
+
       // Write to a specific address
       public bool SetAttribute(byte devAddr, int addr, byte[] DataOut) {
          bool Successful = false;
+         //FunctionCode fc;
+         //if (addr == 0) {
+         //   fc = FunctionCode.WriteMultiple;
+         //   SSFlag = DataOut[0] == 1;
+         //} else {
+
+         //   fc = DataOut.Length > 2 ? FunctionCode.WriteMultiple : FunctionCode.WriteSingle;
+         //}
+         //byte[] request = BuildModbusWrite(DataOut.Length > 2 ? FunctionCode.WriteMultiple : FunctionCode.WriteSingle, devAddr, addr, DataOut);
          byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, devAddr, addr, DataOut);
          Task.Delay(50);
          if (Write(request)) {
@@ -1176,6 +1188,8 @@ namespace Modbus_DLL {
 
    }
 
+   #region Modbus Exception Class
+
    // Modbus exception when something goes wrong
    public class ModbusException : Exception {
 
@@ -1201,4 +1215,7 @@ namespace Modbus_DLL {
       }
 
    }
+
+   #endregion
+
 }
