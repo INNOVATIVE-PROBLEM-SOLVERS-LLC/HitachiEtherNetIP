@@ -867,7 +867,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
-            new Prop(1, DataFormats.Decimal, 0, 19, fmtDD.FontType)),           //   Data
+            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
          new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x0014
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
       };
