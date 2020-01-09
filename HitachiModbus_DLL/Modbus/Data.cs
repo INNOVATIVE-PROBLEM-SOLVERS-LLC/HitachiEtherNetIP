@@ -382,6 +382,7 @@ namespace Modbus_DLL {
       OffOn = 23,
       EANRule = 24,
       RemoteOps = 25,
+      ReceiveStatus = 26,
    }
 
    // Data formats that exist in the printer
@@ -705,11 +706,11 @@ namespace Modbus_DLL {
          new AttrData((int)ccUS.Communication_Status, false, 1, 0,              // Communication Status 0x0000
             new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.OnlineOffline)), //   Data
          new AttrData((int)ccUS.Receive_Status, false, 1, 0,                    // Receive Status 0x0001
-            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.None)),               //   Data
+            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.ReceiveStatus)), //   Data
          new AttrData((int)ccUS.Operation_Status, false, 1, 0,                  // Operation Status 0x0002
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Warning_Status, false, 1, 0,                    // Warning Status 0x0003
-            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),               //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Analysis_Info_1, false, 1, 0,                   // Analysis Info 1 0x0004
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Analysis_Info_2, false, 1, 0,                   // Analysis Info 2 0x0005
@@ -719,7 +720,6 @@ namespace Modbus_DLL {
          new AttrData((int)ccUS.Analysis_Info_4, false, 1, 0,                   // Analysis Info 4 0x0007
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
-
 
       // Unit_Information (Class Code 0x73)
       private AttrData[] ccUI_Addrs = new AttrData[] {
@@ -1096,7 +1096,9 @@ namespace Modbus_DLL {
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
          new string[] { "Start", "Stop", "Ready", "Standby", "Clear Fault" },
                                                                       // 25 - Remote Ops
-     };
+         new string[] { "Reception Not Possible", "Reception Possible" },
+                                                                      // 26 - Receive status
+      };
 
       // Attribute DropDown conversion (IJPLib Names)
       static public string[][] DropDownsIJPLib = new string[][] {
@@ -1138,6 +1140,8 @@ namespace Modbus_DLL {
          new string[] { "CharacterInput", "MessageFormat" },          // 24 - EAN Prefix
          new string[] { "Start", "Stop", "Ready", "Standby", "Clear Fault" },
                                                                       // 25 - Remote Ops
+         new string[] { "Reception Not Possible", "Reception Possible" },
+                                                                      // 26 - Receive status
      };
 
       // Calendar and count
