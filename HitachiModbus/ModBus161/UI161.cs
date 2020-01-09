@@ -157,6 +157,7 @@ namespace ModBus161 {
       // Disconnect from the printer
       private void cmdDisconnect_Click(object sender, EventArgs e) {
          p.Disconnect();
+         txtPrinterStatus.Text = "Unknown";
          SetButtonEnables();
       }
 
