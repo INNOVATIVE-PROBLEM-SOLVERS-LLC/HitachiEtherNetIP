@@ -357,7 +357,7 @@ namespace Modbus_DLL {
    // Dropdowns to be used in the display when discrete values are returned.
    public enum fmtDD {
       None = -1,
-      Decimal = 0,
+      //Decimal = 0,
       EnableDisable = 1,
       DisableSpaceChar = 2,
       Hour12_24 = 3,
@@ -505,7 +505,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccPF.InterCharacter_Space, true, 100, 24, Noz.Current, // InterCharacter Space 0x1043
             new Prop(1, DataFormats.Decimal, 0, 26, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Character_Bold, true, 100, 24, Noz.Current,     // Character Bold 0x1044
-            new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.Decimal)),             //   Data
+            new Prop(1, DataFormats.Decimal, 1, 9, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Barcode_Type, true, 100, 24, Noz.Current,       // Barcode Type 0x1045
             new Prop(1, DataFormats.Decimal, 0, 27, fmtDD.BarcodeType)),        //   Data
          new AttrData((int)ccPF.Readable_Code, true, 100, 24, Noz.Current,      // Readable Code 0x1046
@@ -1151,6 +1151,13 @@ namespace Modbus_DLL {
            {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
            {'E', '\uF25B'}, {'F', '\uF25C'} };
 
+      public char[] CalCntChars = new char[] {
+         '\uF25A', '\uF26A', '\uF27A', '\uF250', '\uF260', '\uF270', '\uF251', '\uF261', '\uF271',
+         '\uF252', '\uF262', '\uF272', '\uF253', '\uF263', '\uF273', '\uF254', '\uF264', '\uF274',
+         '\uF255', '\uF265', '\uF275', '\uF256', '\uF266', '\uF276', '\uF257', '\uF267', '\uF277',
+         '\uF258', '\uF268', '\uF278', '\uF259', '\uF269', '\uF279', '\uF25B', '\uF26B', '\uF274',
+         '\uF25C', '\uF26C', '\uF27C',
+      };
       // Half size characters
       public string[,] HalfSize = new string[,]
       { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},

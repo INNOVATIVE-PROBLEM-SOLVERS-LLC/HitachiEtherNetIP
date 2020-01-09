@@ -92,6 +92,7 @@ namespace ModBus161 {
             Label.Message = new Msg[p.NozzleCount];
             Label.Printer = new Printer[p.NozzleCount];
             for (int nozzle = 0; nozzle < p.NozzleCount; nozzle++) {
+               p.Nozzle = nozzle;
                Label.Message[nozzle] = RetrieveMessage();
                Label.Printer[nozzle] = RetrievePrinterSettings();
                Label.Printer[nozzle].Substitution = RetrieveSubstitutions(Label.Message[nozzle]);

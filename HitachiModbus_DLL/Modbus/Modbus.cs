@@ -1017,13 +1017,7 @@ namespace Modbus_DLL {
                result = new byte[s2.Length * width];
                for (int i = 0; i < s2.Length; i++) {
                   char c = s2[i];
-                  bool CalOrCnt = false;
-                  for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
-                     if (M161.CalCnt[j, 1] == c) {
-                        CalOrCnt = true;
-                     }
-                  }
-                  if (CalOrCnt) {
+                  if (Array.FindIndex<Char>(M161.CalCntChars, x => x == c) >= 0) {
                      result[i * width] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
                   } else {
