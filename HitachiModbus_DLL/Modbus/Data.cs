@@ -222,57 +222,58 @@ namespace Modbus_DLL {
 
    // Attributes within Unit Information class 0x73
    public enum ccUI {
-      Unit_Information = 0x64,
+      //Unit_Information = 0x64,
       Model_Name = 0x0010,
       Serial_Number = 0x0020,
-      Ink_Name = 0x6D,
-      Input_Mode = 0x6E,
-      Maximum_Character_Count = 0x6F,
-      Maximum_Registered_Message_Count = 0x70,
+      Ink_Name = 0x0022,
+      Input_Mode = 0x002C,
+      Maximum_Character_Count = 0x002D,
+      Maximum_Registered_Message_Count = 0x002E,
       Barcode_Information = 0x71,
       Usable_Character_Size = 0x72,
-      Maximum_Calendar_And_Count = 0x73,
-      Maximum_Substitution_Rule = 0x74,
-      Shift_Code_And_Time_Count = 0x75,
-      Chimney_And_DIN_Print = 0x76,
-      Maximum_Line_Count = 0x77,
-      Basic_Software_Version = 0x78,
-      Controller_Software_Version = 0x79,
-      Engine_M_Software_Version = 0x7A,
-      Engine_S_Software_Version = 0x7B,
-      First_Language_Version = 0x7C,
-      Second_Language_Version = 0x7D,
-      Software_Option_Version = 0x7E,
+      Maximum_Calendar_And_Count = 0x0031,
+      Maximum_Substitution_Rule = 0x0032,
+      Shift_Code_And_Time_Count = 0x0033,
+      Chimney_And_DIN_Print = 0x0034,
+      Maximum_Line_Count = 0x0035,
+      Basic_Software_Version = 0x0C20,
+      Controller_Software_Version = 0x0C40,
+      Engine_M_Software_Version = 0x0C60,
+      Engine_S_Software_Version = 0x0C80,
+      First_Language_Version = 0x0CA0,
+      Second_Language_Version = 0x0CC0,
+      Software_Option_Version = 0x0CE0,
    }
 
    // Attributes within Operation Management class 0x74
    public enum ccOM {
-      Operating_Management = 0x64,
+      //Operating_Management = 0x64,
       Ink_Operating_Time = 0x25B0,
       Alarm_Time = 0x25B1,
       Print_Count = 0x25B2,
-      Communications_Environment = 0x68,
-      Cumulative_Operation_Time = 0x69,
-      Ink_And_Makeup_Name = 0x6A,
-      Ink_Viscosity = 0x6B,
-      Ink_Pressure = 0x6C,
-      Ambient_Temperature = 0x6D,
-      Deflection_Voltage = 0x6E,
-      Excitation_VRef_Setup_Value = 0x6F,
-      Excitation_Frequency = 0x70,
+      //Communications_Environment = 0x68,
+      Cumulative_Operation_Time = 0x0055,
+      Ink_And_Makeup_Type = 0x6A,
+      Ink_Viscosity = 0x0057,
+      Ink_Pressure = 0x0058,
+      Ambient_Temperature = 0x0059,
+      Deflection_Voltage = 0x005A,
+      Excitation_VRef_Setup_Value = 0x005B,
+      Excitation_Frequency = 0x005C,
    }
 
    // Attributes within IJP Operation class 0x75
    public enum ccIJP {
       Remote_operation = 0x2494,
-      Fault_and_warning_history = 0x66,
-      Operating_condition = 0x67,
-      Warning_condition = 0x68,
-      Date_and_time_information = 0x6A,
-      Error_code = 0x6B,
-      Start_Remote_Operation = 0x6C,
-      Stop_Remote_Operation = 0x6D,
-      Deflection_voltage_control = 0x6E,
+
+      //Fault_and_warning_history = 0x66,
+      //Operating_condition = 0x67,
+      //Warning_condition = 0x68,
+      //Date_and_time_information = 0x6A,
+      //Error_code = 0x6B,
+      //Start_Remote_Operation = 0x6C,
+      //Stop_Remote_Operation = 0x6D,
+      //Deflection_voltage_control = 0x6E,
 
       Online_Offline = 0x2490,
    }
@@ -775,7 +776,7 @@ namespace Modbus_DLL {
             new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccOM.Cumulative_Operation_Time, true, 1, 0,          // Cumulative Operation Time 0x69
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccOM.Ink_And_Makeup_Name, true, 1, 0,                // Ink And Makeup Name 0x6A
+         new AttrData((int)ccOM.Ink_And_Makeup_Type, true, 1, 0,                // Ink And Makeup Name 0x6A
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccOM.Ink_Viscosity, true, 1, 0,                      // Ink Viscosity 0x6B
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
