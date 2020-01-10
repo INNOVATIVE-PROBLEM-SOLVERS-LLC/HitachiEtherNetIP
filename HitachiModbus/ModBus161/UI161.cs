@@ -19,6 +19,9 @@ namespace ModBus161 {
 
       #region Data Declarations
 
+      ResizeInfo R;
+      bool initComplete = false;
+
       Properties.Settings prop = Properties.Settings.Default;
 
       // Nozzle selection for Twin-Nozzle printers
@@ -31,6 +34,9 @@ namespace ModBus161 {
 
       // Single instance of the printer
       private Modbus p;
+
+      // User Pattern
+      UserPattern up;
 
       // Modbus data to send to each nozzle
       string modbusTextN1 = string.Empty;
@@ -64,7 +70,7 @@ namespace ModBus161 {
 
       TwinApp twinApp;
 
-         #endregion
+      #endregion
 
       #region Constructors an destructors
 
@@ -76,6 +82,17 @@ namespace ModBus161 {
          p = new Modbus();
          p.Log += Modbus_Log;
 
+         // Instantiate the user pattern
+         up = new UserPattern(this, p, tabLogo);
+         up.Log += Modbus_Log;
+
+      }
+
+      #endregion
+
+      #region Form Level Events
+
+      private void UI161_Load(object sender, EventArgs e) {
          // Get persistant data
          txtIPAddress.Text = prop.IPAddress;
          txtIPPort.Text = prop.IPPort;
@@ -110,13 +127,13 @@ namespace ModBus161 {
          p.StopOnAllErrors = chkStopOnAllErrors.Checked;
 
          // Ready to go
+         initComplete = true;
+
+         // Center the form on the screen
+         Utils.PositionForm(this, 0.6f, 0.9f);
+
          SetButtonEnables();
       }
-
-      #endregion
-
-      #region Form Level Events
-
       private void UI161_FormClosing(object sender, FormClosingEventArgs e) {
          prop.IPAddress = txtIPAddress.Text;
          prop.IPPort = txtIPPort.Text;
@@ -130,15 +147,149 @@ namespace ModBus161 {
          prop.LogIO = chkLogIO.Checked;
          prop.StopOnErrors = chkStopOnAllErrors.Checked;
          prop.AppSpreadsheet = txtAppExcel.Text;
-         prop.AppWorksheet= cbAppSpreadsheet.SelectedIndex;
+         prop.AppWorksheet = cbAppSpreadsheet.SelectedIndex;
          prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
-         prop.AppTemplate  =cbAppTemplate.SelectedIndex;
+         prop.AppTemplate = cbAppTemplate.SelectedIndex;
          prop.AppWorksheet = cbAppSpreadsheet.SelectedIndex;
          prop.AppPrimaryKey = cbAppPrimaryKey.SelectedIndex;
          prop.AppTemplate = cbAppTemplate.SelectedIndex;
          prop.AppSrc = cbAppMsgSource.SelectedIndex;
          prop.AppDst = cbAppMsgDestination.SelectedIndex;
          prop.Save();
+      }
+
+      private void UI161_Resize(object sender, EventArgs e) {
+         //
+         // Avoid resize before Program Load has run or on screen minimize
+         if (initComplete && ClientRectangle.Height > 0) {
+            //
+            this.SuspendLayout();
+            // Build local parameters
+            R = Utils.InitializeResize(this, 49, 47, true);
+
+            Utils.ResizeObject(ref R, lblMessageFolder, 1, 1, 2, 6);
+            Utils.ResizeObject(ref R, txtMessageFolder, 1, 7, 2, 33);
+            Utils.ResizeObject(ref R, cmdBrowse, 1, 41, 2.5f, 5);
+
+            Utils.ResizeObject(ref R, lblIPAddress, 4, 1, 2, 5);
+            Utils.ResizeObject(ref R, txtIPAddress, 4, 6, 2, 5);
+            Utils.ResizeObject(ref R, lblIPPort, 7, 1, 2, 5);
+            Utils.ResizeObject(ref R, txtIPPort, 7, 6, 2, 5);
+
+            Utils.ResizeObject(ref R, cmdConnect, 4, 12, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdDisconnect, 7, 12, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdComOn, 4, 19, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdComOff, 7, 19, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdReady, 4, 26, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdStandby, 7, 26, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdStartUp, 4, 33, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdShutDown, 7, 33, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdGetStatus, 4, 40, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdReset, 7, 40, 2.5f, 6);
+
+            Utils.ResizeObject(ref R, chkLogIO, 9, 1, 2, 5);
+            Utils.ResizeObject(ref R, chkStopOnAllErrors, 11, 1, 2, 7);
+            Utils.ResizeObject(ref R, chkTwinNozzle, 9, 6, 2, 6);
+            Utils.ResizeObject(ref R, lblPrinterStatus, 10, 14, 2, 6);
+            Utils.ResizeObject(ref R, txtPrinterStatus, 10, 20, 2, 26);
+
+            Utils.ResizeObject(ref R, tclViews, 14, 1, 23, 45);
+            {
+               Utils.ResizeObject(ref R, dgMessages, 1, 1, 16, 43);
+               {
+                  Utils.ResizeObject(ref R, cmdMessageRefresh, 18, 31, 2.5f, 6);
+                  Utils.ResizeObject(ref R, cmdMessageLoad, 18, 38, 2.5f, 6);
+               }
+               Utils.ResizeObject(ref R, dgGroups, 1, 1, 17, 43);
+               {
+                  Utils.ResizeObject(ref R, cmdGroupRefresh, 18, 38, 2.5f, 6);
+               }
+               Utils.ResizeObject(ref R, tvXML, 1, 1, 19, 43);
+               Utils.ResizeObject(ref R, txtIndentedView, 1, 1, 19, 43);
+               Utils.ResizeObject(ref R, lbErrors, 1, 1, 17, 43);
+               {
+                  Utils.ResizeObject(ref R, cmdErrorRefresh, 18, 31, 2.5f, 6);
+                  Utils.ResizeObject(ref R, cmdErrorClear, 18, 38, 2.5f, 6);
+               }
+               Utils.ResizeObject(ref R, lstMessages, 1, 1, 19, 43);
+               // Application Tab
+               {
+                  Utils.ResizeObject(ref R, lblAppExcel, 1, 1, 2, 6);
+                  Utils.ResizeObject(ref R, txtAppExcel, 1, 7, 2, 30);
+                  Utils.ResizeObject(ref R, cmdAppBrowse, 0.5f, 38, 2, 6);
+
+                  Utils.ResizeObject(ref R, lblAppN1Readable, 3.5f, 1, 2, 8);
+                  Utils.ResizeObject(ref R, txtAppN1Readable, 3.5f, 9, 2, 21);
+                  Utils.ResizeObject(ref R, lblAppN1Modbus, 6, 1, 2, 8);
+                  Utils.ResizeObject(ref R, txtAppN1Modbus, 6, 9, 2, 21);
+                  Utils.ResizeObject(ref R, lblAppN2Readable, 8.5f, 1, 2, 8);
+                  Utils.ResizeObject(ref R, txtAppN2Readable, 8.5f, 9, 2, 21);
+                  Utils.ResizeObject(ref R, lblAppN2Modbus, 11, 1, 2, 8);
+                  Utils.ResizeObject(ref R, txtAppN2Modbus, 11, 9, 2, 21);
+
+                  Utils.ResizeObject(ref R, lblAppParts, 16, 1, 2, 8);
+                  Utils.ResizeObject(ref R, cbAppParts, 16, 9, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppAuxA, 16, 15, 2, 6);
+                  Utils.ResizeObject(ref R, txtAppAuxA, 16, 21, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppAuxB, 19, 15, 2, 6);
+                  Utils.ResizeObject(ref R, txtAppAuxB, 19, 21, 2, 6);
+
+                  Utils.ResizeObject(ref R, lblAppSpreadsheet, 3.5f, 32, 2, 6);
+                  Utils.ResizeObject(ref R, cbAppSpreadsheet, 3.5f, 38, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppPrimaryKey, 6, 32, 2, 6);
+                  Utils.ResizeObject(ref R, cbAppPrimaryKey, 6, 38, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppTemplate, 8.5f, 32, 2, 6);
+                  Utils.ResizeObject(ref R, cbAppTemplate, 8.5f, 38, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppMsgSource, 11, 32, 2, 6);
+                  Utils.ResizeObject(ref R, cbAppMsgSource, 11, 38, 2, 6);
+                  Utils.ResizeObject(ref R, lblAppMsgDestination, 13.5f, 32, 2, 6);
+                  Utils.ResizeObject(ref R, cbAppMsgDestination, 13.5f, 38, 2, 6);
+
+                  Utils.ResizeObject(ref R, cmdAppStart, 16, 31, 2, 6);
+                  Utils.ResizeObject(ref R, cmdAppQuit, 18.5f, 31, 2, 6);
+                  Utils.ResizeObject(ref R, cmdAppRefresh, 16, 38, 2, 6);
+                  Utils.ResizeObject(ref R, cmdAppToPrinter, 18.5f, 38, 2, 6);
+               }
+               // Logo Tab
+               up.ResizeControls(ref R, 0, 19, 43);
+
+            }
+
+            Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 5);
+            Utils.ResizeObject(ref R, cbClass, 38, 6, 2, 5);
+            Utils.ResizeObject(ref R, lblAttribute, 40, 1, 2, 5);
+            Utils.ResizeObject(ref R, cbAttribute, 40, 6, 2, 5);
+            Utils.ResizeObject(ref R, lblInstance, 42, 1, 2, 5);
+            Utils.ResizeObject(ref R, cbInstance, 42, 6, 2, 5);
+
+            Utils.ResizeObject(ref R, lblDataAddress, 38, 12, 2, 6);
+            Utils.ResizeObject(ref R, txtDataAddress, 38, 18, 2, 6);
+            Utils.ResizeObject(ref R, lblNozzle, 40, 12, 2, 6);
+            Utils.ResizeObject(ref R, cbNozzle, 40, 18, 2, 6);
+            Utils.ResizeObject(ref R, lblDataLength, 42, 12, 2, 6);
+            Utils.ResizeObject(ref R, txtDataLength, 42, 18, 2, 6);
+            Utils.ResizeObject(ref R, lblData, 44, 12, 2, 6);
+            Utils.ResizeObject(ref R, txtData, 44, 18, 2, 12);
+
+            Utils.ResizeObject(ref R, optHoldingRegister, 38, 25, 2, 6);
+            Utils.ResizeObject(ref R, optInputRegister, 40, 25, 2, 6);
+            Utils.ResizeObject(ref R, chkHex, 42, 25, 2, 6);
+
+            Utils.ResizeObject(ref R, cmdReadData, 38, 31, 2.5f, 6);
+            Utils.ResizeObject(ref R, cmdWriteData, 42, 31, 2.5f, 6);
+
+            Utils.ResizeObject(ref R, cmdRetrieve, 46, 1, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdSaveAs, 46, 7, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdOpen, 46, 13, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdSend, 46, 19, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdReformat, 46, 25, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdExperiment, 46, 31, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdExit, 46, 41, 2.5f, 5);
+
+            //this.Refresh();
+            this.ResumeLayout();
+
+         }
       }
 
       #endregion
@@ -559,6 +710,44 @@ namespace ModBus161 {
          twinApp.Close();
          twinApp = null;
       }
+
+      // Clean up the current mesage and load new text
+      private void cmdAppToPrinter_Click(object sender, EventArgs e) {
+         // Cleanup the current display
+         p.DeleteMessage(cbAppMsgDestination.SelectedIndex + 1);
+         p.SetAttribute(ccPDR.Recall_Message, cbAppMsgSource.SelectedIndex + 1);
+         if (modbusTextN1.Length > 0) {
+            p.Nozzle = 0;
+            p.DeleteAllButOne();
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPC.Characters_per_Item, 0, modbusTextN1.Length);
+            p.SetAttribute(ccPC.Print_Character_String, 0, modbusTextN1);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPDR.MessageName, "TWIN MSG 3  ");
+         p.SetAttribute(ccPDR.Message_Number, cbAppMsgDestination.SelectedIndex + 1);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         SetButtonEnables();
+
+
+         //p.DeleteAllButOne();
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
+         //p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+      }
+
+      // Re-evaluate enables if selection changes
+      private void cbAppMsgSource_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
+      }
+
+      // Re-evaluate enables if selection changes
+      private void cbAppMsgDestination_SelectedIndexChanged(object sender, EventArgs e) {
+         SetButtonEnables();
+      }
+
       #endregion
 
       #region Service Routines
@@ -619,7 +808,7 @@ namespace ModBus161 {
 
       // Enter a message into the log file display
       public void Log(string msg) {
-         while(lstMessages.Items.Count > 1000) {
+         while (lstMessages.Items.Count > 1000) {
             lstMessages.Items.RemoveAt(0);
          }
          lstMessages.Items.Add(Readable(msg));
@@ -628,7 +817,7 @@ namespace ModBus161 {
       }
 
       // Log messages generated by modbus
-      private void Modbus_Log(Modbus sender, string msg) {
+      private void Modbus_Log(object sender, string msg) {
          Log(msg);
       }
 
@@ -773,46 +962,11 @@ namespace ModBus161 {
          cbAppPrimaryKey.Enabled = appIsOpen;
          cbAppTemplate.Enabled = appIsOpen;
          cbAppParts.Enabled = appIsOpen;
+
+         up.SetButtonEnables(comIsOn);
       }
 
       #endregion
-
-      // Clean up the current mesage and load new text
-      private void cmdAppToPrinter_Click(object sender, EventArgs e) {
-         // Cleanup the current display
-         p.DeleteMessage(cbAppMsgDestination.SelectedIndex + 1);
-         p.SetAttribute(ccPDR.Recall_Message, cbAppMsgSource.SelectedIndex + 1);
-         if (modbusTextN1.Length > 0) {
-            p.Nozzle = 0;
-            p.DeleteAllButOne();
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPC.Characters_per_Item, 0, modbusTextN1.Length);
-            p.SetAttribute(ccPC.Print_Character_String, 0, modbusTextN1);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         }
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPDR.MessageName, "TWIN MSG 3  ");
-         p.SetAttribute(ccPDR.Message_Number, cbAppMsgDestination.SelectedIndex + 1);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         SetButtonEnables();
-
-
-         //p.DeleteAllButOne();
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
-         //p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-      }
-
-      // Re-evaluate enables if selection changes
-      private void cbAppMsgSource_SelectedIndexChanged(object sender, EventArgs e) {
-         SetButtonEnables();
-      }
-
-      // Re-evaluate enables if selection changes
-      private void cbAppMsgDestination_SelectedIndexChanged(object sender, EventArgs e) {
-         SetButtonEnables();
-      }
 
    }
 

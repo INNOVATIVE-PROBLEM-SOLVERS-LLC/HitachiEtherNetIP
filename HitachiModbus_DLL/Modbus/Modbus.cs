@@ -14,7 +14,7 @@ namespace Modbus_DLL {
 
       // Event Logging
       public event LogHandler Log;
-      public delegate void LogHandler(Modbus sender, string msg);
+      public delegate void LogHandler(object sender, string msg);
 
       #endregion
 
@@ -52,7 +52,8 @@ namespace Modbus_DLL {
 
       public bool TwinNozzle {
          get { return twinNozzle; }
-         set { twinNozzle = value;
+         set {
+            twinNozzle = value;
             NozzleCount = twinNozzle ? 2 : 1;
          }
       }
@@ -679,6 +680,143 @@ namespace Modbus_DLL {
          }
          return true;
       }
+
+      // Send fixed logo to the printer
+      public bool SendFixedLogo(string DotMatrix, int loc, byte[] logo) {
+         bool result = false;
+         int n = ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
+         if (n >= 0) {
+            result = SendFixedLogo(n, loc, logo);
+         }
+         return result;
+      }
+
+      // Send fixed logo to the printer
+      public bool SendFixedLogo(int DotMatrix, int loc, byte[] logo) {
+         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
+         // Load the logo into the pattern area
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         // Write the registration bit
+         int regLoc = loc / 16;
+         int regBit = 15 - (loc % 16);
+         AttrData attr = GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+         int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
+         regMask |= 1 << regBit;
+
+         // Write the pattern data
+         attr = GetAttrData(ccUP.User_Pattern_Fixed_Data);
+         int addr = attr.Val;
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * (logoLen[DotMatrix] / 2), logo);
+         SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         return true;
+      }
+
+      // Send free logo to the printer
+      public bool SendFreeLogo(int width, int height, int loc, byte[] logo) {
+         bool result = true;
+         if (loc >= 0 && loc < 50
+            && height > 0 && height <= 32
+            && width > 0 && width <= 320
+            && logo.Length > 0) {
+
+            // Set the registration bit
+            int regLoc = loc / 16;
+            int regBit = 15 - (loc % 16);
+            int regMask = GetDecAttribute(ccUP.User_Pattern_Free_Registration, regLoc);
+            regMask |= 1 << regBit;
+
+            // Build the write data
+            int n = (height + 7) / 8;                          // Calculate source height in bytes
+            byte[] data = new byte[(logo.Length + 3) / n * 4];  // Free logos are always 4 bytes per stripe
+            int k = 0;
+            for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
+               for (int j = 0; j < n; j++) {
+                  data[i + j] = logo[k];
+                  k = Math.Min(k + 1, data.Length - 1);
+               }
+            }
+
+            // Write the pattern
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
+            SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
+            SetAttribute(ccUP.User_Pattern_Free_Data, loc, data);
+            SetAttribute(ccUP.User_Pattern_Free_Registration, regLoc, regMask);
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+         return result;
+      }
+
+      // Retrieve Fixed logo
+      public bool GetFixedLogo(string DotMatrix, int loc, out byte[] data) {
+         bool result = false;
+         data = null;
+         int n = ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
+         if (n >= 0) {
+            result = GetFixedLogo(n, loc, out data);
+         }
+         return result;
+      }
+
+
+      // retrieve fixed logo by Dot Matrix 
+      public bool GetFixedLogo(int DotMatrix, int loc, out byte[] data) {
+         bool result = false;
+         data = null;
+         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
+         // Load the logo into the pattern area
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         // Does the registration bit indicate a logo exists?
+         int regLoc = loc / 16;
+         int regBit = 15 - (loc % 16);
+         AttrData attr = GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+         int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
+         if ((regMask & (1 << regBit)) > 0) {
+            data = GetAttribute(ccUP.User_Pattern_Fixed_Data, loc * logoLen[DotMatrix] / 2, logoLen[DotMatrix]);
+            result = true;
+         }
+         return result;
+      }
+
+      // Retrieve free logo
+      public bool GetFreeLogo(int loc, out int Width, out int Height, out byte[] data) {
+         bool result = false;
+         Width = -1;
+         Height = -1;
+         data = null;
+         // Does the registration bit indicate a logo exists?
+         int regLoc = loc / 16;
+         int regBit = 15 - (loc % 16);
+         int regMask = GetDecAttribute(ccUP.User_Pattern_Free_Registration, regLoc);
+         if ((regMask & (1 << regBit)) > 0) {
+            // Fetch the width, height, and full dta pattern
+            Width = GetDecAttribute(ccUP.User_Pattern_Free_Width, loc);
+            Height = GetDecAttribute(ccUP.User_Pattern_Free_Height, loc);
+            AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
+            byte[] logo = GetAttribute(ccUP.User_Pattern_Free_Data, loc, attr.Stride / 2);
+            // Now compact the data back to the real size
+            int n = (Height + 7) / 8;                          // Calculate needed height in bytes
+            data = new byte[n * Width];                        // Get size of the result
+            int k = 0;
+            for (int i = 0; i < Width * 4; i += 4) {           // Pad the data to 4 bytes per stripe
+               for (int j = 0; j < n; j++) {
+                  logo[k] = data[i + j];
+                  k = Math.Min(k + 1, logo.Length - 1);
+               }
+            }
+
+            result = true;
+         }
+         return result;
+      }
+
 
       #endregion
 
