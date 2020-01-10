@@ -99,8 +99,8 @@
          this.lblAppExcel = new System.Windows.Forms.Label();
          this.cbAppMsgDestination = new System.Windows.Forms.ComboBox();
          this.cbAppMsgSource = new System.Windows.Forms.ComboBox();
-         this.lblMessageDestination = new System.Windows.Forms.Label();
-         this.lblMsgSource = new System.Windows.Forms.Label();
+         this.lblAppMsgDestination = new System.Windows.Forms.Label();
+         this.lblAppMsgSource = new System.Windows.Forms.Label();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
@@ -129,8 +129,9 @@
          this.cmdGetStatus = new System.Windows.Forms.Button();
          this.cmdReset = new System.Windows.Forms.Button();
          this.chkStopOnAllErrors = new System.Windows.Forms.CheckBox();
-         this.label1 = new System.Windows.Forms.Label();
+         this.lblPrinterStatus = new System.Windows.Forms.Label();
          this.txtPrinterStatus = new System.Windows.Forms.TextBox();
+         this.tabLogo = new System.Windows.Forms.TabPage();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -367,6 +368,7 @@
          this.tclViews.Controls.Add(this.tabIndented);
          this.tclViews.Controls.Add(this.tabErrors);
          this.tclViews.Controls.Add(this.tabApplication);
+         this.tclViews.Controls.Add(this.tabLogo);
          this.tclViews.Controls.Add(this.tabLog);
          this.tclViews.Location = new System.Drawing.Point(4, 150);
          this.tclViews.Name = "tclViews";
@@ -605,8 +607,8 @@
          this.tabApplication.Controls.Add(this.lblAppExcel);
          this.tabApplication.Controls.Add(this.cbAppMsgDestination);
          this.tabApplication.Controls.Add(this.cbAppMsgSource);
-         this.tabApplication.Controls.Add(this.lblMessageDestination);
-         this.tabApplication.Controls.Add(this.lblMsgSource);
+         this.tabApplication.Controls.Add(this.lblAppMsgDestination);
+         this.tabApplication.Controls.Add(this.lblAppMsgSource);
          this.tabApplication.Location = new System.Drawing.Point(4, 25);
          this.tabApplication.Name = "tabApplication";
          this.tabApplication.Size = new System.Drawing.Size(768, 393);
@@ -891,23 +893,23 @@
          this.cbAppMsgSource.TabIndex = 2;
          this.cbAppMsgSource.SelectedIndexChanged += new System.EventHandler(this.cbAppMsgSource_SelectedIndexChanged);
          // 
-         // lblMessageDestination
+         // lblAppMsgDestination
          // 
-         this.lblMessageDestination.Location = new System.Drawing.Point(17, 208);
-         this.lblMessageDestination.Name = "lblMessageDestination";
-         this.lblMessageDestination.Size = new System.Drawing.Size(223, 18);
-         this.lblMessageDestination.TabIndex = 1;
-         this.lblMessageDestination.Text = "Template Destination Location";
-         this.lblMessageDestination.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         this.lblAppMsgDestination.Location = new System.Drawing.Point(17, 208);
+         this.lblAppMsgDestination.Name = "lblAppMsgDestination";
+         this.lblAppMsgDestination.Size = new System.Drawing.Size(223, 18);
+         this.lblAppMsgDestination.TabIndex = 1;
+         this.lblAppMsgDestination.Text = "Template Destination";
+         this.lblAppMsgDestination.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
-         // lblMsgSource
+         // lblAppMsgSource
          // 
-         this.lblMsgSource.Location = new System.Drawing.Point(17, 175);
-         this.lblMsgSource.Name = "lblMsgSource";
-         this.lblMsgSource.Size = new System.Drawing.Size(223, 18);
-         this.lblMsgSource.TabIndex = 0;
-         this.lblMsgSource.Text = "Template Source Location";
-         this.lblMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         this.lblAppMsgSource.Location = new System.Drawing.Point(17, 175);
+         this.lblAppMsgSource.Name = "lblAppMsgSource";
+         this.lblAppMsgSource.Size = new System.Drawing.Size(223, 18);
+         this.lblAppMsgSource.TabIndex = 0;
+         this.lblAppMsgSource.Text = "Template Source";
+         this.lblAppMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // tabLog
          // 
@@ -1071,7 +1073,7 @@
          this.lblNozzle.Size = new System.Drawing.Size(87, 28);
          this.lblNozzle.TabIndex = 43;
          this.lblNozzle.Text = "Nozzle";
-         this.lblNozzle.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+         this.lblNozzle.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // cbNozzle
          // 
@@ -1190,14 +1192,14 @@
          this.chkStopOnAllErrors.Text = "Stop on All Errors";
          this.chkStopOnAllErrors.UseVisualStyleBackColor = true;
          // 
-         // label1
+         // lblPrinterStatus
          // 
-         this.label1.Location = new System.Drawing.Point(255, 130);
-         this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(109, 22);
-         this.label1.TabIndex = 54;
-         this.label1.Text = "Printer Status";
-         this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         this.lblPrinterStatus.Location = new System.Drawing.Point(255, 130);
+         this.lblPrinterStatus.Name = "lblPrinterStatus";
+         this.lblPrinterStatus.Size = new System.Drawing.Size(109, 22);
+         this.lblPrinterStatus.TabIndex = 54;
+         this.lblPrinterStatus.Text = "Printer Status";
+         this.lblPrinterStatus.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // txtPrinterStatus
          // 
@@ -1208,13 +1210,22 @@
          this.txtPrinterStatus.TabIndex = 55;
          this.txtPrinterStatus.Text = "Unknown";
          // 
+         // tabLogo
+         // 
+         this.tabLogo.Location = new System.Drawing.Point(4, 25);
+         this.tabLogo.Name = "tabLogo";
+         this.tabLogo.Size = new System.Drawing.Size(768, 393);
+         this.tabLogo.TabIndex = 8;
+         this.tabLogo.Text = "Logo";
+         this.tabLogo.UseVisualStyleBackColor = true;
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
          this.Controls.Add(this.txtPrinterStatus);
-         this.Controls.Add(this.label1);
+         this.Controls.Add(this.lblPrinterStatus);
          this.Controls.Add(this.chkStopOnAllErrors);
          this.Controls.Add(this.cmdGetStatus);
          this.Controls.Add(this.cmdReset);
@@ -1266,6 +1277,8 @@
          this.Name = "UI161";
          this.Text = "Modbus for Hitachi UX Model 161 Printer";
          this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI161_FormClosing);
+         this.Load += new System.EventHandler(this.UI161_Load);
+         this.Resize += new System.EventHandler(this.UI161_Resize);
          this.cmLog.ResumeLayout(false);
          this.tclViews.ResumeLayout(false);
          this.tabMessages.ResumeLayout(false);
@@ -1378,8 +1391,8 @@
       private System.Windows.Forms.Label lblAppExcel;
       private System.Windows.Forms.ComboBox cbAppMsgDestination;
       private System.Windows.Forms.ComboBox cbAppMsgSource;
-      private System.Windows.Forms.Label lblMessageDestination;
-      private System.Windows.Forms.Label lblMsgSource;
+      private System.Windows.Forms.Label lblAppMsgDestination;
+      private System.Windows.Forms.Label lblAppMsgSource;
       private System.Windows.Forms.Button cmdAppStart;
       public System.Windows.Forms.TextBox txtAppExcel;
       private System.Windows.Forms.ComboBox cbAppTemplate;
@@ -1390,8 +1403,9 @@
       private System.Windows.Forms.Label lblAppSpreadsheet;
       private System.Windows.Forms.Button cmdAppQuit;
       public System.Windows.Forms.CheckBox chkStopOnAllErrors;
-      private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.Label lblPrinterStatus;
       public System.Windows.Forms.TextBox txtPrinterStatus;
+      private System.Windows.Forms.TabPage tabLogo;
    }
 }
 

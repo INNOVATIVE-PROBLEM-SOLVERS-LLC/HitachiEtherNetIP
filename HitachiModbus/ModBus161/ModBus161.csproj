@@ -63,6 +63,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserPattern.cs" />
+    <Compile Include="Utils.cs" />
     <EmbeddedResource Include="UI161.resx">
       <DependentUpon>UI161.cs</DependentUpon>
     </EmbeddedResource>

@@ -1123,7 +1123,7 @@ namespace Modbus_DLL {
          new string[] { "Edit Message", "Print Format" },             // 12 - Edit/Print
          new string[] { "OneDayAgo", "None" },                        // 13 - From Yesterday/Today
          new string[] { "Size4x5", "Size5x5", "Size5x7", "Size9x7", "Size7x10", "Size10x12", "Size12x16", "Size18x24",
-                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney"  },
+                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney", "Size30x40", "Size36x48"  },
                                                                       // 14 - Font Types
          new string[] { "Normal_Forward", "Normal_Backward",
                         "Reverse_Forward", "Reverse_Forward",},       // 15 - Orientation
