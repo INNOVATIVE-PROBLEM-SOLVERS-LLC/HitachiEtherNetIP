@@ -226,11 +226,14 @@ namespace Modbus_DLL {
       }
 
       // Build a Modbus write packet and include the data
-      private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, byte[] data) {
-         byte[] r = BuildModbusWrite(fc, DevAddr, addr, data.Length); // Get a buffer without data
-         int n = r.Length - data.Length;                              // Calculate location where data will be placed
-         for (int i = 0; i < data.Length; i++) {                      // Step thru the input buffer
-            r[n + i] = data[i];                                       // move the data to the end of the buffer
+      private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, byte[] data, int start = 0, int len = -1) {
+         if (len == -1) {
+            len = data.Length;
+         }
+         byte[] r = BuildModbusWrite(fc, DevAddr, addr, len);         // Get a buffer without data
+         int n = r.Length - len;                                      // Calculate location where data will be placed
+         for (int i = 0; i < len; i++) {                              // Step thru the input buffer
+            r[n + i] = data[start + i];                               // move the data to the end of the buffer
          }
          return r;
       }
@@ -460,22 +463,10 @@ namespace Modbus_DLL {
 
       #region Set Attribute Routines
 
-      // Start of the Start/Stop flag
-      bool SSFlag = false;
-
       // Write to a specific address
-      public bool SetAttribute(byte devAddr, int addr, byte[] DataOut) {
+      public bool SetAttribute(byte devAddr, int addr, byte[] DataOut, int start = 0, int len = -1) {
          bool Successful = false;
-         //FunctionCode fc;
-         //if (addr == 0) {
-         //   fc = FunctionCode.WriteMultiple;
-         //   SSFlag = DataOut[0] == 1;
-         //} else {
-
-         //   fc = DataOut.Length > 2 ? FunctionCode.WriteMultiple : FunctionCode.WriteSingle;
-         //}
-         //byte[] request = BuildModbusWrite(DataOut.Length > 2 ? FunctionCode.WriteMultiple : FunctionCode.WriteSingle, devAddr, addr, DataOut);
-         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, devAddr, addr, DataOut);
+         byte[] request = BuildModbusWrite(FunctionCode.WriteMultiple, devAddr, addr, DataOut, start, len);
          Task.Delay(50);
          if (Write(request)) {
             if (Read(out byte[] data, out int bytesRead)) {
@@ -486,8 +477,8 @@ namespace Modbus_DLL {
       }
 
       // Write to a specific address
-      public bool SetAttribute(AttrData attr, int offset, byte[] DataOut) {
-         return SetAttribute(GetDevAdd(attr), attr.Val + offset, DataOut);
+      public bool SetAttribute(AttrData attr, int offset, byte[] DataOut, int start = 0, int len = -1) {
+         return SetAttribute(GetDevAdd(attr), attr.Val + offset, DataOut, start, len);
       }
 
       // Set one attribute based on the Data Property
@@ -552,11 +543,11 @@ namespace Modbus_DLL {
       }
 
       // Set one indexed attribute based on the Data Property
-      public bool SetAttribute<T>(T Attribute, int n, byte[] data) where T : Enum {
+      public bool SetAttribute<T>(T Attribute, int n, byte[] data, int start = 0, int len = -1) where T : Enum {
          bool success = true;
          AttrData attr = GetAttrData(Attribute);
          //AutomaticReflect(AccessCode.Set);
-         success = SetAttribute(attr, attr.Stride * n, data);
+         success = SetAttribute(attr, attr.Stride * n, data, start, len);
          Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] {GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]");
          if (LogIOs)
             Log?.Invoke(this, " ");
@@ -725,7 +716,9 @@ namespace Modbus_DLL {
             }
             // Write the pattern data
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            SetAttribute(ccUP.User_Pattern_Fixed_Data, (loc + n) * stride / 2, data);
+            for (int k = 0; k < data.Length; k += LogoMaxSizeIO) {
+               SetAttribute(ccUP.User_Pattern_Fixed_Data, (loc + n) * stride / 2 + k, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
+            }
             SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             n++;
@@ -754,7 +747,7 @@ namespace Modbus_DLL {
                SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                n = 0;
                while (n < oldWidth * 4) {
-                  SetAttribute(ccUP.User_Pattern_Free_Data, (loc * Modbus.FreeLogoSize) + n, blank);
+                  SetAttribute(ccUP.User_Pattern_Free_Data, (loc * FreeLogoSize) + n, blank);
                   n += LogoMaxSizeIO;
                }
                SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
@@ -762,23 +755,28 @@ namespace Modbus_DLL {
             regMask |= 1 << regBit;
 
             // Build the write data
-            n = (height + 7) / 8;                          // Calculate source height in bytes
+            n = (height + 7) / 8;                                   // Calculate source height in bytes
             byte[] data = new byte[(logo.Length + n - 1) / n * 4];  // Free logos are always 4 bytes per stripe
             int k = 0;
-            for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
+            for (int i = 0; i < data.Length; i += 4) {              // Pad the data to 4 bytes per stripe
                for (int j = 0; j < n; j++) {
                   data[i + j] = logo[k];
                   k = Math.Min(k + 1, logo.Length - 1);
                }
             }
-
+            // Send the logo 
+            for (int i = 0; i < data.Length; i += LogoMaxSizeIO) {
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               SetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize + i, data, i, Math.Min(LogoMaxSizeIO, data.Length - i));
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
             // Write the pattern
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
             SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
-            SetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize, data);
             SetAttribute(ccUP.User_Pattern_Free_Registration, regLoc, regMask);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
          }
 
          return result;
@@ -794,7 +792,6 @@ namespace Modbus_DLL {
          }
          return result;
       }
-
 
       // retrieve fixed logo by Dot Matrix 
       public bool GetFixedLogo(int DotMatrix, int loc, out byte[] data) {
@@ -833,8 +830,13 @@ namespace Modbus_DLL {
             // Fetch the width, height, and full dta pattern
             Width = GetDecAttribute(ccUP.User_Pattern_Free_Width, loc);
             Height = GetDecAttribute(ccUP.User_Pattern_Free_Height, loc);
+            logo = new byte[Width * 4];
             AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
-            logo = GetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize, Width * 4);
+            // Bring it in at 128 bytes (32x32 section) at a time
+            for (int i = 0; i < Width * 4; i += LogoMaxSizeIO) {
+               byte[] part = GetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize + i, Math.Min(Width * 4 - i, LogoMaxSizeIO));
+               Array.Copy(part, 0, logo, i, part.Length);
+            }
             // Now compact the data back to the real size
             int n = (Height + 7) / 8;                          // Calculate needed height in bytes
             data = new byte[n * Width];                        // Get size of the result
