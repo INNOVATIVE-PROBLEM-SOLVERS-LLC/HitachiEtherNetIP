@@ -20,6 +20,13 @@ namespace Modbus_DLL {
 
       #region Data Declarations
 
+      // Repeat interval for free logos
+      public const int FreeLogoSize = 642;
+
+      // I/O buffer size for read/write of logos (32 x 32 bitmap)
+      public const int LogoMaxSizeIO = 128;
+
+
       // Choose between IJPLib names and EtherNet/IP names
       private bool UseIJPLibNames = true;
 
@@ -698,26 +705,39 @@ namespace Modbus_DLL {
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         // Write the registration bit
-         int regLoc = loc / 16;
-         int regBit = 15 - (loc % 16);
-         AttrData attr = GetAttrData(ccUP.User_Pattern_Fixed_Registration);
-         int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
-         regMask |= 1 << regBit;
-
-         // Write the pattern data
-         attr = GetAttrData(ccUP.User_Pattern_Fixed_Data);
-         int addr = attr.Val;
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * (logoLen[DotMatrix] / 2), logo);
-         SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         // There may be many characters to send at once
+         int n = 0;
+         int i = 0;
+         int stride = logoLen[DotMatrix];
+         byte[] data = new byte[stride];
+         while (i < logo.Length) {
+            // Write the registration bit
+            int regLoc = (loc + n) / 16;
+            int regBit = 15 - ((loc + n) % 16);
+            int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
+            regMask |= 1 << regBit;
+            for (int j = 0; j < Math.Min(stride, logo.Length - i); j++) {
+               if ((i + j) < logo.Length) {
+                  data[j] = logo[i + j];
+               } else {
+                  data[j] = 0;
+               }
+            }
+            // Write the pattern data
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            SetAttribute(ccUP.User_Pattern_Fixed_Data, (loc + n) * stride / 2, data);
+            SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            n++;
+            i += stride;
+         }
          return true;
       }
 
       // Send free logo to the printer
       public bool SendFreeLogo(int width, int height, int loc, byte[] logo) {
          bool result = true;
+         int n;
          if (loc >= 0 && loc < 50
             && height > 0 && height <= 32
             && width > 0 && width <= 320
@@ -727,16 +747,28 @@ namespace Modbus_DLL {
             int regLoc = loc / 16;
             int regBit = 15 - (loc % 16);
             int regMask = GetDecAttribute(ccUP.User_Pattern_Free_Registration, regLoc);
+            // Have to delete the old image if one exists
+            if ((regMask & (1 << regBit)) > 0) {
+               int oldWidth = GetDecAttribute(ccUP.User_Pattern_Free_Width, loc);
+               byte[] blank = new byte[Math.Min(oldWidth * 4, LogoMaxSizeIO)];
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               n = 0;
+               while (n < oldWidth * 4) {
+                  SetAttribute(ccUP.User_Pattern_Free_Data, (loc * Modbus.FreeLogoSize) + n, blank);
+                  n += LogoMaxSizeIO;
+               }
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            }
             regMask |= 1 << regBit;
 
             // Build the write data
-            int n = (height + 7) / 8;                          // Calculate source height in bytes
-            byte[] data = new byte[(logo.Length + 3) / n * 4];  // Free logos are always 4 bytes per stripe
+            n = (height + 7) / 8;                          // Calculate source height in bytes
+            byte[] data = new byte[(logo.Length + n - 1) / n * 4];  // Free logos are always 4 bytes per stripe
             int k = 0;
             for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
                for (int j = 0; j < n; j++) {
                   data[i + j] = logo[k];
-                  k = Math.Min(k + 1, data.Length - 1);
+                  k = Math.Min(k + 1, logo.Length - 1);
                }
             }
 
@@ -744,10 +776,11 @@ namespace Modbus_DLL {
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
             SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
-            SetAttribute(ccUP.User_Pattern_Free_Data, loc, data);
+            SetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize, data);
             SetAttribute(ccUP.User_Pattern_Free_Registration, regLoc, regMask);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
+
          return result;
       }
 
@@ -791,6 +824,7 @@ namespace Modbus_DLL {
          Width = -1;
          Height = -1;
          data = null;
+         byte[] logo;
          // Does the registration bit indicate a logo exists?
          int regLoc = loc / 16;
          int regBit = 15 - (loc % 16);
@@ -800,14 +834,14 @@ namespace Modbus_DLL {
             Width = GetDecAttribute(ccUP.User_Pattern_Free_Width, loc);
             Height = GetDecAttribute(ccUP.User_Pattern_Free_Height, loc);
             AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
-            byte[] logo = GetAttribute(ccUP.User_Pattern_Free_Data, loc, attr.Stride / 2);
+            logo = GetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize, Width * 4);
             // Now compact the data back to the real size
             int n = (Height + 7) / 8;                          // Calculate needed height in bytes
             data = new byte[n * Width];                        // Get size of the result
             int k = 0;
             for (int i = 0; i < Width * 4; i += 4) {           // Pad the data to 4 bytes per stripe
                for (int j = 0; j < n; j++) {
-                  logo[k] = data[i + j];
+                  data[k] = logo[i + j];
                   k = Math.Min(k + 1, logo.Length - 1);
                }
             }

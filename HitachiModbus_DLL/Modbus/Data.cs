@@ -628,11 +628,11 @@ namespace Modbus_DLL {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 1, 4,     // User Pattern Free Registration 0x6500
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Height, true, 1, 642,         // User Pattern Free Height 0x6510
+         new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, // User Pattern Free Height 0x6510
             new Prop(1, DataFormats.Decimal, 0, 32, fmtDD.None)),               //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Width, true, 1, 642,          // User Pattern Free Width 0x6511
+         new AttrData((int)ccUP.User_Pattern_Free_Width, true, 50, Modbus.FreeLogoSize, // User Pattern Free Width 0x6511
             new Prop(2, DataFormats.Decimal, 0, 320, fmtDD.None)),              //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Data, true, 1, 642,           // User Pattern Free Data 0x6512
+         new AttrData((int)ccUP.User_Pattern_Free_Data, true, 50 * Modbus.FreeLogoSize, 1, // User Pattern Free Data 0x6512
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
