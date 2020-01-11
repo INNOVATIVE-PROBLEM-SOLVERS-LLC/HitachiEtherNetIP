@@ -469,34 +469,12 @@ namespace ModBus161 {
             && int.TryParse(l.Width, out int width) && width <= 320
             && l.RawData.Length > 0) {
 
-            parent.Log($" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
-
-            // Set the registration bit
-            int regLoc = loc / 16;
-            int regBit = 15 - (loc % 16);
-            int regMask = p.GetDecAttribute(ccUP.User_Pattern_Free_Registration, regLoc);
-            regMask |= 1 << regBit;
-
-            // Build the write data
-            int n = (height + 7) / 8;                          // Calculate source height in bytes
             byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
-            byte[] data = new byte[(rawdata.Length / n) * 4];  // Free logos are always 4 bytes per stripe
-            int k = 0;
-            for (int i = 0; i < data.Length; i += 4) {         // Pad the data to 4 bytes per stripe
-               for (int j = 0; j < n; j++) {
-                  data[i + j] = rawdata[k];
-                  k = Math.Min(k + 1, data.Length - 1);
-               }
+            if (p.SendFreeLogo(width, height, loc, rawdata)) {
+               parent.Log($" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
+            } else {
+               parent.Log($" \n// Failed to set {width}x{height} Free Logo to  location {loc}\n ");
             }
-
-            // Write the pattern
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
-            p.SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
-            p.SetAttribute(ccUP.User_Pattern_Free_Data, loc, data);
-            p.SetAttribute(ccUP.User_Pattern_Free_Registration, regLoc, regMask);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
          }
       }
 

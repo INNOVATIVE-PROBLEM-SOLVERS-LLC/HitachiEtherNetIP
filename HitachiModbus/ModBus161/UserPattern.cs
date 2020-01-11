@@ -334,38 +334,47 @@ namespace ModBus161 {
       private void UpGet_Click(object sender, EventArgs e) {
          bool Success = false;
          int bytesPerCharacter = (charHeight + 7) / 8 * charWidth;
-
          CleanUpGrid();
-         // Build the blank image
-         stripes = new long[Count][];
-         for (int i = 0; i < stripes.Length; i++) {
-            stripes[i] = new long[charWidth];
-         }
-         bmGrid = StripesToBitMap(stripes);
-         BitMapToImage();
-
          byte[] data = null;
-         for (int i = 0; i <= Count; i++) {
-            if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
+         if ((Layout)cbLayout.SelectedIndex == Layout.Free) {
+            // Get the image
+            Success = MB.GetFreeLogo(Registration, out charWidth, out charHeight, out data);
+            ignoreChange = true;
+            cbFontRows.Text = charHeight.ToString();
+            cbIcsCols.Text = charWidth.ToString();
+            ignoreChange = false;
+            stripes = new long[1][];
+            stripes[0] = new long[charWidth];
+            stripes[0] = BytesToStripe(charHeight, data);
+            bmGrid = StripesToBitMap(stripes);
+            BitMapToImage();
+         } else {
+            // Build the blank image
+            stripes = new long[Count][];
+            for (int i = 0; i < stripes.Length; i++) {
+               stripes[i] = new long[charWidth];
+            }
+            bmGrid = StripesToBitMap(stripes);
+            BitMapToImage();
+
+            for (int i = 0; i < Count; i++) {
                Success = MB.GetFixedLogo(dotMatrixCode, Registration + i, out data);
-            } else {
-               Success = MB.GetFreeLogo(Registration + i, out charWidth, out charHeight, out data);
-            }
-            if (Success) {
-               if (data.Length == bytesPerCharacter) {
-                  stripes[i] = BytesToStripe(charHeight, data);
-                  bmGrid = StripesToBitMap(stripes);
-                  BitMapToImage();
-                  grpGrid.Invalidate();
+               if (Success) {
+                  if (data.Length == bytesPerCharacter) {
+                     stripes[i] = BytesToStripe(charHeight, data);
+                     bmGrid = StripesToBitMap(stripes);
+                     BitMapToImage();
+                     grpGrid.Invalidate();
+                  }
+               } else {
+                  Log?.Invoke(this, "User Pattern Upload Failed.  Aborting Upload!");
+                  break;
                }
-            } else {
-               Log?.Invoke(this, "User Pattern Upload Failed.  Aborting Upload!");
-               break;
             }
+            // Build the real image
+            bmGrid = StripesToBitMap(stripes);
+            BitMapToImage();
          }
-         // Build the real image
-         bmGrid = StripesToBitMap(stripes);
-         BitMapToImage();
          SetButtonEnables(ComIsOn);
       }
 
@@ -542,6 +551,7 @@ namespace ModBus161 {
 
                cbUpCount.Items.Clear();
                cbUpCount.Items.AddRange(new string[] { "1" });
+               cbUpCount.SelectedIndex = 0;
 
                cbUpPosition.Items.Clear();
                for (int i = 0; i < 50; i++) {
