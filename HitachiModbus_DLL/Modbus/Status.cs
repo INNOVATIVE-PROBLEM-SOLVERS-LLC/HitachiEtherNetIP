@@ -12,7 +12,11 @@ namespace Modbus_DLL {
          Connection = 0,
          Reception = 1,
          Operation = 2,
-         Warning = 3
+         Warning = 3,
+         Analysis1 = 4,
+         Analysis2 = 5,
+         Analysis3 = 6,
+         Analysis4 = 7,
       }
 
       static public string TranslateStatus(StatusAreas Area, int Value) {
@@ -123,6 +127,52 @@ namespace Modbus_DLL {
          new Stat(StatusAreas.Warning, '\x4c', "Upgrade-Key Fault"),
          new Stat(StatusAreas.Warning, '\x50', "Circulation System Cooling Fan Fault"),
          new Stat(StatusAreas.Warning, '\x51', "Ink Tempurature Too High"),
+
+         new Stat(StatusAreas.Analysis1, '\x10', "Write on Holding Register"),
+         new Stat(StatusAreas.Analysis1, '\x06', "Write one word on Holding Register"),
+         new Stat(StatusAreas.Analysis1, '\x03', "Read Holding Register"),
+         new Stat(StatusAreas.Analysis1, '\x04', "Read Input Register"),
+         new Stat(StatusAreas.Analysis1, '\x00', "None"),
+
+         new Stat(StatusAreas.Analysis2, '\x00', "None"),
+         new Stat(StatusAreas.Analysis2, '\x01', "Index"),
+         new Stat(StatusAreas.Analysis2, '\x02', "Print description"),
+         new Stat(StatusAreas.Analysis2, '\x03', "Delete of Print contents"),
+         new Stat(StatusAreas.Analysis2, '\x04', "Print data Recall"),
+         new Stat(StatusAreas.Analysis2, '\x05', "Print data Register"),
+         new Stat(StatusAreas.Analysis2, '\x06', "Print format"),
+         new Stat(StatusAreas.Analysis2, '\x07', "Print specification"),
+         new Stat(StatusAreas.Analysis2, '\x08', "Calendar conditions"),
+         new Stat(StatusAreas.Analysis2, '\x09', "Substitution rules"),
+         new Stat(StatusAreas.Analysis2, '\x0A', "Time count"),
+         new Stat(StatusAreas.Analysis2, '\x0B', "Shift code"),
+         new Stat(StatusAreas.Analysis2, '\x0C', "Count conditions"),
+         new Stat(StatusAreas.Analysis2, '\x0D', "Various print setup"),
+         new Stat(StatusAreas.Analysis2, '\x0E', "Online/Offline"),
+         new Stat(StatusAreas.Analysis2, '\x0F', "Remote operation"),
+         new Stat(StatusAreas.Analysis2, '\x10', "Time control"),
+         new Stat(StatusAreas.Analysis2, '\x11', "User environment setup (Preparation for future)"),
+         new Stat(StatusAreas.Analysis2, '\x12', "Touch screen setup"),
+         new Stat(StatusAreas.Analysis2, '\x14', "Operation management"),
+         new Stat(StatusAreas.Analysis2, '\x15', "Circulation control"),
+         new Stat(StatusAreas.Analysis2, '\x16', "Print data management"),
+         new Stat(StatusAreas.Analysis2, '\x17', "Group control"),
+         new Stat(StatusAreas.Analysis2, '\x18', "Editing Substitution rules"),
+         new Stat(StatusAreas.Analysis2, '\x1A', "Print job control (Preparation for future)"),
+         new Stat(StatusAreas.Analysis2, '\x1B', "User pattern (Fixed size)"),
+         new Stat(StatusAreas.Analysis2, '\x0C', "User pattern (Free size)"),
+
+         new Stat(StatusAreas.Analysis3, '\x00', "None"),
+         new Stat(StatusAreas.Analysis3, '\x01', "Invalid Function code"),
+         new Stat(StatusAreas.Analysis3, '\x02', "Invalid Address"),
+         new Stat(StatusAreas.Analysis3, '\x03', "Invalid Data size"),
+         new Stat(StatusAreas.Analysis3, '\x04', "Invalid CRC code"),
+         new Stat(StatusAreas.Analysis3, '\x05', "Invalid Offline"),
+         new Stat(StatusAreas.Analysis3, '\x06', "Invalid Message repeat print"),
+         new Stat(StatusAreas.Analysis3, '\x07', "Communication is NOT allowed when Ink ejection is stopped"),
+         new Stat(StatusAreas.Analysis3, '\x10', "Invalid data"),
+
+         new Stat(StatusAreas.Analysis4, '\x00', "Fixed"),
       };
 
    }
