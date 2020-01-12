@@ -715,10 +715,12 @@ namespace Modbus_DLL {
                }
             }
             // Write the pattern data
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             for (int k = 0; k < data.Length; k += LogoMaxSizeIO) {
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                SetAttribute(ccUP.User_Pattern_Fixed_Data, (loc + n) * stride / 2 + k, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
+               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
+            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             n++;

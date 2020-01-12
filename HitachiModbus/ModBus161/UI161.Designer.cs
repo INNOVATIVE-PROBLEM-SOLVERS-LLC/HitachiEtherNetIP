@@ -50,6 +50,12 @@
          this.optInputRegister = new System.Windows.Forms.RadioButton();
          this.tclViews = new System.Windows.Forms.TabControl();
          this.tabMessages = new System.Windows.Forms.TabPage();
+         this.cbMessageNumber = new System.Windows.Forms.ComboBox();
+         this.txtMessageName = new System.Windows.Forms.TextBox();
+         this.lblMessageNumber = new System.Windows.Forms.Label();
+         this.lblMessageName = new System.Windows.Forms.Label();
+         this.cmdMessageAdd = new System.Windows.Forms.Button();
+         this.cmdMessageDelete = new System.Windows.Forms.Button();
          this.cmdMessageLoad = new System.Windows.Forms.Button();
          this.cmdMessageRefresh = new System.Windows.Forms.Button();
          this.dgMessages = new System.Windows.Forms.DataGridView();
@@ -101,6 +107,7 @@
          this.cbAppMsgSource = new System.Windows.Forms.ComboBox();
          this.lblAppMsgDestination = new System.Windows.Forms.Label();
          this.lblAppMsgSource = new System.Windows.Forms.Label();
+         this.tabLogo = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
@@ -131,7 +138,8 @@
          this.chkStopOnAllErrors = new System.Windows.Forms.CheckBox();
          this.lblPrinterStatus = new System.Windows.Forms.Label();
          this.txtPrinterStatus = new System.Windows.Forms.TextBox();
-         this.tabLogo = new System.Windows.Forms.TabPage();
+         this.txtAnalysis = new System.Windows.Forms.TextBox();
+         this.lblAnalysis = new System.Windows.Forms.Label();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -330,6 +338,7 @@
          this.txtData.Name = "txtData";
          this.txtData.Size = new System.Drawing.Size(222, 22);
          this.txtData.TabIndex = 24;
+         this.txtData.Leave += new System.EventHandler(this.Data_Leave);
          // 
          // lblData
          // 
@@ -378,6 +387,12 @@
          // 
          // tabMessages
          // 
+         this.tabMessages.Controls.Add(this.cbMessageNumber);
+         this.tabMessages.Controls.Add(this.txtMessageName);
+         this.tabMessages.Controls.Add(this.lblMessageNumber);
+         this.tabMessages.Controls.Add(this.lblMessageName);
+         this.tabMessages.Controls.Add(this.cmdMessageAdd);
+         this.tabMessages.Controls.Add(this.cmdMessageDelete);
          this.tabMessages.Controls.Add(this.cmdMessageLoad);
          this.tabMessages.Controls.Add(this.cmdMessageRefresh);
          this.tabMessages.Controls.Add(this.dgMessages);
@@ -388,11 +403,68 @@
          this.tabMessages.Text = "Messages";
          this.tabMessages.UseVisualStyleBackColor = true;
          // 
+         // cbMessageNumber
+         // 
+         this.cbMessageNumber.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbMessageNumber.FormattingEnabled = true;
+         this.cbMessageNumber.Location = new System.Drawing.Point(150, 363);
+         this.cbMessageNumber.Name = "cbMessageNumber";
+         this.cbMessageNumber.Size = new System.Drawing.Size(138, 24);
+         this.cbMessageNumber.TabIndex = 17;
+         this.cbMessageNumber.SelectedIndexChanged += new System.EventHandler(this.Data_Leave);
+         // 
+         // txtMessageName
+         // 
+         this.txtMessageName.Location = new System.Drawing.Point(152, 335);
+         this.txtMessageName.Name = "txtMessageName";
+         this.txtMessageName.Size = new System.Drawing.Size(166, 22);
+         this.txtMessageName.TabIndex = 16;
+         this.txtMessageName.Text = "(Name)";
+         this.txtMessageName.Leave += new System.EventHandler(this.Data_Leave);
+         // 
+         // lblMessageNumber
+         // 
+         this.lblMessageNumber.Location = new System.Drawing.Point(21, 360);
+         this.lblMessageNumber.Name = "lblMessageNumber";
+         this.lblMessageNumber.Size = new System.Drawing.Size(107, 22);
+         this.lblMessageNumber.TabIndex = 15;
+         this.lblMessageNumber.Text = "Msg Number";
+         this.lblMessageNumber.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // lblMessageName
+         // 
+         this.lblMessageName.Location = new System.Drawing.Point(21, 338);
+         this.lblMessageName.Name = "lblMessageName";
+         this.lblMessageName.Size = new System.Drawing.Size(107, 22);
+         this.lblMessageName.TabIndex = 14;
+         this.lblMessageName.Text = "Name";
+         this.lblMessageName.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cmdMessageAdd
+         // 
+         this.cmdMessageAdd.Location = new System.Drawing.Point(342, 338);
+         this.cmdMessageAdd.Name = "cmdMessageAdd";
+         this.cmdMessageAdd.Size = new System.Drawing.Size(96, 40);
+         this.cmdMessageAdd.TabIndex = 13;
+         this.cmdMessageAdd.Text = "Add";
+         this.cmdMessageAdd.UseVisualStyleBackColor = true;
+         this.cmdMessageAdd.Click += new System.EventHandler(this.cmdMessageAdd_Click);
+         // 
+         // cmdMessageDelete
+         // 
+         this.cmdMessageDelete.Location = new System.Drawing.Point(444, 338);
+         this.cmdMessageDelete.Name = "cmdMessageDelete";
+         this.cmdMessageDelete.Size = new System.Drawing.Size(96, 40);
+         this.cmdMessageDelete.TabIndex = 12;
+         this.cmdMessageDelete.Text = "Delete";
+         this.cmdMessageDelete.UseVisualStyleBackColor = true;
+         this.cmdMessageDelete.Click += new System.EventHandler(this.cmdMessageDelete_Click);
+         // 
          // cmdMessageLoad
          // 
-         this.cmdMessageLoad.Location = new System.Drawing.Point(478, 339);
+         this.cmdMessageLoad.Location = new System.Drawing.Point(546, 338);
          this.cmdMessageLoad.Name = "cmdMessageLoad";
-         this.cmdMessageLoad.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageLoad.Size = new System.Drawing.Size(96, 40);
          this.cmdMessageLoad.TabIndex = 11;
          this.cmdMessageLoad.Text = "Load";
          this.cmdMessageLoad.UseVisualStyleBackColor = true;
@@ -400,9 +472,9 @@
          // 
          // cmdMessageRefresh
          // 
-         this.cmdMessageRefresh.Location = new System.Drawing.Point(617, 339);
+         this.cmdMessageRefresh.Location = new System.Drawing.Point(648, 338);
          this.cmdMessageRefresh.Name = "cmdMessageRefresh";
-         this.cmdMessageRefresh.Size = new System.Drawing.Size(127, 40);
+         this.cmdMessageRefresh.Size = new System.Drawing.Size(96, 40);
          this.cmdMessageRefresh.TabIndex = 10;
          this.cmdMessageRefresh.Text = "Refresh";
          this.cmdMessageRefresh.UseVisualStyleBackColor = true;
@@ -911,6 +983,15 @@
          this.lblAppMsgSource.Text = "Template Source";
          this.lblAppMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
+         // tabLogo
+         // 
+         this.tabLogo.Location = new System.Drawing.Point(4, 25);
+         this.tabLogo.Name = "tabLogo";
+         this.tabLogo.Size = new System.Drawing.Size(768, 393);
+         this.tabLogo.TabIndex = 8;
+         this.tabLogo.Text = "Logo";
+         this.tabLogo.UseVisualStyleBackColor = true;
+         // 
          // tabLog
          // 
          this.tabLog.Controls.Add(this.lstMessages);
@@ -1187,14 +1268,14 @@
          // 
          this.chkStopOnAllErrors.Location = new System.Drawing.Point(11, 129);
          this.chkStopOnAllErrors.Name = "chkStopOnAllErrors";
-         this.chkStopOnAllErrors.Size = new System.Drawing.Size(161, 20);
+         this.chkStopOnAllErrors.Size = new System.Drawing.Size(144, 20);
          this.chkStopOnAllErrors.TabIndex = 53;
          this.chkStopOnAllErrors.Text = "Stop on All Errors";
          this.chkStopOnAllErrors.UseVisualStyleBackColor = true;
          // 
          // lblPrinterStatus
          // 
-         this.lblPrinterStatus.Location = new System.Drawing.Point(255, 130);
+         this.lblPrinterStatus.Location = new System.Drawing.Point(161, 129);
          this.lblPrinterStatus.Name = "lblPrinterStatus";
          this.lblPrinterStatus.Size = new System.Drawing.Size(109, 22);
          this.lblPrinterStatus.TabIndex = 54;
@@ -1203,27 +1284,38 @@
          // 
          // txtPrinterStatus
          // 
-         this.txtPrinterStatus.Location = new System.Drawing.Point(370, 127);
+         this.txtPrinterStatus.Location = new System.Drawing.Point(276, 127);
          this.txtPrinterStatus.Name = "txtPrinterStatus";
          this.txtPrinterStatus.ReadOnly = true;
-         this.txtPrinterStatus.Size = new System.Drawing.Size(402, 22);
+         this.txtPrinterStatus.Size = new System.Drawing.Size(87, 22);
          this.txtPrinterStatus.TabIndex = 55;
          this.txtPrinterStatus.Text = "Unknown";
          // 
-         // tabLogo
+         // txtAnalysis
          // 
-         this.tabLogo.Location = new System.Drawing.Point(4, 25);
-         this.tabLogo.Name = "tabLogo";
-         this.tabLogo.Size = new System.Drawing.Size(768, 393);
-         this.tabLogo.TabIndex = 8;
-         this.tabLogo.Text = "Logo";
-         this.tabLogo.UseVisualStyleBackColor = true;
+         this.txtAnalysis.Location = new System.Drawing.Point(504, 127);
+         this.txtAnalysis.Name = "txtAnalysis";
+         this.txtAnalysis.ReadOnly = true;
+         this.txtAnalysis.Size = new System.Drawing.Size(87, 22);
+         this.txtAnalysis.TabIndex = 57;
+         this.txtAnalysis.Text = "Unknown";
+         // 
+         // lblAnalysis
+         // 
+         this.lblAnalysis.Location = new System.Drawing.Point(389, 129);
+         this.lblAnalysis.Name = "lblAnalysis";
+         this.lblAnalysis.Size = new System.Drawing.Size(109, 22);
+         this.lblAnalysis.TabIndex = 56;
+         this.lblAnalysis.Text = "Analysis";
+         this.lblAnalysis.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.txtAnalysis);
+         this.Controls.Add(this.lblAnalysis);
          this.Controls.Add(this.txtPrinterStatus);
          this.Controls.Add(this.lblPrinterStatus);
          this.Controls.Add(this.chkStopOnAllErrors);
@@ -1282,6 +1374,7 @@
          this.cmLog.ResumeLayout(false);
          this.tclViews.ResumeLayout(false);
          this.tabMessages.ResumeLayout(false);
+         this.tabMessages.PerformLayout();
          ((System.ComponentModel.ISupportInitialize)(this.dgMessages)).EndInit();
          this.tabGroups.ResumeLayout(false);
          ((System.ComponentModel.ISupportInitialize)(this.dgGroups)).EndInit();
@@ -1406,6 +1499,14 @@
       private System.Windows.Forms.Label lblPrinterStatus;
       public System.Windows.Forms.TextBox txtPrinterStatus;
       private System.Windows.Forms.TabPage tabLogo;
+      public System.Windows.Forms.TextBox txtAnalysis;
+      private System.Windows.Forms.Label lblAnalysis;
+      private System.Windows.Forms.ComboBox cbMessageNumber;
+      public System.Windows.Forms.TextBox txtMessageName;
+      private System.Windows.Forms.Label lblMessageNumber;
+      private System.Windows.Forms.Label lblMessageName;
+      private System.Windows.Forms.Button cmdMessageAdd;
+      private System.Windows.Forms.Button cmdMessageDelete;
    }
 }
 

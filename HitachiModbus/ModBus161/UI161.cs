@@ -126,6 +126,11 @@ namespace ModBus161 {
          p.LogIOs = chkLogIO.Checked;
          p.StopOnAllErrors = chkStopOnAllErrors.Checked;
 
+         cbMessageNumber.Items.Clear();
+         for (int i = 1; i <= 48; i++) {
+            cbMessageNumber.Items.Add(i.ToString());
+         }
+
          // Ready to go
          initComplete = true;
 
@@ -134,6 +139,7 @@ namespace ModBus161 {
 
          SetButtonEnables();
       }
+
       private void UI161_FormClosing(object sender, FormClosingEventArgs e) {
          prop.IPAddress = txtIPAddress.Text;
          prop.IPPort = txtIPPort.Text;
@@ -192,13 +198,22 @@ namespace ModBus161 {
             Utils.ResizeObject(ref R, chkTwinNozzle, 9, 6, 2, 6);
             Utils.ResizeObject(ref R, lblPrinterStatus, 10, 14, 2, 6);
             Utils.ResizeObject(ref R, txtPrinterStatus, 10, 20, 2, 26);
+            Utils.ResizeObject(ref R, lblAnalysis, 12, 14, 2, 6);
+            Utils.ResizeObject(ref R, txtAnalysis, 12, 20, 2, 26);
 
             Utils.ResizeObject(ref R, tclViews, 14, 1, 23, 45);
             {
                Utils.ResizeObject(ref R, dgMessages, 1, 1, 16, 43);
                {
-                  Utils.ResizeObject(ref R, cmdMessageRefresh, 18, 31, 2.5f, 6);
-                  Utils.ResizeObject(ref R, cmdMessageLoad, 18, 38, 2.5f, 6);
+                  Utils.ResizeObject(ref R, lblMessageName, 17.5f, 1, 2, 5);
+                  Utils.ResizeObject(ref R, txtMessageName, 17.5f, 6, 2, 10);
+                  Utils.ResizeObject(ref R, lblMessageNumber, 19.5f, 1, 2, 5);
+                  Utils.ResizeObject(ref R, cbMessageNumber, 19.5f, 6, 2, 5);
+
+                  Utils.ResizeObject(ref R, cmdMessageAdd, 18, 21, 2.5f, 5);
+                  Utils.ResizeObject(ref R, cmdMessageDelete, 18, 27, 2.5f, 5);
+                  Utils.ResizeObject(ref R, cmdMessageRefresh, 18, 33, 2.5f, 5);
+                  Utils.ResizeObject(ref R, cmdMessageLoad, 18, 39, 2.5f, 5);
                }
                Utils.ResizeObject(ref R, dgGroups, 1, 1, 17, 43);
                {
@@ -251,7 +266,7 @@ namespace ModBus161 {
                   Utils.ResizeObject(ref R, cmdAppToPrinter, 18.5f, 38, 2, 6);
                }
                // Logo Tab
-               up.ResizeControls(ref R, 0, 19, 43);
+               up.ResizeControls(ref R, 0, 20, 44);
 
             }
 
@@ -309,6 +324,7 @@ namespace ModBus161 {
       private void cmdDisconnect_Click(object sender, EventArgs e) {
          p.Disconnect();
          txtPrinterStatus.Text = "Unknown";
+         txtAnalysis.Text = "Unknown";
          SetButtonEnables();
       }
 
@@ -339,7 +355,12 @@ namespace ModBus161 {
          string receive = Status.TranslateStatus(Status.StatusAreas.Reception, p.GetDecAttribute(ccUS.Receive_Status));
          string operation = Status.TranslateStatus(Status.StatusAreas.Operation, p.GetDecAttribute(ccUS.Operation_Status));
          string warn = Status.TranslateStatus(Status.StatusAreas.Warning, p.GetDecAttribute(ccUS.Warning_Status));
+         string a1 = Status.TranslateStatus(Status.StatusAreas.Analysis1, p.GetDecAttribute(ccUS.Analysis_Info_1));
+         string a2 = Status.TranslateStatus(Status.StatusAreas.Analysis2, p.GetDecAttribute(ccUS.Analysis_Info_2));
+         string a3 = Status.TranslateStatus(Status.StatusAreas.Analysis3, p.GetDecAttribute(ccUS.Analysis_Info_3));
+         string a4 = Status.TranslateStatus(Status.StatusAreas.Analysis4, p.GetDecAttribute(ccUS.Analysis_Info_4));
          txtPrinterStatus.Text = $"{comm}/{receive}/{operation}/{warn}";
+         txtAnalysis.Text = $"{a1}/{a2}/{a3}/{a4}";
          SetButtonEnables();
       }
 
@@ -604,6 +625,26 @@ namespace ModBus161 {
          }
       }
 
+      // Add a message to the printer's directory
+      private void cmdMessageAdd_Click(object sender, EventArgs e) {
+         int msgNumber = int.Parse(cbMessageNumber.Text);
+         string msgName = txtMessageName.Text.PadRight(12);
+         p.DeleteMessage(msgNumber);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPDR.MessageName, msgName);
+         p.SetAttribute(ccPDR.Message_Number, msgNumber);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         SetButtonEnables();
+      }
+
+      // Delete a message from the printer's directory
+      private void cmdMessageDelete_Click(object sender, EventArgs e) {
+         int msgNumber = int.Parse((string)dgMessages.SelectedRows[0].Cells["colMessage"].Value);
+         p.DeleteMessage(msgNumber);
+         dgMessages.Rows.Remove(dgMessages.SelectedRows[0]);
+         SetButtonEnables();
+      }
+
       // Get all messages from the printer and display them in a data view
       private void cmdMessageRefresh_Click(object sender, EventArgs e) {
          string[] s = new string[3];
@@ -637,6 +678,11 @@ namespace ModBus161 {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             SetButtonEnables();
          }
+      }
+
+      // Re-evaluate enables when leaving
+      private void Data_Leave(object sender, EventArgs e) {
+         SetButtonEnables();
       }
 
       #endregion
@@ -953,8 +999,13 @@ namespace ModBus161 {
          cmdErrorClear.Enabled = false; // comIsOn;
 
          cmdGroupRefresh.Enabled = comIsOn;
+
+         cmdMessageAdd.Enabled = comIsOn && cbMessageNumber.SelectedIndex >= 0 && txtMessageName.Text.Length > 0;
+         cmdMessageDelete.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
          cmdMessageRefresh.Enabled = comIsOn;
          cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
+         cmdMessageAdd.Enabled = false;
+         cmdMessageDelete.Enabled = false;
 
          cmdAppStart.Enabled = File.Exists(txtAppExcel.Text);
          cmdAppQuit.Enabled = appIsOpen;
@@ -967,7 +1018,6 @@ namespace ModBus161 {
       }
 
       #endregion
-
    }
 
 }

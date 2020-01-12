@@ -212,34 +212,34 @@ namespace ModBus161 {
 
          Utils.ResizeObject(ref R, UpControls, GroupStart + 0.75f, 0.5f, GroupHeight, GroupWidth - 0.5f);
          {
-            Utils.ResizeObject(ref R, lblLayout, 2, 1, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbLayout, 2, 4, 1.5f, 5);
+            Utils.ResizeObject(ref R, lblLayout, 1, 1, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbLayout, 1, 4, 1.5f, 5);
 
-            Utils.ResizeObject(ref R, lblFontRows, 2, 9, 1.5f, 2);
-            Utils.ResizeObject(ref R, cbFontRows, 2, 11, 1.5f, 5);
+            Utils.ResizeObject(ref R, lblFontRows, 1, 9, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbFontRows, 1, 11, 1.5f, 5);
 
-            Utils.ResizeObject(ref R, lblIcsCols, 2, 16, 1.5f, 2);
-            Utils.ResizeObject(ref R, cbIcsCols, 2, 18, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblIcsCols, 1, 16, 1.5f, 2);
+            Utils.ResizeObject(ref R, cbIcsCols, 1, 18, 1.5f, 3);
 
-            Utils.ResizeObject(ref R, lblUpCount, 2, 21, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpCount, 2, 24, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblUpCount, 1, 21, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpCount, 1, 24, 1.5f, 3);
 
-            Utils.ResizeObject(ref R, lblUpPosition, 2, 27, 1.5f, 3);
-            Utils.ResizeObject(ref R, cbUpPosition, 2, 30, 1.5f, 3);
+            Utils.ResizeObject(ref R, lblUpPosition, 1, 27, 1.5f, 3);
+            Utils.ResizeObject(ref R, cbUpPosition, 1, 30, 1.5f, 3);
 
-            Utils.ResizeObject(ref R, UpGet, 1.75f, 34, 2, 3);
-            Utils.ResizeObject(ref R, UpSet, 1.75f, 38, 2, 3);
+            Utils.ResizeObject(ref R, UpGet, 1, 34, 1.5f, 3);
+            Utils.ResizeObject(ref R, UpSet, 1, 38, 1.5f, 3);
 
-            Utils.ResizeObject(ref R, grpGrid, 4, 1, GroupHeight - 8, GroupWidth - 2);
+            Utils.ResizeObject(ref R, grpGrid, 3, 1, GroupHeight - 6, GroupWidth - 2);
             {
                BitMapToImage();
             }
-            Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 6, 1, 2, GroupWidth - 2);
+            Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 4, 1, 2, GroupWidth - 2);
 
-            Utils.ResizeObject(ref R, UpNew, GroupHeight - 3, GroupWidth - 24, 2, 5);
-            Utils.ResizeObject(ref R, UpClear, GroupHeight - 3, GroupWidth - 18, 2, 5);
-            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 3, GroupWidth - 12, 2, 5);
-            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 3, GroupWidth - 6, 2, 5);
+            Utils.ResizeObject(ref R, UpNew, GroupHeight - 2, GroupWidth - 24, 1.5f, 5);
+            Utils.ResizeObject(ref R, UpClear, GroupHeight - 2, GroupWidth - 18, 1.5f, 5);
+            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 2, GroupWidth - 12, 1.5f, 5);
+            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 2, GroupWidth - 6, 1.5f, 5);
          }
       }
 
@@ -936,11 +936,11 @@ namespace ModBus161 {
                pbGrid.Image = null;
             }
             // Allow for 3 extra spaces in the group box (2 above and 1 below)
-            cellSize = Math.Min((int)((grpGrid.Height - 3 * R.H) / charHeight), 10);
+            cellSize = Math.Min((int)((grpGrid.Height - 2 * R.H) / charHeight), 10);
             // Add an extra pixel below and to the right for drading lines
             pbGrid.Image = new Bitmap(bmGrid.Width * cellSize + 1, bmGrid.Height * cellSize + 1);
             // Place the image at Row 2, Column 1 in the group box
-            pbGrid.Location = new Point((int)(1 * R.W), (int)(2 * R.H));
+            pbGrid.Location = new Point((int)(1 * R.W), (int)(1 * R.H));
             // Make the image and the grid the same size
             pbGrid.Size = pbGrid.Image.Size;
 
