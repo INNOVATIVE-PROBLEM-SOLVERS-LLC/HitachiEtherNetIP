@@ -851,6 +851,8 @@ namespace Modbus_DLL {
             }
 
             result = true;
+         } else {
+            result = false;
          }
          return result;
       }

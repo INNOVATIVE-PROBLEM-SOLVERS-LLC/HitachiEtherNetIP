@@ -69,6 +69,17 @@ namespace ModBus161 {
       UI161 parent;
       Modbus p;
 
+      // Structures for retrieving logos
+      enum logoLayout {
+         Free = 0,
+         Fixed = 1,
+      }
+      struct logoInfo {
+         public logoLayout layout;
+         public string dotMatrix;
+         public int registration;
+      }
+
       #endregion
 
       #region Constructors and destructors
@@ -99,6 +110,7 @@ namespace ModBus161 {
                Label.Message[nozzle].Nozzle = (nozzle + 1).ToString();
                Label.Printer[nozzle].Nozzle = (nozzle + 1).ToString();
             }
+            RetrieveLogos(Label);
             XmlSerializer serializer = new XmlSerializer(typeof(Lab));
             XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
             ns.Add("", "");
@@ -366,15 +378,86 @@ namespace ModBus161 {
                InkDropUse = p.GetHRAttribute(ccPS.Ink_Drop_Use),
                ChargeRule = p.GetHRAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
-            Logos = RetrieveLogos(),
          };
 
 
          return ptr;
       }
 
-      private Logos RetrieveLogos() {
-         return null;
+      // Retrieve all logos
+      private void RetrieveLogos(Lab lab) {
+         for (int nozzle = 0; nozzle < p.NozzleCount; nozzle++) {
+            Msg m = lab.Message[nozzle];
+            // Find out which logos are used
+            List<logoInfo> neededLogo = new List<logoInfo>();
+            int n;
+            for (int c = 0; c < m.Column.Length; c++) {
+               for (int r = 0; r < m.Column[c].Item.Length; r++) {
+                  Item item = m.Column[c].Item[r];
+                  if (!string.IsNullOrEmpty(item.Text)) {
+                     string s = p.HandleBraces(item.Text);
+                     for (int i = 0; i < s.Length; i++) {
+                        switch (s[i] >> 8) {
+                           case '\xF6':
+                              n = (s[i] & 0xFF) - 0x40;
+                              if (n >= 0 && n < 50) {
+                                 neededLogo.Add(new logoInfo() { layout = logoLayout.Free, registration = n });
+                              }
+                              break;
+                           case '\xF1':
+                              n = (s[i] & 0xFF) - 0x40;
+                              if (n >= 0) {
+                                 neededLogo.Add(new logoInfo() { layout = logoLayout.Fixed, registration = n, dotMatrix = item.Font.DotMatrix });
+                              }
+                              break;
+                           case '\xF2':
+                              n = (s[i] & 0xFF) - 0x20;
+                              if (n >= 0 && n < 8) {
+                                 neededLogo.Add(new logoInfo() { layout = logoLayout.Fixed, registration = n + 192, dotMatrix = item.Font.DotMatrix });
+                              }
+                              break;
+                        }
+                     }
+                  }
+               }
+            }
+            // List of retrieved logos
+            List<Logo> retrievedLogos = new List<Logo>();
+            // Retrieve any fixed logos
+            for (int i = 0; i < neededLogo.Count; i++) {
+               switch (neededLogo[i].layout) {
+                  case logoLayout.Free:
+                     if (p.GetFreeLogo(neededLogo[i].registration, out int width, out int height, out byte[] freeData)) {
+                        Logo logo = new Logo() {
+                           Location = neededLogo[i].registration.ToString(),
+                           Width = width.ToString(),
+                           Height = height.ToString(),
+                           RawData = p.byte_to_string(freeData),
+                           Layout = "Free"
+                        };
+                        retrievedLogos.Add(logo);
+                     }
+                     break;
+                  case logoLayout.Fixed:
+                     if (p.GetFixedLogo(neededLogo[i].dotMatrix, neededLogo[i].registration, out byte[] fixedData)) {
+                        Logo logo = new Logo() {
+                           Location = neededLogo[i].registration.ToString(),
+                           DotMatrix = neededLogo[i].dotMatrix,
+                           RawData = p.byte_to_string(fixedData),
+                           Layout = "Fixed"
+                        };
+                        retrievedLogos.Add(logo);
+                     }
+                     break;
+                  default:
+                     break;
+               }
+               if (retrievedLogos.Count > 0) {
+                  Printer pr = lab.Printer[nozzle];
+                  pr.Logos = new Logos() { Logo = retrievedLogos.ToArray() };
+               }
+            }
+         }
       }
 
       // Retrieve Substitution rules
