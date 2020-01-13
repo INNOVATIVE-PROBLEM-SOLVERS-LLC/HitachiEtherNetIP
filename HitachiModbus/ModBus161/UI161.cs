@@ -1004,8 +1004,8 @@ namespace ModBus161 {
          cmdMessageDelete.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
          cmdMessageRefresh.Enabled = comIsOn;
          cmdMessageLoad.Enabled = comIsOn && dgMessages.Rows.Count > 0 && dgMessages.SelectedRows.Count == 1;
-         cmdMessageAdd.Enabled = false;
-         cmdMessageDelete.Enabled = false;
+         //cmdMessageAdd.Enabled = false;
+         //cmdMessageDelete.Enabled = false;
 
          cmdAppStart.Enabled = File.Exists(txtAppExcel.Text);
          cmdAppQuit.Enabled = appIsOpen;
