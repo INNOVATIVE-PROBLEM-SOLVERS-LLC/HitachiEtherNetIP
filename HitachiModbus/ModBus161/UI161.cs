@@ -1018,6 +1018,10 @@ namespace ModBus161 {
       }
 
       #endregion
+
+      private void cmdGroupRefresh_Click(object sender, EventArgs e) {
+
+      }
    }
 
 }

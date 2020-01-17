@@ -537,6 +537,7 @@
          this.cmdGroupRefresh.TabIndex = 9;
          this.cmdGroupRefresh.Text = "Refresh";
          this.cmdGroupRefresh.UseVisualStyleBackColor = true;
+         this.cmdGroupRefresh.Click += new System.EventHandler(this.cmdGroupRefresh_Click);
          // 
          // dgGroups
          // 
