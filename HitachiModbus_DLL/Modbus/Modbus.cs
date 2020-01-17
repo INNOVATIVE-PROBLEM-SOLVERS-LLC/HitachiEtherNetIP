@@ -811,7 +811,6 @@ namespace Modbus_DLL {
             Width = GetDecAttribute(ccUP.User_Pattern_Free_Width, loc);
             Height = GetDecAttribute(ccUP.User_Pattern_Free_Height, loc);
             byte[] logo = new byte[Width * 4];
-            AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
             // Bring it in at 128 bytes (32x32 section) at a time
             for (int i = 0; i < Width * 4; i += LogoMaxSizeIO) {
                byte[] part = GetAttribute(ccUP.User_Pattern_Free_Data,
@@ -821,7 +820,7 @@ namespace Modbus_DLL {
             }
             // Now compact the data to the real size
             int n = (Height + 7) / 8;  // Calculate height in bytes
-            if (n == 4) {
+            if (n < 4) {
                data = new byte[n * Width];
                int k = 0;
                for (int i = 0; i < Width * 4; i += 4) {
