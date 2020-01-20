@@ -54,6 +54,10 @@
          this.llblMessageFolder = new System.Windows.Forms.Label();
          this.txtMessageFolder = new System.Windows.Forms.TextBox();
          this.cmdBrowse = new System.Windows.Forms.Button();
+         this.txtLogFile = new System.Windows.Forms.TextBox();
+         this.cmdBrowseForLog = new System.Windows.Forms.Button();
+         this.cmdRun = new System.Windows.Forms.Button();
+         this.lblLogFile = new System.Windows.Forms.Label();
          this.ConfigureConnection.SuspendLayout();
          this.tabEthernet.SuspendLayout();
          this.tabSerial.SuspendLayout();
@@ -354,7 +358,7 @@
          this.lbTraffic.ItemHeight = 16;
          this.lbTraffic.Location = new System.Drawing.Point(17, 260);
          this.lbTraffic.Name = "lbTraffic";
-         this.lbTraffic.Size = new System.Drawing.Size(459, 164);
+         this.lbTraffic.Size = new System.Drawing.Size(459, 212);
          this.lbTraffic.TabIndex = 5;
          // 
          // TrafficMenu
@@ -411,11 +415,51 @@
          this.cmdBrowse.UseVisualStyleBackColor = true;
          this.cmdBrowse.Click += new System.EventHandler(this.cmdBrowse_Click);
          // 
+         // txtLogFile
+         // 
+         this.txtLogFile.Location = new System.Drawing.Point(17, 519);
+         this.txtLogFile.Name = "txtLogFile";
+         this.txtLogFile.Size = new System.Drawing.Size(459, 22);
+         this.txtLogFile.TabIndex = 35;
+         this.txtLogFile.Text = "(Select Log File)";
+         // 
+         // cmdBrowseForLog
+         // 
+         this.cmdBrowseForLog.Location = new System.Drawing.Point(389, 481);
+         this.cmdBrowseForLog.Name = "cmdBrowseForLog";
+         this.cmdBrowseForLog.Size = new System.Drawing.Size(87, 31);
+         this.cmdBrowseForLog.TabIndex = 36;
+         this.cmdBrowseForLog.Text = "Browse";
+         this.cmdBrowseForLog.UseVisualStyleBackColor = true;
+         this.cmdBrowseForLog.Click += new System.EventHandler(this.cmdBrowseForLog_Click);
+         // 
+         // cmdRun
+         // 
+         this.cmdRun.Location = new System.Drawing.Point(259, 547);
+         this.cmdRun.Name = "cmdRun";
+         this.cmdRun.Size = new System.Drawing.Size(217, 31);
+         this.cmdRun.TabIndex = 37;
+         this.cmdRun.Text = "Play It Again, Sam";
+         this.cmdRun.UseVisualStyleBackColor = true;
+         this.cmdRun.Click += new System.EventHandler(this.cmdRun_Click);
+         // 
+         // lblLogFile
+         // 
+         this.lblLogFile.Location = new System.Drawing.Point(14, 485);
+         this.lblLogFile.Name = "lblLogFile";
+         this.lblLogFile.Size = new System.Drawing.Size(90, 27);
+         this.lblLogFile.TabIndex = 38;
+         this.lblLogFile.Text = "Log File";
+         // 
          // HPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(505, 447);
+         this.ClientSize = new System.Drawing.Size(505, 593);
+         this.Controls.Add(this.lblLogFile);
+         this.Controls.Add(this.cmdRun);
+         this.Controls.Add(this.cmdBrowseForLog);
+         this.Controls.Add(this.txtLogFile);
          this.Controls.Add(this.cmdBrowse);
          this.Controls.Add(this.txtMessageFolder);
          this.Controls.Add(this.llblMessageFolder);
@@ -472,6 +516,10 @@
       private System.Windows.Forms.Label llblMessageFolder;
       private System.Windows.Forms.Button cmdBrowse;
       public System.Windows.Forms.TextBox txtMessageFolder;
+      private System.Windows.Forms.Button cmdBrowseForLog;
+      private System.Windows.Forms.Button cmdRun;
+      private System.Windows.Forms.Label lblLogFile;
+      public System.Windows.Forms.TextBox txtLogFile;
    }
 }
 

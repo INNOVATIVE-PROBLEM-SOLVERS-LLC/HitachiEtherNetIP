@@ -39,6 +39,7 @@ namespace ModBus161 {
       ComboBox cbUpCount;
       Label lblUpPosition;     // 0 to 199 for Fixed, 0 to 49 for Free
       ComboBox cbUpPosition;
+      Label lblMessage;        // In case a failure happens
       Button UpGet;            // Retrieve from printer
       Button UpSet;            // Send to printer
 
@@ -142,6 +143,9 @@ namespace ModBus161 {
          lblUpPosition = new Label() { Text = "Position", TextAlign = ContentAlignment.TopRight };
          UpControls.Controls.Add(lblUpPosition);
 
+         lblMessage = new Label() { Text = "OK", TextAlign = ContentAlignment.TopLeft };
+         UpControls.Controls.Add(lblMessage);
+
          cbUpPosition = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
          UpControls.Controls.Add(cbUpPosition);
          cbUpPosition.SelectedIndexChanged += cbUpPosition_SelectedIndexChanged;
@@ -236,6 +240,7 @@ namespace ModBus161 {
             }
             Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 4, 1, 2, GroupWidth - 2);
 
+            Utils.ResizeObject(ref R, lblMessage, GroupHeight - 2, 1, 1.5f, GroupWidth - 26);
             Utils.ResizeObject(ref R, UpNew, GroupHeight - 2, GroupWidth - 24, 1.5f, 5);
             Utils.ResizeObject(ref R, UpClear, GroupHeight - 2, GroupWidth - 18, 1.5f, 5);
             Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 2, GroupWidth - 12, 1.5f, 5);
@@ -295,6 +300,7 @@ namespace ModBus161 {
                }
                tw.Flush();
                tw.Close();
+               lblMessage.Text = $"Logo File {sfd.FileName} saved!";
             }
          }
          SetButtonEnables(ComIsOn);
@@ -312,6 +318,7 @@ namespace ModBus161 {
             dlg.Filter = "Printer Logo Files|*.txt";
             if (dlg.ShowDialog() == DialogResult.OK) {
                ReadLogoFromFile(dlg.FileName, out stripes);
+               lblMessage.Text = $"Logo File {dlg.FileName} loaded!";
             }
          }
          SetButtonEnables(ComIsOn);
@@ -323,8 +330,10 @@ namespace ModBus161 {
          for (int i = 0; i < Count; i++) {
             if ((Layout)cbLayout.SelectedIndex == Layout.Fixed) {
                MB.SendFixedLogo(dotMatrixCode, Registration + i, b[i]);
+               lblMessage.Text = $"{cbFontRows.Text} Fixed Logo Character saved at location {Registration + i}";
             } else {
                MB.SendFreeLogo(charWidth, charHeight, Registration + i, b[i]);
+               lblMessage.Text = $"{charWidth}x{charHeight} Free Logo Character saved at location {Registration + i}";
             }
          }
          SetButtonEnables(ComIsOn);
@@ -332,22 +341,26 @@ namespace ModBus161 {
 
       // Get characters from the printer
       private void UpGet_Click(object sender, EventArgs e) {
-         bool Success = false;
          int bytesPerCharacter = (charHeight + 7) / 8 * charWidth;
          CleanUpGrid();
          byte[] data = null;
          if ((Layout)cbLayout.SelectedIndex == Layout.Free) {
             // Get the image
-            Success = MB.GetFreeLogo(Registration, out charWidth, out charHeight, out data);
-            ignoreChange = true;
-            cbFontRows.Text = charHeight.ToString();
-            cbIcsCols.Text = charWidth.ToString();
-            ignoreChange = false;
-            stripes = new long[1][];
-            stripes[0] = new long[charWidth];
-            stripes[0] = BytesToStripe(charHeight, data);
-            bmGrid = StripesToBitMap(stripes);
-            BitMapToImage();
+            if (MB.GetFreeLogo(Registration, out charWidth, out charHeight, out data)) {
+               ignoreChange = true;
+               cbFontRows.Text = charHeight.ToString();
+               cbIcsCols.Text = charWidth.ToString();
+               ignoreChange = false;
+               stripes = new long[1][];
+               stripes[0] = new long[charWidth];
+               stripes[0] = BytesToStripe(charHeight, data);
+               bmGrid = StripesToBitMap(stripes);
+               BitMapToImage();
+               lblMessage.Text = $"User Free Pattern {charWidth}x{charHeight} loaded!";
+            } else {
+               Log?.Invoke(this, "User Free Pattern does not exist!");
+               lblMessage.Text = "User Free Pattern does not exist!";
+            }
          } else {
             // Build the blank image
             stripes = new long[Count][];
@@ -358,16 +371,17 @@ namespace ModBus161 {
             BitMapToImage();
 
             for (int i = 0; i < Count; i++) {
-               Success = MB.GetFixedLogo(dotMatrixCode, Registration + i, out data);
-               if (Success) {
+               if (MB.GetFixedLogo(dotMatrixCode, Registration + i, out data)) {
                   if (data.Length == bytesPerCharacter) {
                      stripes[i] = BytesToStripe(charHeight, data);
                      bmGrid = StripesToBitMap(stripes);
                      BitMapToImage();
                      grpGrid.Invalidate();
                   }
+                  lblMessage.Text = $"User Fixed Pattern {cbFontRows.Text} loaded!";
                } else {
-                  Log?.Invoke(this, "User Pattern Upload Failed.  Aborting Upload!");
+                  Log?.Invoke(this, "User Fixed Pattern Upload Failed.  Aborting Upload!");
+                  lblMessage.Text = "User Fixed Pattern Upload Failed.  Aborting Upload!";
                   break;
                }
             }

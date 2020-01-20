@@ -29,5 +29,8 @@
     <Setting Name="MessageFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Temp\EIP</Value>
     </Setting>
+    <Setting Name="LogFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">(Select Log File).txt</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.IO.Ports;
 using System.Net;
@@ -38,10 +39,12 @@ namespace HitachiProtocol_Test {
 
       #region Constructors and Destructors
 
+      // An instance of an Hitachi printer
       public HPTest() {
          InitializeComponent();
       }
 
+      // Unfortunately, never called
       ~HPTest() {
 
       }
@@ -50,6 +53,7 @@ namespace HitachiProtocol_Test {
 
       #region Form Level Events
 
+      // Program is loaded.  Start the processing
       void HPTest_Load(object sender, EventArgs e) {
          // Load saved settings
          LoadSettings();
@@ -80,6 +84,7 @@ namespace HitachiProtocol_Test {
          SetButtonEnables();
       }
 
+      // Form is closing.  Clean up the application
       void HPTest_FormClosing(object sender, FormClosingEventArgs e) {
          HP.Log -= HP_Log;
          HP.Complete -= HP_Complete;
@@ -92,6 +97,7 @@ namespace HitachiProtocol_Test {
 
       #region Form Control Events
 
+      // Connect to the printer
       void cmdConnect_Click(object sender, EventArgs e) {
          if (ConfigureConnection.SelectedIndex == 0) {
             // Ethernet Connection
@@ -105,10 +111,12 @@ namespace HitachiProtocol_Test {
          HP.IssueControl(ControlOps.ComOn);
       }
 
+      // Disconnect from printer
       void cmdDisconnect_Click(object sender, EventArgs e) {
          HP.Disconnect();
       }
 
+      // Send message to the printer
       void cmdSend_Click(object sender, EventArgs e) {
          // Indicate operation in progress
          SetupInProgress = true;
@@ -117,8 +125,8 @@ namespace HitachiProtocol_Test {
          // Set all items to 7x10 format
          HP.WriteFormat(0, "7x10", 1, 1);
          // Insert text in three items
-         HP.WriteText(1, 
-            $"Hello World\r\n" + 
+         HP.WriteText(1,
+            $"Hello World\r\n" +
             $"{(char)AC.Month}{(char)AC.Month}/" +
             $"{(char)AC.Day}{(char)AC.Day}/" +
             $"{(char)AC.Year}{(char)AC.Year}\r\n" +
@@ -130,6 +138,53 @@ namespace HitachiProtocol_Test {
          HP.Idle("Done");
       }
 
+      // Browse for Message folder
+      private void cmdBrowse_Click(object sender, EventArgs e) {
+         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
+         if (dlg.ShowDialog() == DialogResult.OK) {
+            txtMessageFolder.Text = dlg.SelectedPath;
+         }
+      }
+
+      // Play it again, Sam
+      private void cmdRun_Click(object sender, EventArgs e) {
+         int n;
+         if (File.Exists(txtLogFile.Text)) {
+            string[] s = File.ReadAllLines(txtLogFile.Text);
+            for (int i = 0; i < s.Length; i++) {
+               if ((n = s[i].IndexOf("Output = ")) >= 0) {
+                  string ss = s[i].Substring(n + 9);
+                  //lbTraffic.Items.Add($"File = {ss}");
+                  ss = tobytes(ss);
+                  if (ss != "\x1B\x23" && ss != "\x02\x1F\x72\x30\x03") {
+                     HP.PassThru(ss, false);
+                  }
+               }
+            }
+         }
+      }
+
+      // Browse for log file
+      private void cmdBrowseForLog_Click(object sender, EventArgs e) {
+         using (OpenFileDialog dlg = new OpenFileDialog()) {
+            dlg.Title = "Select Log file!";
+            dlg.Filter = "TXT (*.txt)|*.txt|All (*.*)|*.*";
+            DialogResult dlgResult = DialogResult.Retry;
+            if (File.Exists(txtLogFile.Text)) {
+               dlg.InitialDirectory = Path.GetDirectoryName(txtLogFile.Text);
+               dlg.FileName = Path.GetFileNameWithoutExtension(txtLogFile.Text);
+            }
+            while (dlgResult == DialogResult.Retry) {
+               dlgResult = dlg.ShowDialog();
+               if (dlgResult == DialogResult.OK) {
+                  txtLogFile.Text = dlg.FileName;
+               }
+            }
+         }
+         SetButtonEnables();
+      }
+
+      // Goodnight Mortimer  
       void cmdExit_Click(object sender, EventArgs e) {
          this.Close();
       }
@@ -138,10 +193,12 @@ namespace HitachiProtocol_Test {
 
       #region Context Menu Routines
 
+      // Clear the traffic display
       void cmTraffic_Click(object sender, EventArgs e) {
          lbTraffic.Items.Clear();
       }
 
+      // Load the traffic display into notepad
       void cmLoadInNotepad_Click(object sender, EventArgs e) {
          StreamWriter outputFileStream = null;
          string[] allLines = new string[lbTraffic.Items.Count];
@@ -160,10 +217,12 @@ namespace HitachiProtocol_Test {
 
       #region Event Processing
 
+      // Hitachi printer object has something noteworthy to say
       public void HP_Log(HitachiPrinter p, HPEventArgs e) {
          lbTraffic.Items.Add(HP.Translate(e.Message));
       }
 
+      // Requested operation has completed
       void HP_Complete(HitachiPrinter p, HPEventArgs e) {
          switch (e.Op) {
             case PrinterOps.Nop:
@@ -204,7 +263,7 @@ namespace HitachiProtocol_Test {
             case PrinterOps.SetClock:
                break;
             case PrinterOps.Idle:
-               if(e.Message == "Done") {
+               if (e.Message == "Done") {
                   SetupInProgress = false;
                }
                break;
@@ -244,6 +303,7 @@ namespace HitachiProtocol_Test {
          SetButtonEnables();
       }
 
+      // Printer Status Unsolicited interrupt arrived
       void HP_Unsolicited(HitachiPrinter p, HPEventArgs e) {
          if (e.Message.StartsWith(HitachiPrinter.sSTX) && e.Message.EndsWith(HitachiPrinter.sETX)) {
             switch (e.Message.Substring(1, 1)) {
@@ -265,10 +325,12 @@ namespace HitachiProtocol_Test {
          }
       }
 
+      // Print Start Unsolicited interrupt arrived
       void PrintStart(HitachiPrinter p, HPEventArgs e) {
          // Add message build here
       }
 
+      // Print End Unsolicited interrupt arrived
       void PrintEnd(HitachiPrinter p, HPEventArgs e) {
          // Send message to printer
       }
@@ -277,6 +339,7 @@ namespace HitachiProtocol_Test {
 
       #region Service Routines
 
+      // Load form settings when program starts
       void LoadSettings() {
          // Create a shortcut for settings
          Properties.Settings p = Properties.Settings.Default;
@@ -290,8 +353,10 @@ namespace HitachiProtocol_Test {
          cbPrinterParity.Text = p.SerialParity;
          cbPrinterStopBits.Text = p.SerialStopBits;
          txtMessageFolder.Text = p.MessageFolder;
+         txtLogFile.Text = p.LogFile;
       }
 
+      // Save form settings on exit
       void SaveSettings() {
          // Create a shortcut for settings
          Properties.Settings p = Properties.Settings.Default;
@@ -305,9 +370,28 @@ namespace HitachiProtocol_Test {
          p.SerialParity = cbPrinterParity.Text;
          p.SerialStopBits = cbPrinterStopBits.Text;
          p.MessageFolder = txtMessageFolder.Text;
+         p.LogFile = txtLogFile.Text;
          p.Save();
       }
 
+      // Change Log File encripted text to plain text
+      private string tobytes(string ss) {
+         string s = "";
+         while (ss.Length > 0) {
+            if (ss.Length >= 4 && ss[0] == '<' && ss[3] == '>'
+                && int.TryParse(ss.Substring(1, 2), NumberStyles.HexNumber, null, out int n)) {
+               s += (char)n;
+               ss = ss.Substring(4);
+            } else {
+               s += ss.Substring(0, 1);
+               ss = ss.Substring(1);
+            }
+
+         }
+         return s;
+      }
+
+      // Enable buttons that can be used
       void SetButtonEnables() {
          bool ConfigOK;
          if (ConfigureConnection.SelectedIndex == 0) {
@@ -338,19 +422,15 @@ namespace HitachiProtocol_Test {
          cmdDisconnect.Enabled = connected;
          cmdSend.Enabled = connected;
          cmdExit.Enabled = !connected;
+         cmdRun.Enabled = File.Exists(txtLogFile.Text) && connected;
       }
 
+      // Enable buttons that can be used
       void SetButtonEnables(object sender, EventArgs e) {
          SetButtonEnables();
       }
 
       #endregion
 
-      private void cmdBrowse_Click(object sender, EventArgs e) {
-         FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
-         if (dlg.ShowDialog() == DialogResult.OK) {
-            txtMessageFolder.Text = dlg.SelectedPath;
-         }
-      }
    }
 }
