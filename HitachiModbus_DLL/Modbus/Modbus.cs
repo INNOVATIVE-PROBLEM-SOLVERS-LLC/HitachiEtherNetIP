@@ -745,9 +745,8 @@ namespace Modbus_DLL {
          byte[] data = new byte[Math.Max(newLength, oldWidth * 4)];  // Free logos are always 4 bytes per stripe
          int k = 0;
          for (int i = 0; i < newLength; i += 4) {              // Pad the data to 4 bytes per stripe
-            for (int j = 0; j < n; j++) {
-               data[i + j] = logo[k];
-               k = Math.Min(k + 1, logo.Length - 1);
+            for (int j = 0; j < n && k < logo.Length; j++) {
+               data[i + j] = logo[k++];
             }
          }
          // Send the logo
