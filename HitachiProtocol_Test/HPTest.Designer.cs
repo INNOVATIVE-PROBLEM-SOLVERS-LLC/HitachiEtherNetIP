@@ -58,6 +58,7 @@
          this.cmdBrowseForLog = new System.Windows.Forms.Button();
          this.cmdRun = new System.Windows.Forms.Button();
          this.lblLogFile = new System.Windows.Forms.Label();
+         this.txtCount = new System.Windows.Forms.TextBox();
          this.ConfigureConnection.SuspendLayout();
          this.tabEthernet.SuspendLayout();
          this.tabSerial.SuspendLayout();
@@ -451,11 +452,20 @@
          this.lblLogFile.TabIndex = 38;
          this.lblLogFile.Text = "Log File";
          // 
+         // txtCount
+         // 
+         this.txtCount.Location = new System.Drawing.Point(281, 482);
+         this.txtCount.Name = "txtCount";
+         this.txtCount.Size = new System.Drawing.Size(75, 22);
+         this.txtCount.TabIndex = 39;
+         this.txtCount.Text = "20";
+         // 
          // HPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(505, 593);
+         this.Controls.Add(this.txtCount);
          this.Controls.Add(this.lblLogFile);
          this.Controls.Add(this.cmdRun);
          this.Controls.Add(this.cmdBrowseForLog);
@@ -520,6 +530,7 @@
       private System.Windows.Forms.Button cmdRun;
       private System.Windows.Forms.Label lblLogFile;
       public System.Windows.Forms.TextBox txtLogFile;
+      private System.Windows.Forms.TextBox txtCount;
    }
 }
 

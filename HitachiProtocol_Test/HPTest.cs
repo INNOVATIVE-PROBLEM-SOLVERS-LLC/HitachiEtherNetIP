@@ -118,6 +118,10 @@ namespace HitachiProtocol_Test {
 
       // Send message to the printer
       void cmdSend_Click(object sender, EventArgs e) {
+         HP.WriteText(1, "1\x0D\x0A\x32");
+         return;
+         HP.IssueControl(ControlOps.ClearAll);
+         return;
          // Indicate operation in progress
          SetupInProgress = true;
          // Clear all current items
@@ -148,19 +152,25 @@ namespace HitachiProtocol_Test {
 
       // Play it again, Sam
       private void cmdRun_Click(object sender, EventArgs e) {
+         int count;
          int n;
          if (File.Exists(txtLogFile.Text)) {
             string[] s = File.ReadAllLines(txtLogFile.Text);
-            for (int i = 0; i < s.Length; i++) {
+            if (!int.TryParse(txtCount.Text, out count)) {
+               count = s.Length;
+            }
+            for (int i = 0; i < s.Length && count > 0; i++) {
                if ((n = s[i].IndexOf("Output = ")) >= 0) {
                   string ss = s[i].Substring(n + 9);
                   //lbTraffic.Items.Add($"File = {ss}");
-                  ss = tobytes(ss);
-                  if (ss != "\x1B\x23" && ss != "\x02\x1F\x72\x30\x03") {
-                     HP.PassThru(ss, false);
+                  string sp = tobytes(ss);
+                  if (sp != "\x1B\x23" && ss != "\x02\x1F\x72\x30\x03") {
+                     HP.PassThru(sp, false);
+                     count--;
                   }
                }
             }
+            lbTraffic.Items.Add(HP.Translate("Done"));
          }
       }
 

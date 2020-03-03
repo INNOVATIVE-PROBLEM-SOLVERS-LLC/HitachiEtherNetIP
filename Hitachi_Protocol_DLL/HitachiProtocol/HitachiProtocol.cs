@@ -422,6 +422,9 @@ namespace HitachiProtocol {
                IssueOperation();
                break;
             case PrinterOps.PassThru: // 18
+               if (mReq.Data1.StartsWith("\x02\x1F\x70\x31")) {
+                  mReq.Item = mReq.Item;
+               }
                SendOutputToPrinter(mReq.Data1, mReq);
                break;
             case PrinterOps.ENQ: // 19
@@ -2204,6 +2207,15 @@ namespace HitachiProtocol {
          lock (PartialLock) {
             comPXR.Read(Partial, PartialLength, n);
             PartialLength += n;
+            if (Partial[0] == '\x21') {
+               n = 0;
+            }
+            //string s = Extract(PartialLength);
+            //if (parent.InvokeRequired) {
+            //   parent.BeginInvoke(new EventHandler(delegate { Log(this, new HPEventArgs("Partial= " + s)); }));
+            //} else {
+            //   Log?.Invoke(this, new HPEventArgs("Partial= " + s));
+            //}
          }
          ParseInput();
       }
