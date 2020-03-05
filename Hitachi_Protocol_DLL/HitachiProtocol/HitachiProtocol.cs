@@ -25,6 +25,9 @@ namespace HitachiProtocol {
 
       HitachiPrinterType printerType;
       bool rxClass;
+      bool rx2Class;
+      bool useESC2;
+      int maxLength;
 
       //ConnectionType Connection = ConnectionType.OffLine;
       // Connection type
@@ -422,9 +425,6 @@ namespace HitachiProtocol {
                IssueOperation();
                break;
             case PrinterOps.PassThru: // 18
-               if (mReq.Data1.StartsWith("\x02\x1F\x70\x31")) {
-                  mReq.Item = mReq.Item;
-               }
                SendOutputToPrinter(mReq.Data1, mReq);
                break;
             case PrinterOps.ENQ: // 19
@@ -928,8 +928,25 @@ namespace HitachiProtocol {
                }
 
                // Add this part to the message, advance to next item
+               if (RX2Class && !UnsupportedItem) {
+                  int firstF2 = strDataA.Length;
+                  int lastF2 = -1;
+                  for (int k = 0; k < strDataA.Length; k++) {
+                     if (strDataA[k] == 0xF2) {
+                        if (strDataA[k + 1] >= 0x50 && strDataA[k + 1] <= 0x5A) {
+                           firstF2 = Math.Min(firstF2, k + 1);
+                           lastF2 = Math.Max(lastF2, k + 1);
+                        }
+                     }
+                  }
+                  if (firstF2 < strDataA.Length && lastF2 > -1 && firstF2 != lastF2) {
+                     byte[] b = encode.GetBytes(strDataA);
+                     b[firstF2] = (byte)(b[firstF2] + (byte)0x10);
+                     b[lastF2] = (byte)(b[lastF2] + (byte)0x20);
+                     strDataA = encode.GetString(b);
+                  }
+               }
                if (!UnsupportedItem) {
-                  //if (global.SettingsConfig.Mode != "Recall" || !UnsupportedItem) {
                   strMessage = strMessage + cDLE + ItemNumber(intItem) + strDataA;
                }
                intItem++;
@@ -960,37 +977,37 @@ namespace HitachiProtocol {
          // Fan out on Sub Operation
          switch ((ControlOps)mReq.SubOp) {
             case ControlOps.ComOn:
-               if (rxClass) {
+               if (useESC2) {
                   return sESC2 + "s";
                } else {
                   return sESC + "y";
                }
             case ControlOps.ComOff:
-               if (rxClass) {
+               if (useESC2) {
                   return sESC2 + "t";
                } else {
                   return sESC + "z";
                }
             case ControlOps.HydraulicsStart:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "r0" + sETX;
                } else {
                   return sSTX + sESC + "q0" + sETX;
                }
             case ControlOps.HydraulicsStop:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "r1" + sETX;
                } else {
                   return sSTX + sESC + "q1" + sETX;
                }
             case ControlOps.Ready:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "r2" + sETX;
                } else {
                   return sSTX + sESC + "q2" + sETX;
                }
             case ControlOps.Standby:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "r3" + sETX;
                } else {
                   return sSTX + sESC + "q3" + sETX;
@@ -998,13 +1015,13 @@ namespace HitachiProtocol {
             case ControlOps.ResetAlarm:
                nACKs = nNAKs = 0;
                if (SOP4Enabled || rxClass) {
-                  if (rxClass) {
+                  if (useESC2) {
                      return sSTX + sESC2 + "r4" + sETX;
                   } else {
                      return sSTX + sESC + "q4" + sETX;
                   }
                } else {
-                  if (rxClass) {
+                  if (useESC2) {
                      return sESC2 + "s";
                   } else {
                      return sESC + "y";
@@ -1017,7 +1034,7 @@ namespace HitachiProtocol {
             case ControlOps.Enquire:
                return cENQ.ToString();
             case ControlOps.ClearAll:
-               if (rxClass) {
+               if (useESC2) {
                   if (printerType == HitachiPrinterType.TwinNozzle && Nozzle == 1) {
                      return string.Empty;
                   } else {
@@ -1071,7 +1088,7 @@ namespace HitachiProtocol {
 
          // Print Specification Characters
 
-         if (rxClass) {
+         if (useESC2) {
             eCharacterHeight = (char)0x31;
             eInkDropUsage = (char)0x32;
             eHighSpeedPrinting = (char)0x33;
@@ -1212,7 +1229,7 @@ namespace HitachiProtocol {
                   break;
             }
             if (strPart != string.Empty) {
-               if (rxClass) {
+               if (useESC2) {
                   if (BothNozzles) {
                      strResult += sESC2 + (char)0x25 + strPart;
                   } else {
@@ -1256,7 +1273,7 @@ namespace HitachiProtocol {
 
          // Handle global settings
          if (lc.Length == 1 && printerType != HitachiPrinterType.TwinNozzle) {
-            if (rxClass) {
+            if (useESC2) {
                strResult = sSTX + sESC2 + Chr(0x22) + Chr(0x32) + lc.Substring(0, 1) + ls.Substring(0, 1) + sETX;
             } else {
                strResult = sSTX + sESC + Chr(EscapeOther.LineCountSpacing) + lc.Substring(0, 1) + ls.Substring(0, 1) + sETX;
@@ -1272,7 +1289,7 @@ namespace HitachiProtocol {
                   //
                   // Don't output single row columns as they were set with global command
                   if (lc.Substring(0, 1) != "1" || printerType == HitachiPrinterType.TwinNozzle) {
-                     if (rxClass) {
+                     if (useESC2) {
                         strResult = strResult + Item(j) + sESC2 + Chr(0x22) + Chr(0x32) + lc.Substring(0, 1) + ls.Substring(0, 1);
                      } else {
                         strResult = strResult + Item(j) + sESC + Chr(EscapeOther.LineCountSpacing) + lc.Substring(0, 1) + ls.Substring(0, 1);
@@ -1293,13 +1310,7 @@ namespace HitachiProtocol {
       string BuildCalendarSubZSString(HPRequest mReq) {
          string result = "\x02";
          HPRequest mTemp = mReq;
-         int maxLength;
-         if (rxClass) {
-            maxLength = 3000 - 150;
-         } else {
-            maxLength = 1500 - 150;
-         }
-         if (rxClass) {
+         if (useESC2) {
             do {
                if (SubstitutionRules) {
                   result += "\x1f\x28\x33" + (char)(0x30 + mTemp.BlockNo) + (char)(mTemp.SubOp + 0x30) + mTemp.Data1;
@@ -1337,14 +1348,11 @@ namespace HitachiProtocol {
       string BuildCalendarZSString(HPRequest mReq) {
          string result = "\x02";
          HPRequest mTemp = mReq;
-         int maxLength;
-         if (rxClass) {
-            maxLength = 3000 - 150;
-         } else {
-            maxLength = 1500 - 150;
-         }
-         if (rxClass) {
+         if (useESC2) {
             do {
+               if (MonthSubMethod == MonthSubstitutionMethod.ViaMonth) {
+                  result += "\x1f\x28\x33" + (char)(0x30 + mTemp.BlockNo) + (char)(mTemp.SubOp + 0x30) + mTemp.Data1;
+               }
                result += "\x1f\x28\x34" + (char)(0x30 + mTemp.BlockNo) + (char)(mTemp.SubOp + 0x30) + mTemp.Data2;
                if (!Equals(mTemp, mReq)) {
                   MoveToIdleQueue(mTemp);
@@ -1377,16 +1385,10 @@ namespace HitachiProtocol {
 
       string BuildCalendarSubString(HPRequest mReq) {
          HPRequest mTemp = mReq;
-         int maxLength;
-         if (rxClass) {
-            maxLength = 3000 - 150;
-         } else {
-            maxLength = 1500 - 150;
-         }
-         if (rxClass) {
+         if (useESC2) {
             string result = "\x02";
             do {
-               if (SubstitutionRules) {
+               if (MonthSubMethod == MonthSubstitutionMethod.ViaMonth) {
                   result += "\x1f\x28\x33" + (char)(0x30 + mTemp.BlockNo) + (char)(mTemp.SubOp + 0x30) + mTemp.Data1;
                }
                if (!Equals(mTemp, mReq)) {
@@ -1431,12 +1433,7 @@ namespace HitachiProtocol {
             if (mTemp.Data5 == "(None)") {
                BarcodeType = 0;
             } else {
-               BarcodeType = BarcodeNameToHitachi(mTemp.Data5, this.RXClass);
-               //if (rxClass) {
-               //   mTemp.Data2 = "00"; // ICS 0 for Barcodes
-               //} else {
-               //   mTemp.Data2 = "0"; // ICS 0 for Barcodes
-               //}
+               BarcodeType = BarcodeNameToHitachi(mTemp.Data5, this.rxClass);
             }
             int HumanReadable;
             switch (mTemp.Data9) {
@@ -1452,7 +1449,7 @@ namespace HitachiProtocol {
             }
 
             if (mTemp.Item < 1 || BarcodeType != -1) {
-               if (rxClass) {
+               if (useESC2) {
                   strResult += strItem + sESC2 + (char)0x23 + "3" + (char)(0x30 + BarcodeType);
                   if (BarcodeType > 0) {
                      strResult += strItem + sESC2 + (char)0x23 + "4" + (char)(0x30 + HumanReadable);
@@ -1479,7 +1476,7 @@ namespace HitachiProtocol {
                }
             }
 
-            if (rxClass) {
+            if (useESC2) {
                strResult = strResult + strItem + sESC2 + (char)0x23 + "1" + GetFont(mTemp.Data1) + mTemp.Data2 + strItem + sESC2 + (char)0x23 + "2" + mTemp.Data3;
             } else {
                strResult = strResult + strItem + sESC + Chr(EscapeFormat.FontICSpace) + GetFont(mTemp.Data1) + mTemp.Data2 + strItem + sESC + Chr(EscapeFormat.IncreasedWidth) + mTemp.Data3;
@@ -1506,13 +1503,13 @@ namespace HitachiProtocol {
          // Fan out on Sub Operation
          switch ((PrinterOps)mReq.Op) {
             case PrinterOps.SOP16ClearBuffer:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "\x76" + sETX;
                } else {
                   return sSTX + sESC + eClearBuffer + sETX;
                }
             case PrinterOps.SOP16RestartPrinting:
-               if (rxClass) {
+               if (useESC2) {
                   return sSTX + sESC2 + "\x77" + sETX;
                } else {
                   return sSTX + sESC + eRestartPrinting + sETX;
@@ -1535,7 +1532,7 @@ namespace HitachiProtocol {
             case FetchOps.Status:
                return sESC + eGetStatus;
             case FetchOps.Time:
-               if (rxClass) {
+               if (useESC2) {
                   return sESC2 + (char)0x75;
                } else {
                   return sESC + eGetCurrentTime;
@@ -1563,13 +1560,13 @@ namespace HitachiProtocol {
          // Fan out on Sub Operation
          switch ((RetrievePatternOps)mReq.SubOp) {
             case RetrievePatternOps.Standard: // 0
-               if (rxClass) {
+               if (useESC2) {
                   return sESC2 + "\x50\x46" + mReq.KbType.ToString() + CharSize + Page;
                } else {
                   return sESC + eRetrieveUserData + eRetrieveStandardCharacterPattern + CharSize + Page;
                }
             case RetrievePatternOps.User: // 1
-               if (rxClass) {
+               if (useESC2) {
                   return sESC2 + "\x50\x44" + CharSize + Page;
                } else {
                   return sESC + eRetrieveUserData + eRetrieveUserPattern + CharSize + Page;
@@ -1613,7 +1610,7 @@ namespace HitachiProtocol {
          const char eRetrieveAdjustmentOperationalCheckout = (char)0xD4;
          const char eRetrieveSolenoidValvePumpTest = (char)0xD5;
 
-         if (rxClass) {
+         if (useESC2) {
             switch ((RetrieveOps)mReq.SubOp) {
                case RetrieveOps.LineSetting:
                   return "\x1f\x50\x31";
@@ -1735,7 +1732,7 @@ namespace HitachiProtocol {
       }
 
       string BuildSetClockString(HPRequest mReq) {
-         if (rxClass) {
+         if (useESC2) {
             return sSTX + sESC2 + "\x2e" + (char)('1' + mReq.SubOp) + mReq.Data1 + sETX;
          } else {
             return sSTX + sESC + (char)('\x72' + mReq.SubOp) + mReq.Data1 + sETX;
@@ -1745,14 +1742,7 @@ namespace HitachiProtocol {
       string BuildWritePatternString(HPRequest mReq) {
          string result = "";
          string regNumber;
-         int maxLength;
          HPRequest mTemp = mReq;
-         // 150 is the lenght of the largest character 
-         if (rxClass) {
-            maxLength = 3000 - 150;
-         } else {
-            maxLength = 1500 - 150;
-         }
          do {
             if (mTemp.SubOp < 192) {
                regNumber = "" + (char)0xF1 + (char)(mTemp.SubOp + 0x40);
@@ -1761,7 +1751,7 @@ namespace HitachiProtocol {
             }
 
             // Put into wrapper
-            if (rxClass) {
+            if (useESC2) {
                result += sESC2 + (char)0x32 + mTemp.Data1 + regNumber + mTemp.Data2;
             } else {
                result += sESC + (char)0x20 + mTemp.Data1 + regNumber + mTemp.Data2;
@@ -1778,11 +1768,7 @@ namespace HitachiProtocol {
             }
          } while (result.Length < maxLength);
          // Put into wrapper
-         if (rxClass) {
-            return sSTX + result + sETX;
-         } else {
-            return sSTX + result + sETX;
-         }
+         return sSTX + result + sETX;
       }
 
       string BuildCalendarOffset(HPRequest mReq) {
@@ -1790,7 +1776,7 @@ namespace HitachiProtocol {
          string strStart;
          string strResult;
 
-         if (rxClass) {
+         if (useESC2) {
             strStart = "\x1f\x28\x32" + (char)(mReq.BlockNo + 0x30);
          } else {
             strStart = sESC + (char)0x76 + (char)(mReq.Item + 0x30);
@@ -1806,8 +1792,10 @@ namespace HitachiProtocol {
       }
 
       string BuildCalendarSubRule(HPRequest mReq) {
-         if (rxClass && SubstitutionRules) {
-            return "\x02\x1f\x28\x31" + (char)(mReq.BlockNo + 0x30) + mReq.Data6 + "\x03";
+         if (rx2Class) {
+            if (MonthSubMethod == MonthSubstitutionMethod.ViaMonth) {
+               return "\x02\x1f\x28\x31" + (char)(mReq.BlockNo + 0x30) + mReq.Data6 + "\x03";
+            }
          }
          return "";
       }
@@ -1819,7 +1807,7 @@ namespace HitachiProtocol {
          string eMessageName;
          string messageNumber;
 
-         if (rxClass) {
+         if (useESC2) {
             messageNumber = mReq.Item.ToString("0000");
             eMessageRecall = sESC2 + (char)0x20 + (char)0x31;
             eMessageSave = sESC2 + (char)0x21 + (char)0x31;
@@ -1872,7 +1860,7 @@ namespace HitachiProtocol {
 
       string BuildCountConditionString(HPRequest mReq) {
          string result = "";
-         if (rxClass) {
+         if (useESC2) {
             if (mReq.Data4.Length == 0) {
                result = sSTX +
                   sESC2 + Chr(0x2C) + Chr(0x32) + Chr(0x30 + mReq.BlockNo) + mReq.Data2 +  // Range 1
@@ -2930,7 +2918,7 @@ namespace HitachiProtocol {
                intItem += 100;
             }
             item = Chr('0' + intItem);
-            if (rxClass) {
+            if (useESC2) {
                return sESC2 + Chr(EscapeOther.ItemNumberRX) + item;
             } else {
                return sESC + Chr(EscapeOther.ItemNumber) + item;
