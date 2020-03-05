@@ -57,6 +57,13 @@ namespace HitachiProtocol {
       TwinNozzle = 7
    }
 
+   // Methods of rendering month 3-character names
+   internal enum MonthSubstitutionMethod {
+      NotSupported = 0,
+      ViaMonth = 1,
+      ViaMonthName = 2,
+   }
+
    // Message Formats
    public enum FormatSetup {
       Individual = 0,
@@ -399,11 +406,36 @@ namespace HitachiProtocol {
          get { return printerType; }
          set {
             printerType = value;
-            rxClass = printerType == HitachiPrinterType.RX
-                   || printerType == HitachiPrinterType.RX2
+            rx2Class = printerType == HitachiPrinterType.RX2
                    || printerType == HitachiPrinterType.UX
                    || printerType == HitachiPrinterType.TwinNozzle;
+            rxClass = rx2Class || printerType == HitachiPrinterType.RX;
             TenCharsPerItem = !rxClass;
+            useESC2 = rxClass;
+            if (rxClass) {
+               maxLength = 3000 - 150;
+            } else {
+               maxLength = 1500 - 150;
+            }
+         }
+      }
+
+      internal MonthSubstitutionMethod MonthSubMethod {
+         get {
+            MonthSubstitutionMethod result = MonthSubstitutionMethod.NotSupported;
+            switch (PrinterType) {
+               case HitachiPrinterType.RX2:
+                  if (SubstitutionRules) {
+                     result = MonthSubstitutionMethod.ViaMonth;
+                  } else {
+                     result = MonthSubstitutionMethod.ViaMonthName;
+                  }
+                  break;
+               case HitachiPrinterType.UX:
+                  result = MonthSubstitutionMethod.ViaMonthName;
+                  break;
+            }
+            return result;
          }
       }
 
@@ -434,6 +466,10 @@ namespace HitachiProtocol {
 
       public bool RXClass {
          get { return rxClass; }
+      }
+
+      internal bool RX2Class {
+         get { return rx2Class; }
       }
 
       // Status Area
