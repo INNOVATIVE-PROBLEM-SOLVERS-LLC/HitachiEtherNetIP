@@ -694,9 +694,18 @@ namespace EIP_Lib {
          bool anyGets = false;
          for (int i = 0; i < ccAttribute.Length; i++) {
             AttrData attr = EIP.AttrDict[cc, ccAttribute[i]];
+            bool allow;
+            if (cc == ClassCode.Index &&
+               ((ccIDX)attr.Val == ccIDX.Automatic_reflection || (ccIDX)attr.Val == ccIDX.Start_Stop_Management_Flag)
+               || cc == ClassCode.IJP_operation && (ccIJP)attr.Val == ccIJP.Online_Offline) {
+               allow = true;
+            } else {
+               allow = parent.ComIsOn;
+            }
+
             if (attr.HasSet) {
                if (EIP.TextIsValid(attr.Set, texts[i].Text)) {
-                  sets[i].Enabled = parent.ComIsOn;
+                  sets[i].Enabled = allow;
                   anySets |= enable;
                } else {
                   sets[i].Enabled = false;
@@ -704,7 +713,7 @@ namespace EIP_Lib {
             }
             if (attr.HasGet) {
                if (attr.Get.Len == 0 || EIP.TextIsValid(attr.Get, texts[i].Text)) {
-                  gets[i].Enabled = parent.ComIsOn;
+                  gets[i].Enabled = allow;
                   anyGets |= enable;
                } else {
                   gets[i].Enabled = false;

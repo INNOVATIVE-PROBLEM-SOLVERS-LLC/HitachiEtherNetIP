@@ -86,24 +86,26 @@
          this.btnReformat = new System.Windows.Forms.Button();
          this.btnRefresh = new System.Windows.Forms.Button();
          this.btnResetTraffic = new System.Windows.Forms.Button();
+         this.lblSoftwareVersion = new System.Windows.Forms.Label();
+         this.cbSoftwareVersion = new System.Windows.Forms.ComboBox();
          this.tclClasses.SuspendLayout();
          this.cmLog.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
          // 
-         this.lblIPAddress.Location = new System.Drawing.Point(23, 24);
+         this.lblIPAddress.Location = new System.Drawing.Point(28, 4);
          this.lblIPAddress.Name = "lblIPAddress";
-         this.lblIPAddress.Size = new System.Drawing.Size(95, 29);
+         this.lblIPAddress.Size = new System.Drawing.Size(95, 22);
          this.lblIPAddress.TabIndex = 2;
          this.lblIPAddress.Text = "IP Address";
          this.lblIPAddress.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // lblPort
          // 
-         this.lblPort.Location = new System.Drawing.Point(23, 56);
+         this.lblPort.Location = new System.Drawing.Point(28, 26);
          this.lblPort.Name = "lblPort";
-         this.lblPort.Size = new System.Drawing.Size(95, 29);
+         this.lblPort.Size = new System.Drawing.Size(95, 22);
          this.lblPort.TabIndex = 3;
          this.lblPort.Text = "Port";
          this.lblPort.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -111,7 +113,7 @@
          // txtIPAddress
          // 
          this.txtIPAddress.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.txtIPAddress.Location = new System.Drawing.Point(141, 24);
+         this.txtIPAddress.Location = new System.Drawing.Point(146, 4);
          this.txtIPAddress.Name = "txtIPAddress";
          this.txtIPAddress.Size = new System.Drawing.Size(175, 22);
          this.txtIPAddress.TabIndex = 4;
@@ -121,7 +123,7 @@
          // txtPort
          // 
          this.txtPort.Font = new System.Drawing.Font("Courier New", 7.8F);
-         this.txtPort.Location = new System.Drawing.Point(141, 56);
+         this.txtPort.Location = new System.Drawing.Point(146, 26);
          this.txtPort.Name = "txtPort";
          this.txtPort.Size = new System.Drawing.Size(175, 22);
          this.txtPort.TabIndex = 5;
@@ -151,7 +153,7 @@
          // txtSessionID
          // 
          this.txtSessionID.Font = new System.Drawing.Font("Courier New", 7.8F);
-         this.txtSessionID.Location = new System.Drawing.Point(141, 90);
+         this.txtSessionID.Location = new System.Drawing.Point(146, 54);
          this.txtSessionID.Name = "txtSessionID";
          this.txtSessionID.Size = new System.Drawing.Size(175, 22);
          this.txtSessionID.TabIndex = 9;
@@ -159,9 +161,9 @@
          // 
          // lblSessionID
          // 
-         this.lblSessionID.Location = new System.Drawing.Point(23, 90);
+         this.lblSessionID.Location = new System.Drawing.Point(28, 54);
          this.lblSessionID.Name = "lblSessionID";
-         this.lblSessionID.Size = new System.Drawing.Size(95, 29);
+         this.lblSessionID.Size = new System.Drawing.Size(95, 22);
          this.lblSessionID.TabIndex = 8;
          this.lblSessionID.Text = "Session ID";
          this.lblSessionID.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -687,11 +689,35 @@
          this.btnResetTraffic.UseVisualStyleBackColor = true;
          this.btnResetTraffic.Click += new System.EventHandler(this.btnResetTraffic_Click);
          // 
+         // lblSoftwareVersion
+         // 
+         this.lblSoftwareVersion.Location = new System.Drawing.Point(12, 76);
+         this.lblSoftwareVersion.Name = "lblSoftwareVersion";
+         this.lblSoftwareVersion.Size = new System.Drawing.Size(128, 22);
+         this.lblSoftwareVersion.TabIndex = 51;
+         this.lblSoftwareVersion.Text = "MCode Vers";
+         this.lblSoftwareVersion.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // cbSoftwareVersion
+         // 
+         this.cbSoftwareVersion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+         this.cbSoftwareVersion.FormattingEnabled = true;
+         this.cbSoftwareVersion.Items.AddRange(new object[] {
+            "2.07",
+            "3.01"});
+         this.cbSoftwareVersion.Location = new System.Drawing.Point(146, 82);
+         this.cbSoftwareVersion.Name = "cbSoftwareVersion";
+         this.cbSoftwareVersion.Size = new System.Drawing.Size(173, 24);
+         this.cbSoftwareVersion.TabIndex = 52;
+         this.cbSoftwareVersion.SelectedIndexChanged += new System.EventHandler(this.cbSoftwareVersion_SelectedIndexChanged);
+         // 
          // Browser
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1288, 627);
+         this.Controls.Add(this.cbSoftwareVersion);
+         this.Controls.Add(this.lblSoftwareVersion);
          this.Controls.Add(this.btnResetTraffic);
          this.Controls.Add(this.btnRefresh);
          this.Controls.Add(this.btnReformat);
@@ -812,6 +838,8 @@
       internal System.Windows.Forms.TabPage tabUserPattern;
       internal System.Windows.Forms.TabPage tabXML;
       private System.Windows.Forms.Button btnResetTraffic;
+      private System.Windows.Forms.Label lblSoftwareVersion;
+      public System.Windows.Forms.ComboBox cbSoftwareVersion;
    }
 }
 
