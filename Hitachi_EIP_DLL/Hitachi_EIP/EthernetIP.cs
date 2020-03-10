@@ -596,6 +596,27 @@ namespace EIP_Lib {
       public static Traffic Traffic = null;
       public static int TrafficUsers = 0;
 
+      private bool StackForwards = true;
+      private string softwareVersion;
+      public string SoftwareVersion {
+         get {
+            return softwareVersion;
+         }
+         set {
+            softwareVersion = value;
+            switch (softwareVersion) {
+               case "2.07":
+                  StackForwards = true;
+                  break;
+               case "3.01":
+                  StackForwards = false;
+                  break;
+               default:
+                  StackForwards = true;
+                  break;
+            }
+         }
+      }
 
       #endregion
 
@@ -740,7 +761,9 @@ namespace EIP_Lib {
       }
 
       // Opens a Data Forwarding path to the printer.
-      public bool ForwardOpen() {
+      public bool ForwardOpen(bool process = false) {
+         if (!process && !StackForwards)
+            return true;
          bool successful = true;
          OCF <<= 1;
          if (OpenCloseForward = !ForwardIsOpen) {
@@ -763,7 +786,9 @@ namespace EIP_Lib {
       }
 
       // End EtherNet/IP Forward Open
-      public void ForwardClose() {
+      public void ForwardClose(bool process = false) {
+         if (!process && !StackForwards)
+            return;
          if (OpenCloseForward) {
             UseAutomaticReflection = false;
             O_T_ConnectionID = 0;
@@ -824,7 +849,7 @@ namespace EIP_Lib {
       public bool GetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          Successful = false;
          if (StartSession()) {
-            if (ForwardOpen()) {
+            if (ForwardOpen(true)) {
                AttrData attr = SetRequest(AccessCode.Get, Class, 0x01, Attribute, DataOut);
                LengthIsValid = false;
                DataIsValid = false;
@@ -852,7 +877,7 @@ namespace EIP_Lib {
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Get, Class, 0x01, Attribute, Successful));
             }
-            ForwardClose();
+            ForwardClose(true);
          }
          bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();
@@ -902,7 +927,7 @@ namespace EIP_Lib {
       public bool SetAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          Successful = false;
          if (StartSession()) {
-            if (ForwardOpen()) {
+            if (ForwardOpen(true)) {
                AttrData attr = SetRequest(AccessCode.Set, Class, 0x01, Attribute, DataOut);
                int n = EIP_GetSetSrv(EIP_Type.SendUnitData, AccessCode.Set, Class, 0x01, Attribute, DataOut);
                // Write the request and read the response
@@ -926,7 +951,7 @@ namespace EIP_Lib {
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Set, Class, 0x01, Attribute, Successful));
             }
-            ForwardClose();
+            ForwardClose(true);
          }
          bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();
@@ -974,7 +999,7 @@ namespace EIP_Lib {
       public bool ServiceAttribute(ClassCode Class, byte Attribute, byte[] DataOut) {
          Successful = false;
          if (StartSession()) {
-            if (ForwardOpen()) {
+            if (ForwardOpen(true)) {
                GetDataValue = string.Empty;
                SetDataValue = string.Empty;
                AttrData attr = SetRequest(AccessCode.Service, Class, 0x01, Attribute, DataOut);
@@ -995,7 +1020,7 @@ namespace EIP_Lib {
 
                IOComplete?.Invoke(this, new EIPEventArg(AccessCode.Service, Class, 0x01, Attribute, Successful));
             }
-            ForwardClose();
+            ForwardClose(true);
          }
          bool report = ReportErrors && !Successful; // Must decide before ending session
          EndSession();

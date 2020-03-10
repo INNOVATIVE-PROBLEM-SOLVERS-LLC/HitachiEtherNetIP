@@ -22,7 +22,7 @@ namespace H_EIP {
          Application.SetCompatibleTextRenderingDefault(false);
          try {
             p = HitachiEIP.Properties.Settings.Default;
-            ThisProgram = new EIP_Lib.Browser(p.IPAddress, p.IPPort, p.TrafficFolder, p.MessageFolder);
+            ThisProgram = new EIP_Lib.Browser(p.IPAddress, p.IPPort, p.TrafficFolder, p.MessageFolder, p.SoftwareVersion);
             ThisProgram.FormClosing += Browser_FormClosing;
             Application.Run(ThisProgram);
          } catch (Exception ex) {
@@ -102,6 +102,7 @@ namespace H_EIP {
          p.IPPort = ThisProgram.IPPort;
          p.TrafficFolder = ThisProgram.TrafficFolder;
          p.MessageFolder = ThisProgram.MessageFolder;
+         p.SoftwareVersion = ThisProgram.cbSoftwareVersion.SelectedIndex;
          p.Save();
       }
 

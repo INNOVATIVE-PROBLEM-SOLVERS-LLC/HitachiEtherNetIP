@@ -71,7 +71,7 @@ namespace EIP_Lib {
 
       #region Constructors and Destructors
 
-      public Browser(string IPAddress, int IPPort, string TrafficFolder, string MessageFolder) {
+      public Browser(string IPAddress, int IPPort, string TrafficFolder, string MessageFolder, int SoftwareVersion) {
          InitializeComponent();
 
          this.Text += " - " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -80,6 +80,7 @@ namespace EIP_Lib {
          this.IPPort = IPPort;
          this.TrafficFolder = TrafficFolder;
          this.MessageFolder = MessageFolder;
+         this.cbSoftwareVersion.SelectedIndex = SoftwareVersion;
 
          txtIPAddress.Text = IPAddress;
          txtPort.Text = IPPort.ToString();
@@ -93,6 +94,7 @@ namespace EIP_Lib {
          EIP.Log += EIP_Log;
          EIP.IOComplete += EIP_IO_Complete;
          EIP.StateChanged += EIP_StateChanged;
+         EIP.SoftwareVersion = cbSoftwareVersion.Text;
 
          // Initialize all class and attribute structures
          InitializeData();
@@ -200,41 +202,43 @@ namespace EIP_Lib {
             Utils.ResizeObject(ref R, txtPort, 3, 4, 2, 5);
             Utils.ResizeObject(ref R, lblSessionID, 5, 1, 2, 3);
             Utils.ResizeObject(ref R, txtSessionID, 5, 4, 2, 5);
+            Utils.ResizeObject(ref R, lblSoftwareVersion, 7, 1, 2, 3);
+            Utils.ResizeObject(ref R, cbSoftwareVersion, 7, 4, 2, 5);
 
-            Utils.ResizeObject(ref R, btnStartSession, 7.5f, 0.5f, 2, 4);
-            Utils.ResizeObject(ref R, btnEndSession, 7.5f, 5, 2, 4);
-            Utils.ResizeObject(ref R, btnForwardOpen, 10, 0.5f, 2, 4);
-            Utils.ResizeObject(ref R, btnForwardClose, 10, 5, 2, 4);
+            Utils.ResizeObject(ref R, btnStartSession, 9.5f, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnEndSession, 9.5f, 5, 2, 4);
+            Utils.ResizeObject(ref R, btnForwardOpen, 12, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnForwardClose, 12, 5, 2, 4);
 
-            Utils.ResizeObject(ref R, lblClassCode, 13, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, cbClassCode, 14, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, lblFunction, 16, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, cbFunction, 17, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, btnIssueGet, 19, 0.5f, 2, 4);
-            Utils.ResizeObject(ref R, btnIssueSet, 19, 5, 2, 4);
-            Utils.ResizeObject(ref R, btnIssueService, 19, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblClassCode, 15, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, cbClassCode, 16, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblFunction, 18, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, cbFunction, 19, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnIssueGet, 21, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnIssueSet, 21, 5, 2, 4);
+            Utils.ResizeObject(ref R, btnIssueService, 21, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblStatus, 21, 0.5f, 1, 8.5f);
-            Utils.ResizeObject(ref R, txtStatus, 22, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblStatus, 23, 0.5f, 1, 8.5f);
+            Utils.ResizeObject(ref R, txtStatus, 24, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblCountOut, 24, 0.5f, 1, 1);
-            Utils.ResizeObject(ref R, lbldataOut, 24, 2, 1, 7);
-            Utils.ResizeObject(ref R, txtCountOut, 25, 0.5f, 2, 1);
-            Utils.ResizeObject(ref R, txtDataOut, 25, 2, 2, 7);
-            Utils.ResizeObject(ref R, txtDataBytesOut, 27, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblCountOut, 26, 0.5f, 1, 1);
+            Utils.ResizeObject(ref R, lbldataOut, 26, 2, 1, 7);
+            Utils.ResizeObject(ref R, txtCountOut, 27, 0.5f, 2, 1);
+            Utils.ResizeObject(ref R, txtDataOut, 27, 2, 2, 7);
+            Utils.ResizeObject(ref R, txtDataBytesOut, 29, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblCountIn, 29, 0.5f, 1, 1);
-            Utils.ResizeObject(ref R, lbldataIn, 29, 2, 1, 7);
-            Utils.ResizeObject(ref R, txtCountIn, 30, 0.5f, 2, 1);
-            Utils.ResizeObject(ref R, txtDataIn, 30, 2, 2, 7);
-            Utils.ResizeObject(ref R, txtDataBytesIn, 32, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, lblCountIn, 31, 0.5f, 1, 1);
+            Utils.ResizeObject(ref R, lbldataIn, 31, 2, 1, 7);
+            Utils.ResizeObject(ref R, txtCountIn, 32, 0.5f, 2, 1);
+            Utils.ResizeObject(ref R, txtDataIn, 32, 2, 2, 7);
+            Utils.ResizeObject(ref R, txtDataBytesIn, 34, 0.5f, 2, 8.5f);
 
-            Utils.ResizeObject(ref R, lblSaveFolder, 34, 0.5f, 1, 6);
-            Utils.ResizeObject(ref R, txtSaveFolder, 35, 0.5f, 2, 8.5f);
-            Utils.ResizeObject(ref R, btnBrowse, 37, 0.5f, 2, 4);
-            Utils.ResizeObject(ref R, btnProperties, 37, 5, 2, 4);
+            Utils.ResizeObject(ref R, lblSaveFolder, 36, 0.5f, 1, 6);
+            Utils.ResizeObject(ref R, txtSaveFolder, 37, 0.5f, 2, 8.5f);
+            Utils.ResizeObject(ref R, btnBrowse, 39, 0.5f, 2, 4);
+            Utils.ResizeObject(ref R, btnProperties, 39, 5, 2, 4);
 
-            Utils.ResizeObject(ref R, lstErrors, 40, 0.5f, 8, 8.5f);
+            Utils.ResizeObject(ref R, lstErrors, 42, 0.5f, 6, 8.5f);
 
             #endregion
 
@@ -310,6 +314,13 @@ namespace EIP_Lib {
       #endregion
 
       #region Form control events
+
+      // Version 3.01 has issues.
+      private void cbSoftwareVersion_SelectedIndexChanged(object sender, EventArgs e) {
+         if (initComplete && EIP != null) {
+            EIP.SoftwareVersion = cbSoftwareVersion.Text;
+         }
+      }
 
       // Start a new session
       private void btnStartSession_Click(object sender, EventArgs e) {
@@ -760,14 +771,8 @@ namespace EIP_Lib {
          // Get the currevt setting
          if (EIP.GetAttribute(ClassCode.Index, (byte)ccIDX.Start_Stop_Management_Flag, EIP.Nodata)) {
             if (EIP.GetDataValue != "0") {
-               // Non-zero says requests are to be stacked.
-               btnManagementFlag.Text = $"S/S Management\n{EIP.GetDataValue}";
-               btnManagementFlag.BackColor = Color.Pink;
                MgmtIsOn = true;
             } else {
-               // Zero says requests are processed immediately
-               btnManagementFlag.Text = "S/S Management\n0";
-               btnManagementFlag.BackColor = Color.LightGreen;
                MgmtIsOn = false;
             }
             result = true;
@@ -788,14 +793,8 @@ namespace EIP_Lib {
          // Read the value
          if (EIP.GetAttribute(ClassCode.Index, (byte)ccIDX.Automatic_reflection, EIP.Nodata)) {
             if (EIP.GetDataValue == "1") {
-               // Do not know whet 1 means but I think it is bad
-               btnAutoReflection.Text = "Auto Reflection\n1";
-               btnAutoReflection.BackColor = Color.Pink;
                AutoReflIsOn = true;
             } else {
-               // Hoped for response
-               btnAutoReflection.Text = "Auto Reflection\n0";
-               btnAutoReflection.BackColor = Color.LightGreen;
                AutoReflIsOn = false;
             }
             result = true;
@@ -832,11 +831,26 @@ namespace EIP_Lib {
             cbClassCode.SelectedIndex >= 0 && cbFunction.SelectedIndex >= 0;
 
          btnCom.Enabled = true;
-         btnAutoReflection.Enabled = ComIsOn;
-         btnManagementFlag.Enabled = ComIsOn;
+         btnAutoReflection.Enabled = true;
+         btnManagementFlag.Enabled = true;
 
          btnReadAll.Enabled = ComIsOn;
 
+         if (AutoReflIsOn) {
+            btnAutoReflection.Text = "Auto Reflection\n1";
+            btnAutoReflection.BackColor = Color.Pink;
+         } else {
+            btnAutoReflection.Text = "Auto Reflection\n0";
+            btnAutoReflection.BackColor = Color.LightGreen;
+         }
+
+         if (MgmtIsOn) {
+            btnManagementFlag.Text = $"S/S Management\n1";
+            btnManagementFlag.BackColor = Color.Pink;
+         } else {
+            btnManagementFlag.Text = "S/S Management\n0";
+            btnManagementFlag.BackColor = Color.LightGreen;
+         }
          if (initComplete) {
             switch (tclClasses.SelectedIndex) {
                case 0:                         // ccIDX == 0x7A Index function 
@@ -884,6 +898,7 @@ namespace EIP_Lib {
       }
 
       #endregion
+
    }
 }
 
