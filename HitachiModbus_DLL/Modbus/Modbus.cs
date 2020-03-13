@@ -175,7 +175,9 @@ namespace Modbus_DLL {
             if ((data[7] & 0x80) > 0) {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
                Log?.Invoke(this, s);
-               throw new ModbusException(s);
+               if (StopOnAllErrors) {
+                  throw new ModbusException(s);
+               }
             }
          } else {
             Log?.Invoke(this, "Read Failed.");
@@ -404,13 +406,15 @@ namespace Modbus_DLL {
       // Get human readable value of the attribute
       public string GetHRAttribute<T>(T Attribute) where T : Enum {
          byte[] b = GetAttribute(Attribute);
-         int n = GetDecValue(b);
-         string result = n.ToString();
+         int d = GetDecValue(b);
+         string result = d.ToString();
          AttrData attr = GetAttrData(Attribute);
          if (attr.Data.DropDown != fmtDD.None) {
-            result = ToDropdownString(attr.Data, n);
+            result = ToDropdownString(attr.Data, d);
          } else if (attr.Data.Fmt == DataFormats.UTF8) {
             result = FormatText(b);
+         } else if (attr.Data.Fmt == DataFormats.SDecimal) {
+            result = FormatSignedDec(d, attr.Data.Len);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
@@ -431,12 +435,21 @@ namespace Modbus_DLL {
             result = ToDropdownString(attr.Data, d);
          } else if (attr.Data.Fmt == DataFormats.UTF8) {
             result = FormatText(b);
+         } else if (attr.Data.Fmt == DataFormats.SDecimal) {
+            result = FormatSignedDec(d, attr.Data.Len);
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
          Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] {GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{result}\"");
          if (LogIOs)
             Log?.Invoke(this, " ");
+         return result;
+      }
+
+      private string FormatSignedDec(int d, int n) {
+         string result = string.Empty;
+         int nBits = (4 - n) * 8;
+         result = ((d << nBits) >> nBits).ToString();
          return result;
       }
 
@@ -493,7 +506,7 @@ namespace Modbus_DLL {
             }
             success = true;
          }
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, val + attr.Data.Min)}");
+         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = {GetHRValue(attr, val)}");
          if (LogIOs)
             Log?.Invoke(this, " ");
          return success;
@@ -957,10 +970,10 @@ namespace Modbus_DLL {
                result += (char)text[i + 3];
             } else if (text[i + 2] == 0xF1) {
                result += $"{{X/{text[i + 3] - 0x40}}}";
+            } else if (text[i + 2] == 0xF2 && text[i + 3] >= 0x20 && text[i + 3] <= 0x27) {
+               result += $"{{Z/{text[i + 3] - 0x20 + 192}}}";
             } else if (text[i + 2] == 0xF6) {
                result += $"{{Z/{text[i + 3] - 0x40}}}";
-            } else if (text[i] == 0xF2 && text[i + 3] >= 0x20 && text[i + 3] <= 0x27) {
-               result += $"{{Z/{text[i + 3] - 0x20 + 192}}}";
             } else if (text[i] == 0xF2) {
                switch (text[i + 1]) {
                   case 0x50:
@@ -973,12 +986,15 @@ namespace Modbus_DLL {
                      result += "{Y}}";
                      break;
                   case 0x51:
+                  case 0x57:
                      result += "{M}";
                      break;
                   case 0x61:
+                  case 0x67:
                      result += "{{M}";
                      break;
                   case 0x71:
+                  case 0x77:
                      result += "{M}}";
                      break;
                   case 0x52:
@@ -1024,7 +1040,7 @@ namespace Modbus_DLL {
                      result += "{{T}";
                      break;
                   case 0x76:
-                     result += "{T}";
+                     result += "{T}}";
                      break;
                   case 0x58:
                      result += "{W}";

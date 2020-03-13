@@ -264,11 +264,11 @@ namespace ModBus161 {
                if ((mask[i] & (int)ba.Minute) > 0)
                   if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, n)))
                      item.Date[i].Substitute.Minute = s;
-               if ((mask[i] & (int)ba.Week) > 0) // Printer reports these wrong
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n)))
-                     item.Date[i].Substitute.Week = s;
-               if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
+               if ((mask[i] & (int)ba.Week) > 0)
                   if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, n)))
+                     item.Date[i].Substitute.Week = s;
+               if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n)))
                      item.Date[i].Substitute.DayOfWeek = s;
             }
             n++;

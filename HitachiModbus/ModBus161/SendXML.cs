@@ -340,9 +340,9 @@ namespace ModBus161 {
                int index = countStart + c.Block - 2; // Both count start and count block are 1-origin
 
                parent.Log($" \n// Set up count {index + 1}\n ");
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                // Process Range
                Range r = c.Range;
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (r != null) {
                   if (r.Range1 != null)
                      p.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
@@ -353,9 +353,11 @@ namespace ModBus161 {
                   if (r.JumpTo != null)
                      p.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
                }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Count
                Count cc = c.Count;
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (cc != null) {
                   if (cc.InitialValue != null)
                      p.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
@@ -366,18 +368,22 @@ namespace ModBus161 {
                   if (cc.ZeroSuppression != null)
                      p.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
                }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Reset
                Reset rr = c.Reset;
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (rr != null) {
                   if (rr.Type != null)
                      p.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
                   if (rr.Value != null)
                      p.SetAttribute(ccCount.Reset_Value, index, rr.Value);
                }
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Misc
                Misc m = c.Misc;
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (m != null) {
                   if (m.UpdateUnit != null)
                      p.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
@@ -403,6 +409,8 @@ namespace ModBus161 {
          for (int j = 0; j < item.Shift.Length; j++) {
             p.SetAttribute(ccSR.Shift_Start_Hour, j, item.Shift[j].StartHour);
             p.SetAttribute(ccSR.Shift_Start_Minute, j, item.Shift[j].StartMinute);
+            p.SetAttribute(ccSR.Shift_End_Hour, j, item.Shift[j].EndHour);
+            p.SetAttribute(ccSR.Shift_End_Minute, j, item.Shift[j].EndMinute);
             p.SetAttribute(ccSR.Shift_String_Value, j, item.Shift[j].ShiftCode);
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);

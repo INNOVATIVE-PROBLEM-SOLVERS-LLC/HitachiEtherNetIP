@@ -1533,6 +1533,8 @@ namespace EIP_Lib {
             case DataFormats.DecimalLE:
             case DataFormats.SDecimal:
             case DataFormats.SDecimalLE:
+               IsValid = prop.Len >= data.Length;
+               break;
             case DataFormats.Date:
             case DataFormats.Bytes:
             case DataFormats.XY:

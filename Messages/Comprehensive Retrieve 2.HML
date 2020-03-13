@@ -1,0 +1,82 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W        " Nozzle="1">
+    <PrintHead Orientation="Reverse_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
+    <PrintStartDelay Forward="96" Reverse="96" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <Substitution Delimiter="/" StartYear="2000" RuleNumber="1">
+      <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">MONTUE/TUEWED/WEDTHU/THUFRI/FRISAT/SATSUN/SUN</Rule>
+    </Substitution>
+    <Logos>
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Location="0" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+    </Logos>
+  </Printer>
+  <Message Layout="SeparateSetup" Nozzle="1">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="24" Hour="-12" Minute="-30" />
+          <ZeroSuppress Day="Space" />
+          <Substitute Month="True" />
+        </Date>
+        <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="45" />
+          <ZeroSuppress Day="Space" />
+          <Substitute Month="True" />
+        </Date>
+        <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Substitute DayOfWeek="True" />
+        </Date>
+        <Text>PACKED  {{TTT} {777}}    </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" />
+        <Shifts>
+          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+        </Shifts>
+        <Text>Shift {E}</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" />
+        <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        <Text>TCount {FF} </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Counter Block="1">
+          <Range Range1="000000              " Range2="999999              " JumpFrom="000199              " JumpTo="000300              " />
+          <Count InitialValue="000000              " Increment="1" Direction="Up" ZeroSuppression="True" />
+          <Reset Type="Signal1" Value="000001              " />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" Multiplier="          " SkipCount="    " />
+        </Counter>
+        <Text># {{CCCCCC}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <Text>{X/0}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>
