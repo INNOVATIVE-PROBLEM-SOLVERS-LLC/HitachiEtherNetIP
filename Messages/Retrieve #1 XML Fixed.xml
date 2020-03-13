@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Label Version="1">
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
   <Printer Make="Hitachi" Model="UX-D161W">
     <PrintHead Orientation="Inverted/Forward" />
     <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="1" />
-    <TargetSensor Filter="Until End of Print" SetupValue="50" Timer="0" />
-    <CharacterSize Height="90" Width="10" />
+    <TargetSensor Filter="Until End of Print" SetupValue="2" Timer="0" />
+    <CharacterSize Width="10" Height="90" />
     <PrintStartDelay Forward="96" Reverse="96" />
     <EncoderSettings HighSpeedPrinting="HM" Divisor="1" ExternalEncoder="None" />
     <InkStream InkDropUse="2" ChargeRule="Standard" />
@@ -13,25 +13,23 @@
       <Rule Type="Month" Base="11">NOV/DEC</Rule>
       <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
     </Substitution>
-    <Logos Folder="C:\GitHubEtherNetIP\Messages">
+    <Logos>
       <Logo Layout="Fixed" DotMatrix="18x24" Location="0" FileName="Square 5x8" RawData="FF 81 81 99 99 81 81 FF" />
     </Logos>
   </Printer>
   <Message Layout="Individual">
     <Column InterLineSpacing="2">
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
-          <Offset Day="24" />
+          <Offset Day="24" Hour="-12" Minute="-30" />
           <ZeroSuppress Day="Space Fill" />
           <Substitute Month="Enable" />
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Day="45" />
           <ZeroSuppress Day="Space Fill" />
@@ -40,20 +38,17 @@
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
       </Item>
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
-          <Offset />
-          <ZeroSuppress />
           <Substitute DayOfWeek="Enable" />
         </Date>
-        <Text>PACKED  {{TTT} {777}} </Text>
+        <Text>PACKED  {{TTT} {777}}    </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="2">
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" />
         <Shifts>
           <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
           <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
@@ -62,27 +57,25 @@
         <Text>Shift {{E}}</Text>
       </Item>
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
-        <TimeCount Interval="30 Minutes" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" />
+        <TimeCount Interval="6" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
         <Text>TCount {{FF}} </Text>
       </Item>
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
-        <BarCode />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
         <Counter Block="1">
           <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
-          <Count InitialValue="000001" Increment="2" Direction="Down" ZeroSuppression="Enable" />
-          <Reset Type="Signal 1" Value="000001" />
-          <Misc UpdateUnit="1" UpdateIP="0" Multiplier="" />
+          <Count InitialValue="000000" Increment="1" Direction="Up" ZeroSuppression="Enable" />
+          <Reset Type="1" Value="000001" />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="Disable" Multiplier="" SkipCount=" " />
         </Counter>
         <Text># {{CCCCCC}} </Text>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
       <Item>
-        <Font IncreasedWidth="1" InterCharacterSpace="2" DotMatrix="18x24" />
-        <BarCode />
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="18x24" />
         <Text>{X/000}</Text>
       </Item>
     </Column>
