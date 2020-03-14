@@ -33,8 +33,6 @@ namespace HitachiProtocol_Test {
       int sDataBits;
       StopBits sStopBits;
 
-      bool SetupInProgress = false;
-
       #endregion
 
       #region Constructors and Destructors
@@ -118,12 +116,6 @@ namespace HitachiProtocol_Test {
 
       // Send message to the printer
       void cmdSend_Click(object sender, EventArgs e) {
-         HP.WriteText(1, "1\x0D\x0A\x32");
-         return;
-         HP.IssueControl(ControlOps.ClearAll);
-         return;
-         // Indicate operation in progress
-         SetupInProgress = true;
          // Clear all current items
          HP.IssueControl(ControlOps.ClearAll);
          // Set all items to 7x10 format
@@ -273,9 +265,6 @@ namespace HitachiProtocol_Test {
             case PrinterOps.SetClock:
                break;
             case PrinterOps.Idle:
-               if (e.Message == "Done") {
-                  SetupInProgress = false;
-               }
                break;
             case PrinterOps.PassThru:
                break;

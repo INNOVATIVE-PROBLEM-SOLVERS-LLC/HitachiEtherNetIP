@@ -6,7 +6,6 @@ namespace HitachiProtocol_Test {
    static class Program {
       static internal HPTest ThisProgram;
       static TextWriter twError = null;
-      static Properties.Settings p;
 
       /// <summary>
       /// The main entry point for the application.
