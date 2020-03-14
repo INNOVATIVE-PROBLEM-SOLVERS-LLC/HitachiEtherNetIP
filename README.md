@@ -1,6 +1,8 @@
 # HitachiEtherNetIP
 
-UPDATE -- Hitachi has released UX-161 code that is based on Revision 7 of Hitachi's EtherNet/IP implementation.  The document "<b>EtherNetIP_UsersManual_7th.pdf</b>" is included.  The implementation supports two communication pritocols: Message and Cyclic. The document describes the Cyclic communications.  It is assumed that the Message Communications of Revision 4 documentation still applies but that is not clear.  It is also not clear how to switch from Cyclic to Message modes.   All Get requests have to be in their own Forward Envelope.  Have not successfully implemented any Set or Service operation.
+Update -- MAR 14, 2020 -- The version with the tag "Level_8.0.0.0" has significate updates to "Modbus161" and "ModbusDLL".  With this version, a XML message containing five calendar blocks, a counter block, and a user pattern was successfully sent to the printer, retrieved from the printer, and compared as an exact match.  An inspection of the printer revealed that the message was properly built.
+
+UPDATE -- Hitachi has released UX-161 code that is based on Revision 7 of Hitachi's EtherNet/IP implementation.  The document "<b>EtherNetIP_UsersManual_7th.pdf</b>" is included.  The implementation supports two communication protocols: Message and Cyclic. The document describes the Cyclic communications.  It is assumed that the Message Communications of Revision 4 documentation still applies but that is not clear.  It is also not clear how to switch from Cyclic to Message modes.   All Get requests have to be in their own Forward Envelope.  Have not successfully implemented any Set or Service operation.
 
 If you use level 3.01 with the Browser, be sure to set the language from the Dropdown.
 
