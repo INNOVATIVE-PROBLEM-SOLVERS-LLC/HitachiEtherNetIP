@@ -16,7 +16,7 @@ namespace H_EIP {
 
       private void TestEIP_Load(object sender, EventArgs e) {
          // Comment out next line if browser not needed
-         browser = new Browser(txtIPAddress.Text, 44818, @"C:\Temp\EIP", @"C:\GitHubEtherNetIP\Messages");
+         browser = new Browser(txtIPAddress.Text, 44818, @"C:\Temp\EIP", @"C:\GitHubEtherNetIP\Messages", 0);
          if (browser == null) {
             // Get a new EtherNet/IP instance
             EIP = new EIP(txtIPAddress.Text, 44818, @"C:\Temp\EIP");
@@ -73,7 +73,7 @@ namespace H_EIP {
                   string name = $"{EIP.GetAttributeName(e1.ClassCode, e1.Attribute)}";
                   string msg = $"EIP I/O Error on {e1.AccessCode}/{e1.ClassCode}/{name}";
                   MessageBox.Show(msg, "EIP I/O Error", MessageBoxButtons.OK);
-               } catch (Exception e2) {
+               } catch {
                   // You are on your own here
                }
             }
