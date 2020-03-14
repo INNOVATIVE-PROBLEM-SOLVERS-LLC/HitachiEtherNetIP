@@ -9,6 +9,14 @@ using Modbus_DLL;
 namespace ModBus161 {
    public partial class SendRetrieveXML {
 
+      #region Events
+
+      // Event Logging
+      public event LogHandler Log;
+      public delegate void LogHandler(object sender, string msg);
+
+      #endregion
+
       #region Data Declarations
 
       enum ItemType {
@@ -57,7 +65,7 @@ namespace ModBus161 {
 
       const int DateOffset =
         (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute | (int)ba.Second |
-        (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek;
+        (int)ba.Julian | (int)ba.Week | (int)ba.DayOfWeek | (int)ba.Shift | (int)ba.TimeCount;
 
       const int DateSubZS =
          (int)ba.Year | (int)ba.Month | (int)ba.Day | (int)ba.Hour | (int)ba.Minute |
@@ -66,7 +74,6 @@ namespace ModBus161 {
       // Flag for Attribute Not Present
       const string N_A = "N!A";
 
-      UI161 parent;
       Modbus p;
 
       // Structures for retrieving logos
@@ -84,8 +91,7 @@ namespace ModBus161 {
 
       #region Constructors and destructors
 
-      public SendRetrieveXML(UI161 parent, Modbus printer) {
-         this.parent = parent;
+      public SendRetrieveXML(Modbus printer) {
          p = printer;
       }
 
@@ -94,7 +100,7 @@ namespace ModBus161 {
          if (p.GetDecAttribute(ccIJP.Online_Offline) == 0) {
             p.SetAttribute(ccIJP.Online_Offline, 1);
             if (p.GetDecAttribute(ccIJP.Online_Offline) == 0) {
-               parent.Log("Cannot turn com on!  Retrieve aborted!");
+               Log?.Invoke(p, "Cannot turn com on!  Retrieve aborted!");
                return xml;
             }
          }
@@ -120,7 +126,7 @@ namespace ModBus161 {
                xml = new StreamReader(ms).ReadToEnd();
             }
          } catch (Exception e2) {
-            parent.Log(e2.Message);
+            Log?.Invoke(p, e2.Message);
          }
          return xml;
       }
@@ -131,6 +137,7 @@ namespace ModBus161 {
 
       // Retrieve the Message portion of the XML
       private Msg RetrieveMessage() {
+         Log?.Invoke(p, $" \n// Retrieving Message Layout\n ");
          Msg m = new Msg();
          m.Layout = p.GetHRAttribute(ccPF.Format_Setup);
          RetrieveRowsColumns(m);
@@ -139,6 +146,7 @@ namespace ModBus161 {
 
       // Retrieve row/column/items
       private void RetrieveRowsColumns(Msg m) {
+         Log?.Invoke(p, $" \n// Retrieving Rows and Columns\n ");
          int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          int lineCount;
          int n = 0;
@@ -159,6 +167,7 @@ namespace ModBus161 {
             m.Column[col].InterLineSpacing = spacing[col];
             m.Column[col].Item = new Item[cols[col]];                     // Allocate the items array
             for (int row = 0; row < m.Column[col].Item.Length; row++) {
+               Log?.Invoke(p, $" \n// Retrieving Item in Column {col + 1} Row {row + 1}\n ");
                Item item = new Item();                                    // Allocate the item
                int characterCount = p.GetDecAttribute(ccPC.Characters_per_Item, n);
                item.Text = p.GetHRAttribute(ccPC.Print_Character_String, totalCharacters, characterCount);
@@ -181,11 +190,13 @@ namespace ModBus161 {
                item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, n);
                if (item.Location.calCount > 0) {
                   item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, n);
+                  Log?.Invoke(p, $" \n// Retrieving Calendar Block {item.Location.calStart}\n ");
                   RetrieveCalendarSettings(item, mask);
                }
                item.Location.countCount = p.GetDecAttribute(ccPF.Number_Of_Count_Blocks, n);
                if (item.Location.countCount > 0) {
                   item.Location.countStart = p.GetDecAttribute(ccPF.First_Count_Block, n);
+                  Log?.Invoke(p, $" \n// Retrieving Count Block {item.Location.countStart}\n ");
                   RetrieveCountSettings(item);
                }
                for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
@@ -315,6 +326,7 @@ namespace ModBus161 {
          string endMinute;
          int n = 0;
          do {
+            Log?.Invoke(p, $" \n// Retrieving Shift {n + 1}\n ");
             s.Add(new Shift() {
                ShiftNumber = n + 1,
                StartHour = p.GetHRAttribute(ccSR.Shift_Start_Hour, n),
@@ -346,8 +358,10 @@ namespace ModBus161 {
 
       // Retrieve printer settings
       private Printer RetrievePrinterSettings() {
+         Log?.Invoke(p, $" \n// Retrieving Printer Settings\n ");
          Printer ptr = new Printer() {
             Make = "Hitachi",
+
             Model = p.GetHRAttribute(ccUI.Model_Name),
             PrintHead = new PrintHead() {
                Orientation = p.GetHRAttribute(ccPS.Character_Orientation)
@@ -427,6 +441,7 @@ namespace ModBus161 {
             for (int i = 0; i < neededLogo.Count; i++) {
                switch (neededLogo[i].layout) {
                   case logoLayout.Free:
+                     Log?.Invoke(p, $" \n// Retrieving Free Logo {neededLogo[i].registration}\n ");
                      if (p.GetFreeLogo(neededLogo[i].registration, out int width, out int height, out byte[] freeData)) {
                         Logo logo = new Logo() {
                            Location = neededLogo[i].registration.ToString(),
@@ -439,6 +454,7 @@ namespace ModBus161 {
                      }
                      break;
                   case logoLayout.Fixed:
+                     Log?.Invoke(p, $" \n// Retrieving Fixed Logo:  Dot Matrix {neededLogo[i].dotMatrix}, Location {neededLogo[i].registration}\n ");
                      if (p.GetFixedLogo(neededLogo[i].dotMatrix, neededLogo[i].registration, out byte[] fixedData)) {
                         Logo logo = new Logo() {
                            Location = neededLogo[i].registration.ToString(),
@@ -522,6 +538,7 @@ namespace ModBus161 {
 
       // Retrieve one substitution type
       private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR rule) {
+         Log?.Invoke(p, $" \n// Retrieving substitution for {rule}\n ");
          AttrData attr = p.GetAttrData(rule);
          int n = (int)(attr.Data.Max - attr.Data.Min + 1);
          string[] subCode = new string[n];
