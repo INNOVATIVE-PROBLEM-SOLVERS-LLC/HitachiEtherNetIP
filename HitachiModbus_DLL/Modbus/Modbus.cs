@@ -16,6 +16,10 @@ namespace Modbus_DLL {
       public event LogHandler Log;
       public delegate void LogHandler(object sender, string msg);
 
+      // I/O Complete
+      public event CompleteHandler Complete;
+      public delegate void CompleteHandler(object sender, bool Success);
+
       #endregion
 
       #region Data Declarations
@@ -175,9 +179,9 @@ namespace Modbus_DLL {
             if ((data[7] & 0x80) > 0) {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
                Log?.Invoke(this, s);
-               if (StopOnAllErrors) {
-                  throw new ModbusException(s);
-               }
+               Complete?.Invoke(this, false);
+            } else {
+               Complete?.Invoke(this, true);
             }
          } else {
             Log?.Invoke(this, "Read Failed.");

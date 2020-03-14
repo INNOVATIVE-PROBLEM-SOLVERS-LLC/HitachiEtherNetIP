@@ -140,6 +140,11 @@
          this.txtPrinterStatus = new System.Windows.Forms.TextBox();
          this.txtAnalysis = new System.Windows.Forms.TextBox();
          this.lblAnalysis = new System.Windows.Forms.Label();
+         this.cmdResetIOs = new System.Windows.Forms.Button();
+         this.txtAcks = new System.Windows.Forms.TextBox();
+         this.lblAcks = new System.Windows.Forms.Label();
+         this.txtNaks = new System.Windows.Forms.TextBox();
+         this.lblNaks = new System.Windows.Forms.Label();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -191,9 +196,9 @@
          // 
          // cmdReadData
          // 
-         this.cmdReadData.Location = new System.Drawing.Point(653, 578);
+         this.cmdReadData.Location = new System.Drawing.Point(551, 583);
          this.cmdReadData.Name = "cmdReadData";
-         this.cmdReadData.Size = new System.Drawing.Size(127, 40);
+         this.cmdReadData.Size = new System.Drawing.Size(99, 40);
          this.cmdReadData.TabIndex = 8;
          this.cmdReadData.Text = "Read Data";
          this.cmdReadData.UseVisualStyleBackColor = true;
@@ -223,9 +228,9 @@
          // 
          // cmdExit
          // 
-         this.cmdExit.Location = new System.Drawing.Point(674, 706);
+         this.cmdExit.Location = new System.Drawing.Point(692, 701);
          this.cmdExit.Name = "cmdExit";
-         this.cmdExit.Size = new System.Drawing.Size(105, 35);
+         this.cmdExit.Size = new System.Drawing.Size(87, 40);
          this.cmdExit.TabIndex = 11;
          this.cmdExit.Text = "Exit";
          this.cmdExit.UseVisualStyleBackColor = true;
@@ -288,9 +293,9 @@
          // 
          // cmdWriteData
          // 
-         this.cmdWriteData.Location = new System.Drawing.Point(653, 629);
+         this.cmdWriteData.Location = new System.Drawing.Point(551, 634);
          this.cmdWriteData.Name = "cmdWriteData";
-         this.cmdWriteData.Size = new System.Drawing.Size(127, 40);
+         this.cmdWriteData.Size = new System.Drawing.Size(99, 40);
          this.cmdWriteData.TabIndex = 18;
          this.cmdWriteData.Text = "Write Data";
          this.cmdWriteData.UseVisualStyleBackColor = true;
@@ -298,7 +303,7 @@
          // 
          // txtDataLength
          // 
-         this.txtDataLength.Location = new System.Drawing.Point(416, 633);
+         this.txtDataLength.Location = new System.Drawing.Point(314, 638);
          this.txtDataLength.Name = "txtDataLength";
          this.txtDataLength.Size = new System.Drawing.Size(73, 22);
          this.txtDataLength.TabIndex = 22;
@@ -307,7 +312,7 @@
          // 
          // txtDataAddress
          // 
-         this.txtDataAddress.Location = new System.Drawing.Point(416, 579);
+         this.txtDataAddress.Location = new System.Drawing.Point(314, 584);
          this.txtDataAddress.Name = "txtDataAddress";
          this.txtDataAddress.Size = new System.Drawing.Size(73, 22);
          this.txtDataAddress.TabIndex = 21;
@@ -316,7 +321,7 @@
          // 
          // lblDataLength
          // 
-         this.lblDataLength.Location = new System.Drawing.Point(315, 629);
+         this.lblDataLength.Location = new System.Drawing.Point(213, 634);
          this.lblDataLength.Name = "lblDataLength";
          this.lblDataLength.Size = new System.Drawing.Size(87, 28);
          this.lblDataLength.TabIndex = 20;
@@ -325,7 +330,7 @@
          // 
          // lblDataAddress
          // 
-         this.lblDataAddress.Location = new System.Drawing.Point(320, 579);
+         this.lblDataAddress.Location = new System.Drawing.Point(218, 584);
          this.lblDataAddress.Name = "lblDataAddress";
          this.lblDataAddress.Size = new System.Drawing.Size(90, 22);
          this.lblDataAddress.TabIndex = 19;
@@ -334,7 +339,7 @@
          // 
          // txtData
          // 
-         this.txtData.Location = new System.Drawing.Point(416, 661);
+         this.txtData.Location = new System.Drawing.Point(314, 666);
          this.txtData.Name = "txtData";
          this.txtData.Size = new System.Drawing.Size(222, 22);
          this.txtData.TabIndex = 24;
@@ -342,7 +347,7 @@
          // 
          // lblData
          // 
-         this.lblData.Location = new System.Drawing.Point(315, 661);
+         this.lblData.Location = new System.Drawing.Point(213, 666);
          this.lblData.Name = "lblData";
          this.lblData.Size = new System.Drawing.Size(87, 28);
          this.lblData.TabIndex = 23;
@@ -352,7 +357,7 @@
          // optHoldingRegister
          // 
          this.optHoldingRegister.Checked = true;
-         this.optHoldingRegister.Location = new System.Drawing.Point(504, 580);
+         this.optHoldingRegister.Location = new System.Drawing.Point(402, 585);
          this.optHoldingRegister.Name = "optHoldingRegister";
          this.optHoldingRegister.Size = new System.Drawing.Size(134, 21);
          this.optHoldingRegister.TabIndex = 25;
@@ -362,7 +367,7 @@
          // 
          // optInputRegister
          // 
-         this.optInputRegister.Location = new System.Drawing.Point(504, 607);
+         this.optInputRegister.Location = new System.Drawing.Point(402, 612);
          this.optInputRegister.Name = "optInputRegister";
          this.optInputRegister.Size = new System.Drawing.Size(134, 21);
          this.optInputRegister.TabIndex = 26;
@@ -1016,7 +1021,7 @@
          // cmdReformat
          // 
          this.cmdReformat.Enabled = false;
-         this.cmdReformat.Location = new System.Drawing.Point(391, 701);
+         this.cmdReformat.Location = new System.Drawing.Point(350, 701);
          this.cmdReformat.Name = "cmdReformat";
          this.cmdReformat.Size = new System.Drawing.Size(87, 40);
          this.cmdReformat.TabIndex = 29;
@@ -1038,7 +1043,7 @@
          // 
          this.cmdOpen.Location = new System.Drawing.Point(205, 701);
          this.cmdOpen.Name = "cmdOpen";
-         this.cmdOpen.Size = new System.Drawing.Size(87, 40);
+         this.cmdOpen.Size = new System.Drawing.Size(65, 40);
          this.cmdOpen.TabIndex = 32;
          this.cmdOpen.Text = "Open";
          this.cmdOpen.UseVisualStyleBackColor = true;
@@ -1046,9 +1051,9 @@
          // 
          // cmdSend
          // 
-         this.cmdSend.Location = new System.Drawing.Point(298, 701);
+         this.cmdSend.Location = new System.Drawing.Point(276, 701);
          this.cmdSend.Name = "cmdSend";
-         this.cmdSend.Size = new System.Drawing.Size(87, 40);
+         this.cmdSend.Size = new System.Drawing.Size(65, 40);
          this.cmdSend.TabIndex = 31;
          this.cmdSend.Text = "Send";
          this.cmdSend.UseVisualStyleBackColor = true;
@@ -1083,9 +1088,9 @@
          // cmdExperiment
          // 
          this.cmdExperiment.Enabled = false;
-         this.cmdExperiment.Location = new System.Drawing.Point(490, 701);
+         this.cmdExperiment.Location = new System.Drawing.Point(443, 701);
          this.cmdExperiment.Name = "cmdExperiment";
-         this.cmdExperiment.Size = new System.Drawing.Size(127, 40);
+         this.cmdExperiment.Size = new System.Drawing.Size(105, 40);
          this.cmdExperiment.TabIndex = 36;
          this.cmdExperiment.Text = "Experiment";
          this.cmdExperiment.UseVisualStyleBackColor = true;
@@ -1124,7 +1129,7 @@
          this.cbClass.FormattingEnabled = true;
          this.cbClass.Location = new System.Drawing.Point(112, 579);
          this.cbClass.Name = "cbClass";
-         this.cbClass.Size = new System.Drawing.Size(184, 24);
+         this.cbClass.Size = new System.Drawing.Size(87, 24);
          this.cbClass.TabIndex = 40;
          this.cbClass.SelectedIndexChanged += new System.EventHandler(this.cbClass_SelectedIndexChanged);
          // 
@@ -1134,7 +1139,7 @@
          this.cbAttribute.FormattingEnabled = true;
          this.cbAttribute.Location = new System.Drawing.Point(112, 615);
          this.cbAttribute.Name = "cbAttribute";
-         this.cbAttribute.Size = new System.Drawing.Size(184, 24);
+         this.cbAttribute.Size = new System.Drawing.Size(87, 24);
          this.cbAttribute.TabIndex = 41;
          this.cbAttribute.SelectedIndexChanged += new System.EventHandler(this.cbAttribute_SelectedIndexChanged);
          // 
@@ -1144,13 +1149,13 @@
          this.cbInstance.FormattingEnabled = true;
          this.cbInstance.Location = new System.Drawing.Point(112, 650);
          this.cbInstance.Name = "cbInstance";
-         this.cbInstance.Size = new System.Drawing.Size(184, 24);
+         this.cbInstance.Size = new System.Drawing.Size(87, 24);
          this.cbInstance.TabIndex = 42;
          this.cbInstance.SelectedIndexChanged += new System.EventHandler(this.cbInstance_SelectedIndexChanged);
          // 
          // lblNozzle
          // 
-         this.lblNozzle.Location = new System.Drawing.Point(315, 601);
+         this.lblNozzle.Location = new System.Drawing.Point(213, 606);
          this.lblNozzle.Name = "lblNozzle";
          this.lblNozzle.Size = new System.Drawing.Size(87, 28);
          this.lblNozzle.TabIndex = 43;
@@ -1166,14 +1171,14 @@
             "N-1",
             "N-2",
             "Both"});
-         this.cbNozzle.Location = new System.Drawing.Point(416, 604);
+         this.cbNozzle.Location = new System.Drawing.Point(314, 609);
          this.cbNozzle.Name = "cbNozzle";
          this.cbNozzle.Size = new System.Drawing.Size(73, 24);
          this.cbNozzle.TabIndex = 44;
          // 
          // chkHex
          // 
-         this.chkHex.Location = new System.Drawing.Point(504, 635);
+         this.chkHex.Location = new System.Drawing.Point(402, 640);
          this.chkHex.Name = "chkHex";
          this.chkHex.Size = new System.Drawing.Size(113, 26);
          this.chkHex.TabIndex = 45;
@@ -1273,6 +1278,7 @@
          this.chkStopOnAllErrors.TabIndex = 53;
          this.chkStopOnAllErrors.Text = "Stop on All Errors";
          this.chkStopOnAllErrors.UseVisualStyleBackColor = true;
+         this.chkStopOnAllErrors.CheckedChanged += new System.EventHandler(this.chkStopOnAllErrors_CheckedChanged);
          // 
          // lblPrinterStatus
          // 
@@ -1310,11 +1316,62 @@
          this.lblAnalysis.Text = "Analysis";
          this.lblAnalysis.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
+         // cmdResetIOs
+         // 
+         this.cmdResetIOs.Location = new System.Drawing.Point(560, 701);
+         this.cmdResetIOs.Name = "cmdResetIOs";
+         this.cmdResetIOs.Size = new System.Drawing.Size(126, 40);
+         this.cmdResetIOs.TabIndex = 58;
+         this.cmdResetIOs.Text = "Reset I/O Counts";
+         this.cmdResetIOs.UseVisualStyleBackColor = true;
+         this.cmdResetIOs.Click += new System.EventHandler(this.cmdResetIOs_Click);
+         // 
+         // txtAcks
+         // 
+         this.txtAcks.Location = new System.Drawing.Point(722, 595);
+         this.txtAcks.Name = "txtAcks";
+         this.txtAcks.Size = new System.Drawing.Size(57, 22);
+         this.txtAcks.TabIndex = 60;
+         this.txtAcks.Text = "0";
+         this.txtAcks.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // lblAcks
+         // 
+         this.lblAcks.Location = new System.Drawing.Point(656, 595);
+         this.lblAcks.Name = "lblAcks";
+         this.lblAcks.Size = new System.Drawing.Size(60, 22);
+         this.lblAcks.TabIndex = 59;
+         this.lblAcks.Text = "ACKs";
+         this.lblAcks.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
+         // txtNaks
+         // 
+         this.txtNaks.Location = new System.Drawing.Point(722, 634);
+         this.txtNaks.Name = "txtNaks";
+         this.txtNaks.Size = new System.Drawing.Size(57, 22);
+         this.txtNaks.TabIndex = 62;
+         this.txtNaks.Text = "0";
+         this.txtNaks.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // lblNaks
+         // 
+         this.lblNaks.Location = new System.Drawing.Point(656, 634);
+         this.lblNaks.Name = "lblNaks";
+         this.lblNaks.Size = new System.Drawing.Size(60, 22);
+         this.lblNaks.TabIndex = 61;
+         this.lblNaks.Text = "NAKS";
+         this.lblNaks.TextAlign = System.Drawing.ContentAlignment.TopRight;
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.txtNaks);
+         this.Controls.Add(this.lblNaks);
+         this.Controls.Add(this.txtAcks);
+         this.Controls.Add(this.lblAcks);
+         this.Controls.Add(this.cmdResetIOs);
          this.Controls.Add(this.txtAnalysis);
          this.Controls.Add(this.lblAnalysis);
          this.Controls.Add(this.txtPrinterStatus);
@@ -1508,6 +1565,11 @@
       private System.Windows.Forms.Label lblMessageName;
       private System.Windows.Forms.Button cmdMessageAdd;
       private System.Windows.Forms.Button cmdMessageDelete;
+      private System.Windows.Forms.Button cmdResetIOs;
+      public System.Windows.Forms.TextBox txtAcks;
+      private System.Windows.Forms.Label lblAcks;
+      public System.Windows.Forms.TextBox txtNaks;
+      private System.Windows.Forms.Label lblNaks;
    }
 }
 
