@@ -62,7 +62,8 @@ namespace ModBus161 {
          ClearFault = 4,
       }
 
-
+      private int acks = 0;
+      private int naks = 0;
 
       #endregion
 
@@ -81,11 +82,22 @@ namespace ModBus161 {
          // Instantiate Modbus printer and register for log events
          p = new Modbus();
          p.Log += Modbus_Log;
+         p.Complete += P_Complete;
 
          // Instantiate the user pattern
          up = new UserPattern(this, p, tabLogo);
          up.Log += Modbus_Log;
 
+      }
+
+      private void P_Complete(object sender, bool Success) {
+         if (Success) {
+            txtAcks.Text = (++acks).ToString();
+            txtAcks.Refresh();
+         } else {
+            txtNaks.Text = (++naks).ToString();
+            txtNaks.Refresh();
+         }
       }
 
       #endregion
@@ -293,12 +305,18 @@ namespace ModBus161 {
             Utils.ResizeObject(ref R, cmdReadData, 38, 31, 2.5f, 6);
             Utils.ResizeObject(ref R, cmdWriteData, 42, 31, 2.5f, 6);
 
+            Utils.ResizeObject(ref R, lblAcks, 38, 37, 2, 3);
+            Utils.ResizeObject(ref R, txtAcks, 38, 41, 2, 4);
+            Utils.ResizeObject(ref R, lblNaks, 40, 37, 2, 3);
+            Utils.ResizeObject(ref R, txtNaks, 40, 41, 2, 4);
+
             Utils.ResizeObject(ref R, cmdRetrieve, 46, 1, 2.5f, 5);
             Utils.ResizeObject(ref R, cmdSaveAs, 46, 7, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdOpen, 46, 13, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdSend, 46, 19, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdReformat, 46, 25, 2.5f, 5);
-            Utils.ResizeObject(ref R, cmdExperiment, 46, 31, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdOpen, 46, 13, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdSend, 46, 18, 2.5f, 4);
+            Utils.ResizeObject(ref R, cmdReformat, 46, 23, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdExperiment, 46, 29, 2.5f, 5);
+            Utils.ResizeObject(ref R, cmdResetIOs, 46, 35, 2.5f, 5);
             Utils.ResizeObject(ref R, cmdExit, 46, 41, 2.5f, 5);
 
             //this.Refresh();
@@ -310,6 +328,21 @@ namespace ModBus161 {
       #endregion
 
       #region Form Control Events
+
+      // Stop on I/O or data rejected errors.
+      private void chkStopOnAllErrors_CheckedChanged(object sender, EventArgs e) {
+         if (p != null) {
+            p.StopOnAllErrors = chkStopOnAllErrors.Checked;
+         }
+      }
+
+      // Reset the ACK/NAK counts
+      private void cmdResetIOs_Click(object sender, EventArgs e) {
+         acks = 0;
+         txtAcks.Text = "0";
+         naks = 0;
+         txtNaks.Text = "0";
+      }
 
       // Connect to printer and turn COM on
       private void cmdConnect_Click(object sender, EventArgs e) {
@@ -995,8 +1028,8 @@ namespace ModBus161 {
          cmdExperiment.Enabled = comIsOn;
          chkTwinNozzle.Enabled = !isConnected;
 
-         cmdErrorRefresh.Enabled = false; // comIsOn;
-         cmdErrorClear.Enabled = false; // comIsOn;
+         cmdErrorRefresh.Enabled = comIsOn;
+         cmdErrorClear.Enabled = comIsOn;
 
          cmdGroupRefresh.Enabled = comIsOn;
 
@@ -1022,6 +1055,7 @@ namespace ModBus161 {
       private void cmdGroupRefresh_Click(object sender, EventArgs e) {
 
       }
+
    }
 
 }
