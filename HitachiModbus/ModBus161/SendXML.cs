@@ -41,7 +41,7 @@ namespace ModBus161 {
             }
          } catch (Exception e) {
             success = false;
-            parent.Log(e.Message);
+            Log?.Invoke(p, e.Message);
             // String passed is not XML, simply return defaultXmlClass
          } finally {
             // Release the error detection events
@@ -67,7 +67,7 @@ namespace ModBus161 {
                      continue;
                   }
                   p.Nozzle = n;
-                  parent.Log($" \n// Sending Logos for nozzle {n + 1}\n ");
+                  Log?.Invoke(p, $" \n// Sending Logos for nozzle {n + 1}\n ");
                   if (Lab.Printer[i].Logos != null) {
                      foreach (Logo l in ptr.Logos.Logo) {
                         switch (l.Layout) {
@@ -82,7 +82,7 @@ namespace ModBus161 {
                   }
                   if (n > 0) // Load substitutions associated with nozzle 1 only
                      continue;
-                  parent.Log($" \n// Sending Substitutions for nozzle {n + 1}\n ");
+                  Log?.Invoke(p, $" \n// Sending Substitutions for nozzle {n + 1}\n ");
                   SendSubstitutionRules(ptr);
                }
             }
@@ -101,7 +101,7 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
-                     parent.Log($" \n// Sending Message for nozzle {n + 1}\n ");
+                     Log?.Invoke(p, $" \n// Sending Message for nozzle {n + 1}\n ");
                      SendMessage(Lab.Message[i]);
                   }
                }
@@ -121,13 +121,13 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
-                     parent.Log($" \n// Sending Printer Settings for nozzle {n + 1}\n ");
+                     Log?.Invoke(p, $" \n// Sending Printer Settings for nozzle {n + 1}\n ");
                      SendPrinterSettings(Lab.Printer[i]); // Must be done last
                   }
                }
             }
          } catch (Exception e2) {
-            parent.Log(e2.Message);
+            Log?.Invoke(p, e2.Message);
          }
       }
 
@@ -152,20 +152,20 @@ namespace ModBus161 {
          int charPosition = 0;
          for (int c = 0; c < m.Column.Length; c++) {
             if (c > 0) {
-               parent.Log($" \n// Add column {c + 1}\n ");
+               Log?.Invoke(p, $" \n// Add column {c + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccPF.Add_Column, c + 1);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
 
-            parent.Log($" \n// Set column {c + 1} to {m.Column[c].Item.Length} items\n ");
+            Log?.Invoke(p, $" \n// Set column {c + 1} to {m.Column[c].Item.Length} items\n ");
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPF.Column, c + 1);
             p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
             if (m.Column[c].Item.Length > 1) {
-               parent.Log($" \n// Set ILS for items {index + 1} to {index + m.Column[c].Item.Length}\n ");
+               Log?.Invoke(p, $" \n// Set ILS for items {index + 1} to {index + m.Column[c].Item.Length}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                for (int j = 0; j < m.Column[c].Item.Length; j++) {
                   p.SetAttribute(ccPF.Line_Spacing, index + j, m.Column[c].InterLineSpacing);
@@ -174,7 +174,7 @@ namespace ModBus161 {
             }
 
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
-               parent.Log($" \n// Fill in item {index + 1}\n ");
+               Log?.Invoke(p, $" \n// Fill in item {index + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
@@ -203,7 +203,7 @@ namespace ModBus161 {
       // Send the Calendar and Counter settings
       private void SendDateCount(Msg m) {
          // Get calendar and count blocks assigned by the printer
-         parent.Log($" \n// Get number of Calendar and Count blocks used\n ");
+         Log?.Invoke(p, $" \n// Get number of Calendar and Count blocks used\n ");
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
@@ -246,13 +246,13 @@ namespace ModBus161 {
             Date date = item.Date[i];
             if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber >  0) {
 
-               parent.Log($" \n// Load settings for Substitution rule {1}\n ");
+               Log?.Invoke(p, $" \n// Load settings for Substitution rule {1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber); // date.SubstitutionRule
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
-               parent.Log($" \n// Set up calendar {index + 1}\n ");
+               Log?.Invoke(p, $" \n// Set up calendar {index + 1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                // Process Offset
                Offset o = date.Offset;
@@ -339,7 +339,7 @@ namespace ModBus161 {
             if (c.Block <= countCount) {
                int index = countStart + c.Block - 2; // Both count start and count block are 1-origin
 
-               parent.Log($" \n// Set up count {index + 1}\n ");
+               Log?.Invoke(p, $" \n// Set up count {index + 1}\n ");
                // Process Range
                Range r = c.Range;
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -403,7 +403,7 @@ namespace ModBus161 {
 
       private void SendShift(Item item) {
 
-         parent.Log($" \n// Set up shifts\n ");
+         Log?.Invoke(p, $" \n// Set up shifts\n ");
          // Process Shift
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          for (int j = 0; j < item.Shift.Length; j++) {
@@ -418,7 +418,7 @@ namespace ModBus161 {
 
       private void SendTimeCount(Item item) {
 
-         parent.Log($" \n// Set up Time Count\n ");
+         Log?.Invoke(p, $" \n// Set up Time Count\n ");
          TimeCount tc = item.TimeCount;
          if (tc != null) {
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -437,7 +437,7 @@ namespace ModBus161 {
 
       private void SendPrinterSettings(Printer ptr) {
 
-         parent.Log($" \n// Send printer settings\n ");
+         Log?.Invoke(p, $" \n// Send printer settings\n ");
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          if (ptr.PrintHead != null) {
             p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
@@ -479,9 +479,9 @@ namespace ModBus161 {
 
             byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
             if (p.SendFreeLogo(width, height, loc, rawdata)) {
-               parent.Log($" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
+               Log?.Invoke(p, $" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
             } else {
-               parent.Log($" \n// Failed to set {width}x{height} Free Logo to  location {loc}\n ");
+               Log?.Invoke(p, $" \n// Failed to set {width}x{height} Free Logo to  location {loc}\n ");
             }
          }
       }
@@ -494,7 +494,7 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
 
-            parent.Log($" \n// Set {l.DotMatrix} Fixed Logo to  location {loc}\n ");
+            Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to  location {loc}\n ");
 
             // Write the registration bit
             int regLoc = loc / 16;
@@ -544,7 +544,7 @@ namespace ModBus161 {
             if (Enum.TryParse(r.Type, true, out ccSR type)) {
                SetSubValues(type, r, delimiter);
             } else {
-               parent.Log($"Unknown substitution rule type =>{r.Type}<=");
+               Log?.Invoke(p, $"Unknown substitution rule type =>{r.Type}<=");
             }
          }
       }
@@ -568,12 +568,12 @@ namespace ModBus161 {
       #region Service Routines
 
       private void serializer_UnknownNode(object sender, XmlNodeEventArgs e) {
-         parent.Log($"Unknown Node:{e.Name}\t{e.Text}");
+         Log?.Invoke(p, $"Unknown Node:{e.Name}\t{e.Text}");
       }
 
       private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e) {
          System.Xml.XmlAttribute attr = e.Attr;
-         parent.Log($"Unknown Node:{attr.Name}\t{attr.Value}");
+         Log?.Invoke(p, $"Unknown Node:{attr.Name}\t{attr.Value}");
       }
 
       #endregion

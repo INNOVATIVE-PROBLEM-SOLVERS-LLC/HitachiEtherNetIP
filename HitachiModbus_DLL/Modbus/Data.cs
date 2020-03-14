@@ -657,7 +657,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.Week, true, 53, 3,                              // Week 0x1C1D
             new Prop(3, DataFormats.UTF8, 0, 52, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
-            new Prop(6, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
+            new Prop(3, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
          // Time Count block (moved to here from calendar block)
          new AttrData((int)ccSR.Time_Count_Start_Value, true, 1, 0, Noz.Current, // Time Count Start Value 0x1CD4
             new Prop(3, DataFormats.UTF8, 0, 0, fmtDD.None)),                   //   Data
