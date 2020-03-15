@@ -628,9 +628,9 @@ namespace Modbus_DLL {
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 1, 4,     // User Pattern Free Registration 0x6500
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, // User Pattern Free Height 0x6510
+         new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Height 0x6510
             new Prop(1, DataFormats.Decimal, 0, 32, fmtDD.None)),               //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Width, true, 50, Modbus.FreeLogoSize, // User Pattern Free Width 0x6511
+         new AttrData((int)ccUP.User_Pattern_Free_Width, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Width 0x6511
             new Prop(2, DataFormats.Decimal, 0, 320, fmtDD.None)),              //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Data, true, 50 * Modbus.FreeLogoSize, 1, // User Pattern Free Data 0x6512
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
@@ -1174,8 +1174,8 @@ namespace Modbus_DLL {
       public int Count { get; set; } = 1;                         // Indicates max number of repetitions
       public int Stride { get; set; } = 0;                        // Indicates the distance between repetitions
       public bool HoldingReg { get; set; } = true;                // Input vs Holding register
-      public Noz Nozzle { get; set; } = Noz.None; // Indicates Nozzle number needed
-      public int Origin { get; set; } = 1;                        // Indicates Nozzle number needed
+      public Noz Nozzle { get; set; } = Noz.None;                 // Indicates Nozzle number needed
+      public int Origin { get; set; } = 1;                        // Indicates 0-origin vs 1-origin
 
       // View of the printer data
       public Prop Data { get; set; }                              // As it appears in the printer
@@ -1187,6 +1187,16 @@ namespace Modbus_DLL {
          this.Count = Count;
          this.Stride = Stride;
          this.Data = Data;
+      }
+
+      // A description of the data from four points of view.
+      public AttrData(int Val, bool HoldingReg, int Count, int Stride, int origin, Prop Data) {
+         this.Val = Val;
+         this.HoldingReg = HoldingReg;
+         this.Count = Count;
+         this.Stride = Stride;
+         this.Data = Data;
+         this.Origin = origin;
       }
 
       public AttrData(int Val, bool HoldingReg, int Count, int Stride, Noz Nozzle, Prop Data) {
