@@ -1131,7 +1131,7 @@ namespace Modbus_DLL {
          new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
          new string[] { "Time", "Complete" },                         // 18 - Target Sensor Filter
          new string[] { "Size4x5", "Size5x5", "Size5x7", "Size9x7", "Size7x10", "Size10x12", "Size12x16", "Size18x24",
-                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney"  },
+                        "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney", "Size30x40", "Size36x48"  },
                                                                       // 19 - User Pattern Font Types
          new string[] { "SeparateSetup", "CollectiveSetup", "FreeLayout" },     // 20 - Message Layout
          new string[] { "Normal", "DotMixed", "Mixed" },              // 21 - Charge Rule
