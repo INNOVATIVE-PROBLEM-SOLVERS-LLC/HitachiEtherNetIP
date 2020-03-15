@@ -478,9 +478,7 @@ namespace ModBus161 {
             && l.RawData.Length > 0) {
 
             byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
-            if (p.SendFreeLogo(width, height, loc, rawdata)) {
-               Log?.Invoke(p, $" \n// Set {width}x{height} Free Logo to  location {loc}\n ");
-            } else {
+            if (!p.SendFreeLogo(width, height, loc, rawdata)) {
                Log?.Invoke(p, $" \n// Failed to set {width}x{height} Free Logo to  location {loc}\n ");
             }
          }
@@ -494,7 +492,7 @@ namespace ModBus161 {
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
 
-            Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to  location {loc}\n ");
+            Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {loc}\n ");
 
             // Write the registration bit
             int regLoc = loc / 16;

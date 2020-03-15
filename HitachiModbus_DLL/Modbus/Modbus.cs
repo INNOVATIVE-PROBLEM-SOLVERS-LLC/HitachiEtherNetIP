@@ -557,7 +557,7 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr, attr.Stride * n, data, start, len);
          Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
-            $"{GetAttributeName(attr.Class, attr.Val)} = byte[{data.Length}]{LogIOSpacer}");
+            $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data)}{LogIOSpacer}");
          return success;
       }
 
@@ -737,6 +737,7 @@ namespace Modbus_DLL {
 
       // Send free logo to the printer
       public bool SendFreeLogo(int width, int height, int loc, byte[] logo) {
+         Log?.Invoke(this, $" \n// Set {width}x{height} Free Logo to location {loc}\n ");
          bool result = true;
          // Have to delete the old image if one exists
          int oldWidth;
@@ -806,6 +807,8 @@ namespace Modbus_DLL {
          int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
          if ((regMask & (1 << regBit)) > 0) {
             data = GetAttribute(ccUP.User_Pattern_Fixed_Data, loc * logoLen[DotMatrix] / 2, logoLen[DotMatrix]);
+            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * logoLen[DotMatrix] / 2:X4}] " +
+               $"{ccUP.User_Pattern_Fixed_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
             result = true;
          }
          return result;
@@ -837,6 +840,10 @@ namespace Modbus_DLL {
             } else {
                data = logo;
             }
+            AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
+            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * Modbus.FreeLogoSize:X4}] " +
+               $"{ccUP.User_Pattern_Free_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
+
             return true;
          } else {
             Width = -1;
