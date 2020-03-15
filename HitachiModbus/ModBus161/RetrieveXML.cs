@@ -170,7 +170,11 @@ namespace ModBus161 {
                Log?.Invoke(p, $" \n// Retrieving Item in Column {col + 1} Row {row + 1}\n ");
                Item item = new Item();                                    // Allocate the item
                int characterCount = p.GetDecAttribute(ccPC.Characters_per_Item, n);
-               item.Text = p.GetHRAttribute(ccPC.Print_Character_String, totalCharacters, characterCount);
+               if (characterCount > 0) {
+                  item.Text = p.GetHRAttribute(ccPC.Print_Character_String, totalCharacters, characterCount);
+               } else {
+                  item.Text = string.Empty;
+               }
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);

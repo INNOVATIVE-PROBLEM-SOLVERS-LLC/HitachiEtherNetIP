@@ -557,7 +557,7 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr, attr.Stride * n, data, start, len);
          Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
-            $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data)}{LogIOSpacer}");
+            $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
          return success;
       }
 
@@ -950,6 +950,18 @@ namespace Modbus_DLL {
          }
          for (int i = 0; i < len; i++) {
             s += ((int)b[i]).ToString("X2") + " ";
+         }
+         return s;
+      }
+
+      private object byte_to_string(byte[] b, int start, int len) {
+         string s = "";
+         if (len == -1) {
+            len = b.Length;
+            start = 0;
+         }
+         for (int i = 0; i < len; i++) {
+            s += ((int)b[start + i]).ToString("X2") + " ";
          }
          return s;
       }

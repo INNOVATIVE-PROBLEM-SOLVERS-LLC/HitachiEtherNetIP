@@ -573,7 +573,11 @@ namespace ModBus161 {
       // View the task log in NotePad
       private void cmLogToNotepad_Click(object sender, EventArgs e) {
          string ViewFilename = @"c:\Temp\Err.txt";
-         File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
+         if (tclViews.SelectedTab == tabLog) {
+            File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
+         } else if (tclViews.SelectedTab == tabIndented) {
+            File.WriteAllLines(ViewFilename, txtIndentedView.Text.Replace("\r\n", "\n").Split('\n'));
+         }
          Process.Start("notepad.exe", ViewFilename);
          SetButtonEnables();
       }
