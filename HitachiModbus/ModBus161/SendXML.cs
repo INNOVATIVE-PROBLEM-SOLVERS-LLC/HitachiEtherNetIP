@@ -479,7 +479,7 @@ namespace ModBus161 {
 
             byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
             if (!p.SendFreeLogo(width, height, loc, rawdata)) {
-               Log?.Invoke(p, $" \n// Failed to set {width}x{height} Free Logo to  location {loc}\n ");
+               Log?.Invoke(p, $" \n// Failed to set {width}x{height} Free Logo to location {loc}\n ");
             }
          }
       }
@@ -494,27 +494,17 @@ namespace ModBus161 {
 
             Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {loc}\n ");
 
-            // Write the registration bit
-            int regLoc = loc / 16;
-            int regBit = 15 - (loc % 16);
-            AttrData attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
-            int regMask = p.GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
-            regMask |= 1 << regBit;
-
-            // Write the pattern
+            // Pad the logo to full size
             int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
             byte[] data = new byte[logoLen[n]];
             byte[] rawdata = p.string_to_byte(l.RawData);
             for (int i = 0; i < Math.Min(data.Length, rawdata.Length); i++) {
                data[i] = rawdata[i];
             }
-            // Write the pattern data
-            attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data);
-            int addr = attr.Val;
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * (logoLen[n] / 2), data);
-            p.SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+            if (!p.SendFixedLogo(n, loc, data)) {
+               Log?.Invoke(p, $" \n// Failed to set {l.DotMatrix} Fixed Logo to location {loc}\n ");
+            }
          }
       }
 
