@@ -552,10 +552,10 @@ namespace ModBus161 {
             cbAvailable.Items.Add("Refresh");
             // Free First
             cbLayout.SelectedIndex = (int)Layout.Free;
-            AttrData attr = MB.GetAttrData(ccUP.User_Pattern_Free_Registration);
+            AttrData attrFree = MB.GetAttrData(ccUP.User_Pattern_Free_Registration);
             int reg = 0;
-            for (int r = 0; r < attr.Count; r++) {
-              int patReg = MB.GetDecAttribute(attr, r);
+            for (int r = 0; r < attrFree.Count; r++) {
+               int patReg = MB.GetDecAttribute(attrFree, r);
                for (int b = 15; b >= 0; b--, reg++) {
                   if ((patReg & (1 << b)) > 0) {
                      cbAvailable.Items.Add($"Free {reg} N/A");
@@ -564,15 +564,15 @@ namespace ModBus161 {
             }
             // Fixed is a lot more work
             cbLayout.SelectedIndex = (int)Layout.Fixed;
-            attr = MB.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+            AttrData attrFixed = MB.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
             for (int f = 0; f < cbFontRows.Items.Count; f++) {
                // Load the logo into the pattern area
                MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                MB.SetAttribute(ccIDX.User_Pattern_Size, f + 1);        // Font is 1-origin
                MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                reg = 0;
-               for (int r = 0; r < attr.Count; r++) {
-                  int patReg = MB.GetDecAttribute(attr, r);
+               for (int r = 0; r < attrFixed.Count; r++) {
+                  int patReg = MB.GetDecAttribute(attrFixed, r);
                   for (int b = 15; b >= 0; b--, reg++) {
                      if ((patReg & (1 << b)) > 0) {
                         cbAvailable.Items.Add($"Fixed {reg} {cbFontRows.Items[f].ToString()}");
