@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
+using System.Linq;
 //using System.Windows.Forms;
 using Modbus_DLL;
 
@@ -397,8 +398,6 @@ namespace ModBus161 {
                ChargeRule = p.GetHRAttribute(ccPS.Ink_Drop_Charge_Rule)
             },
          };
-
-
          return ptr;
       }
 
@@ -419,7 +418,7 @@ namespace ModBus161 {
                            case '\xF6':
                               n = (s[i] & 0xFF) - 0x40;
                               if (n >= 0 && n < 50) {
-                                 neededLogo.Add(new logoInfo() { layout = logoLayout.Free, registration = n });
+                                 neededLogo.Add(new logoInfo() { layout = logoLayout.Free, registration = n, dotMatrix = "N/A" });
                               }
                               break;
                            case '\xF1':
@@ -437,6 +436,18 @@ namespace ModBus161 {
                         }
                      }
                   }
+               }
+            }
+            // Eliminate Duplicates
+            neededLogo = (neededLogo.OrderBy(nl => nl.layout).ToList()).OrderBy(nl => nl.registration).ToList().OrderBy(nl => nl.dotMatrix).ToList();
+            int j = 0;
+            while (j < neededLogo.Count - 1) {
+               if (neededLogo[j].layout == neededLogo[j + 1].layout &&
+                  neededLogo[j].registration == neededLogo[j + 1].registration &&
+                  neededLogo[j].dotMatrix == neededLogo[j + 1].dotMatrix) {
+                  neededLogo.RemoveAt(j + 1);
+               } else {
+                  j++;
                }
             }
             // List of retrieved logos

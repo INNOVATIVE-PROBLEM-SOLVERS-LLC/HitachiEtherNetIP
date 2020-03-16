@@ -43,6 +43,10 @@ namespace ModBus161 {
       Button UpGet;            // Retrieve from printer
       Button UpSet;            // Send to printer
 
+      Label lblAvailable;      // "Available"
+      ComboBox cbAvailable;    // List of existing User Patterns in the printer
+      Button GetAvailable;     // Update List or Refresh list
+
       Button UpClear;          // Clear the Grid
       Button UpNew;            // Create a new grid
       Button UpBrowse;         // Find Logo File to load
@@ -172,6 +176,20 @@ namespace ModBus161 {
          UpControls.Controls.Add(UpSet);
          UpSet.Click += UpSet_Click;
 
+         lblAvailable = new Label() { Text = "Existing", TextAlign = ContentAlignment.TopRight };
+         UpControls.Controls.Add(lblAvailable);
+
+         cbAvailable = new ComboBox() { DropDownStyle = ComboBoxStyle.DropDownList };
+         UpControls.Controls.Add(cbAvailable);
+         cbAvailable.Items.Clear();
+         cbAvailable.Items.Add("Refresh");
+         cbAvailable.SelectedIndex = 0;
+         cbAvailable.SelectedIndexChanged += cbAvailable_SelectedIndexChanged;
+
+         GetAvailable = new Button() { Text = "Retrieve" };
+         UpControls.Controls.Add(GetAvailable);
+         GetAvailable.Click += GetAvailable_Click;
+
          UpClear = new Button() { Text = "Clear" };
          UpControls.Controls.Add(UpClear);
          UpClear.Click += UpClear_Click;
@@ -240,11 +258,14 @@ namespace ModBus161 {
             }
             Utils.ResizeObject(ref R, hsbGrid, GroupHeight - 4, 1, 2, GroupWidth - 2);
 
-            Utils.ResizeObject(ref R, lblMessage, GroupHeight - 2, 1, 1.5f, GroupWidth - 26);
-            Utils.ResizeObject(ref R, UpNew, GroupHeight - 2, GroupWidth - 24, 1.5f, 5);
-            Utils.ResizeObject(ref R, UpClear, GroupHeight - 2, GroupWidth - 18, 1.5f, 5);
-            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 2, GroupWidth - 12, 1.5f, 5);
-            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 2, GroupWidth - 6, 1.5f, 5);
+            Utils.ResizeObject(ref R, lblMessage, GroupHeight - 2, 1, 1.5f, GroupWidth - 34);
+            Utils.ResizeObject(ref R, lblAvailable, GroupHeight - 2, GroupWidth - 33, 1.5f, 4);
+            Utils.ResizeObject(ref R, cbAvailable, GroupHeight - 2, GroupWidth - 28.5f, 1.5f, 5);
+            Utils.ResizeObject(ref R, GetAvailable, GroupHeight - 2, GroupWidth - 23, 1.5f, 4);
+            Utils.ResizeObject(ref R, UpNew, GroupHeight - 2, GroupWidth - 18.5f, 1.5f, 4);
+            Utils.ResizeObject(ref R, UpClear, GroupHeight - 2, GroupWidth - 14, 1.5f, 4);
+            Utils.ResizeObject(ref R, UpBrowse, GroupHeight - 2, GroupWidth - 9.5f, 1.5f, 4);
+            Utils.ResizeObject(ref R, UpSaveAs, GroupHeight - 2, GroupWidth - 5, 1.5f, 4);
          }
       }
 
@@ -264,6 +285,7 @@ namespace ModBus161 {
          UpNew.Enabled = cbFontRows.SelectedIndex >= 0 && Count > 0;
          UpClear.Enabled = stripes != null;
          UpSaveAs.Enabled = stripes != null;
+         GetAvailable.Enabled = ComIsOn;
       }
 
       #endregion
@@ -521,6 +543,96 @@ namespace ModBus161 {
          bmGrid = StripesToBitMap(stripes);
          BitMapToImage();
          SetButtonEnables(ComIsOn);
+      }
+
+      // Either refresh the drop down or retrieve the logo
+      private void GetAvailable_Click(object sender, EventArgs e) {
+         if (cbAvailable.SelectedIndex <= 0) {
+            cbAvailable.Items.Clear();
+            cbAvailable.Items.Add("Refresh");
+            // Free First
+            cbLayout.SelectedIndex = (int)Layout.Free;
+            AttrData attr = MB.GetAttrData(ccUP.User_Pattern_Free_Registration);
+            int reg = 0;
+            for (int r = 0; r < attr.Count; r++) {
+              int patReg = MB.GetDecAttribute(attr, r);
+               for (int b = 15; b >= 0; b--, reg++) {
+                  if ((patReg & (1 << b)) > 0) {
+                     cbAvailable.Items.Add($"Free {reg} N/A");
+                  }
+               }
+            }
+            // Fixed is a lot more work
+            cbLayout.SelectedIndex = (int)Layout.Fixed;
+            attr = MB.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+            for (int f = 0; f < cbFontRows.Items.Count; f++) {
+               // Load the logo into the pattern area
+               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               MB.SetAttribute(ccIDX.User_Pattern_Size, f + 1);        // Font is 1-origin
+               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               reg = 0;
+               for (int r = 0; r < attr.Count; r++) {
+                  int patReg = MB.GetDecAttribute(attr, r);
+                  for (int b = 15; b >= 0; b--, reg++) {
+                     if ((patReg & (1 << b)) > 0) {
+                        cbAvailable.Items.Add($"Fixed {reg} {cbFontRows.Items[f].ToString()}");
+                     }
+                  }
+               }
+
+            }
+
+         } else {
+            byte[] logo = null;
+            string[] s = cbAvailable.Text.Split(' ');
+            if (int.TryParse(s[1], out int reg)) {
+               switch (s[0]) {
+                  case "Fixed":
+                     cbLayout.SelectedIndex = (int)Layout.Fixed;
+                     if (MB.GetFixedLogo(s[2], reg, out logo)) {
+                        cbFontRows.Text = s[2];
+                        ignoreChange = true;
+                        Count = 1;
+                        Registration = reg;
+                        ignoreChange = false; // Need to set ICS dropdown
+                        cbFontRows.SelectedIndex = dotMatrixCode - 1;
+                        cbIcsCols.SelectedIndex = ics;
+                     } else {
+                        lblMessage.Text = $"Unable to retrieve Fixed {s[2]} User Pattern at {reg}";
+                        logo = null;
+                     }
+                     break;
+                  case "Free":
+                     cbLayout.SelectedIndex = (int)Layout.Free;
+                     if (MB.GetFreeLogo(reg, out charWidth, out charHeight, out logo)) {
+                        ignoreChange = true;
+                        Count = 1;
+                        Registration = reg;
+                        cbFontRows.SelectedIndex = charHeight - 1;
+                        cbIcsCols.SelectedIndex = charWidth - 1;
+                        ignoreChange = false;
+                     } else {
+                        lblMessage.Text = $"Unable to retrieve Free User Pattern at {reg}";
+                        logo = null;
+                     }
+                     break;
+               }
+               // Load the cijConnect logo into the printer browser
+               if (logo != null) {
+                  CleanUpGrid();
+                  string[] ss = new string[1];
+                  ss[0] = MB.byte_to_string(logo).Replace(" ", "");
+                  stripes = PatternToStripes(charHeight, charWidth, ss);
+                  bmGrid = StripesToBitMap(stripes);
+                  BitMapToImage();
+               }
+            }
+         }
+      }
+
+      // Not clear what is needed here
+      private void cbAvailable_SelectedIndexChanged(object sender, EventArgs e) {
+
       }
 
       // Switch between Fixed and Free Logo layout
