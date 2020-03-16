@@ -721,13 +721,11 @@ namespace Modbus_DLL {
                }
             }
             // Write the pattern data
-            for (int k = 0; k < data.Length; k += LogoMaxSizeIO) {
-               SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * stride / 2 + k, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
-               SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            }
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
+            for (int k = 0; k < data.Length; k += LogoMaxSizeIO) {
+               SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * stride / 2 + k, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
+            }
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             loc++;
             i += stride;
@@ -758,16 +756,14 @@ namespace Modbus_DLL {
             }
          }
          // Send the logo
-         for (int i = 0; i < data.Length; i += LogoMaxSizeIO) {
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            SetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize + i, data, i, Math.Min(LogoMaxSizeIO, data.Length - i));
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         }
-         // Write the pattern
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccUP.User_Pattern_Free_Height, loc, height);
          SetAttribute(ccUP.User_Pattern_Free_Width, loc, width);
          SetAttribute(ccUP.User_Pattern_Free_Registration, loc / 16, regMask);
+         // Write the pattern
+         for (int i = 0; i < data.Length; i += LogoMaxSizeIO) {
+            SetAttribute(ccUP.User_Pattern_Free_Data, loc * Modbus.FreeLogoSize + i, data, i, Math.Min(LogoMaxSizeIO, data.Length - i));
+         }
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          return result;
       }
