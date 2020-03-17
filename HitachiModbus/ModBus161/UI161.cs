@@ -642,12 +642,14 @@ namespace ModBus161 {
 
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
-         p.DeleteMessage(5);
-         p.SetAttribute(ccPDR.Recall_Message, 6);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPDR.MessageName, "TWIN MSG 3  ");
-         p.SetAttribute(ccPDR.Message_Number, 5);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         int patReg;
+         byte[] patRegs;
+         AttrData attrFree = p.GetAttrData(ccUP.User_Pattern_Free_Registration);
+         patReg = p.GetDecAttribute(ccUP.User_Pattern_Free_Registration, 0);
+         patRegs = p.GetByteArrayAttribute(ccUP.User_Pattern_Free_Registration, 0, attrFree.Count * 2);
+         patReg = p.GetDecAttribute(ccUP.User_Pattern_Free_Registration, 0);
+         patRegs = p.GetByteArrayAttribute(ccUP.User_Pattern_Free_Registration, 0, attrFree.Count * 2);
+         patReg = p.GetDecAttribute(ccUP.User_Pattern_Free_Registration, 0);
          SetButtonEnables();
       }
 

@@ -299,17 +299,8 @@ namespace Modbus_DLL {
 
       // Get the contents of one attribute
       public bool GetAttribute(FunctionCode fc, byte DevAddr, int addr, int Len, out byte[] result) {
-         bool success = false;
-         byte[] data = null;
-         int len = 10;
-         byte[] request = BuildModbusRead(fc, DevAddr, addr, Len);
          Task.Delay(50);
-         if (Write(request)) {
-            if (Read(out data, out len)) {
-               success = true;
-            }
-         }
-         if (success) {
+         if (Write(BuildModbusRead(fc, DevAddr, addr, Len)) && Read(out byte[] data, out int len)) {
             result = new byte[len - 9];
             for (int i = 9; i < len; i++) {
                result[i - 9] = data[i];
@@ -470,6 +461,15 @@ namespace Modbus_DLL {
          Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{result}\"{LogIOSpacer}");
          return result;
+      }
+
+      // Get byte[] value of the attribute
+      public byte[] GetByteArrayAttribute<T>(T Attribute, int n, int length) where T : Enum {
+         byte[] b = GetAttribute(Attribute, n, length);
+         AttrData attr = GetAttrData(Attribute);
+         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+            $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{byte_to_string(b)}\"{LogIOSpacer}");
+         return b;
       }
 
       #endregion
