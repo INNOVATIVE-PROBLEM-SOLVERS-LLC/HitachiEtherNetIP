@@ -22,6 +22,9 @@ namespace ModBus161 {
 
       ResizeInfo R;
 
+      const int MaxFreeLogos = 50;
+      const int MaxFixedLogos = 200;
+
       UI161 parent;
       Modbus MB;
       bool ComIsOn = false;
@@ -550,82 +553,109 @@ namespace ModBus161 {
          if (cbAvailable.SelectedIndex <= 0) {
             cbAvailable.Items.Clear();
             cbAvailable.Items.Add("Refresh");
-            // Free First
-            cbLayout.SelectedIndex = (int)Layout.Free;
-            AttrData attrFree = MB.GetAttrData(ccUP.User_Pattern_Free_Registration);
-            int reg = 0;
-            for (int r = 0; r < attrFree.Count; r++) {
-               int patReg = MB.GetDecAttribute(attrFree, r);
-               for (int b = 15; b >= 0; b--, reg++) {
-                  if ((patReg & (1 << b)) > 0) {
+            AddExistingFree();
+            AddExistingFixed();
+         } else {
+            LoadExistingUserPattern();
+         }
+      }
+
+      // Add existing Free Layout User Patterns to DropDown
+      private void AddExistingFree() {
+         // Free First
+         cbLayout.SelectedIndex = (int)Layout.Free;
+         AttrData attrFree = MB.GetAttrData(ccUP.User_Pattern_Free_Registration);
+         int reg = 0;
+         for (int r = 0; r < attrFree.Count; r++) {
+            int patReg = MB.GetDecAttribute(ccUP.User_Pattern_Free_Registration, r);
+            if (patReg != 0) {
+               int mask = 1 << 15;
+               for (int b = 15; b >= 0 && reg < MaxFreeLogos; b--) {
+                  if ((patReg & mask) > 0) {
                      cbAvailable.Items.Add($"Free {reg} N/A");
                   }
+                  mask >>= 1;
+                  reg++;
                }
+            } else {
+               reg += 16;
             }
-            // Fixed is a lot more work
-            cbLayout.SelectedIndex = (int)Layout.Fixed;
-            AttrData attrFixed = MB.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
-            for (int f = 0; f < cbFontRows.Items.Count; f++) {
-               // Load the logo into the pattern area
-               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               MB.SetAttribute(ccIDX.User_Pattern_Size, f + 1);        // Font is 1-origin
-               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               reg = 0;
-               for (int r = 0; r < attrFixed.Count; r++) {
-                  int patReg = MB.GetDecAttribute(attrFixed, r);
-                  for (int b = 15; b >= 0; b--, reg++) {
-                     if ((patReg & (1 << b)) > 0) {
+         }
+      }
+
+      // Add existing Fixed Layout User Patterns to DropDown
+      private void AddExistingFixed() {
+         // Fixed is a lot more work
+         cbLayout.SelectedIndex = (int)Layout.Fixed;
+         AttrData attrFixed = MB.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
+         for (int f = 0; f < cbFontRows.Items.Count; f++) {
+            // Load the logo into the pattern area
+            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            MB.SetAttribute(ccIDX.User_Pattern_Size, f + 1);        // Font is 1-origin
+            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            int reg = 0;
+            for (int r = 0; r < attrFixed.Count; r++) {
+               int patReg = MB.GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, r);
+               if (patReg != 0) {
+                  int mask = 1 << 15;
+                  for (int b = 15; b >= 0 && reg < MaxFixedLogos; b--) {
+                     if ((patReg & mask) > 0) {
                         cbAvailable.Items.Add($"Fixed {reg} {cbFontRows.Items[f].ToString()}");
                      }
+                     mask >>= 1;
+                     reg++;
                   }
+               } else {
+                  reg += 16;
                }
-
             }
+         }
+      }
 
-         } else {
-            byte[] logo = null;
-            string[] s = cbAvailable.Text.Split(' ');
-            if (int.TryParse(s[1], out int reg)) {
-               switch (s[0]) {
-                  case "Fixed":
-                     cbLayout.SelectedIndex = (int)Layout.Fixed;
-                     if (MB.GetFixedLogo(s[2], reg, out logo)) {
-                        cbFontRows.Text = s[2];
-                        ignoreChange = true;
-                        Count = 1;
-                        Registration = reg;
-                        ignoreChange = false; // Need to set ICS dropdown
-                        cbFontRows.SelectedIndex = dotMatrixCode - 1;
-                        cbIcsCols.SelectedIndex = ics;
-                     } else {
-                        lblMessage.Text = $"Unable to retrieve Fixed {s[2]} User Pattern at {reg}";
-                        logo = null;
-                     }
-                     break;
-                  case "Free":
-                     cbLayout.SelectedIndex = (int)Layout.Free;
-                     if (MB.GetFreeLogo(reg, out charWidth, out charHeight, out logo)) {
-                        ignoreChange = true;
-                        Count = 1;
-                        Registration = reg;
-                        cbFontRows.SelectedIndex = charHeight - 1;
-                        cbIcsCols.SelectedIndex = charWidth - 1;
-                        ignoreChange = false;
-                     } else {
-                        lblMessage.Text = $"Unable to retrieve Free User Pattern at {reg}";
-                        logo = null;
-                     }
-                     break;
-               }
-               // Load the cijConnect logo into the printer browser
-               if (logo != null) {
-                  CleanUpGrid();
-                  string[] ss = new string[1];
-                  ss[0] = MB.byte_to_string(logo).Replace(" ", "");
-                  stripes = PatternToStripes(charHeight, charWidth, ss);
-                  bmGrid = StripesToBitMap(stripes);
-                  BitMapToImage();
-               }
+      // Load an existing User Pattern (Free or Fixed) into the grid
+      private void LoadExistingUserPattern() {
+         byte[] logo = null;
+         string[] s = cbAvailable.Text.Split(' ');
+         if (int.TryParse(s[1], out int reg)) {
+            switch (s[0]) {
+               case "Fixed":
+                  cbLayout.SelectedIndex = (int)Layout.Fixed;
+                  if (MB.GetFixedLogo(s[2], reg, out logo)) {
+                     cbFontRows.Text = s[2];
+                     ignoreChange = true;
+                     Count = 1;
+                     Registration = reg;
+                     ignoreChange = false; // Need to set ICS dropdown
+                     cbFontRows.SelectedIndex = dotMatrixCode - 1;
+                     cbIcsCols.SelectedIndex = ics;
+                  } else {
+                     lblMessage.Text = $"Unable to retrieve Fixed {s[2]} User Pattern at {reg}";
+                     logo = null;
+                  }
+                  break;
+               case "Free":
+                  cbLayout.SelectedIndex = (int)Layout.Free;
+                  if (MB.GetFreeLogo(reg, out charWidth, out charHeight, out logo)) {
+                     ignoreChange = true;
+                     Count = 1;
+                     Registration = reg;
+                     cbFontRows.SelectedIndex = charHeight - 1;
+                     cbIcsCols.SelectedIndex = charWidth - 1;
+                     ignoreChange = false;
+                  } else {
+                     lblMessage.Text = $"Unable to retrieve Free User Pattern at {reg}";
+                     logo = null;
+                  }
+                  break;
+            }
+            // Load the cijConnect logo into the printer browser
+            if (logo != null) {
+               CleanUpGrid();
+               string[] ss = new string[1];
+               ss[0] = MB.byte_to_string(logo).Replace(" ", "");
+               stripes = PatternToStripes(charHeight, charWidth, ss);
+               bmGrid = StripesToBitMap(stripes);
+               BitMapToImage();
             }
          }
       }
