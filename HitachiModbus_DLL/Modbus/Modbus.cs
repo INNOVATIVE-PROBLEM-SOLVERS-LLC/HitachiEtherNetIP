@@ -354,10 +354,7 @@ namespace Modbus_DLL {
          Debug.Assert(n < attr.Count);
          attr.Val += n * attr.Stride;
          attr.Data.Len = length;
-         if (GetAttribute(attr, out result)) {
-            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
-                  $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{byte_to_string(result)}\"{LogIOSpacer}");
-         } else {
+         if (!GetAttribute(attr, out result)) {
             result = null;
          }
          return result;
@@ -470,6 +467,8 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
+         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+            $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{result}\"{LogIOSpacer}");
          return result;
       }
 
@@ -804,6 +803,8 @@ namespace Modbus_DLL {
          int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
          if ((regMask & (1 << regBit)) > 0) {
             data = GetAttribute(ccUP.User_Pattern_Fixed_Data, loc * logoLen[DotMatrix] / 2, logoLen[DotMatrix]);
+            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * logoLen[DotMatrix] / 2:X4}] " +
+               $"{ccUP.User_Pattern_Fixed_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
             result = true;
          }
          return result;
@@ -835,6 +836,10 @@ namespace Modbus_DLL {
             } else {
                data = logo;
             }
+            AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
+            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * Modbus.FreeLogoSize:X4}] " +
+               $"{ccUP.User_Pattern_Free_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
+
             return true;
          } else {
             Width = -1;
