@@ -1,0 +1,287 @@
+Get[2490] Online_Offline = Online
+ 
+// Retrieving Message Layout
+ 
+Get[103F] Format_Setup = "SeparateSetup"
+ 
+// Retrieving Rows and Columns
+ 
+Get[0008] Number_Of_Items = 8
+Get[1040+0000] Line_Count[1] = 3
+Get[1041+0000] Line_Spacing[1] = "2"
+Get[1040+0048] Line_Count[4] = 3
+Get[1041+0048] Line_Spacing[4] = "2"
+Get[1040+0090] Line_Count[7] = 1
+Get[1041+0090] Line_Spacing[7] = "0"
+Get[1040+00A8] Line_Count[8] = 1
+Get[1041+00A8] Line_Spacing[8] = "0"
+ 
+// Retrieving Item in Column 1 Row 1
+ 
+Get[0020+0000] Characters_per_Item[1] = 19
+Get[0084+0000] Print_Character_String[1] = "SELL BY {{MMM}/{DD}/{YY}}  "
+Get[1042+0000] Dot_Matrix[1] = "Size5x7"
+Get[1043+0000] InterCharacter_Space[1] = "1"
+Get[1042+0000] Dot_Matrix[1] = "Size5x7"
+Get[1044+0000] Character_Bold[1] = "1"
+Get[1045+0000] Barcode_Type[1] = 0
+Get[1049+0000] Number_of_Calendar_Blocks[1] = 1
+Get[1048+0000] First_Calendar_Block[1] = 1
+ 
+// Retrieving Calendar Block 1
+ 
+Get[19C0+0000] Offset_Year[1] = "0"
+Get[19C1+0000] Offset_Month[1] = "0"
+Get[19C2+0000] Offset_Day[1] = "24"
+Get[19C3+0000] Offset_Hour[1] = "-12"
+Get[19C4+0000] Offset_Minute[1] = "-30"
+Get[19C5+0000] Zero_Suppress_Year[1] = "None"
+Get[19C6+0000] Zero_Suppress_Month[1] = "None"
+Get[19C7+0000] Zero_Suppress_Day[1] = "Space"
+Get[19CA+0000] Substitute_Year[1] = "False"
+Get[19CB+0000] Substitute_Month[1] = "True"
+Get[19CC+0000] Substitute_Day[1] = "False"
+Get[104B+0000] Number_Of_Count_Blocks[1] = 0
+ 
+// Retrieving Item in Column 1 Row 2
+ 
+Get[0020+0001] Characters_per_Item[2] = 19
+Get[0084+0026] Print_Character_String[20] = "USE BY  {{MMM}/{DD}/{YY}}  "
+Get[1042+0018] Dot_Matrix[2] = "Size5x7"
+Get[1043+0018] InterCharacter_Space[2] = "1"
+Get[1042+0018] Dot_Matrix[2] = "Size5x7"
+Get[1044+0018] Character_Bold[2] = "1"
+Get[1045+0018] Barcode_Type[2] = 0
+Get[1049+0018] Number_of_Calendar_Blocks[2] = 1
+Get[1048+0018] First_Calendar_Block[2] = 2
+ 
+// Retrieving Calendar Block 2
+ 
+Get[19C0+0020] Offset_Year[2] = "0"
+Get[19C1+0020] Offset_Month[2] = "0"
+Get[19C2+0020] Offset_Day[2] = "45"
+Get[19C3+0020] Offset_Hour[2] = "0"
+Get[19C4+0020] Offset_Minute[2] = "0"
+Get[19C5+0020] Zero_Suppress_Year[2] = "None"
+Get[19C6+0020] Zero_Suppress_Month[2] = "None"
+Get[19C7+0020] Zero_Suppress_Day[2] = "Space"
+Get[19CA+0020] Substitute_Year[2] = "False"
+Get[19CB+0020] Substitute_Month[2] = "True"
+Get[19CC+0020] Substitute_Day[2] = "False"
+Get[104B+0018] Number_Of_Count_Blocks[2] = 0
+ 
+// Retrieving Item in Column 1 Row 3
+ 
+Get[0020+0002] Characters_per_Item[3] = 19
+Get[0084+004C] Print_Character_String[39] = "PCKD {{TTT} {777} {hh}:{mm}} "
+Get[1042+0030] Dot_Matrix[3] = "Size5x7"
+Get[1043+0030] InterCharacter_Space[3] = "1"
+Get[1042+0030] Dot_Matrix[3] = "Size5x7"
+Get[1044+0030] Character_Bold[3] = "1"
+Get[1045+0030] Barcode_Type[3] = 0
+Get[1049+0030] Number_of_Calendar_Blocks[3] = 1
+Get[1048+0030] First_Calendar_Block[3] = 3
+ 
+// Retrieving Calendar Block 3
+ 
+Get[19C0+0040] Offset_Year[3] = "0"
+Get[19C1+0040] Offset_Month[3] = "0"
+Get[19C2+0040] Offset_Day[3] = "0"
+Get[19C3+0040] Offset_Hour[3] = "0"
+Get[19C4+0040] Offset_Minute[3] = "0"
+Get[19C8+0040] Zero_Suppress_Hour[3] = "None"
+Get[19C9+0040] Zero_Suppress_Minute[3] = "None"
+Get[19D3+0040] Zero_Suppress_DayOfWeek[3] = "None"
+Get[19CD+0040] Substitute_Hour[3] = "False"
+Get[19CE+0040] Substitute_Minute[3] = "False"
+Get[19D2+0040] Substitute_DayOfWeek[3] = "True"
+Get[104B+0030] Number_Of_Count_Blocks[3] = 0
+ 
+// Retrieving Item in Column 2 Row 1
+ 
+Get[0020+0003] Characters_per_Item[4] = 7
+Get[0084+0072] Print_Character_String[58] = "Shift {E}"
+Get[1042+0048] Dot_Matrix[4] = "Size5x7"
+Get[1043+0048] InterCharacter_Space[4] = "1"
+Get[1042+0048] Dot_Matrix[4] = "Size5x7"
+Get[1044+0048] Character_Bold[4] = "1"
+Get[1045+0048] Barcode_Type[4] = 0
+Get[1049+0048] Number_of_Calendar_Blocks[4] = 1
+Get[1048+0048] First_Calendar_Block[4] = 4
+ 
+// Retrieving Calendar Block 4
+ 
+Get[19C0+0060] Offset_Year[4] = "0"
+Get[19C1+0060] Offset_Month[4] = "0"
+Get[19C2+0060] Offset_Day[4] = "0"
+Get[19C3+0060] Offset_Hour[4] = "0"
+Get[19C4+0060] Offset_Minute[4] = "0"
+ 
+// Retrieving Shift 1
+ 
+Get[1CE0+0000] Shift_Start_Hour[1] = "0"
+Get[1CE1+0000] Shift_Start_Minute[1] = "0"
+Get[1CE2+0000] Shift_End_Hour[1] = "7"
+Get[1CE3+0000] Shift_End_Minute[1] = "59"
+Get[1CE4+0000] Shift_String_Value[1] = "D"
+ 
+// Retrieving Shift 2
+ 
+Get[1CE0+0010] Shift_Start_Hour[2] = "8"
+Get[1CE1+0010] Shift_Start_Minute[2] = "0"
+Get[1CE2+0010] Shift_End_Hour[2] = "15"
+Get[1CE3+0010] Shift_End_Minute[2] = "59"
+Get[1CE4+0010] Shift_String_Value[2] = "E"
+ 
+// Retrieving Shift 3
+ 
+Get[1CE0+0020] Shift_Start_Hour[3] = "16"
+Get[1CE1+0020] Shift_Start_Minute[3] = "0"
+Get[1CE2+0020] Shift_End_Hour[3] = "23"
+Get[1CE3+0020] Shift_End_Minute[3] = "59"
+Get[1CE4+0020] Shift_String_Value[3] = "F"
+Get[104B+0048] Number_Of_Count_Blocks[4] = 0
+ 
+// Retrieving Item in Column 2 Row 2
+ 
+Get[0020+0004] Characters_per_Item[5] = 10
+Get[0084+0080] Print_Character_String[65] = "TCount {FF} "
+Get[1042+0060] Dot_Matrix[5] = "Size5x7"
+Get[1043+0060] InterCharacter_Space[5] = "1"
+Get[1042+0060] Dot_Matrix[5] = "Size5x7"
+Get[1044+0060] Character_Bold[5] = "1"
+Get[1045+0060] Barcode_Type[5] = 0
+Get[1049+0060] Number_of_Calendar_Blocks[5] = 1
+Get[1048+0060] First_Calendar_Block[5] = 5
+ 
+// Retrieving Calendar Block 5
+ 
+Get[19C0+0080] Offset_Year[5] = "0"
+Get[19C1+0080] Offset_Month[5] = "0"
+Get[19C2+0080] Offset_Day[5] = "0"
+Get[19C3+0080] Offset_Hour[5] = "0"
+Get[19C4+0080] Offset_Minute[5] = "0"
+Get[1CDE] Update_Interval_Value = "HalfHour"
+Get[1CD4] Time_Count_Start_Value = "A1"
+Get[1CD7] Time_Count_End_Value = "X2"
+Get[1CDD] Reset_Time_Value = "6"
+Get[1CDA] Time_Count_Reset_Value = "A1"
+Get[104B+0060] Number_Of_Count_Blocks[5] = 0
+ 
+// Retrieving Item in Column 2 Row 3
+ 
+Get[0020+0005] Characters_per_Item[6] = 9
+Get[0084+0094] Print_Character_String[75] = "# {{CCCCCC}} "
+Get[1042+0078] Dot_Matrix[6] = "Size5x7"
+Get[1043+0078] InterCharacter_Space[6] = "1"
+Get[1042+0078] Dot_Matrix[6] = "Size5x7"
+Get[1044+0078] Character_Bold[6] = "1"
+Get[1045+0078] Barcode_Type[6] = 0
+Get[1049+0078] Number_of_Calendar_Blocks[6] = 0
+Get[104B+0078] Number_Of_Count_Blocks[6] = 1
+Get[104A+0078] First_Count_Block[6] = 1
+ 
+// Retrieving Count Block 1
+ 
+Get[1FF4+0000] Count_Range_1[1] = "000000              "
+Get[2008+0000] Count_Range_2[1] = "999999              "
+Get[2022+0000] Jump_From[1] = "000199              "
+Get[2036+0000] Jump_To[1] = "000300              "
+Get[1FE0+0000] Initial_Value[1] = "000000              "
+Get[2020+0000] Increment_Value[1] = "1"
+Get[2021+0000] Direction_Value[1] = "Up"
+Get[2060+0000] Zero_Suppression[1] = "True"
+Get[205E+0000] Type_Of_Reset_Signal[1] = "Nothing"
+Get[204A+0000] Reset_Value[1] = "                    "
+Get[201C+0000] Update_Unit_Halfway[1] = "0"
+Get[201E+0000] Update_Unit_Unit[1] = "1"
+Get[205F+0000] External_Count[1] = "False"
+Get[2061+0000] Count_Multiplier[1] = "          "
+Get[206B+0000] Count_Skip[1] = "    "
+ 
+// Retrieving Item in Column 3 Row 1
+ 
+Get[0020+0006] Characters_per_Item[7] = 1
+Get[0084+00A6] Print_Character_String[84] = "{X/0}"
+Get[1042+0090] Dot_Matrix[7] = "Size18x24"
+Get[1043+0090] InterCharacter_Space[7] = "2"
+Get[1042+0090] Dot_Matrix[7] = "Size18x24"
+Get[1044+0090] Character_Bold[7] = "1"
+Get[1045+0090] Barcode_Type[7] = 0
+Get[1049+0090] Number_of_Calendar_Blocks[7] = 0
+Get[104B+0090] Number_Of_Count_Blocks[7] = 0
+ 
+// Retrieving Item in Column 4 Row 1
+ 
+Get[0020+0007] Characters_per_Item[8] = 1
+Get[0084+00A8] Print_Character_String[85] = "{Z/2}"
+Get[1042+00A8] Dot_Matrix[8] = "Size24x32"
+Get[1043+00A8] InterCharacter_Space[8] = "2"
+Get[1042+00A8] Dot_Matrix[8] = "Size24x32"
+Get[1044+00A8] Character_Bold[8] = "1"
+Get[1045+00A8] Barcode_Type[8] = 0
+Get[1049+00A8] Number_of_Calendar_Blocks[8] = 0
+Get[104B+00A8] Number_Of_Count_Blocks[8] = 0
+ 
+// Retrieving Printer Settings
+ 
+Get[0010] Model_Name = "UX-D161W        "
+Get[19A4] Character_Orientation = "Reverse_Forward"
+Get[19AF] Repeat_Interval = "0"
+Get[19AE] Repeat_Count = "1"
+Get[19B2] Target_Sensor_Filter = "Complete"
+Get[19B3] Target_Sensor_Filter_Value = "50"
+Get[19B1] Target_Sensor_Timer = "0"
+Get[19A3] Character_Width = "10"
+Get[19A0] Character_Height = "90"
+Get[19A5] Print_Start_Delay_Forward = "78"
+Get[19A6] Print_Start_Delay_Reverse = "78"
+Get[19A2] High_Speed_Print = "HM"
+Get[19A8] Pulse_Rate_Division_Factor = "1"
+Get[19A7] Product_Speed_Matching = "Off"
+Get[19A1] Ink_Drop_Use = "2"
+Get[19B4] Ink_Drop_Charge_Rule = "Normal"
+Set[0000] Start_Stop_Management_Flag = 1
+Set[0012] Substitution_Rule = 1
+Set[0000] Start_Stop_Management_Flag = 2
+ 
+// Retrieving substitution for Month
+ 
+Get[1AF4+0000] Month[1] = "JAN"
+Get[1AF4+0003] Month[2] = "FEB"
+Get[1AF4+0006] Month[3] = "MAR"
+Get[1AF4+0009] Month[4] = "APR"
+Get[1AF4+000C] Month[5] = "MAY"
+Get[1AF4+000F] Month[6] = "JUN"
+Get[1AF4+0012] Month[7] = "JUL"
+Get[1AF4+0015] Month[8] = "AUG"
+Get[1AF4+0018] Month[9] = "SEP"
+Get[1AF4+001B] Month[10] = "OCT"
+Get[1AF4+001E] Month[11] = "NOV"
+Get[1AF4+0021] Month[12] = "DEC"
+ 
+// Retrieving substitution for DayOfWeek
+ 
+Get[1CBC+0000] DayOfWeek[1] = "MON"
+Get[1CBC+0003] DayOfWeek[2] = "TUE"
+Get[1CBC+0006] DayOfWeek[3] = "WED"
+Get[1CBC+0009] DayOfWeek[4] = "THU"
+Get[1CBC+000C] DayOfWeek[5] = "FRI"
+Get[1CBC+000F] DayOfWeek[6] = "SAT"
+Get[1CBC+0012] DayOfWeek[7] = "SUN"
+Get[1AC1] Start_Year = "2000"
+ 
+// Retrieving Free Logo 2
+ 
+Get[6500+0000] User_Pattern_Free_Registration[1] = 24576
+Get[6511+0504] User_Pattern_Free_Width[2] = 52
+Get[6510+0504] User_Pattern_Free_Height[2] = 32
+Get[6512+0504] User_Pattern_Free_Data[2] = "00 00 00 00 00 F8 1F 00 00 FE 7F 00 80 FF FF 01 C0 FF FF 03 E0 FF FF 07 E0 1F F8 07 F0 07 E0 0F F8 01 80 1F F8 00 00 1F FC 00 00 3F 7C 00 00 3E 3C 00 00 7E 3E 00 00 7C 3E 00 00 7C 3E 00 00 7C 1E 00 00 78 1E 00 00 78 1E 00 00 78 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C0 03 00 00 FC 3F 00 00 FF 7F 00 80 FF FF 01 C0 FF FF 03 E0 FF FF 07 F0 CF F3 0F F0 C3 C3 0F F8 C1 83 1F FC C0 03 3F 7C C0 03 3E 7C C0 03 3E 3E C0 03 7C 3E C0 03 7C 3E C0 03 7C 3E C0 03 7C 1E 00 00 7C 1E 00 00 7C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
+ 
+// Retrieving Fixed Logo:  Dot Matrix Size18x24, Location 0
+ 
+Set[0000] Start_Stop_Management_Flag = 1
+Set[0013] User_Pattern_Size = Size18x24
+Set[0000] Start_Stop_Management_Flag = 2
+Get[2D00+0000] User_Pattern_Fixed_Registration[1] = 49152
+Get[2D00+0000] User_Pattern_Fixed_Data[0] = "FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "

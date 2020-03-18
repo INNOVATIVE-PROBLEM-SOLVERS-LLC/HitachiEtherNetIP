@@ -67,7 +67,7 @@ namespace ModBus161 {
                      continue;
                   }
                   p.Nozzle = n;
-                  Log?.Invoke(p, $" \n// Sending Logos for nozzle {n + 1}\n ");
+                  Log?.Invoke(p, $" \n// Sending Logos\n ");
                   if (Lab.Printer[i].Logos != null) {
                      foreach (Logo l in ptr.Logos.Logo) {
                         switch (l.Layout) {
@@ -82,7 +82,7 @@ namespace ModBus161 {
                   }
                   if (n > 0) // Load substitutions associated with nozzle 1 only
                      continue;
-                  Log?.Invoke(p, $" \n// Sending Substitutions for nozzle {n + 1}\n ");
+                  Log?.Invoke(p, $" \n// Sending Substitutions\n ");
                   SendSubstitutionRules(ptr);
                }
             }
@@ -101,7 +101,9 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
-                     Log?.Invoke(p, $" \n// Sending Message for nozzle {n + 1}\n ");
+                     if (p.TwinNozzle) {
+                        Log?.Invoke(p, $" \n// Sending Message for nozzle {n + 1}\n ");
+                     }
                      SendMessage(Lab.Message[i]);
                   }
                }
@@ -121,7 +123,9 @@ namespace ModBus161 {
                         continue;
                      }
                      p.Nozzle = n;
-                     Log?.Invoke(p, $" \n// Sending Printer Settings for nozzle {n + 1}\n ");
+                     if (p.TwinNozzle) {
+                        Log?.Invoke(p, $" \n// Sending Printer Settings for nozzle {n + 1}\n ");
+                     }
                      SendPrinterSettings(Lab.Printer[i]); // Must be done last
                   }
                }
@@ -141,6 +145,7 @@ namespace ModBus161 {
          p.DeleteAllButOne();
 
          if (m.Column != null) {
+            Log?.Invoke(this, " \n// Loading new message\n ");
             AllocateRowsColumns(m);
          }
       }
@@ -190,7 +195,7 @@ namespace ModBus161 {
                p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                charPosition += s.Length;
-               hasDateOrCount |= item.Date != null | item.Counter != null | item.Shift != null | item.TimeCount != null;
+               hasDateOrCount |= item.Date != null | item.Counter != null;
                m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
             }
          }
@@ -229,12 +234,6 @@ namespace ModBus161 {
                if (item.Counter != null) {
                   SendCount(item);
                }
-               if (item.Shift != null) {
-                  SendShift(item);
-               }
-               if (item.TimeCount != null) {
-                  SendTimeCount(item);
-               }
             }
          }
       }
@@ -244,7 +243,7 @@ namespace ModBus161 {
          int calCount = item.Location.calCount;
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
-            if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber >  0) {
+            if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber > 0) {
 
                Log?.Invoke(p, $" \n// Load settings for Substitution rule {1}\n ");
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -326,6 +325,27 @@ namespace ModBus161 {
                      p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
                   }
                }
+               if (date.Shift != null) {
+                  Log?.Invoke(p, $" \n// Set up shifts\n ");
+                  for (int j = 0; j < date.Shift.Length; j++) {
+                     p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shift[j].StartHour);
+                     p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shift[j].StartMinute);
+                     p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shift[j].EndHour);
+                     p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shift[j].EndMinute);
+                     p.SetAttribute(ccSR.Shift_String_Value, j, date.Shift[j].ShiftCode);
+                  }
+               }
+               TimeCount tc = date.TimeCount;
+               if (tc != null) {
+                  Log?.Invoke(p, $" \n// Set up Time Count\n ");
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
+                  p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
+                  p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
+                  p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
+                  p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               }
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
@@ -401,36 +421,6 @@ namespace ModBus161 {
          }
       }
 
-      private void SendShift(Item item) {
-
-         Log?.Invoke(p, $" \n// Set up shifts\n ");
-         // Process Shift
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         for (int j = 0; j < item.Shift.Length; j++) {
-            p.SetAttribute(ccSR.Shift_Start_Hour, j, item.Shift[j].StartHour);
-            p.SetAttribute(ccSR.Shift_Start_Minute, j, item.Shift[j].StartMinute);
-            p.SetAttribute(ccSR.Shift_End_Hour, j, item.Shift[j].EndHour);
-            p.SetAttribute(ccSR.Shift_End_Minute, j, item.Shift[j].EndMinute);
-            p.SetAttribute(ccSR.Shift_String_Value, j, item.Shift[j].ShiftCode);
-         }
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-      }
-
-      private void SendTimeCount(Item item) {
-
-         Log?.Invoke(p, $" \n// Set up Time Count\n ");
-         TimeCount tc = item.TimeCount;
-         if (tc != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
-            p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
-            p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
-            p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
-            p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         }
-      }
-
       #endregion
 
       #region Send Printer Settings to printer
@@ -486,14 +476,8 @@ namespace ModBus161 {
 
       private void SendFixedLogo(Logo l) {
          int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
-         // Load the logo into the pattern area
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccIDX.User_Pattern_Size, l.DotMatrix);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
-
             Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {loc}\n ");
-
             // Pad the logo to full size
             int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
             byte[] data = new byte[logoLen[n]];
@@ -518,8 +502,8 @@ namespace ModBus161 {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               p.SetAttribute(ccSR.Start_Year, year);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+               p.SetAttribute(ccSR.Start_Year, year);
                SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }

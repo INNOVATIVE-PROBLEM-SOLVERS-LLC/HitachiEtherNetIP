@@ -204,14 +204,6 @@ namespace ModBus161 {
                   Log?.Invoke(p, $" \n// Retrieving Count Block {item.Location.countStart}\n ");
                   RetrieveCountSettings(item);
                }
-               for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
-                  if (item.Shift == null && (mask[i] & (int)ba.Shift) > 0) {
-                     item.Shift = RetrieveShifts();
-                  }
-                  if (item.TimeCount == null && (mask[i] & (int)ba.TimeCount) > 0) {
-                     item.TimeCount = RetrieveTimeCount();
-                  }
-               }
                m.Column[col].Item[row] = item;
                n++;
                totalCharacters += characterCount;
@@ -229,8 +221,6 @@ namespace ModBus161 {
             if ((mask[i] & DateOffset) > 0) {
                item.Date[i].SubstitutionRule = "1";
                item.Date[i].RuleName = "";
-            }
-            if ((mask[i] & DateOffset) > 0) {
                item.Date[i].Offset = new Offset() {
                   Year = p.GetHRAttribute(ccCal.Offset_Year, n),
                   Month = p.GetHRAttribute(ccCal.Offset_Month, n),
@@ -286,6 +276,12 @@ namespace ModBus161 {
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
                   if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n)))
                      item.Date[i].Substitute.DayOfWeek = s;
+            }
+            if ((mask[i] & (int)ba.Shift) > 0) {
+               item.Date[i].Shift = RetrieveShifts();
+            }
+            if ((mask[i] & (int)ba.TimeCount) > 0) {
+               item.Date[i].TimeCount = RetrieveTimeCount();
             }
             n++;
          }

@@ -30,7 +30,6 @@ namespace Modbus_DLL {
       // I/O buffer size for read/write of logos (32 x 32 bitmap)
       public const int LogoMaxSizeIO = 128;
 
-
       // Choose between IJPLib names and EtherNet/IP names
       private bool UseIJPLibNames = true;
 
@@ -40,7 +39,6 @@ namespace Modbus_DLL {
       public string LogIOSpacer {
          get { return LogIOs ? "\n " : ""; }
       }
-
 
       // Modbus function codes
       public enum FunctionCode {
@@ -642,7 +640,7 @@ namespace Modbus_DLL {
          int lineCount;
          int n = 0;
          int cols = 0;
-
+         Log?.Invoke(this, " \n// Deleting old message\n ");
          Log?.Invoke(this, " \n// Get number of items\n ");
          int itemCount = GetDecAttribute(ccIDX.Number_Of_Items);
 
@@ -875,16 +873,18 @@ namespace Modbus_DLL {
       // Get Nozzle Designation
       private string GetNozzle(AttrData attr) {
          string noz = "";
-         switch (attr.Nozzle) {
-            case Noz.None:
-               noz = "Pr:";
-               break;
-            case Noz.Current:
-               noz = $"N{Nozzle + 1}:";
-               break;
-            case Noz.Both:
-               noz = "NB:";
-               break;
+         if (TwinNozzle) {
+            switch (attr.Nozzle) {
+               case Noz.None:
+                  noz = "Pr:";
+                  break;
+               case Noz.Current:
+                  noz = $"N{Nozzle + 1}:";
+                  break;
+               case Noz.Both:
+                  noz = "NB:";
+                  break;
+            }
          }
          return noz;
       }

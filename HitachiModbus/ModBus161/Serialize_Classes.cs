@@ -50,12 +50,6 @@ namespace ModBus161 {
       [XmlElement("Counter")]
       public Counter[] Counter;        // Multiple counters can appear within an item
 
-      [XmlArray("Shifts")]
-      [XmlArrayItem("Shift")]
-      public Shift[] Shift;            // Shift code appears in item even though it is printer wide.
-
-      public TimeCount TimeCount;      // Time Count appears in item even though it is printer wide.
-
       public string Text;              // Message Text
 
       [XmlIgnore]
@@ -168,6 +162,12 @@ namespace ModBus161 {
       public Offset Offset;
       public ZeroSuppress ZeroSuppress;
       public Substitute Substitute;
+
+      [XmlArray("Shifts")]
+      [XmlArrayItem("Shift")]
+      public Shift[] Shift;
+
+      public TimeCount TimeCount;
 
       public bool ShouldSerializeOffset() {
          return Offset != null && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
