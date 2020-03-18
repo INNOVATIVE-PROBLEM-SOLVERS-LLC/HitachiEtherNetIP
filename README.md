@@ -1,5 +1,7 @@
 # HitachiEtherNetIP
 
+Update -- Mar 18, 2020 -- Time Count and Shifts were not structured properly.  Previously, Time Count and Shifts we processed as printer wide.  They have been moved in as part of the calendar block. 
+
 Update -- Mar 17, 2020 -- Avoid the version with the tag "Level_8.0.0.2".  An attempt to consolidate code resulted in logging being broken.
 
 Update -- MAR 14, 2020 -- The version with the tag "Level_8.0.0.0" has significate updates to "Modbus161" and "ModbusDLL".  With this version, a XML message containing five calendar blocks, a counter block, and a user pattern was successfully sent to the printer, retrieved from the printer, and compared as an exact match.  An inspection of the printer revealed that the message was properly built.
