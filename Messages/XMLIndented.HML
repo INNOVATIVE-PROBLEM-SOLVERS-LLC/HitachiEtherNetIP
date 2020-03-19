@@ -55,17 +55,21 @@
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <BarCode />
-        <Shifts>
-          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
-          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
-          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
-        </Shifts>
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Shifts>
+            <Shift ShiftNumber="1" StartHour="0" StartMinute="0" ShiftCode="D" />
+            <Shift ShiftNumber="2" StartHour="8" StartMinute="0" ShiftCode="E" />
+            <Shift ShiftNumber="3" StartHour="16" StartMinute="0" ShiftCode="F" />
+          </Shifts>
+        </Date>
         <Text>Shift {E}</Text>
       </Item>
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <BarCode />
-        <TimeCount Interval="HalfHour" Start="00" End="X2" ResetTime="6" ResetValue="A1" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+         <TimeCount Interval="HalfHour" Start="00" End="X2" ResetTime="6" ResetValue="A1" />
+        </Date>
         <Text>TCount {FF} </Text>
       </Item>
       <Item>
