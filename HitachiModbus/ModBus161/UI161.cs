@@ -65,6 +65,8 @@ namespace ModBus161 {
       private int acks = 0;
       private int naks = 0;
 
+      string LogXML = string.Empty;
+
       #endregion
 
       #region Application data
@@ -90,16 +92,6 @@ namespace ModBus161 {
 
       }
 
-      private void P_Complete(object sender, bool Success) {
-         if (Success) {
-            txtAcks.Text = (++acks).ToString();
-            txtAcks.Refresh();
-         } else {
-            txtNaks.Text = (++naks).ToString();
-            txtNaks.Refresh();
-         }
-      }
-
       #endregion
 
       #region Form Level Events
@@ -117,6 +109,7 @@ namespace ModBus161 {
          chkHex.Checked = prop.HexData;
          chkLogIO.Checked = prop.LogIO;
          chkStopOnAllErrors.Checked = prop.StopOnErrors;
+         chkLogAsXML.Checked = prop.LogAsXML;
 
          // Initialize all dropdowns
          ccNames = Enum.GetNames(typeof(ClassCode));
@@ -163,6 +156,7 @@ namespace ModBus161 {
          prop.Nozzle = cbNozzle.SelectedIndex;
          prop.HexData = chkHex.Checked;
          prop.LogIO = chkLogIO.Checked;
+         prop.LogAsXML = chkLogAsXML.Checked;
          prop.StopOnErrors = chkStopOnAllErrors.Checked;
          prop.AppSpreadsheet = txtAppExcel.Text;
          prop.AppWorksheet = cbAppSpreadsheet.SelectedIndex;
@@ -206,8 +200,9 @@ namespace ModBus161 {
             Utils.ResizeObject(ref R, cmdReset, 7, 40, 2.5f, 6);
 
             Utils.ResizeObject(ref R, chkLogIO, 9, 1, 2, 5);
-            Utils.ResizeObject(ref R, chkStopOnAllErrors, 11, 1, 2, 7);
             Utils.ResizeObject(ref R, chkTwinNozzle, 9, 6, 2, 6);
+            Utils.ResizeObject(ref R, chkLogAsXML, 11, 1, 2, 5);
+            Utils.ResizeObject(ref R, chkStopOnAllErrors, 11, 6, 2, 7);
             Utils.ResizeObject(ref R, lblPrinterStatus, 10, 14, 2, 6);
             Utils.ResizeObject(ref R, txtPrinterStatus, 10, 20, 2, 26);
             Utils.ResizeObject(ref R, lblAnalysis, 12, 14, 2, 6);
@@ -279,7 +274,8 @@ namespace ModBus161 {
                }
                // Logo Tab
                up.ResizeControls(ref R, 0, 20, 44);
-
+               // Log as XML
+               Utils.ResizeObject(ref R, tvLogAsXML, 1, 1, 19, 43);
             }
 
             Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 5);
@@ -465,6 +461,7 @@ namespace ModBus161 {
          try {
             send.SendXML(txtIndentedView.Text);
          } finally {
+            LoadXmlToDisplay(send.Retrieve());
             send.Log -= Modbus_Log;
             send = null;
          }
@@ -478,6 +475,7 @@ namespace ModBus161 {
          try {
             LoadXmlToDisplay(retrieve.Retrieve());
          } finally {
+            DisplayLogTree(retrieve.LogXML);
             retrieve.Log -= Modbus_Log;
             retrieve = null;
          }
@@ -566,6 +564,8 @@ namespace ModBus161 {
          } else if (tclViews.SelectedTab == tabIndented) {
             txtIndentedView.Text = string.Empty;
             tvXML.Nodes.Clear();
+         } else if (tclViews.SelectedTab == tabLogAsXML) {
+            tvLogAsXML.Nodes.Clear();
          }
          SetButtonEnables();
       }
@@ -574,9 +574,14 @@ namespace ModBus161 {
       private void cmLogToNotepad_Click(object sender, EventArgs e) {
          string ViewFilename = @"c:\Temp\Err.txt";
          if (tclViews.SelectedTab == tabLog) {
+            ViewFilename = @"c:\Temp\Log.txt";
             File.WriteAllLines(ViewFilename, lstMessages.Items.Cast<string>().ToArray());
          } else if (tclViews.SelectedTab == tabIndented) {
+            ViewFilename = @"c:\Temp\Indented.HML";
             File.WriteAllLines(ViewFilename, txtIndentedView.Text.Replace("\r\n", "\n").Split('\n'));
+         } else if (tclViews.SelectedTab == tabLogAsXML) {
+            ViewFilename = @"c:\Temp\LogXML.XML";
+            File.WriteAllLines(ViewFilename, LogXML.Replace("\r\n", "\n").Split('\n'));
          }
          Process.Start("notepad.exe", ViewFilename);
          SetButtonEnables();
@@ -734,6 +739,13 @@ namespace ModBus161 {
       // Re-evaluate enables when leaving
       private void Data_Leave(object sender, EventArgs e) {
          SetButtonEnables();
+      }
+
+      // No longer checked.
+      private void chkLogAsXML_CheckedChanged(object sender, EventArgs e) {
+         if (p != null) {
+            p.LogAsXML = chkLogAsXML.Checked;
+         }
       }
 
       #endregion
@@ -921,6 +933,17 @@ namespace ModBus161 {
          }
       }
 
+      // Record printer I/O completions
+      private void P_Complete(object sender, bool Success) {
+         if (Success) {
+            txtAcks.Text = (++acks).ToString();
+            txtAcks.Refresh();
+         } else {
+            txtNaks.Text = (++naks).ToString();
+            txtNaks.Refresh();
+         }
+      }
+
       // Load an XML file into the displays
       private void LoadXmlToDisplay(string xml) {
          try {
@@ -1014,6 +1037,23 @@ namespace ModBus161 {
          return s;
       }
 
+      // Display log file as TreeView
+      private void DisplayLogTree(string logXML) {
+         LogXML = logXML;
+         XmlDocument LogXmlDoc = new XmlDocument() { PreserveWhitespace = true };
+         LogXmlDoc.LoadXml(logXML);
+
+         tvLogAsXML.Nodes.Clear();
+         tvLogAsXML.Nodes.Add(new TreeNode(LogXmlDoc.DocumentElement.Name));
+         TreeNode tNode = new TreeNode();
+         tNode = tvLogAsXML.Nodes[0];
+
+         AddNode(LogXmlDoc.DocumentElement, tNode);
+         tvLogAsXML.CollapseAll();
+         tvLogAsXML.Nodes[0].Expand();
+
+      }
+
       // Avoid extra tests by enabling only the buttons that can be used
       private void SetButtonEnables() {
          int addr;
@@ -1072,10 +1112,6 @@ namespace ModBus161 {
       }
 
       #endregion
-
-      private void cmdGroupRefresh_Click(object sender, EventArgs e) {
-
-      }
 
    }
 

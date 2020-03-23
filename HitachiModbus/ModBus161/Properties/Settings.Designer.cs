@@ -25,7 +25,7 @@ namespace ModBus161.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("192.168.168.100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10.0.0.100")]
         public string IPAddress {
             get {
                 return ((string)(this["IPAddress"]));
@@ -224,6 +224,18 @@ namespace ModBus161.Properties {
             }
             set {
                 this["StopOnErrors"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LogAsXML {
+            get {
+                return ((bool)(this["LogAsXML"]));
+            }
+            set {
+                this["LogAsXML"] = value;
             }
         }
     }

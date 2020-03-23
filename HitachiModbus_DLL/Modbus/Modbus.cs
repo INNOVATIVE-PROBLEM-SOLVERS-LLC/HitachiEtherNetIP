@@ -85,6 +85,9 @@ namespace Modbus_DLL {
       public bool IsConnected { get { return stream != null; } }
       public bool ComIsOn { get; private set; } = false;
 
+      // Log I/O as XML file
+      public bool LogAsXML = false;
+
       #endregion
 
       #region Constructors and Destructors
@@ -118,7 +121,7 @@ namespace Modbus_DLL {
          try {
             if (IPAddress.TryParse(ipAddress, out IPAddress ipAddr)) {
                client = new TcpClient();
-               if (!client.ConnectAsync(ipAddress, ipPort).Wait(1000)) {
+               if (!client.ConnectAsync(ipAddress, ipPort).Wait(2000)) {
                   Log?.Invoke(this, "Connection Failed");
                   client = null;
                } else {

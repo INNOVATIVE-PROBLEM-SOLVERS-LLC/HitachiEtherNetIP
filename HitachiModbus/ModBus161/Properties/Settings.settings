@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="IPAddress" Type="System.String" Scope="User">
-      <Value Profile="(Default)">192.168.168.100</Value>
+      <Value Profile="(Default)">10.0.0.100</Value>
     </Setting>
     <Setting Name="IPPort" Type="System.String" Scope="User">
       <Value Profile="(Default)">502</Value>
@@ -52,6 +52,9 @@
     </Setting>
     <Setting Name="StopOnErrors" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LogAsXML" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

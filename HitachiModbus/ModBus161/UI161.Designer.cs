@@ -109,6 +109,8 @@
          this.lblAppMsgSource = new System.Windows.Forms.Label();
          this.tabLogo = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
+         this.tabLogAsXML = new System.Windows.Forms.TabPage();
+         this.tvLogAsXML = new System.Windows.Forms.TreeView();
          this.cmdRetrieve = new System.Windows.Forms.Button();
          this.cmdReformat = new System.Windows.Forms.Button();
          this.cmdSaveAs = new System.Windows.Forms.Button();
@@ -145,6 +147,7 @@
          this.lblAcks = new System.Windows.Forms.Label();
          this.txtNaks = new System.Windows.Forms.TextBox();
          this.lblNaks = new System.Windows.Forms.Label();
+         this.chkLogAsXML = new System.Windows.Forms.CheckBox();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -156,6 +159,7 @@
          this.tabErrors.SuspendLayout();
          this.tabApplication.SuspendLayout();
          this.tabLog.SuspendLayout();
+         this.tabLogAsXML.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -253,19 +257,19 @@
             this.cmLogClear,
             this.cmLogToNotepad});
          this.cmLog.Name = "cmLog";
-         this.cmLog.Size = new System.Drawing.Size(189, 52);
+         this.cmLog.Size = new System.Drawing.Size(211, 80);
          // 
          // cmLogClear
          // 
          this.cmLogClear.Name = "cmLogClear";
-         this.cmLogClear.Size = new System.Drawing.Size(188, 24);
+         this.cmLogClear.Size = new System.Drawing.Size(210, 24);
          this.cmLogClear.Text = "Clear";
          this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
          // 
          // cmLogToNotepad
          // 
          this.cmLogToNotepad.Name = "cmLogToNotepad";
-         this.cmLogToNotepad.Size = new System.Drawing.Size(188, 24);
+         this.cmLogToNotepad.Size = new System.Drawing.Size(210, 24);
          this.cmLogToNotepad.Text = "Load in NotePad";
          this.cmLogToNotepad.Click += new System.EventHandler(this.cmLogToNotepad_Click);
          // 
@@ -384,7 +388,8 @@
          this.tclViews.Controls.Add(this.tabApplication);
          this.tclViews.Controls.Add(this.tabLogo);
          this.tclViews.Controls.Add(this.tabLog);
-         this.tclViews.Location = new System.Drawing.Point(4, 150);
+         this.tclViews.Controls.Add(this.tabLogAsXML);
+         this.tclViews.Location = new System.Drawing.Point(3, 151);
          this.tclViews.Name = "tclViews";
          this.tclViews.SelectedIndex = 0;
          this.tclViews.Size = new System.Drawing.Size(776, 422);
@@ -542,7 +547,6 @@
          this.cmdGroupRefresh.TabIndex = 9;
          this.cmdGroupRefresh.Text = "Refresh";
          this.cmdGroupRefresh.UseVisualStyleBackColor = true;
-         this.cmdGroupRefresh.Click += new System.EventHandler(this.cmdGroupRefresh_Click);
          // 
          // dgGroups
          // 
@@ -1008,6 +1012,24 @@
          this.tabLog.Text = "Log";
          this.tabLog.UseVisualStyleBackColor = true;
          // 
+         // tabLogAsXML
+         // 
+         this.tabLogAsXML.Controls.Add(this.tvLogAsXML);
+         this.tabLogAsXML.Location = new System.Drawing.Point(4, 25);
+         this.tabLogAsXML.Name = "tabLogAsXML";
+         this.tabLogAsXML.Size = new System.Drawing.Size(768, 393);
+         this.tabLogAsXML.TabIndex = 9;
+         this.tabLogAsXML.Text = "Log as XML";
+         this.tabLogAsXML.UseVisualStyleBackColor = true;
+         // 
+         // tvLogAsXML
+         // 
+         this.tvLogAsXML.ContextMenuStrip = this.cmLog;
+         this.tvLogAsXML.Location = new System.Drawing.Point(21, 20);
+         this.tvLogAsXML.Name = "tvLogAsXML";
+         this.tvLogAsXML.Size = new System.Drawing.Size(727, 353);
+         this.tvLogAsXML.TabIndex = 1;
+         // 
          // cmdRetrieve
          // 
          this.cmdRetrieve.Location = new System.Drawing.Point(19, 701);
@@ -1187,9 +1209,9 @@
          // 
          // chkTwinNozzle
          // 
-         this.chkTwinNozzle.Location = new System.Drawing.Point(112, 103);
+         this.chkTwinNozzle.Location = new System.Drawing.Point(130, 103);
          this.chkTwinNozzle.Name = "chkTwinNozzle";
-         this.chkTwinNozzle.Size = new System.Drawing.Size(140, 20);
+         this.chkTwinNozzle.Size = new System.Drawing.Size(122, 25);
          this.chkTwinNozzle.TabIndex = 1;
          this.chkTwinNozzle.Text = "Twin Nozzle";
          this.chkTwinNozzle.UseVisualStyleBackColor = true;
@@ -1272,7 +1294,7 @@
          // 
          // chkStopOnAllErrors
          // 
-         this.chkStopOnAllErrors.Location = new System.Drawing.Point(11, 129);
+         this.chkStopOnAllErrors.Location = new System.Drawing.Point(156, 134);
          this.chkStopOnAllErrors.Name = "chkStopOnAllErrors";
          this.chkStopOnAllErrors.Size = new System.Drawing.Size(144, 20);
          this.chkStopOnAllErrors.TabIndex = 53;
@@ -1282,7 +1304,7 @@
          // 
          // lblPrinterStatus
          // 
-         this.lblPrinterStatus.Location = new System.Drawing.Point(161, 129);
+         this.lblPrinterStatus.Location = new System.Drawing.Point(392, 127);
          this.lblPrinterStatus.Name = "lblPrinterStatus";
          this.lblPrinterStatus.Size = new System.Drawing.Size(109, 22);
          this.lblPrinterStatus.TabIndex = 54;
@@ -1291,7 +1313,7 @@
          // 
          // txtPrinterStatus
          // 
-         this.txtPrinterStatus.Location = new System.Drawing.Point(276, 127);
+         this.txtPrinterStatus.Location = new System.Drawing.Point(507, 129);
          this.txtPrinterStatus.Name = "txtPrinterStatus";
          this.txtPrinterStatus.ReadOnly = true;
          this.txtPrinterStatus.Size = new System.Drawing.Size(87, 22);
@@ -1300,7 +1322,7 @@
          // 
          // txtAnalysis
          // 
-         this.txtAnalysis.Location = new System.Drawing.Point(504, 127);
+         this.txtAnalysis.Location = new System.Drawing.Point(685, 127);
          this.txtAnalysis.Name = "txtAnalysis";
          this.txtAnalysis.ReadOnly = true;
          this.txtAnalysis.Size = new System.Drawing.Size(87, 22);
@@ -1309,9 +1331,9 @@
          // 
          // lblAnalysis
          // 
-         this.lblAnalysis.Location = new System.Drawing.Point(389, 129);
+         this.lblAnalysis.Location = new System.Drawing.Point(610, 129);
          this.lblAnalysis.Name = "lblAnalysis";
-         this.lblAnalysis.Size = new System.Drawing.Size(109, 22);
+         this.lblAnalysis.Size = new System.Drawing.Size(69, 22);
          this.lblAnalysis.TabIndex = 56;
          this.lblAnalysis.Text = "Analysis";
          this.lblAnalysis.TextAlign = System.Drawing.ContentAlignment.TopRight;
@@ -1362,11 +1384,22 @@
          this.lblNaks.Text = "NAKS";
          this.lblNaks.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
+         // chkLogAsXML
+         // 
+         this.chkLogAsXML.Location = new System.Drawing.Point(12, 122);
+         this.chkLogAsXML.Name = "chkLogAsXML";
+         this.chkLogAsXML.Size = new System.Drawing.Size(112, 29);
+         this.chkLogAsXML.TabIndex = 63;
+         this.chkLogAsXML.Text = "Log As XML";
+         this.chkLogAsXML.UseVisualStyleBackColor = true;
+         this.chkLogAsXML.CheckedChanged += new System.EventHandler(this.chkLogAsXML_CheckedChanged);
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(800, 753);
+         this.Controls.Add(this.chkLogAsXML);
          this.Controls.Add(this.txtNaks);
          this.Controls.Add(this.lblNaks);
          this.Controls.Add(this.txtAcks);
@@ -1443,6 +1476,7 @@
          this.tabApplication.ResumeLayout(false);
          this.tabApplication.PerformLayout();
          this.tabLog.ResumeLayout(false);
+         this.tabLogAsXML.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -1570,6 +1604,9 @@
       private System.Windows.Forms.Label lblAcks;
       public System.Windows.Forms.TextBox txtNaks;
       private System.Windows.Forms.Label lblNaks;
+      public System.Windows.Forms.CheckBox chkLogAsXML;
+      private System.Windows.Forms.TabPage tabLogAsXML;
+      private System.Windows.Forms.TreeView tvLogAsXML;
    }
 }
 
