@@ -622,11 +622,11 @@ namespace Modbus_DLL {
 
       // User_pattern (Class Code 0x6B)
       private AttrData[] ccUP_Addrs = new AttrData[] {
-         new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 12, 1,   // User Pattern Fixed Registration 0x2D00
+         new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 12, 1, 0,// User Pattern Fixed Registration 0x2D00
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 14304, 1,        // User Pattern Fixed Data 0x2D20
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 4, 1,     // User Pattern Free Registration 0x6500
+         new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 4, 1, 0,  // User Pattern Free Registration 0x6500
             new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Height 0x6510
             new Prop(1, DataFormats.Decimal, 0, 32, fmtDD.None)),               //   Data
