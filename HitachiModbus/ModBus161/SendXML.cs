@@ -15,8 +15,6 @@ namespace ModBus161 {
 
       #region Data Declarations
 
-      bool UseAutomaticReflection;
-
       public Encoding Encode = Encoding.UTF8;
 
       #endregion

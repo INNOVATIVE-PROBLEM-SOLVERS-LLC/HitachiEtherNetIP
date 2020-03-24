@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Modbus_DLL {
    public class Modbus {
@@ -23,6 +24,8 @@ namespace Modbus_DLL {
       #endregion
 
       #region Data Declarations
+
+      Form parent;
 
       // Repeat interval for free logos
       public const int FreeLogoSize = 642;
@@ -93,7 +96,9 @@ namespace Modbus_DLL {
       #region Constructors and Destructors
 
       // Create object and build dictionary of attributes
-      public Modbus() {
+      public Modbus(Form parent) {
+         this.parent = parent;
+
          BuildAttributeDictionary();
       }
 
@@ -122,11 +127,11 @@ namespace Modbus_DLL {
             if (IPAddress.TryParse(ipAddress, out IPAddress ipAddr)) {
                client = new TcpClient();
                if (!client.ConnectAsync(ipAddress, ipPort).Wait(2000)) {
-                  Log?.Invoke(this, "Connection Failed");
+                  LogIt("Connection Failed");
                   client = null;
                } else {
                   stream = client.GetStream();
-                  Log?.Invoke(this, "Connection Accepted");
+                  LogIt("Connection Accepted");
                   int n = GetDecAttribute(ccIJP.Online_Offline);
                   if (!ComIsOn) {
                      SetAttribute(ccIJP.Online_Offline, 1);
@@ -136,7 +141,7 @@ namespace Modbus_DLL {
                }
             }
          } catch (Exception e) {
-            Log?.Invoke(this, $"Connection Failed\n{ e.StackTrace}");
+            LogIt($"Connection Failed\n{ e.StackTrace}");
             Disconnect();
          }
          return success;
@@ -183,13 +188,13 @@ namespace Modbus_DLL {
          if (successful) {
             if ((data[7] & 0x80) > 0) {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
-               Log?.Invoke(this, s);
-               Complete?.Invoke(this, false);
+               LogIt(s);
+               CompleteIt(false);
             } else {
-               Complete?.Invoke(this, true);
+               CompleteIt(true);
             }
          } else {
-            Log?.Invoke(this, "Read Failed.");
+            LogIt("Read Failed.");
          }
          return successful;
       }
@@ -203,11 +208,11 @@ namespace Modbus_DLL {
                stream.Write(data, 0, data.Length);
                successful = true;
             } catch (Exception e) {
-               Log?.Invoke(this, e.Message);
+               LogIt(e.Message);
             }
          }
          if (!successful) {
-            Log?.Invoke(this, "Write Failed. Connection Closed!");
+            LogIt("Write Failed. Connection Closed!");
          }
          return successful;
       }
@@ -365,7 +370,7 @@ namespace Modbus_DLL {
       public int GetDecAttribute<T>(T Attribute) where T : Enum {
          int result = GetDecValue(GetAttribute(Attribute));
          AttrData attr = GetAttrData(Attribute);
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{GetHRValue(attr, result)}{LogIOSpacer}");
          return result;
       }
@@ -375,7 +380,7 @@ namespace Modbus_DLL {
          int result = GetDecValue(GetAttribute(Attribute, n));
          AttrData attr = GetAttrData(Attribute);
          Debug.Assert(n < attr.Count);
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {result}{LogIOSpacer}");
          return result;
       }
@@ -383,7 +388,7 @@ namespace Modbus_DLL {
       // Get the decimal value of the attribute
       public int GetDecAttribute(AttrData attr) {
          int result = GetDecValue(GetAttribute(attr));
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{GetHRValue(attr, result)}{LogIOSpacer}");
          return result;
       }
@@ -394,7 +399,7 @@ namespace Modbus_DLL {
          Debug.Assert(n < attr.Count);
          ad.Val += n * attr.Stride;
          int result = GetDecValue(GetAttribute(ad));
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {result}{LogIOSpacer}");
          return result;
       }
@@ -414,7 +419,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"{LogIOSpacer}");
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{result}\"{LogIOSpacer}");
          return result;
       }
 
@@ -434,7 +439,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{result}\"{LogIOSpacer}");
          return result;
       }
@@ -459,7 +464,7 @@ namespace Modbus_DLL {
          } else if (attr.Data.Fmt == DataFormats.AttrText) {
             result = FormatAttrText(b);
          }
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{result}\"{LogIOSpacer}");
          return result;
       }
@@ -468,7 +473,7 @@ namespace Modbus_DLL {
       public byte[] GetByteArrayAttribute<T>(T Attribute, int n, int length) where T : Enum {
          byte[] b = GetAttribute(Attribute, n, length);
          AttrData attr = GetAttrData(Attribute);
-         Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{byte_to_string(b)}\"{LogIOSpacer}");
          return b;
       }
@@ -507,7 +512,7 @@ namespace Modbus_DLL {
             }
             success = true;
          }
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{GetHRValue(attr, val)}{LogIOSpacer}");
          return success;
       }
@@ -521,7 +526,7 @@ namespace Modbus_DLL {
             byte[] data = FormatOutput(attr.Data, s);
             success = SetAttribute(attr, 0, data);
          }
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"{LogIOSpacer}");
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"{LogIOSpacer}");
          return success;
       }
 
@@ -534,7 +539,7 @@ namespace Modbus_DLL {
             byte[] data = FormatOutput(attr.Data, s);
             success = SetAttribute(attr, attr.Stride * n, data);
          }
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{s}\"{LogIOSpacer}");
          return success;
       }
@@ -546,7 +551,7 @@ namespace Modbus_DLL {
          //AutomaticReflect(AccessCode.Set);
          byte[] data = FormatOutput(attr.Data, val);
          success = SetAttribute(attr, attr.Stride * n, data);
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {val}{LogIOSpacer}");
          return success;
       }
@@ -557,7 +562,7 @@ namespace Modbus_DLL {
          AttrData attr = GetAttrData(Attribute);
          //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr, attr.Stride * n, data, start, len);
-         Log?.Invoke(this, $"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
          return success;
       }
@@ -643,32 +648,32 @@ namespace Modbus_DLL {
          int lineCount;
          int n = 0;
          int cols = 0;
-         Log?.Invoke(this, " \n// Deleting old message\n ");
-         Log?.Invoke(this, " \n// Get number of items\n ");
+         LogIt(" \n// Deleting old message\n ");
+         LogIt(" \n// Get number of items\n ");
          int itemCount = GetDecAttribute(ccIDX.Number_Of_Items);
 
-         Log?.Invoke(this, " \n// Calculate number of columns\n ");
+         LogIt(" \n// Calculate number of columns\n ");
          while (n < itemCount) {
             lineCount = GetDecAttribute(ccPF.Line_Count, n);
             n += lineCount;
             cols++;
          }
 
-         Log?.Invoke(this, " \n// Delete all columns but the first one\n ");
+         LogIt(" \n// Delete all columns but the first one\n ");
          for (int i = 0; i < cols - 1; i++) {
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccPF.Delete_Column, cols - i);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
 
-         Log?.Invoke(this, " \n// Set first column to line count of 1 and clear the item\n ");
+         LogIt(" \n// Set first column to line count of 1 and clear the item\n ");
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccPF.Column, 1);
          SetAttribute(ccPF.Line, 1);
          SetAttribute(ccPC.Print_Erasure, 1);
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         Log?.Invoke(this, " \n// Set the format to the smallest size\n ");
+         LogIt(" \n// Set the format to the smallest size\n ");
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
@@ -736,7 +741,7 @@ namespace Modbus_DLL {
 
       // Send free logo to the printer
       public bool SendFreeLogo(int width, int height, int loc, byte[] logo) {
-         Log?.Invoke(this, $" \n// Set {width}x{height} Free Logo to location {loc}\n ");
+         LogIt($" \n// Set {width}x{height} Free Logo to location {loc}\n ");
          bool result = true;
          // Have to delete the old image if one exists
          int oldWidth;
@@ -804,7 +809,7 @@ namespace Modbus_DLL {
          int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
          if ((regMask & (1 << regBit)) > 0) {
             data = GetAttribute(ccUP.User_Pattern_Fixed_Data, loc * logoLen[DotMatrix] / 2, logoLen[DotMatrix]);
-            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * logoLen[DotMatrix] / 2:X4}] " +
+            LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * logoLen[DotMatrix] / 2:X4}] " +
                $"{ccUP.User_Pattern_Fixed_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
             result = true;
          }
@@ -838,7 +843,7 @@ namespace Modbus_DLL {
                data = logo;
             }
             AttrData attr = GetAttrData(ccUP.User_Pattern_Free_Data);
-            Log?.Invoke(this, $"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * Modbus.FreeLogoSize:X4}] " +
+            LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * Modbus.FreeLogoSize:X4}] " +
                $"{ccUP.User_Pattern_Free_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
 
             return true;
@@ -920,13 +925,13 @@ namespace Modbus_DLL {
       // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
          if (LogIOs)
-            Log?.Invoke(this, $"[{len}] << " + byte_to_string(input, len));
+            LogIt($"[{len}] << " + byte_to_string(input, len));
       }
 
       // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
          if (LogIOs)
-            Log?.Invoke(this, $"[{len}] >> " + byte_to_string(output, len));
+            LogIt($"[{len}] >> " + byte_to_string(output, len));
       }
 
       // Convert UTF8 string to byte array
@@ -1363,6 +1368,30 @@ namespace Modbus_DLL {
             result = n.ToString();
          }
          return result;
+      }
+
+      // Common logging to handle Cross-Thread traffic
+      private void LogIt(string msg) {
+         if (Log != null) {
+            if (parent.InvokeRequired) {
+               // Do not use BeginInvoke.  Causes issues up-stream.
+               parent.Invoke(new EventHandler(delegate { Log(this, msg); }));
+            } else {
+               Log(this, msg);
+            }
+         }
+      }
+
+      // Common logging to handle Cross-Thread traffic
+      private void CompleteIt(bool success) {
+         if (Complete != null) {
+            if (parent.InvokeRequired) {
+               // Do not use BeginInvoke.  Causes issues up-stream.
+               parent.Invoke(new EventHandler(delegate { Complete(this, success); }));
+            } else {
+               Complete(this, success);
+            }
+         }
       }
 
       #endregion
