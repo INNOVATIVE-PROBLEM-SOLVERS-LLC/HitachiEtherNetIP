@@ -461,7 +461,7 @@ namespace ModBus161 {
          try {
             send.SendXML(txtIndentedView.Text);
          } finally {
-            LoadXmlToDisplay(send.Retrieve());
+            DisplayLogTree(send.LogXML);
             send.Log -= Modbus_Log;
             send = null;
          }
@@ -840,11 +840,6 @@ namespace ModBus161 {
          SetButtonEnables();
 
 
-         //p.DeleteAllButOne();
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
-         //p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       // Re-evaluate enables if selection changes

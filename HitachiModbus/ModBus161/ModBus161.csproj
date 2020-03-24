@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncIO.cs" />
     <Compile Include="RetrieveXML.cs" />
     <Compile Include="SendXML.cs" />
     <Compile Include="Serialize_Classes.cs" />
