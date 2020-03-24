@@ -461,7 +461,7 @@ namespace ModBus161 {
          try {
             send.SendXML(txtIndentedView.Text);
          } finally {
-            LoadXmlToDisplay(send.Retrieve());
+            DisplayLogTree(send.LogXML);
             send.Log -= Modbus_Log;
             send = null;
          }
