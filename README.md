@@ -1,5 +1,7 @@
 # HitachiEtherNetIP
 
+Update -- Mar 25, 2020 -- All I/O was happening on the main thread leaving long pauses for viewing other tabs.  The I/O was moved to a background thread and is queue driven.  Also, the twin nozzle application was removed since it was no longer being used.
+
 Update -- Mar 18, 2020 -- Time Count and Shifts were not structured properly.  Previously, Time Count and Shifts we processed as printer wide.  They have been moved in as part of the calendar block. 
 
 Update -- Mar 17, 2020 -- Avoid the version with the tag "Level_8.0.0.2".  An attempt to consolidate code resulted in logging being broken.
