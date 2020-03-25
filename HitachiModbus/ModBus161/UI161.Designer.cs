@@ -75,38 +75,6 @@
          this.cmdErrorRefresh = new System.Windows.Forms.Button();
          this.cmdErrorClear = new System.Windows.Forms.Button();
          this.lbErrors = new System.Windows.Forms.ListBox();
-         this.tabApplication = new System.Windows.Forms.TabPage();
-         this.cmdAppQuit = new System.Windows.Forms.Button();
-         this.cbAppTemplate = new System.Windows.Forms.ComboBox();
-         this.lblAppTemplate = new System.Windows.Forms.Label();
-         this.cbAppPrimaryKey = new System.Windows.Forms.ComboBox();
-         this.cbAppSpreadsheet = new System.Windows.Forms.ComboBox();
-         this.lblAppPrimaryKey = new System.Windows.Forms.Label();
-         this.lblAppSpreadsheet = new System.Windows.Forms.Label();
-         this.cmdAppStart = new System.Windows.Forms.Button();
-         this.txtAppAuxB = new System.Windows.Forms.TextBox();
-         this.txtAppN2Readable = new System.Windows.Forms.TextBox();
-         this.txtAppN2Modbus = new System.Windows.Forms.TextBox();
-         this.lblAppN2Modbus = new System.Windows.Forms.Label();
-         this.lblAppN2Readable = new System.Windows.Forms.Label();
-         this.cmdAppToPrinter = new System.Windows.Forms.Button();
-         this.cmdAppRefresh = new System.Windows.Forms.Button();
-         this.txtAppN1Readable = new System.Windows.Forms.TextBox();
-         this.txtAppN1Modbus = new System.Windows.Forms.TextBox();
-         this.lblAppN1Modbus = new System.Windows.Forms.Label();
-         this.lblAppN1Readable = new System.Windows.Forms.Label();
-         this.txtAppAuxA = new System.Windows.Forms.TextBox();
-         this.lblAppAuxA = new System.Windows.Forms.Label();
-         this.lblAppAuxB = new System.Windows.Forms.Label();
-         this.cbAppParts = new System.Windows.Forms.ComboBox();
-         this.lblAppParts = new System.Windows.Forms.Label();
-         this.cmdAppBrowse = new System.Windows.Forms.Button();
-         this.txtAppExcel = new System.Windows.Forms.TextBox();
-         this.lblAppExcel = new System.Windows.Forms.Label();
-         this.cbAppMsgDestination = new System.Windows.Forms.ComboBox();
-         this.cbAppMsgSource = new System.Windows.Forms.ComboBox();
-         this.lblAppMsgDestination = new System.Windows.Forms.Label();
-         this.lblAppMsgSource = new System.Windows.Forms.Label();
          this.tabLogo = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.tabLogAsXML = new System.Windows.Forms.TabPage();
@@ -157,7 +125,6 @@
          this.tabXML.SuspendLayout();
          this.tabIndented.SuspendLayout();
          this.tabErrors.SuspendLayout();
-         this.tabApplication.SuspendLayout();
          this.tabLog.SuspendLayout();
          this.tabLogAsXML.SuspendLayout();
          this.SuspendLayout();
@@ -257,19 +224,19 @@
             this.cmLogClear,
             this.cmLogToNotepad});
          this.cmLog.Name = "cmLog";
-         this.cmLog.Size = new System.Drawing.Size(211, 80);
+         this.cmLog.Size = new System.Drawing.Size(189, 52);
          // 
          // cmLogClear
          // 
          this.cmLogClear.Name = "cmLogClear";
-         this.cmLogClear.Size = new System.Drawing.Size(210, 24);
+         this.cmLogClear.Size = new System.Drawing.Size(188, 24);
          this.cmLogClear.Text = "Clear";
          this.cmLogClear.Click += new System.EventHandler(this.cmLogClear_Click);
          // 
          // cmLogToNotepad
          // 
          this.cmLogToNotepad.Name = "cmLogToNotepad";
-         this.cmLogToNotepad.Size = new System.Drawing.Size(210, 24);
+         this.cmLogToNotepad.Size = new System.Drawing.Size(188, 24);
          this.cmLogToNotepad.Text = "Load in NotePad";
          this.cmLogToNotepad.Click += new System.EventHandler(this.cmLogToNotepad_Click);
          // 
@@ -385,7 +352,6 @@
          this.tclViews.Controls.Add(this.tabXML);
          this.tclViews.Controls.Add(this.tabIndented);
          this.tclViews.Controls.Add(this.tabErrors);
-         this.tclViews.Controls.Add(this.tabApplication);
          this.tclViews.Controls.Add(this.tabLogo);
          this.tclViews.Controls.Add(this.tabLog);
          this.tclViews.Controls.Add(this.tabLogAsXML);
@@ -651,347 +617,13 @@
          // lbErrors
          // 
          this.lbErrors.ContextMenuStrip = this.cmLog;
+         this.lbErrors.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.lbErrors.FormattingEnabled = true;
          this.lbErrors.ItemHeight = 16;
          this.lbErrors.Location = new System.Drawing.Point(16, 18);
          this.lbErrors.Name = "lbErrors";
          this.lbErrors.Size = new System.Drawing.Size(737, 308);
          this.lbErrors.TabIndex = 13;
-         // 
-         // tabApplication
-         // 
-         this.tabApplication.Controls.Add(this.cmdAppQuit);
-         this.tabApplication.Controls.Add(this.cbAppTemplate);
-         this.tabApplication.Controls.Add(this.lblAppTemplate);
-         this.tabApplication.Controls.Add(this.cbAppPrimaryKey);
-         this.tabApplication.Controls.Add(this.cbAppSpreadsheet);
-         this.tabApplication.Controls.Add(this.lblAppPrimaryKey);
-         this.tabApplication.Controls.Add(this.lblAppSpreadsheet);
-         this.tabApplication.Controls.Add(this.cmdAppStart);
-         this.tabApplication.Controls.Add(this.txtAppAuxB);
-         this.tabApplication.Controls.Add(this.txtAppN2Readable);
-         this.tabApplication.Controls.Add(this.txtAppN2Modbus);
-         this.tabApplication.Controls.Add(this.lblAppN2Modbus);
-         this.tabApplication.Controls.Add(this.lblAppN2Readable);
-         this.tabApplication.Controls.Add(this.cmdAppToPrinter);
-         this.tabApplication.Controls.Add(this.cmdAppRefresh);
-         this.tabApplication.Controls.Add(this.txtAppN1Readable);
-         this.tabApplication.Controls.Add(this.txtAppN1Modbus);
-         this.tabApplication.Controls.Add(this.lblAppN1Modbus);
-         this.tabApplication.Controls.Add(this.lblAppN1Readable);
-         this.tabApplication.Controls.Add(this.txtAppAuxA);
-         this.tabApplication.Controls.Add(this.lblAppAuxA);
-         this.tabApplication.Controls.Add(this.lblAppAuxB);
-         this.tabApplication.Controls.Add(this.cbAppParts);
-         this.tabApplication.Controls.Add(this.lblAppParts);
-         this.tabApplication.Controls.Add(this.cmdAppBrowse);
-         this.tabApplication.Controls.Add(this.txtAppExcel);
-         this.tabApplication.Controls.Add(this.lblAppExcel);
-         this.tabApplication.Controls.Add(this.cbAppMsgDestination);
-         this.tabApplication.Controls.Add(this.cbAppMsgSource);
-         this.tabApplication.Controls.Add(this.lblAppMsgDestination);
-         this.tabApplication.Controls.Add(this.lblAppMsgSource);
-         this.tabApplication.Location = new System.Drawing.Point(4, 25);
-         this.tabApplication.Name = "tabApplication";
-         this.tabApplication.Size = new System.Drawing.Size(768, 393);
-         this.tabApplication.TabIndex = 7;
-         this.tabApplication.Text = "Application";
-         this.tabApplication.UseVisualStyleBackColor = true;
-         // 
-         // cmdAppQuit
-         // 
-         this.cmdAppQuit.Location = new System.Drawing.Point(426, 347);
-         this.cmdAppQuit.Name = "cmdAppQuit";
-         this.cmdAppQuit.Size = new System.Drawing.Size(153, 37);
-         this.cmdAppQuit.TabIndex = 31;
-         this.cmdAppQuit.Text = "Quit Application";
-         this.cmdAppQuit.UseVisualStyleBackColor = true;
-         this.cmdAppQuit.Click += new System.EventHandler(this.cmdAppQuit_Click);
-         // 
-         // cbAppTemplate
-         // 
-         this.cbAppTemplate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppTemplate.FormattingEnabled = true;
-         this.cbAppTemplate.Location = new System.Drawing.Point(604, 204);
-         this.cbAppTemplate.Name = "cbAppTemplate";
-         this.cbAppTemplate.Size = new System.Drawing.Size(138, 24);
-         this.cbAppTemplate.TabIndex = 30;
-         // 
-         // lblAppTemplate
-         // 
-         this.lblAppTemplate.Location = new System.Drawing.Point(493, 207);
-         this.lblAppTemplate.Name = "lblAppTemplate";
-         this.lblAppTemplate.Size = new System.Drawing.Size(113, 18);
-         this.lblAppTemplate.TabIndex = 29;
-         this.lblAppTemplate.Text = "Template";
-         this.lblAppTemplate.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cbAppPrimaryKey
-         // 
-         this.cbAppPrimaryKey.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppPrimaryKey.FormattingEnabled = true;
-         this.cbAppPrimaryKey.Location = new System.Drawing.Point(604, 174);
-         this.cbAppPrimaryKey.Name = "cbAppPrimaryKey";
-         this.cbAppPrimaryKey.Size = new System.Drawing.Size(138, 24);
-         this.cbAppPrimaryKey.TabIndex = 28;
-         this.cbAppPrimaryKey.SelectedIndexChanged += new System.EventHandler(this.cbAppPrimaryKey_SelectedIndexChanged);
-         // 
-         // cbAppSpreadsheet
-         // 
-         this.cbAppSpreadsheet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppSpreadsheet.FormattingEnabled = true;
-         this.cbAppSpreadsheet.Location = new System.Drawing.Point(604, 141);
-         this.cbAppSpreadsheet.Name = "cbAppSpreadsheet";
-         this.cbAppSpreadsheet.Size = new System.Drawing.Size(138, 24);
-         this.cbAppSpreadsheet.TabIndex = 27;
-         this.cbAppSpreadsheet.SelectedIndexChanged += new System.EventHandler(this.cbAppSpreadsheet_SelectedIndexChanged);
-         // 
-         // lblAppPrimaryKey
-         // 
-         this.lblAppPrimaryKey.Location = new System.Drawing.Point(485, 177);
-         this.lblAppPrimaryKey.Name = "lblAppPrimaryKey";
-         this.lblAppPrimaryKey.Size = new System.Drawing.Size(113, 18);
-         this.lblAppPrimaryKey.TabIndex = 26;
-         this.lblAppPrimaryKey.Text = "Primary Key";
-         this.lblAppPrimaryKey.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // lblAppSpreadsheet
-         // 
-         this.lblAppSpreadsheet.Location = new System.Drawing.Point(485, 144);
-         this.lblAppSpreadsheet.Name = "lblAppSpreadsheet";
-         this.lblAppSpreadsheet.Size = new System.Drawing.Size(113, 18);
-         this.lblAppSpreadsheet.TabIndex = 25;
-         this.lblAppSpreadsheet.Text = "Spreadsheet";
-         this.lblAppSpreadsheet.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cmdAppStart
-         // 
-         this.cmdAppStart.Location = new System.Drawing.Point(426, 303);
-         this.cmdAppStart.Name = "cmdAppStart";
-         this.cmdAppStart.Size = new System.Drawing.Size(153, 37);
-         this.cmdAppStart.TabIndex = 24;
-         this.cmdAppStart.Text = "Start Application";
-         this.cmdAppStart.UseVisualStyleBackColor = true;
-         this.cmdAppStart.Click += new System.EventHandler(this.cmdAppStart_Click);
-         // 
-         // txtAppAuxB
-         // 
-         this.txtAppAuxB.Location = new System.Drawing.Point(246, 347);
-         this.txtAppAuxB.Name = "txtAppAuxB";
-         this.txtAppAuxB.Size = new System.Drawing.Size(138, 22);
-         this.txtAppAuxB.TabIndex = 23;
-         // 
-         // txtAppN2Readable
-         // 
-         this.txtAppN2Readable.Location = new System.Drawing.Point(170, 71);
-         this.txtAppN2Readable.Name = "txtAppN2Readable";
-         this.txtAppN2Readable.Size = new System.Drawing.Size(572, 22);
-         this.txtAppN2Readable.TabIndex = 22;
-         // 
-         // txtAppN2Modbus
-         // 
-         this.txtAppN2Modbus.Location = new System.Drawing.Point(170, 99);
-         this.txtAppN2Modbus.Name = "txtAppN2Modbus";
-         this.txtAppN2Modbus.Size = new System.Drawing.Size(572, 22);
-         this.txtAppN2Modbus.TabIndex = 21;
-         // 
-         // lblAppN2Modbus
-         // 
-         this.lblAppN2Modbus.Location = new System.Drawing.Point(17, 99);
-         this.lblAppN2Modbus.Name = "lblAppN2Modbus";
-         this.lblAppN2Modbus.Size = new System.Drawing.Size(147, 18);
-         this.lblAppN2Modbus.TabIndex = 20;
-         this.lblAppN2Modbus.Text = "Modbus Text[N2]";
-         this.lblAppN2Modbus.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // lblAppN2Readable
-         // 
-         this.lblAppN2Readable.Location = new System.Drawing.Point(17, 71);
-         this.lblAppN2Readable.Name = "lblAppN2Readable";
-         this.lblAppN2Readable.Size = new System.Drawing.Size(147, 18);
-         this.lblAppN2Readable.TabIndex = 19;
-         this.lblAppN2Readable.Text = "Readable Text [N2]";
-         this.lblAppN2Readable.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cmdAppToPrinter
-         // 
-         this.cmdAppToPrinter.Location = new System.Drawing.Point(601, 346);
-         this.cmdAppToPrinter.Name = "cmdAppToPrinter";
-         this.cmdAppToPrinter.Size = new System.Drawing.Size(153, 37);
-         this.cmdAppToPrinter.TabIndex = 18;
-         this.cmdAppToPrinter.Text = "Send To Printer";
-         this.cmdAppToPrinter.UseVisualStyleBackColor = true;
-         this.cmdAppToPrinter.Click += new System.EventHandler(this.cmdAppToPrinter_Click);
-         // 
-         // cmdAppRefresh
-         // 
-         this.cmdAppRefresh.Location = new System.Drawing.Point(601, 303);
-         this.cmdAppRefresh.Name = "cmdAppRefresh";
-         this.cmdAppRefresh.Size = new System.Drawing.Size(153, 37);
-         this.cmdAppRefresh.TabIndex = 17;
-         this.cmdAppRefresh.Text = "Refresh Display";
-         this.cmdAppRefresh.UseVisualStyleBackColor = true;
-         this.cmdAppRefresh.Click += new System.EventHandler(this.cmdAppRefresh_Click);
-         // 
-         // txtAppN1Readable
-         // 
-         this.txtAppN1Readable.Location = new System.Drawing.Point(170, 13);
-         this.txtAppN1Readable.Name = "txtAppN1Readable";
-         this.txtAppN1Readable.Size = new System.Drawing.Size(572, 22);
-         this.txtAppN1Readable.TabIndex = 16;
-         // 
-         // txtAppN1Modbus
-         // 
-         this.txtAppN1Modbus.Location = new System.Drawing.Point(170, 43);
-         this.txtAppN1Modbus.Name = "txtAppN1Modbus";
-         this.txtAppN1Modbus.Size = new System.Drawing.Size(572, 22);
-         this.txtAppN1Modbus.TabIndex = 15;
-         // 
-         // lblAppN1Modbus
-         // 
-         this.lblAppN1Modbus.Location = new System.Drawing.Point(17, 43);
-         this.lblAppN1Modbus.Name = "lblAppN1Modbus";
-         this.lblAppN1Modbus.Size = new System.Drawing.Size(147, 18);
-         this.lblAppN1Modbus.TabIndex = 14;
-         this.lblAppN1Modbus.Text = "Modbus Text[N1]";
-         this.lblAppN1Modbus.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // lblAppN1Readable
-         // 
-         this.lblAppN1Readable.Location = new System.Drawing.Point(17, 13);
-         this.lblAppN1Readable.Name = "lblAppN1Readable";
-         this.lblAppN1Readable.Size = new System.Drawing.Size(147, 18);
-         this.lblAppN1Readable.TabIndex = 13;
-         this.lblAppN1Readable.Text = "Readable Text [N1]";
-         this.lblAppN1Readable.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // txtAppAuxA
-         // 
-         this.txtAppAuxA.Location = new System.Drawing.Point(246, 318);
-         this.txtAppAuxA.Name = "txtAppAuxA";
-         this.txtAppAuxA.Size = new System.Drawing.Size(138, 22);
-         this.txtAppAuxA.TabIndex = 12;
-         // 
-         // lblAppAuxA
-         // 
-         this.lblAppAuxA.Location = new System.Drawing.Point(17, 313);
-         this.lblAppAuxA.Name = "lblAppAuxA";
-         this.lblAppAuxA.Size = new System.Drawing.Size(223, 18);
-         this.lblAppAuxA.TabIndex = 10;
-         this.lblAppAuxA.Text = "AuxA";
-         this.lblAppAuxA.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // lblAppAuxB
-         // 
-         this.lblAppAuxB.Location = new System.Drawing.Point(17, 347);
-         this.lblAppAuxB.Name = "lblAppAuxB";
-         this.lblAppAuxB.Size = new System.Drawing.Size(223, 18);
-         this.lblAppAuxB.TabIndex = 9;
-         this.lblAppAuxB.Text = "AuxB";
-         this.lblAppAuxB.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cbAppParts
-         // 
-         this.cbAppParts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppParts.FormattingEnabled = true;
-         this.cbAppParts.Location = new System.Drawing.Point(246, 280);
-         this.cbAppParts.Name = "cbAppParts";
-         this.cbAppParts.Size = new System.Drawing.Size(138, 24);
-         this.cbAppParts.TabIndex = 8;
-         this.cbAppParts.SelectedIndexChanged += new System.EventHandler(this.cbAppParts_SelectedIndexChanged);
-         // 
-         // lblAppParts
-         // 
-         this.lblAppParts.Location = new System.Drawing.Point(17, 280);
-         this.lblAppParts.Name = "lblAppParts";
-         this.lblAppParts.Size = new System.Drawing.Size(223, 18);
-         this.lblAppParts.TabIndex = 7;
-         this.lblAppParts.Text = "Part Number";
-         this.lblAppParts.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cmdAppBrowse
-         // 
-         this.cmdAppBrowse.Location = new System.Drawing.Point(663, 241);
-         this.cmdAppBrowse.Name = "cmdAppBrowse";
-         this.cmdAppBrowse.Size = new System.Drawing.Size(91, 26);
-         this.cmdAppBrowse.TabIndex = 6;
-         this.cmdAppBrowse.Text = "Browse";
-         this.cmdAppBrowse.UseVisualStyleBackColor = true;
-         this.cmdAppBrowse.Click += new System.EventHandler(this.cmdAppBrowse_Click);
-         // 
-         // txtAppExcel
-         // 
-         this.txtAppExcel.Location = new System.Drawing.Point(246, 245);
-         this.txtAppExcel.Name = "txtAppExcel";
-         this.txtAppExcel.Size = new System.Drawing.Size(411, 22);
-         this.txtAppExcel.TabIndex = 5;
-         // 
-         // lblAppExcel
-         // 
-         this.lblAppExcel.Location = new System.Drawing.Point(17, 245);
-         this.lblAppExcel.Name = "lblAppExcel";
-         this.lblAppExcel.Size = new System.Drawing.Size(223, 18);
-         this.lblAppExcel.TabIndex = 4;
-         this.lblAppExcel.Text = "Spreadsheet Location";
-         this.lblAppExcel.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // cbAppMsgDestination
-         // 
-         this.cbAppMsgDestination.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppMsgDestination.FormattingEnabled = true;
-         this.cbAppMsgDestination.Items.AddRange(new object[] {
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9"});
-         this.cbAppMsgDestination.Location = new System.Drawing.Point(246, 208);
-         this.cbAppMsgDestination.Name = "cbAppMsgDestination";
-         this.cbAppMsgDestination.Size = new System.Drawing.Size(138, 24);
-         this.cbAppMsgDestination.TabIndex = 3;
-         this.cbAppMsgDestination.SelectedIndexChanged += new System.EventHandler(this.cbAppMsgDestination_SelectedIndexChanged);
-         // 
-         // cbAppMsgSource
-         // 
-         this.cbAppMsgSource.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-         this.cbAppMsgSource.FormattingEnabled = true;
-         this.cbAppMsgSource.Items.AddRange(new object[] {
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9"});
-         this.cbAppMsgSource.Location = new System.Drawing.Point(246, 175);
-         this.cbAppMsgSource.Name = "cbAppMsgSource";
-         this.cbAppMsgSource.Size = new System.Drawing.Size(138, 24);
-         this.cbAppMsgSource.TabIndex = 2;
-         this.cbAppMsgSource.SelectedIndexChanged += new System.EventHandler(this.cbAppMsgSource_SelectedIndexChanged);
-         // 
-         // lblAppMsgDestination
-         // 
-         this.lblAppMsgDestination.Location = new System.Drawing.Point(17, 208);
-         this.lblAppMsgDestination.Name = "lblAppMsgDestination";
-         this.lblAppMsgDestination.Size = new System.Drawing.Size(223, 18);
-         this.lblAppMsgDestination.TabIndex = 1;
-         this.lblAppMsgDestination.Text = "Template Destination";
-         this.lblAppMsgDestination.TextAlign = System.Drawing.ContentAlignment.TopRight;
-         // 
-         // lblAppMsgSource
-         // 
-         this.lblAppMsgSource.Location = new System.Drawing.Point(17, 175);
-         this.lblAppMsgSource.Name = "lblAppMsgSource";
-         this.lblAppMsgSource.Size = new System.Drawing.Size(223, 18);
-         this.lblAppMsgSource.TabIndex = 0;
-         this.lblAppMsgSource.Text = "Template Source";
-         this.lblAppMsgSource.TextAlign = System.Drawing.ContentAlignment.TopRight;
          // 
          // tabLogo
          // 
@@ -1473,8 +1105,6 @@
          this.tabIndented.ResumeLayout(false);
          this.tabIndented.PerformLayout();
          this.tabErrors.ResumeLayout(false);
-         this.tabApplication.ResumeLayout(false);
-         this.tabApplication.PerformLayout();
          this.tabLog.ResumeLayout(false);
          this.tabLogAsXML.ResumeLayout(false);
          this.ResumeLayout(false);
@@ -1555,38 +1185,6 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn colName;
       private System.Windows.Forms.Button cmdMessageLoad;
       private System.Windows.Forms.Button cmdMessageRefresh;
-      private System.Windows.Forms.TabPage tabApplication;
-      private System.Windows.Forms.TextBox txtAppAuxB;
-      private System.Windows.Forms.TextBox txtAppN2Readable;
-      private System.Windows.Forms.TextBox txtAppN2Modbus;
-      private System.Windows.Forms.Label lblAppN2Modbus;
-      private System.Windows.Forms.Label lblAppN2Readable;
-      private System.Windows.Forms.Button cmdAppToPrinter;
-      private System.Windows.Forms.Button cmdAppRefresh;
-      private System.Windows.Forms.TextBox txtAppN1Readable;
-      private System.Windows.Forms.TextBox txtAppN1Modbus;
-      private System.Windows.Forms.Label lblAppN1Modbus;
-      private System.Windows.Forms.Label lblAppN1Readable;
-      private System.Windows.Forms.TextBox txtAppAuxA;
-      private System.Windows.Forms.Label lblAppAuxA;
-      private System.Windows.Forms.Label lblAppAuxB;
-      private System.Windows.Forms.ComboBox cbAppParts;
-      private System.Windows.Forms.Label lblAppParts;
-      private System.Windows.Forms.Button cmdAppBrowse;
-      private System.Windows.Forms.Label lblAppExcel;
-      private System.Windows.Forms.ComboBox cbAppMsgDestination;
-      private System.Windows.Forms.ComboBox cbAppMsgSource;
-      private System.Windows.Forms.Label lblAppMsgDestination;
-      private System.Windows.Forms.Label lblAppMsgSource;
-      private System.Windows.Forms.Button cmdAppStart;
-      public System.Windows.Forms.TextBox txtAppExcel;
-      private System.Windows.Forms.ComboBox cbAppTemplate;
-      private System.Windows.Forms.Label lblAppTemplate;
-      private System.Windows.Forms.ComboBox cbAppPrimaryKey;
-      private System.Windows.Forms.ComboBox cbAppSpreadsheet;
-      private System.Windows.Forms.Label lblAppPrimaryKey;
-      private System.Windows.Forms.Label lblAppSpreadsheet;
-      private System.Windows.Forms.Button cmdAppQuit;
       public System.Windows.Forms.CheckBox chkStopOnAllErrors;
       private System.Windows.Forms.Label lblPrinterStatus;
       public System.Windows.Forms.TextBox txtPrinterStatus;
