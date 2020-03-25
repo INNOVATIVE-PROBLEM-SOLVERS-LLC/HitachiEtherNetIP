@@ -239,14 +239,17 @@ namespace ModBus161 {
       private void GetErrors(ModbusPkt pkt) {
          int errCount = MB.GetDecAttribute(ccAH.Message_Count);
          string[] errs = new string[errCount];
+         AttrData attr = MB.GetAttrData(ccAH.Year);
+         int len = attr.Stride;
          for (int i = 0; i < errCount; i++) {
-            int year = MB.GetDecAttribute(ccAH.Year, i);
-            int month = MB.GetDecAttribute(ccAH.Month, i);
-            int day = MB.GetDecAttribute(ccAH.Day, i);
-            int hour = MB.GetDecAttribute(ccAH.Hour, i);
-            int minute = MB.GetDecAttribute(ccAH.Minute, i);
-            int second = MB.GetDecAttribute(ccAH.Second, i);
-            int fault = MB.GetDecAttribute(ccAH.Fault_Number, i);
+            MB.GetAttribute(Modbus.FunctionCode.ReadInput, 1, attr.Val + i * len, len * 2, out byte[] data);
+            int year = (data[0] << 8) + data[1];
+            int month = data[3];
+            int day = data[5];
+            int hour = data[7];
+            int minute = data[9];
+            int second = data[11];
+            int fault = (data[12] << 8) + data[13];
             errs[i] = $"{fault:###} {year}/{month:##}/{day:##} {hour:##}:{minute:##}:{second:##}";
          }
          AsyncComplete ac = new AsyncComplete(MB, TaskType.GetErrors) { MultiLine = errs, Value = errCount };

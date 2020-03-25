@@ -617,6 +617,7 @@
          // lbErrors
          // 
          this.lbErrors.ContextMenuStrip = this.cmLog;
+         this.lbErrors.Font = new System.Drawing.Font("Courier New", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.lbErrors.FormattingEnabled = true;
          this.lbErrors.ItemHeight = 16;
          this.lbErrors.Location = new System.Drawing.Point(16, 18);
