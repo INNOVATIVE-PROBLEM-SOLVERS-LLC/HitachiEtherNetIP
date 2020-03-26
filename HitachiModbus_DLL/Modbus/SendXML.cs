@@ -6,10 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Windows.Forms;
-using Modbus_DLL;
 using System.Xml;
 
-namespace ModBus161 {
+namespace Modbus_DLL {
 
    public partial class SendRetrieveXML {
 

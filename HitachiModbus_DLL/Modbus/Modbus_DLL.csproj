@@ -44,9 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncIO.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Modbus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RetrieveXML.cs" />
+    <Compile Include="SendXML.cs" />
+    <Compile Include="Serialize_Classes.cs" />
     <Compile Include="Status.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
