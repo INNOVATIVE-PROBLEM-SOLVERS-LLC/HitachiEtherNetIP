@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 
-namespace ModBus161 {
+namespace Modbus_DLL {
 
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {

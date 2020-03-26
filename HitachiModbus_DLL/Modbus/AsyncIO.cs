@@ -6,9 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Modbus_DLL;
 
-namespace ModBus161 {
+namespace Modbus_DLL {
    public class AsyncIO {
 
       #region Events

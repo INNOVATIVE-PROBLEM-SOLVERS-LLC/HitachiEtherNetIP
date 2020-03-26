@@ -6,9 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Modbus_DLL;
 
-namespace ModBus161 {
+namespace Modbus_DLL {
    public partial class SendRetrieveXML {
 
       #region Events
