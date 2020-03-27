@@ -282,20 +282,20 @@ namespace ModBus161 {
                Utils.ResizeObject(ref R, tvLogAsXML, 1, 1, 19, 43);
             }
 
-            Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 5);
-            Utils.ResizeObject(ref R, cbClass, 38, 6, 2, 5);
-            Utils.ResizeObject(ref R, lblAttribute, 40, 1, 2, 5);
-            Utils.ResizeObject(ref R, cbAttribute, 40, 6, 2, 5);
-            Utils.ResizeObject(ref R, lblInstance, 42, 1, 2, 5);
-            Utils.ResizeObject(ref R, cbInstance, 42, 6, 2, 5);
+            Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 4);
+            Utils.ResizeObject(ref R, cbClass, 38, 5, 2, 7);
+            Utils.ResizeObject(ref R, lblAttribute, 40, 1, 2, 4);
+            Utils.ResizeObject(ref R, cbAttribute, 40, 5, 2, 7);
+            Utils.ResizeObject(ref R, lblInstance, 42, 1, 2, 4);
+            Utils.ResizeObject(ref R, cbInstance, 42, 5, 2, 7);
 
-            Utils.ResizeObject(ref R, lblDataAddress, 38, 12, 2, 6);
+            Utils.ResizeObject(ref R, lblDataAddress, 38, 13, 2, 5);
             Utils.ResizeObject(ref R, txtDataAddress, 38, 18, 2, 6);
-            Utils.ResizeObject(ref R, lblNozzle, 40, 12, 2, 6);
+            Utils.ResizeObject(ref R, lblNozzle, 40, 13, 2, 5);
             Utils.ResizeObject(ref R, cbNozzle, 40, 18, 2, 6);
-            Utils.ResizeObject(ref R, lblDataLength, 42, 12, 2, 6);
+            Utils.ResizeObject(ref R, lblDataLength, 42, 13, 2, 5);
             Utils.ResizeObject(ref R, txtDataLength, 42, 18, 2, 6);
-            Utils.ResizeObject(ref R, lblData, 44, 12, 2, 6);
+            Utils.ResizeObject(ref R, lblData, 44, 13, 2, 5);
             Utils.ResizeObject(ref R, txtData, 44, 18, 2, 12);
 
             Utils.ResizeObject(ref R, optHoldingRegister, 38, 25, 2, 6);

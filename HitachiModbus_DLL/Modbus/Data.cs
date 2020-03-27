@@ -198,14 +198,42 @@ namespace Modbus_DLL {
 
    // Attributes within Enviroment Setting class 0x71
    public enum ccES {
-      Current_Time = 0x65,
-      Calendar_Date_Time = 0x66,
-      Calendar_Date_Time_Availibility = 0x67,
-      Clock_System = 0x68,
-      User_Environment_Information = 0x69,
-      Cirulation_Control_Setting_Value = 0x6A,
-      Usage_Time_Of_Circulation_Control = 0x6B,
-      Reset_Usage_Time_Of_Circulation_Control = 0x6C,
+      Current_Time_Year = 0x2498,
+      Current_Time_Month = 0x2499,
+      Current_Time_Day = 0x249A,
+      Current_Time_Hour = 0x249B,
+      Current_Time_Minute = 0x249C,
+      Current_Time_Second = 0x249D,
+
+      Calendar_Time_Control = 0x249E,
+
+      Calendar_Time_Year = 0x249F,
+      Calendar_Time_Month = 0x24A0,
+      Calendar_Time_Day = 0x24A1,
+      Calendar_Time_Hour = 0x24A2,
+      Calendar_Time_Minute = 0x24A3,
+      Calendar_Time_Second = 0x24A4,
+
+      Clock_System = 0x24A5,
+
+      Repeat_Print_Sensor_Mode = 0x24B0,
+      Change_Character_Orientation = 0x24B1,
+      Change_Mode = 0x24B2,
+      Reverse_Print = 0x24B3,
+      Print_Signal_Type = 0x24B4,
+      Print_Data_Changeover_Error = 0x24B5,
+      Char_Size_Menu_1 = 0x24B6,
+      Char_Size_Menu_2 = 0x24B7,
+      Excitation_VRef_Warning = 0x24B8,
+      Print_Characters_One_By_One = 0x24B9,
+      Continue_Message_Print = 0x24BA,
+      Start_Message_Number = 0x24BB,
+      End_Message_Number = 0x24BC,
+
+      //User_Environment_Information = 0x69,
+      //Cirulation_Control_Setting_Value = 0x6A,
+      //Usage_Time_Of_Circulation_Control = 0x6B,
+      //Reset_Usage_Time_Of_Circulation_Control = 0x6C,
    }
 
    // Attributes within Unit Status class 0x72
@@ -684,23 +712,65 @@ namespace Modbus_DLL {
 
       // Enviroment_setting (Class Code 0x71)
       private AttrData[] ccES_Addrs = new AttrData[] {
-         new AttrData((int)ccES.Current_Time, true, 1, 0,                       // Current Time 0x65
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccES.Calendar_Date_Time, true, 1, 0,                 // Calendar Date Time 0x66
-            new Prop(12, DataFormats.Date, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccES.Calendar_Date_Time_Availibility, true, 1, 0,    // Calendar Date Time Availibility 0x67
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.CurrentTime_StopClock)), //   Data
-         new AttrData((int)ccES.Clock_System, true, 1, 0,                       // Clock System 0x68
-            new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.Hour12_24)),           //   Data
-         new AttrData((int)ccES.User_Environment_Information, true, 1, 0,       // User Environment Information 0x69
-            new Prop(16, DataFormats.Bytes, 0, 0, fmtDD.None)),                 //   Data
-         new AttrData((int)ccES.Cirulation_Control_Setting_Value, true, 1, 0,   // Cirulation Control Setting Value 0x6A
-            new Prop(12, DataFormats.Bytes, 0, 0, fmtDD.None)),                 //   Data
-         new AttrData((int)ccES.Usage_Time_Of_Circulation_Control, true, 1, 0,  // Usage Time Of Circulation Control 0x6B
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccES.Reset_Usage_Time_Of_Circulation_Control, true, 1, 0, // Reset Usage Time Of Circulation Control 0x6C
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-      };
+         new AttrData((int)ccES.Current_Time_Year, true, 1, 0,                  // Current Time Year 0x2498
+            new Prop(2, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
+         new AttrData((int)ccES.Current_Time_Month, true, 1, 0,                 // Current Time Month 0x2499
+            new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Current_Time_Day, true, 1, 0,                   // Current Time Day 0x249A
+            new Prop(1, DataFormats.Decimal, 1, 31, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Current_Time_Hour, true, 1, 0,                  // Current Time Hour 0x249B
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Current_Time_Minute, true, 1, 0,                // Current Time Minute 0x249C
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Current_Time_Second, true, 1, 0,                // Current Time Second 0x249D
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+
+         new AttrData((int)ccES.Calendar_Time_Control, true, 1, 0,              // Calendar Time Control 0x249E
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+
+         new AttrData((int)ccES.Calendar_Time_Year, true, 1, 0,                 // Calendar Time Year 0x249F
+            new Prop(2, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
+         new AttrData((int)ccES.Calendar_Time_Month, true, 1, 0,                // Calendar Time Month 0x24A0
+            new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Calendar_Time_Day, true, 1, 0,                  // Calendar Time Day 0x24A1
+            new Prop(1, DataFormats.Decimal, 1, 31, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Calendar_Time_Hour, true, 1, 0,                 // Calendar Time Hour 0x24A2
+            new Prop(1, DataFormats.Decimal, 0, 23, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Calendar_Time_Minute, true, 1, 0,               // Calendar Time Minute 0x24A3
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+         new AttrData((int)ccES.Calendar_Time_Second, true, 1, 0,               // Calendar Time Second 0x24A4
+            new Prop(1, DataFormats.Decimal, 0, 59, fmtDD.None)),               //   Data
+
+         new AttrData((int)ccES.Clock_System, true, 1, 0,                       // Clock System 0x24A5
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+
+          new AttrData((int)ccES.Repeat_Print_Sensor_Mode, true, 1, 0,          // Repeat Print Sensor Mode 0x24B0
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Change_Character_Orientation, true, 1, 0,       // Change Character Orientation 0x24B1
+            new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Change_Mode, true, 1, 0,                        // Change Mode 0x24B2
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Reverse_Print, true, 1, 0,                      // Reverse Print 0x24B3 0x24B3
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Print_Signal_Type, true, 1, 0,                  // Print Signal Type 0x24B4
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Print_Data_Changeover_Error, true, 1, 0,        // Print Data Changeover Error 0x24B5
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Char_Size_Menu_1, true, 1, 0,                   // Char Size Menu 1 0x24B6
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Char_Size_Menu_2, true, 1, 0,                   // Char Size Menu 2 0x24B7
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Excitation_VRef_Warning, true, 1, 0,            // Excitation VRef Warning 0x24B8
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Print_Characters_One_By_One, true, 1, 0,        // Print Characters One By One 0x24B9
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Continue_Message_Print, true, 1, 0,             // Continue Message Print 0x24BA
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
+         new AttrData((int)ccES.Start_Message_Number, true, 1, 0,               // Start Message Number 0x24BB
+            new Prop(1, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+         new AttrData((int)ccES.End_Message_Number, true, 1, 0,                 // End Message Number 0x24BC
+            new Prop(1, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+     };
 
       // Unit Status (Class Code 0x72) 
       private AttrData[] ccUS_Addrs = new AttrData[] {
