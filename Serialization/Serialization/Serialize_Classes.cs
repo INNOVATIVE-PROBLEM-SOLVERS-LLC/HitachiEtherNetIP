@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 
-namespace Modbus_DLL {
+namespace Serialization {
 
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {
@@ -24,7 +24,7 @@ namespace Modbus_DLL {
       [XmlAttribute]
       public string Layout;    // Supports only individual at the moment
       [XmlAttribute]
-      public string Name;      // Supports only individual at the moment
+      public string Name;      // Name for moving messages to/from the directory
       [XmlAttribute]
       public string Nozzle;
       [XmlElement("Column")]

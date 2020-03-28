@@ -4,6 +4,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 using System.Windows.Forms;
+using Serialization;
 
 namespace EIP_Lib {
 
@@ -45,11 +46,11 @@ namespace EIP_Lib {
             if (ForwardOpen()) {
                try {
                   if (Lab.Message != null) {
-                     SendMessage(Lab.Message);
+                     SendMessage(Lab.Message[0]);
                   }
 
                   if (Lab.Printer != null) {
-                     SendPrinterSettings(Lab.Printer); // Must be done last
+                     SendPrinterSettings(Lab.Printer[0]); // Must be done last
                   }
 
                } catch (EIPIOException e1) {
@@ -223,12 +224,6 @@ namespace EIP_Lib {
                   SetAttribute(ccIDX.Item, index + 1);
                   SendCount(item);
                }
-               if (item.Shift != null) {
-                  SendShift(item);
-               }
-               if (item.TimeCount != null) {
-                  SendTimeCount(item);
-               }
             }
          }
       }
@@ -314,6 +309,25 @@ namespace EIP_Lib {
                      SetAttribute(ccCal.Substitute_DayOfWeek, s.DayOfWeek);
                   }
                }
+               // Process Shifts
+               if (date.Shift != null) {
+                  for (int j = 0; j < date.Shift.Length; j++) {
+                     SetAttribute(ccIDX.Calendar_Block, j + 1);
+                     SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
+                     SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
+                     SetAttribute(ccCal.Shift_String_Value, date.Shift[j].ShiftCode);
+                  }
+               }
+               if (date.TimeCount != null) {
+                  TimeCount tc = date.TimeCount;
+                  if (tc != null) {
+                     SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
+                     SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
+                     SetAttribute(ccCal.Time_Count_End_Value, tc.End);
+                     SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
+                     SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
+                  }
+               }
             }
          }
       }
@@ -363,27 +377,6 @@ namespace EIP_Lib {
          }
       }
 
-      private void SendShift(Item item) {
-         // Process Shift
-         for (int j = 0; j < item.Shift.Length; j++) {
-            SetAttribute(ccIDX.Calendar_Block, j + 1);
-            SetAttribute(ccCal.Shift_Start_Hour, item.Shift[j].StartHour);
-            SetAttribute(ccCal.Shift_Start_Minute, item.Shift[j].StartMinute);
-            SetAttribute(ccCal.Shift_String_Value, item.Shift[j].ShiftCode);
-         }
-      }
-
-      private void SendTimeCount(Item item) {
-         TimeCount tc = item.TimeCount;
-         if (tc != null) {
-            SetAttribute(ccCal.Update_Interval_Value, tc.Interval);
-            SetAttribute(ccCal.Time_Count_Start_Value, tc.Start);
-            SetAttribute(ccCal.Time_Count_End_Value, tc.End);
-            SetAttribute(ccCal.Reset_Time_Value, tc.ResetTime);
-            SetAttribute(ccCal.Time_Count_Reset_Value, tc.ResetValue);
-         }
-      }
-
       #endregion
 
       #region Retrieve XML from printer using Serialization
@@ -397,11 +390,11 @@ namespace EIP_Lib {
                try {
                   Lab Label = new Lab() { Version = "Serialization-1" };
 
-                  Label.Message = RetrieveMessage();
+                  Label.Message[0] = RetrieveMessage();
 
-                  Label.Printer = RetrievePrinterSettings();
+                  Label.Printer[0] = RetrievePrinterSettings();
 
-                  Label.Printer.Substitution = RetrieveSubstitutions(Label.Message);
+                  Label.Printer[0].Substitution = RetrieveSubstitutions(Label.Message[0]);
 
                   XmlSerializer serializer = new XmlSerializer(typeof(Lab));
                   //TextWriter writer = new StreamWriter(FileName);
@@ -596,14 +589,6 @@ namespace EIP_Lib {
                   GetAttribute(ccCount.First_Count_Block, out item.Location.countStart);
                   RetrieveCountSettings(item);
                }
-               for (int i = 0; i < mask.Length && (item.Shift == null || item.TimeCount == null); i++) {
-                  if (item.Shift == null && (mask[i] & (int)ba.Shift) > 0) {
-                     item.Shift = RetrieveShifts();
-                  }
-                  if (item.TimeCount == null && (mask[i] & (int)ba.TimeCount) > 0) {
-                     item.TimeCount = RetrieveTimeCount();
-                  }
-               }
                m.Column[col].Item[row] = item;
                index++;
             }
@@ -676,6 +661,12 @@ namespace EIP_Lib {
                if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
                   if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks)))
                      item.Date[i].Substitute.DayOfWeek = s;
+            }
+            if (item.Date[i].Shift == null && (mask[i] & (int)ba.Shift) > 0) {
+               item.Date[i].Shift = RetrieveShifts();
+            }
+            if (item.Date[i].TimeCount == null && (mask[i] & (int)ba.TimeCount) > 0) {
+               item.Date[i].TimeCount = RetrieveTimeCount();
             }
          }
       }
