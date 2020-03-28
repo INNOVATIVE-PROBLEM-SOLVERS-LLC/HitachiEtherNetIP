@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EIP_Base</RootNamespace>
     <AssemblyName>EIP</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -57,8 +57,13 @@
     <Compile Include="EthernetIP_XML.cs" />
     <Compile Include="EthernetIP_XML_Ser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serialize_Classes.cs" />
     <Compile Include="Traffic.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Serialization\Serialization\Serialization.csproj">
+      <Project>{63e5fd10-bf07-4407-8278-925e5dc15acd}</Project>
+      <Name>Serialization</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

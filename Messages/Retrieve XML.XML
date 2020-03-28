@@ -51,9 +51,11 @@
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
         <Date Block="1" SubstitutionRule="1" RuleName="">
-          <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
-          <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
-          <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+		  <Shifts>
+            <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+            <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+            <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+		  </Shifts>
         </Date>
         <Text>Shift {E}}</Text>
       </Item>

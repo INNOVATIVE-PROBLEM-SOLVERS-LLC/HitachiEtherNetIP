@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Windows.Forms;
 using System.Xml;
+using Serialization;
 
 namespace Modbus_DLL {
 

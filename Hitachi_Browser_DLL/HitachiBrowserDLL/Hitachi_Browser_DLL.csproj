@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EIP_Base</RootNamespace>
     <AssemblyName>Browser</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -75,6 +75,10 @@
     <ProjectReference Include="..\..\Hitachi_EIP_DLL\Hitachi_EIP\Hitachi_EIP_DLL.csproj">
       <Project>{97083701-ab25-4679-a9f2-a35b54bdf91a}</Project>
       <Name>Hitachi_EIP_DLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Serialization\Serialization\Serialization.csproj">
+      <Project>{63e5fd10-bf07-4407-8278-925e5dc15acd}</Project>
+      <Name>Serialization</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

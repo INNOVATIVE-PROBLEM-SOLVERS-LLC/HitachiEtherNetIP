@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using Serialization;
 
 namespace Modbus_DLL {
    public partial class SendRetrieveXML {

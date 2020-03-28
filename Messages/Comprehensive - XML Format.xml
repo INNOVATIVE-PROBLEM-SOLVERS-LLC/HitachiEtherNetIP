@@ -54,11 +54,13 @@
       <Item>
         <Font IncreasedWidth="1" InterCharacterSpace="1" DotMatrix="5x8(5x7)" />
         <BarCode />
-        <Shifts>
-          <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
-          <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
-          <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
-        </Shifts>
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+		  <Shifts>
+            <ShiftCode Shift="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+            <ShiftCode Shift="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+            <ShiftCode Shift="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+		  </Shifts>
+        </Date>
         <Text>Shift {{E}}</Text>
       </Item>
       <Item>
