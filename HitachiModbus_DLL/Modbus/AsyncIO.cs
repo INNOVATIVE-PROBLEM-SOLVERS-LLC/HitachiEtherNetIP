@@ -30,6 +30,7 @@ namespace Modbus_DLL {
          Connect,
          Disconnect,
          Send,
+         SendLabel,
          Retrieve,
          WriteData,
          ReadData,
@@ -40,6 +41,7 @@ namespace Modbus_DLL {
          GetStatus,
          GetMessages,
          GetErrors,
+         AckOnly,
          Exit,
       }
 
@@ -86,6 +88,9 @@ namespace Modbus_DLL {
                   case TaskType.Send:
                      Send(pkt);
                      break;
+                  case TaskType.SendLabel:
+                     SendLabel(pkt);
+                     break;
                   case TaskType.Retrieve:
                      Retrieve(pkt);
                      break;
@@ -116,6 +121,9 @@ namespace Modbus_DLL {
                   case TaskType.GetErrors:
                      GetErrors(pkt);
                      break;
+                  case TaskType.AckOnly:
+                     AckOnly(pkt);
+                     break;
                   case TaskType.Exit:
                      done = true;
                      break;
@@ -127,6 +135,11 @@ namespace Modbus_DLL {
                parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
             }
          }
+      }
+
+      private void AckOnly(ModbusPkt pkt) {
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true };
+         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Connect(ModbusPkt pkt) {
@@ -146,6 +159,20 @@ namespace Modbus_DLL {
          send.Log += Modbus_Log;
          try {
             send.SendXML(pkt.Data);
+         } finally {
+            string logXML = send.LogXML;
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
+            parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+            send.Log -= Modbus_Log;
+            send = null;
+         }
+      }
+
+      private void SendLabel(ModbusPkt pkt) {
+         SendRetrieveXML send = new SendRetrieveXML(MB);
+         send.Log += Modbus_Log;
+         try {
+            send.SendXML(pkt.Label);
          } finally {
             string logXML = send.LogXML;
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
@@ -306,6 +333,7 @@ namespace Modbus_DLL {
       public int Addr { get; set; }
       public int Len { get; set; }
       public object Packet { get; set; }
+      public Serialization.Lab Label { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;
