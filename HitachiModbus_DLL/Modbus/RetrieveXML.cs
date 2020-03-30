@@ -643,7 +643,7 @@ namespace Modbus_DLL {
       #region Service Routines
 
       // Check if string value is first entry in dropdown
-      private bool IsDefaultValue(fmtDD fmt, string s) {
+      bool IsDefaultValue(fmtDD fmt, string s) {
          if (string.IsNullOrEmpty(s)) {
             return true;
          }
@@ -662,7 +662,7 @@ namespace Modbus_DLL {
       }
 
       // Examine the contents of a print message to determine its type
-      private ItemType GetItemType(string text, ref int[] mask) {
+      ItemType GetItemType(string text, ref int[] mask) {
          int l = 0;
          mask[l] = 0;
          string[] s = text.Split('{');
