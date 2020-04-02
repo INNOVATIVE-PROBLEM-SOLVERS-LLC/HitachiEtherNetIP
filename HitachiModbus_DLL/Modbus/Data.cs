@@ -430,6 +430,19 @@ namespace Modbus_DLL {
    // Completely describe the Hitachi Model 161 data
    public class Data {
 
+      #region Data Declarations
+
+      // Lookup for getting attributes associated with a Class/Function
+      static public Dictionary<ClassCode, int, AttrData> AttrDict;
+
+      // A local copy for now.
+      static ClassCode[] ClassCodes;
+      static Type[] ClassCodeAttributes;
+
+      #endregion
+
+      #region Constructors and Destructors
+
       public Data() {
          ClassCodeAttrData = new AttrData[][] {
             ccPDR_Addrs,           // 0x65 Print data registration function
@@ -453,6 +466,8 @@ namespace Modbus_DLL {
             ccMG_Addrs,            // 0x7F Manage Groups function
          };
       }
+
+      #endregion
 
       #region Data Tables
 
@@ -1013,7 +1028,7 @@ namespace Modbus_DLL {
       #region Class Codes => Attributes => Attribute Data lookup tables
 
       // Class Codes to Data Tables Conversion
-      public AttrData[][] ClassCodeAttrData;
+      static public AttrData[][] ClassCodeAttrData;
 
       #endregion
 
@@ -1127,6 +1142,8 @@ namespace Modbus_DLL {
 
       #endregion
 
+      #region Human Readable to Machine Codes
+
       // Attribute DropDown conversion (EtherNet/IP Names)
       static public string[][] DropDowns = new string[][] {
          new string[] { },                                            // 0 - Just decimal values
@@ -1215,6 +1232,10 @@ namespace Modbus_DLL {
                                                                       // 26 - Receive status
      };
 
+      #endregion
+
+      #region Calendar, Count and Half Size Character Encoding
+
       // Calendar and count
       public char[,] CalCnt = new char[,]
       { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
@@ -1232,6 +1253,59 @@ namespace Modbus_DLL {
       public string[,] HalfSize = new string[,]
       { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
            {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
+
+      #endregion
+
+      #region Service Routines 
+
+      // Convert Dropdown HR string to Dropdown value
+      public static int ToDropdownValue(Prop prop, string s) {
+         int val = ToDropdownValue((int) prop.DropDown, s);
+         if (val >= 0) {
+            val += (int)prop.Min;
+         }
+         return val;
+      }
+
+      public static int ToDropdownValue(int n, string s) {
+         int val;
+         s = s.ToLower();
+         val = Array.FindIndex(Data.DropDowns[n], x => x.ToLower().Contains(s));
+         if (val < 0) {
+            val = Array.FindIndex(Data.DropDownsIJPLib[n], x => x.ToLower().Contains(s));
+         }
+         return val;
+      }
+
+      // Build the Attribute Dictionary
+      static public void BuildAttributeDictionary(ClassCode[] ClassCodes, Type[] ClassCodeAttributes) {
+         Data.ClassCodes = ClassCodes;
+         Data.ClassCodeAttributes = ClassCodeAttributes;
+         if (Data.AttrDict == null) {
+            AttrDict = new Dictionary<ClassCode, int, AttrData>();
+            for (int i = 0; i < ClassCodes.Length; i++) {
+               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
+               for (int j = 0; j < ClassAttr.Length; j++) {
+                  AttrDict.Add(ClassCodes[i], (int)ClassAttr[j], GetAttrData(ClassCodes[i], (int)ClassAttr[j]));
+               }
+            }
+         }
+      }
+
+      // Get AttrData with just the Enum
+      static public AttrData GetAttrData(Enum e) {
+         return AttrDict[ClassCodes[Array.IndexOf(ClassCodeAttributes, e.GetType())], Convert.ToInt32(e)];
+      }
+
+      // Get attribute data for an arbitrary class/attribute
+      static public AttrData GetAttrData(ClassCode Class, int attr) {
+         AttrData[] tab = ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
+         AttrData result = Array.Find(tab, at => at.Val == attr);
+         result.Class = Class;
+         return result;
+      }
+
+      #endregion
 
    }
 

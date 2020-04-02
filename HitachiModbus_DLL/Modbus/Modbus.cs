@@ -99,7 +99,7 @@ namespace Modbus_DLL {
       public Modbus(Form parent) {
          this.parent = parent;
 
-         BuildAttributeDictionary();
+         Data.BuildAttributeDictionary(ClassCodes, ClassCodeAttributes);
       }
 
       // Nothing to do here
@@ -594,30 +594,14 @@ namespace Modbus_DLL {
             typeof(ccMG),    // 0x7F Manage Groups
       };
 
-      // Lookup for getting attributes associated with a Class/Function
-      public Dictionary<ClassCode, int, AttrData> AttrDict;
-
-      // Build the Attribute Dictionary
-      void BuildAttributeDictionary() {
-         if (AttrDict == null) {
-            AttrDict = new Dictionary<ClassCode, int, AttrData>();
-            for (int i = 0; i < ClassCodes.Length; i++) {
-               int[] ClassAttr = (int[])ClassCodeAttributes[i].GetEnumValues();
-               for (int j = 0; j < ClassAttr.Length; j++) {
-                  AttrDict.Add(ClassCodes[i], (int)ClassAttr[j], GetAttrData(ClassCodes[i], (int)ClassAttr[j]));
-               }
-            }
-         }
-      }
-
       // Get AttrData with just the Enum
       public AttrData GetAttrData(Enum e) {
-         return AttrDict[ClassCodes[Array.IndexOf(ClassCodeAttributes, e.GetType())], Convert.ToInt32(e)];
+         return Data.AttrDict[ClassCodes[Array.IndexOf(ClassCodeAttributes, e.GetType())], Convert.ToInt32(e)];
       }
 
       // Get attribute data for an arbitrary class/attribute
       public AttrData GetAttrData(ClassCode Class, int attr) {
-         AttrData[] tab = M161.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
+         AttrData[] tab = Data.ClassCodeAttrData[Array.IndexOf(ClassCodes, Class)];
          AttrData result = Array.Find(tab, at => at.Val == attr);
          result.Class = Class;
          return result;
@@ -695,7 +679,7 @@ namespace Modbus_DLL {
       // Send fixed logo to the printer
       public bool SendFixedLogo(string DotMatrix, int loc, byte[] logo) {
          bool result = false;
-         int n = ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
+         int n = Data.ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
          if (n >= 0) {
             result = SendFixedLogo(n, loc, logo);
          }
@@ -785,7 +769,7 @@ namespace Modbus_DLL {
       public bool GetFixedLogo(string DotMatrix, int loc, out byte[] data) {
          bool result = false;
          data = null;
-         int n = ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
+         int n = Data.ToDropdownValue(GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
          if (n >= 0) {
             result = GetFixedLogo(n, loc, out data);
          }
@@ -1188,7 +1172,7 @@ namespace Modbus_DLL {
                } else {
                   // Translate dropdown back to a number
                   if (prop.DropDown != fmtDD.None) {
-                     result = ToBytes(ToDropdownValue(prop, s), prop.Len);
+                     result = ToBytes(Data.ToDropdownValue(prop, s), prop.Len);
                   }
                }
                break;
@@ -1343,19 +1327,19 @@ namespace Modbus_DLL {
          }
       }
 
-      // Convert Dropdown HR string to Dropdown value
-      public int ToDropdownValue(Prop prop, string s) {
-         int val;
-         s = s.ToLower();
-         val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
-         if (val < 0) {
-            val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
-         }
-         if (val >= 0) {
-            val += (int)prop.Min;
-         }
-         return val;
-      }
+      //// Convert Dropdown HR string to Dropdown value
+      //public int ToDropdownValue(Prop prop, string s) {
+      //   int val;
+      //   s = s.ToLower();
+      //   val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
+      //   if (val < 0) {
+      //      val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
+      //   }
+      //   if (val >= 0) {
+      //      val += (int)prop.Min;
+      //   }
+      //   return val;
+      //}
 
       // Convert Dropdown value to Dropdown HR string
       public string ToDropdownString(Prop prop, int n) {
