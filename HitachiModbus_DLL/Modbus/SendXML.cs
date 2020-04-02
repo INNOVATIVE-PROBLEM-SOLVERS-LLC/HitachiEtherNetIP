@@ -555,7 +555,7 @@ namespace Modbus_DLL {
          if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
             Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {loc}\n ");
             // Pad the logo to full size
-            int n = p.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
+            int n = Data.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
             byte[] data = new byte[logoLen[n]];
             byte[] rawdata = p.string_to_byte(l.RawData);
             for (int i = 0; i < Math.Min(data.Length, rawdata.Length); i++) {
@@ -601,7 +601,7 @@ namespace Modbus_DLL {
 
       private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
          if (int.TryParse(r.Base, out int b)) {
-            Prop prop = p.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
+            Prop prop = Data.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
             string[] s = r.Text.Split(delimeter[0]);
             for (int i = 0; i < s.Length; i++) {
                int n = b + i;
