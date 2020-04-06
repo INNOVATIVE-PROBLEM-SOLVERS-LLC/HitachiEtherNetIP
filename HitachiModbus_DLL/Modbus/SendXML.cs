@@ -538,22 +538,18 @@ namespace Modbus_DLL {
       }
 
       private void SendFreeLogo(Logo l) {
-         if (int.TryParse(l.Location, out int loc)
-            && int.TryParse(l.Height, out int height) && height <= 32
-            && int.TryParse(l.Width, out int width) && width <= 320
-            && l.RawData.Length > 0) {
-
+         if (l.Height <= 32 && l.Width <= 320 && l.RawData.Length > 0) {
             byte[] rawdata = p.string_to_byte(l.RawData);      // Get source raw data
-            if (!p.SendFreeLogo(width, height, loc, rawdata)) {
-               Log?.Invoke(p, $" \n// Failed to set {width}x{height} Free Logo to location {loc}\n ");
+            if (!p.SendFreeLogo(l.Width, l.Height, l.Location, rawdata)) {
+               Log?.Invoke(p, $" \n// Failed to set {l.Width}x{l.Height} Free Logo to location {l.Location}\n ");
             }
          }
       }
 
       private void SendFixedLogo(Logo l) {
          int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
-         if (int.TryParse(l.Location, out int loc) && l.RawData.Length > 0) {
-            Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {loc}\n ");
+         if (l.RawData.Length > 0) {
+            Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {l.Location}\n ");
             // Pad the logo to full size
             int n = Data.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, l.DotMatrix);
             byte[] data = new byte[logoLen[n]];
@@ -562,8 +558,8 @@ namespace Modbus_DLL {
                data[i] = rawdata[i];
             }
 
-            if (!p.SendFixedLogo(n, loc, data)) {
-               Log?.Invoke(p, $" \n// Failed to set {l.DotMatrix} Fixed Logo to location {loc}\n ");
+            if (!p.SendFixedLogo(n, l.Location, data)) {
+               Log?.Invoke(p, $" \n// Failed to set {l.DotMatrix} Fixed Logo to location {l.Location}\n ");
             }
          }
       }

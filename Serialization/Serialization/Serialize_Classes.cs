@@ -74,11 +74,11 @@ namespace Serialization {
 
    public class FontDef {
       [XmlAttribute]
-      public string InterCharacterSpace; // Space between characters
+      public int InterCharacterSpace; // Space between characters
       [XmlAttribute]
-      public string IncreasedWidth;      // Bolding
+      public int IncreasedWidth;      // Bolding
       [XmlAttribute]
-      public string IW {                 // Bolding abbreviation
+      public int IW {                 // Bolding abbreviation
          get { return IncreasedWidth; }
          set { IncreasedWidth = value; }
       }
@@ -364,11 +364,11 @@ namespace Serialization {
       [XmlAttribute]
       public string DotMatrix;
       [XmlAttribute]
-      public string Height;
+      public int Height;
       [XmlAttribute]
-      public string Width;
+      public int Width;
       [XmlAttribute]
-      public string Location;
+      public int Location;
       [XmlAttribute]
       public string FileName;
       [XmlAttribute]

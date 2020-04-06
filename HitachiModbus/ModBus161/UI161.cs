@@ -176,7 +176,7 @@ namespace ModBus161 {
          ccValues = (int[])Enum.GetValues(typeof(ClassCode));
          cbClass.Items.AddRange(ccNamesSorted);
 
-         MB.LogIOs = chkLogIO.Checked;
+         MB.LogIO = chkLogIO.Checked;
          MB.StopOnAllErrors = chkStopOnAllErrors.Checked;
 
          cbMessageNumber.Items.Clear();
@@ -609,7 +609,7 @@ namespace ModBus161 {
 
       // Show I/O packets in Log File.
       private void chkLogIO_CheckedChanged(object sender, EventArgs e) {
-         MB.LogIOs = chkLogIO.Checked;
+         MB.LogIO = chkLogIO.Checked;
       }
 
       // Retrieve the error log from the printer
