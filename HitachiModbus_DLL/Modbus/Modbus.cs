@@ -972,7 +972,7 @@ namespace Modbus_DLL {
             } else if (text[i + 2] == 0xF1) {
                result += $"{{X/{text[i + 3] - 0x40}}}";
             } else if (text[i + 2] == 0xF2 && text[i + 3] >= 0x20 && text[i + 3] <= 0x27) {
-               result += $"{{Z/{text[i + 3] - 0x20 + 192}}}";
+               result += $"{{X/{text[i + 3] - 0x20 + 192}}}";
             } else if (text[i + 2] == 0xF6) {
                result += $"{{Z/{text[i + 3] - 0x40}}}";
             } else if (text[i] == 0xF2) {
