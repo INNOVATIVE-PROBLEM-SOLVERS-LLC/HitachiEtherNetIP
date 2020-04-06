@@ -222,9 +222,9 @@ namespace Modbus_DLL {
                }
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
-               item.Font.InterCharacterSpace = p.GetHRAttribute(ccPF.InterCharacter_Space, n);
+               item.Font.InterCharacterSpace = p.GetDecAttribute(ccPF.InterCharacter_Space, n);
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
-               item.Font.IncreasedWidth = p.GetHRAttribute(ccPF.Character_Bold, n);
+               item.Font.IncreasedWidth = p.GetDecAttribute(ccPF.Character_Bold, n);
                int bcType = p.GetDecAttribute(ccPF.Barcode_Type, n);
                if (bcType > 0) {
                   item.BarCode = new BarCode();                           // Build barcode only if needed
@@ -521,9 +521,9 @@ namespace Modbus_DLL {
                      XMLwriter.WriteStartElement("FreeLogo");
                      if (p.GetFreeLogo(neededLogo[i].registration, out int width, out int height, out byte[] freeData)) {
                         Logo logo = new Logo() {
-                           Location = neededLogo[i].registration.ToString(),
-                           Width = width.ToString(),
-                           Height = height.ToString(),
+                           Location = neededLogo[i].registration,
+                           Width = width,
+                           Height = height,
                            RawData = p.byte_to_string(freeData),
                            Layout = "Free"
                         };
@@ -536,7 +536,7 @@ namespace Modbus_DLL {
                      XMLwriter.WriteStartElement("FIxedLogo");
                      if (p.GetFixedLogo(neededLogo[i].dotMatrix, neededLogo[i].registration, out byte[] fixedData)) {
                         Logo logo = new Logo() {
-                           Location = neededLogo[i].registration.ToString(),
+                           Location = neededLogo[i].registration,
                            DotMatrix = neededLogo[i].dotMatrix,
                            RawData = p.byte_to_string(fixedData),
                            Layout = "Fixed"

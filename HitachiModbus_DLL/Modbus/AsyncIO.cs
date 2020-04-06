@@ -55,6 +55,8 @@ namespace Modbus_DLL {
       // Printer to use for I/O
       Modbus MB = null;
 
+      public bool LogIO { get; set; }
+
       #endregion
 
       #region Constructors and Destructors
@@ -302,7 +304,7 @@ namespace Modbus_DLL {
       }
 
       private void Modbus_Log(object sender, string msg) {
-         if (Log != null) {
+         if (LogIO && Log != null) {
             parent.BeginInvoke(new EventHandler(delegate { Log(sender, msg); }));
          }
       }

@@ -537,7 +537,7 @@ namespace EIP_Lib {
          logos.Logo[0] = new Logo() {
             Layout = "Fixed",
             DotMatrix = "18x24",
-            Location = "0",
+            Location = 0,
             FileName = "Square 5x8",
             RawData = "FF 81 81 99 99 81 81 FF",
          };
@@ -564,8 +564,8 @@ namespace EIP_Lib {
                Item item = new Item() {
                   Text = GetAttribute(ccPF.Print_Character_String),
                   Font = new FontDef() {
-                     InterCharacterSpace = GetAttribute(ccPF.InterCharacter_Space),
-                     IncreasedWidth = GetAttribute(ccPF.Character_Bold),
+                     InterCharacterSpace = Convert.ToInt32(GetAttribute(ccPF.InterCharacter_Space)),
+                     IncreasedWidth = Convert.ToInt32(GetAttribute(ccPF.Character_Bold)),
                      DotMatrix = GetAttribute(ccPF.Dot_Matrix),
                   },
                   BarCode = new BarCode(),

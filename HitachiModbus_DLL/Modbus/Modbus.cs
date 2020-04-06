@@ -37,10 +37,10 @@ namespace Modbus_DLL {
       private bool UseIJPLibNames = true;
 
       // Log I/O buffers with traffic
-      public bool LogIOs;
+      public bool LogIO;
       public bool StopOnAllErrors = true;
       public string LogIOSpacer {
-         get { return LogIOs ? "\n " : ""; }
+         get { return LogIO ? "\n " : ""; }
       }
 
       // Modbus function codes
@@ -908,13 +908,13 @@ namespace Modbus_DLL {
 
       // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
-         if (LogIOs)
+         if (LogIO)
             LogIt($"[{len}] << " + byte_to_string(input, len));
       }
 
       // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
-         if (LogIOs)
+         if (LogIO)
             LogIt($"[{len}] >> " + byte_to_string(output, len));
       }
 
@@ -1326,20 +1326,6 @@ namespace Modbus_DLL {
             return s;
          }
       }
-
-      //// Convert Dropdown HR string to Dropdown value
-      //public int ToDropdownValue(Prop prop, string s) {
-      //   int val;
-      //   s = s.ToLower();
-      //   val = Array.FindIndex(Data.DropDowns[(int)prop.DropDown], x => x.ToLower().Contains(s));
-      //   if (val < 0) {
-      //      val = Array.FindIndex(Data.DropDownsIJPLib[(int)prop.DropDown], x => x.ToLower().Contains(s));
-      //   }
-      //   if (val >= 0) {
-      //      val += (int)prop.Min;
-      //   }
-      //   return val;
-      //}
 
       // Convert Dropdown value to Dropdown HR string
       public string ToDropdownString(Prop prop, int n) {
