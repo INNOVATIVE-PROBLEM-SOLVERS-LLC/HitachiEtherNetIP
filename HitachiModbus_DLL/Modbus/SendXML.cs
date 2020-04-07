@@ -182,6 +182,10 @@ namespace Modbus_DLL {
 
       // Send the message portion of the Lab
       private void SendMessage(Msg m) {
+         // In case the layout has changed
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccPF.Format_Setup, m.Layout);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          // Set to only one item in printer
          XMLwriter.WriteStartElement("DeleteOld");
          p.DeleteAllButOne();

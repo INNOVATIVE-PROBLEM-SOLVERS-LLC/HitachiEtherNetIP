@@ -616,7 +616,7 @@ namespace Modbus_DLL {
          int i = Array.IndexOf(ClassCodes, Class);
          if (i >= 0) {
             Type at = ClassCodeAttributes[i];
-            result = Enum.GetName(at, v);
+            result = $"{at.Name}.{Enum.GetName(at, v)}";
          } else {
             result = " "; //  $"Get[{v.ToString("X4")}]";
          }
