@@ -304,7 +304,7 @@ namespace Modbus_DLL {
       }
 
       private void Modbus_Log(object sender, string msg) {
-         if (LogIO && Log != null) {
+         if (Log != null) {
             parent.BeginInvoke(new EventHandler(delegate { Log(sender, msg); }));
          }
       }

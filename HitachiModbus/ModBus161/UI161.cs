@@ -604,6 +604,33 @@ namespace ModBus161 {
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
 
+         MB.DeleteAllButOne();
+
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         MB.SetAttribute(ccPF.Format_Setup, "FreeLayout");
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         return;
+         // Set up the first item (0-origin indexing)
+         int item = 0;
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         MB.SetAttribute(ccPF.Column, 1);
+         MB.SetAttribute(ccPF.Line, 1);
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         MB.SetAttribute(ccPF.Dot_Matrix, item, "12x16");
+         MB.SetAttribute(ccPF.InterCharacter_Space, item, 2);
+         MB.SetAttribute(ccPF.Character_Bold, item, 1);
+         MB.SetAttribute(ccPF.X_Coordinate, item, 8);
+         MB.SetAttribute(ccPF.Y_Coordinate, item, 10);
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         MB.SetAttribute(ccPC.Characters_per_Item, item, 11);
+         MB.SetAttribute(ccPC.Print_Character_String, item, "HELLO WORLD");
+         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
          SetButtonEnables();
       }
 
