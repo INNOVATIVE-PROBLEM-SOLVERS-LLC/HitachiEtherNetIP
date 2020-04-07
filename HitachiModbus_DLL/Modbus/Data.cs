@@ -564,9 +564,9 @@ namespace Modbus_DLL {
          new AttrData((int)ccPF.Number_Of_Count_Blocks, true, 100, 24, Noz.Current, // Number Of Count Blocks 0x104B
             new Prop(1, DataFormats.Decimal, 0, 8, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.X_Coordinate, true, 100, 24, Noz.Current,       // X Coordinate 0x104C
-            new Prop(3, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
+            new Prop(2, DataFormats.Decimal, 0, 31998, fmtDD.None)),            //   Data
          new AttrData((int)ccPF.Y_Coordinate, true, 100, 24, Noz.Current,       // Y Coordinate 0x104D
-            new Prop(3, DataFormats.Decimal, 0, 29, fmtDD.None)),               //   Data
+            new Prop(2, DataFormats.Decimal, 0, 29, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Composit_Character_Item, true, 100, 24, Noz.Current, // Composit Character Item 0x104E
             new Prop(1, DataFormats.Decimal, 0, 50, fmtDD.None)),               //   Data
 
