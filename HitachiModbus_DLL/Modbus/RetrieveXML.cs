@@ -223,7 +223,6 @@ namespace Modbus_DLL {
                item.Font = new FontDef();                                 // Build font definition
                item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.InterCharacterSpace = p.GetDecAttribute(ccPF.InterCharacter_Space, n);
-               item.Font.DotMatrix = p.GetHRAttribute(ccPF.Dot_Matrix, n);
                item.Font.IncreasedWidth = p.GetDecAttribute(ccPF.Character_Bold, n);
                int bcType = p.GetDecAttribute(ccPF.Barcode_Type, n);
                if (bcType > 0) {
@@ -234,6 +233,10 @@ namespace Modbus_DLL {
                }
 
                item.Location = new Location() { Index = n, Row = row, Col = col };
+               if (m.Layout == "FreeLayout") {
+                  item.Location.X = p.GetDecAttribute(ccPF.X_Coordinate, n);
+                  item.Location.Y = p.GetDecAttribute(ccPF.Y_Coordinate, n);
+               }
                int[] mask = new int[1 + 8];
                ItemType itemType = GetItemType(item.Text, ref mask);
                item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, n);
