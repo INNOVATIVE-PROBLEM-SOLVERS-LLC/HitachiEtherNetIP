@@ -287,25 +287,25 @@ namespace EIP_Lib {
                // Process Substitutions
                Substitute s = date.Substitute;
                if (s != null) {
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Year)) {
+                  if (s.Year) {
                      SetAttribute(ccCal.Substitute_Year, s.Year);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Month)) {
+                  if (s.Month) {
                      SetAttribute(ccCal.Substitute_Month, s.Month);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Day)) {
+                  if (s.Day) {
                      SetAttribute(ccCal.Substitute_Day, s.Day);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Hour)) {
+                  if (s.Hour) {
                      SetAttribute(ccCal.Substitute_Hour, s.Hour);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Minute)) {
+                  if (s.Minute) {
                      SetAttribute(ccCal.Substitute_Minute, s.Minute);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Week)) {
+                  if (s.Week) {
                      SetAttribute(ccCal.Substitute_Weeks, s.Week);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.DayOfWeek)) {
+                  if (s.DayOfWeek) {
                      SetAttribute(ccCal.Substitute_DayOfWeek, s.DayOfWeek);
                   }
                }
@@ -389,6 +389,7 @@ namespace EIP_Lib {
             if (ForwardOpen()) {
                try {
                   Lab Label = new Lab() { Version = "Serialization-1" };
+
                   Label.Message = new Msg[1];
                   Label.Message[0] = RetrieveMessage();
 
@@ -479,13 +480,13 @@ namespace EIP_Lib {
                   for (int i = 0; i < item.Date.Length; i++) {
                      Substitute sub = item.Date[i].Substitute;
                      if (sub != null) {
-                        needYear |= sub.Year != null;
-                        needMonth |= sub.Month != null;
-                        needDay |= sub.Day != null;
-                        needHour |= sub.Hour != null;
-                        needMinute |= sub.Minute != null;
-                        needDayOfWeek |= sub.DayOfWeek != null;
-                        needWeek |= sub.Week != null;
+                        needYear |= sub.Year;
+                        needMonth |= sub.Month;
+                        needDay |= sub.Day;
+                        needHour |= sub.Hour;
+                        needMinute |= sub.Minute;
+                        needDayOfWeek |= sub.DayOfWeek;
+                        needWeek |= sub.Week;
                      }
                   }
                }
@@ -642,26 +643,19 @@ namespace EIP_Lib {
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Year)))
-                     item.Date[i].Substitute.Year = s;
+                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Year));
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Month)))
-                     item.Date[i].Substitute.Month = s;
+                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Month));
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Day)))
-                     item.Date[i].Substitute.Day = s;
+                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Day));
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Hour)))
-                     item.Date[i].Substitute.Hour = s;
+                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Hour));
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Minute)))
-                     item.Date[i].Substitute.Minute = s;
+                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Minute));
                if ((mask[i] & (int)ba.Week) > 0) // Printer reports these wrong
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek)))
-                     item.Date[i].Substitute.Week = s;
+                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek));
                if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks)))
-                     item.Date[i].Substitute.DayOfWeek = s;
+                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks));
             }
             if (item.Date[i].Shift == null && (mask[i] & (int)ba.Shift) > 0) {
                item.Date[i].Shift = RetrieveShifts();
@@ -771,6 +765,26 @@ namespace EIP_Lib {
          } else {
             return DropDowns[n];
          }
+      }
+
+      // Things that can be converted to number
+      private bool IsNumeric(Type type) {
+         switch (Type.GetTypeCode(type)) {
+            case TypeCode.Boolean:
+            case TypeCode.Byte:
+            case TypeCode.Decimal:
+            case TypeCode.Double:
+            case TypeCode.Int16:
+            case TypeCode.Int32:
+            case TypeCode.Int64:
+            case TypeCode.SByte:
+            case TypeCode.Single:
+            case TypeCode.UInt16:
+            case TypeCode.UInt32:
+            case TypeCode.UInt64:
+               return true;
+         }
+         return false;
       }
 
       #endregion

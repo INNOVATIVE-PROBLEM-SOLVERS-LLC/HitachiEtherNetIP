@@ -962,26 +962,24 @@ namespace EIP_Lib {
       }
 
       // Set one attribute based on the Set Property
-      public bool SetAttribute<T>(T Attribute, int n) where T : Enum {
-         AutomaticReflect(AccessCode.Set);
+      public bool SetAttribute<T, D>(T Attribute, D val) where T : Enum {
+         AttrData attr = GetAttrData(Attribute);
          byte[] data;
-         AttrData attr = GetAttrData(Attribute);
-         if (attr.Set.Fmt == DataFormats.UTF8 || attr.Set.Fmt == DataFormats.UTF8N) {
-            data = FormatOutput(attr.Set, n.ToString());
+         if (IsNumeric(typeof(D))) {
+            int n = Convert.ToInt32(val);
+            if (attr.Set.Fmt == DataFormats.UTF8 || attr.Set.Fmt == DataFormats.UTF8N) {
+               data = FormatOutput(attr.Set, n.ToString());
+            } else {
+               data = FormatOutput(attr.Set, n);
+            }
          } else {
-            data = FormatOutput(attr.Set, n);
-         }
-         return SetAttribute(attr.Class, attr.Val, data);
-      }
-
-      // Set one attribute based on the Set Property
-      public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
-         if (string.IsNullOrEmpty(s)) {
-            return true;
+            string s = val.ToString();
+            if (string.IsNullOrEmpty(s)) {
+               return true;
+            }
+            data = FormatOutput(attr.Set, s);
          }
          AutomaticReflect(AccessCode.Set);
-         AttrData attr = GetAttrData(Attribute);
-         byte[] data = FormatOutput(attr.Set, s);
          return SetAttribute(attr.Class, attr.Val, data);
       }
 
