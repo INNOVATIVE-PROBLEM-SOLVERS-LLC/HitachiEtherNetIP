@@ -239,22 +239,21 @@ namespace EIP_Lib {
 
                // Process Offset
                Offset o = date.Offset;
-               int n;
                if (o != null) {
-                  if (int.TryParse(o.Year, out n) && n != 0) {
-                     SetAttribute(ccCal.Offset_Year, n);
+                  if (o.Year != 0) {
+                     SetAttribute(ccCal.Offset_Year, o.Year);
                   }
-                  if (int.TryParse(o.Month, out n) && n != 0) {
-                     SetAttribute(ccCal.Offset_Month, n);
+                  if (o.Month != 0) {
+                     SetAttribute(ccCal.Offset_Month, o.Month);
                   }
-                  if (int.TryParse(o.Day, out n) && n != 0) {
-                     SetAttribute(ccCal.Offset_Day, n);
+                  if (o.Day != 0) {
+                     SetAttribute(ccCal.Offset_Day, o.Day);
                   }
-                  if (int.TryParse(o.Hour, out n) && n != 0) {
-                     SetAttribute(ccCal.Offset_Hour, n);
+                  if (o.Hour != 0) {
+                     SetAttribute(ccCal.Offset_Hour, o.Hour);
                   }
-                  if (int.TryParse(o.Minute, out n) && n != 0) {
-                     SetAttribute(ccCal.Offset_Minute, n);
+                  if (o.Minute != 0) {
+                     SetAttribute(ccCal.Offset_Minute, o.Minute);
                   }
                }
 
@@ -441,12 +440,12 @@ namespace EIP_Lib {
                Timer = GetAttribute(ccPS.Target_Sensor_Timer)
             },
             CharacterSize = new CharacterSize() {
-               Width = GetAttribute(ccPS.Character_Width),
-               Height = GetAttribute(ccPS.Character_Height)
+               Width = GetDecAttribute(ccPS.Character_Width),
+               Height = GetDecAttribute(ccPS.Character_Height)
             },
             PrintStartDelay = new PrintStartDelay() {
-               Forward = GetAttribute(ccPS.Print_Start_Delay_Forward),
-               Reverse = GetAttribute(ccPS.Print_Start_Delay_Reverse)
+               Forward = GetDecAttribute(ccPS.Print_Start_Delay_Forward),
+               Reverse = GetDecAttribute(ccPS.Print_Start_Delay_Reverse)
             },
             EncoderSettings = new EncoderSettings() {
                HighSpeedPrinting = GetAttribute(ccPS.High_Speed_Print),
@@ -609,11 +608,11 @@ namespace EIP_Lib {
             }
             if ((mask[i] & DateOffset) > 0) {
                item.Date[i].Offset = new Offset() {
-                  Year = GetAttribute(ccCal.Offset_Year),
-                  Month = GetAttribute(ccCal.Offset_Month),
-                  Day = GetAttribute(ccCal.Offset_Day),
-                  Hour = GetAttribute(ccCal.Offset_Hour),
-                  Minute = GetAttribute(ccCal.Offset_Minute)
+                  Year = GetDecAttribute(ccCal.Offset_Year),
+                  Month = GetDecAttribute(ccCal.Offset_Month),
+                  Day = GetDecAttribute(ccCal.Offset_Day),
+                  Hour = GetDecAttribute(ccCal.Offset_Hour),
+                  Minute = GetDecAttribute(ccCal.Offset_Minute)
                };
             }
             if ((mask[i] & DateSubZS) > 0) {

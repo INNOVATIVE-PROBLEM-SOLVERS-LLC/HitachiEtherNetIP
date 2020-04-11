@@ -318,23 +318,22 @@ namespace Modbus_DLL {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                // Process Offset
                Offset o = date.Offset;
-               int n;
                if (o != null) {
                   XMLwriter.WriteStartElement("Offset");
-                  if (int.TryParse(o.Year, out n) && n != 0) {
-                     p.SetAttribute(ccCal.Offset_Year, index, n);
+                  if (o.Year != 0) {
+                     p.SetAttribute(ccCal.Offset_Year, index, o.Year);
                   }
-                  if (int.TryParse(o.Month, out n) && n != 0) {
-                     p.SetAttribute(ccCal.Offset_Month, index, n);
+                  if (o.Month != 0) {
+                     p.SetAttribute(ccCal.Offset_Month, index, o.Month);
                   }
-                  if (int.TryParse(o.Day, out n) && n != 0) {
-                     p.SetAttribute(ccCal.Offset_Day, index, n);
+                  if (o.Day != 0) {
+                     p.SetAttribute(ccCal.Offset_Day, index, o.Day);
                   }
-                  if (int.TryParse(o.Hour, out n) && n != 0) {
-                     p.SetAttribute(ccCal.Offset_Hour, index, n);
+                  if (o.Hour != 0) {
+                     p.SetAttribute(ccCal.Offset_Hour, index, o.Hour);
                   }
-                  if (int.TryParse(o.Minute, out n) && n != 0) {
-                     p.SetAttribute(ccCal.Offset_Minute, index, n);
+                  if (o.Minute != 0) {
+                     p.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
                   }
                   XMLwriter.WriteEndElement();
                }

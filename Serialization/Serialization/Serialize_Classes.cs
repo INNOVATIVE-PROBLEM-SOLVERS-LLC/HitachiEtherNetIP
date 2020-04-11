@@ -170,7 +170,7 @@ namespace Serialization {
       public TimeCount TimeCount;
 
       public bool ShouldSerializeOffset() {
-         return Offset != null && (Offset.Year != "0" || Offset.Month != "0" || Offset.Day != "0" || Offset.Hour != "0" || Offset.Minute != "0");
+         return Offset != null && (Offset.Year != 0 || Offset.Month != 0 || Offset.Day != 0 || Offset.Hour != 0 || Offset.Minute != 0);
       }
       public bool ShouldSerializeZeroSuppress() {
          return ZeroSuppress != null && (ZeroSuppress.Year != null || ZeroSuppress.Month != null || ZeroSuppress.Day != null ||
@@ -184,29 +184,29 @@ namespace Serialization {
 
    public class Offset {
       [XmlAttribute]
-      public string Year;
+      public int Year;
       [XmlAttribute]
-      public string Month;
+      public int Month;
       [XmlAttribute]
-      public string Day;
+      public int Day;
       [XmlAttribute]
-      public string Hour;
+      public int Hour;
       [XmlAttribute]
-      public string Minute;
+      public int Minute;
       public bool ShouldSerializeYear() {
-         return this.Year != "0";
+         return this.Year != 0;
       }
       public bool ShouldSerializeMonth() {
-         return this.Month != "0";
+         return this.Month != 0;
       }
       public bool ShouldSerializeDay() {
-         return this.Day != "0";
+         return this.Day != 0;
       }
       public bool ShouldSerializeHour() {
-         return this.Hour != "0";
+         return this.Hour != 0;
       }
       public bool ShouldSerializeMinute() {
-         return this.Minute != "0";
+         return this.Minute != 0;
       }
    }
 
@@ -318,16 +318,16 @@ namespace Serialization {
 
    public class CharacterSize {
       [XmlAttribute]
-      public string Width;
+      public int Width;
       [XmlAttribute]
-      public string Height;
+      public int Height;
    }
 
    public class PrintStartDelay {
       [XmlAttribute]
-      public string Forward;
+      public int Forward;
       [XmlAttribute]
-      public string Reverse;
+      public int Reverse;
    }
 
    public class EncoderSettings {

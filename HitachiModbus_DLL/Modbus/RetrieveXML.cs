@@ -274,11 +274,11 @@ namespace Modbus_DLL {
                item.Date[i].SubstitutionRule = "1";
                item.Date[i].RuleName = "";
                item.Date[i].Offset = new Offset() {
-                  Year = p.GetHRAttribute(ccCal.Offset_Year, n),
-                  Month = p.GetHRAttribute(ccCal.Offset_Month, n),
-                  Day = p.GetHRAttribute(ccCal.Offset_Day, n),
-                  Hour = p.GetHRAttribute(ccCal.Offset_Hour, n),
-                  Minute = p.GetHRAttribute(ccCal.Offset_Minute, n)
+                  Year = p.GetDecAttribute(ccCal.Offset_Year, n),
+                  Month = p.GetDecAttribute(ccCal.Offset_Month, n),
+                  Day = p.GetDecAttribute(ccCal.Offset_Day, n),
+                  Hour = p.GetDecAttribute(ccCal.Offset_Hour, n),
+                  Minute = p.GetDecAttribute(ccCal.Offset_Minute, n)
                };
                XMLwriter.WriteEndElement();
             }
@@ -438,12 +438,12 @@ namespace Modbus_DLL {
                Timer = p.GetHRAttribute(ccPS.Target_Sensor_Timer)
             },
             CharacterSize = new CharacterSize() {
-               Width = p.GetHRAttribute(ccPS.Character_Width),
-               Height = p.GetHRAttribute(ccPS.Character_Height)
+               Width = p.GetDecAttribute(ccPS.Character_Width),
+               Height = p.GetDecAttribute(ccPS.Character_Height)
             },
             PrintStartDelay = new PrintStartDelay() {
-               Forward = p.GetHRAttribute(ccPS.Print_Start_Delay_Forward),
-               Reverse = p.GetHRAttribute(ccPS.Print_Start_Delay_Reverse)
+               Forward = p.GetDecAttribute(ccPS.Print_Start_Delay_Forward),
+               Reverse = p.GetDecAttribute(ccPS.Print_Start_Delay_Reverse)
             },
             EncoderSettings = new EncoderSettings() {
                HighSpeedPrinting = p.GetHRAttribute(ccPS.High_Speed_Print),

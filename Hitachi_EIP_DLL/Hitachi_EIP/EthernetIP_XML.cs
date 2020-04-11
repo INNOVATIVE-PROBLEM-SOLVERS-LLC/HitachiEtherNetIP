@@ -583,6 +583,16 @@ namespace EIP_Lib {
          return val;
       }
 
+      // Get the contents of one attribute
+      private int GetDecAttribute<T>(T Attribute) where T : Enum {
+         int val = 0;
+         AttrData attr = GetAttrData(Attribute);
+         if (GetAttribute(attr.Class, attr.Val, Nodata)) {
+            val = GetDecValue;
+         }
+         return val;
+      }
+
       // Examine the contents of a print message to determine its type
       private ItemType GetItemType(string text, ref int[] mask, bool reset = true) {
          int l = 0;
