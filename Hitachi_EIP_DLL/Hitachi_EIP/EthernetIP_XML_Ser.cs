@@ -389,6 +389,7 @@ namespace EIP_Lib {
             if (ForwardOpen()) {
                try {
                   Lab Label = new Lab() { Version = "Serialization-1" };
+
                   Label.Message = new Msg[1];
                   Label.Message[0] = RetrieveMessage();
 
