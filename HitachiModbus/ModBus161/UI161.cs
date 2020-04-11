@@ -610,7 +610,6 @@ namespace ModBus161 {
          MB.SetAttribute(ccPF.Format_Setup, "FreeLayout");
          MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         return;
          // Set up the first item (0-origin indexing)
          int item = 0;
          MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);

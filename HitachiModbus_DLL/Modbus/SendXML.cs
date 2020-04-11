@@ -371,25 +371,25 @@ namespace Modbus_DLL {
                Substitute s = date.Substitute;
                if (s != null) {
                   XMLwriter.WriteStartElement("Substitutions");
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Year)) {
+                  if (s.Year) {
                      p.SetAttribute(ccCal.Substitute_Year, index, s.Year);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Month)) {
+                  if (s.Month) {
                      p.SetAttribute(ccCal.Substitute_Month, index, s.Month);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Day)) {
+                  if (s.Day) {
                      p.SetAttribute(ccCal.Substitute_Day, index, s.Day);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Hour)) {
+                  if (s.Hour) {
                      p.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Minute)) {
+                  if (s.Minute) {
                      p.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.Week)) {
+                  if (s.Week) {
                      p.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
                   }
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s.DayOfWeek)) {
+                  if (s.DayOfWeek) {
                      p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
                   }
                   XMLwriter.WriteEndElement();

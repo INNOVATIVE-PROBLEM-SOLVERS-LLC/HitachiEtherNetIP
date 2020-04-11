@@ -522,7 +522,6 @@ namespace Modbus_DLL {
          bool success = true;
          AttrData attr = GetAttrData(Attribute);
          if (!string.IsNullOrEmpty(s)) {
-            //AutomaticReflect(AccessCode.Set);
             byte[] data = FormatOutput(attr.Data, s);
             success = SetAttribute(attr, 0, data);
          }
@@ -531,13 +530,19 @@ namespace Modbus_DLL {
       }
 
       // Set one indexed attribute based on the Data Property
-      public bool SetAttribute<T>(T Attribute, int n, string s) where T : Enum {
+      public bool SetAttribute<T, D>(T Attribute, int n, D val) where T : Enum {
          bool success = true;
+         byte[] data = null;
+         string s = Convert.ToString(val);
          AttrData attr = GetAttrData(Attribute);
-         if (!string.IsNullOrEmpty(s)) {
-            //AutomaticReflect(AccessCode.Set);
-            byte[] data = FormatOutput(attr.Data, s);
+         if (IsNumeric(typeof(D))) {
+            data = FormatOutput(attr.Data, Convert.ToInt32(val));
             success = SetAttribute(attr, attr.Stride * n, data);
+         } else {
+            if (!string.IsNullOrEmpty(s)) {
+               data = FormatOutput(attr.Data, s);
+               success = SetAttribute(attr, attr.Stride * n, data);
+            }
          }
          LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = \"{s}\"{LogIOSpacer}");
@@ -545,22 +550,9 @@ namespace Modbus_DLL {
       }
 
       // Set one indexed attribute based on the Data Property
-      public bool SetAttribute<T>(T Attribute, int n, int val) where T : Enum {
-         bool success = true;
-         AttrData attr = GetAttrData(Attribute);
-         //AutomaticReflect(AccessCode.Set);
-         byte[] data = FormatOutput(attr.Data, val);
-         success = SetAttribute(attr, attr.Stride * n, data);
-         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
-            $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {val}{LogIOSpacer}");
-         return success;
-      }
-
-      // Set one indexed attribute based on the Data Property
       public bool SetAttribute<T>(T Attribute, int n, byte[] data, int start = 0, int len = -1) where T : Enum {
          bool success = true;
          AttrData attr = GetAttrData(Attribute);
-         //AutomaticReflect(AccessCode.Set);
          success = SetAttribute(attr, attr.Stride * n, data, start, len);
          LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{attr.Stride * n:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
@@ -1362,6 +1354,26 @@ namespace Modbus_DLL {
                Complete(this, success);
             }
          }
+      }
+
+      // Things that can be converted to number
+      private bool IsNumeric(Type type) {
+         switch (Type.GetTypeCode(type)) {
+            case TypeCode.Boolean:
+            case TypeCode.Byte:
+            case TypeCode.Decimal:
+            case TypeCode.Double:
+            case TypeCode.Int16:
+            case TypeCode.Int32:
+            case TypeCode.Int64:
+            case TypeCode.SByte:
+            case TypeCode.Single:
+            case TypeCode.UInt16:
+            case TypeCode.UInt32:
+            case TypeCode.UInt64:
+               return true;
+         }
+         return false;
       }
 
       #endregion

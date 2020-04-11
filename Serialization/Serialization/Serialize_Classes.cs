@@ -177,8 +177,8 @@ namespace Serialization {
             ZeroSuppress.Hour != null || ZeroSuppress.Minute != null || ZeroSuppress.Week != null || ZeroSuppress.DayOfWeek != null);
       }
       public bool ShouldSerializeSubstitute() {
-         return Substitute != null && (Substitute.Year != null || Substitute.Month != null || Substitute.Day != null ||
-            Substitute.Hour != null || Substitute.Minute != null || Substitute.Week != null || Substitute.DayOfWeek != null);
+         return Substitute != null && (Substitute.Year || Substitute.Month || Substitute.Day ||
+            Substitute.Hour || Substitute.Minute || Substitute.Week || Substitute.DayOfWeek);
       }
    }
 
@@ -229,19 +229,19 @@ namespace Serialization {
 
    public class Substitute {
       [XmlAttribute]
-      public string Year;
+      public bool Year;
       [XmlAttribute]
-      public string Month;
+      public bool Month;
       [XmlAttribute]
-      public string Day;
+      public bool Day;
       [XmlAttribute]
-      public string Hour;
+      public bool Hour;
       [XmlAttribute]
-      public string Minute;
+      public bool Minute;
       [XmlAttribute]
-      public string Week;
+      public bool Week;
       [XmlAttribute]
-      public string DayOfWeek;
+      public bool DayOfWeek;
    }
 
    public class Shift {

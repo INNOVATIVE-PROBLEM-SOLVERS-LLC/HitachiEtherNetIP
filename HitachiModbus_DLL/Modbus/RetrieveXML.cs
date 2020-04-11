@@ -312,26 +312,19 @@ namespace Modbus_DLL {
                XMLwriter.WriteStartElement("Substitute");
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Year, n)))
-                     item.Date[i].Substitute.Year = s;
+                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Year, n));
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Month, n)))
-                     item.Date[i].Substitute.Month = s;
+                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Month, n));
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Day, n)))
-                     item.Date[i].Substitute.Day = s;
+                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Day, n));
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Hour, n)))
-                     item.Date[i].Substitute.Hour = s;
+                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Hour, n));
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, n)))
-                     item.Date[i].Substitute.Minute = s;
+                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, n));
                if ((mask[i] & (int)ba.Week) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, n)))
-                     item.Date[i].Substitute.Week = s;
+                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, n));
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  if (!IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n)))
-                     item.Date[i].Substitute.DayOfWeek = s;
+                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n));
                XMLwriter.WriteEndElement();
             }
             if ((mask[i] & (int)ba.Shift) > 0) {
@@ -578,13 +571,13 @@ namespace Modbus_DLL {
                      ruleNumber = item.Date[i].SubstitutionRule;
                      Substitute sub = item.Date[i].Substitute;
                      if (sub != null) {
-                        needYear |= sub.Year != null;
-                        needMonth |= sub.Month != null;
-                        needDay |= sub.Day != null;
-                        needHour |= sub.Hour != null;
-                        needMinute |= sub.Minute != null;
-                        needDayOfWeek |= sub.DayOfWeek != null;
-                        needWeek |= sub.Week != null;
+                        needYear |= sub.Year;
+                        needMonth |= sub.Month;
+                        needDay |= sub.Day;
+                        needHour |= sub.Hour;
+                        needMinute |= sub.Minute;
+                        needDayOfWeek |= sub.DayOfWeek;
+                        needWeek |= sub.Week;
                      }
                   }
                }
