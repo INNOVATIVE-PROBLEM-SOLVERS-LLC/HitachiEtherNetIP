@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using System.Xml.Serialization;
-
 
 namespace Serialization {
 
@@ -165,7 +160,7 @@ namespace Serialization {
 
       [XmlArray("Shifts")]
       [XmlArrayItem("Shift")]
-      public Shift[] Shift;
+      public Shift[] Shifts;
 
       public TimeCount TimeCount;
 
@@ -242,6 +237,27 @@ namespace Serialization {
       public bool Week;
       [XmlAttribute]
       public bool DayOfWeek;
+      public bool ShouldSerializeYear() {
+         return this.Year;
+      }
+      public bool ShouldSerializeMonth() {
+         return this.Month;
+      }
+      public bool ShouldSerializeDay() {
+         return this.Day;
+      }
+      public bool ShouldSerializeHour() {
+         return this.Hour;
+      }
+      public bool ShouldSerializeMinute() {
+         return this.Minute;
+      }
+      public bool ShouldSerializeWeek() {
+         return this.Week;
+      }
+      public bool ShouldSerializeDayOfWeek() {
+         return this.DayOfWeek;
+      }
    }
 
    public class Shift {
@@ -292,7 +308,9 @@ namespace Serialization {
       public InkStream InkStream;
       public ClockSystem ClockSystem;
       public Substitution Substitution;
-      public Logos Logos;
+      [XmlArray("Logos")]
+      [XmlArrayItem("Logo")]
+      public Logo[] Logos;
    }
 
    public class PrintHead {
@@ -349,13 +367,6 @@ namespace Serialization {
    public class ClockSystem {
       [XmlAttribute]
       public string HourMode24;
-   }
-
-   public class Logos {
-      [XmlAttribute]
-      public string Folder;
-      [XmlElement("Logo")]
-      public Logo[] Logo;
    }
 
    public class Logo {

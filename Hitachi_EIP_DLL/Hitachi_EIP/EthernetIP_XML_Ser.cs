@@ -99,7 +99,7 @@ namespace EIP_Lib {
             SetAttribute(ccPS.Ink_Drop_Charge_Rule, p.InkStream.ChargeRule);
          }
          if (p.Logos != null) {
-            foreach (Logo l in p.Logos.Logo) {
+            foreach (Logo l in p.Logos) {
 
             }
          }
@@ -309,12 +309,12 @@ namespace EIP_Lib {
                   }
                }
                // Process Shifts
-               if (date.Shift != null) {
-                  for (int j = 0; j < date.Shift.Length; j++) {
+               if (date.Shifts != null) {
+                  for (int j = 0; j < date.Shifts.Length; j++) {
                      SetAttribute(ccIDX.Calendar_Block, j + 1);
-                     SetAttribute(ccCal.Shift_Start_Hour, date.Shift[j].StartHour);
-                     SetAttribute(ccCal.Shift_Start_Minute, date.Shift[j].StartMinute);
-                     SetAttribute(ccCal.Shift_String_Value, date.Shift[j].ShiftCode);
+                     SetAttribute(ccCal.Shift_Start_Hour, date.Shifts[j].StartHour);
+                     SetAttribute(ccCal.Shift_Start_Minute, date.Shifts[j].StartMinute);
+                     SetAttribute(ccCal.Shift_String_Value, date.Shifts[j].ShiftCode);
                   }
                }
                if (date.TimeCount != null) {
@@ -532,10 +532,9 @@ namespace EIP_Lib {
          }
       }
 
-      private Logos RetrieveLogos() {
-         Logos logos = new Logos();
-         logos.Logo = new Logo[1];
-         logos.Logo[0] = new Logo() {
+      private Logo[] RetrieveLogos() {
+         Logo[] logos = new Logo[1];
+         logos[0] = new Logo() {
             Layout = "Fixed",
             DotMatrix = "18x24",
             Location = 0,
@@ -656,8 +655,8 @@ namespace EIP_Lib {
                if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
                   item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks));
             }
-            if (item.Date[i].Shift == null && (mask[i] & (int)ba.Shift) > 0) {
-               item.Date[i].Shift = RetrieveShifts();
+            if (item.Date[i].Shifts == null && (mask[i] & (int)ba.Shift) > 0) {
+               item.Date[i].Shifts = RetrieveShifts();
             }
             if (item.Date[i].TimeCount == null && (mask[i] & (int)ba.TimeCount) > 0) {
                item.Date[i].TimeCount = RetrieveTimeCount();
