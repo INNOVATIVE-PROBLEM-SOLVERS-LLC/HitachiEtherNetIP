@@ -77,7 +77,7 @@ namespace Modbus_DLL {
                   Log?.Invoke(p, $" \n// Sending Logos\n ");
                   if (Lab.Printer[i].Logos != null) {
                      XMLwriter.WriteStartElement("Logos");
-                     foreach (Logo l in ptr.Logos.Logo) {
+                     foreach (Logo l in ptr.Logos) {
                         switch (l.Layout) {
                            case "Free":
                               XMLwriter.WriteStartElement("FreeLogo");
@@ -393,17 +393,17 @@ namespace Modbus_DLL {
                   }
                   XMLwriter.WriteEndElement();
                }
-               if (date.Shift != null) {
+               if (date.Shifts != null) {
                   Log?.Invoke(p, $" \n// Set up shifts\n ");
                   XMLwriter.WriteStartElement("Shifts");
-                  for (int j = 0; j < date.Shift.Length; j++) {
+                  for (int j = 0; j < date.Shifts.Length; j++) {
                      XMLwriter.WriteStartElement("Shift");
                      XMLwriter.WriteAttributeString("Shift", (j + 1).ToString());
-                     p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shift[j].StartHour);
-                     p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shift[j].StartMinute);
-                     p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shift[j].EndHour);
-                     p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shift[j].EndMinute);
-                     p.SetAttribute(ccSR.Shift_String_Value, j, date.Shift[j].ShiftCode);
+                     p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shifts[j].StartHour);
+                     p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shifts[j].StartMinute);
+                     p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shifts[j].EndHour);
+                     p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shifts[j].EndMinute);
+                     p.SetAttribute(ccSR.Shift_String_Value, j, date.Shifts[j].ShiftCode);
                      XMLwriter.WriteEndElement();
                   }
                   XMLwriter.WriteEndElement();

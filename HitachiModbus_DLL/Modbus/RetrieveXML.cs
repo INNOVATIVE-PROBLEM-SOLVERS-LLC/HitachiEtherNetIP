@@ -328,7 +328,7 @@ namespace Modbus_DLL {
                XMLwriter.WriteEndElement();
             }
             if ((mask[i] & (int)ba.Shift) > 0) {
-               item.Date[i].Shift = RetrieveShifts();
+               item.Date[i].Shifts = RetrieveShifts();
             }
             if ((mask[i] & (int)ba.TimeCount) > 0) {
                item.Date[i].TimeCount = RetrieveTimeCount();
@@ -546,7 +546,7 @@ namespace Modbus_DLL {
                }
                if (retrievedLogos.Count > 0) {
                   Printer pr = lab.Printer[nozzle];
-                  pr.Logos = new Logos() { Logo = retrievedLogos.ToArray() };
+                  pr.Logos = retrievedLogos.ToArray();
                }
             }
          }
