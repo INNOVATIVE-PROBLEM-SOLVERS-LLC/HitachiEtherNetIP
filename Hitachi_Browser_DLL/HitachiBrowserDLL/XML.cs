@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -468,7 +469,7 @@ namespace EIP_Lib {
       // Only allow buttons if conditions are right to process the request
       public void SetButtonEnables() {
          cmdSaveAs.Enabled = XMLText.Length > 0;
-         cmdSend.Enabled = xmlDoc != null;
+         cmdSend.Enabled = !string.IsNullOrEmpty(XMLFileName);
          cmdSendFileToPrinter.Enabled = !string.IsNullOrEmpty(XMLFileName);
          cmdSendDisplayToPrinter.Enabled = xmlDoc != null;
          cmdRunHardTest.Enabled = cbAvailableHardTests.SelectedIndex >= 0;

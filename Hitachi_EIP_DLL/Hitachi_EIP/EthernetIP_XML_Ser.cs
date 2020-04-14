@@ -650,10 +650,10 @@ namespace EIP_Lib {
                   item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Hour));
                if ((mask[i] & (int)ba.Minute) > 0)
                   item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Minute));
-               if ((mask[i] & (int)ba.Week) > 0) // Printer reports these wrong
-                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek));
-               if ((mask[i] & (int)ba.DayOfWeek) > 0) // Printer reports these wrong
-                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks));
+               if ((mask[i] & (int)ba.Week) > 0)
+                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks));
+               if ((mask[i] & (int)ba.DayOfWeek) > 0)
+                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek));
             }
             if (item.Date[i].Shifts == null && (mask[i] & (int)ba.Shift) > 0) {
                item.Date[i].Shifts = RetrieveShifts();
