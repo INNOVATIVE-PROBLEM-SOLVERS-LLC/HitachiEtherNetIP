@@ -64,12 +64,7 @@ namespace Modbus_DLL {
             if (Lab.Printer != null) {
                for (int i = 0; i < Lab.Printer.Length; i++) {
                   Printer ptr = Lab.Printer[i];
-                  int n = 0;
-                  if (!string.IsNullOrEmpty(ptr.Nozzle)) {
-                     if (int.TryParse(ptr.Nozzle, out n)) {
-                        n = Math.Max(0, n - 1);
-                     }
-                  }
+                  int n = Math.Max(0, ptr.Nozzle - 1);
                   if (n > 0 && !p.TwinNozzle) {
                      continue;
                   }
@@ -106,12 +101,7 @@ namespace Modbus_DLL {
             if (Lab.Message != null) {
                for (int i = 0; i < Lab.Message.Length; i++) {
                   if (Lab.Message[i] != null) {
-                     int n = 0;
-                     if (!string.IsNullOrEmpty(Lab.Message[i].Nozzle)) {
-                        if (int.TryParse(Lab.Message[i].Nozzle, out n)) {
-                           n = Math.Max(0, n - 1);
-                        }
-                     }
+                     int n = Math.Max(0, Lab.Message[i].Nozzle - 1);
                      if (n > 0 && !p.TwinNozzle) {
                         continue;
                      }
@@ -130,12 +120,7 @@ namespace Modbus_DLL {
             if (Lab.Printer != null) {
                for (int i = 0; i < Lab.Printer.Length; i++) {
                   if (Lab.Printer[i] != null) {
-                     int n = 0;
-                     if (!string.IsNullOrEmpty(Lab.Printer[i].Nozzle)) {
-                        if (int.TryParse(Lab.Printer[i].Nozzle, out n)) {
-                           n = Math.Max(0, n - 1);
-                        }
-                     }
+                     int n = Math.Max(0, Lab.Printer[i].Nozzle - 1);
                      if (n > 0 && !p.TwinNozzle) {
                         continue;
                      }
@@ -570,15 +555,13 @@ namespace Modbus_DLL {
       // Send substitution rules
       private void SendSubstitutionRules(Printer ptr) {
          if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
-            if (int.TryParse(ptr.Substitution.RuleNumber, out int ruleNumber)
-               && int.TryParse(ptr.Substitution.StartYear, out int year)
-               && ptr.Substitution.Delimiter.Length == 1) {
+            if (ptr.Substitution.Delimiter.Length == 1) {
                // Force rule to be loaded
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
+               p.SetAttribute(ccIDX.Substitution_Rule, ptr.Substitution.RuleNumber);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccSR.Start_Year, year);
+               p.SetAttribute(ccSR.Start_Year, ptr.Substitution.StartYear);
                SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }

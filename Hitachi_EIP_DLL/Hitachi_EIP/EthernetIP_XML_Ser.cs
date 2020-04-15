@@ -104,15 +104,13 @@ namespace EIP_Lib {
             }
          }
          if (p.Substitution != null && p.Substitution.SubRule != null) {
-            if (int.TryParse(p.Substitution.RuleNumber, out int ruleNumber)
-               && int.TryParse(p.Substitution.StartYear, out int year)
-               && p.Substitution.Delimiter.Length == 1) {
+            if (p.Substitution.Delimiter.Length == 1) {
                // Substitution rules cannot be set with Auto Reflection on
                bool saveAR = UseAutomaticReflection;
                UseAutomaticReflection = false;
 
-               SetAttribute(ccIDX.Substitution_Rule, ruleNumber);
-               SetAttribute(ccSR.Start_Year, year);
+               SetAttribute(ccIDX.Substitution_Rule, p.Substitution.RuleNumber);
+               SetAttribute(ccSR.Start_Year, p.Substitution.StartYear);
                SendSubstitution(p.Substitution, p.Substitution.Delimiter);
 
                UseAutomaticReflection = saveAR;
@@ -509,8 +507,8 @@ namespace EIP_Lib {
             RetrieveSubstitution(sr, ccSR.DayOfWeek);
          Substitution substitution = new Substitution() {
             Delimiter = "/",
-            StartYear = GetAttribute(ccSR.Start_Year),
-            RuleNumber = "1",
+            StartYear = GetDecAttribute(ccSR.Start_Year),
+            RuleNumber = 1,
             SubRule = sr.ToArray()
          };
          return substitution;
@@ -556,7 +554,7 @@ namespace EIP_Lib {
          m.Column = new Column[colCount];
          for (int col = 0; col < colCount; col++) {
             SetAttribute(ccIDX.Column, col + 1);
-            m.Column[col] = new Column() { InterLineSpacing = GetAttribute(ccPF.Line_Spacing) };
+            m.Column[col] = new Column() { InterLineSpacing = GetDecAttribute(ccPF.Line_Spacing) };
             GetAttribute(ccPF.Line_Count, out int LineCount);
             m.Column[col].Item = new Item[LineCount];
             for (int row = 0; row < LineCount; row++) {
@@ -763,26 +761,6 @@ namespace EIP_Lib {
          } else {
             return DropDowns[n];
          }
-      }
-
-      // Things that can be converted to number
-      private bool IsNumeric(Type type) {
-         switch (Type.GetTypeCode(type)) {
-            case TypeCode.Boolean:
-            case TypeCode.Byte:
-            case TypeCode.Decimal:
-            case TypeCode.Double:
-            case TypeCode.Int16:
-            case TypeCode.Int32:
-            case TypeCode.Int64:
-            case TypeCode.SByte:
-            case TypeCode.Single:
-            case TypeCode.UInt16:
-            case TypeCode.UInt32:
-            case TypeCode.UInt64:
-               return true;
-         }
-         return false;
       }
 
       #endregion

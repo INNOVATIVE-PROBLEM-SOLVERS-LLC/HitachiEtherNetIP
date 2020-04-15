@@ -137,8 +137,8 @@ namespace Modbus_DLL {
                Label.Printer[nozzle].Substitution = RetrieveSubstitutions(Label.Message[nozzle]);
                XMLwriter.WriteEndElement();
 
-               Label.Message[nozzle].Nozzle = (nozzle + 1).ToString();
-               Label.Printer[nozzle].Nozzle = (nozzle + 1).ToString();
+               Label.Message[nozzle].Nozzle = nozzle + 1;
+               Label.Printer[nozzle].Nozzle = nozzle + 1;
             }
             XMLwriter.WriteStartElement("Logos");
             RetrieveLogos(Label);
@@ -191,10 +191,10 @@ namespace Modbus_DLL {
          int lineCount;
          int n = 0;
          List<int> cols = new List<int>();            // Holds the number of rows in each column
-         List<string> spacing = new List<string>();   // Holds the line spacing
+         List<int> spacing = new List<int>();   // Holds the line spacing
          while (n < itemCount) {
             cols.Add(lineCount = p.GetDecAttribute(ccPF.Line_Count, n));
-            spacing.Add(p.GetHRAttribute(ccPF.Line_Spacing, n));
+            spacing.Add(p.GetDecAttribute(ccPF.Line_Spacing, n));
             n += lineCount;
          }
          XMLwriter.WriteEndElement();
@@ -587,7 +587,7 @@ namespace Modbus_DLL {
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          p.SetAttribute(ccIDX.Substitution_Rule, 1);
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         string startYear = p.GetHRAttribute(ccSR.Start_Year);
+         int startYear = p.GetDecAttribute(ccSR.Start_Year);
 
          List<SubstitutionRule> sr = new List<SubstitutionRule>();
          if (needYear)
@@ -607,7 +607,7 @@ namespace Modbus_DLL {
          Substitution substitution = new Substitution() {
             Delimiter = "/",
             StartYear = startYear,
-            RuleNumber = "1",
+            RuleNumber = 1,
             SubRule = sr.ToArray()
          };
          return substitution;

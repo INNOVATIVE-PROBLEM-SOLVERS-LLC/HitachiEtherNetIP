@@ -1260,9 +1260,9 @@ namespace Modbus_DLL {
 
       // Convert Dropdown HR string to Dropdown value
       public static int ToDropdownValue(Prop prop, string s) {
-         int val = ToDropdownValue((int) prop.DropDown, s);
+         int val = ToDropdownValue((int)prop.DropDown, s);
          if (val >= 0) {
-            val += (int)prop.Min;
+            val += prop.Min;
          }
          return val;
       }
