@@ -21,14 +21,14 @@ namespace Serialization {
       [XmlAttribute]
       public string Name;      // Name for moving messages to/from the directory
       [XmlAttribute]
-      public string Nozzle;
+      public int Nozzle;
       [XmlElement("Column")]
       public Column[] Column;  // Message made up of columns and items within column
    }
 
    public class Column {
       [XmlAttribute]
-      public string InterLineSpacing;  // Spacing between items
+      public int InterLineSpacing;  // Spacing between items
       [XmlElement("Item")]
       public Item[] Item;              // Items within a column
    }
@@ -298,7 +298,7 @@ namespace Serialization {
       [XmlAttribute]
       public string Model;
       [XmlAttribute]
-      public string Nozzle;
+      public int Nozzle;
       public PrintHead PrintHead;
       public ContinuousPrinting ContinuousPrinting;
       public TargetSensor TargetSensor;
@@ -399,9 +399,9 @@ namespace Serialization {
       [XmlAttribute]
       public string Delimiter;
       [XmlAttribute]
-      public string StartYear;
+      public int StartYear;
       [XmlAttribute]
-      public string RuleNumber;
+      public int RuleNumber;
 
       [XmlElement("Rule")]
       public SubstitutionRule[] SubRule;

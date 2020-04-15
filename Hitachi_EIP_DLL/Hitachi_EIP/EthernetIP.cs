@@ -2104,6 +2104,26 @@ namespace EIP_Lib {
          }
       }
 
+      // Things that can be converted to number
+      private bool IsNumeric(Type type) {
+         switch (Type.GetTypeCode(type)) {
+            case TypeCode.Boolean:
+            case TypeCode.Byte:
+            case TypeCode.Decimal:
+            case TypeCode.Double:
+            case TypeCode.Int16:
+            case TypeCode.Int32:
+            case TypeCode.Int64:
+            case TypeCode.SByte:
+            case TypeCode.Single:
+            case TypeCode.UInt16:
+            case TypeCode.UInt32:
+            case TypeCode.UInt64:
+               return true;
+         }
+         return false;
+      }
+
       #endregion
 
       #region Excel traffic capture
