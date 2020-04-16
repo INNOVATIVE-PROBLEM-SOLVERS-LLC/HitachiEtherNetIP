@@ -47,7 +47,6 @@ namespace Serialization {
 
       public string Text;              // Message Text
 
-      [XmlIgnore]
       public Location Location;        // Use for internal processing only
 
       public bool ShouldSerializeBarCode() {
@@ -56,15 +55,25 @@ namespace Serialization {
    }
 
    public class Location {
-      public int Row;                  // 0-Origin
-      public int Col;                  // 0-Origin
-      public int Index;                // 0-Origin
+      public int Row;                  // 1-Origin
+      public int Col;                  // 1-Origin
+      public int Index;                // 1-Origin
       public int X;                    // 0-Origin == Will be needed for Free Layout
       public int Y;                    // 0-Origin == Will be needed for Free Layout
+      [XmlIgnore]
       public int calStart = 0;         // 1-Origin == First calendar object in item
+      [XmlIgnore]
       public int calCount = 0;         // Number of calendar objects used in item
+      [XmlIgnore]
       public int countStart = 0;       // 1-Origin == First count object in item
+      [XmlIgnore]
       public int countCount = 0;       // Number of counter objects in item
+      public bool ShouldSerializeX() {
+         return X >= 0;                // Set to -1 if Layout != FreeLayout.
+      }
+      public bool ShouldSerializeY() {
+         return Y >= 0;                // Set to -1 if Layout != FreeLayout.
+      }
    }
 
    public class FontDef {

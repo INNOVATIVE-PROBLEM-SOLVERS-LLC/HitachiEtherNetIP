@@ -368,8 +368,8 @@ namespace Modbus_DLL {
 
       // Get the decimal value of the attribute
       public int GetDecAttribute<T>(T Attribute) where T : Enum {
-         int result = GetDecValue(GetAttribute(Attribute));
          AttrData attr = GetAttrData(Attribute);
+         int result = GetDecValue(GetAttribute(Attribute), attr.Data.Fmt == DataFormats.SDecimal);
          LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{GetHRValue(attr, result)}{LogIOSpacer}");
          return result;
@@ -377,8 +377,8 @@ namespace Modbus_DLL {
 
       // Get the decimal value of the attribute
       public int GetDecAttribute<T>(T Attribute, int n) where T : Enum {
-         int result = GetDecValue(GetAttribute(Attribute, n));
          AttrData attr = GetAttrData(Attribute);
+         int result = GetDecValue(GetAttribute(Attribute, n), attr.Data.Fmt == DataFormats.SDecimal);
          Debug.Assert(n < attr.Count);
          LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {result}{LogIOSpacer}");
@@ -387,7 +387,7 @@ namespace Modbus_DLL {
 
       // Get the decimal value of the attribute
       public int GetDecAttribute(AttrData attr) {
-         int result = GetDecValue(GetAttribute(attr));
+         int result = GetDecValue(GetAttribute(attr), attr.Data.Fmt == DataFormats.SDecimal);
          LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{GetHRValue(attr, result)}{LogIOSpacer}");
          return result;
@@ -398,7 +398,7 @@ namespace Modbus_DLL {
          AttrData ad = attr.Clone();
          Debug.Assert(n < attr.Count);
          ad.Val += n * attr.Stride;
-         int result = GetDecValue(GetAttribute(ad));
+         int result = GetDecValue(GetAttribute(ad), attr.Data.Fmt == DataFormats.SDecimal);
          LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{n * attr.Stride:X4}] " +
             $"{GetAttributeName(attr.Class, attr.Val)}[{n + attr.Origin}] = {result}{LogIOSpacer}");
          return result;
@@ -874,10 +874,14 @@ namespace Modbus_DLL {
       }
 
       // Convert result to decimal value
-      public int GetDecValue(byte[] b) {
+      public int GetDecValue(byte[] b, bool signed = false) {
          int n = 0;
          for (int i = 0; i < b.Length; i++) {
             n = (n << 8) + b[i];
+         }
+         if (signed) {
+            int nBits = (4 - Math.Min(b.Length, 4)) * 8;
+            n = (n << nBits) >> nBits;
          }
          return n;
       }
@@ -1111,7 +1115,7 @@ namespace Modbus_DLL {
                   CalOrCnt = true;
                }
             }
-            if (CalOrCnt) {
+            if (CalOrCnt && c == result[n + 2]) {
                result = result.Substring(0, n) + result.Substring(n + 2);
             } else {
                n = n + 2;
@@ -1219,9 +1223,10 @@ namespace Modbus_DLL {
             s2 = s2.Replace(M161.HalfSize[i, 0], M161.HalfSize[i, 1]);
          }
 
-         for (int i = 0; i < s2.Length; i++) {
+         while (true) {
+            int i;
             int j;
-            i = s2.IndexOf("{X/", i);
+            i = s2.IndexOf("{X/");
             if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
                int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
                if (n < 192) {
@@ -1234,9 +1239,10 @@ namespace Modbus_DLL {
             }
          }
 
-         for (int i = 0; i < s2.Length; i++) {
+         while (true) {
+            int i;
             int j;
-            i = s2.IndexOf("{Z/", i);
+            i = s2.IndexOf("{Z/");
             if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
                int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
                s2 = s2.Substring(0, i) + (char)('\uF640' + n) + s2.Substring(j + 1);

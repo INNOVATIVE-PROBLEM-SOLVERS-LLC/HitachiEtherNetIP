@@ -232,10 +232,13 @@ namespace Modbus_DLL {
                   item.BarCode.EANPrefix = p.GetHRAttribute(ccAPP.EAN_Prefix, n);
                }
 
-               item.Location = new Location() { Index = n, Row = row, Col = col };
+               item.Location = new Location() { Index = n + 1, Row = row + 1, Col = col + 1 };
                if (m.Layout == "FreeLayout") {
                   item.Location.X = p.GetDecAttribute(ccPF.X_Coordinate, n);
                   item.Location.Y = p.GetDecAttribute(ccPF.Y_Coordinate, n);
+               } else {
+                  item.Location.X = -1;
+                  item.Location.Y = -1;
                }
                int[] mask = new int[1 + 8];
                ItemType itemType = GetItemType(item.Text, ref mask);
@@ -312,19 +315,19 @@ namespace Modbus_DLL {
                XMLwriter.WriteStartElement("Substitute");
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Year, n));
+                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Year, n));
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Month, n));
+                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Month, n));
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Day, n));
+                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Day, n));
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Hour, n));
+                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Hour, n));
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Minute, n));
+                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Minute, n));
                if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_Weeks, n));
+                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Weeks, n));
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n));
+                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n));
                XMLwriter.WriteEndElement();
             }
             if ((mask[i] & (int)ba.Shift) > 0) {

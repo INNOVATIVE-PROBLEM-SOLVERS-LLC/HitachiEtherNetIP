@@ -639,19 +639,19 @@ namespace EIP_Lib {
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Year));
+                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Year));
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Month));
+                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Month));
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Day));
+                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Day));
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Hour));
+                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Hour));
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Minute));
+                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Minute));
                if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_Weeks));
+                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Weeks));
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, s = GetAttribute(ccCal.Substitute_DayOfWeek));
+                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_DayOfWeek));
             }
             if (item.Date[i].Shifts == null && (mask[i] & (int)ba.Shift) > 0) {
                item.Date[i].Shifts = RetrieveShifts();
