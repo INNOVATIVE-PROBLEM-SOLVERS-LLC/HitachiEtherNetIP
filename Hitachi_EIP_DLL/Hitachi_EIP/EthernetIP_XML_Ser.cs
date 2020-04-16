@@ -170,6 +170,9 @@ namespace EIP_Lib {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                SetAttribute(ccIDX.Item, index + 1);
                Item item = m.Column[c].Item[r];
+               if (m.Layout == "FreeLayout" && item.Location != null) {
+                  SetAttribute(ccPF.X_and_Y_Coordinate, $"{item.Location.X},{item.Location.Y}");
+               }
                if (item.Font != null) {
                   SetAttribute(ccPF.Dot_Matrix, item.Font.DotMatrix);
                   SetAttribute(ccPF.InterCharacter_Space, item.Font.InterCharacterSpace);

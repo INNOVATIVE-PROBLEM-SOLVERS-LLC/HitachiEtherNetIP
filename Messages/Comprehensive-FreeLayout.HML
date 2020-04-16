@@ -35,13 +35,7 @@
           <Substitute Month="true" />
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
-        <Location>
-          <Row>1</Row>
-          <Col>1</Col>
-          <Index>1</Index>
-          <X>0</X>
-          <Y>14</Y>
-        </Location>
+        <Location Row="1" Col="1" Index="1" X="0" Y="14"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
@@ -53,13 +47,7 @@
           <Substitute Month="true" />
         </Date>
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
-        <Location>
-          <Row>1</Row>
-          <Col>2</Col>
-          <Index>2</Index>
-          <X>0</X>
-          <Y>7</Y>
-        </Location>
+        <Location Row="1" Col="2" Index="2" X="0" Y="7"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
@@ -69,13 +57,7 @@
           <Substitute DayOfWeek="true" />
         </Date>
         <Text>PCKD {{TTT} {777} {hh}:{mm}} </Text>
-        <Location>
-          <Row>1</Row>
-          <Col>3</Col>
-          <Index>3</Index>
-          <X>0</X>
-          <Y>0</Y>
-        </Location>
+        <Location Row="1" Col="3" Index="3" X="0" Y="0"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
@@ -89,13 +71,7 @@
           </Shifts>
         </Date>
         <Text>Shift {EE} </Text>
-        <Location>
-          <Row>1</Row>
-          <Col>4</Col>
-          <Index>4</Index>
-          <X>114</X>
-          <Y>14</Y>
-        </Location>
+        <Location Row="1" Col="4" Index="4" X="114" Y="14"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
@@ -105,13 +81,7 @@
           <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
         </Date>
         <Text>TCount {FF}</Text>
-        <Location>
-          <Row>1</Row>
-          <Col>5</Col>
-          <Index>5</Index>
-          <X>114</X>
-          <Y>7</Y>
-        </Location>
+        <Location Row="1" Col="5" Index="5" X="117" Y="7"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
@@ -124,26 +94,14 @@
           <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" Multiplier="000000    " SkipCount="    " />
         </Counter>
         <Text># {{CCCCCC}} </Text>
-        <Location>
-          <Row>1</Row>
-          <Col>6</Col>
-          <Index>6</Index>
-          <X>114</X>
-          <Y>0</Y>
-        </Location>
+        <Location Row="1" Col="6" Index="6" X="114" Y="0"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
       <Item>
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size18x24" />
         <Text>{X/190}{X/191}{X/192}{X/193}{X/194}{X/195}{X/196}{X/197}{X/198}{X/199}</Text>
-        <Location>
-          <Row>1</Row>
-          <Col>7</Col>
-          <Index>7</Index>
-          <X>168</X>
-          <Y>0</Y>
-        </Location>
+        <Location Row="1" Col="7" Index="7" X="168" Y="0"/>
       </Item>
     </Column>
   </Message>

@@ -45,9 +45,9 @@ namespace Serialization {
       [XmlElement("Counter")]
       public Counter[] Counter;        // Multiple counters can appear within an item
 
-      public string Text;              // Message Text
-
       public Location Location;        // Use for internal processing only
+
+      public string Text;              // Message Text
 
       public bool ShouldSerializeBarCode() {
          return BarCode != null;  // Write out BarCode only if it is used.
@@ -55,10 +55,15 @@ namespace Serialization {
    }
 
    public class Location {
+      [XmlAttribute]
       public int Row;                  // 1-Origin
+      [XmlAttribute]
       public int Col;                  // 1-Origin
+      [XmlAttribute]
       public int Index;                // 1-Origin
+      [XmlAttribute]
       public int X;                    // 0-Origin == Will be needed for Free Layout
+      [XmlAttribute]
       public int Y;                    // 0-Origin == Will be needed for Free Layout
       [XmlIgnore]
       public int calStart = 0;         // 1-Origin == First calendar object in item
