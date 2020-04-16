@@ -1,0 +1,150 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W        " Nozzle="1">
+    <PrintHead Orientation="Normal_Forward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Time" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="2" />
+    <PrintStartDelay Forward="214" Reverse="214" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="2" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <Substitution Delimiter="/" StartYear="2000" RuleNumber="1">
+      <Rule Type="Month" Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT</Rule>
+      <Rule Type="Month" Base="11">NOV/DEC</Rule>
+      <Rule Type="DayOfWeek" Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</Rule>
+    </Substitution>
+    <Logos>
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="190" RawData="00 1C 00 00 7F 00 C0 80 01 30 00 06 48 00 08 C4 00 10 82 01 20 82 03 20 01 07 40 01 0F 40 01 FE 41 01 FC 7F 01 FE 41 01 0E 40 01 07 40 02 03 20 82 01 20 84 00 10 48 00 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="191" RawData="30 00 06 C0 80 01 00 7F 00 00 1C 00 00 00 00 00 00 00 00 00 00 06 00 40 FE FF 7F 06 00 7C 00 00 7F 00 F0 1F 00 FC 0F 80 FF 00 F8 1F 00 FC 03 00 F8 03 00 C0 1F 00 00 FC 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="192" RawData="00 E0 0F 06 00 7F FE FF 7F FE FF 7F FE FF 7F 06 00 40 00 00 00 E0 1F 00 F8 7F 00 FC FF 00 8E C7 01 06 07 01 02 07 01 02 07 01 06 C7 01 0E FF 00 7C 7F 00 78 0E 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="193" RawData="00 00 01 06 C0 01 FE FF 01 FE FF 00 FE FF 00 06 C0 01 00 E0 01 00 F0 01 00 F0 00 00 03 00 F0 3F 00 FC FF 00 FE FF 00 0E E0 01 06 80 01 02 00 01 06 80 01 3E E0 00 7C F0 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="194" RawData="00 00 00 E0 1F 00 F8 7F 00 FC FF 00 8E C7 01 06 07 01 02 07 01 02 07 01 06 C7 01 0E FF 00 7C 3F 00 78 0E 00 00 00 00 C0 0F 00 F8 7F 00 FC FF 00 FE FF 00 06 E0 01 02 80 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="195" RawData="02 80 01 0E C0 60 FE FF 7F FE FF 7F FE FF 3F 06 00 00 00 00 00 E0 1F 00 F8 7F 00 FC FF 00 8E C7 01 06 07 01 02 07 01 02 07 01 06 C7 01 0E FF 00 7C 7F 00 78 0E 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="196" RawData="7E 78 00 0C FE 00 06 FF 01 82 C7 01 82 87 01 C6 83 01 FE C3 00 FE F1 01 7C 00 00 00 00 00 00 07 00 00 07 00 00 07 00 00 07 00 00 07 00 00 07 00 00 00 00 02 00 40 FE FF 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="197" RawData="FE FF 7F FE FF 7F 0E 18 70 06 18 60 06 18 60 06 38 70 0E FC 3F FE FF 1F FC EF 0F F8 03 00 00 00 00 E0 1F 00 F8 7F 00 FC FF 00 8E C7 01 06 07 01 02 07 01 02 07 01 06 C7 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="198" RawData="0E FF 00 7C 7F 00 78 1F 00 00 00 00 02 00 00 FE FF 01 FE FF 01 FE 7F 00 FE FF 00 02 C0 01 00 C0 01 02 C0 01 FE FF 01 FE FF 00 FE 7F 00 FE 3F 00 02 00 00 00 00 00 0E F0 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="199" RawData="3E C0 01 FE 80 01 FE 83 01 F6 8F 01 C6 BF 01 06 FF 01 0E FC 01 3E F0 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
+    </Logos>
+  </Printer>
+  <Message Layout="FreeLayout" Nozzle="1">
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="24" Hour="-12" Minute="-30" />
+          <ZeroSuppress Day="Space" />
+          <Substitute Month="true" />
+        </Date>
+        <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+        <Location>
+          <Row>1</Row>
+          <Col>1</Col>
+          <Index>1</Index>
+          <X>0</X>
+          <Y>14</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="45" />
+          <ZeroSuppress Day="Space" />
+          <Substitute Month="true" />
+        </Date>
+        <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+        <Location>
+          <Row>1</Row>
+          <Col>2</Col>
+          <Index>2</Index>
+          <X>0</X>
+          <Y>7</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Substitute DayOfWeek="true" />
+        </Date>
+        <Text>PCKD {{TTT} {777} {hh}:{mm}} </Text>
+        <Location>
+          <Row>1</Row>
+          <Col>3</Col>
+          <Index>3</Index>
+          <X>0</X>
+          <Y>0</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Shifts>
+            <Shift ShiftNumber="1" StartHour="0" StartMinute="0" EndHour="7" EndMinute="59" ShiftCode="D" />
+            <Shift ShiftNumber="2" StartHour="8" StartMinute="0" EndHour="15" EndMinute="59" ShiftCode="E" />
+            <Shift ShiftNumber="3" StartHour="16" StartMinute="0" EndHour="23" EndMinute="59" ShiftCode="F" />
+          </Shifts>
+        </Date>
+        <Text>Shift {EE} </Text>
+        <Location>
+          <Row>1</Row>
+          <Col>4</Col>
+          <Index>4</Index>
+          <X>114</X>
+          <Y>14</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        </Date>
+        <Text>TCount {FF}</Text>
+        <Location>
+          <Row>1</Row>
+          <Col>5</Col>
+          <Index>5</Index>
+          <X>114</X>
+          <Y>7</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Counter Block="1">
+          <Range Range1="000000              " Range2="999999              " JumpFrom="000199              " JumpTo="000300              " />
+          <Count InitialValue="000000              " Increment="1" Direction="Down" ZeroSuppression="True" />
+          <Reset Type="Nothing" Value="                    " />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" Multiplier="000000    " SkipCount="    " />
+        </Counter>
+        <Text># {{CCCCCC}} </Text>
+        <Location>
+          <Row>1</Row>
+          <Col>6</Col>
+          <Index>6</Index>
+          <X>114</X>
+          <Y>0</Y>
+        </Location>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size18x24" />
+        <Text>{X/190}{X/191}{X/192}{X/193}{X/194}{X/195}{X/196}{X/197}{X/198}{X/199}</Text>
+        <Location>
+          <Row>1</Row>
+          <Col>7</Col>
+          <Index>7</Index>
+          <X>168</X>
+          <Y>0</Y>
+        </Location>
+      </Item>
+    </Column>
+  </Message>
+</Label>

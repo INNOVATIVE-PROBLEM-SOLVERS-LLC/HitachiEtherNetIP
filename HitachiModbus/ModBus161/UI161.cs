@@ -763,7 +763,7 @@ namespace ModBus161 {
 
       // Enter a message into the log file display
       public void Log(string msg) {
-         while (lstMessages.Items.Count > 1000) {
+         while (lstMessages.Items.Count > 2000) {
             lstMessages.Items.RemoveAt(0);
          }
          lstMessages.Items.Add(Readable(msg));

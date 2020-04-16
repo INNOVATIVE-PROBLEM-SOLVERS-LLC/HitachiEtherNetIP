@@ -220,6 +220,10 @@ namespace Modbus_DLL {
                XMLwriter.WriteAttributeString("Row", (r + 1).ToString());
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                Item item = m.Column[c].Item[r];
+               if (m.Layout == "FreeLayout" && item.Location != null) {
+                  p.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
+                  p.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
+               }
                if (item.Font != null) {
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
