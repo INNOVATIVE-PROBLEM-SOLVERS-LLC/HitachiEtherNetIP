@@ -130,16 +130,14 @@ namespace EIP_Lib {
       }
 
       private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
-         if (int.TryParse(r.Base, out int b)) {
-            Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
-            string[] s = r.Text.Split(delimeter[0]);
-            for (int i = 0; i < s.Length; i++) {
-               int n = b + i;
-               // Avoid user errors
-               if (n >= prop.Min && n <= prop.Max) {
-                  byte[] data = FormatOutput(prop, n, 1, s[i]);
-                  SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
-               }
+         Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
+         string[] s = r.Text.Split(delimeter[0]);
+         for (int i = 0; i < s.Length; i++) {
+            int n = r.Base + i;
+            // Avoid user errors
+            if (n >= prop.Min && n <= prop.Max) {
+               byte[] data = FormatOutput(prop, n, 1, s[i]);
+               SetAttribute(ClassCode.Substitution_rules, (byte)attribute, data);
             }
          }
       }
@@ -527,7 +525,7 @@ namespace EIP_Lib {
          for (int i = 0; i < n; i += 10) {
             sr.Add(new SubstitutionRule() {
                Type = rule.ToString().Replace("_", ""),
-               Base = (i + attr.Get.Min).ToString(),
+               Base = (int)(i + attr.Get.Min),
                Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
             });
          }
