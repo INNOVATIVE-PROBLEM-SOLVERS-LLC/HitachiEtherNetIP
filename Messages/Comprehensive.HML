@@ -25,9 +25,10 @@
       <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="199" RawData="3E C0 01 FE 80 01 FE 83 01 F6 8F 01 C6 BF 01 06 FF 01 0E FC 01 3E F0 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 " />
     </Logos>
   </Printer>
-  <Message Layout="FreeLayout" Nozzle="1">
-    <Column InterLineSpacing="0">
+  <Message Layout="SeparateSetup" Nozzle="1">
+    <Column InterLineSpacing="2">
       <Item>
+        <Location Col="1" Row="1" Index="1" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Day="24" Hour="-12" Minute="-30" />
@@ -35,11 +36,9 @@
           <Substitute Month="true" />
         </Date>
         <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
-        <Location Row="1" Col="1" Index="1" X="0" Y="14"/>
       </Item>
-    </Column>
-    <Column InterLineSpacing="0">
       <Item>
+        <Location Col="1" Row="2" Index="2" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Offset Day="45" />
@@ -47,21 +46,19 @@
           <Substitute Month="true" />
         </Date>
         <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
-        <Location Row="1" Col="2" Index="2" X="0" Y="7"/>
       </Item>
-    </Column>
-    <Column InterLineSpacing="0">
       <Item>
+        <Location Col="1" Row="3" Index="3" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Substitute DayOfWeek="true" />
         </Date>
         <Text>PCKD {{TTT} {777} {hh}:{mm}} </Text>
-        <Location Row="1" Col="3" Index="3" X="0" Y="0"/>
       </Item>
     </Column>
-    <Column InterLineSpacing="0">
+    <Column InterLineSpacing="2">
       <Item>
+        <Location Col="2" Row="1" Index="4" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <Shifts>
@@ -71,37 +68,32 @@
           </Shifts>
         </Date>
         <Text>Shift {EE} </Text>
-        <Location Row="1" Col="4" Index="4" X="114" Y="14"/>
       </Item>
-    </Column>
-    <Column InterLineSpacing="0">
       <Item>
+        <Location Col="2" Row="2" Index="5" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Date Block="1" SubstitutionRule="1" RuleName="">
           <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
         </Date>
         <Text>TCount {FF}</Text>
-        <Location Row="1" Col="5" Index="5" X="117" Y="7"/>
       </Item>
-    </Column>
-    <Column InterLineSpacing="0">
       <Item>
+        <Location Col="2" Row="3" Index="6" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
         <Counter Block="1">
-          <Range Range1="000000              " Range2="999999              " JumpFrom="000199              " JumpTo="000300              " />
-          <Count InitialValue="000000              " Increment="1" Direction="Down" ZeroSuppression="True" />
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000000" Increment="1" Direction="Down" ZeroSuppression="True" />
           <Reset Type="Nothing" Value="                    " />
-          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" Multiplier="000000    " SkipCount="    " />
+          <Misc UpdateIP="0" UpdateUnit="1" ExternalCount="False" Multiplier="000000" SkipCount="    " />
         </Counter>
         <Text># {{CCCCCC}} </Text>
-        <Location Row="1" Col="6" Index="6" X="114" Y="0"/>
       </Item>
     </Column>
     <Column InterLineSpacing="0">
       <Item>
+        <Location Col="3" Row="1" Index="7" />
         <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size18x24" />
         <Text>{X/190}{X/191}{X/192}{X/193}{X/194}{X/195}{X/196}{X/197}{X/198}{X/199}</Text>
-        <Location Row="1" Col="7" Index="7" X="168" Y="0"/>
       </Item>
     </Column>
   </Message>

@@ -586,15 +586,13 @@ namespace Modbus_DLL {
       }
 
       private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
-         if (int.TryParse(r.Base, out int b)) {
-            Prop prop = Data.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
-            string[] s = r.Text.Split(delimeter[0]);
-            for (int i = 0; i < s.Length; i++) {
-               int n = b + i;
-               // Avoid user errors
-               if (n >= prop.Min && n <= prop.Max) {
-                  p.SetAttribute(attribute, n - prop.Min, s[i]);
-               }
+         Prop prop = Data.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
+         string[] s = r.Text.Split(delimeter[0]);
+         for (int i = 0; i < s.Length; i++) {
+            int n = r.Base + i;
+            // Avoid user errors
+            if (n >= prop.Min && n <= prop.Max) {
+               p.SetAttribute(attribute, n - prop.Min, s[i]);
             }
          }
       }

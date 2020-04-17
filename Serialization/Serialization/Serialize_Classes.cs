@@ -34,6 +34,8 @@ namespace Serialization {
    }
 
    public class Item {
+      [XmlElement]
+      public Location Location;        // Use for internal processing only
       [XmlAttribute]
       public string Type;              // Not needed here.  Used for cijConnect
       public FontDef Font;             // DotMatrix code
@@ -45,8 +47,6 @@ namespace Serialization {
       [XmlElement("Counter")]
       public Counter[] Counter;        // Multiple counters can appear within an item
 
-      public Location Location;        // Use for internal processing only
-
       public string Text;              // Message Text
 
       public bool ShouldSerializeBarCode() {
@@ -56,9 +56,9 @@ namespace Serialization {
 
    public class Location {
       [XmlAttribute]
-      public int Row;                  // 1-Origin
-      [XmlAttribute]
       public int Col;                  // 1-Origin
+      [XmlAttribute]
+      public int Row;                  // 1-Origin
       [XmlAttribute]
       public int Index;                // 1-Origin
       [XmlAttribute]
@@ -426,7 +426,7 @@ namespace Serialization {
       [XmlAttribute]
       public string Type;
       [XmlAttribute]
-      public string Base;
+      public int Base;
 
       [XmlText]
       public string Text;

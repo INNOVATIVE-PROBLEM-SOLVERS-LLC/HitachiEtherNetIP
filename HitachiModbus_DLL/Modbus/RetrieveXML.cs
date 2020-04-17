@@ -630,7 +630,7 @@ namespace Modbus_DLL {
          for (int i = 0; i < n; i += 10) {
             sr.Add(new SubstitutionRule() {
                Type = rule.ToString().Replace("_", ""),
-               Base = (i + attr.Data.Min).ToString(),
+               Base = i + attr.Data.Min,
                Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
             });
          }
