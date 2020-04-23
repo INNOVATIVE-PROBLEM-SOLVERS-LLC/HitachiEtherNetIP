@@ -526,7 +526,7 @@ namespace EIP_Lib {
             string msg = $"{xmlName}\t{GetAttrData(Attribute).Class}\t{Attribute}\t{sItem}"
                        + $"\t{sBlock}\t{sSubRule}\t{sent}\t{back}";
             Traffic?.Tasks.Add(new TrafficPkt(Traffic.TaskType.AddVerify, msg.Replace('_', ' ')));
-            if (sent != back) {
+            if (!sent.Equals(back, StringComparison.OrdinalIgnoreCase)) {
                Verify?.Invoke(this, msg);
             }
          }
