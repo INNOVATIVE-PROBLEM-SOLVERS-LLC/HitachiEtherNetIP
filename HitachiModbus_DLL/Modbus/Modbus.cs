@@ -520,12 +520,12 @@ namespace Modbus_DLL {
       // Set one attribute based on the Data Property
       public bool SetAttribute<T>(T Attribute, string s) where T : Enum {
          bool success = true;
-         AttrData attr = GetAttrData(Attribute);
          if (!string.IsNullOrEmpty(s)) {
+            AttrData attr = GetAttrData(Attribute);
             byte[] data = FormatOutput(attr.Data, s);
             success = SetAttribute(attr, 0, data);
+            LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"{LogIOSpacer}");
          }
-         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = \"{s}\"{LogIOSpacer}");
          return success;
       }
 
