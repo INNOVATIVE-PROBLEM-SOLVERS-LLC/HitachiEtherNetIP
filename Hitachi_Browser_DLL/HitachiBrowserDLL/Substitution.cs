@@ -167,10 +167,13 @@ namespace EIP_Lib {
             if (EIP.StartSession()) {
                if (EIP.ForwardOpen()) {
                   Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)at[vCat]].Set;
+                  string s = new string(' ', prop.Len);
                   // The correct substitution rule is already set
                   for (int i = 0; i < subLabels[vCat].Length; i++) {
+                     // space fill on the left
+                     string t = s + subTexts[vCat][i].Text;
                      // Send the substitution data one at a time
-                     data = EIP.FormatOutput(prop, i + startWith[vCat], 1, subTexts[vCat][i].Text);
+                     data = EIP.FormatOutput(prop, i + startWith[vCat], 1, t.Substring(t.Length - prop.Len));
                      if (!EIP.SetAttribute(ClassCode.Substitution_rules, (byte)at[vCat], data)) {
                         EIP.LogIt("Error writing substitution data!  Aborting");
                         break;
