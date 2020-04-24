@@ -652,6 +652,7 @@ namespace Modbus_DLL {
          LogIt(" \n// Set the format to the smallest size\n ");
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
+         SetAttribute(ccPF.Barcode_Type, 0, 0);
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
