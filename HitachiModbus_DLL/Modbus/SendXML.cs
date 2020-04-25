@@ -496,7 +496,7 @@ namespace Modbus_DLL {
       private void SendPrinterSettings(Printer ptr) {
 
          Log?.Invoke(p, $" \n// Send printer settings\n ");
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          if (ptr.PrintHead != null) {
             p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
          }
@@ -505,9 +505,9 @@ namespace Modbus_DLL {
             p.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
          }
          if (ptr.TargetSensor != null) {
-            p.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
-            p.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
-            p.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
+            //p.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
+            //p.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
+            //p.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
          }
          if (ptr.CharacterSize != null) {
             p.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
@@ -526,7 +526,7 @@ namespace Modbus_DLL {
             p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
             p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
          }
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       private void SendFreeLogo(Logo l) {
@@ -566,19 +566,24 @@ namespace Modbus_DLL {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccSR.Start_Year, ptr.Substitution.StartYear);
-               SendSubstitution(ptr.Substitution, ptr.Substitution.Delimiter);
+               SendSubstitution(ptr.Substitution);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
       }
 
-      private void SendSubstitution(Substitution s, string delimiter) {
+      public void SendSubstitution(Substitution s) {
+         string delimiter = s.Delimiter;
          for (int i = 0; i < s.SubRule.Length; i++) {
             SubstitutionRule r = s.SubRule[i];
             if (Enum.TryParse(r.Type, true, out ccSR type)) {
-               XMLwriter.WriteStartElement(r.Type);
+               if (XMLwriter != null) {
+                  XMLwriter.WriteStartElement(r.Type);
+               }
                SetSubValues(type, r, delimiter);
-               XMLwriter.WriteEndElement();
+               if (XMLwriter != null) {
+                  XMLwriter.WriteEndElement();
+               }
             } else {
                Log?.Invoke(p, $"Unknown substitution rule type =>{r.Type}<=");
             }

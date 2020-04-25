@@ -439,12 +439,12 @@ namespace EIP_Lib {
                Timer = GetAttribute(ccPS.Target_Sensor_Timer)
             },
             CharacterSize = new CharacterSize() {
-               Width = GetDecAttribute(ccPS.Character_Width),
-               Height = GetDecAttribute(ccPS.Character_Height)
+               Width = GetAttribute(ccPS.Character_Width),
+               Height = GetAttribute(ccPS.Character_Height)
             },
             PrintStartDelay = new PrintStartDelay() {
-               Forward = GetDecAttribute(ccPS.Print_Start_Delay_Forward),
-               Reverse = GetDecAttribute(ccPS.Print_Start_Delay_Reverse)
+               Forward = GetAttribute(ccPS.Print_Start_Delay_Forward),
+               Reverse = GetAttribute(ccPS.Print_Start_Delay_Reverse)
             },
             EncoderSettings = new EncoderSettings() {
                HighSpeedPrinting = GetAttribute(ccPS.High_Speed_Print),

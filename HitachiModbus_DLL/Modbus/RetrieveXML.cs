@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Serialization;
 using Serialization;
 
 namespace Modbus_DLL {
@@ -441,12 +441,12 @@ namespace Modbus_DLL {
                Timer = p.GetHRAttribute(ccPS.Target_Sensor_Timer)
             },
             CharacterSize = new CharacterSize() {
-               Width = p.GetDecAttribute(ccPS.Character_Width),
-               Height = p.GetDecAttribute(ccPS.Character_Height)
+               Width = p.GetHRAttribute(ccPS.Character_Width),
+               Height = p.GetHRAttribute(ccPS.Character_Height)
             },
             PrintStartDelay = new PrintStartDelay() {
-               Forward = p.GetDecAttribute(ccPS.Print_Start_Delay_Forward),
-               Reverse = p.GetDecAttribute(ccPS.Print_Start_Delay_Reverse)
+               Forward = p.GetHRAttribute(ccPS.Print_Start_Delay_Forward),
+               Reverse = p.GetHRAttribute(ccPS.Print_Start_Delay_Reverse)
             },
             EncoderSettings = new EncoderSettings() {
                HighSpeedPrinting = p.GetHRAttribute(ccPS.High_Speed_Print),
