@@ -36,6 +36,7 @@ namespace Modbus_DLL {
          ReadData,
          RecallMessage,
          AddMessage,
+         Substitutions,
          DeleteMessage,
          IssueccIJP,
          GetStatus,
@@ -105,6 +106,9 @@ namespace Modbus_DLL {
                   case TaskType.RecallMessage:
                      RecallMessage(pkt);
                      break;
+                  case TaskType.Substitutions:
+                     DoSubstitutions(pkt);
+                     break;
                   case TaskType.AddMessage:
                      AddMessage(pkt);
                      break;
@@ -152,7 +156,7 @@ namespace Modbus_DLL {
 
       private void Disconnect(ModbusPkt pkt) {
          MB.Disconnect();
-         AsyncComplete ac = new AsyncComplete(MB, pkt);
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true };
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
@@ -293,7 +297,9 @@ namespace Modbus_DLL {
          string a3 = Status.TranslateStatus(Status.StatusAreas.Analysis3, MB.GetDecAttribute(ccUS.Analysis_Info_3));
          string a4 = Status.TranslateStatus(Status.StatusAreas.Analysis4, MB.GetDecAttribute(ccUS.Analysis_Info_4));
          AsyncComplete ac = new AsyncComplete(MB, pkt) {
-            Resp1 = $"{comm}/{receive}/{operation}/{warn}", Resp2 = $"{a1}/{a2}/{a3}/{a4}" };
+            Resp1 = $"{comm}/{receive}/{operation}/{warn}",
+            Resp2 = $"{a1}/{a2}/{a3}/{a4}"
+         };
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
@@ -307,6 +313,19 @@ namespace Modbus_DLL {
          if (Log != null) {
             parent.BeginInvoke(new EventHandler(delegate { Log(sender, msg); }));
          }
+      }
+
+      private void DoSubstitutions(ModbusPkt pkt) {
+         bool success = false;
+         SendRetrieveXML sr = new SendRetrieveXML(MB);
+         if (pkt.substitution == null) {
+
+         } else {
+            sr.SendSubstitution(pkt.substitution);
+         }
+         sr = null;
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       #endregion
@@ -336,6 +355,7 @@ namespace Modbus_DLL {
       public int Len { get; set; }
       public object Packet { get; set; }
       public Serialization.Lab Label { get; set; }
+      public Serialization.Substitution substitution { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;
