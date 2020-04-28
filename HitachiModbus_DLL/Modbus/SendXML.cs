@@ -228,6 +228,11 @@ namespace Modbus_DLL {
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
+                  if (item.BarCode != null) {
+                     p.SetAttribute(ccPF.Barcode_Type, index, item.BarCode.DotMatrix);
+                  } else {
+                     p.SetAttribute(ccPF.Barcode_Type, index, 0);
+                  }
                }
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
