@@ -17,27 +17,21 @@ namespace EIP_Lib {
             xml = File.ReadAllText(xml);
          }
          bool success = true;
-         Lab Lab;
-         XmlSerializer serializer = new XmlSerializer(typeof(Lab));
+         Serializer<Lab> ser = new Serializer<Lab>();
          try {
-            // Arm the Serializer
-            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
-            using (TextReader reader = new StringReader(xml)) {
-               // Deserialize the file contents
-               Lab = (Lab)serializer.Deserialize(reader);
-               SendXMLAsSerialization(Lab, AutoReflect);
-            }
+            ser.Log += Ser_Log;
+            SendXMLAsSerialization(ser.XmlToClass(xml), AutoReflect);
          } catch (Exception e) {
             success = false;
             LogIt(e.Message);
-            // String passed is not XML, simply return defaultXmlClass
          } finally {
-            // Release the error detection events
-            serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute -= new XmlAttributeEventHandler(serializer_UnknownAttribute);
+            ser.Log -= Ser_Log;
          }
          return success;
+      }
+
+      private void Ser_Log(object sender, SerializerEventArgs e) {
+         LogIt(e.Message);
       }
 
       public void SendXMLAsSerialization(Lab Lab, bool AutoReflect = true) {
@@ -396,16 +390,8 @@ namespace EIP_Lib {
 
                   Label.Printer[0].Substitution = RetrieveSubstitutions(Label.Message[0]);
 
-                  XmlSerializer serializer = new XmlSerializer(typeof(Lab));
-                  //TextWriter writer = new StreamWriter(FileName);
-                  // Create our own namespaces for the output
-                  XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-                  ns.Add("", "");
-                  using (MemoryStream ms = new MemoryStream()) {
-                     serializer.Serialize(ms, Label, ns);
-                     ms.Position = 0;
-                     xml = new StreamReader(ms).ReadToEnd();
-                  }
+                  xml = Serializer<Lab>.ClassToXml(Label);
+
                } catch (EIPIOException e1) {
                   // In case of an EIP I/O error
                   string name = $"{GetAttributeName(e1.ClassCode, e1.Attribute)}";
@@ -728,15 +714,6 @@ namespace EIP_Lib {
       #endregion
 
       #region Service Routines
-
-      private void serializer_UnknownNode(object sender, XmlNodeEventArgs e) {
-         LogIt($"Unknown Node:{e.Name}\t{e.Text}");
-      }
-
-      private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e) {
-         System.Xml.XmlAttribute attr = e.Attr;
-         LogIt($"Unknown Node:{attr.Name}\t{attr.Value}");
-      }
 
       private bool IsDefaultValue(fmtDD fmt, string s) {
          if (string.IsNullOrEmpty(s)) {

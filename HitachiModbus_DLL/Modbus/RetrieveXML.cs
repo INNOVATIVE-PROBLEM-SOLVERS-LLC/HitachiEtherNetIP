@@ -143,14 +143,9 @@ namespace Modbus_DLL {
             XMLwriter.WriteStartElement("Logos");
             RetrieveLogos(Label);
             XMLwriter.WriteEndElement();
-            XmlSerializer serializer = new XmlSerializer(typeof(Lab));
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-            ns.Add("", "");
-            using (MemoryStream ms = new MemoryStream()) {
-               serializer.Serialize(ms, Label, ns);
-               ms.Position = 0;
-               xml = new StreamReader(ms).ReadToEnd();
-            }
+
+            xml = Serializer<Lab>.ClassToXml(Label);
+
          } catch (Exception e2) {
             Log?.Invoke(p, e2.Message);
          } finally {

@@ -1,6 +1,11 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Serialization {
+
+   #region Rool level classes
 
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {
@@ -11,6 +16,13 @@ namespace Serialization {
       [XmlElement("Message")]
       public Msg[] Message;      // Information that pertains to the message
    }
+
+   [XmlRoot("SubRules", IsNullable = false)]
+   public class SubRules {
+      public Substitution Substitution;
+   }
+
+   #endregion
 
    #region Message Classes
 
@@ -421,6 +433,15 @@ namespace Serialization {
       [XmlElement("Rule")]
       public SubstitutionRule[] SubRule;
 
+      public Substitution DeepCopy() {
+         return new Substitution() {
+            Delimiter = string.Copy(this.Delimiter),
+            StartYear = this.StartYear,
+            RuleNumber = this.RuleNumber,
+            SubRule = new SubstitutionRule[0]
+         };
+      }
+
    }
 
    public class SubstitutionRule {
@@ -428,11 +449,76 @@ namespace Serialization {
       public string Type;
       [XmlAttribute]
       public int Base;
-
       [XmlText]
       public string Text;
+
+      public SubstitutionRule DeepCopy() {
+         return new SubstitutionRule() {
+            Type = string.Copy(this.Type),
+            Base = this.Base,
+            Text = string.Copy(this.Text)
+         };
+      }
    }
 
+
+   #endregion
+
+   #region Serialize and Deserialize routines
+
+   public class Serializer<T> {
+
+      // Event Logging
+      public event LogHandler Log;
+      public delegate void LogHandler(object sender, SerializerEventArgs e);
+
+      public static string ClassToXml(T Label) {
+         string result = string.Empty;
+         XmlSerializer serializer = new XmlSerializer(typeof(T));
+         XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+         ns.Add("", "");
+         using (MemoryStream ms = new MemoryStream()) {
+            serializer.Serialize(ms, Label, ns);
+            ms.Position = 0;
+            result = new StreamReader(ms).ReadToEnd();
+         }
+         return result;
+      }
+
+      public T XmlToClass(string xml) {
+         T subRules = default(T);
+         XmlSerializer serializer = new XmlSerializer(typeof(T));
+         try {
+            // Arm the Serializer
+            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+            using (TextReader reader = new StringReader(xml)) {
+               // Deserialize the file contents
+               subRules = (T)serializer.Deserialize(reader);
+            }
+         } catch (Exception e) {
+            Log?.Invoke(this, new SerializerEventArgs() { Message = e.Message });
+         } finally {
+            // Release the error detection events
+            serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
+            serializer.UnknownAttribute -= new XmlAttributeEventHandler(serializer_UnknownAttribute);
+         }
+         return subRules;
+      }
+
+      private void serializer_UnknownNode(object sender, XmlNodeEventArgs e) {
+         Log?.Invoke(this, new SerializerEventArgs() { Message = $"Unknown Node:{e.Name}\t{e.Text}" });
+      }
+
+      private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e) {
+         Log?.Invoke(this, new SerializerEventArgs() { Message = $"Unknown Node:{e.Attr.Name}\t{e.Attr.Value}" });
+      }
+
+   }
+
+   public class SerializerEventArgs : EventArgs {
+      public string Message = string.Empty;
+   }
 
    #endregion
 

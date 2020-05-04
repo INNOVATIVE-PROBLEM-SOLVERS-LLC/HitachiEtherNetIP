@@ -27,27 +27,21 @@ namespace Modbus_DLL {
             xml = File.ReadAllText(xml);
          }
          bool success = true;
-         Lab Lab;
-         XmlSerializer serializer = new XmlSerializer(typeof(Lab));
+         Serializer<Lab> ser = new Serializer<Lab>();
          try {
-            // Arm the Serializer
-            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
-            using (TextReader reader = new StringReader(xml)) {
-               // Deserialize the file contents
-               Lab = (Lab)serializer.Deserialize(reader);
-               SendXML(Lab);
-            }
+            ser.Log += Ser_Log;
+            SendXML(ser.XmlToClass(xml));
          } catch (Exception e) {
             success = false;
             Log?.Invoke(p, e.Message);
-            // String passed is not XML, simply return defaultXmlClass
          } finally {
-            // Release the error detection events
-            serializer.UnknownNode -= new XmlNodeEventHandler(serializer_UnknownNode);
-            serializer.UnknownAttribute -= new XmlAttributeEventHandler(serializer_UnknownAttribute);
+            ser.Log -= Ser_Log;
          }
          return success;
+      }
+
+      private void Ser_Log(object sender, SerializerEventArgs e) {
+         Log?.Invoke(p, e.Message);
       }
 
       // Send a Serialized Lab to the printer
@@ -607,19 +601,6 @@ namespace Modbus_DLL {
                p.SetAttribute(attribute, n - prop.Min, t2.Substring(t2.Length - prop.Len));
             }
          }
-      }
-
-      #endregion
-
-      #region Service Routines
-
-      private void serializer_UnknownNode(object sender, XmlNodeEventArgs e) {
-         Log?.Invoke(p, $"Unknown Node:{e.Name}\t{e.Text}");
-      }
-
-      private void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e) {
-         System.Xml.XmlAttribute attr = e.Attr;
-         Log?.Invoke(p, $"Unknown Node:{attr.Name}\t{attr.Value}");
       }
 
       #endregion
