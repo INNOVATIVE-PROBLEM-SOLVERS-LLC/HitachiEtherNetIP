@@ -43,6 +43,8 @@ namespace Modbus_DLL {
          GetMessages,
          GetErrors,
          AckOnly,
+         Specification,
+         WritePattern,
          Exit,
       }
 
@@ -57,6 +59,15 @@ namespace Modbus_DLL {
       Modbus MB = null;
 
       public bool LogIO { get; set; }
+
+      // Remote Operations
+      private enum RemoteOps {
+         Start = 0,
+         Stop = 1,
+         Ready = 2,
+         StandBy = 3,
+         ClearFault = 4,
+      }
 
       #endregion
 
@@ -130,6 +141,12 @@ namespace Modbus_DLL {
                   case TaskType.AckOnly:
                      AckOnly(pkt);
                      break;
+                  case TaskType.Specification:
+                     Specification(pkt);
+                     break;
+                  case TaskType.WritePattern:
+                     WritePattern(pkt);
+                     break;
                   case TaskType.Exit:
                      done = true;
                      break;
@@ -141,6 +158,34 @@ namespace Modbus_DLL {
                parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
             }
          }
+      }
+
+      private void WritePattern(ModbusPkt pkt) {
+         bool success = MB.SendFixedLogo(pkt.DotMatrix, pkt.Addr, pkt.DataA);
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+      }
+
+      private void Specification(ModbusPkt pkt) {
+         bool success = false;
+         switch (pkt.PrinterSpec) {
+            case ccPS.Character_Height:
+            case ccPS.Character_Width:
+            case ccPS.Repeat_Interval:
+               int st = MB.GetDecAttribute(ccUS.Operation_Status);
+               if (st >= 0x32) { // 0x30 and 0x31 indicate already in standby
+                  success = MB.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.StandBy);
+                  success = MB.SetAttribute(pkt.PrinterSpec, pkt.Data);
+                  success = MB.SetAttribute(ccIJP.Remote_operation, (int)RemoteOps.Ready);
+               } else {
+                  success = MB.SetAttribute(pkt.PrinterSpec, pkt.Data);
+               }
+               break;
+            default:
+               break;
+         }
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void AckOnly(ModbusPkt pkt) {
@@ -288,24 +333,27 @@ namespace Modbus_DLL {
       }
 
       private void GetStatus(ModbusPkt pkt) {
-         string comm = Status.TranslateStatus(Status.StatusAreas.Connection, MB.GetDecAttribute(ccUS.Communication_Status));
-         string receive = Status.TranslateStatus(Status.StatusAreas.Reception, MB.GetDecAttribute(ccUS.Receive_Status));
-         string operation = Status.TranslateStatus(Status.StatusAreas.Operation, MB.GetDecAttribute(ccUS.Operation_Status));
-         string warn = Status.TranslateStatus(Status.StatusAreas.Warning, MB.GetDecAttribute(ccUS.Warning_Status));
-         string a1 = Status.TranslateStatus(Status.StatusAreas.Analysis1, MB.GetDecAttribute(ccUS.Analysis_Info_1));
-         string a2 = Status.TranslateStatus(Status.StatusAreas.Analysis2, MB.GetDecAttribute(ccUS.Analysis_Info_2));
-         string a3 = Status.TranslateStatus(Status.StatusAreas.Analysis3, MB.GetDecAttribute(ccUS.Analysis_Info_3));
-         string a4 = Status.TranslateStatus(Status.StatusAreas.Analysis4, MB.GetDecAttribute(ccUS.Analysis_Info_4));
+         char c = (char)MB.GetDecAttribute(ccUS.Communication_Status);
+         char r = (char)MB.GetDecAttribute(ccUS.Receive_Status);
+         char o = (char)MB.GetDecAttribute(ccUS.Operation_Status);
+         char w = (char)MB.GetDecAttribute(ccUS.Warning_Status);
          AsyncComplete ac = new AsyncComplete(MB, pkt) {
-            Resp1 = $"{comm}/{receive}/{operation}/{warn}",
-            Resp2 = $"{a1}/{a2}/{a3}/{a4}"
+            Status = new string(new char[] { (char)2, (char)0x31, c, r, o, w, (char)3 })
          };
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void IssueccIJP(ModbusPkt pkt) {
          MB.SetAttribute(pkt.Attribute, pkt.Value);
-         AsyncComplete ac = new AsyncComplete(MB, pkt) { Attribute = pkt.Attribute, Value = pkt.Value };
+         char c = (char)MB.GetDecAttribute(ccUS.Communication_Status);
+         char r = (char)MB.GetDecAttribute(ccUS.Receive_Status);
+         char o = (char)MB.GetDecAttribute(ccUS.Operation_Status);
+         char w = (char)MB.GetDecAttribute(ccUS.Warning_Status);
+         AsyncComplete ac = new AsyncComplete(MB, pkt) {
+            Attribute = pkt.Attribute,
+            Value = pkt.Value,
+            Status = new string(new char[] { (char)2, (char)0x31, c, r, o, w, (char)3 })
+         };
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
@@ -341,6 +389,7 @@ namespace Modbus_DLL {
       #region Constructors, Destructors, and Properties
 
       public AsyncIO.TaskType Type { get; set; }
+      public int DotMatrix { get; set; }
       public string Data { get; set; } = string.Empty;
       public byte[] DataA { get; set; }
       public DateTime When { get; set; } = DateTime.Now;
@@ -356,6 +405,7 @@ namespace Modbus_DLL {
       public object Packet { get; set; }
       public Serialization.Lab Label { get; set; }
       public Serialization.Substitution substitution { get; set; }
+      public Modbus_DLL.ccPS PrinterSpec { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;
@@ -390,6 +440,7 @@ namespace Modbus_DLL {
       public bool Success { get; set; } = true;
       public byte[] DataA { get; set; }
       public object Packet { get; set; }
+      public string Status { get; set; }
 
       public AsyncComplete(Modbus p, ModbusPkt pkt) {
          this.Printer = p;

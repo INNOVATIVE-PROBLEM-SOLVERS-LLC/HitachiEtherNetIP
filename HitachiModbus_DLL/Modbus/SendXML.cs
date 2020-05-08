@@ -318,121 +318,127 @@ namespace Modbus_DLL {
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
             if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber > 0) {
+               if (date.Offset != null || date.ZeroSuppress != null || date.Substitute != null || date.TimeCount != null || date.Shifts != null) {
 
-               Log?.Invoke(p, $" \n// Load settings for Substitution rule {1}\n ");
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber); // date.SubstitutionRule
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                  Log?.Invoke(p, $" \n// Load settings for Substitution rule {1}\n ");
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber); // date.SubstitutionRule
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-               int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
-               Log?.Invoke(p, $" \n// Set up calendar {index + 1}\n ");
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               // Process Offset
-               Offset o = date.Offset;
-               if (o != null) {
-                  XMLwriter.WriteStartElement("Offset");
-                  if (o.Year != 0) {
-                     p.SetAttribute(ccCal.Offset_Year, index, o.Year);
-                  }
-                  if (o.Month != 0) {
-                     p.SetAttribute(ccCal.Offset_Month, index, o.Month);
-                  }
-                  if (o.Day != 0) {
-                     p.SetAttribute(ccCal.Offset_Day, index, o.Day);
-                  }
-                  if (o.Hour != 0) {
-                     p.SetAttribute(ccCal.Offset_Hour, index, o.Hour);
-                  }
-                  if (o.Minute != 0) {
-                     p.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
-                  }
-                  XMLwriter.WriteEndElement();
-               }
-
-               // Process Zero Suppress
-               ZeroSuppress zs = date.ZeroSuppress;
-               if (zs != null) {
-                  XMLwriter.WriteStartElement("ZeroSuppress");
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
-                  }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
-                     p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
-                  }
-                  XMLwriter.WriteEndElement();
-               }
-
-               // Process Substitutions
-               Substitute s = date.Substitute;
-               if (s != null) {
-                  XMLwriter.WriteStartElement("Substitutions");
-                  if (s.Year) {
-                     p.SetAttribute(ccCal.Substitute_Year, index, s.Year);
-                  }
-                  if (s.Month) {
-                     p.SetAttribute(ccCal.Substitute_Month, index, s.Month);
-                  }
-                  if (s.Day) {
-                     p.SetAttribute(ccCal.Substitute_Day, index, s.Day);
-                  }
-                  if (s.Hour) {
-                     p.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
-                  }
-                  if (s.Minute) {
-                     p.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
-                  }
-                  if (s.Week) {
-                     p.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
-                  }
-                  if (s.DayOfWeek) {
-                     p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
-                  }
-                  XMLwriter.WriteEndElement();
-               }
-               if (date.Shifts != null) {
-                  Log?.Invoke(p, $" \n// Set up shifts\n ");
-                  XMLwriter.WriteStartElement("Shifts");
-                  for (int j = 0; j < date.Shifts.Length; j++) {
-                     XMLwriter.WriteStartElement("Shift");
-                     XMLwriter.WriteAttributeString("Shift", (j + 1).ToString());
-                     p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shifts[j].StartHour);
-                     p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shifts[j].StartMinute);
-                     p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shifts[j].EndHour);
-                     p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shifts[j].EndMinute);
-                     p.SetAttribute(ccSR.Shift_String_Value, j, date.Shifts[j].ShiftCode);
+                  int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
+                  Log?.Invoke(p, $" \n// Set up calendar {index + 1}\n ");
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  // Process Offset
+                  Offset o = date.Offset;
+                  if (o != null) {
+                     XMLwriter.WriteStartElement("Offset");
+                     if (o.Year != 0) {
+                        p.SetAttribute(ccCal.Offset_Year, index, o.Year);
+                     }
+                     if (o.Month != 0) {
+                        p.SetAttribute(ccCal.Offset_Month, index, o.Month);
+                     }
+                     if (o.Day != 0) {
+                        p.SetAttribute(ccCal.Offset_Day, index, o.Day);
+                     }
+                     if (o.Hour != 0) {
+                        p.SetAttribute(ccCal.Offset_Hour, index, o.Hour);
+                     }
+                     if (o.Minute != 0) {
+                        p.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
+                     }
                      XMLwriter.WriteEndElement();
                   }
-                  XMLwriter.WriteEndElement();
-               }
-               TimeCount tc = date.TimeCount;
-               if (tc != null) {
-                  Log?.Invoke(p, $" \n// Set up Time Count\n ");
-                  XMLwriter.WriteStartElement("TimeCount");
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                  p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
-                  p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
-                  p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
-                  p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
-                  p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
+
+                  // Process Zero Suppress
+                  ZeroSuppress zs = date.ZeroSuppress;
+                  if (zs != null) {
+                     XMLwriter.WriteStartElement("ZeroSuppress");
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
+                     }
+                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
+                        p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
+                     }
+                     XMLwriter.WriteEndElement();
+                  }
+
+                  // Process Substitutions
+                  Substitute s = date.Substitute;
+                  if (s != null) {
+                     XMLwriter.WriteStartElement("Substitutions");
+                     if (s.Year) {
+                        p.SetAttribute(ccCal.Substitute_Year, index, s.Year);
+                     }
+                     if (s.Month) {
+                        p.SetAttribute(ccCal.Substitute_Month, index, s.Month);
+                     }
+                     if (s.Day) {
+                        p.SetAttribute(ccCal.Substitute_Day, index, s.Day);
+                     }
+                     if (s.Hour) {
+                        p.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
+                     }
+                     if (s.Minute) {
+                        p.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
+                     }
+                     if (s.Week) {
+                        p.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
+                     }
+                     if (s.DayOfWeek) {
+                        p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
+                     }
+                     XMLwriter.WriteEndElement();
+                  }
+
+                  // Process shifts
+                  if (date.Shifts != null) {
+                     Log?.Invoke(p, $" \n// Set up shifts\n ");
+                     XMLwriter.WriteStartElement("Shifts");
+                     for (int j = 0; j < date.Shifts.Length; j++) {
+                        XMLwriter.WriteStartElement("Shift");
+                        XMLwriter.WriteAttributeString("Shift", (j + 1).ToString());
+                        p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shifts[j].StartHour);
+                        p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shifts[j].StartMinute);
+                        p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shifts[j].EndHour);
+                        p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shifts[j].EndMinute);
+                        p.SetAttribute(ccSR.Shift_String_Value, j, date.Shifts[j].ShiftCode);
+                        XMLwriter.WriteEndElement();
+                     }
+                     XMLwriter.WriteEndElement();
+                  }
+
+                  // Process TimeCount
+                  TimeCount tc = date.TimeCount;
+                  if (tc != null) {
+                     Log?.Invoke(p, $" \n// Set up Time Count\n ");
+                     XMLwriter.WriteStartElement("TimeCount");
+                     p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                     p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
+                     p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
+                     p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
+                     p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
+                     p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
+                     p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                     XMLwriter.WriteEndElement();
+                  }
                   p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-                  XMLwriter.WriteEndElement();
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
       }
