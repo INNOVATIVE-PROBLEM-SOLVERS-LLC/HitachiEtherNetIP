@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Label ClockSystem="Do Not Send" Registration="0" GroupNumber="01" GroupName="" Name="CurrentMessage" BeRestrictive="False" UseHalfSpace="False" Format="Individual" Version="3">
+  <Printer Model="UX" Make="Hitachi">
+    <PrintHead Orientation="2" />
+    <ContinuousPrinting RepeatInterval="00000" PrintsPerTrigger="0000" />
+    <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
+    <CharacterSize Height="090" Width="0010" />
+    <PrintStartDelay Reverse="0078" Forward="0078" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="001" ExternalEncoder="False" />
+    <InkStream InkDropUse="02" ChargeRule="Mixed" />
+    <TwinNozzle LeadingCharControl="0" LeadingCharControlWidth1="20" LeadingCharControlWidth2="20" NozzleSpaceAlignment="0" />
+  </Printer>
+  <Objects>
+    <Object Type="Date">
+      <Font HumanReadableFont="(None)" EANPrefix="00" BarCode="(None)" IncreasedWidth="1" InterLineSpace="1" InterCharacterSpace="1">5X7</Font>
+      <Location ItemNumber="1" Column="0" Row="0" Height="7" Width="12" Left="0" Top="7" />
+      <Date>
+        <Offset Minute="0" Hour="0" Day="0" Month="0" Year="0" />
+        <ZeroSuppress DayOfWeek="False" Week="False" Minute="False" Hour="False" Day="False" Month="False" Year="False" />
+        <EnableSubstitution SubstitutionRule="01" DayOfWeek="False" Week="False" Minute="False" Hour="False" Day="False" Month="False" Year="False" />
+        <Shifts>
+          <Shift ShiftNumber="1" StartHour="00" StartMinute="00" EndHour="07" EndMinute="59" ShiftCode="aa" />
+          <Shift ShiftNumber="2" StartHour="08" StartMinute="00" EndHour="15" EndMinute="59" ShiftCode="ss" />
+          <Shift ShiftNumber="3" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" ShiftCode="dd" />
+        </Shifts>
+      </Date>
+      <Text>{EE}</Text>
+    </Object>
+  </Objects>
+</Label>

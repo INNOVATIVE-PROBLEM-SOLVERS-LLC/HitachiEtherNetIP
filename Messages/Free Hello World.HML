@@ -1,0 +1,26 @@
+<Label Version="Serialization-1">
+  <Message Layout="FreeLayout" Nozzle="1">
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="" />
+        <Location Row="1" Col="1" Index="1" X="0" Y="0" />
+        <Text>HELLO WORLD-1</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="1" Col="2" Index="2" X="40" Y="10" />
+        <Text>HELLO WORLD-2</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="0" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="1" Col="3" Index="3" X="80" Y="20" />
+        <Text>HELLO WORLD-3</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>
