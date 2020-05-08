@@ -1,0 +1,86 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-616" Nozzle="0">
+    <PrintHead Orientation="Normal/Reverse" />
+    <ContinuousPrinting RepeatInterval="00" />
+    <TargetSensor Filter="2" SetupValue="50" Timer="0" />
+    <CharacterSize Width="10" Height="100" />
+    <PrintStartDelay Forward="78" Reverse="78" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="2" ExternalEncoder="None" />
+    <InkStream InkDropUse="2" ChargeRule="Standard" />
+    <Logos>
+      <Logo Layout="Fixed" DotMatrix="Size18x24" Height="0" Width="0" Location="199" RawData="FF FF FF 01 00 80 01 80 B1 01 00 8A 01 00 84 01 00 8A 01 80 B1 01 7F 80 01 20 80 01 18 80 01 20 80 01 7F 80 FD 00 80 05 00 80 05 00 80 05 00 80 05 00 80 01 00 80 FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" />
+    </Logos>
+  </Printer>
+  <Message Layout="Individual" Nozzle="0">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="24" Hour="-12" Minute="-30" />
+          <ZeroSuppress Day="Space Fill" />
+          <Substitute Month="Enable" />
+        </Date>
+        <Location Row="2" Col="0" Index="0" X="0" Y="0" />
+        <Text>SELL BY {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Day="45" />
+          <ZeroSuppress Day="Space Fill" />
+          <Substitute Month="Enable" />
+        </Date>
+        <Location Row="1" Col="0" Index="1" X="0" Y="0" />
+        <Text>USE BY  {{MMM}/{DD}/{YY}}  </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Substitute DayOfWeek="Enable" />
+        </Date>
+        <Location Row="0" Col="0" Index="2" X="0" Y="0" />
+        <Text>PCKD {{TTT} {777} {hh}:{mm}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Shifts>
+            <Shift ShiftNumber="1" StartHour="00" StartMinute="00" EndHour="07" EndMinute="59" ShiftCode="DD" />
+            <Shift ShiftNumber="2" StartHour="08" StartMinute="00" EndHour="15" EndMinute="59" ShiftCode="EE" />
+            <Shift ShiftNumber="3" StartHour="16" StartMinute="00" EndHour="23" EndMinute="59" ShiftCode="FF" />
+          </Shifts>
+        </Date>
+        <Location Row="2" Col="1" Index="3" X="0" Y="0" />
+        <Text>Shift {{EE}} </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <TimeCount Interval="HalfHour" Start="A1" End="X2" ResetTime="6" ResetValue="A1" />
+        </Date>
+        <Location Row="1" Col="1" Index="4" X="0" Y="0" />
+        <Text>TCount {{FF}}</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5x8(5x7)" />
+        <Counter Block="1">
+          <Range Range1="000000" Range2="999999" JumpFrom="000199" JumpTo="000300" />
+          <Count InitialValue="000000" Increment="01" Direction="Down" ZeroSuppression="Enable" />
+          <Reset Type="" Value="" />
+          <Misc UpdateIP="0000" UpdateUnit="1" Multiplier="0" />
+        </Counter>
+        <Location Row="0" Col="1" Index="5" X="0" Y="0" />
+        <Text># {{CCCCCC}} </Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="0">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="18X24" />
+        <Location Row="0" Col="2" Index="6" X="0" Y="0" />
+        <Text>{X/199}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

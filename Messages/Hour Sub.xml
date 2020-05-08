@@ -1,0 +1,29 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-616" Nozzle="0">
+    <PrintHead Orientation="0" />
+    <ContinuousPrinting RepeatInterval="0000" />
+    <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
+    <CharacterSize Width="0" Height="60" />
+    <PrintStartDelay Forward="0" Reverse="0" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="2" ExternalEncoder="0" />
+    <InkStream InkDropUse="0" ChargeRule="0" />
+  </Printer>
+  <Message Layout="Individual" Nozzle="0">
+    <Column InterLineSpacing="1">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Date Block="1" SubstitutionRule="1" RuleName="" />
+        <Location Row="1" Col="0" Index="0" X="0" Y="0" />
+        <Text>{YYYY} {MM} {DD}</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <ZeroSuppress Hour="1" />
+        </Date>
+        <Location Row="0" Col="0" Index="1" X="0" Y="0" />
+        <Text>BS20 {TTT} {h}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

@@ -625,6 +625,14 @@ namespace Modbus_DLL {
          int n = 0;
          int cols = 0;
          LogIt(" \n// Deleting old message\n ");
+
+
+         // Do the deletes in individual layout mode
+         LogIt(" \n// Delete done in Individual Layout mode\n ");
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         SetAttribute(ccPF.Format_Setup, "Individual");
+         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
          LogIt(" \n// Get number of items\n ");
          int itemCount = GetDecAttribute(ccIDX.Number_Of_Items);
 

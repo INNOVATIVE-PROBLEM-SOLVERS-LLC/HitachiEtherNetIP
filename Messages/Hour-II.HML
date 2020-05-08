@@ -1,0 +1,33 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-D161W        " Nozzle="1">
+    <PrintHead Orientation="Normal_Backward" />
+    <ContinuousPrinting RepeatInterval="0" PrintsPerTrigger="0" />
+    <TargetSensor Filter="Complete" SetupValue="50" Timer="0" />
+    <CharacterSize Width="0" Height="35" />
+    <PrintStartDelay Forward="0" Reverse="0" />
+    <EncoderSettings HighSpeedPrinting="HM" Divisor="2" ExternalEncoder="Off" />
+    <InkStream InkDropUse="2" ChargeRule="Normal" />
+    <Substitution Delimiter="/" StartYear="2000" RuleNumber="1">
+      <Rule Type="Hour" Base="0">D/E/E/E/E/E/A/A/A/A/A/B/B/B/B/B/C/C/C/C/C/D/D/D</Rule>
+      <Rule Type="Month" Base="1">JA/FE/MR/AL/MA/JU/JL/AU/SE/OC/NO/DE</Rule>
+    </Substitution>
+  </Printer>
+  <Message Layout="SeparateSetup" Nozzle="1">
+    <Column InterLineSpacing="1">
+      <Item>
+        <Location Col="1" Row="1" Index="1" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="" />
+        <Text>{{YYYY} {MM} {DD}}</Text>
+      </Item>
+      <Item>
+        <Location Col="1" Row="2" Index="2" />
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Substitute Hour="true" />
+        </Date>
+        <Text>BS20 {{TTT} {h}}</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

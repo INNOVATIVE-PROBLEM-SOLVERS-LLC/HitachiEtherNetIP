@@ -161,13 +161,11 @@ namespace Modbus_DLL {
 
       // Send the message portion of the Lab
       private void SendMessage(Msg m) {
-         // In case the layout has changed
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccPF.Format_Setup, m.Layout);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-         // Set to only one item in printer
+
+         // Set to only one item in printer (Deletes are done in individual mode)
          XMLwriter.WriteStartElement("DeleteOld");
          p.DeleteAllButOne();
+
          XMLwriter.WriteEndElement();
 
          if (m.Column != null) {
@@ -214,10 +212,6 @@ namespace Modbus_DLL {
                XMLwriter.WriteAttributeString("Row", (r + 1).ToString());
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                Item item = m.Column[c].Item[r];
-               if (m.Layout == "FreeLayout" && item.Location != null) {
-                  p.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
-                  p.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
-               }
                if (item.Font != null) {
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
@@ -237,10 +231,39 @@ namespace Modbus_DLL {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                charPosition += s.Length;
                hasDateOrCount |= item.Date != null | item.Counter != null;
-               m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
+               //m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
+               index++;
                XMLwriter.WriteEndElement();
             }
             XMLwriter.WriteEndElement();
+         }
+         //
+         // Is this message free layout?
+         if (m.Layout == "FreeLayout") {
+            // Change message to free layout
+            Log?.Invoke(p, $" \n// Change message to free layout\n ");
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccPF.Format_Setup, m.Layout);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            index = 0;
+            charPosition = 0;
+            for (int c = 0; c < m.Column.Length; c++) {
+               for (int r = 0; r < m.Column[c].Item.Length; r++) {
+                  Log?.Invoke(p, $" \n// Position item {index + 1}\n ");
+                  Item item = m.Column[c].Item[r];
+                  string s = p.HandleBraces(item.Text);
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                  if (item.Location != null) {
+                     p.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
+                     p.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
+                  }
+                  p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
+                  p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                  charPosition += s.Length;
+                  index++;
+               }
+            }
          }
          // Process calendar and count if needed
          if (hasDateOrCount) {
