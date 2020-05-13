@@ -5,6 +5,19 @@ using System.Xml.Serialization;
 
 namespace Serialization {
 
+   #region Enumerations
+
+   public enum ZS {
+      [XmlEnum]
+      None = 0,
+      [XmlEnum]
+      Space = 1,
+      [XmlEnum]
+      Character = 2,
+   }
+
+   #endregion
+
    #region Rool level classes
 
    [XmlRoot("Label", IsNullable = false)]
@@ -195,8 +208,8 @@ namespace Serialization {
          return Offset != null && (Offset.Year != 0 || Offset.Month != 0 || Offset.Day != 0 || Offset.Hour != 0 || Offset.Minute != 0);
       }
       public bool ShouldSerializeZeroSuppress() {
-         return ZeroSuppress != null && (ZeroSuppress.Year != null || ZeroSuppress.Month != null || ZeroSuppress.Day != null ||
-            ZeroSuppress.Hour != null || ZeroSuppress.Minute != null || ZeroSuppress.Week != null || ZeroSuppress.DayOfWeek != null);
+         return ZeroSuppress != null && (ZeroSuppress.Year != ZS.None || ZeroSuppress.Month != ZS.None || ZeroSuppress.Day != ZS.None ||
+            ZeroSuppress.Hour != ZS.None || ZeroSuppress.Minute != ZS.None || ZeroSuppress.Week != ZS.None || ZeroSuppress.DayOfWeek != ZS.None);
       }
       public bool ShouldSerializeSubstitute() {
          return Substitute != null && (Substitute.Year || Substitute.Month || Substitute.Day ||
@@ -206,15 +219,16 @@ namespace Serialization {
 
    public class Offset {
       [XmlAttribute]
-      public int Year;
+      public int Year = 0;
       [XmlAttribute]
-      public int Month;
+      public int Month = 0;
       [XmlAttribute]
-      public int Day;
+      public int Day = 0;
       [XmlAttribute]
-      public int Hour;
+      public int Hour = 0;
       [XmlAttribute]
-      public int Minute;
+      public int Minute = 0;
+
       public bool ShouldSerializeYear() {
          return this.Year != 0;
       }
@@ -230,40 +244,68 @@ namespace Serialization {
       public bool ShouldSerializeMinute() {
          return this.Minute != 0;
       }
+      public Offset Copy() {
+         return (Offset)MemberwiseClone();
+      }
    }
 
    public class ZeroSuppress {
       [XmlAttribute]
-      public string Year;
+      public ZS Year;
       [XmlAttribute]
-      public string Month;
+      public ZS Month;
       [XmlAttribute]
-      public string Day;
+      public ZS Day;
       [XmlAttribute]
-      public string Hour;
+      public ZS Hour;
       [XmlAttribute]
-      public string Minute;
+      public ZS Minute;
       [XmlAttribute]
-      public string Week;
+      public ZS Week;
       [XmlAttribute]
-      public string DayOfWeek;
+      public ZS DayOfWeek;
+      public bool ShouldSerializeYear() {
+         return this.Year != ZS.None;
+      }
+      public bool ShouldSerializeMonth() {
+         return this.Month != ZS.None;
+      }
+      public bool ShouldSerializeDay() {
+         return this.Day != ZS.None;
+      }
+      public bool ShouldSerializeHour() {
+         return this.Hour != ZS.None;
+      }
+      public bool ShouldSerializeMinute() {
+         return this.Minute != ZS.None;
+      }
+      public bool ShouldSerializeWeek() {
+         return this.Week != ZS.None;
+      }
+      public bool ShouldSerializeDayOfWeek() {
+         return this.DayOfWeek != ZS.None;
+      }
+      public ZeroSuppress Copy() {
+         return (ZeroSuppress)this.MemberwiseClone();
+      }
    }
 
    public class Substitute {
       [XmlAttribute]
-      public bool Year;
+      public bool Year = false;
       [XmlAttribute]
-      public bool Month;
+      public bool Month = false;
       [XmlAttribute]
-      public bool Day;
+      public bool Day = false;
       [XmlAttribute]
-      public bool Hour;
+      public bool Hour = false;
       [XmlAttribute]
-      public bool Minute;
+      public bool Minute = false;
       [XmlAttribute]
-      public bool Week;
+      public bool Week = false;
       [XmlAttribute]
-      public bool DayOfWeek;
+      public bool DayOfWeek = false;
+
       public bool ShouldSerializeYear() {
          return this.Year;
       }
@@ -284,6 +326,9 @@ namespace Serialization {
       }
       public bool ShouldSerializeDayOfWeek() {
          return this.DayOfWeek;
+      }
+      public Substitute Copy() {
+         return (Substitute)this.MemberwiseClone();
       }
    }
 
@@ -433,7 +478,7 @@ namespace Serialization {
       [XmlElement("Rule")]
       public SubstitutionRule[] SubRule;
 
-      public Substitution DeepCopy() {
+      public Substitution Copy() {
          return new Substitution() {
             Delimiter = string.Copy(this.Delimiter),
             StartYear = this.StartYear,
@@ -452,7 +497,7 @@ namespace Serialization {
       [XmlText]
       public string Text;
 
-      public SubstitutionRule DeepCopy() {
+      public SubstitutionRule Copy() {
          return new SubstitutionRule() {
             Type = string.Copy(this.Type),
             Base = this.Base,

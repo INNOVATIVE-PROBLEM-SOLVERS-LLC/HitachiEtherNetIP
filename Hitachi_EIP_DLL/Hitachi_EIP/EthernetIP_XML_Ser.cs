@@ -253,25 +253,25 @@ namespace EIP_Lib {
                // Process Zero Suppress
                ZeroSuppress zs = date.ZeroSuppress;
                if (zs != null) {
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
+                  if (zs.Year != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Year, zs.Year);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
+                  if (zs.Month != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Month, zs.Month);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
+                  if (zs.Day != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Day, zs.Day);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
+                  if (zs.Hour != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Hour, zs.Hour);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
+                  if (zs.Minute != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Minute, zs.Minute);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
+                  if (zs.Week != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_Weeks, zs.Week);
                   }
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
+                  if (zs.DayOfWeek != ZS.None) {
                      SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
                   }
                }
@@ -601,28 +601,28 @@ namespace EIP_Lib {
             }
             if ((mask[i] & DateSubZS) > 0) {
                item.Date[i].ZeroSuppress = new ZeroSuppress();
-               string s;
+               int n;
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Year)))
-                     item.Date[i].ZeroSuppress.Year = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Year)) != 0)
+                     item.Date[i].ZeroSuppress.Year = (ZS)n;
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Month)))
-                     item.Date[i].ZeroSuppress.Month = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Month)) != 0)
+                     item.Date[i].ZeroSuppress.Month = (ZS)n;
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Day)))
-                     item.Date[i].ZeroSuppress.Day = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Day)) != 0)
+                     item.Date[i].ZeroSuppress.Day = (ZS)n;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Hour)))
-                     item.Date[i].ZeroSuppress.Hour = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Hour)) != 0)
+                     item.Date[i].ZeroSuppress.Hour = (ZS)n;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Minute)))
-                     item.Date[i].ZeroSuppress.Minute = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Minute)) != 0)
+                     item.Date[i].ZeroSuppress.Minute = (ZS)n;
                if ((mask[i] & (int)ba.Week) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_Weeks)))
-                     item.Date[i].ZeroSuppress.Week = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_Weeks)) != 0)
+                     item.Date[i].ZeroSuppress.Week = (ZS)n;
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = GetAttribute(ccCal.Zero_Suppress_DayOfWeek)))
-                     item.Date[i].ZeroSuppress.DayOfWeek = s;
+                  if ((n = GetDecAttribute(ccCal.Zero_Suppress_DayOfWeek)) != 0)
+                     item.Date[i].ZeroSuppress.DayOfWeek = (ZS)n;
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
