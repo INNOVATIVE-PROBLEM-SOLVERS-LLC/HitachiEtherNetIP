@@ -227,11 +227,15 @@ namespace Modbus_DLL {
                string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
+               while (s.Length > 0) {
+                  int len = Math.Min(s.Length, 32);
+                  p.SetAttribute(ccPC.Print_Character_String, charPosition, s.Substring(0, len));
+                  s = s.Substring(len);
+                  charPosition += len;
+               }
                p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               charPosition += s.Length;
                hasDateOrCount |= item.Date != null | item.Counter != null;
-               //m.Column[c].Item[r].Location = new Location() { Index = index++, Row = r, Col = c };
                index++;
                XMLwriter.WriteEndElement();
             }
@@ -279,7 +283,7 @@ namespace Modbus_DLL {
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
-               int index = m.Column[c].Item[r].Location.Index;
+               int index = m.Column[c].Item[r].Location.Index - 1;
                if (item.Date != null) {
                   item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, index);
                   item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, index);
@@ -354,26 +358,26 @@ namespace Modbus_DLL {
                   ZeroSuppress zs = date.ZeroSuppress;
                   if (zs != null) {
                      XMLwriter.WriteStartElement("ZeroSuppress");
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Year)) {
+                     if (zs.Year != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Month)) {
+                     if (zs.Month != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Day)) {
+                     if (zs.Day != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Hour)) {
+                     if (zs.Hour != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Minute)) {
+                     if (zs.Minute != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.Week)) {
+                     if (zs.Week != ZS.None) {
                         p.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
                      }
-                     if (!IsDefaultValue(fmtDD.DisableSpaceChar, zs.DayOfWeek)) {
-                        p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, zs.DayOfWeek);
+                     if (zs.DayOfWeek != ZS.None) {
+                        p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, index, zs.DayOfWeek);
                      }
                      XMLwriter.WriteEndElement();
                   }

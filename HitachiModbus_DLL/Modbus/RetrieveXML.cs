@@ -283,28 +283,28 @@ namespace Modbus_DLL {
             if ((mask[i] & DateSubZS) > 0) {
                XMLwriter.WriteStartElement("ZeroSuppress");
                item.Date[i].ZeroSuppress = new ZeroSuppress();
-               string s;
+               int s;
                if ((mask[i] & (int)ba.Year) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Year, n)))
-                     item.Date[i].ZeroSuppress.Year = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Year, n)) != 0)
+                     item.Date[i].ZeroSuppress.Year = (ZS)s;
                if ((mask[i] & (int)ba.Month) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Month, n)))
-                     item.Date[i].ZeroSuppress.Month = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Month, n)) != 0)
+                     item.Date[i].ZeroSuppress.Month = (ZS)s;
                if ((mask[i] & (int)ba.Day) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Day, n)))
-                     item.Date[i].ZeroSuppress.Day = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Day, n)) != 0)
+                     item.Date[i].ZeroSuppress.Day = (ZS)s;
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Hour, n)))
-                     item.Date[i].ZeroSuppress.Hour = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Hour, n)) != 0)
+                     item.Date[i].ZeroSuppress.Hour = (ZS)s;
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Minute, n)))
-                     item.Date[i].ZeroSuppress.Minute = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Minute, n)) != 0)
+                     item.Date[i].ZeroSuppress.Minute = (ZS)s;
                if ((mask[i] & (int)ba.Week) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_Weeks, n)))
-                     item.Date[i].ZeroSuppress.Week = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Weeks, n)) != 0)
+                     item.Date[i].ZeroSuppress.Week = (ZS)s;
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  if (!IsDefaultValue(fmtDD.DisableSpaceChar, s = p.GetHRAttribute(ccCal.Zero_Suppress_DayOfWeek, n)))
-                     item.Date[i].ZeroSuppress.DayOfWeek = s;
+                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_DayOfWeek, n)) != 0)
+                     item.Date[i].ZeroSuppress.DayOfWeek = (ZS)s;
                XMLwriter.WriteEndElement();
 
                XMLwriter.WriteStartElement("Substitute");
