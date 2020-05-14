@@ -279,25 +279,25 @@ namespace EIP_Lib {
                // Process Substitutions
                Substitute s = date.Substitute;
                if (s != null) {
-                  if (s.Year) {
+                  if (s.Year != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Year, s.Year);
                   }
-                  if (s.Month) {
+                  if (s.Month != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Month, s.Month);
                   }
-                  if (s.Day) {
+                  if (s.Day != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Day, s.Day);
                   }
-                  if (s.Hour) {
+                  if (s.Hour != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Hour, s.Hour);
                   }
-                  if (s.Minute) {
+                  if (s.Minute != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Minute, s.Minute);
                   }
-                  if (s.Week) {
+                  if (s.Week != ED.Disable) {
                      SetAttribute(ccCal.Substitute_Weeks, s.Week);
                   }
-                  if (s.DayOfWeek) {
+                  if (s.DayOfWeek != ED.Disable) {
                      SetAttribute(ccCal.Substitute_DayOfWeek, s.DayOfWeek);
                   }
                }
@@ -464,13 +464,13 @@ namespace EIP_Lib {
                   for (int i = 0; i < item.Date.Length; i++) {
                      Substitute sub = item.Date[i].Substitute;
                      if (sub != null) {
-                        needYear |= sub.Year;
-                        needMonth |= sub.Month;
-                        needDay |= sub.Day;
-                        needHour |= sub.Hour;
-                        needMinute |= sub.Minute;
-                        needDayOfWeek |= sub.DayOfWeek;
-                        needWeek |= sub.Week;
+                        needYear |= sub.Year != ED.Disable;
+                        needMonth |= sub.Month != ED.Disable;
+                        needDay |= sub.Day != ED.Disable;
+                        needHour |= sub.Hour != ED.Disable;
+                        needMinute |= sub.Minute != ED.Disable;
+                        needDayOfWeek |= sub.DayOfWeek != ED.Disable;
+                        needWeek |= sub.Week != ED.Disable;
                      }
                   }
                }
@@ -626,19 +626,19 @@ namespace EIP_Lib {
 
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Year));
+                  item.Date[i].Substitute.Year = (ED)GetDecAttribute(ccCal.Substitute_Year);
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Month));
+                  item.Date[i].Substitute.Month = (ED)GetDecAttribute(ccCal.Substitute_Month);
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Day));
+                  item.Date[i].Substitute.Day = (ED)GetDecAttribute(ccCal.Substitute_Day);
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Hour));
+                  item.Date[i].Substitute.Hour = (ED)GetDecAttribute(ccCal.Substitute_Hour);
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Minute));
+                  item.Date[i].Substitute.Minute = (ED)GetDecAttribute(ccCal.Substitute_Minute);
                if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_Weeks));
+                  item.Date[i].Substitute.Week = (ED)GetDecAttribute(ccCal.Substitute_Weeks);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, GetAttribute(ccCal.Substitute_DayOfWeek));
+                  item.Date[i].Substitute.DayOfWeek = (ED)GetDecAttribute(ccCal.Substitute_DayOfWeek);
             }
             if (item.Date[i].Shifts == null && (mask[i] & (int)ba.Shift) > 0) {
                item.Date[i].Shifts = RetrieveShifts();
@@ -714,24 +714,6 @@ namespace EIP_Lib {
       #endregion
 
       #region Service Routines
-
-      private bool IsDefaultValue(fmtDD fmt, string s) {
-         if (string.IsNullOrEmpty(s)) {
-            return true;
-         }
-         if (int.TryParse(s, out int val)) {
-            return val == 0;
-         }
-         if (bool.TryParse(s, out bool b)) {
-            return !b;
-         }
-         s = s.ToLower();
-         val = Array.FindIndex(DropDowns[(int)fmt], x => x.ToLower().Contains(s));
-         if (val < 0) {
-            val = Array.FindIndex(DropDownsIJPLib[(int)fmt], x => x.ToLower().Contains(s));
-         }
-         return val == 0;
-      }
 
       public string[] GetDropDownNames(int n) {
          if (UseIJPLibNames) {

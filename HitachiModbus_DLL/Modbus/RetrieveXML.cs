@@ -283,46 +283,38 @@ namespace Modbus_DLL {
             if ((mask[i] & DateSubZS) > 0) {
                XMLwriter.WriteStartElement("ZeroSuppress");
                item.Date[i].ZeroSuppress = new ZeroSuppress();
-               int s;
                if ((mask[i] & (int)ba.Year) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Year, n)) != 0)
-                     item.Date[i].ZeroSuppress.Year = (ZS)s;
+                  item.Date[i].ZeroSuppress.Year = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Year, n);
                if ((mask[i] & (int)ba.Month) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Month, n)) != 0)
-                     item.Date[i].ZeroSuppress.Month = (ZS)s;
+                  item.Date[i].ZeroSuppress.Month = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Month, n);
                if ((mask[i] & (int)ba.Day) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Day, n)) != 0)
-                     item.Date[i].ZeroSuppress.Day = (ZS)s;
+                  item.Date[i].ZeroSuppress.Day = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Day, n);
                if ((mask[i] & (int)ba.Hour) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Hour, n)) != 0)
-                     item.Date[i].ZeroSuppress.Hour = (ZS)s;
+                  item.Date[i].ZeroSuppress.Hour = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Hour, n);
                if ((mask[i] & (int)ba.Minute) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Minute, n)) != 0)
-                     item.Date[i].ZeroSuppress.Minute = (ZS)s;
+                  item.Date[i].ZeroSuppress.Minute = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Minute, n);
                if ((mask[i] & (int)ba.Week) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_Weeks, n)) != 0)
-                     item.Date[i].ZeroSuppress.Week = (ZS)s;
+                  item.Date[i].ZeroSuppress.Week = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Weeks, n);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  if ((s = p.GetDecAttribute(ccCal.Zero_Suppress_DayOfWeek, n)) != 0)
-                     item.Date[i].ZeroSuppress.DayOfWeek = (ZS)s;
+                  item.Date[i].ZeroSuppress.DayOfWeek = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_DayOfWeek, n);
                XMLwriter.WriteEndElement();
 
                XMLwriter.WriteStartElement("Substitute");
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
-                  item.Date[i].Substitute.Year = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Year, n));
+                  item.Date[i].Substitute.Year = (ED)p.GetDecAttribute(ccCal.Substitute_Year, n);
                if ((mask[i] & (int)ba.Month) > 0)
-                  item.Date[i].Substitute.Month = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Month, n));
+                  item.Date[i].Substitute.Month = (ED)p.GetDecAttribute(ccCal.Substitute_Month, n);
                if ((mask[i] & (int)ba.Day) > 0)
-                  item.Date[i].Substitute.Day = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Day, n));
+                  item.Date[i].Substitute.Day = (ED)p.GetDecAttribute(ccCal.Substitute_Day, n);
                if ((mask[i] & (int)ba.Hour) > 0)
-                  item.Date[i].Substitute.Hour = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Hour, n));
+                  item.Date[i].Substitute.Hour = (ED)p.GetDecAttribute(ccCal.Substitute_Hour, n);
                if ((mask[i] & (int)ba.Minute) > 0)
-                  item.Date[i].Substitute.Minute = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Minute, n));
+                  item.Date[i].Substitute.Minute = (ED)p.GetDecAttribute(ccCal.Substitute_Minute, n);
                if ((mask[i] & (int)ba.Week) > 0)
-                  item.Date[i].Substitute.Week = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_Weeks, n));
+                  item.Date[i].Substitute.Week = (ED)p.GetDecAttribute(ccCal.Substitute_Weeks, n);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
-                  item.Date[i].Substitute.DayOfWeek = !IsDefaultValue(fmtDD.EnableDisable, p.GetHRAttribute(ccCal.Substitute_DayOfWeek, n));
+                  item.Date[i].Substitute.DayOfWeek = (ED)p.GetDecAttribute(ccCal.Substitute_DayOfWeek, n);
                XMLwriter.WriteEndElement();
             }
             if ((mask[i] & (int)ba.Shift) > 0) {
@@ -569,13 +561,13 @@ namespace Modbus_DLL {
                      ruleNumber = item.Date[i].SubstitutionRule;
                      Substitute sub = item.Date[i].Substitute;
                      if (sub != null) {
-                        needYear |= sub.Year;
-                        needMonth |= sub.Month;
-                        needDay |= sub.Day;
-                        needHour |= sub.Hour;
-                        needMinute |= sub.Minute;
-                        needDayOfWeek |= sub.DayOfWeek;
-                        needWeek |= sub.Week;
+                        needYear |= sub.Year != ED.Disable;
+                        needMonth |= sub.Month != ED.Disable;
+                        needDay |= sub.Day != ED.Disable;
+                        needHour |= sub.Hour != ED.Disable;
+                        needMinute |= sub.Minute != ED.Disable;
+                        needDayOfWeek |= sub.DayOfWeek != ED.Disable;
+                        needWeek |= sub.Week != ED.Disable;
                      }
                   }
                }
@@ -635,25 +627,6 @@ namespace Modbus_DLL {
       #endregion
 
       #region Service Routines
-
-      // Check if string value is first entry in dropdown
-      bool IsDefaultValue(fmtDD fmt, string s) {
-         if (string.IsNullOrEmpty(s)) {
-            return true;
-         }
-         if (int.TryParse(s, out int val)) {
-            return val == 0;
-         }
-         if (bool.TryParse(s, out bool b)) {
-            return !b;
-         }
-         s = s.ToLower();
-         val = Array.FindIndex(Data.DropDowns[(int)fmt], x => x.ToLower().Contains(s));
-         if (val < 0) {
-            val = Array.FindIndex(Data.DropDownsIJPLib[(int)fmt], x => x.ToLower().Contains(s));
-         }
-         return val == 0;
-      }
 
       // Examine the contents of a print message to determine its type
       ItemType GetItemType(string text, ref int[] mask) {

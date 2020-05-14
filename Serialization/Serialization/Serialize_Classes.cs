@@ -7,13 +7,25 @@ namespace Serialization {
 
    #region Enumerations
 
+   // Previous implementation used true/false
    public enum ZS {
-      [XmlEnum]
       None = 0,
-      [XmlEnum]
+      [XmlEnum(Name = "false")]
+      prevFalse = 0,
       Space = 1,
-      [XmlEnum]
+      [XmlEnum(Name = "true")]
+      prevTrue = 1,
       Character = 2,
+   }
+
+   // Previous implementation used true/false
+   public enum ED {
+      Disable = 0,
+      [XmlEnum(Name = "false")]
+      prevFalse = 0,
+      Enable = 1,
+      [XmlEnum(Name = "true")]
+      prevTrue = 1,
    }
 
    #endregion
@@ -97,6 +109,7 @@ namespace Serialization {
       public int countStart = 0;       // 1-Origin == First count object in item
       [XmlIgnore]
       public int countCount = 0;       // Number of counter objects in item
+
       public bool ShouldSerializeX() {
          return X >= 0;                // Set to -1 if Layout != FreeLayout.
       }
@@ -212,8 +225,10 @@ namespace Serialization {
             ZeroSuppress.Hour != ZS.None || ZeroSuppress.Minute != ZS.None || ZeroSuppress.Week != ZS.None || ZeroSuppress.DayOfWeek != ZS.None);
       }
       public bool ShouldSerializeSubstitute() {
-         return Substitute != null && (Substitute.Year || Substitute.Month || Substitute.Day ||
-            Substitute.Hour || Substitute.Minute || Substitute.Week || Substitute.DayOfWeek);
+         return Substitute != null
+            && (Substitute.Year != ED.Disable || Substitute.Month != ED.Disable || Substitute.Day != ED.Disable
+            || Substitute.Hour != ED.Disable || Substitute.Minute != ED.Disable || Substitute.Week != ED.Disable
+            || Substitute.DayOfWeek != ED.Disable);
       }
    }
 
@@ -292,40 +307,40 @@ namespace Serialization {
 
    public class Substitute {
       [XmlAttribute]
-      public bool Year = false;
+      public ED Year = ED.Disable;
       [XmlAttribute]
-      public bool Month = false;
+      public ED Month = ED.Disable;
       [XmlAttribute]
-      public bool Day = false;
+      public ED Day = ED.Disable;
       [XmlAttribute]
-      public bool Hour = false;
+      public ED Hour = ED.Disable;
       [XmlAttribute]
-      public bool Minute = false;
+      public ED Minute = ED.Disable;
       [XmlAttribute]
-      public bool Week = false;
+      public ED Week = ED.Disable;
       [XmlAttribute]
-      public bool DayOfWeek = false;
+      public ED DayOfWeek = ED.Disable;
 
       public bool ShouldSerializeYear() {
-         return this.Year;
+         return this.Year != ED.Disable;
       }
       public bool ShouldSerializeMonth() {
-         return this.Month;
+         return this.Month != ED.Disable;
       }
       public bool ShouldSerializeDay() {
-         return this.Day;
+         return this.Day != ED.Disable;
       }
       public bool ShouldSerializeHour() {
-         return this.Hour;
+         return this.Hour != ED.Disable;
       }
       public bool ShouldSerializeMinute() {
-         return this.Minute;
+         return this.Minute != ED.Disable;
       }
       public bool ShouldSerializeWeek() {
-         return this.Week;
+         return this.Week != ED.Disable;
       }
       public bool ShouldSerializeDayOfWeek() {
-         return this.DayOfWeek;
+         return this.DayOfWeek != ED.Disable;
       }
       public Substitute Copy() {
          return (Substitute)this.MemberwiseClone();
