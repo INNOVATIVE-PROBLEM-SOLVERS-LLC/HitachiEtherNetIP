@@ -233,7 +233,6 @@ namespace Modbus_DLL {
                   s = s.Substring(len);
                   charPosition += len;
                }
-               p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                hasDateOrCount |= item.Date != null | item.Counter != null;
                index++;
@@ -262,7 +261,12 @@ namespace Modbus_DLL {
                      p.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
                   }
                   p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
-                  p.SetAttribute(ccPC.Print_Character_String, charPosition, s);
+                  while (s.Length > 0) {
+                     int len = Math.Min(s.Length, 32);
+                     p.SetAttribute(ccPC.Print_Character_String, charPosition, s.Substring(0, len));
+                     s = s.Substring(len);
+                     charPosition += len;
+                  }
                   p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                   charPosition += s.Length;
                   index++;
