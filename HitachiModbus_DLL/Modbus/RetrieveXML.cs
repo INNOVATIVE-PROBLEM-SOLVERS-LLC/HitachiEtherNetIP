@@ -542,6 +542,33 @@ namespace Modbus_DLL {
          }
       }
 
+      // Retrieve all substitutions
+      public Substitution RetrieveAllSubstitutions(int ruleNo) {
+
+         // Need to load the rule (Rule number is 1-origin)
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Substitution_Rule, ruleNo);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         // Get all the individual rules
+         List<SubstitutionRule> sr = new List<SubstitutionRule>();
+         RetrieveSubstitution(sr, ccSR.Year);
+         RetrieveSubstitution(sr, ccSR.Month);
+         RetrieveSubstitution(sr, ccSR.Day);
+         RetrieveSubstitution(sr, ccSR.Hour);
+         RetrieveSubstitution(sr, ccSR.Minute);
+         RetrieveSubstitution(sr, ccSR.Week);
+         RetrieveSubstitution(sr, ccSR.DayOfWeek);
+
+         // Put it all together
+         return new Substitution() {
+            Delimiter = "/",
+            StartYear = p.GetDecAttribute(ccSR.Start_Year),
+            RuleNumber = ruleNo,
+            SubRule = sr.ToArray()
+         };
+      }
+
       // Retrieve Substitution rules
       private Substitution RetrieveSubstitutions(Msg m) {
          bool needYear = false;
@@ -606,22 +633,20 @@ namespace Modbus_DLL {
       // Retrieve one substitution type
       private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR rule) {
          Log?.Invoke(p, $" \n// Retrieving substitution for {rule}\n ");
-         XMLwriter.WriteStartElement("Substitution");
-         XMLwriter.WriteAttributeString("Rule", rule.ToString());
+         XMLwriter?.WriteStartElement("Substitution");
+         XMLwriter?.WriteAttributeString("Rule", rule.ToString());
          AttrData attr = p.GetAttrData(rule);
          int n = (int)(attr.Data.Max - attr.Data.Min + 1);
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
             subCode[i] = p.GetHRAttribute(rule, i);
          }
-         for (int i = 0; i < n; i += 10) {
-            sr.Add(new SubstitutionRule() {
-               Type = rule.ToString().Replace("_", ""),
-               Base = i + attr.Data.Min,
-               Text = string.Join("/", subCode, i, Math.Min(10, n - i)),
-            });
-         }
-         XMLwriter.WriteEndElement();
+         sr.Add(new SubstitutionRule() {
+            Type = rule.ToString().Replace("_", ""),
+            Base = attr.Data.Min,
+            Text = string.Join("/", subCode),
+         });
+         XMLwriter?.WriteEndElement();
       }
 
       #endregion

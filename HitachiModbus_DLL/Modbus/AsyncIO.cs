@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Serialization;
 
 namespace Modbus_DLL {
    public class AsyncIO {
@@ -45,6 +46,7 @@ namespace Modbus_DLL {
          AckOnly,
          Specification,
          WritePattern,
+         TimedDelay,
          Exit,
       }
 
@@ -146,6 +148,10 @@ namespace Modbus_DLL {
                      break;
                   case TaskType.WritePattern:
                      WritePattern(pkt);
+                     break;
+                  case TaskType.TimedDelay:
+                     Thread.Sleep(pkt.TimeDelay);
+                     AckOnly(pkt);
                      break;
                   case TaskType.Exit:
                      done = true;
@@ -365,14 +371,15 @@ namespace Modbus_DLL {
 
       private void DoSubstitutions(ModbusPkt pkt) {
          bool success = false;
+         Substitution sub = null;
          SendRetrieveXML sr = new SendRetrieveXML(MB);
          if (pkt.substitution == null) {
-
+            sub = sr.RetrieveAllSubstitutions(1);
          } else {
             sr.SendSubstitution(pkt.substitution);
          }
          sr = null;
-         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success, substitution = sub };
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
@@ -406,6 +413,7 @@ namespace Modbus_DLL {
       public Serialization.Lab Label { get; set; }
       public Serialization.Substitution substitution { get; set; }
       public Modbus_DLL.ccPS PrinterSpec { get; set; }
+      public int TimeDelay { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;
@@ -441,6 +449,7 @@ namespace Modbus_DLL {
       public byte[] DataA { get; set; }
       public object Packet { get; set; }
       public string Status { get; set; }
+      public Substitution substitution { get; set; }
 
       public AsyncComplete(Modbus p, ModbusPkt pkt) {
          this.Printer = p;
