@@ -266,19 +266,19 @@ namespace Serialization {
 
    public class ZeroSuppress {
       [XmlAttribute]
-      public ZS Year;
+      public ZS Year = ZS.None;
       [XmlAttribute]
-      public ZS Month;
+      public ZS Month = ZS.None;
       [XmlAttribute]
-      public ZS Day;
+      public ZS Day = ZS.None;
       [XmlAttribute]
-      public ZS Hour;
+      public ZS Hour = ZS.None;
       [XmlAttribute]
-      public ZS Minute;
+      public ZS Minute = ZS.None;
       [XmlAttribute]
-      public ZS Week;
+      public ZS Week = ZS.None;
       [XmlAttribute]
-      public ZS DayOfWeek;
+      public ZS DayOfWeek = ZS.None;
       public bool ShouldSerializeYear() {
          return this.Year != ZS.None;
       }
@@ -494,11 +494,15 @@ namespace Serialization {
       public SubstitutionRule[] SubRule;
 
       public Substitution Copy() {
+         SubstitutionRule[] sr = new SubstitutionRule[this.SubRule.Length];
+         for (int i = 0; i < this.SubRule.Length; i++) {
+            sr[i] = this.SubRule[i].Copy();
+         }
          return new Substitution() {
             Delimiter = string.Copy(this.Delimiter),
             StartYear = this.StartYear,
             RuleNumber = this.RuleNumber,
-            SubRule = new SubstitutionRule[0]
+            SubRule = sr
          };
       }
 

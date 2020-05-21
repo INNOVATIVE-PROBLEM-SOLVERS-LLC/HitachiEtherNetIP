@@ -37,10 +37,12 @@ namespace Modbus_DLL {
       private bool UseIJPLibNames = true;
 
       // Log I/O buffers with traffic
-      public bool LogIO;
+      public bool LogIO { get; set; }
+      public bool LogAllIO { get; set; }
+
       public bool StopOnAllErrors = true;
       public string LogIOSpacer {
-         get { return LogIO ? "\n " : ""; }
+         get { return LogAllIO ? "\n " : ""; }
       }
 
       // Modbus function codes
@@ -100,6 +102,7 @@ namespace Modbus_DLL {
          this.parent = parent;
 
          Data.BuildAttributeDictionary(ClassCodes, ClassCodeAttributes);
+         Data.BuildPrinterStatusDictionary();
       }
 
       // Nothing to do here
@@ -913,13 +916,13 @@ namespace Modbus_DLL {
 
       // Display the input byte array as hex
       private void DisplayInput(byte[] input, int len = -1) {
-         if (LogIO)
+         if (LogAllIO)
             LogIt($"[{len}] << " + byte_to_string(input, len));
       }
 
       // Display the input byte array as hex
       private void DisplayOutput(byte[] output, int len = -1) {
-         if (LogIO)
+         if (LogAllIO)
             LogIt($"[{len}] >> " + byte_to_string(output, len));
       }
 
@@ -1337,19 +1340,24 @@ namespace Modbus_DLL {
       // Convert Dropdown value to Dropdown HR string
       public string ToDropdownString(Prop prop, int n) {
          string result;
-         string[] dd = GetDropDownNames((int)prop.DropDown);
-         n = n - prop.Min;
-         if (n >= 0 && n < dd.Length) {
-            result = dd[n];
+         int i = (int)prop.DropDown;
+         if (i < (int)fmtDD.ReceiveStatus) {
+            string[] dd = GetDropDownNames((int)prop.DropDown);
+            n = n - prop.Min;
+            if (n >= 0 && n < dd.Length) {
+               result = dd[n];
+            } else {
+               result = n.ToString();
+            }
          } else {
-            result = n.ToString();
+            result = Data.PrinterStatus[prop.DropDown, (char)n];
          }
          return result;
       }
 
       // Common logging to handle Cross-Thread traffic
       private void LogIt(string msg) {
-         if (Log != null) {
+         if (Log != null && LogIO) {
             if (parent.InvokeRequired) {
                // Do not use BeginInvoke.  Causes issues up-stream.
                parent.Invoke(new EventHandler(delegate { Log(this, msg); }));

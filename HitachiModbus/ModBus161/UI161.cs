@@ -177,6 +177,7 @@ namespace ModBus161 {
          cbClass.Items.AddRange(ccNamesSorted);
 
          MB.LogIO = chkLogIO.Checked;
+         MB.LogAllIO = chkLogIO.Checked;
          MB.StopOnAllErrors = chkStopOnAllErrors.Checked;
 
          cbMessageNumber.Items.Clear();
