@@ -411,9 +411,10 @@ namespace Modbus_DLL {
       OffOn = 23,
       EANRule = 24,
       RemoteOps = 25,
-      ReceiveStatus = 26,
-      OperationStatus = 27,
-      WarningStatus = 28,
+      ConnectionStatus = 26,
+      ReceiveStatus = 27,
+      OperationStatus = 28,
+      WarningStatus = 29,
    }
 
    // Data formats that exist in the printer
@@ -438,7 +439,7 @@ namespace Modbus_DLL {
       static public Dictionary<ClassCode, int, AttrData> AttrDict;
 
       // Lookup for translating printer status
-      static public Dictionary<fmtDD, char, string> PrinterStatus;
+      static public Dictionary<fmtDD, char, string> HR_Dict;
 
       // A local copy for now.
       static ClassCode[] ClassCodes;
@@ -795,7 +796,7 @@ namespace Modbus_DLL {
       // Unit Status (Class Code 0x72) 
       private AttrData[] ccUS_Addrs = new AttrData[] {
          new AttrData((int)ccUS.Communication_Status, false, 1, 0,              // Communication Status 0x0000
-            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.OnlineOffline)), //   Data
+            new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.ConnectionStatus)), //   Data
          new AttrData((int)ccUS.Receive_Status, false, 1, 0,                    // Receive Status 0x0001
             new Prop(1, DataFormats.Decimal, 0x30, 0x31, fmtDD.ReceiveStatus)), //   Data
          new AttrData((int)ccUS.Operation_Status, false, 1, 0,                  // Operation Status 0x0002
@@ -1315,103 +1316,110 @@ namespace Modbus_DLL {
       #region Printer status retrieval
 
       static public void BuildPrinterStatusDictionary() {
-         PrinterStatus = new Dictionary<fmtDD, char, string>();
-         PrinterStatus.Add(fmtDD.OnlineOffline, '\x30', "Offline");
-         PrinterStatus.Add(fmtDD.OnlineOffline, '\x31', "Online");
+         HR_Dict = new Dictionary<fmtDD, char, string>();
 
-         PrinterStatus.Add(fmtDD.ReceiveStatus, '\x30', "Reception not possible");
-         PrinterStatus.Add(fmtDD.ReceiveStatus, '\x31', "Reception possible");
+         for (int i = 0; i < (int)fmtDD.ConnectionStatus; i++) {
+            for (int j = 0; j < DropDownsIJPLib[i].Length; j++) {
+               HR_Dict.Add((fmtDD)i, (char)j, DropDownsIJPLib[i][j]);
+            }
+         }
 
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x30', "Paused");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x31', "Running - Not Ready");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x32', "Ready");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x33', "Deflection Voltage Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x34', "Main Ink Tank Too Full");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x35', "Blank Print Items");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x36', "Ink Drop Charge Too Low");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x37', "Ink Drop Charge Too High");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x38', "Print Head Cover Open");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x39', "Target Sensor Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3a', "System Operation Error C");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3b', "Target Spacing Too Close");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3c', "Improper Sensor Position");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3d', "System Operation Error M");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3e', "Charge Voltage Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x3f', "Barcode Short On Numbers");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x41', "Multi DC Power Supply Fan Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x42', "Deflection Voltage Leakage");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x43', "Print Overlap Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x44', "Ink Low Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x45', "Makeup Ink Low Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x46', "Print Data Changeover In Progress M");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x47', "Excessive Format Count");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x48', "Makeup Ink Replenishment Time-out");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x49', "Stopping");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4a', "Ink Replenishment Time-out");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4b', "No Ink Drop Charge");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4c', "Ink Heating Unit Too High");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4d', "Ink Heating Unit Temperature Sensor Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4e', "Ink Heating Unit Over Current");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x4f', "Internal Communication Error C");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x50', "Internal Communication Error M");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x51', "Internal Communication Error S");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x52', "System Operation Error S");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x53', "Memory Fault C");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x54', "Memory Fault M");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x55', "Ambient Temperature Sensor Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x56', "Print Controller Cooling Fan Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x59', "Print Data Changeover In Progress S");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x5a', "Print Data Changeover In Progress V");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x5c', "Maint. Running");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x5d', "Memory Fault S");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x5e', "Pump Motor Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x5f', "Viscometer Ink Temperature Sensor Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x60', "External Communication Error");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x61', "External Signal Error");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x62', "Memory Fault OP");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x63', "Ink Heating Unit Temperature Low");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x64', "Model-key Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x65', "Language-key Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x66', "Communication Buffer Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x67', "Shutdown Fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x68', "Count Overflow");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x69', "Data changeover timing fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x6a', "Count changeover timing fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x6b', "Print start timing fault");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x6c', "Ink Shelf Life Information");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x6d', "Makeup Shelf Life Information");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x71', "Print Data Changeover Error C");
-         PrinterStatus.Add(fmtDD.OperationStatus, '\x72', "Print Data Changeover Error M");
+         HR_Dict.Add(fmtDD.ConnectionStatus, '\x30', "Offline");
+         HR_Dict.Add(fmtDD.ConnectionStatus, '\x31', "OnLine");
 
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x30', "No Alarm");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x31', "Ink Low Warning");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x32', "Makeup ink Low Warning");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x33', "Ink Shelf Life Exceeded");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x34', "Battery Low M");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x35', "Ink Pressure High");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x36', "Product Speed Matching Error");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x37', "External Communication Error nnn");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x38', "Ambient Temperature Too High");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x39', "Ambient Temperature Too Low");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3a', "Ink heating failure");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3b', "External Signal Error nnn");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3c', "Ink Pressure Low");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3d', "Excitation V-ref. Review");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3e', "Viscosity Reading Instability");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x3f', "Viscosity Readings Out of Range");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x40', "High Ink Viscosity");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x41', "Low Ink Viscosity");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x42', "Excitation V-ref. Review 2");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x44', "Battery Low C");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x45', "Calendar Content Inaccurate");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x46', "Excitation V-ref. Char. height Review");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x47', "Ink Shelf Life Information");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x48', "Makeup Shelf Life Information");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x49', "Model-key Failure");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x4a', "Language-key Failure");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x4c', "Upgrade-Key Fault");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x50', "Circulation System Cooling Fan Fault");
-         PrinterStatus.Add(fmtDD.WarningStatus, '\x51', "Ink Tempurature Too High");
+         HR_Dict.Add(fmtDD.ReceiveStatus, '\x30', "Reception not possible");
+         HR_Dict.Add(fmtDD.ReceiveStatus, '\x31', "Reception possible");
+
+         HR_Dict.Add(fmtDD.OperationStatus, '\x30', "Paused");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x31', "Running - Not Ready");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x32', "Ready");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x33', "Deflection Voltage Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x34', "Main Ink Tank Too Full");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x35', "Blank Print Items");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x36', "Ink Drop Charge Too Low");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x37', "Ink Drop Charge Too High");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x38', "Print Head Cover Open");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x39', "Target Sensor Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3a', "System Operation Error C");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3b', "Target Spacing Too Close");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3c', "Improper Sensor Position");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3d', "System Operation Error M");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3e', "Charge Voltage Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x3f', "Barcode Short On Numbers");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x41', "Multi DC Power Supply Fan Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x42', "Deflection Voltage Leakage");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x43', "Print Overlap Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x44', "Ink Low Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x45', "Makeup Ink Low Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x46', "Print Data Changeover In Progress M");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x47', "Excessive Format Count");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x48', "Makeup Ink Replenishment Time-out");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x49', "Stopping");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4a', "Ink Replenishment Time-out");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4b', "No Ink Drop Charge");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4c', "Ink Heating Unit Too High");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4d', "Ink Heating Unit Temperature Sensor Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4e', "Ink Heating Unit Over Current");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x4f', "Internal Communication Error C");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x50', "Internal Communication Error M");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x51', "Internal Communication Error S");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x52', "System Operation Error S");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x53', "Memory Fault C");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x54', "Memory Fault M");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x55', "Ambient Temperature Sensor Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x56', "Print Controller Cooling Fan Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x59', "Print Data Changeover In Progress S");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x5a', "Print Data Changeover In Progress V");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x5c', "Maint. Running");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x5d', "Memory Fault S");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x5e', "Pump Motor Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x5f', "Viscometer Ink Temperature Sensor Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x60', "External Communication Error");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x61', "External Signal Error");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x62', "Memory Fault OP");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x63', "Ink Heating Unit Temperature Low");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x64', "Model-key Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x65', "Language-key Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x66', "Communication Buffer Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x67', "Shutdown Fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x68', "Count Overflow");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x69', "Data changeover timing fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x6a', "Count changeover timing fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x6b', "Print start timing fault");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x6c', "Ink Shelf Life Information");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x6d', "Makeup Shelf Life Information");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x71', "Print Data Changeover Error C");
+         HR_Dict.Add(fmtDD.OperationStatus, '\x72', "Print Data Changeover Error M");
+
+         HR_Dict.Add(fmtDD.WarningStatus, '\x30', "No Alarm");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x31', "Ink Low Warning");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x32', "Makeup ink Low Warning");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x33', "Ink Shelf Life Exceeded");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x34', "Battery Low M");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x35', "Ink Pressure High");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x36', "Product Speed Matching Error");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x37', "External Communication Error nnn");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x38', "Ambient Temperature Too High");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x39', "Ambient Temperature Too Low");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3a', "Ink heating failure");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3b', "External Signal Error nnn");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3c', "Ink Pressure Low");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3d', "Excitation V-ref. Review");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3e', "Viscosity Reading Instability");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x3f', "Viscosity Readings Out of Range");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x40', "High Ink Viscosity");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x41', "Low Ink Viscosity");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x42', "Excitation V-ref. Review 2");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x44', "Battery Low C");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x45', "Calendar Content Inaccurate");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x46', "Excitation V-ref. Char. height Review");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x47', "Ink Shelf Life Information");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x48', "Makeup Shelf Life Information");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x49', "Model-key Failure");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x4a', "Language-key Failure");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x4c', "Upgrade-Key Fault");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x50', "Circulation System Cooling Fan Fault");
+         HR_Dict.Add(fmtDD.WarningStatus, '\x51', "Ink Tempurature Too High");
       }
 
       #endregion
@@ -1499,7 +1507,13 @@ namespace Modbus_DLL {
 
       // Convert the Class and Attribute to a Tuple for get/set
       public TValue this[TKey1 key1, TKey2 key2] {
-         get { return base[Tuple.Create(key1, key2)]; }
+         get {
+            try {
+               return base[Tuple.Create(key1, key2)];
+            } catch {
+               return default;
+            }
+         }
       }
 
       // Convert the Class and Attribute to a Tuple for Add

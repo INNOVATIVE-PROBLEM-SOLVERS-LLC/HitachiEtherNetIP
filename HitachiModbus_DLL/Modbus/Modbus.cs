@@ -1340,17 +1340,12 @@ namespace Modbus_DLL {
       // Convert Dropdown value to Dropdown HR string
       public string ToDropdownString(Prop prop, int n) {
          string result;
-         int i = (int)prop.DropDown;
-         if (i < (int)fmtDD.ReceiveStatus) {
-            string[] dd = GetDropDownNames((int)prop.DropDown);
+         if ((int)prop.DropDown < (int)fmtDD.ConnectionStatus) {
             n = n - prop.Min;
-            if (n >= 0 && n < dd.Length) {
-               result = dd[n];
-            } else {
-               result = n.ToString();
-            }
-         } else {
-            result = Data.PrinterStatus[prop.DropDown, (char)n];
+         }
+         result = Data.HR_Dict[prop.DropDown, (char)n];
+         if (string.IsNullOrEmpty(result)) {
+            result = n.ToString();
          }
          return result;
       }
