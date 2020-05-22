@@ -102,7 +102,7 @@ namespace Modbus_DLL {
          this.parent = parent;
 
          Data.BuildAttributeDictionary(ClassCodes, ClassCodeAttributes);
-         Data.BuildPrinterStatusDictionary();
+         Data.BuildHumanReadableDictionary();
       }
 
       // Nothing to do here
