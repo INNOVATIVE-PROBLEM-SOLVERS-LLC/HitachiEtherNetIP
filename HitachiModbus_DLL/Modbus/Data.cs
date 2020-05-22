@@ -1315,15 +1315,17 @@ namespace Modbus_DLL {
 
       #region Printer status retrieval
 
-      static public void BuildPrinterStatusDictionary() {
+      static public void BuildHumanReadableDictionary() {
          HR_Dict = new Dictionary<fmtDD, char, string>();
 
+         // Add all the strings from fmtDD
          for (int i = 0; i < (int)fmtDD.ConnectionStatus; i++) {
             for (int j = 0; j < DropDownsIJPLib[i].Length; j++) {
                HR_Dict.Add((fmtDD)i, (char)j, DropDownsIJPLib[i][j]);
             }
          }
 
+         // Add in every known printer status (Actual status and not index into list)
          HR_Dict.Add(fmtDD.ConnectionStatus, '\x30', "Offline");
          HR_Dict.Add(fmtDD.ConnectionStatus, '\x31', "OnLine");
 

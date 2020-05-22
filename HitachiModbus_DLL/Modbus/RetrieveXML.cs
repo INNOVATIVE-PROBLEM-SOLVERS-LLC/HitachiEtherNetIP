@@ -639,13 +639,17 @@ namespace Modbus_DLL {
          int n = (int)(attr.Data.Max - attr.Data.Min + 1);
          string[] subCode = new string[n];
          for (int i = 0; i < n; i++) {
-            subCode[i] = p.GetHRAttribute(rule, i);
+            subCode[i] = p.GetHRAttribute(rule, i).Trim();
          }
-         sr.Add(new SubstitutionRule() {
-            Type = rule.ToString().Replace("_", ""),
-            Base = attr.Data.Min,
-            Text = string.Join("/", subCode),
-         });
+         // Do not save if all were empty strings
+         string s = string.Join("/", subCode);
+         if (s.Length > n - 1) {
+            sr.Add(new SubstitutionRule() {
+               Type = rule.ToString().Replace("_", ""),
+               Base = attr.Data.Min,
+               Text = s,
+            });
+         }
          XMLwriter?.WriteEndElement();
       }
 
