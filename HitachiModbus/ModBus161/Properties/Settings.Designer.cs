@@ -238,5 +238,29 @@ namespace ModBus161.Properties {
                 this["LogAsXML"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SubstitutionRules.HML")]
+        public string GlobalFileName {
+            get {
+                return ((string)(this["GlobalFileName"]));
+            }
+            set {
+                this["GlobalFileName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Comprehensive.HML")]
+        public string MsgFileName {
+            get {
+                return ((string)(this["MsgFileName"]));
+            }
+            set {
+                this["MsgFileName"] = value;
+            }
+        }
     }
 }

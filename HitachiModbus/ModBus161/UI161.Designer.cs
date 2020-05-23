@@ -116,6 +116,8 @@
          this.txtNaks = new System.Windows.Forms.TextBox();
          this.lblNaks = new System.Windows.Forms.Label();
          this.chkLogAsXML = new System.Windows.Forms.CheckBox();
+         this.tabSubs = new System.Windows.Forms.TabPage();
+         this.grpMain = new System.Windows.Forms.GroupBox();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -127,6 +129,7 @@
          this.tabErrors.SuspendLayout();
          this.tabLog.SuspendLayout();
          this.tabLogAsXML.SuspendLayout();
+         this.tabSubs.SuspendLayout();
          this.SuspendLayout();
          // 
          // lblIPAddress
@@ -355,6 +358,7 @@
          this.tclViews.Controls.Add(this.tabLogo);
          this.tclViews.Controls.Add(this.tabLog);
          this.tclViews.Controls.Add(this.tabLogAsXML);
+         this.tclViews.Controls.Add(this.tabSubs);
          this.tclViews.Location = new System.Drawing.Point(3, 151);
          this.tclViews.Name = "tclViews";
          this.tclViews.SelectedIndex = 0;
@@ -1026,6 +1030,24 @@
          this.chkLogAsXML.UseVisualStyleBackColor = true;
          this.chkLogAsXML.CheckedChanged += new System.EventHandler(this.chkLogAsXML_CheckedChanged);
          // 
+         // tabSubs
+         // 
+         this.tabSubs.Controls.Add(this.grpMain);
+         this.tabSubs.Location = new System.Drawing.Point(4, 25);
+         this.tabSubs.Name = "tabSubs";
+         this.tabSubs.Size = new System.Drawing.Size(768, 393);
+         this.tabSubs.TabIndex = 10;
+         this.tabSubs.Text = "Substitution";
+         this.tabSubs.UseVisualStyleBackColor = true;
+         // 
+         // grpMain
+         // 
+         this.grpMain.Location = new System.Drawing.Point(15, 21);
+         this.grpMain.Name = "grpMain";
+         this.grpMain.Size = new System.Drawing.Size(736, 354);
+         this.grpMain.TabIndex = 0;
+         this.grpMain.TabStop = false;
+         // 
          // UI161
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1107,6 +1129,7 @@
          this.tabErrors.ResumeLayout(false);
          this.tabLog.ResumeLayout(false);
          this.tabLogAsXML.ResumeLayout(false);
+         this.tabSubs.ResumeLayout(false);
          this.ResumeLayout(false);
          this.PerformLayout();
 
@@ -1205,6 +1228,8 @@
       public System.Windows.Forms.CheckBox chkLogAsXML;
       private System.Windows.Forms.TabPage tabLogAsXML;
       private System.Windows.Forms.TreeView tvLogAsXML;
+      private System.Windows.Forms.TabPage tabSubs;
+      private System.Windows.Forms.GroupBox grpMain;
    }
 }
 

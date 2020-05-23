@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using Modbus_DLL;
+using Serialization;
 
 namespace ModBus161 {
    public partial class UI161 : Form {
@@ -68,7 +69,9 @@ namespace ModBus161 {
       string LogXML = string.Empty;
 
       // Multi-Thread interface
-      AsyncIO asyncIO = null;
+      public AsyncIO asyncIO = null;
+
+      DoSubs doSubs;
 
       #endregion
 
@@ -97,6 +100,17 @@ namespace ModBus161 {
          asyncIO = new AsyncIO(this, MB);
          asyncIO.Log += Modbus_Log;
          asyncIO.Complete += AsyncIO_Complete;
+
+         doSubs = new DoSubs(this, MB, grpMain);
+         doSubs.Subs = new Substitution[2];
+         //if (global.DefaultSubRules != null) {
+         //   doSubs.Subs[(int)DoSubs.Src.global] = global.DefaultSubRules.Copy();
+         //}
+         //if (parent.msg != null && parent.msg.Substitution != null) {
+         //   doSubs.Subs[(int)DoSubs.Src.msg] = parent.msg.Substitution.Copy();
+         //}
+         doSubs.BuildControls(prop);
+
 
       }
 
@@ -191,6 +205,8 @@ namespace ModBus161 {
          // Center the form on the screen
          Utils.PositionForm(this, 0.6f, 0.9f);
 
+         doSubs.DoSubs_Load(sender, e);
+
          SetButtonEnables();
       }
 
@@ -210,6 +226,8 @@ namespace ModBus161 {
          prop.LogIO = chkLogIO.Checked;
          prop.LogAsXML = chkLogAsXML.Checked;
          prop.StopOnErrors = chkStopOnAllErrors.Checked;
+         prop.GlobalFileName = doSubs.txtGlobalFileName.Text;
+         prop.MsgFileName = doSubs.txtMsgFileName.Text;
          prop.Save();
       }
 
@@ -276,11 +294,14 @@ namespace ModBus161 {
                   Utils.ResizeObject(ref R, cmdErrorRefresh, 18, 31, 2.5f, 6);
                   Utils.ResizeObject(ref R, cmdErrorClear, 18, 38, 2.5f, 6);
                }
-               Utils.ResizeObject(ref R, lstMessages, 1, 1, 19, 43);
+               Utils.ResizeObject(ref R, lstMessages, 1, 1, 19, 41);
                // Logo Tab
                up.ResizeControls(ref R, 0, 20, 44);
                // Log as XML
                Utils.ResizeObject(ref R, tvLogAsXML, 1, 1, 19, 43);
+
+               Utils.ResizeObject(ref R, grpMain, 0, 0, 21, 45);
+               doSubs?.ResizeControls(ref R, 2, 1);
             }
 
             Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 4);

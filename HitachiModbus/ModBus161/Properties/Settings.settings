@@ -56,5 +56,11 @@
     <Setting Name="LogAsXML" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="GlobalFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SubstitutionRules.HML</Value>
+    </Setting>
+    <Setting Name="MsgFileName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Comprehensive.HML</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
