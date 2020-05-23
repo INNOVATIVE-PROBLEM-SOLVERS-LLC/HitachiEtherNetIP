@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
+using Serialization;
 
 namespace ModBus161 {
 
@@ -193,6 +195,34 @@ namespace ModBus161 {
          int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
          int screenWidth = Screen.PrimaryScreen.WorkingArea.Width;
          f.Location = new Point((int)((screenWidth - f.Width) / 2f), (int)((screenHeight - f.Height) / 2f));
+      }
+
+      #endregion
+
+      #region Serialization Routines
+
+      public static T LoadNewFormatXML<T>(string fileName) {
+         T result = default(T);
+         Serializer<T> ser = default(Serializer<T>);
+         if (File.Exists(fileName)) {
+            try {
+               string xml = File.ReadAllText(fileName);
+               ser = new Serializer<T>();
+               ser.Log += Ser_Log;
+               result = ser.XmlToClass(xml);
+            } catch (Exception e) {
+               // TODO Log messages
+               //Utils.Log(e.Message);
+            } finally {
+               ser.Log -= Ser_Log;
+            }
+         }
+         return result;
+      }
+
+      private static void Ser_Log(object sender, SerializerEventArgs e) {
+         // TODO Log messages
+         //Utils.Log(e.Message);
       }
 
       #endregion

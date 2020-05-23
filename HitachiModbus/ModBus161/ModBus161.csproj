@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DoSubs.cs" />
     <Compile Include="TwinApp.cs" />
     <Compile Include="UI161.cs">
       <SubType>Form</SubType>
@@ -106,6 +107,10 @@
     <ProjectReference Include="..\..\HitachiModbus_DLL\Modbus\Modbus_DLL.csproj">
       <Project>{54c291ec-95c0-4c2b-af50-6fedd2e4a382}</Project>
       <Name>Modbus_DLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Serialization\Serialization\Serialization.csproj">
+      <Project>{63e5fd10-bf07-4407-8278-925e5dc15acd}</Project>
+      <Name>Serialization</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
