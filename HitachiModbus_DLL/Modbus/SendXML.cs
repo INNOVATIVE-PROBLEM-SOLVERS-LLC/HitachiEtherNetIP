@@ -178,6 +178,7 @@ namespace Modbus_DLL {
 
       // Use the column/item structure of a Lab to allocate items in the printer
       private void AllocateRowsColumns(Msg m) {
+         bool barCodesExist = false;
          int index = 0;
          bool hasDateOrCount = false; // Save some time if no need to look
          int charPosition = 0;
@@ -217,9 +218,7 @@ namespace Modbus_DLL {
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
                   if (item.BarCode != null) {
-                     p.SetAttribute(ccPF.Barcode_Type, index, item.BarCode.DotMatrix);
-                  } else {
-                     p.SetAttribute(ccPF.Barcode_Type, index, 0);
+                     barCodesExist = true;
                   }
                }
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
@@ -243,16 +242,21 @@ namespace Modbus_DLL {
          //
          // Is this message free layout?
          if (m.Layout == "FreeLayout") {
+            XMLwriter.WriteStartElement("PositionItems");
             // Change message to free layout
             Log?.Invoke(p, $" \n// Change message to free layout\n ");
+            XMLwriter.WriteStartElement("SetLayout");
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPF.Format_Setup, m.Layout);
             p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            XMLwriter.WriteEndElement();
             index = 0;
             charPosition = 0;
             for (int c = 0; c < m.Column.Length; c++) {
                for (int r = 0; r < m.Column[c].Item.Length; r++) {
                   Log?.Invoke(p, $" \n// Position item {index + 1}\n ");
+                  XMLwriter.WriteStartElement("Item");
+                  XMLwriter.WriteAttributeString("Index", (index + 1).ToString());
                   Item item = m.Column[c].Item[r];
                   string s = p.HandleBraces(item.Text);
                   p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -270,13 +274,39 @@ namespace Modbus_DLL {
                   p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
                   charPosition += s.Length;
                   index++;
+                  XMLwriter.WriteEndElement();
                }
             }
+            XMLwriter.WriteEndElement();
          }
          // Process calendar and count if needed
          if (hasDateOrCount) {
             SendDateCount(m);
          }
+         // At this point, barcode settings can be set
+         if (barCodesExist) {
+            SetBarcode(m);
+         }
+      }
+
+      // Set the Barcode after conditions have been loaded
+      private void SetBarcode(Msg m) {
+         // Change message to free layout
+         Log?.Invoke(p, $" \n// Load needed Barcode Formats\n ");
+         XMLwriter.WriteStartElement("SetBarcode");
+         int index = 0;
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         for (int c = 0; c < m.Column.Length; c++) {
+            for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               Item item = m.Column[c].Item[r];
+               if (item.BarCode != null) {
+                  p.SetAttribute(ccPF.Barcode_Type, index, item.BarCode.DotMatrix);
+               }
+               index++;
+            }
+         }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         XMLwriter.WriteEndElement();
       }
 
       // Send the Calendar and Counter settings
