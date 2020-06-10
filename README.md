@@ -1,5 +1,11 @@
 # HitachiEtherNetIP
 
+Update -- Jun 10, 2020 -- This implementation is being developed using an Hitachi UX-161 (Runs on a Linux based platform).  When testing began for Modbus on the UX-160, RX-2, and RX platforms, it was discovered that there is a difference in the Modbus implementation between the Linux based platforms and previous platforms.  For the legacy platforms, each command sent from the PC to the printer receives an immediate ACK response from the printer.  After the printer sends the response to the PC, it waits for an ACK.  On the Linux platform, the ACK is not required.
+
+The Linux based platform has a RJ-45 connector for direct communication to the printer.  The legacy platforms interface thru a TUP-I device.  This may account for the differences in the implementations.  I need to connect a TUP-I device to my UX-161 and see if I get the same result.
+
+My implementation uses "TcpClient" and "NetworkStream" for Synchronous I/O to the printer.  This implementation does not send a ACK for the response frame sent from the printer to the PC.  The printer waits for the ACK and the next I/O operation times out.  I have yet to find a way to send the ACK without going to a full "TcpClient" implementation.  Anyone with an idea is welcome to speak up.
+
 Update -- Apr 12, 2020 -- Level 3.03 of the UX-161 printer software is available.  However, no issues with Modbus or EtherNet/IP were addressed.  Level 2.07 is the best level for these applications.
 
 Update -- Mar 25, 2020 -- All I/O was happening on the main thread leaving long pauses for viewing other tabs.  The I/O was moved to a background thread and is queue driven.  Also, the twin nozzle application was removed since it was no longer being used.
