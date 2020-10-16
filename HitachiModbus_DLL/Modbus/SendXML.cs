@@ -656,9 +656,9 @@ namespace Modbus_DLL {
          }
       }
 
-      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
+      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimiter) {
          Prop prop = Data.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
-         string[] s = r.Text.Split(delimeter[0]);
+         string[] s = r.Text.Split(delimiter[0]);
          string t = new string(' ', prop.Len);
          for (int i = 0; i < s.Length; i++) {
             int n = r.Base + i;
