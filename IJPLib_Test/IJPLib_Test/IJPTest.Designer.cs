@@ -30,7 +30,7 @@
          System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
          System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
          System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IJPTest));
-         this.cmdComOnOff = new System.Windows.Forms.Button();
+         this.cmdComOn = new System.Windows.Forms.Button();
          this.cmdConnect = new System.Windows.Forms.Button();
          this.ipAddressTextBox = new System.Windows.Forms.TextBox();
          this.tclIJPLib = new System.Windows.Forms.TabControl();
@@ -91,6 +91,9 @@
          this.cmdGetMessage = new System.Windows.Forms.Button();
          this.cmdNewMessage = new System.Windows.Forms.Button();
          this.cmdCancel = new System.Windows.Forms.Button();
+         this.cmdTest1 = new System.Windows.Forms.Button();
+         this.cmdTest2 = new System.Windows.Forms.Button();
+         this.cmdComOff = new System.Windows.Forms.Button();
          this.tclIJPLib.SuspendLayout();
          this.tabIndentedView.SuspendLayout();
          this.tabTreeView.SuspendLayout();
@@ -105,16 +108,16 @@
          this.cmErrLog.SuspendLayout();
          this.SuspendLayout();
          // 
-         // cmdComOnOff
+         // cmdComOn
          // 
-         this.cmdComOnOff.Location = new System.Drawing.Point(358, 22);
-         this.cmdComOnOff.Margin = new System.Windows.Forms.Padding(4);
-         this.cmdComOnOff.Name = "cmdComOnOff";
-         this.cmdComOnOff.Size = new System.Drawing.Size(100, 31);
-         this.cmdComOnOff.TabIndex = 11;
-         this.cmdComOnOff.Text = "COM On";
-         this.cmdComOnOff.UseVisualStyleBackColor = true;
-         this.cmdComOnOff.Click += new System.EventHandler(this.ComOnOff_Click);
+         this.cmdComOn.Location = new System.Drawing.Point(358, 22);
+         this.cmdComOn.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdComOn.Name = "cmdComOn";
+         this.cmdComOn.Size = new System.Drawing.Size(100, 31);
+         this.cmdComOn.TabIndex = 11;
+         this.cmdComOn.Text = "COM On";
+         this.cmdComOn.UseVisualStyleBackColor = true;
+         this.cmdComOn.Click += new System.EventHandler(this.ComOn_Click);
          // 
          // cmdConnect
          // 
@@ -714,11 +717,45 @@
          this.cmdCancel.UseVisualStyleBackColor = true;
          this.cmdCancel.Click += new System.EventHandler(this.Cancel_Click);
          // 
+         // cmdTest1
+         // 
+         this.cmdTest1.Location = new System.Drawing.Point(348, 343);
+         this.cmdTest1.Name = "cmdTest1";
+         this.cmdTest1.Size = new System.Drawing.Size(123, 35);
+         this.cmdTest1.TabIndex = 34;
+         this.cmdTest1.Text = "Test 1";
+         this.cmdTest1.UseVisualStyleBackColor = true;
+         this.cmdTest1.Click += new System.EventHandler(this.cmdTest1_Click);
+         // 
+         // cmdTest2
+         // 
+         this.cmdTest2.Location = new System.Drawing.Point(348, 389);
+         this.cmdTest2.Name = "cmdTest2";
+         this.cmdTest2.Size = new System.Drawing.Size(123, 35);
+         this.cmdTest2.TabIndex = 35;
+         this.cmdTest2.Text = "Test 2";
+         this.cmdTest2.UseVisualStyleBackColor = true;
+         this.cmdTest2.Click += new System.EventHandler(this.cmdTest2_Click);
+         // 
+         // cmdComOff
+         // 
+         this.cmdComOff.Location = new System.Drawing.Point(358, 55);
+         this.cmdComOff.Margin = new System.Windows.Forms.Padding(4);
+         this.cmdComOff.Name = "cmdComOff";
+         this.cmdComOff.Size = new System.Drawing.Size(100, 31);
+         this.cmdComOff.TabIndex = 36;
+         this.cmdComOff.Text = "COM Off";
+         this.cmdComOff.UseVisualStyleBackColor = true;
+         this.cmdComOff.Click += new System.EventHandler(this.ComOff_Click);
+         // 
          // IJPTest
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(926, 437);
+         this.Controls.Add(this.cmdComOff);
+         this.Controls.Add(this.cmdTest2);
+         this.Controls.Add(this.cmdTest1);
          this.Controls.Add(this.cmdCancel);
          this.Controls.Add(this.cmdNewMessage);
          this.Controls.Add(this.cmdGetMessage);
@@ -738,7 +775,7 @@
          this.Controls.Add(this.cbSelectXMLTest);
          this.Controls.Add(this.cmdRunXMLTest);
          this.Controls.Add(this.lstLogs);
-         this.Controls.Add(this.cmdComOnOff);
+         this.Controls.Add(this.cmdComOn);
          this.Controls.Add(this.cmdConnect);
          this.Controls.Add(this.ipAddressTextBox);
          this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -768,7 +805,7 @@
       }
 
       #endregion
-      private System.Windows.Forms.Button cmdComOnOff;
+      private System.Windows.Forms.Button cmdComOn;
       private System.Windows.Forms.Button cmdConnect;
       private System.Windows.Forms.TabControl tclIJPLib;
       private System.Windows.Forms.TabPage tabTreeView;
@@ -829,6 +866,9 @@
       private System.Windows.Forms.Button cmdGetMisc;
       private System.Windows.Forms.ComboBox cbMiscOps;
       private System.Windows.Forms.Label lblSelect;
+      private System.Windows.Forms.Button cmdTest1;
+      private System.Windows.Forms.Button cmdTest2;
+      private System.Windows.Forms.Button cmdComOff;
    }
 }
 

@@ -93,6 +93,22 @@ namespace Modbus_DLL {
       // Log I/O as XML file
       public bool LogAsXML = false;
 
+      private int TransactionId { get; set; } = 0;
+
+      private int NextTid() {
+         var tid = TransactionId++;
+         TransactionId &= 0xFFFF;
+         return tid;
+      }
+
+      private byte High(int value) {
+         return (byte)((value >> 8) & 0xff);
+      }
+
+      private byte Low(int value) {
+         return (byte)((value >> 0) & 0xff);
+      }
+
       #endregion
 
       #region Constructors and Destructors
@@ -226,20 +242,21 @@ namespace Modbus_DLL {
 
       // Build a Modbus write packet with room for data
       private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, int dataBytes) {
+         int tid = NextTid();
          int n = dataBytes + (dataBytes & 1);        // Make even number of bytes
          byte[] r = new byte[6 + 7 + n];             // 6 header + 7 packet + n bytes
-         r[0] = 0;                                   // Transaction ID
-         r[1] = 0;                                   // Transaction ID
+         r[0] = High(tid);                           // Transaction ID
+         r[1] = Low(tid);                            // Transaction ID
          r[2] = 0;                                   // Protocol ID
          r[3] = 0;                                   // Protocol ID
-         r[4] = (byte)((7 + n) >> 8);                // Packet length high byte
-         r[5] = (byte)(7 + n);                       // Packet length low byte
+         r[4] = High(7 + n);                         // Packet length high byte
+         r[5] = Low(7 + n);                          // Packet length low byte
          r[6] = DevAddr;                             // Device address (Always 0)
          r[7] = (byte)fc;                            // Function Code
-         r[8] = (byte)(addr >> 8);                   // Start address high byte
-         r[9] = (byte)addr;                          // Start address low byte
-         r[10] = (byte)(n >> 9);                     // Number of words to write high byte
-         r[11] = (byte)(n >> 1);                     // Number of words to write low byte
+         r[8] = High(addr);                          // Start address high byte
+         r[9] = Low(addr);                           // Start address low byte
+         r[10] = High(n >> 1);                       // Number of words to write high byte
+         r[11] = Low(n >> 1);                        // Number of words to write low byte
          r[12] = (byte)n;                            // Number of bytes to write
          return r;
       }
@@ -260,12 +277,15 @@ namespace Modbus_DLL {
       // Build a Modbus read packet
       private byte[] BuildModbusRead(FunctionCode fc, byte DevAddr, int addr, int dataBytes) {
          int words = (dataBytes + (dataBytes & 1)) >> 1;         // Round to nearest word
+         int tid = NextTid();                                    // Get the next transaction ID
+         ModbusReadPkt[0] = High(tid);                           // High byte of transaction ID
+         ModbusReadPkt[1] = Low(tid);                            // Low byte of transaction ID
          ModbusReadPkt[6] = DevAddr;                             // Device address
          ModbusReadPkt[7] = (byte)fc;                            // Function Code
-         ModbusReadPkt[8] = (byte)(addr >> 8);                   // Character position high byte
-         ModbusReadPkt[9] = (byte)addr;                          // Character position low byte
-         ModbusReadPkt[10] = (byte)(words >> 8);                 // high byte number of words to read
-         ModbusReadPkt[11] = (byte)words;                        // low byte number of words to read
+         ModbusReadPkt[8] = High(addr);                          // Character position high byte
+         ModbusReadPkt[9] = Low(addr);                           // Character position low byte
+         ModbusReadPkt[10] = High(words);                        // high byte number of words to read
+         ModbusReadPkt[11] = Low(words);                         // low byte number of words to read
          return ModbusReadPkt;
       }
 
@@ -849,7 +869,7 @@ namespace Modbus_DLL {
 
       // Get the device address
       private byte GetDevAdd(AttrData attr) {
-         byte devAdd = 0;
+         byte devAdd = 1;
          if (twinNozzle && attr != null) {
             switch (attr.Nozzle) {
                case Noz.None:

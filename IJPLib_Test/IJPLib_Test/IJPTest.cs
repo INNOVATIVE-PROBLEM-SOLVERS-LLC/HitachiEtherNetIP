@@ -95,8 +95,9 @@ namespace IJPLib_Test {
             R = Utils.InitializeResize(this, 60, 40, true);
 
             Utils.ResizeObject(ref R, ipAddressTextBox, 1, 1, 2, 5);
-            Utils.ResizeObject(ref R, cmdConnect, 1, 7, 2, 5);
-            Utils.ResizeObject(ref R, cmdComOnOff, 1, 13, 2, 5);
+            Utils.ResizeObject(ref R, cmdConnect, 1, 6.5f, 2, 3.5f);
+            Utils.ResizeObject(ref R, cmdComOn, 1, 10.5f, 2, 3.5f);
+            Utils.ResizeObject(ref R, cmdComOff, 1, 14.5f, 2, 3.5f);
 
             Utils.ResizeObject(ref R, lblMessageFolder, 0.5f, 18, 2, 5);
             Utils.ResizeObject(ref R, txtMessageFolder, 0.5f, 23, 2, 11);
@@ -145,6 +146,9 @@ namespace IJPLib_Test {
 
             Utils.ResizeObject(ref R, lstLogs, 50, 1, 9, 15);
 
+            Utils.ResizeObject(ref R, cmdTest1, 50, 17, 3, 5);
+            Utils.ResizeObject(ref R, cmdTest2, 55, 17, 3, 5);
+
             Utils.ResizeObject(ref R, lblSelectXMLTest, 50, 24, 2, 10);
             Utils.ResizeObject(ref R, cbSelectXMLTest, 52, 24, 2, 10);
             Utils.ResizeObject(ref R, cmdRunXMLTest, 55, 24, 3, 10);
@@ -178,16 +182,15 @@ namespace IJPLib_Test {
          SetButtonEnables();
       }
 
-      // Invert the current com setting
-      private void ComOnOff_Click(object sender, EventArgs e) {
-         switch (IX.ComStatus) {
-            case IJPOnlineStatus.Offline:
-               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Online });
-               break;
-            case IJPOnlineStatus.Online:
-               IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Offline });
-               break;
-         }
+      // Set COM ON
+      private void ComOn_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Online });
+         SetButtonEnables();
+      }
+
+      // Set COM OFF
+      private void ComOff_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Offline });
          SetButtonEnables();
       }
 
@@ -607,9 +610,10 @@ namespace IJPLib_Test {
          bool msgExists = IX.MessageExists;
          bool msgDirExists = Directory.Exists(txtMessageFolder.Text);
          // These must connect first
-         cmdComOnOff.Enabled = connected;
+         cmdComOn.Enabled = connected;
+         cmdComOff.Enabled = connected;
          cmdConnect.Text = connected ? "Disconnect" : "Connect";
-         cmdComOnOff.Text = IX.ComStatus == IJPOnlineStatus.Online ? "Com Off" : "Com On";
+         //cmdComOn.Text = IX.ComStatus == IJPOnlineStatus.Online ? "Com Off" : "Com On";
          cmdGetViews.Enabled = IOPossible || msgExists;
          cmdGetXML.Enabled = IOPossible || msgExists;
          cmdGetDirectory.Enabled = IOPossible;
@@ -635,5 +639,12 @@ namespace IJPLib_Test {
 
       #endregion
 
+      private void cmdTest1_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Online });
+      }
+
+      private void cmdTest2_Click(object sender, EventArgs e) {
+         IX.Tasks.Add(new ReqPkt(IJPLib_XML.ReqType.SetComStatus) { ComStatus = IJPOnlineStatus.Offline });
+      }
    }
 }
