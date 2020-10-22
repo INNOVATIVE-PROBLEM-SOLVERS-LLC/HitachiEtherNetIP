@@ -1,5 +1,7 @@
 # HitachiEtherNetIP
 
+Update -- Oct 22, 2020 -- The issue with using Modbus on an Hitachi Printer prior to the UX-161 has been resolved.  Device address is ignored on the UX-161 platform where it is validated on prior platforms.  The device address was being set to 0.  Legacy platforma require that it be set to 1.  The Modbus code will now run on all platforms that support TUP-I and Modbus.
+
 Update -- Jun 10, 2020 -- This implementation is being developed using an Hitachi UX-161 (Runs on a Linux based platform).  When testing began for Modbus on the UX-160, RX-2, and RX platforms, it was discovered that there is a difference in the Modbus implementation between the Linux based platforms and previous platforms.  For the legacy platforms, each command sent from the PC to the printer receives an immediate ACK response from the printer.  After the printer sends the response to the PC, it waits for an ACK.  On the Linux platform, the ACK is not required.
 
 The Linux based platform has a RJ-45 connector for direct communication to the printer.  The legacy platforms interface thru a TUP-I device.  This may account for the differences in the implementations.  I need to connect a TUP-I device to my UX-161 and see if I get the same result.
