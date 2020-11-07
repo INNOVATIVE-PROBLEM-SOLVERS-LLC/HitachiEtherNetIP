@@ -853,7 +853,7 @@ namespace ModBus161 {
 
       // Get device address to use
       private byte GetDevAddr() {
-         byte devAddr = 0;
+         byte devAddr = 1;
          if (chkTwinNozzle.Checked) {
             switch ((Nozzle)cbNozzle.SelectedIndex) {
                case Nozzle.Printer:
