@@ -211,17 +211,21 @@ namespace Modbus_DLL {
                Log?.Invoke(p, $" \n// Fill in item {index + 1}\n ");
                XMLwriter.WriteStartElement("AllocateItem");
                XMLwriter.WriteAttributeString("Row", (r + 1).ToString());
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                Item item = m.Column[c].Item[r];
                if (item.Font != null) {
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                   p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                   p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
                   p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
+                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
                   if (item.BarCode != null) {
                      barCodesExist = true;
                   }
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                string s = p.HandleBraces(item.Text);
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -562,13 +566,16 @@ namespace Modbus_DLL {
       private void SendPrinterSettings(Printer ptr) {
 
          Log?.Invoke(p, $" \n// Send printer settings\n ");
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          if (ptr.PrintHead != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          if (ptr.ContinuousPrinting != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
             p.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          if (ptr.TargetSensor != null) {
             //p.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
@@ -576,23 +583,33 @@ namespace Modbus_DLL {
             //p.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
          }
          if (ptr.CharacterSize != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
             p.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          if (ptr.PrintStartDelay != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
             p.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          if (ptr.EncoderSettings != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
             p.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
             p.SetAttribute(ccPS.Product_Speed_Matching, ptr.EncoderSettings.ExternalEncoder);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
          if (ptr.InkStream != null) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
-         //p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       private void SendFreeLogo(Logo l) {
