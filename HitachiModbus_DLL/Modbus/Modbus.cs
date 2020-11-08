@@ -209,6 +209,7 @@ namespace Modbus_DLL {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
                LogIt(s);
                CompleteIt(false);
+               successful = false;
             } else {
                CompleteIt(true);
             }
@@ -666,25 +667,12 @@ namespace Modbus_DLL {
             cols++;
          }
 
-         LogIt(" \n// Delete all columns but the first one\n ");
-         for (int i = 0; i < cols - 1; i++) {
+         LogIt(" \n// Delete all columns\n ");
+         for (int i = 0; i < cols; i++) {
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccPF.Delete_Column, cols - i);
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
-
-         LogIt(" \n// Set first column to line count of 1 and clear the item\n ");
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         SetAttribute(ccPF.Column, 1);
-         SetAttribute(ccPF.Line, 1);
-         SetAttribute(ccPC.Print_Erasure, 1);
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         LogIt(" \n// Set the format to the smallest size\n ");
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         SetAttribute(ccPF.Dot_Matrix, 0, "5x8");
-         SetAttribute(ccPF.Barcode_Type, 0, 0);
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       // Delete message if it exists
