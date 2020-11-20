@@ -668,7 +668,7 @@ namespace ModBus161 {
       // Add a message to the printer's directory
       private void cmdMessageAdd_Click(object sender, EventArgs e) {
          int msgNumber = int.Parse(cbMessageNumber.Text);
-         string msgName = txtMessageName.Text.PadRight(12);
+         string msgName = txtMessageName.Text.PadRight(12).Substring(0, 12);
          asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.AddMessage) { Data = msgName, Value = msgNumber });
       }
 
