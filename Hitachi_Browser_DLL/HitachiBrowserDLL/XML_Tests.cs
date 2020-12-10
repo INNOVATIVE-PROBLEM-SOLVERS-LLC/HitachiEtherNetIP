@@ -144,19 +144,19 @@ namespace EIP_Lib {
       }
 
       private bool BuildMonthDaySR() {
-         // Set <Substitution Rule="01" StartYear="2010" Delimeter="/">
-         char delimeter = '/';
+         // Set <Substitution Rule="01" StartYear="2010" Delimiter="/">
+         char delimiter = '/';
          EIP.SetAttribute(ccIDX.Substitution_Rule, 1);
          EIP.SetAttribute(ccSR.Start_Year, 2010);
 
          // Set <Month Base="1">JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC</Month>
-         string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimeter);
+         string[] months = "JAN/FEB/MAR/APR/MAY/JUN/JUL/AUG/SEP/OCT/NOV/DEC".Split(delimiter);
          for (int i = 0; i < months.Length; i++) {
             EIP.SetAttribute(ccSR.Month, i + 1, months[i]);
          }
 
          // Set <DayOfWeek Base="1">MON/TUE/WED/THU/FRI/SAT/SUN</DayOfWeek>
-         string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimeter);
+         string[] day = "MON/TUE/WED/THU/FRI/SAT/SUN".Split(delimiter);
          for (int i = 0; i < day.Length; i++) {
             EIP.SetAttribute(ccSR.DayOfWeek, i + 1, day[i]);
          }

@@ -123,9 +123,9 @@ namespace EIP_Lib {
          }
       }
 
-      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimeter) {
+      private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimiter) {
          Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
-         string[] s = r.Text.Split(delimeter[0]);
+         string[] s = r.Text.Split(delimiter[0]);
          for (int i = 0; i < s.Length; i++) {
             int n = r.Base + i;
             // Avoid user errors

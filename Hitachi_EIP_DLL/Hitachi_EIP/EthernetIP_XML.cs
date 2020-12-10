@@ -253,12 +253,12 @@ namespace EIP_Lib {
       }
 
       // Set the substitution values for a class
-      private bool VerifySubValues(ccSR attribute, XmlNode c, string delimeter) {
+      private bool VerifySubValues(ccSR attribute, XmlNode c, string delimiter) {
          bool success = true;
          // Avoid user errors
          if (int.TryParse(GetXmlAttr(c, "Base"), out int b)) {
             Prop prop = EIP.AttrDict[ClassCode.Substitution_rules, (byte)attribute].Set;
-            string[] s = GetXmlValue(c).Split(delimeter[0]);
+            string[] s = GetXmlValue(c).Split(delimiter[0]);
             for (int i = 0; i < s.Length; i++) {
                int n = b + i;
                // Avoid user errors
