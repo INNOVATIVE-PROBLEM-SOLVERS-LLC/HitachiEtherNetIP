@@ -1,0 +1,39 @@
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="RX-SD160W"></Printer>
+  <Message Layout="SeparateSetup" Nozzle="1">
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="1" Col="1" Index="1" />
+        <Text>TOP   </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="2" Col="1" Index="2" />
+        <Text>MIDDLE</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="3" Col="1" Index="3" />
+        <Text>BOTTOM</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="2">
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="1" Col="2" Index="4" />
+        <Text>TOP   </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="2" Col="2" Index="5" />
+        <Text>MIDDLE</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="2" IncreasedWidth="1" DotMatrix="Size5x7" />
+        <Location Row="3" Col="2" Index="6" />
+        <Text>BOTTOM</Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

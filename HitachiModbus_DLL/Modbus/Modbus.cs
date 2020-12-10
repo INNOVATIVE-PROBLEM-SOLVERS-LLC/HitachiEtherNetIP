@@ -974,7 +974,12 @@ namespace Modbus_DLL {
       private string FormatText(byte[] b) {
          string result = "";
          for (int i = 0; i < b.Length; i += 2) {
-            result += (char)b[i + 1];
+            int c = (b[i] << 8) + b[i + 1];
+            if (Data.HitachiToUTF8.ContainsKey(c)) {
+               result += Data.HitachiToUTF8[c];
+            } else {
+               result += (char)b[i + 1];
+            }
          }
          return result.Replace("\x00", "");
       }
@@ -983,7 +988,13 @@ namespace Modbus_DLL {
       private string FormatAttrText(byte[] text) {
          string result = "";
          for (int i = 0; i < text.Length; i += 4) {
-            if (text[i] == 0 && text[i + 2] == 0) {
+            int c1 = (text[i] << 8) + text[i + 1];
+            int c2 = (text[i + 2] << 8) + text[i + 3];
+            if (Data.HitachiToUTF8.ContainsKey(c1)) {
+               result += Data.HitachiToUTF8[c1];
+            } else if (Data.HitachiToUTF8.ContainsKey(c2)) {
+               result += Data.HitachiToUTF8[c2];
+            } else if (text[i] == 0 && text[i + 2] == 0) {
                result += (char)text[i + 3];
             } else if (text[i + 2] == 0xF1) {
                result += $"{{X/{text[i + 3] - 0x40}}}";
@@ -991,136 +1002,6 @@ namespace Modbus_DLL {
                result += $"{{X/{text[i + 3] - 0x20 + 192}}}";
             } else if (text[i + 2] == 0xF6) {
                result += $"{{Z/{text[i + 3] - 0x40}}}";
-            } else if (text[i] == 0xF2) {
-               switch (text[i + 1]) {
-                  case 0x50:
-                     result += "{Y}";
-                     break;
-                  case 0x60:
-                     result += "{{Y}";
-                     break;
-                  case 0x70:
-                     result += "{Y}}";
-                     break;
-                  case 0x51:
-                  case 0x57:
-                     result += "{M}";
-                     break;
-                  case 0x61:
-                  case 0x67:
-                     result += "{{M}";
-                     break;
-                  case 0x71:
-                  case 0x77:
-                     result += "{M}}";
-                     break;
-                  case 0x52:
-                     result += "{D}";
-                     break;
-                  case 0x62:
-                     result += "{{D}";
-                     break;
-                  case 0x72:
-                     result += "{D}}";
-                     break;
-                  case 0x53:
-                     result += "{h}";
-                     break;
-                  case 0x63:
-                     result += "{{h}";
-                     break;
-                  case 0x73:
-                     result += "{h}}";
-                     break;
-                  case 0x54:
-                     result += "{m}";
-                     break;
-                  case 0x64:
-                     result += "{{m}";
-                     break;
-                  case 0x74:
-                     result += "{m}}";
-                     break;
-                  case 0x55:
-                     result += "{s}";
-                     break;
-                  case 0x65:
-                     result += "{{s}";
-                     break;
-                  case 0x75:
-                     result += "{s}}";
-                     break;
-                  case 0x56:
-                     result += "{T}";
-                     break;
-                  case 0x66:
-                     result += "{{T}";
-                     break;
-                  case 0x76:
-                     result += "{T}}";
-                     break;
-                  case 0x58:
-                     result += "{W}";
-                     break;
-                  case 0x68:
-                     result += "{{W}";
-                     break;
-                  case 0x78:
-                     result += "{W}}";
-                     break;
-                  case 0x59:
-                     result += "{7}";
-                     break;
-                  case 0x69:
-                     result += "{{7}";
-                     break;
-                  case 0x79:
-                     result += "{7}}";
-                     break;
-                  case 0x5B:
-                  case 0x6B:
-                  case 0x7B:
-                     result += "{E}";
-                     break;
-                  case 0x5C:
-                  case 0x6C:
-                  case 0x7C:
-                     result += "{F}";
-                     break;
-                  case 0x5A:
-                     result += "{C}";
-                     break;
-                  case 0x6A:
-                     result += "{{C}";
-                     break;
-                  case 0x7A:
-                     result += "{C}}";
-                     break;
-                  case 0X40:
-                     result += "{'}";
-                     break;
-                  case 0X41:
-                     result += "{.}";
-                     break;
-                  case 0X42:
-                     result += "{:}";
-                     break;
-                  case 0X43:
-                     result += "{,}";
-                     break;
-                  case 0X44:
-                     result += "{ }";
-                     break;
-                  case 0X45:
-                     result += "{;}";
-                     break;
-                  case 0X46:
-                     result += "{!}";
-                     break;
-                  default:
-                     result += "*";
-                     break;
-               }
             } else {
                result += "*";
             }
@@ -1210,11 +1091,19 @@ namespace Modbus_DLL {
                for (int i = 0; i < s2.Length; i++) {
                   char c = s2[i];
                   if (Array.FindIndex<Char>(M161.CalCntChars, x => x == c) >= 0) {
-                     result[i * width] = (byte)(c >> 8);
+                     result[i * width + 0] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
                   } else {
-                     result[(i + 1) * width - 2] = (byte)(c >> 8);
-                     result[(i + 1) * width - 1] = (byte)c;
+                     if (Data.UTFHToHitachi.ContainsKey(s2.Substring(i, 1))) {
+                        c = (char)Data.UTFHToHitachi[s2.Substring(i, 1)];
+                     }
+                     if (prop.Fmt == DataFormats.UTF8) {
+                        result[i * width + 0] = (byte)(c >> 8);
+                        result[i * width + 1] = (byte)c;
+                     } else {
+                        result[i * width + 2] = (byte)(c >> 8);
+                        result[i * width + 3] = (byte)c;
+                     }
                   }
                }
                break;

@@ -23,9 +23,13 @@ namespace Serialization {
       Disable = 0,
       [XmlEnum(Name = "false")]
       prevFalse = 0,
+      [XmlEnum(Name = "False")]
+      prevFalse2 = 0,
       Enable = 1,
       [XmlEnum(Name = "true")]
       prevTrue = 1,
+      [XmlEnum(Name = "True")]
+      prevTrue2 = 1,
    }
 
    #endregion

@@ -2060,8 +2060,8 @@ namespace EIP_Lib {
                break;
             case DataFormats.N1N2N1:
                if (data.Length > 3) {
-                  // shown as nn, "UTF8 characters"
-                  val = $"{data[0]}, {Get(data, 1, 2, mem.BigEndian)}, {data[2]}";
+                  // shown as n, nn, n
+                  val = $"{data[0]}, {Get(data, 1, 2, mem.BigEndian)}, {data[3]}";
                }
                break;
          }

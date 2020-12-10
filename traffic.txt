@@ -1,0 +1,53 @@
+
+Printer Response
+
+34 17 eb c6 f5 21  == Destination Address
+a4 97 bb 30 02 4b  == Source address
+08 00              == Type IPv4
+45 00              == Version 4 Header length 5 + ...
+00 34              == Total Length (52)
+b4 bf              == Identification
+40 00              == Flags
+40                 == Keep alive time
+06                 == Protocol
+70 a5              == Header Checksum
+0a 00 00 64        == Source IP Address (10.0.0.100)
+0a 00 00 fc        == Destination IP Address (10.0.0.252
+01 f6              == Source Port (502)
+ef ca              == Destination Port (61386)
+19 5f 66 c9        == Sequence Number
+c7 3f 0f 9a        == Acknowledgement number
+50 18              == Headerlength, flags (ACK + Push)
+01 c9              == Window size
+b6 bb              == Checksum
+00 00              == Urgent Pointer
+73 72              == Transcation Identifier
+00 00              == Protocol Id
+00 06              == Length
+01                 == Unit Identifier
+10                 == Write Multiple registers
+24 90              == Address in printer
+00 01              == Word Count
+
+IJPLib ACK
+
+a4 97 bb 30 02 4b == Destination Address
+34 17 eb c6 f5 21 == Source address
+08 00             == Type IPv4
+45 00             == Version 4 Header length 5 + ...
+00 28             == Total Length (40)
+c6 8a             == Identification
+40 00             == Flags
+80                == Keep alive time
+06                == Protocol
+1e e6             == Header Checksum
+0a 00 00 fc       == Source IP Address (10.0.0.252)
+0a 00 00 64       == Destination IP Address (10.0.0.100
+ef ca             == Source Port (61386)
+01 f6             == Destination Port (502)
+c7 3f 0f 9a       == Sequence Number
+19 5f 66 d5       == Acknowledgement number
+50 10             == Headerlength, flags (ACK)
+10 0a             == Calculated Window size
+41 9c             == Checksum
+00 00             == Urgent pointer
