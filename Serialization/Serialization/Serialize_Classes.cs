@@ -23,13 +23,9 @@ namespace Serialization {
       Disable = 0,
       [XmlEnum(Name = "false")]
       prevFalse = 0,
-      [XmlEnum(Name = "False")]
-      prevFalse2 = 0,
       Enable = 1,
       [XmlEnum(Name = "true")]
       prevTrue = 1,
-      [XmlEnum(Name = "True")]
-      prevTrue2 = 1,
    }
 
    #endregion
@@ -48,7 +44,16 @@ namespace Serialization {
 
    [XmlRoot("SubRules", IsNullable = false)]
    public class SubRules {
+      [XmlIgnore]
+      public bool IsDirty = false;
       public Substitution Substitution;
+
+      [XmlArray("Shifts")]
+      [XmlArrayItem("Shift")]
+      public Shift[] Shifts;
+
+      public TimeCount TimeCount;
+
    }
 
    #endregion
@@ -364,9 +369,22 @@ namespace Serialization {
       public string EndMinute;
       [XmlAttribute]
       public string ShiftCode;
+
+      public Shift Copy() {
+         return new Shift() {
+            ShiftNumber = this.ShiftNumber,
+            StartHour = string.Copy(this.StartHour),
+            StartMinute = string.Copy(this.StartMinute),
+            EndHour = string.Copy(this.EndHour),
+            EndMinute = string.Copy(this.EndMinute),
+            ShiftCode = string.Copy(this.ShiftCode),
+         };
+      }
    }
 
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
    public class TimeCount {
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
       [XmlAttribute]
       public string Interval;
       [XmlAttribute]
@@ -377,6 +395,31 @@ namespace Serialization {
       public string ResetTime;
       [XmlAttribute]
       public string ResetValue;
+
+      public TimeCount Copy() {
+         return new TimeCount() {
+            Interval = string.Copy(this.Interval),
+            Start = string.Copy(this.Start),
+            End = string.Copy(this.End),
+            ResetTime = string.Copy(this.ResetTime),
+            ResetValue = string.Copy(this.ResetValue)
+         };
+      }
+
+      public override bool Equals(object other) {
+         TimeCount t = (TimeCount)other;
+         if (this.Interval != t.Interval)
+            return false;
+         if (this.Start != t.Start)
+            return false;
+         if (this.End != t.End)
+            return false;
+         if (this.ResetTime != t.ResetTime)
+            return false;
+         if (this.ResetValue != t.ResetValue)
+            return false;
+         return true;
+      }
    }
 
    #endregion
