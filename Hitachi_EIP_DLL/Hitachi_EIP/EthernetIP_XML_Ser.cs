@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Windows.Forms;
 using Serialization;
+using System.Text;
 
 namespace EIP_Lib {
 
@@ -385,10 +386,10 @@ namespace EIP_Lib {
                   Label.Message = new Msg[1];
                   Label.Message[0] = RetrieveMessage();
 
-                  Label.Printer = new Printer[1];
-                  Label.Printer[0] = RetrievePrinterSettings();
+                  //Label.Printer = new Printer[1];
+                  //Label.Printer[0] = RetrievePrinterSettings();
 
-                  Label.Printer[0].Substitution = RetrieveSubstitutions(Label.Message[0]);
+                  //Label.Printer[0].Substitution = RetrieveSubstitutions(Label.Message[0]);
 
                   xml = Serializer<Lab>.ClassToXml(Label);
 
@@ -555,6 +556,12 @@ namespace EIP_Lib {
                   },
                   BarCode = new BarCode(),
                };
+               byte[] zz = Encode.GetBytes(item.Text);
+               StringBuilder zzs = new StringBuilder();
+               for (int z = 0; z < zz.Length; z++) {
+                  zzs.Append($"{(int)zz[z]:X2} ");
+               }
+               LogIt($"{zzs.ToString()}");
                string barcode = GetAttribute(ccPF.Barcode_Type);
                if (barcode != GetDropDownNames((int)fmtDD.BarcodeType)[0]) {
                   item.BarCode.HumanReadableFont = GetAttribute(ccPF.Readable_Code);
@@ -565,15 +572,15 @@ namespace EIP_Lib {
                int[] mask = new int[1 + 8];
                ItemType itemType = GetItemType(item.Text, ref mask);
                GetAttribute(ccCal.Number_of_Calendar_Blocks, out item.Location.calCount);
-               if (item.Location.calCount > 0) {
-                  GetAttribute(ccCal.First_Calendar_Block, out item.Location.calStart);
-                  RetrieveCalendarSettings(item, mask);
-               }
+               //if (item.Location.calCount > 0) {
+               //   GetAttribute(ccCal.First_Calendar_Block, out item.Location.calStart);
+               //   RetrieveCalendarSettings(item, mask);
+               //}
                GetAttribute(ccCount.Number_Of_Count_Blocks, out item.Location.countCount);
-               if (item.Location.countCount > 0) {
-                  GetAttribute(ccCount.First_Count_Block, out item.Location.countStart);
-                  RetrieveCountSettings(item);
-               }
+               //if (item.Location.countCount > 0) {
+               //   GetAttribute(ccCount.First_Count_Block, out item.Location.countStart);
+               //   RetrieveCountSettings(item);
+               //}
                m.Column[col].Item[row] = item;
                index++;
             }

@@ -231,7 +231,7 @@ namespace Modbus_DLL {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
                while (s.Length > 0) {
-                  int len = Math.Min(s.Length, 32);
+                  int len = Math.Min(s.Length, 50);
                   p.SetAttribute(ccPC.Print_Character_String, charPosition, s.Substring(0, len));
                   s = s.Substring(len);
                   charPosition += len;
@@ -643,20 +643,19 @@ namespace Modbus_DLL {
       private void SendSubstitutionRules(Printer ptr) {
          if (ptr.Substitution != null && ptr.Substitution.SubRule != null) {
             if (ptr.Substitution.Delimiter.Length == 1) {
-               // Force rule to be loaded
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccIDX.Substitution_Rule, ptr.Substitution.RuleNumber);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccSR.Start_Year, ptr.Substitution.StartYear);
                SendSubstitution(ptr.Substitution);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
          }
       }
 
       public void SendSubstitution(Substitution s) {
          string delimiter = s.Delimiter;
+         // Need to load the rule (Rule number is 1-origin)
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccIDX.Substitution_Rule, s.RuleNumber);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         p.SetAttribute(ccSR.Start_Year, s.StartYear);
          for (int i = 0; i < s.SubRule.Length; i++) {
             SubstitutionRule r = s.SubRule[i];
             if (Enum.TryParse(r.Type, true, out ccSR type)) {
@@ -671,18 +670,35 @@ namespace Modbus_DLL {
                Log?.Invoke(p, $"Unknown substitution rule type =>{r.Type}<=");
             }
          }
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
       }
 
       private void SetSubValues(ccSR attribute, SubstitutionRule r, string delimiter) {
+         int n;
+         string s2;
          Prop prop = Data.AttrDict[ClassCode.Substitution_rules, (int)attribute].Data;
-         string[] s = r.Text.Split(delimiter[0]);
          string t = new string(' ', prop.Len);
-         for (int i = 0; i < s.Length; i++) {
-            int n = r.Base + i;
-            // Avoid user errors
-            if (n >= prop.Min && n <= prop.Max) {
+         string[] s = r.Text.Split(delimiter[0]);
+         if (s.Length <= (prop.Max - prop.Min + 1)) {
+            n = r.Base - prop.Min;
+            s2 = string.Empty;
+            for (int i = 0; i < s.Length; i++) {
                string t2 = new string(' ', prop.Len) + s[i];
-               p.SetAttribute(attribute, n - prop.Min, t2.Substring(t2.Length - prop.Len));
+               s2 += t2.Substring(t2.Length - prop.Len);
+               if (s2.Length > 120 || i == s.Length - 1) {
+                  p.SetAttribute(attribute, n, s2);
+                  s2 = string.Empty;
+                  n = r.Base + i - prop.Min + 1; // +1 is where i will be next time
+               }
+            }
+         } else {
+            for (int i = 0; i < s.Length; i++) {
+               n = r.Base + i;
+               // Avoid user errors
+               if (n >= prop.Min && n <= prop.Max) {
+                  string t2 = new string(' ', prop.Len) + s[i];
+                  p.SetAttribute(attribute, n - prop.Min, t2.Substring(t2.Length - prop.Len));
+               }
             }
          }
       }
