@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using UTF8vsHitachiCodes;
 
 namespace Modbus_DLL {
    public class Modbus {
@@ -26,6 +27,9 @@ namespace Modbus_DLL {
       #region Data Declarations
 
       Form parent;
+
+      // Errors encountered
+      public int Errors { get; set; } = 0;
 
       // Repeat interval for free logos
       public const int FreeLogoSize = 642;
@@ -79,7 +83,7 @@ namespace Modbus_DLL {
       public int Nozzle { get; set; } = 0;
 
       // Modbus read packet is of fixed length
-      private byte[] ModbusReadPkt = new byte[] { 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0 };
+      private readonly byte[] ModbusReadPkt = new byte[] { 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0 };
 
       Encoding Encode = Encoding.GetEncoding("ISO-8859-1");
 
@@ -194,7 +198,7 @@ namespace Modbus_DLL {
          bytes = -1;
          if (stream != null) {
             try {
-               stream.ReadTimeout = 2000;                 // Allow for up to 2 seconds for a response
+               stream.ReadTimeout = 6000;                 // Allow for up to 2 seconds for a response
                bytes = stream.Read(data, 0, data.Length); // Get number of bytes read
                successful = bytes >= 8;                   // Need to at least get the packet + devAddr, Function code, and length
                DisplayInput(data, bytes);                 // Display the input returned
@@ -208,7 +212,7 @@ namespace Modbus_DLL {
             if ((data[7] & 0x80) > 0) {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
                LogIt(s);
-               CompleteIt(false);
+               CompleteIt(true);
                successful = false;
             } else {
                CompleteIt(true);
@@ -343,9 +347,8 @@ namespace Modbus_DLL {
 
       // Get the contents of one attribute
       public byte[] GetAttribute<T>(T Attribute) where T : Enum {
-         byte[] result;
          AttrData attr = GetAttrData(Attribute);
-         if (!GetAttribute(attr, out result)) {
+         if (!GetAttribute(attr, out byte[] result)) {
             result = null;
             ComIsOn = false;
          } else {
@@ -356,13 +359,12 @@ namespace Modbus_DLL {
          return result;
       }
 
-      // Get the contents of one attribute
+      // Get the contents of one attribute from attribute array
       public byte[] GetAttribute<T>(T Attribute, int n) where T : Enum {
-         byte[] result;
          AttrData attr = GetAttrData(Attribute).Clone();
          Debug.Assert(n < attr.Count);
          attr.Val += n * attr.Stride;
-         if (!GetAttribute(attr, out result)) {
+         if (!GetAttribute(attr, out byte[] result)) {
             result = null;
          }
          return result;
@@ -370,21 +372,33 @@ namespace Modbus_DLL {
 
       // Get the contents of one attribute
       public byte[] GetAttribute<T>(T Attribute, int n, int length) where T : Enum {
-         byte[] result;
          AttrData attr = GetAttrData(Attribute).Clone();
          Debug.Assert(n < attr.Count);
          attr.Val += n * attr.Stride;
          attr.Data.Len = length;
-         if (!GetAttribute(attr, out result)) {
+         if (!GetAttribute(attr, out byte[] result)) {
             result = null;
          }
          return result;
       }
 
+      // Get a block of data starting at an attribute[n], length in words, offset in words
+      public byte[] GetAttributeBlock<T>(T Attribute, int n, int length, int offset = 0) where T : Enum {
+         AttrData attr = GetAttrData(Attribute).Clone();
+         attr.Data.Fmt = DataFormats.UTF8;                  // Fake it as 16 bit entities
+         attr.Val += attr.Stride * n + offset;              // n is array reference plus offset
+         attr.Data.Len = length;                            // Length is in 16 bit words
+         if (!GetAttribute(attr, out byte[] result)) {
+            result = null;
+         }
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
+            $"{byte_to_string(result, 0, Math.Min(10, result.Length))}");
+         return result;
+      }
+
       // Get the contents of one attribute
       public byte[] GetAttribute(AttrData attr) {
-         byte[] result;
-         if (!GetAttribute(attr, out result)) {
+         if (!GetAttribute(attr, out byte[] result)) {
             result = null;
          }
          return result;
@@ -971,14 +985,14 @@ namespace Modbus_DLL {
       }
 
       // Text is 2 bytes per character
-      private string FormatText(byte[] b) {
+      public string FormatText(byte[] b, int start = 0) {
          string result = "";
-         for (int i = 0; i < b.Length; i += 2) {
+         for (int i = start; i < b.Length; i += 2) {
             int c = (b[i] << 8) + b[i + 1];
-            if (Data.HitachiToUTF8.ContainsKey(c)) {
-               result += Data.HitachiToUTF8[c];
+            if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c)) {
+               result += UTF8Hitachi.HitachiToUTF8[c];
             } else {
-               result += (char)b[i + 1];
+               result += (char)((b[i] << 8) + b[i + 1]);
             }
          }
          return result.Replace("\x00", "");
@@ -990,10 +1004,10 @@ namespace Modbus_DLL {
          for (int i = 0; i < text.Length; i += 4) {
             int c1 = (text[i] << 8) + text[i + 1];
             int c2 = (text[i + 2] << 8) + text[i + 3];
-            if (Data.HitachiToUTF8.ContainsKey(c1)) {
-               result += Data.HitachiToUTF8[c1];
-            } else if (Data.HitachiToUTF8.ContainsKey(c2)) {
-               result += Data.HitachiToUTF8[c2];
+            if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c1)) {
+               result += UTF8Hitachi.HitachiToUTF8[c1];
+            } else if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c2)) {
+               result += UTF8Hitachi.HitachiToUTF8[c2];
             } else if (text[i] == 0 && text[i + 2] == 0) {
                result += (char)text[i + 3];
             } else if (text[i + 2] == 0xF1) {
@@ -1007,21 +1021,23 @@ namespace Modbus_DLL {
             }
          }
          result = result.Replace("\x00", "");
-         int n = result.IndexOf("}{", 1);
-         while (n >= 0) {
-            char c = result[n - 1];
-            bool CalOrCnt = false;
-            for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
-               if (M161.CalCnt[j, 0] == c) {
-                  CalOrCnt = true;
+         if (!string.IsNullOrEmpty(result)) {
+            int n = result.IndexOf("}{", 1);
+            while (n >= 0) {
+               char c = result[n - 1];
+               bool CalOrCnt = false;
+               for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
+                  if (M161.CalCnt[j, 0] == c) {
+                     CalOrCnt = true;
+                  }
                }
+               if (CalOrCnt && c == result[n + 2]) {
+                  result = result.Substring(0, n) + result.Substring(n + 2);
+               } else {
+                  n = n + 2;
+               }
+               n = result.IndexOf("}{", n);
             }
-            if (CalOrCnt && c == result[n + 2]) {
-               result = result.Substring(0, n) + result.Substring(n + 2);
-            } else {
-               n = n + 2;
-            }
-            n = result.IndexOf("}{", n);
          }
          return result.Replace("\x00", "");
       }
@@ -1055,13 +1071,12 @@ namespace Modbus_DLL {
          if (prop.Len == 0) {
             return new byte[0];
          }
-         int val;
          byte[] result = null;
          string[] sa;
          switch (prop.Fmt) {
             case DataFormats.Decimal:
             case DataFormats.SDecimal:
-               if (int.TryParse(s, out val)) {
+               if (int.TryParse(s, out int val)) {
                   result = ToBytes(val, prop.Len);
                } else if (bool.TryParse(s, out bool b)) {
                   val = b ? 1 : 0;
@@ -1094,8 +1109,8 @@ namespace Modbus_DLL {
                      result[i * width + 0] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
                   } else {
-                     if (Data.UTFHToHitachi.ContainsKey(s2.Substring(i, 1))) {
-                        c = (char)Data.UTFHToHitachi[s2.Substring(i, 1)];
+                     if (UTF8Hitachi.UTF8ToHitachi.ContainsKey(s2.Substring(i, 1))) {
+                        c = (char)UTF8Hitachi.UTF8ToHitachi[s2.Substring(i, 1)];
                      }
                      if (prop.Fmt == DataFormats.UTF8) {
                         result[i * width + 0] = (byte)(c >> 8);
@@ -1213,9 +1228,8 @@ namespace Modbus_DLL {
          // Stuff away the pieces into the result
          n = 0;
          for (int i = 0; i < b.Length; i++) {
-            for (int j = 0; j < b[i].Length; j++) {
-               result[n++] = b[i][j];
-            }
+            Buffer.BlockCopy(b[i], 0, result, n, b[i].Length);
+            n += b[i].Length;
          }
          return result;
       }
@@ -1261,6 +1275,9 @@ namespace Modbus_DLL {
 
       // Common logging to handle Cross-Thread traffic
       private void CompleteIt(bool success) {
+         if (!success) {
+            Errors++;
+         }
          if (Complete != null) {
             if (parent.InvokeRequired) {
                // Do not use BeginInvoke.  Causes issues up-stream.

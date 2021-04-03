@@ -212,7 +212,7 @@ namespace ModBus161 {
 
       private void UI161_FormClosing(object sender, FormClosingEventArgs e) {
          // Shutdown AsyncIO
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.Exit));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Exit));
 
          prop.IPAddress = txtIPAddress.Text;
          prop.IPPort = txtIPPort.Text;
@@ -369,52 +369,52 @@ namespace ModBus161 {
       // Connect to printer and turn COM on
       private void cmdConnect_Click(object sender, EventArgs e) {
          MB.TwinNozzle = chkTwinNozzle.Checked;
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.Connect) { IpAddress = txtIPAddress.Text, IpPort = txtIPPort.Text });
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Connect) { IpAddress = txtIPAddress.Text, IpPort = txtIPPort.Text });
       }
 
       // Disconnect from the printer
       private void cmdDisconnect_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.Disconnect));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Disconnect));
       }
 
       // Turn com on
       private void cmdComOn_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Online_Offline, 1));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Online_Offline, 1));
       }
 
       // Turn com off
       private void cmdComOff_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Online_Offline, 0));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Online_Offline, 0));
       }
 
       // Reset alarm
       private void cmdReset_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.ClearFault));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.ClearFault));
       }
 
       // Get printer status
       private void cmdGetStatus_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.GetStatus));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.GetStatus));
       }
 
       // Hydralic pump shutdown
       private void cmdShutDown_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Stop));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Stop));
       }
 
       // Hydralic pump startup
       private void cmdStartUp_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Start));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Start));
       }
 
       // Printer to standby
       private void cmdStandby_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.StandBy));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.StandBy));
       }
 
       // Printer to ready
       private void cmdReady_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Ready));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.IssueccIJP, ccIJP.Remote_operation, (int)RemoteOps.Ready));
       }
 
       // Read data from the printer
@@ -423,7 +423,7 @@ namespace ModBus161 {
             && int.TryParse(txtDataLength.Text, out int len)) {
             Modbus.FunctionCode fc = optHoldingRegister.Checked ? Modbus.FunctionCode.ReadHolding : Modbus.FunctionCode.ReadInput;
             byte devAddr = GetDevAddr();
-            asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.ReadData) { fc = fc, DevAddr = devAddr, Addr = addr, Len = len });
+            asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.ReadData) { fc = fc, DevAddr = devAddr, Addr = addr, Len = len });
          }
          SetButtonEnables();
       }
@@ -446,18 +446,18 @@ namespace ModBus161 {
                   }
                }
             }
-            asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.WriteData) { DevAddr = devAddr, Addr = addr, DataA = data });
+            asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.WriteData) { DevAddr = devAddr, Addr = addr, DataA = data });
          }
       }
 
       // Send an XML message to the printer
       private void cmdSend_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.Send, txtIndentedView.Text));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Send, txtIndentedView.Text));
       }
 
       // Retrieve message from printer and convert to XML
       private void cmdRetrieve_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.Retrieve));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Retrieve));
       }
 
       // Exit the program
@@ -623,34 +623,62 @@ namespace ModBus161 {
          }
       }
 
+      private void LogIt(string s) {
+         Log($"\"{s.Replace("\x00", "")}\"");
+      }
+
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
+         AttrData block = MB.GetAttrData(ccUI.Basic_Software_Version).Clone();
+         int n = (0x0E40 - block.Val) / 32;
 
-         MB.DeleteAllButOne();
+         string[] s = new string[n];
+         byte[] ui;
+         for (int i = 0; i < n; i++) {
+            ui = MB.GetAttribute(block);
+            s[i] = MB.FormatText(ui);
+            block.Val += 32;
+         }
+         string Basic = MB.GetHRAttribute(ccUI.Basic_Software_Version);
+         string Controller = MB.GetHRAttribute(ccUI.Controller_Software_Version);
+         string Engine_M = MB.GetHRAttribute(ccUI.Engine_M_Software_Version);
+         string Engine_S = MB.GetHRAttribute(ccUI.Engine_S_Software_Version);
+         string FirstLanguage = MB.GetHRAttribute(ccUI.First_Language_Version);
+         string SecondLanguage = MB.GetHRAttribute(ccUI.Second_Language_Version);
+         string OptionVersion = MB.GetHRAttribute(ccUI.Software_Option_Version);
+         LogIt(Basic);
+         LogIt(Controller);
+         LogIt(Engine_M);
+         LogIt(Engine_S);
+         LogIt(FirstLanguage);
+         LogIt(SecondLanguage);
+         LogIt(OptionVersion);
 
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Format_Setup, "FreeLayout");
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //MB.DeleteAllButOne();
 
-         // Set up the first item (0-origin indexing)
-         int item = 0;
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, 1);
-         MB.SetAttribute(ccPF.Line, 1);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //MB.SetAttribute(ccPF.Format_Setup, "FreeLayout");
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, item, "12x16");
-         MB.SetAttribute(ccPF.InterCharacter_Space, item, 2);
-         MB.SetAttribute(ccPF.Character_Bold, item, 1);
-         MB.SetAttribute(ccPF.X_Coordinate, item, 8);
-         MB.SetAttribute(ccPF.Y_Coordinate, item, 10);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //// Set up the first item (0-origin indexing)
+         //int item = 0;
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //MB.SetAttribute(ccPF.Column, 1);
+         //MB.SetAttribute(ccPF.Line, 1);
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPC.Characters_per_Item, item, 11);
-         MB.SetAttribute(ccPC.Print_Character_String, item, "HELLO WORLD");
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //MB.SetAttribute(ccPF.Dot_Matrix, item, "12x16");
+         //MB.SetAttribute(ccPF.InterCharacter_Space, item, 2);
+         //MB.SetAttribute(ccPF.Character_Bold, item, 1);
+         //MB.SetAttribute(ccPF.X_Coordinate, item, 8);
+         //MB.SetAttribute(ccPF.Y_Coordinate, item, 10);
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         //MB.SetAttribute(ccPC.Characters_per_Item, item, 11);
+         //MB.SetAttribute(ccPC.Print_Character_String, item, "HELLO WORLD");
+         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          SetButtonEnables();
       }
@@ -662,34 +690,34 @@ namespace ModBus161 {
 
       // Retrieve the error log from the printer
       private void cmdErrorRefresh_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.GetErrors));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.GetErrors));
       }
 
       // Add a message to the printer's directory
       private void cmdMessageAdd_Click(object sender, EventArgs e) {
          int msgNumber = int.Parse(cbMessageNumber.Text);
          string msgName = txtMessageName.Text.PadRight(12).Substring(0, 12);
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.AddMessage) { Data = msgName, Value = msgNumber });
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.AddMessage) { Data = msgName, Value = msgNumber });
       }
 
       // Delete a message from the printer's directory
       private void cmdMessageDelete_Click(object sender, EventArgs e) {
          if (dgMessages.SelectedRows.Count > 0) {
             int msgNumber = int.Parse((string)dgMessages.SelectedRows[0].Cells["colMessage"].Value);
-            asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.DeleteMessage) { Value = msgNumber });
+            asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.DeleteMessage) { Value = msgNumber });
             dgMessages.Rows.Remove(dgMessages.SelectedRows[0]);
          }
       }
 
       // Get all messages from the printer and display them in a data view
       private void cmdMessageRefresh_Click(object sender, EventArgs e) {
-         asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.GetMessages));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.GetMessages));
       }
 
       // Recall a message that has been stored in the printer
       private void cmdMessageLoad_Click(object sender, EventArgs e) {
          if (int.TryParse((string)dgMessages.SelectedRows[0].Cells[1].Value, out int n)) {
-            asyncIO.Tasks.Add(new ModbusPkt(AsyncIO.TaskType.RecallMessage) { Value = n });
+            asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.RecallMessage) { Value = n });
          }
       }
 

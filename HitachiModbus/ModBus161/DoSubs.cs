@@ -259,7 +259,7 @@ namespace ModBus161 {
             getInProgress = true;                        // Avoid multiple concurrent requests
             parent.asyncIO.Complete += SubGet_Complete;  // Register for completion
             ModbusPkt res = new ModbusPkt(AsyncIO.TaskType.Substitutions) { substitution = null };
-            parent.asyncIO.Tasks.Add(res);
+            parent.asyncIO.AsyncIOTasks.Add(res);
             SetButtonEnables();
          }
       }
@@ -286,7 +286,7 @@ namespace ModBus161 {
          Src src = (Src)cbSource.SelectedIndex;
          if (Subs[(int)src] != null) {
             ModbusPkt res = new ModbusPkt(AsyncIO.TaskType.Substitutions) { substitution = Subs[(int)src] };
-            parent.asyncIO.Tasks.Add(res);
+            parent.asyncIO.AsyncIOTasks.Add(res);
          }
          SetButtonEnables();
       }

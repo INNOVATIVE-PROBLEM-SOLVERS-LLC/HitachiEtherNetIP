@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using Serialization;
 
 namespace Modbus_DLL {
-   public class AsyncIO {
+   public partial class AsyncIO {
 
       #region Events
 
@@ -32,7 +32,7 @@ namespace Modbus_DLL {
          Disconnect,
          Send,
          SendLabel,
-         Retrieve,
+         RetrieveMsg,
          WriteData,
          ReadData,
          RecallMessage,
@@ -47,6 +47,8 @@ namespace Modbus_DLL {
          Specification,
          WritePattern,
          TimedDelay,
+         Retrieve,
+         Idle,
          Exit,
       }
 
@@ -54,7 +56,7 @@ namespace Modbus_DLL {
       Thread t;
 
       // Use Blocking Collection to avoid spin waits
-      public BlockingCollection<ModbusPkt> Tasks = new BlockingCollection<ModbusPkt>();
+      public BlockingCollection<ModbusPkt> AsyncIOTasks = new BlockingCollection<ModbusPkt>();
       ModbusPkt pkt;
 
       // Printer to use for I/O
@@ -93,7 +95,7 @@ namespace Modbus_DLL {
          while (!done) {
             try {
                // Wait for the next request
-               pkt = Tasks.Take();
+               pkt = AsyncIOTasks.Take();
                switch (pkt.Type) {
                   case TaskType.Connect:
                      Connect(pkt);
@@ -107,8 +109,8 @@ namespace Modbus_DLL {
                   case TaskType.SendLabel:
                      SendLabel(pkt);
                      break;
-                  case TaskType.Retrieve:
-                     Retrieve(pkt);
+                  case TaskType.RetrieveMsg:
+                     RetrieveMsg(pkt);
                      break;
                   case TaskType.WriteData:
                      WriteData(pkt);
@@ -152,6 +154,12 @@ namespace Modbus_DLL {
                   case TaskType.TimedDelay:
                      Thread.Sleep(pkt.TimeDelay);
                      AckOnly(pkt);
+                     break;
+                  case TaskType.Idle:
+                     AckOnly(pkt);
+                     break;
+                  case TaskType.Retrieve:
+                     Retrieve(pkt);
                      break;
                   case TaskType.Exit:
                      done = true;
@@ -199,6 +207,11 @@ namespace Modbus_DLL {
          parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
+      private void Idle(ModbusPkt pkt) {
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true, Resp1 = pkt.Marker };
+         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+      }
+
       private void Connect(ModbusPkt pkt) {
          bool success = MB.Connect(pkt.IpAddress, pkt.IpPort);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
@@ -239,19 +252,19 @@ namespace Modbus_DLL {
          }
       }
 
-      private void Retrieve(ModbusPkt pkt) {
+      private void RetrieveMsg(ModbusPkt pkt) {
          string msgXML = string.Empty;
          string logXML = string.Empty;
-         SendRetrieveXML retrieve = new SendRetrieveXML(MB);
-         retrieve.Log += Modbus_Log;
+         SendRetrieveXML retrieveMsg = new SendRetrieveXML(MB);
+         retrieveMsg.Log += Modbus_Log;
          try {
-            msgXML = retrieve.Retrieve();
+            msgXML = retrieveMsg.Retrieve();
          } finally {
-            logXML = retrieve.LogXML;
+            logXML = retrieveMsg.LogXML;
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp1 = msgXML, Resp2 = logXML };
             parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
-            retrieve.Log -= Modbus_Log;
-            retrieve = null;
+            retrieveMsg.Log -= Modbus_Log;
+            retrieveMsg = null;
          }
       }
 
@@ -292,6 +305,7 @@ namespace Modbus_DLL {
       }
 
       private void GetMessages(ModbusPkt pkt) {
+         StringBuilder sb = new StringBuilder();
          List<string> msgs = new List<string>();
          string[] s = new string[3];
          // For now, look at the first 48 only.  Need to implement block read
@@ -339,10 +353,13 @@ namespace Modbus_DLL {
       }
 
       private void GetStatus(ModbusPkt pkt) {
-         char c = (char)MB.GetDecAttribute(ccUS.Communication_Status);
-         char r = (char)MB.GetDecAttribute(ccUS.Receive_Status);
-         char o = (char)MB.GetDecAttribute(ccUS.Operation_Status);
-         char w = (char)MB.GetDecAttribute(ccUS.Warning_Status);
+         AttrData block = MB.GetAttrData(ccUS.Communication_Status);
+         block.Data.Len = 8;
+         byte[] stat = MB.GetAttribute(block);
+         char c = (char)stat[1];
+         char r = (char)stat[3];
+         char o = (char)stat[5];
+         char w = (char)stat[7];
          AsyncComplete ac = new AsyncComplete(MB, pkt) {
             Status = new string(new char[] { (char)2, (char)0x31, c, r, o, w, (char)3 })
          };
@@ -414,6 +431,12 @@ namespace Modbus_DLL {
       public Serialization.Substitution substitution { get; set; }
       public Modbus_DLL.ccPS PrinterSpec { get; set; }
       public int TimeDelay { get; set; }
+      public string Marker { get; set; }
+      public int SubOp { get; set; }
+      public int CharSize { get; set; }
+      public int Page { get; set; }
+      public int KbType { get; set; }
+      public int RcvLength { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;

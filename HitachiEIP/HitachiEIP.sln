@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus_DLL", "..\HitachiMod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serialization", "..\Serialization\Serialization\Serialization.csproj", "{63E5FD10-BF07-4407-8278-925E5DC15ACD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UTF8vsHitachiCodes", "..\UTF8vsHitachiCodes\UTF8vsHitachiCodes.csproj", "{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{63E5FD10-BF07-4407-8278-925E5DC15ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63E5FD10-BF07-4407-8278-925E5DC15ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63E5FD10-BF07-4407-8278-925E5DC15ACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
