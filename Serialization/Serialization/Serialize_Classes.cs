@@ -227,7 +227,7 @@ namespace Serialization {
       public TimeCount TimeCount;
 
       public bool ShouldSerializeOffset() {
-         return Offset != null && (Offset.Year != 0 || Offset.Month != 0 || Offset.Day != 0 || Offset.Hour != 0 || Offset.Minute != 0);
+         return Offset != null && Offset.ShouldSerializeOffset();
       }
       public bool ShouldSerializeZeroSuppress() {
          return ZeroSuppress != null && (ZeroSuppress.Year != ZS.None || ZeroSuppress.Month != ZS.None || ZeroSuppress.Day != ZS.None ||
@@ -270,6 +270,9 @@ namespace Serialization {
       }
       public Offset Copy() {
          return (Offset)MemberwiseClone();
+      }
+      public bool ShouldSerializeOffset() {
+         return Year != 0 || Month != 0 || Day != 0 || Hour != 0 || Minute != 0;
       }
    }
 

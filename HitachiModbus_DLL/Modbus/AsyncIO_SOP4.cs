@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Modbus_DLL;
-
-
+using UTF8vsHitachiCodes;
 
 namespace Modbus_DLL {
 
    #region AsyncIO for SOP-04
 
    public partial class AsyncIO {
+
+      #region Data Declarations
 
       // Same as enuComCharacters except as strings
       const string sNUL = "\x00";     // 00h Null Character
@@ -35,43 +36,68 @@ namespace Modbus_DLL {
       const string sTilde = "\x7E";   // 7Eh Tilde character
 
       public enum RetrieveOps {
-         LineSetting = 0,               // 00 PXR C0 C1 RX C0 31 == Complete
-         PrintContentsAttributes,       // 01 PXR C0 C2 RX C0 32 == Needed
-         PrintContentsNoAttributes,     // 02 PXR C0 C3 RX C0 33 == Needed
-         CalendarCondition,             // 03 PXR C0 C4 RX C0 34 == Complete
-         SubstitutionRule,              // 04 PXR C0 C5 RX C0 35
-         SubstitutionRuleData,          // 05 PXR       RX C0 36
-         ShiftCodeSetup,                // 06 PXR C0 D5 RX C0 37 == Complete
-         TimeCountCondition,            // 07 PXR C0 D6 RX C0 38 == Complete
-         CountCondition,                // 08 PXR C0 C6 RX C0 39 == Complete
-         PrintFormat,                   // 09 PXR C0 C7 RX C0 3A == Complete
-         AdjustICS,                     // 10 PXR       RX C0 3B
-         PrintSpecifications,           // 11 PXR C0 C8 RX C0 3C
-         VariousPrintSetup,             // 12 PXR       RX C0 3D
-         MessageGroupNames,             // 13 PXR       RX CO 3E == Complete
-         PrintData,                     // 14 PXR C0 C9 RX C0 3F == Complete
-         UserEnvironmentSetup,          // 15 PXR C0 CA RX C0 40 == Complete
-         DateTimeSetup,                 // 16 PXR C0 CB RX C0 41 == Complete
-         CommunicationsSetup,           // 17 PXR C0 CC RX C0 42
-         TouchScreenSetup,              // 18 PXR C0 CD RX C0 43
-         UnitInformation,               // 19 PXR D0 D1 RX C0 47
-         OperationManagement,           // 20 PXR C0 CE RX C0 48
-         AlarmHistory,                  // 21 PXR C0 CF RX C0 49 == Complete
-         PartsUsageTime,                // 22 PXR C0 D1 RX C0 4A
-         CirculationSystemSetup,        // 23 PXR       RX C0 4B
-         SoftwareVersion,               // 24 PXR C0 D2 RX C0 4C == Complete
-         AdjustmentOperationalCheckout, // 25 PXR D0 D4 RX C0 4D
-         SolenoidValvePumpTest,         // 26 PXR DO D5 RX C0 4E
-         FreeLayoutCoordinates,         // 27 PXR       RX C0 50 == Complete
+         LineSetting = 0,               // 00 PXR C0 C1 RX 50 31 == Complete
+         PrintContentsAttributes,       // 01 PXR C0 C2 RX 50 32 == Needed
+         PrintContentsNoAttributes,     // 02 PXR C0 C3 RX 50 33 == Needed
+         CalendarCondition,             // 03 PXR C0 C4 RX 50 34 == Complete
+         SubstitutionRule,              // 04 PXR C0 C5 RX 50 35
+         SubstitutionRuleData,          // 05 PXR       RX 50 36
+         ShiftCodeSetup,                // 06 PXR C0 D5 RX 50 37 == Complete
+         TimeCountCondition,            // 07 PXR C0 D6 RX 50 38 == Complete
+         CountCondition,                // 08 PXR C0 C6 RX 50 39 == Complete
+         PrintFormat,                   // 09 PXR C0 C7 RX 50 3A == Complete
+         AdjustICS,                     // 10 PXR       RX 50 3B
+         PrintSpecifications,           // 11 PXR C0 C8 RX 50 3C
+         VariousPrintSetup,             // 12 PXR       RX 50 3D
+         MessageGroupNames,             // 13 PXR       RX 50 3E == Complete
+         PrintData,                     // 14 PXR C0 C9 RX 50 3F == Complete
+         UserEnvironmentSetup,          // 15 PXR C0 CA RX 50 40 == Complete
+         DateTimeSetup,                 // 16 PXR C0 CB RX 50 41 == Complete
+         CommunicationsSetup,           // 17 PXR C0 CC RX 50 42
+         TouchScreenSetup,              // 18 PXR C0 CD RX 50 43
+         UnitInformation,               // 19 PXR D0 D1 RX 50 47
+         OperationManagement,           // 20 PXR C0 CE RX 50 48
+         AlarmHistory,                  // 21 PXR C0 CF RX 50 49 == Complete
+         PartsUsageTime,                // 22 PXR C0 D1 RX 50 4A
+         CirculationSystemSetup,        // 23 PXR       RX 50 4B
+         SoftwareVersion,               // 24 PXR C0 D2 RX 50 4C == Complete
+         AdjustmentOperationalCheckout, // 25 PXR D0 D4 RX 50 4D
+         SolenoidValvePumpTest,         // 26 PXR DO D5 RX 50 4E
+         FreeLayoutCoordinates,         // 27 PXR       RX 50 50 == Complete
          StirrerTest,                   // 28 PXR C0 D3
          MonthSubstituteRule,           // 29 PXR C0 D4
          ViscometerCalibration,         // 30 PXR D0 D2
          SystemEnvironmentSetup,        // 31 PXR D0 D3
-         UserPatternFixed,
-         UserPatternFree,
-         StandardCharacterPattern,
+         UserPatternFixed,              // 32 PXR C0 D7 RX 50 44 == Complete
+         StandardCharacterPattern,      // 33 PXR C0 D8 RX 50 45 == Not Available
+         UserPatternFree,               // 34           RX 50 46 == In Progress
       }
 
+      int regSize = (200 + 15) / 16;    // Size of the fixed registry in words.  Covers 200 fixed user patterns
+      int regSizeFree = (50 + 15) / 16; // Size of the free registry in words.  Covers 50 free user patterns
+
+      int[] logoLen = new int[] {       // Length of 1 character with max ICS in bytes RX and Later (Not PXR yet)
+            0,   // Not Used
+            8,   //  1 4x5
+            8,   //  2 5x5
+            8,   //  3 5x7
+            16,  //  4 9x7
+            16,  //  5 7x10
+            32,  //  6 10x12
+            32,  //  7 12x16
+            72,  //  8 18x24
+            128, //  9 24x32
+            32,  // 10 11x11
+            5,   // 11 5x3_Chimney
+            5,   // 12 5x5_Chimney
+            7,   // 13 7x5_Chimney
+            200, // 14 30x40            // The last two are not described in SOP document
+            288, // 15 36x48            // They are described in EtherNet/IP
+         };
+
+      #endregion
+
+      #region Fanout
 
       internal void Retrieve(ModbusPkt pkt) {
          string response = "\x02\x03";
@@ -181,7 +207,7 @@ namespace Modbus_DLL {
                   response = StandardCharacterPattern(pkt);
                   break;
                case RetrieveOps.UserPatternFree:
-                  response = UserPatternFree(pkt);
+                  response = UserPatternFree();
                   break;
                default:
                   break;
@@ -191,8 +217,12 @@ namespace Modbus_DLL {
             MB.Errors = 1;
          }
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp1 = response, Success = MB.Errors == 0 };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
+
+      #endregion
+
+      #region Individual SOP requests
 
       // Complete
       private string LineSetting() {
@@ -206,9 +236,10 @@ namespace Modbus_DLL {
          int lc;                                                                // Line count
          int ls;                                                                // Line spacing
          while (n < itemCount) {                                                // Read all columns
-            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, n, 24);
-            lc = pf.GetDec(ccPF.Line_Count);                                    // Number of lines for this column
-            ls = pf.GetDec(ccPF.Line_Spacing);                                  // Spacing between lines
+            int span = Section<ccPF>.GetSpan(MB, ccPF.Line_Count, ccPF.Prefix_Code);
+            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, n, span);
+            lc = pf.GetDecAttribute(ccPF.Line_Count, n);                        // Number of lines for this column
+            ls = pf.GetDecAttribute(ccPF.Line_Spacing, n);                      // Spacing between lines
             if (cpi[n] == 0) {
                rows.Add(lc);                                                    // Create a single entry for all remaining
                spacing.Add(ls);
@@ -252,31 +283,29 @@ namespace Modbus_DLL {
                   byte b1 = text[i][j + 1];
                   byte b2 = text[i][j + 2];
                   byte b3 = text[i][j + 3];
-                  if (text[i][j] == 0) {                               // Leading byte 0 implies UTF8 Character
+                  char c0 = (char)((b0 << 8) + b1);
+                  char c1 = (char)((b2 << 8) + b3);
+                  if (b0 == 0 && b1 == 0) {
                      sb.Append(((char)b0).ToString());                 // Output null character
                      sb.Append(((char)b2).ToString());                 // Output UTF8 character (2 bytes)
                      sb.Append(((char)b3).ToString());
-                  } else {
-                     switch (b0) {
-                        case 0xF1:
-                           sb.Append('\xC2'.ToString());
-                           sb.Append(((char)text[i][j + 0]).ToString());
-                           sb.Append(((char)text[i][j + 1]).ToString());
-                           break;
-                        case 0xF2:
-                           if (b1 == 0x5A || b1 == 0x6A || b1 == 0x7A) {
-
-                           } else if (b1 >= 0x50 && b1 < 0x80) {
-                              sb.Append('\xC1'.ToString());
-                              sb.Append(((char)text[i][j + 0]).ToString());
-                              sb.Append(((char)text[i][j + 1]).ToString());
-                           }
-                           if (b1 > 0x20 && b1 <= 0x27) {
-
-                           }
-                           break;
+                     continue;
+                  }
+                  if (b0 == 0xF2) {
+                     if (b1 == 0x5A || b1 == 0x6A || b1 == 0x7A) {
+                        sb.Append('\xC2'.ToString());
+                        sb.Append(((char)b0).ToString());        // Output UTF8 character (2 bytes)
+                        sb.Append(((char)b1).ToString());
+                        continue;
+                     } else if (b1 >= 0x50 && b1 <= 0x80) {
+                        sb.Append('\xC1'.ToString());
+                        sb.Append(((char)b0).ToString());        // Output UTF8 character (2 bytes)
+                        sb.Append(((char)b1).ToString());
+                        continue;
                      }
                   }
+
+
                }
             }
          }
@@ -291,7 +320,9 @@ namespace Modbus_DLL {
             if (text[i] != null) {                                    // Null implies that it is a unused item
                sb.Append(sDLE + (char)('1' + i));
                for (int j = 0; j < text[i].Length; j += 4) {          // Attributed text is stored as 4-byte items
-                  sb.Append(((char)text[i][j + 2]).ToString());       // bytes 3 and 4 are the UTF8 character
+                  if ((text[i][j + 2] & 0xF0) == 0xF0) {              // Hitachi character.  Let reciever figure it out
+                     sb.Append(((char)text[i][j + 2]).ToString());    // bytes 3 and 4 are the UTF8 character
+                  }
                   sb.Append(((char)text[i][j + 3]).ToString());
                }
             }
@@ -309,40 +340,41 @@ namespace Modbus_DLL {
                if (calCount > 0) {
                   int n = MB.GetDecAttribute(ccPF.First_Calendar_Block, i);
                   for (int j = 0; j < calCount; j++) {
-                     Section<ccCal> cs = new Section<ccCal>(MB, ccCal.Offset_Year, n + j - 1, 32);
+                     int index = n + j - 1;
+                     Section<ccCal> cs = new Section<ccCal>(MB, ccCal.Offset_Year, index, 32);
                      string[] cc = new string[4];
                      sb.Append(sDLE + (char)('1' + i));
 
                      sb.Append(sESC2);
-                     sb.Append(cs.Get(ccCal.Offset_Year, 2));
-                     sb.Append(cs.Get(ccCal.Offset_Month, 2));
-                     sb.Append(cs.Get(ccCal.Offset_Day, 4));
-                     sb.Append(cs.Get(ccCal.Offset_Hour, 3));
-                     sb.Append(cs.Get(ccCal.Offset_Minute, 3));
+                     sb.Append(cs.Get(ccCal.Offset_Year, index, 2));
+                     sb.Append(cs.Get(ccCal.Offset_Month, index, 2));
+                     sb.Append(cs.Get(ccCal.Offset_Day, index, 4));
+                     sb.Append(cs.Get(ccCal.Offset_Hour, index, 3));
+                     sb.Append(cs.Get(ccCal.Offset_Minute, index, 3));
 
                      sb.Append(sESC2);
-                     sb.Append(cs.Get(ccCal.Substitute_Year, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_Month, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_Day, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_Hour, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_Minute, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_Weeks, 1));
-                     sb.Append(cs.Get(ccCal.Substitute_DayOfWeek, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Year, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Month, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Day, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Hour, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Minute, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_Weeks, index, 1));
+                     sb.Append(cs.Get(ccCal.Substitute_DayOfWeek, index, 1));
 
                      sb.Append(sESC2);
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Year, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Month, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Day, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Hour, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Minute, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_Weeks, 1));
-                     sb.Append(cs.Get(ccCal.Zero_Suppress_DayOfWeek, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Year, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Month, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Day, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Hour, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Minute, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_Weeks, index, 1));
+                     sb.Append(cs.Get(ccCal.Zero_Suppress_DayOfWeek, index, 1));
 
                      sb.Append(sESC2);
                      sb.Append("0");                // We do not have SOP-05
 
                      sb.Append(sESC2);
-                     sb.Append(cs.Get(ccCal.Substitute_Rule, 2));
+                     sb.Append(cs.Get(ccCal.Substitute_Rule, index, 2));
                   }
                }
             }
@@ -387,13 +419,12 @@ namespace Modbus_DLL {
             Section<ccSR> sc = new Section<ccSR>(MB, ccSR.Shift_Start_Hour, 0, 16 * shiftCount);
 
             for (int i = 0; i < shiftCount; i++) {
-               sc.SetOffset(i);
                sb.Append(sESC2);
-               sb.Append(sc.Get(ccSR.Shift_Start_Hour, 2));
-               sb.Append(sc.Get(ccSR.Shift_Start_Minute, 2));
-               sb.Append(sc.Get(ccSR.Shift_End_Hour, 2));
-               sb.Append(sc.Get(ccSR.Shift_End_Minute, 2));
-               sb.Append(sc.Get(ccSR.Shift_String_Value));
+               sb.Append(sc.Get(ccSR.Shift_Start_Hour, i, 2));
+               sb.Append(sc.Get(ccSR.Shift_Start_Minute, i, 2));
+               sb.Append(sc.Get(ccSR.Shift_End_Hour, i, 2));
+               sb.Append(sc.Get(ccSR.Shift_End_Minute, i, 2));
+               sb.Append(sc.Get(ccSR.Shift_String_Value, i, 10));
             }
 
             return sb.Append(sETX).ToString();
@@ -432,16 +463,23 @@ namespace Modbus_DLL {
                      Section<ccCount> cb = new Section<ccCount>(MB, ccCount.Initial_Value, n + j - 1, 148);
 
                      sb.Append(sDLE + (char)('1' + i));
-                     sb.Append(sESC2 + cb.Get(ccCount.Initial_Value));
-                     sb.Append(sESC2 + cb.Get(ccCount.Count_Range_1));
-                     sb.Append(sESC2 + cb.Get(ccCount.Count_Range_2));
+                     sb.Append(sESC2 + cb.Get(ccCount.Initial_Value, 20));
+                     sb.Append(sESC2 + cb.Get(ccCount.Count_Range_1, 20));
+                     sb.Append(sESC2 + cb.Get(ccCount.Count_Range_2, 20));
                      sb.Append(sESC2 + cb.Get(ccCount.Update_Unit_Halfway, 6));
                      sb.Append(sESC2 + cb.Get(ccCount.Update_Unit_Unit, 6));
                      sb.Append(sESC2 + cb.Get(ccCount.Increment_Value, 2));
                      sb.Append(sESC2 + cb.Get(ccCount.Direction_Value, 1));
-                     sb.Append(sESC2 + cb.Get(ccCount.Jump_From));
-                     sb.Append(sESC2 + cb.Get(ccCount.Jump_To));
-                     sb.Append(sESC2 + cb.Get(ccCount.Reset_Value));
+                     sb.Append(sESC2 + cb.Get(ccCount.Jump_From, 20));
+                     sb.Append(sESC2 + cb.Get(ccCount.Jump_To, 20));
+                     sb.Append(sESC2 + cb.Get(ccCount.Reset_Value, 20));
+                     sb.Append(sESC2 + cb.Get(ccCount.Type_Of_Reset_Signal, 1));
+                     sb.Append(sESC2 + cb.Get(ccCount.Count_Skip, 5));
+                     sb.Append(sESC2 + cb.Get(ccCount.Zero_Suppression, 1));
+                     sb.Append(sESC2 + cb.Get(ccCount.Count_Multiplier, 10));
+                     sb.Append(sESC2 + "0");
+                     sb.Append(sESC2 + "0");
+
                      sb.Append(sESC2 + cb.Get(ccCount.External_Count, 1));
                   }
                }
@@ -458,13 +496,13 @@ namespace Modbus_DLL {
          for (int i = 0; i < itemCount; i++) {
             Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24);
             sb.Append(sDLE + (char)('1' + i));                                  // Item Header
-            sb.Append(sESC2 + pf.Get(ccPF.Line_Spacing, 1));
-            sb.Append(sESC2 + pf.Get(ccPF.Dot_Matrix, 1));
-            sb.Append(sESC2 + pf.Get(ccPF.InterCharacter_Space, 2));
-            sb.Append(sESC2 + pf.Get(ccPF.Character_Bold, 1));
-            sb.Append(sESC2 + pf.Get(ccPF.Barcode_Type, 1));
-            sb.Append(sESC2 + pf.Get(ccPF.Prefix_Code, 2));
-            sb.Append(sESC2 + pf.Get(ccPF.Readable_Code, 1));
+            sb.Append(sESC2 + pf.Get(ccPF.Line_Spacing, i, 1));
+            sb.Append(sESC2 + pf.Get(ccPF.Dot_Matrix, i, 1));
+            sb.Append(sESC2 + pf.Get(ccPF.InterCharacter_Space, i, 2));
+            sb.Append(sESC2 + pf.Get(ccPF.Character_Bold, i, 1));
+            sb.Append(sESC2 + pf.Get(ccPF.Barcode_Type, i, 1));
+            sb.Append(sESC2 + pf.Get(ccPF.Prefix_Code, i, 2));
+            sb.Append(sESC2 + pf.Get(ccPF.Readable_Code, i, 1));
          }
 
          return sb.Append(sETX).ToString();
@@ -522,7 +560,7 @@ namespace Modbus_DLL {
          return sb.Append(sETX).ToString();
       }
 
-      // Comolete
+      // Complete
       private string MessageGroupNames() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
          int grps = 100;                                                            // Get maximum number of groups allowed
@@ -541,7 +579,7 @@ namespace Modbus_DLL {
                      Section<ccMG> msg = new Section<ccMG>(MB, ccMG.Group_Number, 0, 13);
                      sb.Append(sESC2);
                      sb.AppendFormat(msg.Get(ccMG.Group_Number, 2));
-                     sb.AppendFormat(msg.Get(ccMG.Group_Name));
+                     sb.AppendFormat(msg.Get(ccMG.Group_Name, 12));
                   }
                }
             }
@@ -568,7 +606,7 @@ namespace Modbus_DLL {
                      sb.Append(sESC2);
                      sb.AppendFormat(msg.Get(ccMM.Message_Number, 4));
                      sb.AppendFormat(msg.Get(ccMM.Group_Number, 2));
-                     sb.Append(msg.Get(ccMM.Message_Name));
+                     sb.Append(msg.Get(ccMM.Message_Name, 12));
                   }
                }
             }
@@ -658,20 +696,20 @@ namespace Modbus_DLL {
          int errCount = MB.GetDecAttribute(ccAH.Message_Count);                 // Number of errors
          Section<ccAH> ah = new Section<ccAH>(MB, ccAH.Year, 0, errCount * 8);  // 
          for (int i = 0; i < errCount; i++) {
-            ah.SetOffset(i);                                // Set to Alarm Code entry
             sb.Append(sESC2);                               // Header
-            sb.Append(ah.Get(ccAH.Year, 4));                // Year
-            sb.Append(ah.Get(ccAH.Month, 2));               // Month
-            sb.Append(ah.Get(ccAH.Day, 2));                 // Day
-            sb.Append(ah.Get(ccAH.Hour, 2));                // Hour
-            sb.Append(ah.Get(ccAH.Minute, 2));              // Minute
-            sb.Append(ah.Get(ccAH.Fault_Number, 3));        // Alarm Code
+            sb.Append(ah.Get(ccAH.Year, i, 4));                // Year
+            sb.Append(ah.Get(ccAH.Month, i, 2));               // Month
+            sb.Append(ah.Get(ccAH.Day, i, 2));                 // Day
+            sb.Append(ah.Get(ccAH.Hour, i, 2));                // Hour
+            sb.Append(ah.Get(ccAH.Minute, i, 2));              // Minute
+            sb.Append(ah.Get(ccAH.Fault_Number, i, 3));        // Alarm Code
          }
 
          return sb.Append(sETX).ToString();
       }
 
       private string PartsUsageTime() {
+
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
          return sb.Append(sETX).ToString();
@@ -750,6 +788,7 @@ namespace Modbus_DLL {
       }
 
       private string ViscometerCalibration() {
+
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
          return sb.Append(sETX).ToString();
@@ -764,50 +803,75 @@ namespace Modbus_DLL {
       }
 
       private string UserPatternFixed(ModbusPkt pkt) {
-         int[] logoLen = new int[] { // in bytes
-            0,  // Unused
-            8,  // Size4x5
-            8,  // Size5x5
-            8,  // Size5x7
-            16,  // Size9x7
-            16,  // Size7x10
-            32,  // Size10x12
-            32,  // Size12x16
-            72,  // Size18x24
-            128, // Size24x32
-            32,  // Size11x11
-            5,   // Size5x3_Chimney
-            5,   // Size5x5_Chimney
-            7,   // Size7x5_Chimney
-            200, // Size30x40
-            288, // Size36x48
-         };
-         int[] loc = new int[] { -1, 0,  37, 74, 111, 148, 185 };
-         int[] cnt = new int[] { -1, 37, 37, 37,  37,  37,  15 };
-
          StringBuilder sb = new StringBuilder(sSTX, 2000);
          string DotMatrix = pkt.Data;
-         int dotMatrix = Data.ToDropdownValue(MB.GetAttrData(ccIDX.User_Pattern_Size).Data, pkt.Data);
+         int dotMatrix = Data.ToDropdownValue(MB.GetAttrData(ccIDX.User_Pattern_Size).Data, DotMatrix);
          if (dotMatrix >= 0) {
-            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);               // Liad the desired font
-            MB.SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
-            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            int page = pkt.Page;
-            Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Data, loc[page] * logoLen[dotMatrix] / 2, cnt[page] * logoLen[dotMatrix] / 2);
-            string[] logos = up.GetUserPatterns(cnt[page]);
-            for (int i = 0; i < cnt[page]; i++) {
-               sb.Append(sESC2);
-               sb.Append((loc[page] + i).ToString("D3"));
-               sb.Append(logos[i]);
+            if (MB.GetDecAttribute(ccIDX.User_Pattern_Size) != dotMatrix) {        // Is a different font loaded?
+               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);               // Load the desired font
+               MB.SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
+               MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
+            Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Registration, 0, regSize);
+            int[] regData = regs.GetWords(0, regSize);
+            for (int i = 0; i < regData.Length; i++) {
+               if (regData[i] > 0) {
+                  int first = 16;
+                  int last = 0;
+                  for (int j = 0; j < 16; j++) {
+                     if ((regData[i] & (1 << (15 - j))) > 0) {
+                        first = Math.Min(first, j);
+                        last = j;
+                     }
+                  }
+                  int index = (first + i * 16) * logoLen[dotMatrix] / 2;
+                  int span = (last - first + 1) * logoLen[dotMatrix] / 2;
+                  Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Data, index, span);
+                  string[] logos = up.GetUserPatterns(last - first + 1);
+                  for (int j = first; j <= last; j++) {
+                     if ((regData[i] & (1 << (15 - j))) > 0) {
+                        sb.Append(sESC2);
+                        sb.Append((i * 16 + j).ToString("D3"));
+                        sb.Append(logos[j - first]);
+                     }
+                  }
+               }
+            }
+
          }
 
          return sb.Append(sETX).ToString();
       }
 
-      private string UserPatternFree(ModbusPkt pkt) {
+      private string UserPatternFree() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
+         Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Registration, 0, regSizeFree);
+         int[] regData = regs.GetWords(0, regSizeFree);
+         int n = 0;
+         for (int i = 0; i < regData.Length; i++) {
+            if (regData[i] == 0) {
+               n += 16;
+            } else {
+               for (int j = 0; j < 16; j++) {
+                  if ((regData[i] & (1 << (15 - j))) > 0) {
+                     int height = MB.GetDecAttribute(ccUP.User_Pattern_Free_Height, n);
+                     int width = MB.GetDecAttribute(ccUP.User_Pattern_Free_Width, n);
+                     int wdCount = 2 * width;                                             // Always in 4 byte (32 bit) 
+                     Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Data, n, wdCount);
+                     sb.Append($"{sESC2}{n:D2}{height:D2}{width:D3}");
+                     int bytes = (height + 7) / 8;
+                     for (int c = 0; c < width; c++) {
+                        for (int r = 0; r < bytes; r++) {
+                           sb.Append(((int)up.b[c * 4 + r]).ToString("X2")); // Has to be passed as raw data.
+                        }
+                     }
+                  }
+                  n++;
+               }
+            }
+         }
+         string x = sb.ToString();
          return sb.Append(sETX).ToString();
       }
 
@@ -816,7 +880,7 @@ namespace Modbus_DLL {
          throw new NotImplementedException();
       }
 
-
+      #endregion
 
       #region ServiceRoutines
 
@@ -846,133 +910,4 @@ namespace Modbus_DLL {
 
    #endregion
 
-   #region Section Class
-
-   public class Section<T> where T : Enum {
-
-      byte[] b;
-      int start;
-      Modbus MB;
-      AttrData baseAttr;
-      int offset = 0;
-
-      public Section(Modbus MB, T attr, int index, int Len) {
-         this.MB = MB;                                      // Save Modbus I/O object
-         baseAttr = MB.GetAttrData(attr);                   // Need the stride for indexing
-         start = Convert.ToInt32(attr);                     // Get the base address of the block
-         const int blockSize = 100;                         // Number of 2-byte items to read
-         int n = (Len + blockSize) / blockSize;             // calculate number of reads needed
-         if (n == 1) {                                      // If only one read needed, read it directly
-            b = MB.GetAttributeBlock(attr, index, Len);
-         } else {                                           // Otherwise, read it in block size chunks
-            b = new byte[Len * 2];                          // Big enough for all reads
-            int wordsRead = 0;
-            for (int i = 0; i < n; i++) {                   // Read all sections and save then in array b
-               int wordsToRead = Math.Min(blockSize, Len - wordsRead);
-               byte[] t = MB.GetAttributeBlock(attr, index, wordsToRead, wordsRead);
-               Buffer.BlockCopy(t, 0, b, wordsRead * 2, t.Length);
-               wordsRead += wordsToRead;
-            }
-         }
-      }
-
-      public string Get(T item, int resultLen = -1) {
-         string result = string.Empty;
-         AttrData getAttr = MB.GetAttrData(item);           // Get attributes of desired item
-         int n = (getAttr.Val - start) * 2 + offset;        // Get offset in byte array (2 bytes per word)
-         int len = getAttr.Data.Len;                        // Get length
-         switch (getAttr.Data.Fmt) {                        // Format the data as needed
-            case DataFormats.None:
-               break;
-            case DataFormats.SDecimal:
-            case DataFormats.Decimal:
-               len += len;                                  // Length is in words so double it
-               int res = 0;
-               for (int i = 0; i < len; i++) {
-                  res = (res << 8) + b[n + i];
-               }
-
-               result = res.ToString($"D{resultLen}");      // 
-               break;
-            case DataFormats.UTF8:
-               char[] c = new char[len];
-               Buffer.BlockCopy(b, n + 1, c, 0, len * 2 - 1); // Characters are stored as little endian.
-               result = new string(c);
-               break;
-            case DataFormats.Date:
-               break;
-            case DataFormats.Bytes:
-               break;
-            case DataFormats.AttrText:
-               break;
-            default:
-               break;
-         }
-         return result;
-      }
-
-      public int GetDec(T item) {
-         AttrData getAttr = MB.GetAttrData(item);           // Get attributes of desired item
-         int n = (getAttr.Val - start) * 2 + offset;        // Get offset in byte array (2 bytes per word)
-         int len = getAttr.Data.Len;                        // Get length
-         int res = 0;
-         switch (getAttr.Data.Fmt) {                        // Format the data as needed
-            case DataFormats.Decimal:
-               len += len;                                  // Length is in words so double it
-               for (int i = 0; i < len; i++) {
-                  res = (res << 8) + b[n + i];
-               }
-               break;
-            default:
-               // Need msg here
-               break;
-         }
-         return res;
-      }
-
-      public byte[] GetBytes(int offset, int len) {
-         byte[] response = new byte[len];
-         Buffer.BlockCopy(b, offset, response, 0, len);
-         return response;
-      }
-
-      public int[] GetWords(int offset, int len = -1) {          // offset and len in words
-         if (len == -1) {
-            len = b.Length / 2 - offset;
-         }
-         int[] response = new int[len];
-         for (int i = 0; i < len; i++) {
-            int n = (offset + i) * 2;
-            response[i] = (b[n] << 8) + b[n + 1];       // Values are stored Big Endian
-         }
-         return response;
-      }
-
-      public byte[] GetAttributedChrs(int offset, int len) {          // Offset and Len in Attributed Characters (4-byte characters)
-         byte[] response = new byte[len * 4];
-         Buffer.BlockCopy(b, offset * 4, response, 0, len * 4);
-         return response;
-      }
-
-      public string[] GetUserPatterns(int count) {
-         string[] result = new string[count];               // Patterns are returned as strings
-         int n = b.Length / count;                          // Number of bytes per string
-         char[] c = new char[n];                            // A place to stage the output
-         int k = 0;
-         for (int i = 0; i < count; i++) {                  // Repeat for each logo
-            for (int j = 0; j < n; j++) {
-               c[j] = (char)b[k++];
-            }
-            result[i] = new string(c);
-         }
-         return result;
-      }
-
-      public void SetOffset(int n) {
-         offset = baseAttr.Stride * n * 2;                  // For arrays within the block
-      }
-
-   }
-
-   #endregion
 }

@@ -481,11 +481,11 @@ namespace Modbus_DLL {
       // Print_data_management (Class Code 0x66)
       private readonly AttrData[] ccPDR_Addrs = new AttrData[] {
          new AttrData((int)ccPDR.Recall_Message, true, 1, 0,                    // Recall Message 0x1006
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPDR.Group_Number, true, 1, 0,                      // Group Number 0x100C
-            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),              //   Data
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPDR.Message_Number, true, 1, 0,                    // Message Number 0x100D
-            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccPDR.MessageName, true, 1, 0,                       // Message Name 0x100E
             new Prop(10, DataFormats.UTF8, 0, 12, fmtDD.None)),                 //   Data
       };
@@ -494,24 +494,14 @@ namespace Modbus_DLL {
       private readonly AttrData[] ccPDM_Addrs = new AttrData[] {
          new AttrData((int)ccPDM.Recall_Message, true, 1, 0,                    // Select Message 0x64
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         //new AttrData((int)ccPDM.Store_Print_Data, true, 1, 0,                  // Store Print Data 0x65
-         //   new Prop(15, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
          new AttrData((int)ccPDM.Delete_Print_Data, true, 1, 0,                 // Delete Print Data 0x67
-            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccPDM.Message_Name, true, 1, 0,                      // Print Data Name 0x69
             new Prop(10, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
-         //new AttrData((int)ccPDM.List_of_Messages, true, 1, 0,                  // List of Messages 0x6A
-         //   new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccPDM.Change_Message_Name, true, 1, 0,               // Print Data Number 0x6B
             new Prop(4, DataFormats.Decimal, 1, 2000, fmtDD.None)),             //   Data
-         //new AttrData((int)ccPDM.Change_Create_Group_Name, true, 1, 0,          // Change Create Group Name 0x6C
-         //   new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
          new AttrData((int)ccPDM.Group_Deletion, true, 1, 0,                    // Group Deletion 0x6D
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
-         //new AttrData((int)ccPDM.List_of_Groups, true, 1, 0,                    // List of Groups 0x6F
-         //   new Prop(500, DataFormats.Bytes, 0, 99, fmtDD.None)),               //   Data
-         //new AttrData((int)ccPDM.Change_Group_Number, true, 1, 0,               // Change Group Number 0x70
-         //   new Prop(2, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
       };
 
       // Print_format (Class Code 0x67)
@@ -519,10 +509,6 @@ namespace Modbus_DLL {
          // The first section of data appears only once
          new AttrData((int)ccPF.Message_Name, true, 1, 0,                       // Message Name 0x64
             new Prop(14, DataFormats.UTF8, 0, 14, fmtDD.None)),                 //   Data
-         //new AttrData((int)ccPF.Number_Of_Columns, true, 1, 0,                  // Number Of Columns 0x66
-         //   new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
-         //new AttrData((int)ccPF.Format_Type, true, 1, 0,                        // Format Type 0x67
-         //   new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.Number_Of_Print_Line_And_Print_Format, true, 1, 0, // Number Of Print Line And Print Format 0x1020
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Insert_Column, true, 1, 0, Noz.Current,         // Insert Column 0x1021
@@ -532,17 +518,13 @@ namespace Modbus_DLL {
          new AttrData((int)ccPF.Add_Column, true, 1, 0, Noz.Current,            // Add Column 0x1023
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Column, true, 1, 0, Noz.Current,                // Column 0x1024
-            new Prop(2, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
+            new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.Line, true, 1, 0, Noz.Current,                  // Line 0x1025
             new Prop(1, DataFormats.Decimal, 0, 6, fmtDD.None)),                //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
-         //new AttrData((int)ccPF.Adding_Print_Items, true, 1, 0,                 // Adding Print Items 0x6E
-         //   new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         //new AttrData((int)ccPF.Deleting_Print_Items, true, 1, 0,               // Deleting Print Items 0x6F
-         //   new Prop(1, DataFormats.Decimal, 1, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.InterCharacter_SpaceII, true, 1, 0,             // InterCharacter SpaceII 0x7B
-            new Prop(2, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
+            new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Add_To_End_Of_String, true, 1, 0,               // Add To End Of String 0x8A
             new Prop(750, DataFormats.UTF8, 0, 0, fmtDD.None)),                 //   Data
          // The following data is repeated
@@ -604,7 +586,7 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
          new AttrData((int)ccPS.Line_Speed, true, 1, 0, Noz.Current,            // Line Speed 0x19AA
             new Prop(1, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
-         new AttrData((int)ccPS.HeadToWorkDistance, true, 1, 0, Noz.Current, // Distance Between Print Head And Object 0x19AB
+         new AttrData((int)ccPS.HeadToWorkDistance, true, 1, 0, Noz.Current,    // Distance Between Print Head And Object 0x19AB
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccPS.Print_Target_Width, true, 1, 0, Noz.Current,    // Print Target Width 0x19AC
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
@@ -635,11 +617,11 @@ namespace Modbus_DLL {
          new AttrData((int)ccCal.Offset_Month, true, 8, 32, Noz.Current,        // Offset Month 0x19C1
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccCal.Offset_Day, true, 8, 32, Noz.Current,          // Offset Day 0x19C2
-            new Prop(2, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1999, fmtDD.None)),             //   Data
          new AttrData((int)ccCal.Offset_Hour, true, 8, 32, Noz.Current,         // Offset Hour 0x19C3
-            new Prop(2, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Data
+            new Prop(1, DataFormats.SDecimal, -23, 99, fmtDD.None)),            //   Data
          new AttrData((int)ccCal.Offset_Minute, true, 8, 32, Noz.Current,       // Offset Minute 0x19C4
-            new Prop(2, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Data
+            new Prop(1, DataFormats.SDecimal, -59, 99, fmtDD.None)),            //   Data
          new AttrData((int)ccCal.Zero_Suppress_Year, true, 8, 32, Noz.Current,  // Zero Suppress Year 0x19C5
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.DisableSpaceChar)),    //   Data
          new AttrData((int)ccCal.Zero_Suppress_Month, true, 8, 32, Noz.Current, // Zero Suppress Month 0x19C6
@@ -675,16 +657,16 @@ namespace Modbus_DLL {
       // User_pattern (Class Code 0x6B)
       private readonly AttrData[] ccUP_Addrs = new AttrData[] {
          new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 13, 1, 0,// User Pattern Fixed Registration 0x2D00
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 14304, 1,        // User Pattern Fixed Data 0x2D20
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 4, 1, 0,  // User Pattern Free Registration 0x6500
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Height 0x6510
             new Prop(1, DataFormats.Decimal, 0, 32, fmtDD.None)),               //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Width, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Width 0x6511
-            new Prop(2, DataFormats.Decimal, 0, 320, fmtDD.None)),              //   Data
-         new AttrData((int)ccUP.User_Pattern_Free_Data, true, 50 * Modbus.FreeLogoSize, 1, // User Pattern Free Data 0x6512
+            new Prop(1, DataFormats.Decimal, 0, 320, fmtDD.None)),              //   Data
+         new AttrData((int)ccUP.User_Pattern_Free_Data, true, 50, Modbus.FreeLogoSize, 1, // User Pattern Free Data 0x6512
             new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
@@ -695,7 +677,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccSR.Number, true, 1, 0,                             // Number 0x1AC0
             new Prop(1, DataFormats.Decimal, 1, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccSR.Start_Year, true, 1, 0,                         // Start Year 0x1AC1
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccSR.Year, true, 25, 2, 0,                           // Year 0x1AC2
             new Prop(2, DataFormats.UTF8, 0, 24, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Month, true, 12, 3,                             // Month 0x1AF4
@@ -737,7 +719,7 @@ namespace Modbus_DLL {
       // Enviroment_setting (Class Code 0x71)
       private readonly AttrData[] ccES_Addrs = new AttrData[] {
          new AttrData((int)ccES.Current_Time_Year, true, 1, 0,                  // Current Time Year 0x2498
-            new Prop(2, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
+            new Prop(1, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
          new AttrData((int)ccES.Current_Time_Month, true, 1, 0,                 // Current Time Month 0x2499
             new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None)),               //   Data
          new AttrData((int)ccES.Current_Time_Day, true, 1, 0,                   // Current Time Day 0x249A
@@ -753,7 +735,7 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
 
          new AttrData((int)ccES.Calendar_Time_Year, true, 1, 0,                 // Calendar Time Year 0x249F
-            new Prop(2, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
+            new Prop(1, DataFormats.Decimal, 2000, 2999, fmtDD.None)),          //   Data
          new AttrData((int)ccES.Calendar_Time_Month, true, 1, 0,                // Calendar Time Month 0x24A0
             new Prop(1, DataFormats.Decimal, 1, 12, fmtDD.None)),               //   Data
          new AttrData((int)ccES.Calendar_Time_Day, true, 1, 0,                  // Calendar Time Day 0x24A1
@@ -807,13 +789,13 @@ namespace Modbus_DLL {
          new AttrData((int)ccUS.Warning_Status, false, 1, 0,                    // Warning Status 0x0003
             new Prop(1, DataFormats.Decimal, 0x30, 0x51, fmtDD.WarningStatus)), //   Data
          new AttrData((int)ccUS.Analysis_Info_1, false, 1, 0,                   // Analysis Info 1 0x0004
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Analysis_Info_2, false, 1, 0,                   // Analysis Info 2 0x0005
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Analysis_Info_3, false, 1, 0,                   // Analysis Info 3 0x0006
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUS.Analysis_Info_4, false, 1, 0,                   // Analysis Info 4 0x0007
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       // Unit_Information (Class Code 0x73)
@@ -829,9 +811,9 @@ namespace Modbus_DLL {
          new AttrData((int)ccUI.Input_Mode, true, 1, 0,                         // Input Mode 0x6E
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUI.Maximum_Character_Count, true, 1, 0,            // Maximum Character Count 0x6F
-            new Prop(2, DataFormats.Decimal, 240, 1000, fmtDD.None)),           //   Data
+            new Prop(1, DataFormats.Decimal, 240, 1000, fmtDD.None)),           //   Data
          new AttrData((int)ccUI.Maximum_Registered_Message_Count, false, 1, 0,  // Maximum Registered Message Count 0x70
-            new Prop(2, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Data
+            new Prop(1, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Data
          new AttrData((int)ccUI.Barcode_Information, true, 1, 0,                // Barcode Information 0x71
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None)),                //   Data
          new AttrData((int)ccUI.Usable_Character_Size, true, 1, 0,              // Usable Character Size 0x72
@@ -869,27 +851,27 @@ namespace Modbus_DLL {
          //new AttrData((int)ccOM.Communications_Environment, true, 1, 0,         // Communications Environment 0x68
          //   new Prop(2, DataFormats.Bytes, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccOM.Cumulative_Operation_Time, true, 1, 0,          // Cumulative Operation Time 0x69
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Ink_And_Makeup_Type, true, 1, 0,                // Ink And Makeup Name 0x6A
             new Prop(12, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
          new AttrData((int)ccOM.Ink_Viscosity, true, 1, 0,                      // Ink Viscosity 0x6B
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Ink_Pressure, true, 1, 0,                       // Ink Pressure 0x6C
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Ambient_Temperature, true, 1, 0,                // Ambient Temperature 0x6D
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Deflection_Voltage, true, 1, 0,                 // Deflection Voltage 0x6E
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Excitation_VRef_Setup_Value, true, 1, 0,        // Excitation VRef Setup Value 0x6F
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Excitation_Frequency, true, 1, 0,               // Excitation Frequency 0x70
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Ink_Operating_Time, true, 1, 0,                 // Ink Operating Time 0x25B0
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Alarm_Time, true, 1, 0,                         // Alarm Time 0x25B1
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccOM.Print_Count, true, 1, 0,                        // Print Count 0x25B2
-            new Prop(2, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
       };
 
       // IJP_operation (Class Code 0x75)
@@ -957,7 +939,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccIDX.Number_Of_Items, true, 1, 0, Noz.Current,      // Number Of Items 0x0008
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccIDX.Message_Number, true, 1, 0,                    // Message Number 0x0010
-            new Prop(2, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 2000, fmtDD.None)),             //   Data
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
@@ -969,9 +951,9 @@ namespace Modbus_DLL {
       // Print Contents (Class Code 0x7B)
       private readonly AttrData[] ccPC_Addrs = new AttrData[] {
          new AttrData((int)ccPC.Characters_per_Item, true, 100, 1, Noz.Current, // Character per Item 0x0020
-            new Prop(2, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1000, fmtDD.None)),             //   Data
          new AttrData((int)ccPC.Print_Character_String, true, 1000, 2, Noz.Current, // Print Character String 0x0084
-            new Prop(4, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
+            new Prop(2, DataFormats.AttrText, 0, 0, fmtDD.None)),               //   Data
          new AttrData((int)ccPC.Print_Erasure, true, 1, 0, Noz.Current,         // Print Erasure 0x1000
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
       };

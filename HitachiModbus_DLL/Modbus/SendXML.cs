@@ -17,6 +17,10 @@ namespace Modbus_DLL {
 
       public Encoding Encode = Encoding.UTF8;
 
+      //                          0  1  2  3   4   5   6   7   8    9  10 11 12 13   14   15   16
+      int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288, 512 };
+      //                         n/a | 5x5 |  9x8  | 10x12 | 18x24 | 11x11 | 5x5C| 30x40  |  48x64
+      //                          X 4x5   5x8     7x10   12x16   24x32    5x3C  7x5C    36x48
       #endregion
 
       #region Methods
@@ -66,19 +70,13 @@ namespace Modbus_DLL {
                   Log?.Invoke(p, $" \n// Sending Logos\n ");
                   if (Lab.Printer[i].Logos != null) {
                      XMLwriter.WriteStartElement("Logos");
-                     foreach (Logo l in ptr.Logos) {
-                        switch (l.Layout) {
-                           case "Free":
-                              XMLwriter.WriteStartElement("FreeLogo");
-                              SendFreeLogo(l);
-                              XMLwriter.WriteEndElement();
-                              break;
-                           case "Fixed":
-                              XMLwriter.WriteStartElement("FixedLogo");
-                              SendFixedLogo(l);
-                              XMLwriter.WriteEndElement();
-                              break;
-                        }
+                     Logo[] fixedLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Fixed");
+                     Logo[] freeLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Free");
+                     if (fixedLogos.Length > 0) {
+                        SendFixedLogos(fixedLogos);
+                     }
+                     if (freeLogos.Length > 0) {
+                        SendFreeLogos(freeLogos);
                      }
                      XMLwriter.WriteEndElement();
                   }
@@ -149,6 +147,58 @@ namespace Modbus_DLL {
          }
       }
 
+      private void SendFixedLogos(Logo[] fixedLogos) {
+         List<Logo>[] bySize = new List<Logo>[logoLen.Length];                  // Break the list up by character size
+         for (int i = 0; i < fixedLogos.Length; i++) {
+            int n = Data.ToDropdownValue(p.GetAttrData(ccIDX.User_Pattern_Size).Data, fixedLogos[i].DotMatrix);
+            if (bySize[n] == null) {
+               bySize[n] = new List<Logo>();
+            }
+            bySize[n].Add(fixedLogos[i]);
+         }
+         for (int i = 0; i < logoLen.Length; i++) {                             // Process one font size at a time
+            if (bySize[i] != null) {
+               List<Logo> l = bySize[i].OrderBy(x => x.Location).ToList();      // Create a shorthand for the sorted list
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);             // Get the registration table loaded
+               p.SetAttribute(ccIDX.User_Pattern_Size, i);
+
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);             // Get the registration table loaded
+               int len = (200 + 15) / 16;                                       // Number of words for 200 bits
+               Section<ccUP> regs = new Section<ccUP>(p, ccUP.User_Pattern_Fixed_Registration, 0, len);
+               for (int n = 0; n < l.Count; n++) {                              // Add this set of logos to the registration
+                  int bit = l[n].Location;                                      // 0-origin registration of logos
+                  regs.b[bit >> 3] |= (byte)(0x80 >> (int)(bit & 0x07));        // Set the bit in a byte array
+               }
+               regs.WriteSection();
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+               int start = 0;
+               AttrData attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Data).Clone();
+               attr.Stride = logoLen[i] / 2;                                    // Get the distance between patterns
+               for (int n = 0; n < l.Count; n++) {                              // Find sets of adjacent logos
+                  if (n == (l.Count -1) || (l[n].Location + 1) != l[n + 1].Location ) { // End or a discontinuity
+                     int logoCount = n - start + 1;                             // Number of consecutive logo characters
+                     Section<ccUP> pattern = new Section<ccUP>(p, attr, l[start].Location, attr.Stride * logoCount, false);
+                     for (int j = start; j <= n; j++) {
+                        byte[] data = new byte[logoLen[i]];
+                        byte[] rawdata = p.string_to_byte(l[j].RawData);
+                        for (int k = 0; k < Math.Min(data.Length, rawdata.Length); k++) {
+                           data[k] = rawdata[k];
+                        }
+                        pattern.SetUserPattern(data, l[j].Location);
+                     }
+                     pattern.WriteSection();                                    // Write the characters to the printer
+                     start = n + 1;                                             // Start here next time
+                  }
+               }
+            }
+         }
+      }
+
+      private void SendFreeLogos(Logo[] freeLogos) {
+
+      }
+
       private void P_Log(object sender, string msg) {
          if (XMLwriter != null && (msg.StartsWith("Get") || msg.StartsWith("Set"))) {
             XMLwriter.WriteElementString("IO", msg.Replace("\n", ""));
@@ -178,73 +228,79 @@ namespace Modbus_DLL {
 
       // Use the column/item structure of a Lab to allocate items in the printer
       private void AllocateRowsColumns(Msg m) {
-         bool barCodesExist = false;
-         int index = 0;
-         bool hasDateOrCount = false; // Save some time if no need to look
-         int charPosition = 0;
-         for (int c = 0; c < m.Column.Length; c++) {
-            XMLwriter.WriteStartElement("AllocateColumn");
-            XMLwriter.WriteAttributeString("Column", (c + 1).ToString());
-            if (c > 0) {
-               Log?.Invoke(p, $" \n// Add column {c + 1}\n ");
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccPF.Add_Column, c + 1);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         bool barCodesExist = false;                        // Has to be set after the text is loaded
+         bool hasDateOrCount = false;                       // Save some time if no need to look
+         List<int> sl = new List<int>(100);                 // Characters per item
+         StringBuilder sb = new StringBuilder(100);         // Text of items
+         string s;                                          // Always need a string for something
+         int index = 0;                                     // This is Item number
+
+         // Allocate the items
+         p.SetAttribute(ccPF.Column, 1);                    // All work is done on the first column (column 1)
+
+         // Step thru the columns right-to-left
+         for (int c = m.Column.GetUpperBound(0); c >= m.Column.GetLowerBound(0); c--) {
+            Column col = m.Column[c];                                 // Create a shorthand
+            Log?.Invoke(p, $" \n// Set column {c + 1} to {col.Item.Length} items\n ");
+            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);       // Allocate all items in column
+            if (col.Item.Length > 1) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);   // Stack up the requests if 2 or more items
             }
 
-            Log?.Invoke(p, $" \n// Set column {c + 1} to {m.Column[c].Item.Length} items\n ");
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPF.Column, c + 1);
-            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            // Step thru the items in a column bottom-to-top
+            string[] sp = new string[col.Item.Length];
+            for (int r = col.Item.GetUpperBound(0); r >= col.Item.GetLowerBound(0); r--) {
+               Item item = col.Item[r];                               // Shorthand for item and font
+               FontDef font = item.Font;
 
-            if (m.Column[c].Item.Length > 1) {
-               Log?.Invoke(p, $" \n// Set ILS for items {index + 1} to {index + m.Column[c].Item.Length}\n ");
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               for (int j = 0; j < m.Column[c].Item.Length; j++) {
-                  p.SetAttribute(ccPF.Line_Spacing, index + j, m.Column[c].InterLineSpacing);
+               // Create a block write for ILS, Font, ICS, and Bolding
+               Section<ccPF> sect = new Section<ccPF>(p, ccPF.Line_Spacing, ccPF.Character_Bold, r, false);
+               {
+                  sect.SetAttribute(ccPF.Line_Spacing, r, col.InterLineSpacing);
+                  sect.SetAttribute(ccPF.Dot_Matrix, r, font.DotMatrix);
+                  sect.SetAttribute(ccPF.InterCharacter_Space, r, font.InterCharacterSpace);
+                  sect.SetAttribute(ccPF.Character_Bold, r, font.IncreasedWidth);
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-            }
+               sect.WriteSection();
 
-            for (int r = 0; r < m.Column[c].Item.Length; r++) {
-               Log?.Invoke(p, $" \n// Fill in item {index + 1}\n ");
-               XMLwriter.WriteStartElement("AllocateItem");
-               XMLwriter.WriteAttributeString("Row", (r + 1).ToString());
-               Item item = m.Column[c].Item[r];
-               if (item.Font != null) {
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                  p.SetAttribute(ccPF.Dot_Matrix, index, item.Font.DotMatrix);
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                  p.SetAttribute(ccPF.InterCharacter_Space, index, item.Font.InterCharacterSpace);
-                  p.SetAttribute(ccPF.Character_Bold, index, item.Font.IncreasedWidth);
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-                  if (item.BarCode != null) {
-                     barCodesExist = true;
-                  }
-               }
-
-               string s = p.HandleBraces(item.Text);
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-               p.SetAttribute(ccPC.Characters_per_Item, index, s.Length);
-               while (s.Length > 0) {
-                  int len = Math.Min(s.Length, 50);
-                  p.SetAttribute(ccPC.Print_Character_String, charPosition, s.Substring(0, len));
-                  s = s.Substring(len);
-                  charPosition += len;
-               }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               // Process the text
+               sp[r] = p.HandleBraces(item.Text);     // Convert string to Hitachi Attributed characters
+               barCodesExist |= item.BarCode != null;
                hasDateOrCount |= item.Date != null | item.Counter != null;
-               index++;
-               XMLwriter.WriteEndElement();
             }
-            XMLwriter.WriteEndElement();
+
+            // Make the display look nice (this may be an issue.)
+            int maxLen = sp.Max(x => x.Length);       // Get the maximum string length
+            for (int si = sp.GetUpperBound(0); si >= sp.GetLowerBound(0); si--) {
+               sl.Insert(0, maxLen);                  // Insert at front since processing in reverse order
+               sb.Insert(0, sp[si].PadRight(maxLen)); // Pad to max length.
+            }
+            if (col.Item.Length > 1) {
+               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);   // Now set them all at once if 2 or more items 
+            }
+            if (c > m.Column.GetLowerBound(0)) {                      // Are there more columns to come?
+               p.SetAttribute(ccPF.Insert_Column, 1);                 // Allocate a new column 1
+               p.SetAttribute(ccPF.Dot_Matrix, 0, "5X5");             // Make sure column is stackable to 6 rows
+            }
          }
-         //
-         // Is this message free layout?
+
+         // Now, write all the text at once
+         int charPosition = 0;                              // Position in the array of attributed characters (4 bytes each)
+         s = sb.ToString();                                 // Get all text items into a single string.
+         Log?.Invoke(p, $" \n//Write all text at once: {sl.Count} items and {s.Length} Characters\n ");
+
+         // Characters per item and item text must be set as a group
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1); // Start stacking requests
+         Section<ccPC> cpi = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, sl.Count, false);
+         cpi.SetWords(sl.ToArray(), 0);                       // Set characters per item for all items
+         cpi.WriteSection();
+
+         Section<ccPC> tpi = new Section<ccPC>(p, ccPC.Print_Character_String, 0, s.Length * 2, false);
+         tpi.SetAttrChrs(s, 0);                               // Set text for all items
+         tpi.WriteSection();
+         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2); // Save lengths and text at once.
+
+         // Is this message free layout?      <TODO> Not used now but, if needed, do later
          if (m.Layout == "FreeLayout") {
             XMLwriter.WriteStartElement("PositionItems");
             // Change message to free layout
@@ -262,7 +318,7 @@ namespace Modbus_DLL {
                   XMLwriter.WriteStartElement("Item");
                   XMLwriter.WriteAttributeString("Index", (index + 1).ToString());
                   Item item = m.Column[c].Item[r];
-                  string s = p.HandleBraces(item.Text);
+                  s = p.HandleBraces(item.Text);
                   p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                   if (item.Location != null) {
                      p.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
@@ -322,13 +378,16 @@ namespace Modbus_DLL {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
                int index = m.Column[c].Item[r].Location.Index - 1;
-               if (item.Date != null) {
-                  item.Location.calCount = p.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, index);
-                  item.Location.calStart = p.GetDecAttribute(ccPF.First_Calendar_Block, index);
-               }
-               if (item.Counter != null) {
-                  item.Location.countCount = p.GetDecAttribute(ccPF.Number_Of_Count_Blocks, index);
-                  item.Location.countStart = p.GetDecAttribute(ccPF.First_Count_Block, index);
+               if (item.Date != null || item.Counter != null) {
+                  Section<ccPF> ccs = new Section<ccPF>(p, ccPF.First_Calendar_Block, ccPF.Number_Of_Count_Blocks, index);
+                  if (item.Date != null) {
+                     item.Location.calCount = ccs.GetDecAttribute(ccPF.Number_of_Calendar_Blocks, index);
+                     item.Location.calStart = ccs.GetDecAttribute(ccPF.First_Calendar_Block, index);
+                  }
+                  if (item.Counter != null) {
+                     item.Location.countCount = ccs.GetDecAttribute(ccPF.Number_Of_Count_Blocks, index);
+                     item.Location.countStart = ccs.GetDecAttribute(ccPF.First_Count_Block, index);
+                  }
                }
             }
          }
@@ -355,40 +414,34 @@ namespace Modbus_DLL {
 
       // Send Calendar settings
       private void SendCalendar(Item item) {
+         int span;
          int calStart = item.Location.calStart;
          int calCount = item.Location.calCount;
          for (int i = 0; i < item.Date.Length; i++) {
             Date date = item.Date[i];
-            if (date.Block <= calCount && int.TryParse(date.SubstitutionRule, out int ruleNumber) && ruleNumber > 0) {
-               if (date.Offset != null || date.ZeroSuppress != null || date.Substitute != null || date.TimeCount != null || date.Shifts != null) {
-
-                  Log?.Invoke(p, $" \n// Load settings for Substitution rule {1}\n ");
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                  p.SetAttribute(ccIDX.Substitution_Rule, ruleNumber); // date.SubstitutionRule
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
+            if (date.Block <= calCount) {
+               if (date.Offset != null || date.ZeroSuppress != null || date.Substitute != null) {
                   int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
-                  Log?.Invoke(p, $" \n// Set up calendar {index + 1}\n ");
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+
+                  //Log?.Invoke(p, $" \n// Load settings for Substitution rule {index + 1}\n ");
+                  //p.SetAttribute(ccIDX.Substitution_Rule, index + 1); // date.SubstitutionRule
+
+                  Log?.Invoke(p, $" \n// Set up calendar block {index + 1}\n ");
+
+                  span = Section<ccCal>.GetSpan(p, ccCal.Offset_Year, ccCal.Zero_Suppress_DayOfWeek);
+                  Section<ccCal> cs = new Section<ccCal>(p, ccCal.Offset_Year, index, span, false);
+                  //cs.SetAttribute(ccCal.Substitute_Rule, index, index + 1);
+                  cs.SetAttribute(ccCal.Substitute_Rule, index, 1);
+
                   // Process Offset
                   Offset o = date.Offset;
                   if (o != null) {
                      XMLwriter.WriteStartElement("Offset");
-                     if (o.Year != 0) {
-                        p.SetAttribute(ccCal.Offset_Year, index, o.Year);
-                     }
-                     if (o.Month != 0) {
-                        p.SetAttribute(ccCal.Offset_Month, index, o.Month);
-                     }
-                     if (o.Day != 0) {
-                        p.SetAttribute(ccCal.Offset_Day, index, o.Day);
-                     }
-                     if (o.Hour != 0) {
-                        p.SetAttribute(ccCal.Offset_Hour, index, o.Hour);
-                     }
-                     if (o.Minute != 0) {
-                        p.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
-                     }
+                     cs.SetAttribute(ccCal.Offset_Year, index, o.Year);
+                     cs.SetAttribute(ccCal.Offset_Month, index, o.Month);
+                     cs.SetAttribute(ccCal.Offset_Day, index, o.Day);
+                     cs.SetAttribute(ccCal.Offset_Hour, index, o.Hour);
+                     cs.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
                      XMLwriter.WriteEndElement();
                   }
 
@@ -396,90 +449,70 @@ namespace Modbus_DLL {
                   ZeroSuppress zs = date.ZeroSuppress;
                   if (zs != null) {
                      XMLwriter.WriteStartElement("ZeroSuppress");
-                     if (zs.Year != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
-                     }
-                     if (zs.Month != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
-                     }
-                     if (zs.Day != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
-                     }
-                     if (zs.Hour != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
-                     }
-                     if (zs.Minute != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
-                     }
-                     if (zs.Week != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
-                     }
-                     if (zs.DayOfWeek != ZS.None) {
-                        p.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, index, zs.DayOfWeek);
-                     }
+                     cs.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
+                     cs.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
+                     cs.SetAttribute(ccCal.Zero_Suppress_Day, index, zs.Day);
+                     cs.SetAttribute(ccCal.Zero_Suppress_Hour, index, zs.Hour);
+                     cs.SetAttribute(ccCal.Zero_Suppress_Minute, index, zs.Minute);
+                     cs.SetAttribute(ccCal.Zero_Suppress_Weeks, index, zs.Week);
+                     cs.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, index, zs.DayOfWeek);
                      XMLwriter.WriteEndElement();
                   }
-
                   // Process Substitutions
                   Substitute s = date.Substitute;
                   if (s != null) {
                      XMLwriter.WriteStartElement("Substitutions");
-                     if (s.Year != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Year, index, s.Year);
-                     }
-                     if (s.Month != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Month, index, s.Month);
-                     }
-                     if (s.Day != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Day, index, s.Day);
-                     }
-                     if (s.Hour != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
-                     }
-                     if (s.Minute != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
-                     }
-                     if (s.Week != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
-                     }
-                     if (s.DayOfWeek != ED.Disable) {
-                        p.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
-                     }
+                     cs.SetAttribute(ccCal.Substitute_Year, index, s.Year);
+                     cs.SetAttribute(ccCal.Substitute_Month, index, s.Month);
+                     cs.SetAttribute(ccCal.Substitute_Day, index, s.Day);
+                     cs.SetAttribute(ccCal.Substitute_Hour, index, s.Hour);
+                     cs.SetAttribute(ccCal.Substitute_Minute, index, s.Minute);
+                     cs.SetAttribute(ccCal.Substitute_Weeks, index, s.Week);
+                     cs.SetAttribute(ccCal.Substitute_DayOfWeek, index, s.DayOfWeek);
                      XMLwriter.WriteEndElement();
                   }
+                  cs.WriteSection();
+               }
 
-                  // Process shifts
-                  if (date.Shifts != null) {
-                     Log?.Invoke(p, $" \n// Set up shifts\n ");
-                     XMLwriter.WriteStartElement("Shifts");
-                     for (int j = 0; j < date.Shifts.Length; j++) {
-                        XMLwriter.WriteStartElement("Shift");
-                        XMLwriter.WriteAttributeString("Shift", (j + 1).ToString());
-                        p.SetAttribute(ccSR.Shift_Start_Hour, j, date.Shifts[j].StartHour);
-                        p.SetAttribute(ccSR.Shift_Start_Minute, j, date.Shifts[j].StartMinute);
-                        p.SetAttribute(ccSR.Shift_End_Hour, j, date.Shifts[j].EndHour);
-                        p.SetAttribute(ccSR.Shift_End_Minute, j, date.Shifts[j].EndMinute);
-                        p.SetAttribute(ccSR.Shift_String_Value, j, date.Shifts[j].ShiftCode);
-                        XMLwriter.WriteEndElement();
+               // Process shifts
+               if (date.Shifts != null) {
+                  Log?.Invoke(p, $" \n// Set up shifts\n ");
+                  span = 16 * date.Shifts.Length;                               // <TODO>  Remove const 16
+                  Section<ccSR> ss = new Section<ccSR>(p, ccSR.Shift_Start_Hour, 0, span, false);
+                  XMLwriter.WriteStartElement("Shifts");
+                  for (int j = 0; j < date.Shifts.Length; j++) {
+                     Shift ds = date.Shifts[j];
+                     //XMLwriter.WriteStartElement("Shift");
+                     //XMLwriter.WriteAttributeString("Shift", (j + 1).ToString());
+                     if (j > 0) {
+                        ss.SetAttribute(ccSR.Shift_Start_Hour, j, ds.StartHour);
+                        ss.SetAttribute(ccSR.Shift_Start_Minute, j, ds.StartMinute);
                      }
-                     XMLwriter.WriteEndElement();
+                     ss.SetAttribute(ccSR.Shift_End_Hour, j, ds.EndHour);
+                     ss.SetAttribute(ccSR.Shift_End_Minute, j, ds.EndMinute);
+                     ss.SetAttribute(ccSR.Shift_String_Value, j, ds.ShiftCode);
+                     //XMLwriter.WriteEndElement();
                   }
+                  ss.WriteSection();
+                  XMLwriter.WriteEndElement();
+               }
 
-                  // Process TimeCount
+               // Process TimeCount
+               if (date.TimeCount != null) {
                   TimeCount tc = date.TimeCount;
-                  if (tc != null) {
-                     Log?.Invoke(p, $" \n// Set up Time Count\n ");
-                     XMLwriter.WriteStartElement("TimeCount");
-                     p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                     p.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
-                     p.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
-                     p.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
-                     p.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
-                     p.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
-                     p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-                     XMLwriter.WriteEndElement();
-                  }
-                  p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                  Log?.Invoke(p, $" \n// Set up Time Count\n ");
+                  XMLwriter.WriteStartElement("TimeCount");
+                  span = Section<ccSR>.GetSpan(p, ccSR.Time_Count_Start_Value, ccSR.Update_Interval_Value);
+                  Section<ccSR> tcs = new Section<ccSR>(p, ccSR.Time_Count_Start_Value, 0, span, false);
+                  tcs.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
+                  tcs.SetAttribute(ccSR.Time_Count_End_Value, tc.End);
+                  tcs.SetAttribute(ccSR.Time_Count_Reset_Value, tc.ResetValue);
+                  tcs.SetAttribute(ccSR.Reset_Time_Value, tc.ResetTime);
+                  tcs.SetAttribute(ccSR.Update_Interval_Value, tc.Interval);
+
+                  tcs.WriteSection();
+
+                  XMLwriter.WriteEndElement();
                }
             }
          }
@@ -497,63 +530,57 @@ namespace Modbus_DLL {
                Log?.Invoke(p, $" \n// Set up count {index + 1}\n ");
                XMLwriter.WriteStartElement("Count");
                XMLwriter.WriteAttributeString("Block", (countStart + i).ToString());
+               Section<ccCount> cs = new Section<ccCount>(p, ccCount.Initial_Value, ccCount.Count_Skip, index, false);
                // Process Range
                Range r = c.Range;
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (r != null) {
                   if (r.Range1 != null)
-                     p.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
+                     cs.SetAttribute(ccCount.Count_Range_1, index, r.Range1);
                   if (r.Range2 != null)
-                     p.SetAttribute(ccCount.Count_Range_2, index, r.Range2);
+                     cs.SetAttribute(ccCount.Count_Range_2, index, r.Range2);
                   if (r.JumpFrom != null)
-                     p.SetAttribute(ccCount.Jump_From, index, r.JumpFrom);
+                     cs.SetAttribute(ccCount.Jump_From, index, r.JumpFrom);
                   if (r.JumpTo != null)
-                     p.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
+                     cs.SetAttribute(ccCount.Jump_To, index, r.JumpTo);
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Count
                Count cc = c.Count;
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (cc != null) {
                   if (cc.InitialValue != null)
-                     p.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
+                     cs.SetAttribute(ccCount.Initial_Value, index, cc.InitialValue);
                   if (cc.Increment != null)
-                     p.SetAttribute(ccCount.Increment_Value, index, cc.Increment);
+                     cs.SetAttribute(ccCount.Increment_Value, index, cc.Increment);
                   if (cc.Direction != null)
-                     p.SetAttribute(ccCount.Direction_Value, index, cc.Direction);
+                     cs.SetAttribute(ccCount.Direction_Value, index, cc.Direction);
                   if (cc.ZeroSuppression != null)
-                     p.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
+                     cs.SetAttribute(ccCount.Zero_Suppression, index, cc.ZeroSuppression);
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Reset
                Reset rr = c.Reset;
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (rr != null) {
                   if (rr.Type != null)
-                     p.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
+                     cs.SetAttribute(ccCount.Type_Of_Reset_Signal, index, rr.Type);
                   if (rr.Value != null)
-                     p.SetAttribute(ccCount.Reset_Value, index, rr.Value);
+                     cs.SetAttribute(ccCount.Reset_Value, index, rr.Value);
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
                // Process Misc
                Misc m = c.Misc;
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                if (m != null) {
                   if (m.UpdateUnit != null)
-                     p.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
+                     cs.SetAttribute(ccCount.Update_Unit_Unit, index, m.UpdateUnit);
                   if (m.UpdateIP != null)
-                     p.SetAttribute(ccCount.Update_Unit_Halfway, index, m.UpdateIP);
+                     cs.SetAttribute(ccCount.Update_Unit_Halfway, index, m.UpdateIP);
                   if (m.ExternalCount != null)
-                     p.SetAttribute(ccCount.External_Count, index, m.ExternalCount);
+                     cs.SetAttribute(ccCount.External_Count, index, m.ExternalCount);
                   if (m.Multiplier != null)
-                     p.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
+                     cs.SetAttribute(ccCount.Count_Multiplier, index, m.Multiplier);
                   if (m.SkipCount != null)
-                     p.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
+                     cs.SetAttribute(ccCount.Count_Skip, index, m.SkipCount);
                }
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+               cs.WriteSection();
                XMLwriter.WriteEndElement();
             }
          }
@@ -564,18 +591,17 @@ namespace Modbus_DLL {
       #region Send Printer Settings to printer
 
       private void SendPrinterSettings(Printer ptr) {
-
          Log?.Invoke(p, $" \n// Send printer settings\n ");
+
+         int len = Section<ccPS>.GetSpan(p, ccPS.Character_Height, ccPS.Speed_Compensation_Fine_Control);
+         Section<ccPS> pss = new Section<ccPS>(p, ccPS.Character_Height, 0, len);
+
          if (ptr.PrintHead != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
          }
          if (ptr.ContinuousPrinting != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
-            p.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
+            pss.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
          }
          if (ptr.TargetSensor != null) {
             //p.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
@@ -583,33 +609,24 @@ namespace Modbus_DLL {
             //p.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
          }
          if (ptr.CharacterSize != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
-            p.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
+            pss.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
          }
          if (ptr.PrintStartDelay != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
-            p.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
+            pss.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
          }
          if (ptr.EncoderSettings != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
-            p.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
-            p.SetAttribute(ccPS.Product_Speed_Matching, ptr.EncoderSettings.ExternalEncoder);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
+            pss.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
+            pss.SetAttribute(ccPS.Product_Speed_Matching, ptr.EncoderSettings.ExternalEncoder);
          }
          if (ptr.InkStream != null) {
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Ink_Drop_Use, ptr.InkStream.InkDropUse);
 
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-            p.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+            pss.SetAttribute(ccPS.Ink_Drop_Charge_Rule, ptr.InkStream.ChargeRule);
          }
+         pss.WriteSection();
       }
 
       private void SendFreeLogo(Logo l) {
@@ -622,7 +639,6 @@ namespace Modbus_DLL {
       }
 
       private void SendFixedLogo(Logo l) {
-         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
          if (l.RawData.Length > 0) {
             Log?.Invoke(p, $" \n// Set {l.DotMatrix} Fixed Logo to location {l.Location}\n ");
             // Pad the logo to full size

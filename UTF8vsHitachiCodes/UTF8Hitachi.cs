@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace UTF8vsHitachiCodes {
    static public class UTF8Hitachi {
@@ -11,6 +13,7 @@ namespace UTF8vsHitachiCodes {
          // Build language dictionaries
          HitachiToUTF8 = new Dictionary<int, string>();
          UTF8ToHitachi = new Dictionary<string, int>();
+         int n;
 
          for (int i = 0; i < Accent1Characters.Length; i++) {
             UTF8ToHitachi.Add(Accent1Characters[i], HitachiAccent1Characters[i]);
@@ -40,6 +43,23 @@ namespace UTF8vsHitachiCodes {
          for (int i = 0; i < DateTimeCharactersSOP4.Length; i++) {
             //UTF8ToHitachi.Add(DateTimeCharacters[i], HitachiDateTimeCharacters[i]);
             HitachiToUTF8.Add(HitachiDateTimeCharactersSOP4[i], DateTimeCharactersSOP4[i]);
+         }
+
+         for (int i = 0; i < 50; i++) { // Free layout user patterns
+            HitachiToUTF8.Add(0xF640 + i, $"{{Z/{i}}}");
+         }
+
+         for (int i = 0; i < 200; i++) { // Fixed layout user patterns
+            if (i < 192) {
+               n = 0xF140;
+            } else {
+               n = 0xF220 - 192;
+            }
+            HitachiToUTF8.Add(n + i, $"{{X/{i}}}");
+         }
+
+         for (int i = 0; i < 48; i++) {
+            HitachiToUTF8.Add(0xD0 + i, $"{{X/{i}}}");
          }
       }
 
@@ -155,8 +175,6 @@ namespace UTF8vsHitachiCodes {
          0x944E, 0x8C8E, 0x93FA, 0x8E9E, 0x95AA, 0x9562, 0x8273, 0x8F54, 0x976A, 0x8262, 0x8264, 0x8265,
       };
 
-
-
       #endregion
 
       #region Hebrew
@@ -170,6 +188,108 @@ namespace UTF8vsHitachiCodes {
 
       #endregion
 
+      #region Hitachi Attributed string to Human Readable
+
+      public static string[] RetrievePrintContentsAttributes(string msg) {
+         string[] result;
+         List<(int itemNumber, string itemText)> ItemData = new   List<(int itemNumber, string itemText)>(100);
+         int n = 0;
+         int maxN = 0;
+         int x;                                   // Dictionary Key
+         string y;                                // Dictionary Value
+
+         while (msg.Length > 0) {
+            Debug.Assert(msg[0] == '\x10');      // Must be a DLE character
+            n = msg[1] - '1';
+            maxN = Math.Max(maxN, n);            // Should be in order but ...
+            msg = msg.Substring(2);              // Use up the two characters
+            string ItemText = "";
+            while (msg.Length > 0 && msg[0] != '\x10') {
+               int c0 = msg[0];
+               int c1 = msg[1];
+               int c2 = msg[2];
+               x = (c1 << 8) + c2;
+               if (UTF8Hitachi.HitachiToUTF8.TryGetValue(x, out y)) {
+                  ItemText += y;
+               } else {
+                  ItemText += (char)x;
+               }
+               msg = msg.Substring(3);
+            }
+            ItemText = FixReferences(ItemText);
+            ItemData.Add((n, ItemText));
+         }
+         result = new string[maxN + 1];
+         for (int i = 0; i < ItemData.Count; i++) {
+            result[ItemData[i].itemNumber] = ItemData[i].itemText;
+         }
+         return result;
+      }
+
+      public static string[] RetrievePrintContentsNoAttributes(string msg) {
+         string[] result;
+         List<(int itemNumber, string itemText)> ItemData = new List<(int itemNumber, string itemText)>(100);
+         int n = 0;
+         int maxN = 0;
+         while (msg.Length > 0) {
+            Debug.Assert(msg[0] == '\x10');      // Must be a DLE character
+            n = msg[1] - '1';
+            maxN = Math.Max(maxN, n);            // Should be in order but ...
+            msg = msg.Substring(2);              // Use up the two characters
+            string s = "";
+            while (msg.Length > 0 && msg[0] != '\x10') {
+               if ((msg[0] & 0xF0) == 0xF0 && msg.Length > 1) {
+                  int c = (msg[0] << 8) + msg[1];
+                  if (UTF8Hitachi.HitachiToUTF8.TryGetValue(c, out string y)) {
+                     s += y;
+                  } else {
+                     s += $"<{c:X4}>";
+                  }
+                  msg = msg.Substring(2);              // Use up two characters
+               } else {
+                  s += msg[0];
+                  msg = msg.Substring(1);              // Use up one character
+               }
+            }
+            ItemData.Add((n, s));
+         }
+         result = new string[maxN + 1];
+         for (int i = 0; i < ItemData.Count; i++) {
+            result[ItemData[i].itemNumber] = ItemData[i].itemText;
+         }
+         return result;
+      }
+
+      private static string FixReferences(string s) {
+         string r = s.Replace("0}{0", "00");
+         try {
+            if (s.Length > 0) {
+               int i = 0;
+               while ((i = r.IndexOf("}{", i + 1)) > 0) {
+                  if (r.Substring(i - 1, 1) == r.Substring(i + 2, 1)) {
+                     switch (r.Substring(i - 1, 1)) {
+                        case "'":
+                        case ".":
+                        case ":":
+                        case ",":
+                        case " ":
+                        case ";":
+                        case "!":
+                           break;
+                        default:
+                           r = r.Substring(0, i) + r.Substring(i + 2);
+                           break;
+                     }
+                  }
+               }
+            }
+         } catch  {
+
+         }
+         return r.Replace("{{", "{").Replace("}}", "}"); // Not implemented yet
+      }
+
+      #endregion
 
    }
 }
