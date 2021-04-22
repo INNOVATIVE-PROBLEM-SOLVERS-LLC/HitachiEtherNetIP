@@ -169,7 +169,7 @@ namespace Modbus_DLL {
                }
             } catch {
                AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = false };
-               parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+               parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             }
          }
       }
@@ -177,7 +177,7 @@ namespace Modbus_DLL {
       private void WritePattern(ModbusPkt pkt) {
          bool success = MB.SendFixedLogo(pkt.DotMatrix, pkt.Addr, pkt.DataA);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Specification(ModbusPkt pkt) {
@@ -199,29 +199,29 @@ namespace Modbus_DLL {
                break;
          }
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void AckOnly(ModbusPkt pkt) {
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Idle(ModbusPkt pkt) {
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true, Resp1 = pkt.Marker };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Connect(ModbusPkt pkt) {
          bool success = MB.Connect(pkt.IpAddress, pkt.IpPort);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Disconnect(ModbusPkt pkt) {
          MB.Disconnect();
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = true };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Send(ModbusPkt pkt) {
@@ -232,7 +232,7 @@ namespace Modbus_DLL {
          } finally {
             string logXML = send.LogXML;
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
-            parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             send.Log -= Modbus_Log;
             send = null;
          }
@@ -246,7 +246,7 @@ namespace Modbus_DLL {
          } finally {
             string logXML = send.LogXML;
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
-            parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             send.Log -= Modbus_Log;
             send = null;
          }
@@ -262,7 +262,7 @@ namespace Modbus_DLL {
          } finally {
             logXML = retrieveMsg.LogXML;
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp1 = msgXML, Resp2 = logXML };
-            parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             retrieveMsg.Log -= Modbus_Log;
             retrieveMsg = null;
          }
@@ -273,19 +273,19 @@ namespace Modbus_DLL {
          bool success = MB.SetAttribute(pkt.DevAddr, pkt.Addr, pkt.DataA);
          MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void ReadData(ModbusPkt pkt) {
          MB.GetAttribute(pkt.fc, pkt.DevAddr, pkt.Addr, pkt.Len, out byte[] data);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { DataA = data };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void RecallMessage(ModbusPkt pkt) {
          bool success = MB.SetAttribute(ccPDR.Recall_Message, pkt.Value);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void AddMessage(ModbusPkt pkt) {
@@ -295,13 +295,13 @@ namespace Modbus_DLL {
          success &= MB.SetAttribute(ccPDR.Message_Number, pkt.Value);
          MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void DeleteMessage(ModbusPkt pkt) {
          bool success = MB.DeleteMessage(pkt.Value);
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void GetMessages(ModbusPkt pkt) {
@@ -329,7 +329,7 @@ namespace Modbus_DLL {
             }
          }
          AsyncComplete ac = new AsyncComplete(MB, pkt) { MultiLine = msgs.ToArray() };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void GetErrors(ModbusPkt pkt) {
@@ -349,35 +349,24 @@ namespace Modbus_DLL {
             errs[i] = $"{fault:###} {year}/{month:##}/{day:##} {hour:##}:{minute:##}:{second:##}";
          }
          AsyncComplete ac = new AsyncComplete(MB, pkt) { MultiLine = errs, Value = errCount };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void GetStatus(ModbusPkt pkt) {
-         AttrData block = MB.GetAttrData(ccUS.Communication_Status);
-         block.Data.Len = 8;
-         byte[] stat = MB.GetAttribute(block);
-         char c = (char)stat[1];
-         char r = (char)stat[3];
-         char o = (char)stat[5];
-         char w = (char)stat[7];
          AsyncComplete ac = new AsyncComplete(MB, pkt) {
-            Status = new string(new char[] { (char)2, (char)0x31, c, r, o, w, (char)3 })
+            Status = GetStatus(),
          };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void IssueccIJP(ModbusPkt pkt) {
          MB.SetAttribute(pkt.Attribute, pkt.Value);
-         char c = (char)MB.GetDecAttribute(ccUS.Communication_Status);
-         char r = (char)MB.GetDecAttribute(ccUS.Receive_Status);
-         char o = (char)MB.GetDecAttribute(ccUS.Operation_Status);
-         char w = (char)MB.GetDecAttribute(ccUS.Warning_Status);
          AsyncComplete ac = new AsyncComplete(MB, pkt) {
             Attribute = pkt.Attribute,
             Value = pkt.Value,
-            Status = new string(new char[] { (char)2, (char)0x31, c, r, o, w, (char)3 })
+            Status = GetStatus(),
          };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void Modbus_Log(object sender, string msg) {
@@ -397,12 +386,21 @@ namespace Modbus_DLL {
          }
          sr = null;
          AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success, substitution = sub };
-         parent.Invoke(new EventHandler(delegate { Complete(this, ac); }));
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       #endregion
 
       #region Service Routines
+
+      private string GetStatus() {
+         Section<ccUS> stat = new Section<ccUS>(MB, ccUS.Communication_Status, 0, 4);
+         char c = (char)stat.GetDecAttribute(ccUS.Communication_Status);
+         char r = (char)stat.GetDecAttribute(ccUS.Receive_Status);
+         char o = (char)stat.GetDecAttribute(ccUS.Operation_Status);
+         char w = (char)stat.GetDecAttribute(ccUS.Warning_Status);
+         return new string(new char[] { '\x02', '1', c, r, o, w, '\x03' });
+      }
 
       #endregion
 

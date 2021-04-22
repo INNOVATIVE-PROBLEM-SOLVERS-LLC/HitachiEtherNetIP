@@ -266,7 +266,7 @@ namespace Modbus_DLL {
          return r;
       }
 
-      // Build a Modbus write packet and include the data
+      // Build a Modbus write packet and include the data; addr is in words, start and length are in bytes
       private byte[] BuildModbusWrite(FunctionCode fc, byte DevAddr, int addr, byte[] data, int start = 0, int len = -1) {
          if (len == -1) {
             len = data.Length;
@@ -314,7 +314,7 @@ namespace Modbus_DLL {
          FunctionCode fc = attr.HoldingReg ? FunctionCode.ReadHolding : FunctionCode.ReadInput;
          byte devAddr = GetDevAdd(attr);
          byte[] request = BuildModbusRead(fc, devAddr, attr.Val, len);
-         Task.Delay(50);
+         //Task.Delay(25);
          if (Write(request)) {
             if (Read(out data, out len)) {
                success = true;
@@ -391,8 +391,8 @@ namespace Modbus_DLL {
          if (!GetAttribute(attr, out byte[] result)) {
             result = null;
          }
-         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
-            $"{byte_to_string(result, 0, Math.Min(10, result.Length))}");
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {typeof(T)}.{Attribute} = " +
+            $"{byte_to_string(result, 0, Math.Min(32, result.Length))}{LogIOSpacer}");
          return result;
       }
 
@@ -597,6 +597,14 @@ namespace Modbus_DLL {
          return success;
       }
 
+      // Write to a specific address
+      public bool SetBlockAttribute(AttrData attr, int offset, byte[] data, int start = 0, int len = -1) {
+         bool result = SetAttribute(attr, offset + start / 2, data, start, len);
+         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{offset + start / 2:X4}] " +
+            $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
+         return result;
+      }
+
       #endregion
 
       #region Attribute Routines
@@ -667,9 +675,7 @@ namespace Modbus_DLL {
 
          // Do the deletes in individual layout mode
          LogIt(" \n// Delete done in Individual Layout mode\n ");
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccPF.Format_Setup, "Individual");
-         SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
          LogIt(" \n// Get number of items\n ");
          int itemCount = GetDecAttribute(ccIDX.Number_Of_Items);
@@ -683,9 +689,7 @@ namespace Modbus_DLL {
 
          LogIt(" \n// Delete all columns\n ");
          for (int i = 0; i < cols; i++) {
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccPF.Delete_Column, cols - i);
-            SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
       }
 
@@ -1044,7 +1048,7 @@ namespace Modbus_DLL {
 
       // Format Output
       public byte[] FormatOutput(Prop prop, int n) {
-         return ToBytes(n, prop.Len);
+         return ToBytes(n, prop.Len * 2);
       }
 
       // Convert unsigned integer to byte array
@@ -1254,8 +1258,7 @@ namespace Modbus_DLL {
          if ((int)prop.DropDown < (int)fmtDD.ConnectionStatus) {
             n = n - prop.Min;
          }
-         result = Data.HR_Dict[prop.DropDown, (char)n];
-         if (string.IsNullOrEmpty(result)) {
+         if (!Data.HR_Dict.TryGetValue(new Tuple<fmtDD, char>(prop.DropDown, (char)n), out result)) {
             result = n.ToString();
          }
          return result;
@@ -1266,7 +1269,7 @@ namespace Modbus_DLL {
          if (Log != null && LogIO) {
             if (parent.InvokeRequired) {
                // Do not use BeginInvoke.  Causes issues up-stream.
-               parent.Invoke(new EventHandler(delegate { Log(this, msg); }));
+               parent.BeginInvoke(new EventHandler(delegate { Log(this, msg); }));
             } else {
                Log(this, msg);
             }
@@ -1281,7 +1284,7 @@ namespace Modbus_DLL {
          if (Complete != null) {
             if (parent.InvokeRequired) {
                // Do not use BeginInvoke.  Causes issues up-stream.
-               parent.Invoke(new EventHandler(delegate { Complete(this, success); }));
+               parent.BeginInvoke(new EventHandler(delegate { Complete(this, success); }));
             } else {
                Complete(this, success);
             }
@@ -1289,7 +1292,7 @@ namespace Modbus_DLL {
       }
 
       // Things that can be converted to number
-      private bool IsNumeric(Type type) {
+      public bool IsNumeric(Type type) {
          switch (Type.GetTypeCode(type)) {
             case TypeCode.Boolean:
             case TypeCode.Byte:

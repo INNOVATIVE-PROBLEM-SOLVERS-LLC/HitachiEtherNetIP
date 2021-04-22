@@ -50,6 +50,7 @@
     <Compile Include="Modbus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetrieveXML.cs" />
+    <Compile Include="Section.cs" />
     <Compile Include="SendXML.cs" />
     <Compile Include="Status.cs" />
   </ItemGroup>

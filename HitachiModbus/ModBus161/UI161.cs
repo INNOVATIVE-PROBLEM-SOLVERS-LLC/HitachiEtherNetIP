@@ -629,56 +629,25 @@ namespace ModBus161 {
 
       // Just playing around to see how things work
       private void cmdExperiment_Click(object sender, EventArgs e) {
-         AttrData block = MB.GetAttrData(ccUI.Basic_Software_Version).Clone();
-         int n = (0x0E40 - block.Val) / 32;
+         // Trying Jason's idea.
+         int n = 1;
+         MB.DeleteAllButOne();
+         MB.SetAttribute(ccPF.Line_Spacing, 1);
 
-         string[] s = new string[n];
-         byte[] ui;
-         for (int i = 0; i < n; i++) {
-            ui = MB.GetAttribute(block);
-            s[i] = MB.FormatText(ui);
-            block.Val += 32;
-         }
-         string Basic = MB.GetHRAttribute(ccUI.Basic_Software_Version);
-         string Controller = MB.GetHRAttribute(ccUI.Controller_Software_Version);
-         string Engine_M = MB.GetHRAttribute(ccUI.Engine_M_Software_Version);
-         string Engine_S = MB.GetHRAttribute(ccUI.Engine_S_Software_Version);
-         string FirstLanguage = MB.GetHRAttribute(ccUI.First_Language_Version);
-         string SecondLanguage = MB.GetHRAttribute(ccUI.Second_Language_Version);
-         string OptionVersion = MB.GetHRAttribute(ccUI.Software_Option_Version);
-         LogIt(Basic);
-         LogIt(Controller);
-         LogIt(Engine_M);
-         LogIt(Engine_S);
-         LogIt(FirstLanguage);
-         LogIt(SecondLanguage);
-         LogIt(OptionVersion);
 
-         //MB.DeleteAllButOne();
+         MB.SetAttribute(ccPF.Column, 1);
+         MB.SetAttribute(ccPF.Line, 3);
 
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //MB.SetAttribute(ccPF.Format_Setup, "FreeLayout");
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         //// Set up the first item (0-origin indexing)
-         //int item = 0;
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //MB.SetAttribute(ccPF.Column, 1);
-         //MB.SetAttribute(ccPF.Line, 1);
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
 
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //MB.SetAttribute(ccPF.Dot_Matrix, item, "12x16");
-         //MB.SetAttribute(ccPF.InterCharacter_Space, item, 2);
-         //MB.SetAttribute(ccPF.Character_Bold, item, 1);
-         //MB.SetAttribute(ccPF.X_Coordinate, item, 8);
-         //MB.SetAttribute(ccPF.Y_Coordinate, item, 10);
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         MB.SetAttribute(ccPF.Insert_Column, 1);
+         MB.SetAttribute(ccPF.Line, 2);
+         MB.SetAttribute(ccPF.Insert_Column, 1);
+         MB.SetAttribute(ccPF.Line, 1);
+         //MB.SetAttribute(ccPF.Insert_Column, 1);
 
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         //MB.SetAttribute(ccPC.Characters_per_Item, item, 11);
-         //MB.SetAttribute(ccPC.Print_Character_String, item, "HELLO WORLD");
-         //MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+
+
 
          SetButtonEnables();
       }
