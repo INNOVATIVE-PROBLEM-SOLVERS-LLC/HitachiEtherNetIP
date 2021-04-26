@@ -691,6 +691,11 @@ namespace Modbus_DLL {
          for (int i = 0; i < cols; i++) {
             SetAttribute(ccPF.Delete_Column, cols - i);
          }
+
+         LogIt(" \n// Erase text and Set size to minimum\n ");
+         SetAttribute(ccPC.Print_Erasure, 1);
+         SetAttribute(ccPF.Dot_Matrix, 0, "5X5");
+
       }
 
       // Delete message if it exists
