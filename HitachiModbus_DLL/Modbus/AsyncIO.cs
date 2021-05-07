@@ -230,8 +230,7 @@ namespace Modbus_DLL {
          try {
             send.SendXML(pkt.Data);
          } finally {
-            string logXML = send.LogXML;
-            AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
+            AsyncComplete ac = new AsyncComplete(MB, pkt);
             parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             send.Log -= Modbus_Log;
             send = null;
@@ -244,8 +243,7 @@ namespace Modbus_DLL {
          try {
             send.SendXML(pkt.Label);
          } finally {
-            string logXML = send.LogXML;
-            AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp2 = logXML };
+            AsyncComplete ac = new AsyncComplete(MB, pkt);
             parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             send.Log -= Modbus_Log;
             send = null;
@@ -254,14 +252,12 @@ namespace Modbus_DLL {
 
       private void RetrieveMsg(ModbusPkt pkt) {
          string msgXML = string.Empty;
-         string logXML = string.Empty;
          SendRetrieveXML retrieveMsg = new SendRetrieveXML(MB);
          retrieveMsg.Log += Modbus_Log;
          try {
             msgXML = retrieveMsg.Retrieve();
          } finally {
-            logXML = retrieveMsg.LogXML;
-            AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp1 = msgXML, Resp2 = logXML };
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Resp1 = msgXML };
             parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             retrieveMsg.Log -= Modbus_Log;
             retrieveMsg = null;
@@ -394,7 +390,7 @@ namespace Modbus_DLL {
       #region Service Routines
 
       private string GetStatus() {
-         Section<ccUS> stat = new Section<ccUS>(MB, ccUS.Communication_Status, 0, 4);
+         Section<ccUS> stat = new Section<ccUS>(MB, ccUS.Communication_Status, 0, 4, true);
          char c = (char)stat.GetDecAttribute(ccUS.Communication_Status);
          char r = (char)stat.GetDecAttribute(ccUS.Receive_Status);
          char o = (char)stat.GetDecAttribute(ccUS.Operation_Status);
@@ -462,7 +458,7 @@ namespace Modbus_DLL {
       public Modbus Printer { get; set; }
       public AsyncIO.TaskType Type { get; set; }
       public string Resp1 { get; set; }
-      public string Resp2 { get; set; }
+      //public string Resp2 { get; set; }
       public ccIJP Attribute { get; set; }
       public int Value { get; set; }
       public string[] MultiLine { get; set; }

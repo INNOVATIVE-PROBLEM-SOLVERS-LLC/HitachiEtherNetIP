@@ -291,5 +291,137 @@ namespace UTF8vsHitachiCodes {
 
       #endregion
 
+      #region Human Readable to Hitachi Attributed Characters
+
+      // Convert Hitachi Braced notation to characters
+      public static string HandleBraces(string s1) {
+         // Braced Characters (count, date, half-size, logos
+         string s2 = s1;
+         int n = 0;
+
+         for (int i = 0; i < HalfSize.GetLength(0); i++) {
+            s2 = s2.Replace(HalfSize[i, 0], HalfSize[i, 1]);
+         }
+
+         while (true) {
+            int i;
+            int j;
+            i = s2.IndexOf("{X/");
+            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
+               int.TryParse(s2.Substring(i + 3, j - i - 3), out n)) {
+               if (n < 192) {
+                  s2 = s2.Substring(0, i) + (char)('\uF140' + n) + s2.Substring(j + 1);
+               } else {
+                  s2 = s2.Substring(0, i) + (char)('\uF220' + n - 192) + s2.Substring(j + 1);
+               }
+            } else {
+               break;
+            }
+         }
+
+         while (true) {
+            int i;
+            int j;
+            i = s2.IndexOf("{Z/");
+            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
+               int.TryParse(s2.Substring(i + 3, j - i - 3), out n)) {
+               s2 = s2.Substring(0, i) + (char)('\uF640' + n) + s2.Substring(j + 1);
+            } else {
+               break;
+            }
+         }
+
+         StringBuilder sb = new StringBuilder(s2.Length);
+         int firstAttr = s2.Length;
+         int lastAttr = -1;
+         int bCount = 0;
+         for (int i = 0; i < s2.Length; i++) {
+            char ch = s2[i];
+            switch (ch) {
+               case '{':
+                  bCount++;
+                  break;
+               case '}':
+                  bCount--;
+                  break;
+               default:
+                  if (bCount == 0) {
+                     sb.Append(ch);
+                  } else {
+                     bool found = false;
+                     for (int j = 0; j < CalCnt.GetLength(0) && !found; j++) {
+                        if (CalCnt[j, 0] == ch) {
+                           firstAttr = Math.Min(firstAttr, sb.Length);
+                           lastAttr = Math.Max(lastAttr, sb.Length);
+                           sb.Append(CalCnt[j, 1]);
+                           found = true;
+                        }
+                     }
+                     if (!found) {
+                        sb.Append(ch);
+                     }
+                  }
+                  break;
+            }
+         }
+         string result = string.Empty;
+         if (firstAttr < lastAttr) {
+            char[] c = sb.ToString().ToArray<char>();
+            List<int> spanCheck = new List<int>(c.Length);
+            if ((lastAttr - firstAttr + 1) > 20) {                    // This will cause an error in both Modbus and serial
+               int brkpt = 0;                                         // Save the start of the break and the break size
+               int span = -1;
+               for (int i = 0; i < spanCheck.Count - 1; i++) {        // Find the largest span
+                  if (spanCheck[i + 1] - spanCheck[i] > span) {
+                     brkpt = i;
+                     span = spanCheck[i + 1] - spanCheck[i];
+                  }
+               }
+               int S1 = spanCheck[0];                                 // Start of first area
+               int E1 = spanCheck[brkpt];                             // End of first area
+               int S2 = spanCheck[brkpt + 1];                         // Start of second area
+               int E2 = spanCheck[spanCheck.Count - 1];               // End of second area
+               if (S1 != E1) {                                        // Avoid the set if only 1 character
+                  c[S1] = (char)(c[S1] + 0x10);                       // Set the start and end of the first block
+                  c[E1] = (char)(c[E1] + 0x20);
+               }
+               if (S2 != E2) {                                        // Avoid the set if only 1 character
+                  c[S2] = (char)(c[S2] + 0x10);                       // Set the start and end of the second block
+                  c[E2] = (char)(c[E2] + 0x20);
+               }
+            } else {
+               c[firstAttr] = (char)(c[firstAttr] + 0x10);            // Set the start and end of a single block
+               c[lastAttr] = (char)(c[lastAttr] + 0x20);
+            }
+            result = new string(c);
+         } else {
+            result = sb.ToString();
+         }
+         return result;
+      }
+
+      #endregion
+
+      #region Calendar, Count and Half Size Character Encoding
+
+      // Calendar and count
+      public static char[,] CalCnt = new char[,]
+      { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
+           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
+           {'E', '\uF25B'}, {'F', '\uF25C'} };
+
+      public static char[] CalCntChars = new char[] {
+         '\uF25A', '\uF26A', '\uF27A', '\uF250', '\uF260', '\uF270', '\uF251', '\uF261', '\uF271',
+         '\uF252', '\uF262', '\uF272', '\uF253', '\uF263', '\uF273', '\uF254', '\uF264', '\uF274',
+         '\uF255', '\uF265', '\uF275', '\uF256', '\uF266', '\uF276', '\uF257', '\uF267', '\uF277',
+         '\uF258', '\uF268', '\uF278', '\uF259', '\uF269', '\uF279', '\uF25B', '\uF26B', '\uF274',
+         '\uF25C', '\uF26C', '\uF27C',
+      };
+      // Half size characters
+      public static string[,] HalfSize = new string[,]
+      { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
+           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
+
+      #endregion
    }
 }

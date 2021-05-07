@@ -126,11 +126,11 @@ namespace ModBus161 {
                txtAnalysis.Text = "Unknown";
                break;
             case AsyncIO.TaskType.Send:
-               DisplayLogTree(status.Resp2);
+               //DisplayLogTree(status.Resp2); // No longer generated
                break;
             case AsyncIO.TaskType.Retrieve:
                LoadXmlToDisplay(status.Resp1);
-               DisplayLogTree(status.Resp2);
+               //DisplayLogTree(status.Resp2); // No longer generated
                break;
             case AsyncIO.TaskType.WriteData:
 
@@ -143,7 +143,7 @@ namespace ModBus161 {
                break;
             case AsyncIO.TaskType.GetStatus:
                txtPrinterStatus.Text = status.Resp1;
-               txtAnalysis.Text = status.Resp2;
+               //txtAnalysis.Text = status.Resp2; // No longer generated
                break;
             case AsyncIO.TaskType.GetMessages:
                dgMessages.Rows.Clear();

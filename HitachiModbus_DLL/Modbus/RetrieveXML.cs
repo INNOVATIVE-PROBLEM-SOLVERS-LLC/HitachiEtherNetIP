@@ -7,6 +7,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using Serialization;
+using UTF8vsHitachiCodes;
+
 
 namespace Modbus_DLL {
    public partial class SendRetrieveXML {
@@ -79,11 +81,6 @@ namespace Modbus_DLL {
       // Currently active printer
       Modbus p;
 
-      // XML I/O Logging
-      private MemoryStream XMLms;
-      private XmlTextWriter XMLwriter;
-      public string LogXML;
-
       // Structures for retrieving logos
       enum logoLayout {
          Free = 0,
@@ -113,54 +110,27 @@ namespace Modbus_DLL {
             }
          }
          try {
-            XMLms = new MemoryStream();
-            XMLwriter = new XmlTextWriter(XMLms, Encoding.GetEncoding("UTF-8"));
-            XMLwriter.Formatting = Formatting.Indented;
-            XMLwriter.WriteStartDocument();
-            XMLwriter.WriteStartElement("Retrieve"); // Start Retrieve
-            p.Log += P_Log;
             Lab Label = new Lab() { Version = "Serialization-1" };
             Label.Message = new Msg[p.NozzleCount];
             Label.Printer = new Printer[p.NozzleCount];
             for (int nozzle = 0; nozzle < p.NozzleCount; nozzle++) {
                p.Nozzle = nozzle;
 
-               XMLwriter.WriteStartElement("Message");
                Label.Message[nozzle] = RetrieveMessage();
-               XMLwriter.WriteEndElement();
 
-               XMLwriter.WriteStartElement("PrinterSettings");
                Label.Printer[nozzle] = RetrievePrinterSettings();
-               XMLwriter.WriteEndElement();
 
-               XMLwriter.WriteStartElement("Substitutions");
                Label.Printer[nozzle].Substitution = RetrieveSubstitutions(Label.Message[nozzle]);
-               XMLwriter.WriteEndElement();
 
                Label.Message[nozzle].Nozzle = nozzle + 1;
                Label.Printer[nozzle].Nozzle = nozzle + 1;
             }
-            XMLwriter.WriteStartElement("Logos");
             RetrieveLogos(Label);
-            XMLwriter.WriteEndElement();
 
             xml = Serializer<Lab>.ClassToXml(Label);
 
          } catch (Exception e2) {
             Log?.Invoke(p, e2.Message);
-         } finally {
-            p.Log -= P_Log;
-            XMLwriter.WriteEndElement(); // End Retrieve
-            XMLwriter.WriteEndDocument();
-            XMLwriter.Flush();
-            XMLms.Position = 0;
-            using (StreamReader sr = new StreamReader(XMLms)) {
-               LogXML = sr.ReadToEnd();
-            }
-            XMLwriter.Close();
-            XMLms.Close();
-            XMLwriter = null;
-            XMLms = null;
          }
          return xml;
       }
@@ -181,7 +151,6 @@ namespace Modbus_DLL {
       // Retrieve row/column/items
       private void RetrieveRowsColumns(Msg m) {
          Log?.Invoke(p, $" \n// Retrieving Rows and Columns\n ");
-         XMLwriter.WriteStartElement("ColumnLayout");
          int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
          int lineCount;
          int n = 0;
@@ -192,22 +161,17 @@ namespace Modbus_DLL {
             spacing.Add(p.GetDecAttribute(ccPF.Line_Spacing, n));
             n += lineCount;
          }
-         XMLwriter.WriteEndElement();
 
          // Fill in the items
          m.Column = new Column[cols.Count];                               // Allocate the columns array  
          n = 0;
          int totalCharacters = 0;
          for (int col = 0; col < m.Column.Length; col++) {
-            XMLwriter.WriteStartElement("Column");
-            XMLwriter.WriteAttributeString("Column", (col + 1).ToString());
             m.Column[col] = new Column();                                 // Allocate the column
             m.Column[col].InterLineSpacing = spacing[col];
             m.Column[col].Item = new Item[cols[col]];                     // Allocate the items array
             for (int row = 0; row < m.Column[col].Item.Length; row++) {
                Log?.Invoke(p, $" \n// Retrieving Item in Column {col + 1} Row {row + 1}\n ");
-               XMLwriter.WriteStartElement("Item");
-               XMLwriter.WriteAttributeString("Row", (row + 1).ToString());
                Item item = new Item();                                    // Allocate the item
                int characterCount = p.GetDecAttribute(ccPC.Characters_per_Item, n);
                if (characterCount > 0) {
@@ -252,9 +216,7 @@ namespace Modbus_DLL {
                m.Column[col].Item[row] = item;
                n++;
                totalCharacters += characterCount;
-               XMLwriter.WriteEndElement();
             }
-            XMLwriter.WriteEndElement();
          }
       }
 
@@ -263,12 +225,9 @@ namespace Modbus_DLL {
          int n = item.Location.calStart - 1;
          item.Date = new Date[item.Location.calCount];
          for (int i = 0; i < item.Location.calCount; i++) {
-            XMLwriter.WriteStartElement("Calendar");
-            XMLwriter.WriteAttributeString("Block", (item.Location.calStart + i).ToString());
             // Where do you get Substitution rule number
             item.Date[i] = new Date() { Block = i + 1 };
             if ((mask[i] & DateOffset) > 0) {
-               XMLwriter.WriteStartElement("Offset");
                item.Date[i].SubstitutionRule = "1";
                item.Date[i].RuleName = "";
                item.Date[i].Offset = new Offset() {
@@ -278,10 +237,8 @@ namespace Modbus_DLL {
                   Hour = p.GetDecAttribute(ccCal.Offset_Hour, n),
                   Minute = p.GetDecAttribute(ccCal.Offset_Minute, n)
                };
-               XMLwriter.WriteEndElement();
             }
             if ((mask[i] & DateSubZS) > 0) {
-               XMLwriter.WriteStartElement("ZeroSuppress");
                item.Date[i].ZeroSuppress = new ZeroSuppress();
                if ((mask[i] & (int)ba.Year) > 0)
                   item.Date[i].ZeroSuppress.Year = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Year, n);
@@ -297,9 +254,7 @@ namespace Modbus_DLL {
                   item.Date[i].ZeroSuppress.Week = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_Weeks, n);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
                   item.Date[i].ZeroSuppress.DayOfWeek = (ZS)p.GetDecAttribute(ccCal.Zero_Suppress_DayOfWeek, n);
-               XMLwriter.WriteEndElement();
 
-               XMLwriter.WriteStartElement("Substitute");
                item.Date[i].Substitute = new Substitute();
                if ((mask[i] & (int)ba.Year) > 0)
                   item.Date[i].Substitute.Year = (ED)p.GetDecAttribute(ccCal.Substitute_Year, n);
@@ -315,7 +270,6 @@ namespace Modbus_DLL {
                   item.Date[i].Substitute.Week = (ED)p.GetDecAttribute(ccCal.Substitute_Weeks, n);
                if ((mask[i] & (int)ba.DayOfWeek) > 0)
                   item.Date[i].Substitute.DayOfWeek = (ED)p.GetDecAttribute(ccCal.Substitute_DayOfWeek, n);
-               XMLwriter.WriteEndElement();
             }
             if ((mask[i] & (int)ba.Shift) > 0) {
                item.Date[i].Shifts = RetrieveShifts();
@@ -324,7 +278,6 @@ namespace Modbus_DLL {
                item.Date[i].TimeCount = RetrieveTimeCount();
             }
             n++;
-            XMLwriter.WriteEndElement();
          }
       }
 
@@ -333,8 +286,6 @@ namespace Modbus_DLL {
          int n = item.Location.countCount - 1;
          item.Counter = new Counter[item.Location.countCount];
          for (int i = 0; i < item.Location.countCount; i++) {
-            XMLwriter.WriteStartElement("Count");
-            XMLwriter.WriteAttributeString("Block", (item.Location.countStart + i).ToString());
             item.Counter[i] = new Counter() { Block = i + 1 };
             item.Counter[i].Range = new Range() {
                Range1 = p.GetHRAttribute(ccCount.Count_Range_1, n),
@@ -360,21 +311,17 @@ namespace Modbus_DLL {
                SkipCount = p.GetHRAttribute(ccCount.Count_Skip, n),
             };
             n++;
-            XMLwriter.WriteEndElement();
          }
       }
 
       // Retrieve shift settings
       private Shift[] RetrieveShifts() {
-         XMLwriter.WriteStartElement("Shifts");
          List<Shift> s = new List<Shift>();
          string endHour;
          string endMinute;
          int n = 0;
          do {
             Log?.Invoke(p, $" \n// Retrieving Shift {n + 1}\n ");
-            XMLwriter.WriteStartElement("Shift");
-            XMLwriter.WriteAttributeString("Shift", (n + 1).ToString());
             s.Add(new Shift() {
                ShiftNumber = n + 1,
                StartHour = p.GetHRAttribute(ccSR.Shift_Start_Hour, n),
@@ -384,15 +331,12 @@ namespace Modbus_DLL {
                ShiftCode = p.GetHRAttribute(ccSR.Shift_String_Value, n),
             });
             n++;
-            XMLwriter.WriteEndElement();
          } while (endHour != "23" || endMinute != "59");
-         XMLwriter.WriteEndElement();
          return s.ToArray();
       }
 
       // Retrieve Time count settings
       private TimeCount RetrieveTimeCount() {
-         XMLwriter.WriteStartElement("TimeCount");
          TimeCount TimeCount = new TimeCount() {
             Interval = p.GetHRAttribute(ccSR.Update_Interval_Value),
             Start = p.GetHRAttribute(ccSR.Time_Count_Start_Value),
@@ -400,7 +344,6 @@ namespace Modbus_DLL {
             ResetTime = p.GetHRAttribute(ccSR.Reset_Time_Value),
             ResetValue = p.GetHRAttribute(ccSR.Time_Count_Reset_Value),
          };
-         XMLwriter.WriteEndElement();
          return TimeCount;
       }
 
@@ -459,7 +402,7 @@ namespace Modbus_DLL {
                for (int r = 0; r < m.Column[c].Item.Length; r++) {
                   Item item = m.Column[c].Item[r];
                   if (!string.IsNullOrEmpty(item.Text)) {
-                     string s = p.HandleBraces(item.Text);
+                     string s = UTF8Hitachi.HandleBraces(item.Text);
                      for (int i = 0; i < s.Length; i++) {
                         switch (s[i] >> 8) {
                            case '\xF6':
@@ -504,7 +447,6 @@ namespace Modbus_DLL {
                switch (neededLogo[i].layout) {
                   case logoLayout.Free:
                      Log?.Invoke(p, $" \n// Retrieving Free Logo {neededLogo[i].registration}\n ");
-                     XMLwriter.WriteStartElement("FreeLogo");
                      if (p.GetFreeLogo(neededLogo[i].registration, out int width, out int height, out byte[] freeData)) {
                         Logo logo = new Logo() {
                            Location = neededLogo[i].registration,
@@ -515,11 +457,9 @@ namespace Modbus_DLL {
                         };
                         retrievedLogos.Add(logo);
                      }
-                     XMLwriter.WriteEndElement();
                      break;
                   case logoLayout.Fixed:
                      Log?.Invoke(p, $" \n// Retrieving Fixed Logo:  Dot Matrix {neededLogo[i].dotMatrix}, Location {neededLogo[i].registration}\n ");
-                     XMLwriter.WriteStartElement("FIxedLogo");
                      if (p.GetFixedLogo(neededLogo[i].dotMatrix, neededLogo[i].registration, out byte[] fixedData)) {
                         Logo logo = new Logo() {
                            Location = neededLogo[i].registration,
@@ -529,7 +469,6 @@ namespace Modbus_DLL {
                         };
                         retrievedLogos.Add(logo);
                      }
-                     XMLwriter.WriteEndElement();
                      break;
                   default:
                      break;
@@ -633,8 +572,6 @@ namespace Modbus_DLL {
       // Retrieve one substitution type
       private void RetrieveSubstitution(List<SubstitutionRule> sr, ccSR rule) {
          Log?.Invoke(p, $" \n// Retrieving substitution for {rule}\n ");
-         XMLwriter?.WriteStartElement("Substitution");
-         XMLwriter?.WriteAttributeString("Rule", rule.ToString());
          AttrData attr = p.GetAttrData(rule);
          int n = (int)(attr.Data.Max - attr.Data.Min + 1);
          string[] subCode = new string[n];
@@ -650,7 +587,6 @@ namespace Modbus_DLL {
                Text = s,
             });
          }
-         XMLwriter?.WriteEndElement();
       }
 
       #endregion

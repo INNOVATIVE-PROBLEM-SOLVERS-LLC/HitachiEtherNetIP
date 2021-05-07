@@ -62,18 +62,16 @@ namespace Modbus_DLL {
    // Attributes within Print Format class 0x67
    public enum ccPF {
       Message_Name = 0x64,
-      //Number_Of_Columns = 0x66,
-      //Format_Type = 0x67,
       Number_Of_Print_Line_And_Print_Format = 0x1020,
       Insert_Column = 0x1021,
       Delete_Column = 0x1022,
       Add_Column = 0x1023,
       Column = 0x1024,
       Line = 0x1025,
+      Adjust_ICS_Start = 0x1028,
+      Adjust_ICS_End = 0x1029,
+      Adjust_ICS_Value = 0x102A,
       Format_Setup = 0x103F,
-      //Adding_Print_Items = 0x6E,
-      //Deleting_Print_Items = 0x6F,
-
       Line_Count = 0x1040,
       Line_Spacing = 0x1041,
       Dot_Matrix = 0x1042,
@@ -89,10 +87,8 @@ namespace Modbus_DLL {
       X_Coordinate = 0x104C,
       Y_Coordinate = 0x104D,
       Composit_Character_Item = 0x104E,
-
       InterCharacter_SpaceII = 0x7B,
       Add_To_End_Of_String = 0x8A,
-
    }
 
    // Attributes within Adjust Print Parameters 0x68 (Modbus ready)
@@ -521,6 +517,12 @@ namespace Modbus_DLL {
             new Prop(1, DataFormats.Decimal, 0, 100, fmtDD.None)),              //   Data
          new AttrData((int)ccPF.Line, true, 1, 0, Noz.Current,                  // Line 0x1025
             new Prop(1, DataFormats.Decimal, 0, 6, fmtDD.None)),                //   Data
+         new AttrData((int)ccPF.Adjust_ICS_Start, true, 1, 0, Noz.Current,      // Line 0x1028
+            new Prop(1, DataFormats.Decimal, 1, 1000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPF.Adjust_ICS_End, true, 1, 0, Noz.Current,        // Line 0x1029
+            new Prop(1, DataFormats.Decimal, 1, 1000, fmtDD.None)),             //   Data
+         new AttrData((int)ccPF.Adjust_ICS_Value, true, 1, 0, Noz.Current,      // Line 0x102A
+            new Prop(1, DataFormats.Decimal, 0, 28, fmtDD.None)),               //   Data
          new AttrData((int)ccPF.Format_Setup, true, 1, 0,                       // Format Setup 0x6D
             new Prop(1, DataFormats.Decimal, 1, 3, fmtDD.Messagelayout)),       //   Data
          new AttrData((int)ccPF.InterCharacter_SpaceII, true, 1, 0,             // InterCharacter SpaceII 0x7B
@@ -659,7 +661,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccUP.User_Pattern_Fixed_Registration, true, 13, 1, 0,// User Pattern Fixed Registration 0x2D00
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Fixed_Data, true, 14304, 1,        // User Pattern Fixed Data 0x2D20
-            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
+            new Prop(0, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data (Len 0 => variable by font size)
          new AttrData((int)ccUP.User_Pattern_Free_Registration, true, 4, 1, 0,  // User Pattern Free Registration 0x6500
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUP.User_Pattern_Free_Height, true, 50, Modbus.FreeLogoSize, 0, // User Pattern Free Height 0x6510
@@ -1222,28 +1224,6 @@ namespace Modbus_DLL {
          new string[] { "Reception Not Possible", "Reception Possible" },
                                                                       // 26 - Receive status
      };
-
-      #endregion
-
-      #region Calendar, Count and Half Size Character Encoding
-
-      // Calendar and count
-      public char[,] CalCnt = new char[,]
-      { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
-           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
-           {'E', '\uF25B'}, {'F', '\uF25C'} };
-
-      public char[] CalCntChars = new char[] {
-         '\uF25A', '\uF26A', '\uF27A', '\uF250', '\uF260', '\uF270', '\uF251', '\uF261', '\uF271',
-         '\uF252', '\uF262', '\uF272', '\uF253', '\uF263', '\uF273', '\uF254', '\uF264', '\uF274',
-         '\uF255', '\uF265', '\uF275', '\uF256', '\uF266', '\uF276', '\uF257', '\uF267', '\uF277',
-         '\uF258', '\uF268', '\uF278', '\uF259', '\uF269', '\uF279', '\uF25B', '\uF26B', '\uF274',
-         '\uF25C', '\uF26C', '\uF27C',
-      };
-      // Half size characters
-      public string[,] HalfSize = new string[,]
-      { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
-           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
 
       #endregion
 

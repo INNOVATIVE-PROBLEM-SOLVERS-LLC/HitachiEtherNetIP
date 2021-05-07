@@ -26,17 +26,17 @@ namespace Modbus_DLL {
       #region Constructor, Destructor, and Service Routines
 
       // Let Section find the attrData and calculate the span
-      public Section(Modbus MB, T startAttr, T endAttr, int index, bool load = true)
+      public Section(Modbus MB, T startAttr, T endAttr, int index, bool load)
          : this(MB, MB.GetAttrData(startAttr), index, GetSpan(MB, startAttr, endAttr), load) {
       }
 
       // Let Section find the attrData 
-      public Section(Modbus MB, T attr, int index, int Len, bool load = true)
+      public Section(Modbus MB, T attr, int index, int Len, bool load)
          : this(MB, MB.GetAttrData(attr), index, Len, load) {
       }
 
       // attrData, index (stride count), and length (in words) are provided by the caller
-      public Section(Modbus MB, AttrData BaseAttr, int index, int Len, bool load = true) {
+      public Section(Modbus MB, AttrData BaseAttr, int index, int Len, bool load) {
          this.MB = MB;                                      // Save Modbus I/O object
          this.attr = (T)(object)BaseAttr.Val;               // Reverse lookup AttrData => Attr
          this.Index = index;                                // For repeated structures
@@ -82,7 +82,7 @@ namespace Modbus_DLL {
          string result = string.Empty;
          AttrData getAttr = MB.GetAttrData(item);           // Get attributes of desired item
          int n = (getAttr.Val - BaseAttr.Val) * 2 +         // Get offset in byte array (2 bytes per word)
-            (index - this.Index) * BaseAttr.Stride;         // Relative to the Index that was loaded
+            (index - this.Index) * BaseAttr.Stride * 2;     // Relative to the Index that was loaded
          int len = getAttr.Data.Len;                        // Get length
          switch (getAttr.Data.Fmt) {                        // Format the data as needed
             case DataFormats.None:
@@ -190,20 +190,31 @@ namespace Modbus_DLL {
       #region Write interface
 
       // Write Section into proper area of (possibly) a replicated structure
-      public void WriteSection() {
+      public void WriteSection(bool stack = false) {
+         bool unstack = false;
          int bytesWritten = 0;
          int bytesToWrite = b.Length;
+         if (stack && bytesToWrite > MaxByteSize) {
+            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);              // These two must be done together
+            unstack = true;
+         }
          while (bytesToWrite > 0) {                         // Base and offset stay constant, index into byute array advances
             MB.SetBlockAttribute(BaseAttr, BaseAttr.Stride * this.Index, b, bytesWritten, Math.Min(bytesToWrite, MaxByteSize));
             bytesWritten += MaxByteSize;
             bytesToWrite -= MaxByteSize;
          }
+         if (unstack) {
+            MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);              // These two must be done together
+         }
       }
 
       // Copy a user pattern into the section of user patterns (here the user pattern is provided as bytes)
-      public void SetUserPattern(byte[] data, int index) {
+      public void SetUserPattern(byte[] data, int index, int len = -1) {
+         if (len == -1) {
+            len = data.Length;
+         }
          int loc = (index - this.Index) * BaseAttr.Stride * 2;        // Location of the user pattern within the section
-         Buffer.BlockCopy(data, 0, b, loc, data.Length);              // Fast move?
+         Buffer.BlockCopy(data, 0, b, loc, len);                      // Fast move?
       }
 
       // Move a block of words into a section
@@ -237,9 +248,16 @@ namespace Modbus_DLL {
 
       //Set one indexed attribute based on the Data Property
       public void SetAttribute<D>(T Attribute, int index, D val) {
-         byte[] data = null;                                          // The data to be tucked away
          AttrData attr = MB.GetAttrData(Attribute);                   // Description of the data
-         if (MB.IsNumeric(typeof(D))) {                               // Numerics can do a simple convert
+         SetAttribute(attr, index, val);                              // Pass it on
+      }
+
+      //Set one indexed attribute based on the Data Property
+      public void SetAttribute<D>(AttrData attr, int index, D val) {
+         byte[] data = null;                                          // The data to be tucked away
+         if (typeof(D) == typeof(byte[])) {                           // Already a byte array?
+            data = (byte[])(object)val;                               // Use the array as the data (strange cast)
+         } else if (MB.IsNumeric(typeof(D))) {                        // Numerics can do a simple convert
             data = MB.FormatOutput(attr.Data, Convert.ToInt32(val));  // Get the correct length as bytes
          } else {                                                     // Others require a conversion from Dropdowns
             string s = Convert.ToString(val);                         // May or may not be required but other conversion uses it
@@ -247,7 +265,7 @@ namespace Modbus_DLL {
                data = MB.FormatOutput(attr.Data, s);                  // Get the correct length as bytes
             }
          }
-         SetData(attr, (index - this.Index) * attr.Stride, data);
+         SetData(attr, (index - this.Index) * attr.Stride, data);     // Set the data into the section
       }
 
       // Set bytes into section
