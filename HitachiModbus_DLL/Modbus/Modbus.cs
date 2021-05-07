@@ -26,6 +26,11 @@ namespace Modbus_DLL {
 
       #region Data Declarations
 
+      // Modbus mapping                         0  1  2  3   4   5   6   7   8    9  10 11 12 13   14   15   16
+      public static int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288, 512 };
+      // Font names                            n/a | 5x5 |  9x8  | 10x12 | 18x24 | 11x11 | 5x5C| 30x40  |  48x64
+      //                                        X 4x5   5x8     7x10   12x16   24x32    5x3C  7x5C    36x48
+
       Form parent;
 
       // Errors encountered
@@ -214,6 +219,7 @@ namespace Modbus_DLL {
                LogIt(s);
                CompleteIt(true);
                successful = false;
+               throw new ModbusException(s);
             } else {
                CompleteIt(true);
             }
@@ -600,8 +606,13 @@ namespace Modbus_DLL {
       // Write to a specific address
       public bool SetBlockAttribute(AttrData attr, int offset, byte[] data, int start = 0, int len = -1) {
          bool result = SetAttribute(attr, offset + start / 2, data, start, len);
-         LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{offset + start / 2:X4}] " +
-            $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
+         if (attr.Data.Fmt == DataFormats.UTF8) {
+            LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{offset + start / 2:X4}] " +
+               $"{GetAttributeName(attr.Class, attr.Val)} = {FormatText(data)}{LogIOSpacer}");
+         } else {
+            LogIt($"Set[{GetNozzle(attr)}{attr.Val:X4}+{offset + start / 2:X4}] " +
+               $"{GetAttributeName(attr.Class, attr.Val)} = {byte_to_string(data, start, len)}{LogIOSpacer}");
+         }
          return result;
       }
 
@@ -692,10 +703,10 @@ namespace Modbus_DLL {
             SetAttribute(ccPF.Delete_Column, cols - i);
          }
 
-         LogIt(" \n// Erase text and Set size to minimum\n ");
-         SetAttribute(ccPC.Print_Erasure, 1);
-         SetAttribute(ccPF.Dot_Matrix, 0, "5X5");
-
+         LogIt(" \n// Clean up on isle 1\n ");
+         SetAttribute(ccPF.Dot_Matrix, 0, "5X5"); // Make sure there is enough room for 6 lines
+         SetAttribute(ccPF.Barcode_Type, 0, 0);   // Must be cleared before erasing text
+         SetAttribute(ccPC.Print_Erasure, 1);     // Clear text in item
       }
 
       // Delete message if it exists
@@ -723,7 +734,6 @@ namespace Modbus_DLL {
 
       // Send fixed logo to the printer
       public bool SendFixedLogo(int DotMatrix, int loc, byte[] logo) {
-         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
          // Load the logo into the pattern area
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
@@ -796,7 +806,7 @@ namespace Modbus_DLL {
       // See if the User Pattern exists
       public bool UPExists(ccUP attribute, int loc, out int regBit, out int regMask) {
          regBit = 15 - (loc % 16);
-         regMask = GetDecAttribute(attribute, loc / 16);
+         regMask = 0; // GetDecAttribute(attribute, loc / 16);
          return (regMask & (1 << regBit)) > 0;
       }
 
@@ -815,7 +825,6 @@ namespace Modbus_DLL {
       public bool GetFixedLogo(int DotMatrix, int loc, out byte[] data) {
          bool result = false;
          data = null;
-         int[] logoLen = new int[] { 0, 8, 8, 8, 16, 16, 32, 32, 72, 128, 32, 5, 5, 7, 200, 288 };
          // Load the logo into the pattern area
          SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
@@ -971,72 +980,72 @@ namespace Modbus_DLL {
 
       // Convert byte array to UTF8 string
       public string byte_to_string(byte[] b, int len = -1) {
-         string s = "";
+         StringBuilder s = new StringBuilder(b.Length);
          if (len == -1) {
             len = b.Length;
          }
          for (int i = 0; i < len; i++) {
-            s += ((int)b[i]).ToString("X2") + " ";
+            s.Append(((int)b[i]).ToString("X2") + " ");
          }
-         return s;
+         return s.ToString();
       }
 
-      private object byte_to_string(byte[] b, int start, int len) {
-         string s = "";
+      private string byte_to_string(byte[] b, int start, int len) {
          if (len == -1) {
             len = b.Length;
             start = 0;
          }
+         StringBuilder s = new StringBuilder(len);
          for (int i = 0; i < len; i++) {
-            s += ((int)b[start + i]).ToString("X2") + " ";
+            s.Append(((int)b[start + i]).ToString("X2") + " ");
          }
-         return s;
+         return s.ToString();
       }
 
       // Text is 2 bytes per character
       public string FormatText(byte[] b, int start = 0) {
-         string result = "";
+         StringBuilder s = new StringBuilder(b.Length);
          for (int i = start; i < b.Length; i += 2) {
             int c = (b[i] << 8) + b[i + 1];
             if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c)) {
-               result += UTF8Hitachi.HitachiToUTF8[c];
+               s.Append(UTF8Hitachi.HitachiToUTF8[c]);
             } else {
-               result += (char)((b[i] << 8) + b[i + 1]);
+               s.Append((char)((b[i] << 8) + b[i + 1]));
             }
          }
-         return result.Replace("\x00", "");
+         return s.ToString().Replace("\x00", "");
       }
 
       // Text is 4 bytes per character
       private string FormatAttrText(byte[] text) {
-         string result = "";
+         StringBuilder s = new StringBuilder(text.Length);
          for (int i = 0; i < text.Length; i += 4) {
             int c1 = (text[i] << 8) + text[i + 1];
             int c2 = (text[i + 2] << 8) + text[i + 3];
             if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c1)) {
-               result += UTF8Hitachi.HitachiToUTF8[c1];
+               s.Append(UTF8Hitachi.HitachiToUTF8[c1]);
             } else if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c2)) {
-               result += UTF8Hitachi.HitachiToUTF8[c2];
+               s.Append(UTF8Hitachi.HitachiToUTF8[c2]);
             } else if (text[i] == 0 && text[i + 2] == 0) {
-               result += (char)text[i + 3];
+               s.Append((char)text[i + 3]);
             } else if (text[i + 2] == 0xF1) {
-               result += $"{{X/{text[i + 3] - 0x40}}}";
+               s.Append($"{{X/{text[i + 3] - 0x40}}}");
             } else if (text[i + 2] == 0xF2 && text[i + 3] >= 0x20 && text[i + 3] <= 0x27) {
-               result += $"{{X/{text[i + 3] - 0x20 + 192}}}";
+               s.Append($"{{X/{text[i + 3] - 0x20 + 192}}}");
             } else if (text[i + 2] == 0xF6) {
-               result += $"{{Z/{text[i + 3] - 0x40}}}";
+               s.Append($"{{Z/{text[i + 3] - 0x40}}}");
             } else {
-               result += "*";
+               s.Append("*");
             }
          }
-         result = result.Replace("\x00", "");
+         string result = s.ToString().Replace("\x00", "");
          if (!string.IsNullOrEmpty(result)) {
             int n = result.IndexOf("}{", 1);
             while (n >= 0) {
                char c = result[n - 1];
                bool CalOrCnt = false;
-               for (int j = 0; j < M161.CalCnt.GetLength(0) && !CalOrCnt; j++) {
-                  if (M161.CalCnt[j, 0] == c) {
+               for (int j = 0; j < UTF8Hitachi.CalCnt.GetLength(0) && !CalOrCnt; j++) {
+                  if (UTF8Hitachi.CalCnt[j, 0] == c) {
                      CalOrCnt = true;
                   }
                }
@@ -1114,7 +1123,7 @@ namespace Modbus_DLL {
                result = new byte[s2.Length * width];
                for (int i = 0; i < s2.Length; i++) {
                   char c = s2[i];
-                  if (Array.FindIndex<Char>(M161.CalCntChars, x => x == c) >= 0) {
+                  if (Array.FindIndex<Char>(UTF8Hitachi.CalCntChars, x => x == c) >= 0) {
                      result[i * width + 0] = (byte)(c >> 8);
                      result[i * width + 1] = (byte)c;
                   } else {
@@ -1143,85 +1152,6 @@ namespace Modbus_DLL {
          }
          if (result == null) {
             result = new byte[0];
-         }
-         return result;
-      }
-
-      // Convert Hitachi Braced notation to characters
-      public string HandleBraces(string s1) {
-         // Braced Characters (count, date, half-size, logos
-         string s2 = s1;
-
-         for (int i = 0; i < M161.HalfSize.GetLength(0); i++) {
-            s2 = s2.Replace(M161.HalfSize[i, 0], M161.HalfSize[i, 1]);
-         }
-
-         while (true) {
-            int i;
-            int j;
-            i = s2.IndexOf("{X/");
-            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
-               int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
-               if (n < 192) {
-                  s2 = s2.Substring(0, i) + (char)('\uF140' + n) + s2.Substring(j + 1);
-               } else {
-                  s2 = s2.Substring(0, i) + (char)('\uF220' + n - 192) + s2.Substring(j + 1);
-               }
-            } else {
-               break;
-            }
-         }
-
-         while (true) {
-            int i;
-            int j;
-            i = s2.IndexOf("{Z/");
-            if (i >= 0 && (j = s2.IndexOf("}", i + 3)) > i &&
-               int.TryParse(s2.Substring(i + 3, j - i - 3), out int n)) {
-               s2 = s2.Substring(0, i) + (char)('\uF640' + n) + s2.Substring(j + 1);
-            } else {
-               break;
-            }
-         }
-
-         int firstFound = s2.Length;
-         int lastFound = -1;
-         string result = "";
-         int bCount = 0;
-         for (int i = 0; i < s2.Length; i++) {
-            char c = s2[i];
-            switch (c) {
-               case '{':
-                  bCount++;
-                  break;
-               case '}':
-                  bCount--;
-                  break;
-               default:
-                  if (bCount == 0) {
-                     result += c;
-                  } else {
-                     bool found = false;
-                     for (int j = 0; j < M161.CalCnt.GetLength(0) && !found; j++) {
-                        if (M161.CalCnt[j, 0] == c) {
-                           firstFound = Math.Min(firstFound, result.Length);
-                           lastFound = Math.Max(lastFound, result.Length);
-                           result += M161.CalCnt[j, 1];
-                           found = true;
-                        }
-                     }
-                     if (!found) {
-                        result += c;
-                     }
-                  }
-                  break;
-            }
-         }
-         if (firstFound != lastFound && firstFound < s2.Length) {
-            result = result.Substring(0, firstFound) + (char)(result[firstFound] + 0x10) + result.Substring(firstFound + 1);
-         }
-         if (firstFound != lastFound && lastFound >= 0) {
-            result = result.Substring(0, lastFound) + (char)(result[lastFound] + 0x20) + result.Substring(lastFound + 1);
          }
          return result;
       }
@@ -1314,6 +1244,27 @@ namespace Modbus_DLL {
                return true;
          }
          return false;
+      }
+
+      // Set a bit in Hitachi's registry
+      public void SetBit(int loc, byte[] b) {
+         int byt = loc >> 3;                      // Get the byte within the array
+         int msk = 0x80 >> (loc & 7);             // Mask for setting bit (high to low)
+         b[byt] |= (byte)msk;                     // Set the bit
+      }
+
+      // Clear a bit in Hitachi's registry
+      public void ClearBit(int loc, byte[] b) {
+         int byt = loc >> 3;                      // Get the byte within the array
+         int msk = 0x80 >> (loc & 7);            // Mask for setting bit (high to low)
+         b[byt] &= (byte)~msk;                    // Clear the bit
+      }
+
+      // Test a bit in Hitachi's registry
+      public bool CheckBit(int loc, byte[] b) {
+         int byt = loc >> 3;                      // Get the byte within the array
+         int msk = 0x80 >> (loc & 7);            // Mask for setting bit (high to low)
+         return (b[byt] & (byte)msk) != 0;        // Clear the bit
       }
 
       #endregion

@@ -236,8 +236,7 @@ namespace Modbus_DLL {
          int lc;                                                                // Line count
          int ls;                                                                // Line spacing
          while (n < itemCount) {                                                // Read all columns
-            int span = Section<ccPF>.GetSpan(MB, ccPF.Line_Count, ccPF.Prefix_Code);
-            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, n, span);
+            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, ccPF.Prefix_Code, n, true);
             lc = pf.GetDecAttribute(ccPF.Line_Count, n);                        // Number of lines for this column
             ls = pf.GetDecAttribute(ccPF.Line_Spacing, n);                      // Spacing between lines
             if (cpi[n] == 0) {
@@ -341,7 +340,7 @@ namespace Modbus_DLL {
                   int n = MB.GetDecAttribute(ccPF.First_Calendar_Block, i);
                   for (int j = 0; j < calCount; j++) {
                      int index = n + j - 1;
-                     Section<ccCal> cs = new Section<ccCal>(MB, ccCal.Offset_Year, index, 32);
+                     Section<ccCal> cs = new Section<ccCal>(MB, ccCal.Offset_Year, index, 32, true);
                      string[] cc = new string[4];
                      sb.Append(sDLE + (char)('1' + i));
 
@@ -386,7 +385,7 @@ namespace Modbus_DLL {
       private string SubstitutionRule() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
-         Section<ccSR> sr = new Section<ccSR>(MB, ccSR.Start_Year, 0, 0);
+         Section<ccSR> sr = new Section<ccSR>(MB, ccSR.Start_Year, 0, 0, true);
 
          sb.Append(sESC2);
          sb.Append(sr.Get(ccSR.Start_Year, 2));
@@ -416,7 +415,7 @@ namespace Modbus_DLL {
          if (MB.GetAttribute(Modbus.FunctionCode.ReadInput, 1, 0x0EFD, 2, out byte[] nsc)) {
             int shiftCount = (nsc[0] << 8) + nsc[1];
 
-            Section<ccSR> sc = new Section<ccSR>(MB, ccSR.Shift_Start_Hour, 0, 16 * shiftCount);
+            Section<ccSR> sc = new Section<ccSR>(MB, ccSR.Shift_Start_Hour, 0, 16 * shiftCount, true);
 
             for (int i = 0; i < shiftCount; i++) {
                sb.Append(sESC2);
@@ -439,7 +438,7 @@ namespace Modbus_DLL {
 
          int x = MB.GetDecAttribute(ccUI.Shift_Code_And_Time_Count);
 
-         Section<ccSR> tc = new Section<ccSR>(MB, ccSR.Time_Count_Start_Value, 0, 11);
+         Section<ccSR> tc = new Section<ccSR>(MB, ccSR.Time_Count_Start_Value, 0, 11, true);
 
          sb.Append(sESC2 + tc.Get(ccSR.Time_Count_Start_Value, 3));
          sb.Append(sESC2 + tc.Get(ccSR.Time_Count_End_Value, 3));
@@ -460,7 +459,7 @@ namespace Modbus_DLL {
                if (cntCount > 0) {
                   int n = MB.GetDecAttribute(ccPF.First_Count_Block, i);
                   for (int j = 0; j < cntCount; j++) {
-                     Section<ccCount> cb = new Section<ccCount>(MB, ccCount.Initial_Value, n + j - 1, 148);
+                     Section<ccCount> cb = new Section<ccCount>(MB, ccCount.Initial_Value, n + j - 1, 148, true);
 
                      sb.Append(sDLE + (char)('1' + i));
                      sb.Append(sESC2 + cb.Get(ccCount.Initial_Value, 20));
@@ -494,7 +493,7 @@ namespace Modbus_DLL {
 
          int[] cpi = GetTextLengths(out int itemCount, out int totalChars);
          for (int i = 0; i < itemCount; i++) {
-            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24);
+            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24, true);
             sb.Append(sDLE + (char)('1' + i));                                  // Item Header
             sb.Append(sESC2 + pf.Get(ccPF.Line_Spacing, i, 1));
             sb.Append(sESC2 + pf.Get(ccPF.Dot_Matrix, i, 1));
@@ -518,7 +517,7 @@ namespace Modbus_DLL {
       private string PrintSpecifications() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
-         Section<ccPS> p = new Section<ccPS>(MB, ccPS.Character_Height, 0, 32);
+         Section<ccPS> p = new Section<ccPS>(MB, ccPS.Character_Height, 0, 32, true);
 
          string[] ps = new string[23];
          ps[0] = p.Get(ccPS.Character_Height, 3);                     // m.CharacterHeight = data[0];
@@ -555,7 +554,7 @@ namespace Modbus_DLL {
       private string VariousPrintSetup() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
-         Section<ccSR> pf = new Section<ccSR>(MB, ccSR.Start_Year, 0, 0);
+         Section<ccSR> pf = new Section<ccSR>(MB, ccSR.Start_Year, 0, 0, true);
 
          return sb.Append(sETX).ToString();
       }
@@ -565,7 +564,7 @@ namespace Modbus_DLL {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
          int grps = 100;                                                            // Get maximum number of groups allowed
          int regCnt = (grps + 15) / 16;                                             // Last one is a partial
-         Section<ccMG> mm = new Section<ccMG>(MB, ccMG.Registration, 0, regCnt);    // 16 registrations per word
+         Section<ccMG> mm = new Section<ccMG>(MB, ccMG.Registration, 0, regCnt, true);    // 16 registrations per word
          int[] regs = mm.GetWords(0);
          for (int i = 0; i < regs.Length; i++) {
             if (regs[i] != 0) {                                                     // Any on this block?
@@ -576,7 +575,7 @@ namespace Modbus_DLL {
                      MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                      MB.SetAttribute(ccIDX.Group_Number, n);                        // Load the message into input registers
                      MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-                     Section<ccMG> msg = new Section<ccMG>(MB, ccMG.Group_Number, 0, 13);
+                     Section<ccMG> msg = new Section<ccMG>(MB, ccMG.Group_Number, 0, 13, true);
                      sb.Append(sESC2);
                      sb.AppendFormat(msg.Get(ccMG.Group_Number, 2));
                      sb.AppendFormat(msg.Get(ccMG.Group_Name, 12));
@@ -591,7 +590,7 @@ namespace Modbus_DLL {
       private string PrintData() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
          int msgs = MB.GetDecAttribute(ccUI.Maximum_Registered_Message_Count);      // Get maximum number of messages allowed
-         Section<ccMM> mm = new Section<ccMM>(MB, ccMM.Registration, 0, msgs / 16); // 16 registrations per word
+         Section<ccMM> mm = new Section<ccMM>(MB, ccMM.Registration, 0, msgs / 16, true); // 16 registrations per word
          int[] regs = mm.GetWords(0);
          for (int i = 0; i < regs.Length; i++) {
             if (regs[i] != 0) {                                                     // Any on this block?
@@ -602,7 +601,7 @@ namespace Modbus_DLL {
                      MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
                      MB.SetAttribute(ccIDX.Message_Number, n + 1);                  // Load the message into input registers
                      MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-                     Section<ccMM> msg = new Section<ccMM>(MB, ccMM.Message_Number, 0, 14);
+                     Section<ccMM> msg = new Section<ccMM>(MB, ccMM.Message_Number, 0, 14, true);
                      sb.Append(sESC2);
                      sb.AppendFormat(msg.Get(ccMM.Message_Number, 4));
                      sb.AppendFormat(msg.Get(ccMM.Group_Number, 2));
@@ -638,7 +637,7 @@ namespace Modbus_DLL {
       private string DateTimeSetup() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
-         Section<ccES> dt = new Section<ccES>(MB, ccES.Current_Time_Year, 0, 18);
+         Section<ccES> dt = new Section<ccES>(MB, ccES.Current_Time_Year, 0, 18, true);
 
          sb.Append(sESC2);                               // Header
          sb.Append(dt.Get(ccES.Current_Time_Year, 4));   // Current time
@@ -692,11 +691,11 @@ namespace Modbus_DLL {
       // Complete
       private string AlarmHistory() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
-
+         AttrData attr = MB.GetAttrData(ccAH.Year);
          int errCount = MB.GetDecAttribute(ccAH.Message_Count);                 // Number of errors
-         Section<ccAH> ah = new Section<ccAH>(MB, ccAH.Year, 0, errCount * 8);  // 
+         Section<ccAH> ah = new Section<ccAH>(MB, ccAH.Year, 0, errCount * attr.Stride, true);
          for (int i = 0; i < errCount; i++) {
-            sb.Append(sESC2);                               // Header
+            sb.Append(sESC2);                                  // Header
             sb.Append(ah.Get(ccAH.Year, i, 4));                // Year
             sb.Append(ah.Get(ccAH.Month, i, 2));               // Month
             sb.Append(ah.Get(ccAH.Day, i, 2));                 // Day
@@ -765,7 +764,7 @@ namespace Modbus_DLL {
 
          int[] cpi = GetTextLengths(out int itemCount, out int totalChars);
          for (int i = 0; i < itemCount; i++) {
-            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24);
+            Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24, true);
             sb.Append(sDLE + (char)('1' + i));                                  // Item Header
             sb.Append(sESC2);
             sb.Append(pf.Get(ccPF.X_Coordinate, 5));
@@ -812,7 +811,7 @@ namespace Modbus_DLL {
                MB.SetAttribute(ccIDX.User_Pattern_Size, DotMatrix);
                MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             }
-            Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Registration, 0, regSize);
+            Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Registration, 0, regSize, true);
             int[] regData = regs.GetWords(0, regSize);
             for (int i = 0; i < regData.Length; i++) {
                if (regData[i] > 0) {
@@ -826,7 +825,7 @@ namespace Modbus_DLL {
                   }
                   int index = (first + i * 16) * logoLen[dotMatrix] / 2;
                   int span = (last - first + 1) * logoLen[dotMatrix] / 2;
-                  Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Data, index, span);
+                  Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Fixed_Data, index, span, true);
                   string[] logos = up.GetUserPatterns(last - first + 1);
                   for (int j = first; j <= last; j++) {
                      if ((regData[i] & (1 << (15 - j))) > 0) {
@@ -846,7 +845,7 @@ namespace Modbus_DLL {
       private string UserPatternFree() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
 
-         Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Registration, 0, regSizeFree);
+         Section<ccUP> regs = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Registration, 0, regSizeFree, true);
          int[] regData = regs.GetWords(0, regSizeFree);
          int n = 0;
          for (int i = 0; i < regData.Length; i++) {
@@ -858,7 +857,7 @@ namespace Modbus_DLL {
                      int height = MB.GetDecAttribute(ccUP.User_Pattern_Free_Height, n);
                      int width = MB.GetDecAttribute(ccUP.User_Pattern_Free_Width, n);
                      int wdCount = 2 * width;                                             // Always in 4 byte (32 bit) 
-                     Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Data, n, wdCount);
+                     Section<ccUP> up = new Section<ccUP>(MB, ccUP.User_Pattern_Free_Data, n, wdCount, true);
                      sb.Append($"{sESC2}{n:D2}{height:D2}{width:D3}");
                      int bytes = (height + 7) / 8;
                      for (int c = 0; c < width; c++) {
@@ -886,7 +885,7 @@ namespace Modbus_DLL {
 
       private byte[][] GetMessageTextAsBytes() {                                // Returns attributed data
          int[] cpi = GetTextLengths(out int itemCount, out int totalChars);
-         Section<ccPC> pc = new Section<ccPC>(MB, ccPC.Print_Character_String, 0, totalChars * 2); // Length in 2-word characters
+         Section<ccPC> pc = new Section<ccPC>(MB, ccPC.Print_Character_String, 0, totalChars * 2, true); // Length in 2-word characters
          Byte[][] text = new byte[itemCount][];                                 // Break the text up by item
          int n = 0;
          for (int i = 0; i < cpi.Length; i++) {
@@ -898,7 +897,7 @@ namespace Modbus_DLL {
 
       private int[] GetTextLengths(out int itemCount, out int totalChars) {
          itemCount = MB.GetDecAttribute(ccIDX.Number_Of_Items);  // Number of items in message (1 to 100)
-         Section<ccPC> pb = new Section<ccPC>(MB, ccPC.Characters_per_Item, 0, itemCount);
+         Section<ccPC> pb = new Section<ccPC>(MB, ccPC.Characters_per_Item, 0, itemCount, true);
          int[] cpi =  pb.GetWords(0, itemCount);
          totalChars = cpi.Sum();
          return cpi;
