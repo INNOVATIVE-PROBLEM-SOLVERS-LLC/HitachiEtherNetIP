@@ -1,5 +1,7 @@
 # HitachiEtherNetIP
 
+Update -- May 7, 2021 -- The lastest update addresses the issues of speed.  How to send an entire message to an Hitachi printer in the shortest time possible.  The changes here reduce the load time about 10:1.  Simple messages in about 0.5 seconds.  Very complex messages in about 1.5 seconds.  It also has many examples of when the Start_Stop_Management_Flag must be used to avoid the "Illegal Data" rejection by the printer.
+
 Update -- Apr 3, 2021 -- Modbus does not support the SOP-04 Kits in general and specifically, the Buffer and Status Reporting functionality.  The latest merge starts to address that capability.
 
 Update -- Oct 22, 2020 -- The issue with using Modbus on an Hitachi Printer prior to the UX-161 has been resolved.  Device address is ignored on the UX-161 platform where it is validated on prior platforms.  The device address was being set to 0.  Legacy platforms require that it be set to 1.  The Modbus code will now run on all platforms that support TUP-I and Modbus.
