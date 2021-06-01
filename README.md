@@ -1,5 +1,9 @@
 # HitachiEtherNetIP
 
+Update -- June 1, 2021 -- An issue has been found with this level of the Modbus implementation.  It causes a failure in the Hitachi UX-161 printer.  It is being tested on previous Hitachi printer platforms.  
+
+The failure is a red box showing error 007.  "SYSTEM OPERATION ERROR M".  "Unexpected error occurred". "Solution Turn the printer power OFF and then back ON after 10 seconds".
+
 Update -- May 7, 2021 -- The lastest update addresses the issues of speed.  How to send an entire message to an Hitachi printer in the shortest time possible.  The changes here reduce the load time about 10:1.  Simple messages in about 0.5 seconds.  Very complex messages in about 1.5 seconds.  It also has many examples of when the Start_Stop_Management_Flag must be used to avoid the "Illegal Data" rejection by the printer.
 
 Update -- Apr 3, 2021 -- Modbus does not support the SOP-04 Kits in general and specifically, the Buffer and Status Reporting functionality.  The latest merge starts to address that capability.
