@@ -93,6 +93,7 @@ namespace Serialization {
       public Location Location;        // Use for internal processing only
 
       public string Text;              // Message Text
+      public int SplitAt = -1;         // Text must be broken into two parts at this point
 
       public bool ShouldSerializeBarCode() {
          return BarCode != null;  // Write out BarCode only if it is used.
@@ -315,6 +316,10 @@ namespace Serialization {
       public ZeroSuppress Copy() {
          return (ZeroSuppress)this.MemberwiseClone();
       }
+      public bool ShouldSerializeZeroSuppress() {
+         return Year != ZS.None || Month != ZS.None || Day != ZS.None ||
+            Hour != ZS.None || Minute != ZS.None || Week != ZS.None || DayOfWeek != ZS.None;
+      }
    }
 
    public class Substitute {
@@ -353,6 +358,10 @@ namespace Serialization {
       }
       public bool ShouldSerializeDayOfWeek() {
          return this.DayOfWeek != ED.Disable;
+      }
+      public bool ShouldSerializeSubstitute() {
+         return Year != ED.Disable || Month != ED.Disable || Day != ED.Disable || Hour != ED.Disable ||
+            Minute != ED.Disable || Week != ED.Disable || DayOfWeek != ED.Disable;
       }
       public Substitute Copy() {
          return (Substitute)this.MemberwiseClone();
@@ -460,6 +469,13 @@ namespace Serialization {
       public string RepeatInterval;
       [XmlAttribute]
       public string PrintsPerTrigger;
+      public bool ShouldSerializeContinuousPrinting() {
+         if (int.TryParse(PrintsPerTrigger, out int n)) {
+            return n > 0;
+         } else {
+            return false;
+         }
+      }
    }
 
    public class TargetSensor {

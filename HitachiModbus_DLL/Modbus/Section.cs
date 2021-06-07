@@ -20,6 +20,8 @@ namespace Modbus_DLL {
       T attr;                 // Attribute for the start 
       AttrData BaseAttr;      // 
       int Index;              // Index of first repeated structure in section
+      int Len;                // Length of area to allocate
+      bool Load;              // Save to cut down on trace I/O
 
       #endregion
 
@@ -41,15 +43,22 @@ namespace Modbus_DLL {
          this.attr = (T)(object)BaseAttr.Val;               // Reverse lookup AttrData => Attr
          this.Index = index;                                // For repeated structures
          this.BaseAttr = BaseAttr;                          // Need the stride for indexing
+         this.Len = Len;                                    // Save for section write message
+         this.Load = load;                                  // False => already already cleared to 0's
+         string idx = string.Empty;
+         if (BaseAttr.Count > 1) {
+            idx = $"[{index}]";
+         }
+         MB.LogIt($"\nAllocating Section {MB.GetAttributeName(BaseAttr.Class, BaseAttr.Val)}{idx} Length = {Len},  PreLoad = {load}");
          if (load) {                                        // Load if previous contents needed
             if (Len <= MaxWordSize) {                       // If only one read needed, read it directly
-               b = MB.GetAttributeBlock(attr, index, Len);  // 
+               b = MB.GetAttributeBlock(BaseAttr, index, Len);  // 
             } else {                                        // Otherwise, read it in block size chunks
                b = new byte[Len * 2];                       // Big enough for all reads
                int wordsRead = 0;                           // Words read so far
                int wordsToRead = Len;                       // Words needed
                while (wordsToRead > 0) {                    // Until all have been read
-                  byte[] t = MB.GetAttributeBlock(attr, index, Math.Min(wordsToRead, MaxWordSize), wordsRead);
+                  byte[] t = MB.GetAttributeBlock(BaseAttr, index, Math.Min(wordsToRead, MaxWordSize), wordsRead);
                   Buffer.BlockCopy(t, 0, b, wordsRead * 2, t.Length); // save away the bytes
                   wordsRead += MaxWordSize;                 // Update words read
                   wordsToRead -= MaxWordSize;               // Update words remaining (OK if it goes negative)
@@ -198,7 +207,7 @@ namespace Modbus_DLL {
             MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);              // These two must be done together
             unstack = true;
          }
-         while (bytesToWrite > 0) {                         // Base and offset stay constant, index into byute array advances
+         while (bytesToWrite > 0) {                         // Base and offset stay constant, index into byte array advances
             MB.SetBlockAttribute(BaseAttr, BaseAttr.Stride * this.Index, b, bytesWritten, Math.Min(bytesToWrite, MaxByteSize));
             bytesWritten += MaxByteSize;
             bytesToWrite -= MaxByteSize;
@@ -206,6 +215,11 @@ namespace Modbus_DLL {
          if (unstack) {
             MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);              // These two must be done together
          }
+         string idx = string.Empty;
+         if (BaseAttr.Count > 1) {
+            idx = $"[{Index}]";
+         }
+         MB.LogIt($"Writing Section {MB.GetAttributeName(BaseAttr.Class, BaseAttr.Val)}{idx} Length = {Len},  Stack = {stack}\n");
       }
 
       // Copy a user pattern into the section of user patterns (here the user pattern is provided as bytes)
@@ -229,7 +243,9 @@ namespace Modbus_DLL {
       // Set attributed characters into section
       public void SetAttrChrs(string s, int offset) {
          byte[] data = MB.FormatOutput(BaseAttr.Data, s);
-         Buffer.BlockCopy(data, 0, b, offset, data.Length);              // Fast move?
+         Buffer.BlockCopy(data, 0, b, offset * 2, data.Length);              // Fast move?
+         MB.LogIt($"BSet[{MB.GetNozzle(BaseAttr)}{BaseAttr.Val:X4}+{offset:X4}] {MB.GetAttributeName(BaseAttr.Class, BaseAttr.Val)} = " +
+           $"{MB.FormatText(data)}");
       }
 
       // Set one attribute based on the Data Property
@@ -270,11 +286,30 @@ namespace Modbus_DLL {
 
       // Set bytes into section
       private void SetData(AttrData attr, int offset, byte[] data) {
+         string index = string.Empty;
+         if (!Load && data.Count(x => x != 0) == 0) {
+            return;
+         }
+         if (attr.Count > 1) {
+            index = $"+{offset:X4}";                  // Account for non-zero origin 
+         }
          if (data != null && data.Length > 0) {
             int n = (attr.Val - BaseAttr.Val + attr.Data.Len + offset) * 2;  // Get offset in byte array (2 bytes per word)
             int len = data.Length;                                    // Get length in bytes (2 bytes per word)
             for (int i = 0; i < len; i++) {                           // Tuck away the data
                b[--n] = data[data.GetUpperBound(0) - i];              // in reverse order (required for odd number of bytes)
+            }
+            if (attr.Data.DropDown == fmtDD.None) {
+               if (attr.Data.Fmt == DataFormats.Decimal) {
+                  MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
+                     $"{MB.GetDecValue(data)}");
+               } else {
+                  MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
+                     $"{MB.byte_to_string(data)}");
+               }
+            } else {
+               MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
+                  $"\"{MB.GetHRValue(attr, data[data.Length - 1])}\"");
             }
          }
       }

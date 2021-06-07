@@ -135,7 +135,7 @@ namespace Modbus_DLL {
             List<Logo> l = bySize[i].OrderBy(x => x.Location).ToList();      // Create a shorthand for the sorted list
             p.SetAttribute(ccIDX.User_Pattern_Size, i);                      // Load table by font size
             attr = p.GetAttrData(ccUP.User_Pattern_Fixed_Registration);
-
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             Section<ccUP> regs = new Section<ccUP>(p, ccUP.User_Pattern_Fixed_Registration, 0, attr.Count, true);
             { // Read to read the old data since this may be add to the existing user patterns
                for (int j = 0; j < l.Count; j++) {
@@ -156,10 +156,11 @@ namespace Modbus_DLL {
                      byte[] rawdata = p.string_to_byte(l[j].RawData);        // Comes in as Hex Characters
                      pattern.SetUserPattern(rawdata, l[j].Location, Math.Min(len, rawdata.Length));
                   }
-                  pattern.WriteSection(true);                                // Write the characters to the printer
+                  pattern.WriteSection();                                    // Write the characters to the printer
                   start = n + 1;                                             // Start here next time
                }
             }
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
          }
       }
 
@@ -210,7 +211,7 @@ namespace Modbus_DLL {
 
       // Send the message portion of the Lab (In forward order)
       private void SendMessage(Msg m) {
-         bool use_left_to_right = false; // Right to left is fastest
+         bool use_left_to_right = true;  // Right to left is fastest
          p.DeleteAllButOne();            // Leave to only one item in printer (Deletes are done in individual mode)
          if (m.Column != null) {
             if (use_left_to_right) {
@@ -228,7 +229,7 @@ namespace Modbus_DLL {
          bool barCodesExist = false;                        // Has to be set after the text is loaded
          bool hasDateOrCount = false;                       // Save some time if no need to look
          List<int> sl = new List<int>(100);                 // String Length in Characters per item
-         StringBuilder sb = new StringBuilder(100);         // Text of items
+         List<string> st = new List<string>(100);           // String text at 4 characters per item character
          int n = 0;                                         // Active item number
          // Step thru the columns right-to-left
          for (int c = 0; c < m.Column.Length; c++) {
@@ -275,28 +276,38 @@ namespace Modbus_DLL {
             }
 
             // Make the display look nice (this may be an issue.)
-            int maxLen = sp.Max(x => x.Length);       // Get the maximum string length
             for (int si = 0; si < sp.Length; si++) {
-               sl.Add(maxLen);                        // Insert at end since processing in forward order
-               sb.Append(sp[si].PadRight(maxLen));    // Pad to max length.
+               sl.Add(sp[si].Length);                   // Insert at end since processing in forward order
+               st.Add(sp[si]);                          // Pad to max length.
             }
             n += col.Item.Length;
          }
 
          // Now, write all the text at once
-         string s = sb.ToString();                    // Get all text items into a single string.
-         Log?.Invoke(p, $" \n//Write all text at once: {sl.Count} items and {s.Length} Characters\n ");
+         int charCount = st.Sum(x => x.Length);
+         Log?.Invoke(p, $" \n//Write all text at once: {sl.Count} items and {charCount} Characters\n ");
 
          // Characters per item and text per item must be set as a group
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1); // Start stacking requests
          {
             Section<ccPC> cpi = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, sl.Count, false);
-            cpi.SetWords(sl.ToArray(), 0);                    // Set characters per item for all items
-            cpi.WriteSection();
+            {
+               for (int i = 0; i < sl.Count; i++) {  // Set characters per item for all items
+                  cpi.SetAttribute(ccPC.Characters_per_Item, i, sl[i]);
+               }
+               cpi.WriteSection();
+            }
+            Section<ccPC> pcs = new Section<ccPC>(p, ccPC.Print_Character_String, 0, charCount * 2, false);
+            {
+               n = 0;
+               for (int i = 0; i < st.Count; i++) {  // Set characters per item for all items
+                  pcs.SetAttrChrs(st[i], n);
+                  n += st[i].Length * 2;
+               }
+               pcs.WriteSection();
+            }
 
-            Section<ccPC> tpi = new Section<ccPC>(p, ccPC.Print_Character_String, 0, s.Length * 2, false);
-            tpi.SetAttrChrs(s, 0);                            // Set text for all items
-            tpi.WriteSection();
+
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2); // Save lengths and text at once.
 
@@ -636,11 +647,11 @@ namespace Modbus_DLL {
                pss.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
                pss.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
             }
-            if (ptr.TargetSensor != null) { // Causes a fault in the printer.
-               //pss.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
-               //pss.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
-               //pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
-            }
+            //if (ptr.TargetSensor != null) { // Causes a fault in the printer.
+            //   pss.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
+            //   pss.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
+            //   pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
+            //}
             if (ptr.CharacterSize != null) {
                pss.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
                pss.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
@@ -650,7 +661,7 @@ namespace Modbus_DLL {
                pss.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
             }
             if (ptr.EncoderSettings != null) {
-               pss.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
+               //pss.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
                pss.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
                pss.SetAttribute(ccPS.Product_Speed_Matching, ptr.EncoderSettings.ExternalEncoder);
             }

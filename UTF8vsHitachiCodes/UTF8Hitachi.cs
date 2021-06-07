@@ -175,6 +175,24 @@ namespace UTF8vsHitachiCodes {
          0x944E, 0x8C8E, 0x93FA, 0x8E9E, 0x95AA, 0x9562, 0x8273, 0x8F54, 0x976A, 0x8262, 0x8264, 0x8265,
       };
 
+      // Half size characters
+      static string[,] HalfSize = new string[,]
+      { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
+           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
+
+      public static char[] CalCntChars = new char[] {
+         '\uF25A', '\uF26A', '\uF27A', '\uF250', '\uF260', '\uF270', '\uF251', '\uF261', '\uF271',
+         '\uF252', '\uF262', '\uF272', '\uF253', '\uF263', '\uF273', '\uF254', '\uF264', '\uF274',
+         '\uF255', '\uF265', '\uF275', '\uF256', '\uF266', '\uF276', '\uF257', '\uF267', '\uF277',
+         '\uF258', '\uF268', '\uF278', '\uF259', '\uF269', '\uF279', '\uF25B', '\uF26B', '\uF274',
+         '\uF25C', '\uF26C', '\uF27C',
+      };
+
+      public static char[,] CalCnt = new char[,]
+      { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
+           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
+           {'E', '\uF25B'}, {'F', '\uF25C'}, {'N', '\uF257'} };
+
       #endregion
 
       #region Hebrew
@@ -227,10 +245,10 @@ namespace UTF8vsHitachiCodes {
       }
 
       public static string[] RetrievePrintContentsNoAttributes(string msg) {
-         string[] result;
+         string[] result = null;
          List<(int itemNumber, string itemText)> ItemData = new List<(int itemNumber, string itemText)>(100);
          int n = 0;
-         int maxN = 0;
+         int maxN = -1;
          while (msg.Length > 0) {
             Debug.Assert(msg[0] == '\x10');      // Must be a DLE character
             n = msg[1] - '1';
@@ -253,9 +271,11 @@ namespace UTF8vsHitachiCodes {
             }
             ItemData.Add((n, s));
          }
-         result = new string[maxN + 1];
-         for (int i = 0; i < ItemData.Count; i++) {
-            result[ItemData[i].itemNumber] = ItemData[i].itemText;
+         if (maxN > 0) {
+            result = new string[maxN + 1];
+            for (int i = 0; i < ItemData.Count; i++) {
+               result[ItemData[i].itemNumber] = ItemData[i].itemText;
+            }
          }
          return result;
       }
@@ -402,26 +422,5 @@ namespace UTF8vsHitachiCodes {
 
       #endregion
 
-      #region Calendar, Count and Half Size Character Encoding
-
-      // Calendar and count
-      public static char[,] CalCnt = new char[,]
-      { {'C', '\uF25A'}, {'Y', '\uF250'}, {'M', '\uF251'}, {'D', '\uF252'}, {'h', '\uF253'},
-           {'m', '\uF254'}, {'s', '\uF255'}, {'T', '\uF256'}, {'W', '\uF258'}, {'7', '\uF259'},
-           {'E', '\uF25B'}, {'F', '\uF25C'} };
-
-      public static char[] CalCntChars = new char[] {
-         '\uF25A', '\uF26A', '\uF27A', '\uF250', '\uF260', '\uF270', '\uF251', '\uF261', '\uF271',
-         '\uF252', '\uF262', '\uF272', '\uF253', '\uF263', '\uF273', '\uF254', '\uF264', '\uF274',
-         '\uF255', '\uF265', '\uF275', '\uF256', '\uF266', '\uF276', '\uF257', '\uF267', '\uF277',
-         '\uF258', '\uF268', '\uF278', '\uF259', '\uF269', '\uF279', '\uF25B', '\uF26B', '\uF274',
-         '\uF25C', '\uF26C', '\uF27C',
-      };
-      // Half size characters
-      public static string[,] HalfSize = new string[,]
-      { {"{ }", "\uF244"}, {"{\'}", "\uF240"}, {"{.}", "\uF241"}, {"{;}", "\uF245"},
-           {"{:}", "\uF242"}, {"{!}", "\uF246"}, {"{,}", "\uF243"} };
-
-      #endregion
    }
 }
