@@ -392,8 +392,8 @@ namespace Modbus_DLL {
       }
 
       // Get a block of data starting at an attribute[n], length in words, offset in words
-      public byte[] GetAttributeBlock(AttrData attr, int n, int length, int offset = 0) {
-         //AttrData attr = GetAttrData(Attribute).Clone();
+      public byte[] GetAttributeBlock(AttrData attrIn, int n, int length, int offset = 0) {
+         AttrData attr = attrIn.Clone();                    // Don't mess up the caller's AttrData
          attr.Data.Fmt = DataFormats.UTF8;                  // Fake it as 16 bit entities
          attr.Val += attr.Stride * n + offset;              // n is array reference plus offset
          attr.Data.Len = length;                            // Length is in 16 bit words
