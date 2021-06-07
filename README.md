@@ -1,5 +1,11 @@
 # HitachiEtherNetIP
 
+Update -- June 7, 2021 -- The issue outlined in the last update has been resolved.  It was caused by issuing the read request too soon after the write request.  A 10ms delay was added to slow down the read request to allow the printer time to respond.  The issue was solved.
+
+There are a number of changes in this level to handle the 30x40 and 36x48 font sizes.
+
+Anyone who wishes to improve the Hitachi printer software is welcome to join in this project.
+
 Update -- June 1, 2021 -- An issue has been found with this level of the Modbus implementation.  It causes a failure in the Hitachi UX-161 printer.  It is being tested on previous Hitachi printer platforms.  
 
 The failure is a red box showing error 007.  "SYSTEM OPERATION ERROR M".  "Unexpected error occurred". "Solution Turn the printer power OFF and then back ON after 10 seconds".
