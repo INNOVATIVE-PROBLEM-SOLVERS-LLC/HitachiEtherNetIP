@@ -332,17 +332,19 @@ namespace Modbus_DLL {
          int errCount = MB.GetDecAttribute(ccAH.Message_Count);
          string[] errs = new string[errCount];
          AttrData attr = MB.GetAttrData(ccAH.Year);
-         int len = attr.Stride;
-         for (int i = 0; i < errCount; i++) {
-            MB.GetAttribute(Modbus.FunctionCode.ReadInput, 1, attr.Val + i * len, len * 2, out byte[] data);
-            int year = (data[0] << 8) + data[1];
-            int month = data[3];
-            int day = data[5];
-            int hour = data[7];
-            int minute = data[9];
-            int second = data[11];
-            int fault = (data[12] << 8) + data[13];
-            errs[i] = $"{fault:###} {year}/{month:##}/{day:##} {hour:##}:{minute:##}:{second:##}";
+         Section<ccAH> hist = new Section<ccAH>(MB, attr, 0, errCount * attr.Stride, true);
+         byte[] data = new byte[errCount * attr.Stride * 2];
+         Buffer.BlockCopy(hist.b, 0, data, 0, data.Length);
+         int n = 0;
+         for (int i = 0; i < errCount * attr.Stride * 2; i += attr.Stride * 2) {
+            int year = (data[i + 0] << 8) + data[i + 1];
+            int month = data[i + 3];
+            int day = data[i + 5];
+            int hour = data[i + 7];
+            int minute = data[i + 9];
+            int second = data[i + 11];
+            int fault = (data[i + 12] << 8) + data[i + 13];
+            errs[n++] = $"{fault:D3} {year}/{month:D2}/{day:D2} {hour:D2}:{minute:D2}:{second:D2}";
          }
          AsyncComplete ac = new AsyncComplete(MB, pkt) { MultiLine = errs, Value = errCount };
          parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
