@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UTF8vsHitachiCodes;
@@ -40,7 +41,7 @@ namespace Modbus_DLL {
       public const int FreeLogoSize = 642;
 
       // I/O buffer size for read/write of logos (32 x 32 bitmap)
-      public const int LogoMaxSizeIO = 128;
+      public const int LogoMaxSizeIO = 240;
 
       // Choose between IJPLib names and EtherNet/IP names
       private bool UseIJPLibNames = true;
@@ -203,7 +204,8 @@ namespace Modbus_DLL {
          bytes = -1;
          if (stream != null) {
             try {
-               stream.ReadTimeout = 6000;                 // Allow for up to 2 seconds for a response
+               Thread.Sleep(10);
+               stream.ReadTimeout = 6000;                 // Allow for up to 6 seconds for a response
                bytes = stream.Read(data, 0, data.Length); // Get number of bytes read
                successful = bytes >= 8;                   // Need to at least get the packet + devAddr, Function code, and length
                DisplayInput(data, bytes);                 // Display the input returned
@@ -217,7 +219,7 @@ namespace Modbus_DLL {
             if ((data[7] & 0x80) > 0) {
                string s = $"Device rejected the request \"{(ErrorCodes)data[8]}\".";
                LogIt(s);
-               CompleteIt(true);
+               CompleteIt(false);
                successful = false;
                throw new ModbusException(s);
             } else {
@@ -235,6 +237,7 @@ namespace Modbus_DLL {
          DisplayOutput(data, data.Length);
          if (stream != null) {
             try {
+               Thread.Sleep(10);
                stream.Write(data, 0, data.Length);
                successful = true;
             } catch (Exception e) {
@@ -389,15 +392,15 @@ namespace Modbus_DLL {
       }
 
       // Get a block of data starting at an attribute[n], length in words, offset in words
-      public byte[] GetAttributeBlock<T>(T Attribute, int n, int length, int offset = 0) where T : Enum {
-         AttrData attr = GetAttrData(Attribute).Clone();
+      public byte[] GetAttributeBlock(AttrData attr, int n, int length, int offset = 0) {
+         //AttrData attr = GetAttrData(Attribute).Clone();
          attr.Data.Fmt = DataFormats.UTF8;                  // Fake it as 16 bit entities
          attr.Val += attr.Stride * n + offset;              // n is array reference plus offset
          attr.Data.Len = length;                            // Length is in 16 bit words
          if (!GetAttribute(attr, out byte[] result)) {
             result = null;
          }
-         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {typeof(T)}.{Attribute} = " +
+         LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}] {GetAttributeName(attr.Class, attr.Val)} = " +
             $"{byte_to_string(result, 0, Math.Min(32, result.Length))}{LogIOSpacer}");
          return result;
       }
@@ -759,7 +762,7 @@ namespace Modbus_DLL {
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
             SetAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc, regMask);
             for (int k = 0; k < data.Length; k += LogoMaxSizeIO) {
-               SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * stride / 2 + k, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
+               SetAttribute(ccUP.User_Pattern_Fixed_Data, loc * stride / 2 + k / 2, data, k, Math.Min(LogoMaxSizeIO, data.Length - k));
             }
             SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
             loc++;
@@ -833,10 +836,15 @@ namespace Modbus_DLL {
          // Does the registration bit indicate a logo exists?
          int regLoc = loc / 16;
          int regBit = 15 - (loc % 16);
-         AttrData attr = GetAttrData(ccUP.User_Pattern_Fixed_Registration);
          int regMask = GetDecAttribute(ccUP.User_Pattern_Fixed_Registration, regLoc);
          if ((regMask & (1 << regBit)) > 0) {
-            data = GetAttribute(ccUP.User_Pattern_Fixed_Data, loc * logoLen[DotMatrix] / 2, logoLen[DotMatrix]);
+            AttrData attr = GetAttrData(ccUP.User_Pattern_Fixed_Data).Clone();
+            attr.Stride = Modbus.logoLen[DotMatrix] / 2;                             // Get the distance between patterns
+            Section<ccUP> upd = new Section<ccUP>(this, attr, loc, attr.Stride, true);
+            {
+               data = new byte[logoLen[DotMatrix]];
+               Buffer.BlockCopy(upd.b, 0, data, 0, data.Length);
+            }
             LogIt($"Get[{GetNozzle(attr)}{attr.Val:X4}+{loc * logoLen[DotMatrix] / 2:X4}] " +
                $"{ccUP.User_Pattern_Fixed_Data}[{loc}] = \"{byte_to_string(data)}\"{LogIOSpacer}");
             result = true;
@@ -907,7 +915,7 @@ namespace Modbus_DLL {
       }
 
       // Get Nozzle Designation
-      private string GetNozzle(AttrData attr) {
+      internal string GetNozzle(AttrData attr) {
          string noz = "";
          if (TwinNozzle) {
             switch (attr.Nozzle) {
@@ -1013,7 +1021,7 @@ namespace Modbus_DLL {
                s.Append((char)((b[i] << 8) + b[i + 1]));
             }
          }
-         return s.ToString().Replace("\x00", "");
+         return s.ToString().Replace("\x00", "").Replace("}{", "");
       }
 
       // Text is 4 bytes per character
@@ -1200,7 +1208,7 @@ namespace Modbus_DLL {
       }
 
       // Common logging to handle Cross-Thread traffic
-      private void LogIt(string msg) {
+      internal void LogIt(string msg) {
          if (Log != null && LogIO) {
             if (parent.InvokeRequired) {
                // Do not use BeginInvoke.  Causes issues up-stream.

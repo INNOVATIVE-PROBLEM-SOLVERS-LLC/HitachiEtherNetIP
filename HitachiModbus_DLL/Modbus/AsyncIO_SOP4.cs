@@ -496,7 +496,7 @@ namespace Modbus_DLL {
             Section<ccPF> pf = new Section<ccPF>(MB, ccPF.Line_Count, i, 24, true);
             sb.Append(sDLE + (char)('1' + i));                                  // Item Header
             sb.Append(sESC2 + pf.Get(ccPF.Line_Spacing, i, 1));
-            sb.Append(sESC2 + pf.Get(ccPF.Dot_Matrix, i, 1));
+            sb.Append(sESC2 + (char)(0x30 + pf.GetDecAttribute(ccPF.Dot_Matrix, i)));
             sb.Append(sESC2 + pf.Get(ccPF.InterCharacter_Space, i, 2));
             sb.Append(sESC2 + pf.Get(ccPF.Character_Bold, i, 1));
             sb.Append(sESC2 + pf.Get(ccPF.Barcode_Type, i, 1));

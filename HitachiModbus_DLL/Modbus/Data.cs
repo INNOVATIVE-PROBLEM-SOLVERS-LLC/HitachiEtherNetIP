@@ -645,7 +645,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccCal.Substitute_Minute, true, 8, 32, Noz.Current,   // Substitute Minute 0x19CE
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
          new AttrData((int)ccCal.Substitute_Rule, true, 8, 32, Noz.Current,     // Substitute Rule 0x19CF
-            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
+            new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.None)),                //   Data
          new AttrData((int)ccCal.Substitute_Weeks, true, 8, 32, Noz.Current,    // Substitute Weeks 0x19D0
             new Prop(1, DataFormats.Decimal, 0, 1, fmtDD.EnableDisable)),       //   Data
          new AttrData((int)ccCal.Zero_Suppress_Weeks, true, 8, 32, Noz.Current, // Zero Suppress Weeks 0x19D1
@@ -945,7 +945,7 @@ namespace Modbus_DLL {
          new AttrData((int)ccIDX.Substitution_Rule, true, 1, 0,                 // Substitution Rule 0x0012
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
          new AttrData((int)ccIDX.User_Pattern_Size, true, 1, 0,                 // User Pattern Size 0x0013
-            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.FontType)),           //   Data
+            new Prop(1, DataFormats.Decimal, 1, 19, fmtDD.UserPatternFont)),    //   Data
          new AttrData((int)ccIDX.Group_Number, true, 1, 0,                      // Group Number 0x0014
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
       };
@@ -1241,9 +1241,9 @@ namespace Modbus_DLL {
       public static int ToDropdownValue(int n, string s) {
          int val;
          s = s.ToLower();
-         val = Array.FindIndex(Data.DropDowns[n], x => x.ToLower().Contains(s));
+         val = Array.FindIndex(Data.DropDownsIJPLib[n], x => x.ToLower().Contains(s));
          if (val < 0) {
-            val = Array.FindIndex(Data.DropDownsIJPLib[n], x => x.ToLower().Contains(s));
+            val = Array.FindIndex(Data.DropDowns[n], x => x.ToLower().Contains(s));
          }
          return val;
       }

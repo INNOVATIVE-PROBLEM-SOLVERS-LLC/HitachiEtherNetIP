@@ -457,7 +457,7 @@ namespace ModBus161 {
 
       // Retrieve message from printer and convert to XML
       private void cmdRetrieve_Click(object sender, EventArgs e) {
-         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.Retrieve));
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.RetrieveMsg));
       }
 
       // Exit the program
