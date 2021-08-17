@@ -48,6 +48,7 @@ namespace Modbus_DLL {
          WritePattern,
          TimedDelay,
          Retrieve,
+         WriteSelectedItems,
          Idle,
          Exit,
       }
@@ -161,6 +162,9 @@ namespace Modbus_DLL {
                   case TaskType.Retrieve:
                      Retrieve(pkt);
                      break;
+                  case TaskType.WriteSelectedItems:
+                     WriteSelectedItems(pkt);
+                     break;
                   case TaskType.Exit:
                      done = true;
                      break;
@@ -172,6 +176,12 @@ namespace Modbus_DLL {
                parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
             }
          }
+      }
+
+      private void WriteSelectedItems(ModbusPkt pkt) {
+         bool success = MB.WriteSelectedItems(pkt.Item, pkt.Data);
+         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
       }
 
       private void WritePattern(ModbusPkt pkt) {
@@ -374,7 +384,7 @@ namespace Modbus_DLL {
       }
 
       private void DoSubstitutions(ModbusPkt pkt) {
-         bool success = false;
+         bool success = true;
          Substitution sub = null;
          SendRetrieveXML sr = new SendRetrieveXML(MB);
          if (pkt.substitution == null) {
@@ -433,6 +443,7 @@ namespace Modbus_DLL {
       public int Page { get; set; }
       public int KbType { get; set; }
       public int RcvLength { get; set; }
+      public int Item { get; set; }
 
       public ModbusPkt(AsyncIO.TaskType Type) {
          this.Type = Type;

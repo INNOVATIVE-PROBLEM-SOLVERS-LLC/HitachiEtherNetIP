@@ -690,8 +690,8 @@ namespace Modbus_DLL {
             new Prop(2, DataFormats.UTF8, 0, 23, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.Minute, true, 60, 2, 0,                         // Minute 0x1BA5
             new Prop(2, DataFormats.UTF8, 0, 59, fmtDD.None)),                  //   Data
-         new AttrData((int)ccSR.Week, true, 54, 3,                              // Week 0x1C1D
-            new Prop(3, DataFormats.UTF8, 1, 54, fmtDD.None)),                  //   Data
+         new AttrData((int)ccSR.Week, true, 53, 3,                              // Week 0x1C1D
+            new Prop(3, DataFormats.UTF8, 1, 53, fmtDD.None)),                  //   Data
          new AttrData((int)ccSR.DayOfWeek, true, 7, 3,                          // DayOfWeek 0x1CBC
             new Prop(3, DataFormats.UTF8, 1, 7, fmtDD.None)),                   //   Data
          // Time Count block (moved to here from calendar block)
@@ -1191,7 +1191,7 @@ namespace Modbus_DLL {
          new string[] { "Offline", "Online" },                        // 5 - Offline/Online
          new string[] { "Nothing", "Signal1", "Signal2" },            // 6 - None, Signal 1, Signal 2
          new string[] { "Up", "Down" },                               // 7 - Up/Down
-         new string[] { "Nothing", "Size5x5", "Size5x7" },                       // 8 - Readable Code 5X5 or 5X7
+         new string[] { "Nothing", "Size5x5", "Size5x7" },            // 8 - Readable Code 5X5 or 5X7
          new string[] { "Nothing", "Code39", "ITF", "NW7", "JAN_13", "DM8x32", "DM16x16", "DM16x36",
                         "DM16x48", "DM18x18", "DM20x20", "DM22x22", "DM24x24", "Code128_CodesetB",
                         "Code128_CodesetC", "UPC_A", "UPC_E", "JAN_8", "QR21x21", "QR25x25",
@@ -1209,7 +1209,7 @@ namespace Modbus_DLL {
                         "Reverse_Forward", "Reverse_Forward",},       // 15 - Orientation
          new string[] { "Off", "On", "Auto" },                        // 16 - Product speed matching
          new string[] { "HM", "NM", "QM", "SM" },                     // 17 - High Speed Print
-         new string[] { "Time", "Complete" },                         // 18 - Target Sensor Filter
+         new string[] { "Time", "End_Of_Print" },                         // 18 - Target Sensor Filter
          new string[] { "Size4x5", "Size5x5", "Size5x7", "Size9x7", "Size7x10", "Size10x12", "Size12x16", "Size18x24",
                         "Size24x32", "Size11x11", "Size5x3_Chimney", "Size5x5_Chimney", "Size7x5_Chimney", "Size30x40", "Size36x48"  },
                                                                       // 19 - User Pattern Font Types

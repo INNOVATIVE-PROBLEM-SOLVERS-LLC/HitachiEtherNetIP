@@ -891,6 +891,35 @@ namespace Modbus_DLL {
          }
       }
 
+public bool WriteSelectedItems(int item, string data) {
+   bool success = true;
+   int itemStart = 0;
+
+   // Get the number of items in the message
+   int itemCount = GetDecAttribute(ccIDX.Number_Of_Items);
+
+   // Read the section containing the text length of each item and convert to words
+   Section<ccPC> pb = new Section<ccPC>(this, ccPC.Characters_per_Item, 0, itemCount, true);
+   int[] cpi = pb.GetWords(0, itemCount);
+
+   // Calculate the length and starting location of the Farm Code Item
+   int itemLength = cpi[item - 1];
+   for (int i = 0; i < item - 1; i++) {
+      itemStart += cpi[i];
+   }
+
+   // Format the text to exactly match Farm Code Item
+   string itemText = data.PadRight(itemLength).Substring(0, itemLength);
+
+   // Create a section that matches the location of the Item, Fill in the Farm Code, and Write it back.
+   Section<ccPC> tpi = new Section<ccPC>(this, ccPC.Print_Character_String, itemStart, itemText.Length * 2, false);
+   tpi.SetAttrChrs(itemText, 0);
+   tpi.WriteSection();
+
+   // Done!
+   return success;
+}
+
       #endregion
 
       #region ServiceRoutines

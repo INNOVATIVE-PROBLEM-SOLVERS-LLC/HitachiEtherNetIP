@@ -45,20 +45,22 @@ namespace Modbus_DLL {
          this.BaseAttr = BaseAttr;                          // Need the stride for indexing
          this.Len = Len;                                    // Save for section write message
          this.Load = load;                                  // False => already already cleared to 0's
+         byte[] t;                                          // Used in case I/O fails
          string idx = string.Empty;
          if (BaseAttr.Count > 1) {
             idx = $"[{index}]";
          }
          MB.LogIt($"\nAllocating Section {MB.GetAttributeName(BaseAttr.Class, BaseAttr.Val)}{idx} Length = {Len},  PreLoad = {load}");
          if (load) {                                        // Load if previous contents needed
+            b = new byte[Len * 2];                          // Big enough for all reads
             if (Len <= MaxWordSize) {                       // If only one read needed, read it directly
-               b = MB.GetAttributeBlock(BaseAttr, index, Len);  // 
+               t = MB.GetAttributeBlock(BaseAttr, index, Len);  // 
+               Buffer.BlockCopy(t, 0, b, 0, t.Length);      // save away the bytes
             } else {                                        // Otherwise, read it in block size chunks
-               b = new byte[Len * 2];                       // Big enough for all reads
                int wordsRead = 0;                           // Words read so far
                int wordsToRead = Len;                       // Words needed
                while (wordsToRead > 0) {                    // Until all have been read
-                  byte[] t = MB.GetAttributeBlock(BaseAttr, index, Math.Min(wordsToRead, MaxWordSize), wordsRead);
+                  t = MB.GetAttributeBlock(BaseAttr, index, Math.Min(wordsToRead, MaxWordSize), wordsRead);
                   Buffer.BlockCopy(t, 0, b, wordsRead * 2, t.Length); // save away the bytes
                   wordsRead += MaxWordSize;                 // Update words read
                   wordsToRead -= MaxWordSize;               // Update words remaining (OK if it goes negative)
@@ -116,6 +118,8 @@ namespace Modbus_DLL {
             default:
                break;
          }
+         MB.LogIt($"BGet[{MB.GetNozzle(getAttr)}{getAttr.Val:X4}+{n / 2:X4}] {MB.GetAttributeName(getAttr.Class, getAttr.Val)} = " +
+            $"{result}");
          return result;
       }
 
@@ -303,6 +307,9 @@ namespace Modbus_DLL {
                if (attr.Data.Fmt == DataFormats.Decimal) {
                   MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
                      $"{MB.GetDecValue(data)}");
+               } else if(attr.Data.Fmt == DataFormats.UTF8)  {
+                  MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
+                     $"{MB.FormatText(data)}");
                } else {
                   MB.LogIt($"BSet[{MB.GetNozzle(attr)}{attr.Val:X4}{index}] {MB.GetAttributeName(attr.Class, attr.Val)} = " +
                      $"{MB.byte_to_string(data)}");
