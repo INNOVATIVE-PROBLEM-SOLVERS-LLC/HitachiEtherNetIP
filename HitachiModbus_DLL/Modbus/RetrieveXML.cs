@@ -484,10 +484,13 @@ namespace Modbus_DLL {
       // Retrieve all substitutions
       public Substitution RetrieveAllSubstitutions(int ruleNo) {
 
-         // Need to load the rule (Rule number is 1-origin)
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         p.SetAttribute(ccIDX.Substitution_Rule, ruleNo);
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         // If rule not specified, Use currently loaded rule
+         if (ruleNo > 0) {
+            // Need to load the rule (Rule number is 1-origin)
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+            p.SetAttribute(ccIDX.Substitution_Rule, ruleNo);
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
 
          // Get all the individual rules
          List<SubstitutionRule> sr = new List<SubstitutionRule>();
@@ -575,8 +578,10 @@ namespace Modbus_DLL {
          AttrData attr = p.GetAttrData(rule);
          int n = (int)(attr.Data.Max - attr.Data.Min + 1);
          string[] subCode = new string[n];
+         Section<ccSR> ruleData = new Section<ccSR>(p, attr, 0, n * attr.Stride, true);
+
          for (int i = 0; i < n; i++) {
-            subCode[i] = p.GetHRAttribute(rule, i).Trim();
+            subCode[i] = ruleData.Get(rule, i, attr.Data.Len).Trim();
          }
          // Do not save if all were empty strings
          string s = string.Join("/", subCode);

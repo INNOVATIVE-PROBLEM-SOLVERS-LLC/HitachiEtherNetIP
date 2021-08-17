@@ -35,7 +35,7 @@ namespace Modbus_DLL {
             SendXML(ser.XmlToClass(xml));                   // Do the conversion and pass it on for sending to printer
          } catch (Exception e) {
             success = false;
-            Log?.Invoke(p, e.Message);                      // Most likely XML Syntax errors
+            p.LogIt(e.Message);                             // Most likely XML Syntax errors
          } finally {
             ser.Log -= Ser_Log;                             // Release the logging event
          }
@@ -44,43 +44,14 @@ namespace Modbus_DLL {
 
       // Logger for XML unknown attributes issues
       private void Ser_Log(object sender, SerializerEventArgs e) {
-         Log?.Invoke(p, e.Message);                         // Just pass it on
+         p.LogIt(e.Message);                         // Just pass it on
       }
 
       // Send a Serialized Lab to the printer
       public void SendXML(Lab Lab) {
          try {
-            if (Lab.Printer != null) {
-               for (int i = 0; i < Lab.Printer.Length; i++) { // Multiple printers imply a Twin Nozzle printer
-                  Printer ptr = Lab.Printer[i];
-                  int n = Math.Max(0, ptr.Nozzle - 1);
-                  if (n > 0 && !p.TwinNozzle)                // Only process additional printers if Twin Nozzle
-                     continue;
-                  p.Nozzle = n;
-                  Log?.Invoke(p, $" \n// Sending Logos\n ");
-                  if (Lab.Printer[i].Logos != null) {         // If logos exist, divide them into two groups
-                     Logo[] fixedLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Fixed");
-                     Logo[] freeLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Free");
-                     if (fixedLogos.Length > 0) {             // Process fixed logos if any exist
-                        Log?.Invoke(p, $" \n// Sending Fixed Logos\n ");
-                        SendFixedLogos(fixedLogos);
-                     }
-                     if (freeLogos.Length > 0) {              // Process free logos if any exist
-                        Log?.Invoke(p, $" \n// Sending Free Logos\n ");
-                        SendFreeLogos(freeLogos);
-                     }
-                  }
-                  if (n > 0)                                  // Substitutions are printer wide, not nozzle specific
-                     continue;
-                  if (ptr.Substitution != null
-                     && ptr.Substitution.SubRule != null
-                     && ptr.Substitution.Delimiter.Length == 1) {
-                     Log?.Invoke(p, $" \n// Sending Substitutions\n ");
-                     SendSubstitution(ptr.Substitution);
-                  }
-               }
-            }
-            
+            LogosAndSubstitutions(Lab);
+
             if (Lab.Message != null) {                      // Send message settings
                for (int i = 0; i < Lab.Message.Length; i++) {
                   if (Lab.Message[i] != null) {
@@ -90,7 +61,7 @@ namespace Modbus_DLL {
                      }
                      p.Nozzle = n;
                      if (p.TwinNozzle) {
-                        Log?.Invoke(p, $" \n// Sending Message for nozzle {n + 1}\n ");
+                        p.LogIt($" \n// Sending Message for nozzle {n + 1}\n ");
                      }
                      SendMessage(Lab.Message[i]);
                   }
@@ -106,7 +77,7 @@ namespace Modbus_DLL {
                      }
                      p.Nozzle = n;
                      if (p.TwinNozzle) {
-                        Log?.Invoke(p, $" \n// Sending Printer Settings for nozzle {n + 1}\n ");
+                        p.LogIt($" \n// Sending Printer Settings for nozzle {n + 1}\n ");
                      }
                      SendPrinterSettings(Lab.Printer[i]); // Must be done last
                   }
@@ -114,7 +85,40 @@ namespace Modbus_DLL {
             }
 
          } catch (Exception e2) {
-            Log?.Invoke(p, e2.Message);
+            p.LogIt(e2.Message);
+         }
+      }
+
+      private void LogosAndSubstitutions(Lab Lab) {
+         if (Lab.Printer != null) {
+            for (int i = 0; i < Lab.Printer.Length; i++) { // Multiple printers imply a Twin Nozzle printer
+               Printer ptr = Lab.Printer[i];
+               int n = Math.Max(0, ptr.Nozzle - 1);
+               if (n > 0 && !p.TwinNozzle)                // Only process additional printers if Twin Nozzle
+                  continue;
+               p.Nozzle = n;
+               p.LogIt($" \n// Sending Logos\n ");
+               if (Lab.Printer[i].Logos != null) {         // If logos exist, divide them into two groups
+                  Logo[] fixedLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Fixed");
+                  Logo[] freeLogos = Array.FindAll<Logo>(Lab.Printer[i].Logos, l => l.Layout == "Free");
+                  if (fixedLogos.Length > 0) {             // Process fixed logos if any exist
+                     p.LogIt($" \n// Sending Fixed Logos\n ");
+                     SendFixedLogos(fixedLogos);
+                  }
+                  if (freeLogos.Length > 0) {              // Process free logos if any exist
+                     p.LogIt($" \n// Sending Free Logos\n ");
+                     SendFreeLogos(freeLogos);
+                  }
+               }
+               if (n > 0)                                  // Substitutions are printer wide, not nozzle specific
+                  continue;
+               if (ptr.Substitution != null
+                  && ptr.Substitution.SubRule != null
+                  && ptr.Substitution.Delimiter.Length == 1) {
+                  p.LogIt($" \n// Sending Substitutions\n ");
+                  SendSubstitution(ptr.Substitution);
+               }
+            }
          }
       }
 
@@ -215,10 +219,10 @@ namespace Modbus_DLL {
          p.DeleteAllButOne();            // Leave to only one item in printer (Deletes are done in individual mode)
          if (m.Column != null) {
             if (use_left_to_right) {
-               Log?.Invoke(this, " \n// Loading new message from left to right\n ");
+               p.LogIt(" \n// Loading new message from left to right\n ");
                AllocateRowsColumnsII(m);
             } else {
-               Log?.Invoke(this, " \n// Loading new message from right to left\n ");
+               p.LogIt(" \n// Loading new message from right to left\n ");
                AllocateRowsColumns(m);
             }
          }
@@ -234,7 +238,7 @@ namespace Modbus_DLL {
          // Step thru the columns right-to-left
          for (int c = 0; c < m.Column.Length; c++) {
             Column col = m.Column[c];                                 // Create a shorthand
-            Log?.Invoke(p, $" \n// Set column {c + 1} to {col.Item.Length} items\n ");
+            p.LogIt($" \n// Set column {c + 1} to {col.Item.Length} items\n ");
             if (c > 0) {
                p.SetAttribute(ccPF.Add_Column, c + 1);
             }
@@ -285,7 +289,7 @@ namespace Modbus_DLL {
 
          // Now, write all the text at once
          int charCount = st.Sum(x => x.Length);
-         Log?.Invoke(p, $" \n//Write all text at once: {sl.Count} items and {charCount} Characters\n ");
+         p.LogIt($" \n//Write all text at once: {sl.Count} items and {charCount} Characters\n ");
 
          // Characters per item and text per item must be set as a group
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1); // Start stacking requests
@@ -314,12 +318,12 @@ namespace Modbus_DLL {
          // Set the item x/y coordinates if this message is free layout?
          if (m.Layout == "FreeLayout") {
             // Change message to free layout
-            Log?.Invoke(p, $" \n// Change message to free layout\n ");
+            p.LogIt($" \n// Change message to free layout\n ");
             p.SetAttribute(ccPF.Format_Setup, m.Layout);
             int index = 0;                                  // This is Item number
             for (int c = 0; c < m.Column.Length; c++) {     // Can step thru forward or backward.
                for (int r = 0; r < m.Column[c].Item.Length; r++) {
-                  Log?.Invoke(p, $" \n// Position item {index + 1}\n ");
+                  p.LogIt($" \n// Position item {index + 1}\n ");
                   Item item = m.Column[c].Item[r];
                   if (item.Location != null) {
                      Section<ccPF> xy = new Section<ccPF>(p, ccPF.X_Coordinate, ccPF.Y_Coordinate, index, false);
@@ -355,7 +359,7 @@ namespace Modbus_DLL {
          p.SetAttribute(ccPF.Column, 1);                              // All work is done on the first column (column 1)
          for (int c = m.Column.GetUpperBound(0); c >= m.Column.GetLowerBound(0); c--) {
             Column col = m.Column[c];                                 // Create a shorthand
-            Log?.Invoke(p, $" \n// Set column {c + 1} to {col.Item.Length} items\n ");
+            p.LogIt($" \n// Set column {c + 1} to {col.Item.Length} items\n ");
             p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);       // Allocate all items in column
             if (col.Item.Length > 1) {
                p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);   // Stack up the requests if 2 or more items
@@ -404,7 +408,7 @@ namespace Modbus_DLL {
 
          // Now, write all the text at once
          string s = sb.ToString();                                    // Get all text items into a single string.
-         Log?.Invoke(p, $" \n//Write all text at once: {sl.Count} items and {s.Length} Characters\n ");
+         p.LogIt($" \n//Write all text at once: {sl.Count} items and {s.Length} Characters\n ");
 
          // Characters per item and text per item must be set as a group
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);         // Start stacking requests
@@ -422,12 +426,12 @@ namespace Modbus_DLL {
          // Set the item x/y coordinates if this message is free layout?
          if (m.Layout == "FreeLayout") {
             // Change message to free layout
-            Log?.Invoke(p, $" \n// Change message to free layout\n ");
+            p.LogIt($" \n// Change message to free layout\n ");
             p.SetAttribute(ccPF.Format_Setup, m.Layout);
             int index = 0;                                            // This is Item number
             for (int c = 0; c < m.Column.Length; c++) {               // Can step thru forward or backward.
                for (int r = 0; r < m.Column[c].Item.Length; r++) {
-                  Log?.Invoke(p, $" \n// Position item {index + 1}\n ");
+                  p.LogIt($" \n// Position item {index + 1}\n ");
                   Item item = m.Column[c].Item[r];
                   if (item.Location != null) {
                      Section<ccPF> xy = new Section<ccPF>(p, ccPF.X_Coordinate, ccPF.Y_Coordinate, index, false);
@@ -454,7 +458,7 @@ namespace Modbus_DLL {
       // Set the Barcode after conditions have been loaded
       private void SetBarcode(Msg m) {
          // Change message to free layout
-         Log?.Invoke(p, $" \n// Load needed Barcode Formats\n ");
+         p.LogIt($" \n// Load needed Barcode Formats\n ");
          int index = 0;
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
          for (int c = 0; c < m.Column.Length; c++) {
@@ -472,7 +476,7 @@ namespace Modbus_DLL {
       // Send the Calendar and Counter settings
       private void SendDateCount(Msg m) {
          // Get calendar and count blocks assigned by the printer
-         Log?.Invoke(p, $" \n// Get number of Calendar and Count blocks used\n ");
+         p.LogIt($" \n// Get number of Calendar and Count blocks used\n ");
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
@@ -507,7 +511,7 @@ namespace Modbus_DLL {
             if (date.Block <= calCount) {
                if (date.Offset != null || date.ZeroSuppress != null || date.Substitute != null) {
                   int index = calStart + date.Block - 2; // Cal start and date.Block are both 1-origin
-                  Log?.Invoke(p, $" \n// Set up calendar block {index + 1}\n ");
+                  p.LogIt($" \n// Set up calendar block {index + 1}\n ");
 
                   Section<ccCal> cs = new Section<ccCal>(p, ccCal.Offset_Year, ccCal.Zero_Suppress_DayOfWeek, index, false);
                   { // No pre-read since all will be filled in
@@ -548,9 +552,9 @@ namespace Modbus_DLL {
                }
 
                if (date.Shifts != null) {                   // Process shifts
-                  Log?.Invoke(p, $" \n// Set up shifts\n ");
+                  p.LogIt($" \n// Set up shifts\n ");
                   AttrData attr = p.GetAttrData(ccSR.Shift_Start_Hour);
-                  span = attr.Data.Len * date.Shifts.Length;
+                  span = attr.Stride * date.Shifts.Length;
                   Section<ccSR> ss = new Section<ccSR>(p, ccSR.Shift_Start_Hour, 0, span, false);
                   {
                      for (int j = 0; j < date.Shifts.Length; j++) {
@@ -560,15 +564,15 @@ namespace Modbus_DLL {
                         ss.SetAttribute(ccSR.Shift_End_Hour, j, ds.EndHour);
                         ss.SetAttribute(ccSR.Shift_End_Minute, j, ds.EndMinute);
                         ss.SetAttribute(ccSR.Shift_String_Value, j, ds.ShiftCode);
-                        ss.WriteSection();
                      }
                   }
+                  ss.WriteSection();
                }
 
 
                if (date.TimeCount != null) {                // Process TimeCount
                   TimeCount tc = date.TimeCount;
-                  Log?.Invoke(p, $" \n// Set up Time Count\n ");
+                  p.LogIt($" \n// Set up Time Count\n ");
                   Section<ccSR> tcs = new Section<ccSR>(p, ccSR.Time_Count_Start_Value, ccSR.Update_Interval_Value, 0, false);
                   {
                      tcs.SetAttribute(ccSR.Time_Count_Start_Value, tc.Start);
@@ -592,7 +596,7 @@ namespace Modbus_DLL {
             if (c.Block <= countCount) {
                int index = countStart + c.Block - 2; // Both count start and count block are 1-origin
 
-               Log?.Invoke(p, $" \n// Set up count {index + 1}\n ");
+               p.LogIt($" \n// Set up count {index + 1}\n ");
                Section<ccCount> cs = new Section<ccCount>(p, ccCount.Initial_Value, ccCount.Count_Skip, index, false);
                {
                   Range r = c.Range;                        // Process Range
@@ -637,21 +641,25 @@ namespace Modbus_DLL {
 
       // Load printer wide settings
       private void SendPrinterSettings(Printer ptr) {
-         Log?.Invoke(p, $" \n// Send printer settings\n ");
+         p.LogIt($" \n// Send printer settings\n ");
          Section<ccPS> pss = new Section<ccPS>(p, ccPS.Character_Height, ccPS.Speed_Compensation_Fine_Control, 0, true);
          {  // This section must be read as not all values are guaranteed to be set.
             if (ptr.PrintHead != null) {
                pss.SetAttribute(ccPS.Character_Orientation, ptr.PrintHead.Orientation);
             }
-            if (ptr.ContinuousPrinting != null) {
+            if (ptr.ContinuousPrinting != null && ptr.ContinuousPrinting.ShouldSerializeContinuousPrinting()) {
                pss.SetAttribute(ccPS.Repeat_Interval, ptr.ContinuousPrinting.RepeatInterval);
                pss.SetAttribute(ccPS.Repeat_Count, ptr.ContinuousPrinting.PrintsPerTrigger);
             }
-            //if (ptr.TargetSensor != null) { // Causes a fault in the printer.
-            //   pss.SetAttribute(ccPS.Target_Sensor_Filter, ptr.TargetSensor.Filter);
-            //   pss.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
-            //   pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
-            //}
+            if (ptr.TargetSensor != null) { // Causes a fault in the printer.
+               if (int.TryParse(ptr.TargetSensor.Filter, out int n) && n-- > 0) { // 0 or 1 for modbus
+                  if (n == 0) {
+                     pss.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
+                  }
+               pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
+               pss.SetAttribute(ccPS.Target_Sensor_Filter, n);
+               }
+            }
             if (ptr.CharacterSize != null) {
                pss.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
                pss.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
@@ -687,7 +695,7 @@ namespace Modbus_DLL {
             if (Enum.TryParse(r.Type, true, out ccSR type)) {         // Valid type?
                SetSubValues(type, r, delimiter);                      // Send the substitution values
             } else {
-               Log?.Invoke(p, $"Unknown substitution rule type =>{r.Type}<=");
+               p.LogIt($"Unknown substitution rule type =>{r.Type}<=");
             }
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);         // Now process the stacked requests
@@ -702,7 +710,9 @@ namespace Modbus_DLL {
          Section<ccSR> sub = new Section<ccSR>(p, attribute, 0, prop.Len * n, false);
          { // Avoid many I/Os
             for (int i = 0; i < n; i++) {
-               sub.SetAttribute(attribute, i, s[i]);
+               if (!string.IsNullOrEmpty(s[i])) {
+                  sub.SetAttribute(attribute, i, s[i]);
+               }
             }
             sub.WriteSection();
          }
