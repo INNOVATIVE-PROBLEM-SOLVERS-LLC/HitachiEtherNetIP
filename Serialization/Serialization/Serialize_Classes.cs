@@ -11,9 +11,13 @@ namespace Serialization {
    public enum ZS {
       None = 0,
       [XmlEnum(Name = "false")]
+      prevfalse = 0,
+      [XmlEnum(Name = "False")]
       prevFalse = 0,
       Space = 1,
       [XmlEnum(Name = "true")]
+      prevtrue = 1,
+      [XmlEnum(Name = "True")]
       prevTrue = 1,
       Character = 2,
    }
@@ -22,9 +26,13 @@ namespace Serialization {
    public enum ED {
       Disable = 0,
       [XmlEnum(Name = "false")]
+      prevfalse = 0,
+      [XmlEnum(Name = "False")]
       prevFalse = 0,
       Enable = 1,
       [XmlEnum(Name = "true")]
+      prevtrue = 1,
+      [XmlEnum(Name = "True")]
       prevTrue = 1,
    }
 

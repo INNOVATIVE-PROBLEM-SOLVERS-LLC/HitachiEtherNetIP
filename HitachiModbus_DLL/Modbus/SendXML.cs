@@ -477,11 +477,14 @@ namespace Modbus_DLL {
       private void SendDateCount(Msg m) {
          // Get calendar and count blocks assigned by the printer
          p.LogIt($" \n// Get number of Calendar and Count blocks used\n ");
+         int index = 0;
          for (int c = 0; c < m.Column.Length; c++) {
             for (int r = 0; r < m.Column[c].Item.Length; r++) {
                Item item = m.Column[c].Item[r];
-               int index = m.Column[c].Item[r].Location.Index - 1;
                if (item.Date != null || item.Counter != null) {
+                  if (item.Location == null) {
+                     item.Location = new Location() { Index = index };
+                  }
                   Section<ccPF> ccs = new Section<ccPF>(p, ccPF.First_Calendar_Block, ccPF.Number_Of_Count_Blocks, index, true);
                   { // Avoids 4 I/O to get the data
                      item.Location.calStart = ccs.GetDecAttribute(ccPF.First_Calendar_Block, index);
@@ -497,6 +500,7 @@ namespace Modbus_DLL {
                      SendCount(item);             // Send counter if needed.
                   }
                }
+               index++;
             }
          }
       }

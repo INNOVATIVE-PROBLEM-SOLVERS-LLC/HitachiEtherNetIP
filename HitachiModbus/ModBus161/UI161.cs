@@ -129,6 +129,7 @@ namespace ModBus161 {
                //DisplayLogTree(status.Resp2); // No longer generated
                break;
             case AsyncIO.TaskType.Retrieve:
+            case AsyncIO.TaskType.RetrieveMsg:
                LoadXmlToDisplay(status.Resp1);
                //DisplayLogTree(status.Resp2); // No longer generated
                break;
