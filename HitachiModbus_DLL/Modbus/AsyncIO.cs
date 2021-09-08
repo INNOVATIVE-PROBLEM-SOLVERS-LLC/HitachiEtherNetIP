@@ -179,9 +179,17 @@ namespace Modbus_DLL {
       }
 
       private void WriteSelectedItems(ModbusPkt pkt) {
-         bool success = MB.WriteSelectedItems(pkt.Item, pkt.Data);
-         AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
-         parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
+         bool success = false;
+         SendRetrieveXML send = new SendRetrieveXML(MB);
+         send.Log += Modbus_Log;
+         try {
+            success = send.WriteSelectedItems(pkt.Item, pkt.Data);
+         } finally {
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
+            send.Log -= Modbus_Log;
+            send = null;
+         }
       }
 
       private void WritePattern(ModbusPkt pkt) {

@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
+
 namespace Serialization {
 
    #region Enumerations
@@ -38,7 +39,7 @@ namespace Serialization {
 
    #endregion
 
-   #region Rool level classes
+   #region Root level classes
 
    [XmlRoot("Label", IsNullable = false)]
    public class Lab {
@@ -77,6 +78,20 @@ namespace Serialization {
       public int Nozzle;
       [XmlElement("Column")]
       public Column[] Column;  // Message made up of columns and items within column
+
+      public Msg Clone() {
+         Column[] cols = new Column[this.Column.Length];
+         for (int i = 0; i < this.Column.Length; i++) {
+            cols[i] = this.Column[i] == null ? null : this.Column[i].Clone();
+         }
+
+         return new Msg() {
+            Layout = this.Layout,
+            Name = this.Name,
+            Nozzle = this.Nozzle,
+            Column = cols,
+         };
+      }
    }
 
    public class Column {
@@ -84,6 +99,18 @@ namespace Serialization {
       public int InterLineSpacing;  // Spacing between items
       [XmlElement("Item")]
       public Item[] Item;              // Items within a column
+
+      public Column Clone() {
+         Item[] items = new Item[this.Item.Length];
+         for (int i = 0; i < this.Item.Length; i++) {
+            items[i] = this.Item[i] == null ? null : this.Item[i].Clone();
+         }
+
+         return new Column() {
+            InterLineSpacing = this.InterLineSpacing,
+            Item = items,
+         };
+      }
    }
 
    public class Item {
@@ -98,13 +125,85 @@ namespace Serialization {
       [XmlElement("Counter")]
       public Counter[] Counter;        // Multiple counters can appear within an item
 
+      [XmlElement("Link")]
+      public Link Link;                // Single Link can appear within an item
+
+      [XmlElement("Prompt")]
+      public Prompt Prompt;            // Single Prompt can appear within an item
+
       public Location Location;        // Use for internal processing only
 
       public string Text;              // Message Text
       public int SplitAt = -1;         // Text must be broken into two parts at this point
 
       public bool ShouldSerializeBarCode() {
-         return BarCode != null;  // Write out BarCode only if it is used.
+         return BarCode != null;       // Write out BarCode only if it is used.
+      }
+
+      public bool ShouldSerializeLink() {
+         return Link != null;          // Write out Link only if it is used.
+      }
+
+      public bool ShouldSerializePrompt() {
+         return Prompt != null;        // Write out Prompt only if it is used.
+      }
+
+      public Item Clone() {
+         Date[] dte = null;
+         if (this.Date != null) {
+            dte = new Date[this.Date.Length];
+            for(int i = 0; i < dte.Length; i++) {
+               dte[i] = this.Date[i] == null ? null : this.Date[i].Clone();
+            }
+         }
+         Counter[] ctr = null;
+         if (this.Counter != null) {
+            ctr = new Counter[this.Counter.Length];
+            for (int i = 0; i < ctr.Length; i++) {
+               ctr[i] = this.Counter[i] == null ? null : this.Counter[i].Clone();
+            }
+         }
+         return new Item() {
+            Type = this.Type,
+            Font = this.Font == null ? null : this.Font.Clone(),
+            Date = dte,
+            Counter = ctr,
+            BarCode = this.BarCode == null ? null : this.BarCode.Clone(),
+            Link = this.Link == null ? null : this.Link.Clone(),
+            Prompt = this.Prompt == null ? null : this.Prompt.Clone(),
+            Location = this.Location == null ? null : this.Location.Clone(),
+            Text = this.Text,
+            SplitAt = this.SplitAt,
+         };
+      }
+
+   }
+
+   public class Link {
+      [XmlAttribute]
+      public string FileLocation;
+      [XmlAttribute]
+      public string AssumedContents;
+
+      public Link Clone() {
+         return (Link)this.MemberwiseClone();
+      }
+   }
+
+   public class Prompt {
+      [XmlAttribute]
+      public string Message;
+      [XmlAttribute]
+      public string Responses;
+      [XmlAttribute]
+      public string AssumedResponse;
+      [XmlAttribute]
+      public string AcutalResponse;
+      [XmlIgnore]
+      public bool UseActualResponse;
+
+      public Prompt Clone() {
+         return (Prompt)this.MemberwiseClone();
       }
    }
 
@@ -134,6 +233,10 @@ namespace Serialization {
       public bool ShouldSerializeY() {
          return Y >= 0;                // Set to -1 if Layout != FreeLayout.
       }
+
+      public Location Clone() {
+         return (Location)this.MemberwiseClone();
+      }
    }
 
    public class FontDef {
@@ -152,6 +255,10 @@ namespace Serialization {
       public bool ShouldSerializeIW() {
          return false;                    // Load IW but save as IncreasedWidth.
       }
+
+      public FontDef Clone() {
+         return (FontDef)this.MemberwiseClone();
+      }
    }
 
    public class BarCode {
@@ -161,6 +268,11 @@ namespace Serialization {
       public string EANPrefix;           // EAN Prefix
       [XmlAttribute]
       public string DotMatrix;           // Barcode symbology
+
+      public BarCode Clone() {
+         return (BarCode)this.MemberwiseClone();
+
+      }
    }
 
    public class Counter {
@@ -171,6 +283,16 @@ namespace Serialization {
       public Count Count;
       public Reset Reset;
       public Misc Misc;
+
+      public Counter Clone() {
+         return new Counter() {
+            Block = this.Block,
+            Range = this.Range== null ? null : this.Range.Clone(),
+            Count = this.Count == null ? null : this.Count.Clone(),
+            Reset = this.Reset == null ? null : this.Reset.Clone(),
+            Misc = this.Misc == null ? null : this.Misc.Clone(),
+         };
+      }
    }
 
    public class Range {
@@ -182,6 +304,10 @@ namespace Serialization {
       public string JumpFrom;
       [XmlAttribute]
       public string JumpTo;
+
+      public Range Clone() {
+         return (Range)this.MemberwiseClone();
+      }
    }
 
    public class Count {
@@ -193,6 +319,10 @@ namespace Serialization {
       public string Direction;
       [XmlAttribute]
       public string ZeroSuppression;
+
+      public Count Clone() {
+         return (Count)this.MemberwiseClone();
+      }
    }
 
    public class Reset {
@@ -200,6 +330,10 @@ namespace Serialization {
       public string Type;
       [XmlAttribute]
       public string Value;
+
+      public Reset Clone() {
+         return (Reset)this.MemberwiseClone();
+      }
    }
 
    public class Misc {
@@ -213,6 +347,10 @@ namespace Serialization {
       public string Multiplier;
       [XmlAttribute]
       public string SkipCount;
+
+      public Misc Clone() {
+         return (Misc)this.MemberwiseClone();
+      }
    }
 
    public class Date {
@@ -248,6 +386,27 @@ namespace Serialization {
             || Substitute.Hour != ED.Disable || Substitute.Minute != ED.Disable || Substitute.Week != ED.Disable
             || Substitute.DayOfWeek != ED.Disable);
       }
+
+      public Date Clone() {
+         Shift[] shfts = null;
+         if (this.Shifts != null) {
+            shfts = new Shift[this.Shifts.Length];
+            for (int i = 0; i < shfts.Length; i++) {
+               shfts[i] = this.Shifts[i] == null ? null : this.Shifts[i].Clone();
+            }
+         }
+         return new Date() {
+            Block = this.Block,
+            SubstitutionRule = this.SubstitutionRule,
+            RuleName = this.RuleName,
+            PlainText = this.PlainText,
+            Offset = this.Offset == null ? null : this.Offset.Clone(),
+            ZeroSuppress = this.ZeroSuppress == null ? null : this.ZeroSuppress.Clone(),
+            Substitute = this.Substitute == null ? null : this.Substitute.Clone(),
+            Shifts = shfts,
+            TimeCount = this.TimeCount == null ? null : this.TimeCount.Clone(),
+         };
+      }
    }
 
    public class Offset {
@@ -277,11 +436,12 @@ namespace Serialization {
       public bool ShouldSerializeMinute() {
          return this.Minute != 0;
       }
-      public Offset Copy() {
-         return (Offset)MemberwiseClone();
-      }
       public bool ShouldSerializeOffset() {
          return Year != 0 || Month != 0 || Day != 0 || Hour != 0 || Minute != 0;
+      }
+
+      public Offset Clone() {
+         return (Offset)MemberwiseClone();
       }
    }
 
@@ -321,12 +481,13 @@ namespace Serialization {
       public bool ShouldSerializeDayOfWeek() {
          return this.DayOfWeek != ZS.None;
       }
-      public ZeroSuppress Copy() {
-         return (ZeroSuppress)this.MemberwiseClone();
-      }
       public bool ShouldSerializeZeroSuppress() {
          return Year != ZS.None || Month != ZS.None || Day != ZS.None ||
             Hour != ZS.None || Minute != ZS.None || Week != ZS.None || DayOfWeek != ZS.None;
+      }
+
+      public ZeroSuppress Clone() {
+         return (ZeroSuppress)this.MemberwiseClone();
       }
    }
 
@@ -371,7 +532,7 @@ namespace Serialization {
          return Year != ED.Disable || Month != ED.Disable || Day != ED.Disable || Hour != ED.Disable ||
             Minute != ED.Disable || Week != ED.Disable || DayOfWeek != ED.Disable;
       }
-      public Substitute Copy() {
+      public Substitute Clone() {
          return (Substitute)this.MemberwiseClone();
       }
    }
@@ -390,15 +551,8 @@ namespace Serialization {
       [XmlAttribute]
       public string ShiftCode;
 
-      public Shift Copy() {
-         return new Shift() {
-            ShiftNumber = this.ShiftNumber,
-            StartHour = string.Copy(this.StartHour),
-            StartMinute = string.Copy(this.StartMinute),
-            EndHour = string.Copy(this.EndHour),
-            EndMinute = string.Copy(this.EndMinute),
-            ShiftCode = string.Copy(this.ShiftCode),
-         };
+      public Shift Clone() {
+         return (Shift)this.MemberwiseClone();
       }
    }
 
@@ -416,14 +570,8 @@ namespace Serialization {
       [XmlAttribute]
       public string ResetValue;
 
-      public TimeCount Copy() {
-         return new TimeCount() {
-            Interval = string.Copy(this.Interval),
-            Start = string.Copy(this.Start),
-            End = string.Copy(this.End),
-            ResetTime = string.Copy(this.ResetTime),
-            ResetValue = string.Copy(this.ResetValue)
-         };
+      public TimeCount Clone() {
+         return (TimeCount)this.MemberwiseClone();
       }
 
       public override bool Equals(object other) {
@@ -567,13 +715,13 @@ namespace Serialization {
       [XmlElement("Rule")]
       public SubstitutionRule[] SubRule;
 
-      public Substitution Copy() {
+      public Substitution Clone() {
          SubstitutionRule[] sr = new SubstitutionRule[this.SubRule.Length];
          for (int i = 0; i < this.SubRule.Length; i++) {
-            sr[i] = this.SubRule[i].Copy();
+            sr[i] = this.SubRule[i] == null ? null : this.SubRule[i].Clone();
          }
          return new Substitution() {
-            Delimiter = string.Copy(this.Delimiter),
+            Delimiter = this.Delimiter,
             StartYear = this.StartYear,
             RuleNumber = this.RuleNumber,
             SubRule = sr
@@ -590,15 +738,14 @@ namespace Serialization {
       [XmlText]
       public string Text;
 
-      public SubstitutionRule Copy() {
+      public SubstitutionRule Clone() {
          return new SubstitutionRule() {
-            Type = string.Copy(this.Type),
+            Type = this.Type,
             Base = this.Base,
-            Text = string.Copy(this.Text)
+            Text = this.Text,
          };
       }
    }
-
 
    #endregion
 

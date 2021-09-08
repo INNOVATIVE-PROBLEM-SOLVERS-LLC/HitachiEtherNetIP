@@ -215,249 +215,151 @@ namespace Modbus_DLL {
 
       // Send the message portion of the Lab (In forward order)
       private void SendMessage(Msg m) {
-         bool use_left_to_right = true;  // Right to left is fastest
-         p.DeleteAllButOne();            // Leave to only one item in printer (Deletes are done in individual mode)
+
+         // Leave to only one item in printer (Deletes are done in individual mode)
+         p.DeleteAllButOne();
          if (m.Column != null) {
-            if (use_left_to_right) {
-               p.LogIt(" \n// Loading new message from left to right\n ");
-               AllocateRowsColumnsII(m);
-            } else {
-               p.LogIt(" \n// Loading new message from right to left\n ");
-               AllocateRowsColumns(m);
+            // Has to be set after the text is loaded
+            bool barCodesExist = false;
+
+            // Save some time if no need to look
+            bool hasDateOrCount = false;
+
+            p.LogIt(" \n// Loading new\n ");
+            AllocateRowsColumns(m, ref barCodesExist, ref hasDateOrCount);
+            if (m.Layout == "FreeLayout") {
+               SetFreeLayoutXY(m);
+            }
+            if (hasDateOrCount) {
+               SendDateCount(m);
+            }
+
+            // Must be done last after message text is complete
+            if (barCodesExist) {
+               SetBarcode(m);
             }
          }
       }
 
-      // Allocate items in a left to right fashion
-      private void AllocateRowsColumnsII(Msg m) {
-         bool barCodesExist = false;                        // Has to be set after the text is loaded
-         bool hasDateOrCount = false;                       // Save some time if no need to look
-         List<int> sl = new List<int>(100);                 // String Length in Characters per item
-         List<string> st = new List<string>(100);           // String text at 4 characters per item character
-         int n = 0;                                         // Active item number
-         // Step thru the columns right-to-left
-         for (int c = 0; c < m.Column.Length; c++) {
-            Column col = m.Column[c];                                 // Create a shorthand
+      // Use the column/item structure of a Lab to allocate items in the printer (From right to left)
+      private void AllocateRowsColumns(Msg m, ref bool barCodesExist, ref bool hasDateOrCount) {
+         List<string> st = new List<string>(100);           // Text of items
+
+         // Step thru the columns right-to-left.  All work is done on the first column (column 1)
+         p.SetAttribute(ccPF.Column, 1);
+         for (int c = m.Column.GetUpperBound(0); c >= m.Column.GetLowerBound(0); c--) {
+
+            // Allocate the items in one column
+            Column col = m.Column[c];
             p.LogIt($" \n// Set column {c + 1} to {col.Item.Length} items\n ");
-            if (c > 0) {
-               p.SetAttribute(ccPF.Add_Column, c + 1);
-            }
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);      // These two must be done together
-            p.SetAttribute(ccPF.Column, c + 1);                       // Point to the allocated column
-            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);       // Allocate all items in column
-            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);      // Now set them all at once if 2 or more items
+            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);
 
-            if (col.Item.Length > 1) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);   // Stack up the requests if 2 or more items
-            }
+            // Fill in the column
+            string[] sp = AllocateOneColumn(ref barCodesExist, ref hasDateOrCount, col);
 
-            string[] sp = new string[col.Item.Length];                // Want to make all items in a column the same length
-            for (int r = 0; r < col.Item.Length; r++) {
-               Item item = col.Item[r];                               // Shorthand for item and font
-               FontDef font = item.Font;
-
-               // Create a block write for Font, ICS, Bolding, Barcode
-               Section<ccPF> sect = new Section<ccPF>(p, ccPF.Line_Spacing, ccPF.Barcode_Type, n + r, false);
-               {
-                  if (col.Item.Length == 1) {
-                     sect.SetAttribute(ccPF.Line_Spacing, n, 0);      // Failure to set the 0 could be fatal
-                  } else {
-                     sect.SetAttribute(ccPF.Line_Spacing, n + r, col.InterLineSpacing);
-                  }
-                  sect.SetAttribute(ccPF.Dot_Matrix, n + r, font.DotMatrix);
-                  sect.SetAttribute(ccPF.InterCharacter_Space, n + r, font.InterCharacterSpace);
-                  sect.SetAttribute(ccPF.Character_Bold, n + r, font.IncreasedWidth);
-                  sect.SetAttribute(ccPF.Barcode_Type, n + r, 0); //  (set to 0 now, cannot be set until text is loaded)
-                  sect.WriteSection();
-               }
-
-               sp[r] = UTF8Hitachi.HandleBraces(item.Text);     // ?? Convert string to Hitachi Attributed characters
-               barCodesExist |= item.BarCode != null;
-               hasDateOrCount |= item.Date != null | item.Counter != null;
-            }
-            if (col.Item.Length > 1) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);      // Process the whole column at once
+            // If there Are there more columns to come, Allocate a new column 1
+            // and Make sure column is stackable to 6 rows
+            if (c > m.Column.GetLowerBound(0)) {
+               p.SetAttribute(ccPF.Insert_Column, 1);
+               p.SetAttribute(ccPF.Dot_Matrix, 0, "5X5");
             }
 
-            // Make the display look nice (this may be an issue.)
-            for (int si = 0; si < sp.Length; si++) {
-               sl.Add(sp[si].Length);                   // Insert at end since processing in forward order
-               st.Add(sp[si]);                          // Pad to max length.
+            // Insert at front since processing in reverse order
+            for (int si = sp.GetUpperBound(0); si >= sp.GetLowerBound(0); si--) {
+               st.Insert(0, sp[si]);
             }
-            n += col.Item.Length;
          }
 
+         // Write all text as a single operation
+         WriteAllText(st);
+      }
+
+      private string[] AllocateOneColumn(ref bool barCodesExist, ref bool hasDateOrCount, Column col) {
+
+         // Stack up the requests if 2 or more items
+         if (col.Item.Length > 1) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+         }
+
+         // Step thru the items in a column bottom-to-top
+         string[] sp = new string[col.Item.Length];
+         for (int r = col.Item.GetUpperBound(0); r >= col.Item.GetLowerBound(0); r--) {
+            Item item = col.Item[r];
+            FontDef font = item.Font;
+
+            // Create a block write for ILS, Font, ICS, Bolding, and Barcode
+            // Line spacing must be set to 0 if only one item in column
+            // Cannot set barcode until text is written
+            Section<ccPF> sect = new Section<ccPF>(p, ccPF.Line_Spacing, ccPF.Barcode_Type, r, false);
+            {
+               sect.SetAttribute(ccPF.Line_Spacing, r, col.Item.Length == 1 ? 0 : col.InterLineSpacing);
+               sect.SetAttribute(ccPF.Dot_Matrix, r, font.DotMatrix);
+               sect.SetAttribute(ccPF.InterCharacter_Space, r, font.InterCharacterSpace);
+               sect.SetAttribute(ccPF.Character_Bold, r, font.IncreasedWidth);
+               sect.SetAttribute(ccPF.Barcode_Type, r, 0);
+               sect.WriteSection();
+            }
+
+            // Convert string to Hitachi Attributed characters
+            sp[r] = UTF8Hitachi.HandleBraces(item.Text);
+            barCodesExist |= item.BarCode != null;
+            hasDateOrCount |= item.Date != null | item.Counter != null;
+         }
+
+         // Now set them all at once if 2 or more items 
+         if (col.Item.Length > 1) {
+            p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+         }
+         return sp;
+      }
+
+      private void WriteAllText(List<string> st) {
+         int n;
          // Now, write all the text at once
          int charCount = st.Sum(x => x.Length);
-         p.LogIt($" \n//Write all text at once: {sl.Count} items and {charCount} Characters\n ");
+         p.LogIt($" \n//Write all text at once: {st.Count} items and {charCount} Characters\n ");
 
          // Characters per item and text per item must be set as a group
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1); // Start stacking requests
          {
-            Section<ccPC> cpi = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, sl.Count, false);
-            {
-               for (int i = 0; i < sl.Count; i++) {  // Set characters per item for all items
-                  cpi.SetAttribute(ccPC.Characters_per_Item, i, sl[i]);
-               }
-               cpi.WriteSection();
-            }
+            Section<ccPC> cpi = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, st.Count, false);
             Section<ccPC> pcs = new Section<ccPC>(p, ccPC.Print_Character_String, 0, charCount * 2, false);
-            {
-               n = 0;
-               for (int i = 0; i < st.Count; i++) {  // Set characters per item for all items
-                  pcs.SetAttrChrs(st[i], n);
-                  n += st[i].Length * 2;
-               }
-               pcs.WriteSection();
+            n = 0;
+            for (int i = 0; i < st.Count; i++) {
+               cpi.SetAttribute(ccPC.Characters_per_Item, i, st[i].Length);
+               pcs.SetAttrChrs(st[i], n);
+               n += st[i].Length * 2;
             }
-
+            cpi.WriteSection();
+            pcs.WriteSection();
 
          }
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2); // Save lengths and text at once.
-
-         // Set the item x/y coordinates if this message is free layout?
-         if (m.Layout == "FreeLayout") {
-            // Change message to free layout
-            p.LogIt($" \n// Change message to free layout\n ");
-            p.SetAttribute(ccPF.Format_Setup, m.Layout);
-            int index = 0;                                  // This is Item number
-            for (int c = 0; c < m.Column.Length; c++) {     // Can step thru forward or backward.
-               for (int r = 0; r < m.Column[c].Item.Length; r++) {
-                  p.LogIt($" \n// Position item {index + 1}\n ");
-                  Item item = m.Column[c].Item[r];
-                  if (item.Location != null) {
-                     Section<ccPF> xy = new Section<ccPF>(p, ccPF.X_Coordinate, ccPF.Y_Coordinate, index, false);
-                     {
-                        xy.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
-                        xy.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
-                        xy.WriteSection();
-                     }
-                  }
-                  index++;
-               }
-            }
-         }
-         // Process calendar and count if needed
-         if (hasDateOrCount) {
-            SendDateCount(m);
-         }
-         // At this point, barcode settings can be set
-         if (barCodesExist) {
-            SetBarcode(m);
-         }
-
       }
 
-      // Use the column/item structure of a Lab to allocate items in the printer (From right to left)
-      private void AllocateRowsColumns(Msg m) {
-         bool barCodesExist = false;                        // Has to be set after the text is loaded
-         bool hasDateOrCount = false;                       // Save some time if no need to look
-         List<int> sl = new List<int>(100);                 // Characters per item
-         StringBuilder sb = new StringBuilder(100);         // Text of items
-
-         // Step thru the columns right-to-left
-         p.SetAttribute(ccPF.Column, 1);                              // All work is done on the first column (column 1)
-         for (int c = m.Column.GetUpperBound(0); c >= m.Column.GetLowerBound(0); c--) {
-            Column col = m.Column[c];                                 // Create a shorthand
-            p.LogIt($" \n// Set column {c + 1} to {col.Item.Length} items\n ");
-            p.SetAttribute(ccPF.Line, m.Column[c].Item.Length);       // Allocate all items in column
-            if (col.Item.Length > 1) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);   // Stack up the requests if 2 or more items
-            }
-
-            // Step thru the items in a column bottom-to-top
-            string[] sp = new string[col.Item.Length];                // Want to make all items in a column the same length
-            for (int r = col.Item.GetUpperBound(0); r >= col.Item.GetLowerBound(0); r--) {
-               Item item = col.Item[r];                               // Shorthand for item and font
-               FontDef font = item.Font;
-
-               // Create a block write for ILS, Font, ICS, Bolding, and Barcode
-               Section<ccPF> sect = new Section<ccPF>(p, ccPF.Line_Spacing, ccPF.Barcode_Type, r, false);
-               {
-                  if (col.Item.Length == 1) {
-                     sect.SetAttribute(ccPF.Line_Spacing, r, 0);      // This has to be set
-                  } else {
-                     sect.SetAttribute(ccPF.Line_Spacing, r, col.InterLineSpacing);
-                  }
-                  sect.SetAttribute(ccPF.Dot_Matrix, r, font.DotMatrix);
-                  sect.SetAttribute(ccPF.InterCharacter_Space, r, font.InterCharacterSpace);
-                  sect.SetAttribute(ccPF.Character_Bold, r, font.IncreasedWidth);
-                  sect.SetAttribute(ccPF.Barcode_Type, r, 0);         // Cannot set barcode until text is written
-                  sect.WriteSection();
+      private void SetFreeLayoutXY(Msg m) {
+         // Change message to free layout
+         p.LogIt($" \n// Change message to free layout\n ");
+         p.SetAttribute(ccPF.Format_Setup, m.Layout);
+         int index = 0;                                  // This is Item number
+         for (int c = 0; c < m.Column.Length; c++) {     // Can step thru forward or backward.
+            for (int r = 0; r < m.Column[c].Item.Length; r++) {
+               p.LogIt($" \n// Position item {index + 1}\n ");
+               Item item = m.Column[c].Item[r];
+               if (item.Location != null) {
+                  Section<ccPF> xy = new Section<ccPF>(p, ccPF.X_Coordinate, ccPF.Y_Coordinate, index, false);
+                  xy.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
+                  xy.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
+                  xy.WriteSection();
                }
-
-               sp[r] = UTF8Hitachi.HandleBraces(item.Text);           // Convert string to Hitachi Attributed characters
-               barCodesExist |= item.BarCode != null;
-               hasDateOrCount |= item.Date != null | item.Counter != null;
+               index++;
             }
-            // 
-            if (col.Item.Length > 1) {
-               p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);   // Now set them all at once if 2 or more items 
-            }
-            if (c > m.Column.GetLowerBound(0)) {                      // Are there more columns to come?
-               p.SetAttribute(ccPF.Insert_Column, 1);                 // Allocate a new column 1
-               p.SetAttribute(ccPF.Dot_Matrix, 0, "5X5");             // Make sure column is stackable to 6 rows
-            }
-            // Make the display look nice (this may be an issue.)
-            int maxLen = sp.Max(x => x.Length);       // Get the maximum string length
-            for (int si = sp.GetUpperBound(0); si >= sp.GetLowerBound(0); si--) {
-               sl.Insert(0, maxLen);                  // Insert at front since processing in reverse order
-               sb.Insert(0, sp[si].PadRight(maxLen)); // Pad to max length.
-            }
-         }
-
-         // Now, write all the text at once
-         string s = sb.ToString();                                    // Get all text items into a single string.
-         p.LogIt($" \n//Write all text at once: {sl.Count} items and {s.Length} Characters\n ");
-
-         // Characters per item and text per item must be set as a group
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);         // Start stacking requests
-         {
-            Section<ccPC> cpi = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, sl.Count, false);
-            cpi.SetWords(sl.ToArray(), 0);                            // Set characters per item for all items
-            cpi.WriteSection();
-
-            Section<ccPC> tpi = new Section<ccPC>(p, ccPC.Print_Character_String, 0, s.Length * 2, false);
-            tpi.SetAttrChrs(s, 0);                                    // Set text for all items
-            tpi.WriteSection();
-         }
-         p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2); // Save lengths and text at once.
-
-         // Set the item x/y coordinates if this message is free layout?
-         if (m.Layout == "FreeLayout") {
-            // Change message to free layout
-            p.LogIt($" \n// Change message to free layout\n ");
-            p.SetAttribute(ccPF.Format_Setup, m.Layout);
-            int index = 0;                                            // This is Item number
-            for (int c = 0; c < m.Column.Length; c++) {               // Can step thru forward or backward.
-               for (int r = 0; r < m.Column[c].Item.Length; r++) {
-                  p.LogIt($" \n// Position item {index + 1}\n ");
-                  Item item = m.Column[c].Item[r];
-                  if (item.Location != null) {
-                     Section<ccPF> xy = new Section<ccPF>(p, ccPF.X_Coordinate, ccPF.Y_Coordinate, index, false);
-                     { // No need to pre-read.  This just avoids laving to stack two I/Os
-                        xy.SetAttribute(ccPF.X_Coordinate, index, item.Location.X);
-                        xy.SetAttribute(ccPF.Y_Coordinate, index, item.Location.Y);
-                        xy.WriteSection();
-                     }
-                  }
-                  index++;
-               }
-            }
-         }
-         // Process calendar and count if needed
-         if (hasDateOrCount) {
-            SendDateCount(m);
-         }
-         // At this point, barcode settings can be set
-         if (barCodesExist) {
-            SetBarcode(m);
          }
       }
 
       // Set the Barcode after conditions have been loaded
       private void SetBarcode(Msg m) {
-         // Change message to free layout
+         // Set barcode in the message
          p.LogIt($" \n// Load needed Barcode Formats\n ");
          int index = 0;
          p.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
@@ -521,7 +423,7 @@ namespace Modbus_DLL {
                   { // No pre-read since all will be filled in
                      cs.SetAttribute(ccCal.Substitute_Rule, index, 1); // Only substitution rule 1?
 
-                     Offset o = date.Offset;                   // Process Offset
+                     Offset o = date.Offset;
                      if (o != null) {
                         cs.SetAttribute(ccCal.Offset_Year, index, o.Year);
                         cs.SetAttribute(ccCal.Offset_Month, index, o.Month);
@@ -530,7 +432,7 @@ namespace Modbus_DLL {
                         cs.SetAttribute(ccCal.Offset_Minute, index, o.Minute);
                      }
 
-                     ZeroSuppress zs = date.ZeroSuppress;      // Process Zero Suppress
+                     ZeroSuppress zs = date.ZeroSuppress;
                      if (zs != null) {
                         cs.SetAttribute(ccCal.Zero_Suppress_Year, index, zs.Year);
                         cs.SetAttribute(ccCal.Zero_Suppress_Month, index, zs.Month);
@@ -541,7 +443,7 @@ namespace Modbus_DLL {
                         cs.SetAttribute(ccCal.Zero_Suppress_DayOfWeek, index, zs.DayOfWeek);
                      }
 
-                     Substitute s = date.Substitute;           // Process Substitutions
+                     Substitute s = date.Substitute;
                      if (s != null) {
                         cs.SetAttribute(ccCal.Substitute_Year, index, s.Year);
                         cs.SetAttribute(ccCal.Substitute_Month, index, s.Month);
@@ -555,7 +457,7 @@ namespace Modbus_DLL {
                   cs.WriteSection();
                }
 
-               if (date.Shifts != null) {                   // Process shifts
+               if (date.Shifts != null) {
                   p.LogIt($" \n// Set up shifts\n ");
                   AttrData attr = p.GetAttrData(ccSR.Shift_Start_Hour);
                   span = attr.Stride * date.Shifts.Length;
@@ -573,8 +475,7 @@ namespace Modbus_DLL {
                   ss.WriteSection();
                }
 
-
-               if (date.TimeCount != null) {                // Process TimeCount
+               if (date.TimeCount != null) {
                   TimeCount tc = date.TimeCount;
                   p.LogIt($" \n// Set up Time Count\n ");
                   Section<ccSR> tcs = new Section<ccSR>(p, ccSR.Time_Count_Start_Value, ccSR.Update_Interval_Value, 0, false);
@@ -639,6 +540,50 @@ namespace Modbus_DLL {
          }
       }
 
+      // Used to write Farm Code for MSSE
+      public bool WriteSelectedItems(int itemNo, string data) {
+         bool success = true;
+         // Get the number of items in the message
+         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
+
+         // Read the section containing the text length of each item and convert to words
+         Section<ccPC> pb = new Section<ccPC>(p, ccPC.Characters_per_Item, 0, itemCount, true);
+         int[] cpi = pb.GetWords(0, itemCount);
+
+         // Now read all the text
+         int charCount = cpi.Sum(x => x);
+         Section<ccPC> tpi = new Section<ccPC>(p, ccPC.Print_Character_String, 0, charCount * 2, true);
+
+         // Break up the text by (Should be able to simplify this to avoid double conversion from bytes to UTF-8 to bytes).
+         List<string> itemText = new List<string>(itemCount);
+         int pos = 0;
+         for (int i = 0; i < itemCount; i++) {
+            if (i + 1 == itemNo) {
+               itemText.Add(UTF8Hitachi.HandleBraces(data));
+            } else {
+               itemText.Add(UTF8Hitachi.HandleBraces(p.FormatAttrText(tpi.GetAttributedChrs(pos, cpi[i]))));
+            }
+            pos += cpi[i];
+         }
+
+         // Save the calendar information (may need to do the same for Counter control).
+         int calCnt = p.GetDecAttribute(ccUI.Maximum_Calendar_And_Count);
+         Section<ccCal>[] cs = new Section<ccCal>[calCnt];
+         for (int i = 0; i < cs.Length; i++) {
+            cs[i] = new Section<ccCal>(p, ccCal.Offset_Year, ccCal.Zero_Suppress_DayOfWeek, i, true);
+         }
+
+         // Write the text
+         WriteAllText(itemText);
+
+         // Restore the Calendar information
+         for (int i = 0; i < cs.Length; i++) {
+            cs[i].WriteSection();
+         }
+
+         return success;
+      }
+
       #endregion
 
       #region Send Printer Settings to printer
@@ -660,8 +605,8 @@ namespace Modbus_DLL {
                   if (n == 0) {
                      pss.SetAttribute(ccPS.Target_Sensor_Filter_Value, ptr.TargetSensor.SetupValue);
                   }
-               pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
-               pss.SetAttribute(ccPS.Target_Sensor_Filter, n);
+                  pss.SetAttribute(ccPS.Target_Sensor_Timer, ptr.TargetSensor.Timer);
+                  pss.SetAttribute(ccPS.Target_Sensor_Filter, n);
                }
             }
             if (ptr.CharacterSize != null) {
