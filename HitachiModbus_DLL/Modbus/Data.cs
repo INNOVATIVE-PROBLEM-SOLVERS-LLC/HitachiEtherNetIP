@@ -254,8 +254,8 @@ namespace Modbus_DLL {
       Input_Mode = 0x002C,
       Maximum_Character_Count = 0x002D,
       Maximum_Registered_Message_Count = 0x002E,
-      Barcode_Information = 0x71,
-      Usable_Character_Size = 0x72,
+      Barcode_Information = 0x2F,
+      Usable_Character_Size = 0x30,
       Maximum_Calendar_And_Count = 0x0031,
       Maximum_Substitution_Rule = 0x0032,
       Shift_Code_And_Time_Count = 0x0033,
@@ -802,33 +802,31 @@ namespace Modbus_DLL {
 
       // Unit_Information (Class Code 0x73)
       private readonly AttrData[] ccUI_Addrs = new AttrData[] {
-         //new AttrData((int)ccUI.Unit_Information, true, 1, 0,                   // Unit Information 0x64
-         //   new Prop(64, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccUI.Model_Name, false, 1, 0,                        // Model Name 0x6B
+         new AttrData((int)ccUI.Model_Name, false, 1, 0,                        // Model Name 0x10
             new Prop(16, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccUI.Serial_Number, false, 1, 0,                     // Serial Number 0x6C
+         new AttrData((int)ccUI.Serial_Number, false, 1, 0,                     // Serial Number 0x20
             new Prop(4, DataFormats.Decimal, 0, 99999999, fmtDD.None)),         //   Data
-         new AttrData((int)ccUI.Ink_Name, true, 1, 0,                           // Ink Name 0x6D
+         new AttrData((int)ccUI.Ink_Name, false, 1, 0,                          // Ink Name 0x22
             new Prop(28, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
-         new AttrData((int)ccUI.Input_Mode, true, 1, 0,                         // Input Mode 0x6E
+         new AttrData((int)ccUI.Input_Mode, false, 1, 0,                        // Input Mode 0x2C
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUI.Maximum_Character_Count, true, 1, 0,            // Maximum Character Count 0x6F
+         new AttrData((int)ccUI.Maximum_Character_Count, false, 1, 0,           // Maximum Character Count 0x2D
             new Prop(1, DataFormats.Decimal, 240, 1000, fmtDD.None)),           //   Data
-         new AttrData((int)ccUI.Maximum_Registered_Message_Count, false, 1, 0,  // Maximum Registered Message Count 0x70
+         new AttrData((int)ccUI.Maximum_Registered_Message_Count, false, 1, 0,  // Maximum Registered Message Count 0x2E
             new Prop(1, DataFormats.Decimal, 300, 2000, fmtDD.None)),           //   Data
-         new AttrData((int)ccUI.Barcode_Information, true, 1, 0,                // Barcode Information 0x71
+         new AttrData((int)ccUI.Barcode_Information, false, 1, 0,               // Barcode Information 0x2F
             new Prop(1, DataFormats.Decimal, 1, 2, fmtDD.None)),                //   Data
-         new AttrData((int)ccUI.Usable_Character_Size, true, 1, 0,              // Usable Character Size 0x72
+         new AttrData((int)ccUI.Usable_Character_Size, false, 1, 0,             // Usable Character Size 0x30
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUI.Maximum_Calendar_And_Count, true, 1, 0,         // Maximum Calendar And Count 0x73
+         new AttrData((int)ccUI.Maximum_Calendar_And_Count, false, 1, 0,        // Maximum Calendar And Count 0x31
             new Prop(1, DataFormats.Decimal, 3, 8, fmtDD.None)),                //   Data
-         new AttrData((int)ccUI.Maximum_Substitution_Rule, true, 1, 0,          // Maximum Substitution Rule 0x74
+         new AttrData((int)ccUI.Maximum_Substitution_Rule, false, 1, 0,         // Maximum Substitution Rule 0x32
             new Prop(1, DataFormats.Decimal, 48, 99, fmtDD.None)),              //   Data
-         new AttrData((int)ccUI.Shift_Code_And_Time_Count, true, 1, 0,          // Shift Code And Time Count 0x75
+         new AttrData((int)ccUI.Shift_Code_And_Time_Count, false, 1, 0,         // Shift Code And Time Count 0x33
             new Prop(1, DataFormats.Decimal, 0, 99, fmtDD.None)),               //   Data
-         new AttrData((int)ccUI.Chimney_And_DIN_Print, true, 1, 0,              // Chimney And DIN Print 0x76
+         new AttrData((int)ccUI.Chimney_And_DIN_Print, false, 1, 0,             // Chimney And DIN Print 0x34
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
-         new AttrData((int)ccUI.Maximum_Line_Count, true, 1, 0,                 // Maximum Line Count 0x77
+         new AttrData((int)ccUI.Maximum_Line_Count, false, 1, 0,                // Maximum Line Count 0x35
             new Prop(1, DataFormats.Decimal, 0, 0, fmtDD.None)),                //   Data
          new AttrData((int)ccUI.Basic_Software_Version, false, 1, 0,            // Basic Software Version 0x78
             new Prop(32, DataFormats.UTF8, 0, 0, fmtDD.None)),                  //   Data
