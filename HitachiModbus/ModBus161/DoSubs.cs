@@ -230,16 +230,18 @@ namespace ModBus161 {
          // Get the global list of substitution rules
          string fileName = Path.Combine(parent.txtMessageFolder.Text, txtGlobalFileName.Text);
          SubRules sr = Deserialize<SubRules>(fileName);
-         Subs[(int)Src.Global] = sr.Substitution;
+         if (sr != null) {
+            Subs[(int)Src.Global] = sr.Substitution;
 
-         // Get the global loaded
-         cbSource.SelectedIndex = (int)Src.Global;
-         cbAttribute.SelectedIndex = (int)ccSR.Month;
+            // Get the global loaded
+            cbSource.SelectedIndex = (int)Src.Global;
+            cbAttribute.SelectedIndex = (int)ccSR.Month;
 
-         // get a message that contains substitution rules.
-         fileName = Path.Combine(parent.txtMessageFolder.Text, txtMsgFileName.Text);
-         Lab lab = Deserialize<Lab>(fileName);
-         Subs[(int)Src.Message] = lab.Printer[0].Substitution;
+            // get a message that contains substitution rules.
+            fileName = Path.Combine(parent.txtMessageFolder.Text, txtMsgFileName.Text);
+            Lab lab = Deserialize<Lab>(fileName);
+            Subs[(int)Src.Message] = lab.Printer[0].Substitution;
+         }
 
       }
 

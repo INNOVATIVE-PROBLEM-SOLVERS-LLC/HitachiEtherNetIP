@@ -291,7 +291,7 @@ namespace Modbus_DLL {
       // Set bytes into section
       private void SetData(AttrData attr, int offset, byte[] data) {
          string index = string.Empty;
-         if (!Load && data.Count(x => x != 0) == 0) {
+         if (!Load && (data == null || data.Count(x => x != 0) == 0)) {
             return;
          }
          if (attr.Count > 1) {
