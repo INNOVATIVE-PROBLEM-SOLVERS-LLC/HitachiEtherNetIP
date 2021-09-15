@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<Label Version="Serialization-1">
+  <Printer Make="Hitachi" Model="UX-616" Nozzle="0">
+    <PrintHead Orientation="2" />
+    <ContinuousPrinting RepeatInterval="0000" PrintsPerTrigger="0000" />
+    <TargetSensor Filter="2" SetupValue="0050" Timer="000" />
+    <CharacterSize Width="0" Height="90" />
+    <PrintStartDelay Forward="0150" Reverse="0150" />
+    <EncoderSettings HighSpeedPrinting="0" Divisor="2" ExternalEncoder="0" />
+    <InkStream InkDropUse="02" ChargeRule="1" />
+  </Printer>
+  <Message Layout="Individual" Nozzle="0">
+    <Column InterLineSpacing="1">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="2" Col="0" Index="1" X="0" Y="18" />
+        <Text>L[Line]-</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="1" Col="0" Index="2" X="0" Y="8" />
+        <Text>{0000}</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="0" Col="0" Index="3" X="0" Y="0" />
+        <Text>[Text]</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="1">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="2" Col="1" Index="4" X="18" Y="18" />
+        <Text>B[Batch]-</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Date Block="1" SubstitutionRule="1" RuleName="" />
+        <Location Row="1" Col="1" Index="5" X="24" Y="8" />
+        <Text> {{MM}{DD}{YY}} </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Date Block="1" SubstitutionRule="1" RuleName="">
+          <Offset Month="24" />
+        </Date>
+        <Location Row="0" Col="1" Index="6" X="96" Y="0" />
+        <Text>{{MM}{DD}{YY}}</Text>
+      </Item>
+    </Column>
+    <Column InterLineSpacing="1">
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="2" Col="2" Index="7" X="36" Y="18" />
+        <Text>[ItemNumber] </Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="0" IncreasedWidth="1" DotMatrix="5X8" />
+        <BarCode HumanReadableFont="(None)" EANPrefix="00" DotMatrix="Code 128(Code Set B)" />
+        <Location Row="1" Col="2" Index="8" X="72" Y="8" />
+        <Text>[Barcode6]</Text>
+      </Item>
+      <Item>
+        <Font InterCharacterSpace="1" IncreasedWidth="1" DotMatrix="5X8" />
+        <Location Row="0" Col="2" Index="9" X="132" Y="0" />
+        <Text> </Text>
+      </Item>
+    </Column>
+  </Message>
+</Label>

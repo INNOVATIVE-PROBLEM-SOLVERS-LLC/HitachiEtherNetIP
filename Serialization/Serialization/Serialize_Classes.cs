@@ -144,6 +144,10 @@ namespace Serialization {
          return Link != null;          // Write out Link only if it is used.
       }
 
+      public bool ShouldSerializeSplitAt() {
+         return false;                // Not supported with Modbus Protocol
+      }
+
       public bool ShouldSerializePrompt() {
          return Prompt != null;        // Write out Prompt only if it is used.
       }

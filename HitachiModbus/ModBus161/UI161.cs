@@ -73,6 +73,13 @@ namespace ModBus161 {
 
       DoSubs doSubs;
 
+      char[] brackets = new char[] { '[', ']' };
+
+      List<Label> substKeys = new List<Label>();
+      List<TextBox> substData = new List<TextBox>();
+
+      Lab lab = null;
+
       #endregion
 
       #region Application data
@@ -148,7 +155,7 @@ namespace ModBus161 {
                break;
             case AsyncIO.TaskType.GetMessages:
                dgMessages.Rows.Clear();
-               foreach(string s in status.MultiLine) {
+               foreach (string s in status.MultiLine) {
                   dgMessages.Rows.Add(s.Split(','));
                }
                break;
@@ -208,7 +215,20 @@ namespace ModBus161 {
 
          doSubs.DoSubs_Load(sender, e);
 
+         LoadHMLFiles();
+
          SetButtonEnables();
+      }
+
+      private void LoadHMLFiles() {
+         cbAvailableTemplates.Items.Clear();
+         if (!string.IsNullOrEmpty(txtMessageFolder.Text) && Directory.Exists(txtMessageFolder.Text)) {
+            string[] fileNames = Directory.GetFiles(txtMessageFolder.Text, "*.HML");
+            Array.Sort(fileNames);
+            for (int i = 0; i < fileNames.Length; i++) {
+               cbAvailableTemplates.Items.Add(Path.GetFileNameWithoutExtension(fileNames[i]));
+            }
+         }
       }
 
       private void UI161_FormClosing(object sender, FormClosingEventArgs e) {
@@ -303,6 +323,33 @@ namespace ModBus161 {
 
                Utils.ResizeObject(ref R, grpMain, 0, 0, 21, 45);
                doSubs?.ResizeControls(ref R, 2, 1);
+
+               Utils.ResizeObject(ref R, grpDataSub, 0, 0, 21, 45);
+               {
+                  Utils.ResizeObject(ref R, lblAvailableTemplates, 1, 1, 2, 8);
+                  Utils.ResizeObject(ref R, cbAvailableTemplates, 3, 1, 2, 8);
+                  Utils.ResizeObject(ref R, cmdLoadTemplate, 5, 1, 2, 3);
+                  Utils.ResizeObject(ref R, cmdDoTemplateSubstitution, 5, 4.5f, 2, 4.5f);
+
+                  Utils.ResizeObject(ref R, lblMsgNumber, 7, 1, 2, 2.5f);
+                  Utils.ResizeObject(ref R, txtMsgNumber, 9, 1, 2, 2.5f);
+                  Utils.ResizeObject(ref R, lblMsgName, 7, 4, 2, 5);
+                  Utils.ResizeObject(ref R, txtMsgName, 9, 4, 2, 5);
+
+                  Utils.ResizeObject(ref R, cmdSendSubstitutedMsg, 11, 1, 2, 8);
+
+                  Utils.ResizeObject(ref R, lblAvailableDataSubs, 1, 10, 2, 17);
+                  Utils.ResizeObject(ref R, lblSubKey, 3, 10, 2, 8);
+                  Utils.ResizeObject(ref R, lblSubData, 3, 19, 2, 8);
+
+                  if (substKeys != null) {
+                     for (int i = 0; i < substKeys.Count; i++) {
+                        Utils.ResizeObject(ref R, substKeys[i], 5 + i * 2, 10, 2, 8);
+                        Utils.ResizeObject(ref R, substData[i], 5 + i * 2, 19, 2, 8);
+                     }
+                  }
+               }
+
             }
 
             Utils.ResizeObject(ref R, lblClass, 38, 1, 2, 4);
@@ -471,6 +518,7 @@ namespace ModBus161 {
          FolderBrowserDialog dlg = new FolderBrowserDialog() { ShowNewFolderButton = true, SelectedPath = txtMessageFolder.Text };
          if (dlg.ShowDialog() == DialogResult.OK) {
             txtMessageFolder.Text = dlg.SelectedPath;
+            LoadHMLFiles();
          }
          SetButtonEnables();
       }
@@ -1155,6 +1203,131 @@ namespace ModBus161 {
          //cmdMessageDelete.Enabled = false;
 
          up.SetButtonEnables(comIsOn);
+
+         cmdLoadTemplate.Enabled = cbAvailableTemplates.SelectedIndex >= 0;
+      }
+
+      #endregion
+
+      #region Data Substitution
+
+      private void cbAvailableTemplates_SelectedIndexChanged(object sender, EventArgs e) {
+         if (cbAvailableTemplates.SelectedIndex >= 0) {
+            txtMsgName.Text = cbAvailableTemplates.Text;
+         } else {
+            txtMsgName.Text = string.Empty;
+         }
+
+         SetButtonEnables();
+      }
+
+      // Load the .HML template
+      private void cmdLoadTemplate_Click(object sender, EventArgs e) {
+
+         // Make sure that the file exists and loads properly.
+         string fileName = Path.Combine(txtMessageFolder.Text, cbAvailableTemplates.Text + ".HML");
+         if (File.Exists(fileName)) {
+            lab = Utils.LoadNewFormatXML<Lab>(fileName);
+            CaptureKeys();
+         }
+      }
+
+      // Do the substitution and send results to the printer.
+      private void cmdDoTemplateSubstitution_Click(object sender, EventArgs e) {
+
+         // Make sure that the file exists and loads properly.
+         if (lab != null) {
+            if (lab.Message != null && lab.Message.Length > 0) {
+               Msg msg = lab.Message[0];
+
+               // Step thru the label structure and do the substitution
+               for (int col = 0; col < msg.Column.Length; col++) {
+                  for (int row = 0; row < msg.Column[col].Item.Length; row++) {
+                     Item item = msg.Column[col].Item[row];
+
+                     // After splitting, the keys are in the even positions, text in the odd positions
+                     string[] s = item.Text.Split(brackets);
+                     for (int i = 1; i < s.Length; i += 2) {
+
+                        // If the key can be found, substitute the data.
+                        Label l = substKeys.Find(x => x.Text == s[i]);
+                        if (l != null) {
+                           s[i] = substData[(int)l.Tag].Text;
+                        }
+                     }
+                     item.Text = string.Concat(s);
+                  }
+               }
+            }
+         }
+      }
+
+      private void cmdSendSubstitutedMsg_Click(object sender, EventArgs e) {
+         // Send the label to the printer.
+         asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.SendLabel) { Label = lab });
+         // Now save it so that the name will show up in the printer header
+         int msgNumber = int.Parse(txtMsgNumber.Text);
+         if (msgNumber > 0 && msgNumber <= MB.GetDecAttribute(ccUI.Maximum_Registered_Message_Count)) {
+            string msgName = txtMsgName.Text.PadRight(12).Substring(0, 12);
+            asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.AddMessage) { Data = msgName, Value = msgNumber });
+         }
+
+      }
+
+      private void CaptureKeys() {
+         List<string> keys = new List<string>(20);
+         if (lab != null) {
+            if (lab.Message != null && lab.Message.Length > 0) {
+
+               // Have a good message so get the needed substitutions
+               Msg msg = lab.Message[0];
+               for (int col = 0; col < msg.Column.Length; col++) {
+                  for (int row = 0; row < msg.Column[col].Item.Length; row++) {
+                     Item item = msg.Column[col].Item[row];
+
+                     // The keys in the template are delimited with square brackets.  Even entries are the keys.
+                     string[] s = item.Text.Split(brackets);
+                     for (int i = 1; i < s.Length; i += 2) {
+                        keys.Add(s[i]);
+                     }
+                  }
+               }
+            }
+         }
+
+         // Sorting may not be desired or needed.
+         keys.Sort();
+         AllocateKeyData(keys);
+      }
+
+      // Make the keys available for testing purposes
+      private void AllocateKeyData(List<string> keys) {
+         // In case there are fewer keys in this message.
+         if (substKeys.Count > keys.Count) {
+            while (substKeys.Count > keys.Count) {
+               grpDataSub.Controls.Remove(substKeys[0]);
+               grpDataSub.Controls.Remove(substData[0]);
+               substKeys.RemoveAt(0);
+               substData.RemoveAt(0);
+            }
+         }
+         // In case there are more keys in this message.
+         if (substKeys.Count < keys.Count) {
+            while (substKeys.Count < keys.Count) {
+               substKeys.Insert(0, new Label() { TextAlign = System.Drawing.ContentAlignment.TopRight});
+               substData.Insert(0, new TextBox());
+               grpDataSub.Controls.Add(substKeys[0]);
+               grpDataSub.Controls.Add(substData[0]);
+            }
+         }
+         // Load the keys and remember their position
+         for (int i = 0; i < keys.Count; i++) {
+            substKeys[i].Text = keys[i];
+            substKeys[i].Tag = i;
+            substData[i].Text = "";
+         }
+         // Update the screen display of keys/data
+         UI161_Resize(null, null);
       }
 
       #endregion
