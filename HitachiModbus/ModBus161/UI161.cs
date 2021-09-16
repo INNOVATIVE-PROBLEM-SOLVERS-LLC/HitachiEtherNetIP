@@ -676,218 +676,6 @@ namespace ModBus161 {
          Log($"\"{s.Replace("\x00", "")}\"");
       }
 
-      // Just playing around to see how things work
-      private void cmdExperiment_Click(object sender, EventArgs e) {
-
-         MB.DeleteAllButOne();
-
-         // Columns are 1-origin indexing, items are 0-origin indexing
-         int c = 1;
-         int i = 0;
-
-         Log(" \n// Column 1 is already there\n ");
-
-         Log(" \n// Set up the column 1 with 1 item\n ");
-
-         // Set up the column 1 with 1 items
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, c++);
-         MB.SetAttribute(ccPF.Line, 1);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Set ILS  to 0 for column 1\n ");
-
-         // Set ILS for items 1
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i, 0);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 1\n ");
-
-         // Set item 1 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "1111 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         // **************************************************************
-
-         Log(" \n// Add column 2\n ");
-
-         // Add column 2
-         MB.SetAttribute(ccPF.Add_Column, c);
-
-         Log(" \n// Set up the column 2 with 2 items\n ");
-
-         // Set up the column 2 with 2 items
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, c++);
-         MB.SetAttribute(ccPF.Line, 2);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Set ILS  to 1 for column 2\n ");
-
-         // Set ILS for items 2, 3
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i + 1, 1);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 2\n ");
-
-         // Set item 2 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "2222 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 3\n ");
-
-         // Set item 3 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "3333 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         // **************************************************************
-
-         Log(" \n// Add column 3\n ");
-
-         // Add column 3
-         MB.SetAttribute(ccPF.Add_Column, c);
-
-         Log(" \n// Set up the column 3 with 3 items\n ");
-
-         // Set up the column 3 with 3 items
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, c++);
-         MB.SetAttribute(ccPF.Line, 3);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Set ILS  to 2 for column 3\n ");
-
-         // Set ILS for items 4, 5, 6
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i, 2);
-         MB.SetAttribute(ccPF.Line_Spacing, i + 1, 2);
-         MB.SetAttribute(ccPF.Line_Spacing, i + 2, 2);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 4\n ");
-
-         // Set item 4 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "4444 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 5\n ");
-
-         // Set item 5 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "5555 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 6\n ");
-
-         // Set item 6 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "6666 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         // **************************************************************
-
-         Log(" \n// Add column 4\n ");
-
-         // Add column 4
-         MB.SetAttribute(ccPF.Add_Column, c);
-
-         Log(" \n// Set up the column 4 with 2 items\n ");
-
-         // Set up the column 4 with 2 items
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, c++);
-         MB.SetAttribute(ccPF.Line, 2);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Set ILS  to 1 for column 4\n ");
-
-         // Set ILS for items 7, 8
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i + 1, 1);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 7\n ");
-
-         // Set item 7 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "7777 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 8\n ");
-
-         // Set item 8 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "8888 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         // **************************************************************
-
-         Log(" \n// Add column 5\n ");
-
-         // Add column 5
-         MB.SetAttribute(ccPF.Add_Column, c);
-
-         Log(" \n// Set up the column 5 with 1 item\n ");
-
-         // Set up the column 5 with 1 item
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Column, c++);
-         MB.SetAttribute(ccPF.Line, 1);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Set ILS  to 0 for column 5\n ");
-
-         // Set ILS for items 9
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Line_Spacing, i, 0);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         Log(" \n// Insert text for item 9\n ");
-
-         // Set item 9 text
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-         MB.SetAttribute(ccPF.Dot_Matrix, i, "5X8");
-         MB.SetAttribute(ccPF.InterCharacter_Space, i, 1);
-         MB.SetAttribute(ccPC.Print_Character_String, i * 5, "9999 ");
-         MB.SetAttribute(ccPC.Characters_per_Item, i++, 5);
-         MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-
-         SetButtonEnables();
-      }
-
-
       // Show I/O packets in Log File.
       private void chkLogIO_CheckedChanged(object sender, EventArgs e) {
          MB.LogIO = chkLogIO.Checked;
@@ -1314,7 +1102,7 @@ namespace ModBus161 {
          // In case there are more keys in this message.
          if (substKeys.Count < keys.Count) {
             while (substKeys.Count < keys.Count) {
-               substKeys.Insert(0, new Label() { TextAlign = System.Drawing.ContentAlignment.TopRight});
+               substKeys.Insert(0, new Label() { TextAlign = System.Drawing.ContentAlignment.TopRight });
                substData.Insert(0, new TextBox());
                grpDataSub.Controls.Add(substKeys[0]);
                grpDataSub.Controls.Add(substData[0]);
@@ -1328,6 +1116,102 @@ namespace ModBus161 {
          }
          // Update the screen display of keys/data
          UI161_Resize(null, null);
+      }
+
+      #endregion
+
+      #region Experimental code
+
+      private void cmdExperiment_Click(object sender, EventArgs e) {
+
+         // For this example, only one font is used
+         FontDef commonFont = new FontDef() {
+            InterCharacterSpace = 1,
+            IncreasedWidth = 1,
+            DotMatrix = "5X8",
+         };
+
+         // For this example, all items have the same layout.  Only the text changes.
+         Item commonItem = new Item() {
+            Type = null,
+            Font = commonFont.Clone(),
+            BarCode = null,
+            Date = null,
+            Counter = null,
+            Link = null,
+            Prompt = null,
+            Location = null,
+            Text = "Top",
+         };
+
+         // For this example, all columns contain three items.
+         Column commonColumn = new Column() {
+            InterLineSpacing = 1,
+            Item = new Item[] {
+               commonItem.Clone(),
+               commonItem.Clone(),
+               commonItem.Clone(),
+            }
+         };
+
+         // Root
+         Lab lab = new Lab() {
+            Version = "Serialization-1",
+            Printer = null,
+            Message = new Msg[] {
+               new Msg() {
+                  Layout = "Individual",
+                  Name = "Generated Msg",
+                  Nozzle = 0,
+                  Column = new Column[] {
+                     commonColumn.Clone(),
+                  }
+               }
+            }
+         };
+
+         // Now set the text
+         lab.Message[0].Column[0].Item[0].Text = "Top";
+         lab.Message[0].Column[0].Item[1].Text = "Middle";
+         lab.Message[0].Column[0].Item[2].Text = "Bottom";
+
+         // Send HML vs send Lab and Send Sync vs Async
+         const bool sendAsLab = false;
+         const bool sendAsync = false;
+
+
+         // Send Lab vs Send HML
+         if (sendAsLab) {
+            // Code for Sync vs Async
+            if (sendAsync) {
+               // Asynchronous I/O
+               asyncIO.AsyncIOTasks.Add(new ModbusPkt(AsyncIO.TaskType.SendLabel) { Label = lab });
+            } else {
+               // Synchronous I/O
+               SendRetrieveXML send = new SendRetrieveXML(MB);
+               send.Log += Modbus_Log;
+               try {
+                  send.SendXML(lab);
+               } finally {
+                  send.Log -= Modbus_Log;
+                  send = null;
+               }
+            }
+         } else {
+
+            // Code for sending .HML vs .Lab
+            string hml = Serializer<Lab>.ClassToXml(lab);
+            // Synchronous I/O
+            SendRetrieveXML send = new SendRetrieveXML(MB);
+            send.Log += Modbus_Log;
+            try {
+               send.SendXML(lab);
+            } finally {
+               send.Log -= Modbus_Log;
+               send = null;
+            }
+         }
+
       }
 
       #endregion
