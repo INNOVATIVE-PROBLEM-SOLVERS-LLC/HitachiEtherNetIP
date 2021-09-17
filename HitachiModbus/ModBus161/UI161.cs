@@ -1205,7 +1205,7 @@ namespace ModBus161 {
             SendRetrieveXML send = new SendRetrieveXML(MB);
             send.Log += Modbus_Log;
             try {
-               send.SendXML(lab);
+               send.SendXML(hml);
             } finally {
                send.Log -= Modbus_Log;
                send = null;
