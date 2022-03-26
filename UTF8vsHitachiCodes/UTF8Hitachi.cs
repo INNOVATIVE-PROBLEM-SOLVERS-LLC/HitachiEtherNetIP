@@ -11,42 +11,42 @@ namespace UTF8vsHitachiCodes {
 
       static UTF8Hitachi() {
          // Build language dictionaries
-         HitachiToUTF8 = new Dictionary<int, string>();
-         UTF8ToHitachi = new Dictionary<string, int>();
+         HitachiToUTF8 = new Dictionary<char, string>();
+         UTF8ToHitachi = new Dictionary<string, char>();
          int n;
 
          for (int i = 0; i < Accent1Characters.Length; i++) {
-            UTF8ToHitachi.Add(Accent1Characters[i], HitachiAccent1Characters[i]);
-            HitachiToUTF8.Add(HitachiAccent1Characters[i], Accent1Characters[i]);
+            UTF8ToHitachi.Add(Accent1Characters[i], (char)HitachiAccent1Characters[i]);
+            HitachiToUTF8.Add((char)HitachiAccent1Characters[i], Accent1Characters[i]);
          }
 
          for (int i = 0; i < Accent2Characters.Length; i++) {
-            UTF8ToHitachi.Add(Accent2Characters[i], HitachiAccent2Characters[i]);
-            HitachiToUTF8.Add(HitachiAccent2Characters[i], Accent2Characters[i]);
+            UTF8ToHitachi.Add(Accent2Characters[i], (char)HitachiAccent2Characters[i]);
+            HitachiToUTF8.Add((char)HitachiAccent2Characters[i], Accent2Characters[i]);
          }
 
          for (int i = 0; i < GreekCharacters.Length; i++) {
-            UTF8ToHitachi.Add(GreekCharacters[i], HitachiGreekCharacters[i]);
-            HitachiToUTF8.Add(HitachiGreekCharacters[i], GreekCharacters[i]);
+            UTF8ToHitachi.Add(GreekCharacters[i], (char)HitachiGreekCharacters[i]);
+            HitachiToUTF8.Add((char)HitachiGreekCharacters[i], GreekCharacters[i]);
          }
 
          for (int i = 0; i < RussianCharacters.Length; i++) {
-            UTF8ToHitachi.Add(RussianCharacters[i], HitachiRussianCharacters[i]);
-            HitachiToUTF8.Add(HitachiRussianCharacters[i], RussianCharacters[i]);
+            UTF8ToHitachi.Add(RussianCharacters[i], (char)HitachiRussianCharacters[i]);
+            HitachiToUTF8.Add((char)HitachiRussianCharacters[i], RussianCharacters[i]);
          }
 
          for (int i = 0; i < DateTimeCharacters.Length; i++) {
-            UTF8ToHitachi.Add(DateTimeCharacters[i], HitachiDateTimeCharacters[i]);
-            HitachiToUTF8.Add(HitachiDateTimeCharacters[i], DateTimeCharacters[i]);
+            UTF8ToHitachi.Add(DateTimeCharacters[i], (char)HitachiDateTimeCharacters[i]);
+            HitachiToUTF8.Add((char)HitachiDateTimeCharacters[i], DateTimeCharacters[i]);
          }
 
          for (int i = 0; i < DateTimeCharactersSOP4.Length; i++) {
             //UTF8ToHitachi.Add(DateTimeCharacters[i], HitachiDateTimeCharacters[i]);
-            HitachiToUTF8.Add(HitachiDateTimeCharactersSOP4[i], DateTimeCharactersSOP4[i]);
+            HitachiToUTF8.Add((char)HitachiDateTimeCharactersSOP4[i], DateTimeCharactersSOP4[i]);
          }
 
          for (int i = 0; i < 50; i++) { // Free layout user patterns
-            HitachiToUTF8.Add(0xF640 + i, $"{{Z/{i}}}");
+            HitachiToUTF8.Add((char)(0xF640 + i), $"{{Z/{i}}}");
          }
 
          for (int i = 0; i < 200; i++) { // Fixed layout user patterns
@@ -55,17 +55,17 @@ namespace UTF8vsHitachiCodes {
             } else {
                n = 0xF220 - 192;
             }
-            HitachiToUTF8.Add(n + i, $"{{X/{i}}}");
+            HitachiToUTF8.Add((char)(n + i), $"{{X/{i}}}");
          }
 
          for (int i = 0; i < 48; i++) {
-            HitachiToUTF8.Add(0xD0 + i, $"{{X/{i}}}");
+            HitachiToUTF8.Add((char)(0xD0 + i), $"{{X/{i}}}");
          }
       }
 
       // Multiple language translations for Legacy Printers
-      static public Dictionary<int, string> HitachiToUTF8;
-      static public Dictionary<string, int> UTF8ToHitachi;
+      static public Dictionary<char, string> HitachiToUTF8;
+      static public Dictionary<string, char> UTF8ToHitachi;
 
       #region European Accent Characters
 
@@ -213,7 +213,7 @@ namespace UTF8vsHitachiCodes {
          List<(int itemNumber, string itemText)> ItemData = new   List<(int itemNumber, string itemText)>(100);
          int n = 0;
          int maxN = 0;
-         int x;                                   // Dictionary Key
+         char x;                                   // Dictionary Key
          string y;                                // Dictionary Value
 
          while (msg.Length > 0) {
@@ -226,7 +226,7 @@ namespace UTF8vsHitachiCodes {
                int c0 = msg[0];
                int c1 = msg[1];
                int c2 = msg[2];
-               x = (c1 << 8) + c2;
+               x = (char)((c1 << 8) + c2);
                if (UTF8Hitachi.HitachiToUTF8.TryGetValue(x, out y)) {
                   ItemText += y;
                } else {
@@ -257,7 +257,7 @@ namespace UTF8vsHitachiCodes {
             string s = "";
             while (msg.Length > 0 && msg[0] != '\x10') {
                if ((msg[0] & 0xF0) == 0xF0 && msg.Length > 1) {
-                  int c = (msg[0] << 8) + msg[1];
+                  char c = (char)((msg[0] << 8) + msg[1]);
                   if (UTF8Hitachi.HitachiToUTF8.TryGetValue(c, out string y)) {
                      s += y;
                   } else {

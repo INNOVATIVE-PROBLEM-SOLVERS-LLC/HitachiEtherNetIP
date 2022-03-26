@@ -63,6 +63,10 @@ namespace EIP_Lib {
          base.Add(Tuple.Create(key1, key2), value);
       }
 
+      public bool ContainsKey(TKey1 key1, TKey2 key2) {
+         return base.ContainsKey(Tuple.Create(key1, key2));
+      }
+
       #endregion
 
    }

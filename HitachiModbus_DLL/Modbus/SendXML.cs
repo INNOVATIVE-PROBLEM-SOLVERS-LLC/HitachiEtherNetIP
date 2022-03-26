@@ -584,6 +584,36 @@ namespace Modbus_DLL {
          return success;
       }
 
+      public bool WriteAllItems(string[] data) {
+         bool success = true;
+         // Get the number of items in the message
+         int itemCount = p.GetDecAttribute(ccIDX.Number_Of_Items);
+         if (itemCount == data.Length) {
+            WriteAllText(data.ToList<string>());
+         } else {
+            success = false;
+         }
+         return success;
+      }
+
+      public bool WriteDateOffset(string[] data) {
+         // Save the calendar information (may need to do the same for Counter control).
+         int calCnt = p.GetDecAttribute(ccUI.Maximum_Calendar_And_Count);
+         int n = Math.Min(calCnt, data.Length);
+         for (int i = 0; i < n; i++) {
+            if (data[i] != "0") {
+               p.SetAttribute(ccCal.Offset_Day, i, data[i]);
+            }
+         }
+         return true;
+      }
+
+      public bool WritePrintDelay(string data1) {
+         p.SetAttribute(ccPS.Print_Start_Delay_Forward, data1);
+         p.SetAttribute(ccPS.Print_Start_Delay_Reverse, data1);
+         return true;
+      }
+
       #endregion
 
       #region Send Printer Settings to printer
@@ -613,10 +643,10 @@ namespace Modbus_DLL {
                pss.SetAttribute(ccPS.Character_Width, ptr.CharacterSize.Width);
                pss.SetAttribute(ccPS.Character_Height, ptr.CharacterSize.Height);
             }
-            if (ptr.PrintStartDelay != null) {
-               pss.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
-               pss.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
-            }
+            //if (ptr.PrintStartDelay != null) {
+            //   pss.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
+            //   //pss.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
+            //}
             if (ptr.EncoderSettings != null) {
                //pss.SetAttribute(ccPS.High_Speed_Print, ptr.EncoderSettings.HighSpeedPrinting);
                pss.SetAttribute(ccPS.Pulse_Rate_Division_Factor, ptr.EncoderSettings.Divisor);
@@ -628,6 +658,10 @@ namespace Modbus_DLL {
             }
          }
          pss.WriteSection();
+         if (ptr.PrintStartDelay != null) {
+            p.SetAttribute(ccPS.Print_Start_Delay_Forward, ptr.PrintStartDelay.Forward);
+            //p.SetAttribute(ccPS.Print_Start_Delay_Reverse, ptr.PrintStartDelay.Reverse);
+         }
       }
 
       // Send the substitution header

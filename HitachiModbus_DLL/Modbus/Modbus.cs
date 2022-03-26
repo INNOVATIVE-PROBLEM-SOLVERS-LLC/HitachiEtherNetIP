@@ -94,7 +94,7 @@ namespace Modbus_DLL {
       Encoding Encode = Encoding.GetEncoding("ISO-8859-1");
 
       // Data Tables describing Hitachi Model 161
-      static public Data M161 = new Data();
+      static public Data M161;
 
       // Check on connection and Com State
       public bool IsConnected { get { return stream != null; } }
@@ -125,6 +125,9 @@ namespace Modbus_DLL {
 
       // Create object and build dictionary of attributes
       public Modbus(Form parent) {
+
+         M161 = new Data();
+
          this.parent = parent;
 
          Data.BuildAttributeDictionary(ClassCodes, ClassCodeAttributes);
@@ -1014,7 +1017,7 @@ namespace Modbus_DLL {
       public string FormatText(byte[] b, int start = 0) {
          StringBuilder s = new StringBuilder(b.Length);
          for (int i = start; i < b.Length; i += 2) {
-            int c = (b[i] << 8) + b[i + 1];
+            char c = (char)((b[i] << 8) + b[i + 1]);
             if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c)) {
                s.Append(UTF8Hitachi.HitachiToUTF8[c]);
             } else {
@@ -1028,8 +1031,8 @@ namespace Modbus_DLL {
       public string FormatAttrText(byte[] text) {
          StringBuilder s = new StringBuilder(text.Length);
          for (int i = 0; i < text.Length; i += 4) {
-            int c1 = (text[i] << 8) + text[i + 1];
-            int c2 = (text[i + 2] << 8) + text[i + 3];
+            char c1 = (char)((text[i] << 8) + text[i + 1]);
+            char c2 = (char)((text[i + 2] << 8) + text[i + 3]);
             if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c1)) {
                s.Append(UTF8Hitachi.HitachiToUTF8[c1]);
             } else if (UTF8Hitachi.HitachiToUTF8.ContainsKey(c2)) {
