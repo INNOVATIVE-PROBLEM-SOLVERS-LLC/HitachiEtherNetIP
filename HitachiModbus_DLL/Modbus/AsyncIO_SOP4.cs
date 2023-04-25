@@ -590,7 +590,7 @@ namespace Modbus_DLL {
       private string PrintData() {
          StringBuilder sb = new StringBuilder(sSTX, 2000);
          int msgs = MB.GetDecAttribute(ccUI.Maximum_Registered_Message_Count);      // Get maximum number of messages allowed
-         Section<ccMM> mm = new Section<ccMM>(MB, ccMM.Registration, 0, msgs / 16, true); // 16 registrations per word
+         Section<ccMM> mm = new Section<ccMM>(MB, ccMM.Registration, 0, (msgs + 15) / 16, true); // 16 registrations per word
          int[] regs = mm.GetWords(0);
          for (int i = 0; i < regs.Length; i++) {
             if (regs[i] != 0) {                                                     // Any on this block?
