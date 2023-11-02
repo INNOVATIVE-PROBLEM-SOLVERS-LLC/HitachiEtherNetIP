@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.960
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModBus161", "ModBus161\ModBus161.csproj", "{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus_DLL", "..\HitachiModbus_DLL\Modbus\Modbus_DLL.csproj", "{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UTF8vsHitachiCodes", "..\UTF8vsHitachiCodes\UTF8vsHitachiCodes.csproj", "{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F013FF0-5918-4F1A-B8A3-70A7ECCA63D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54C291EC-95C0-4C2B-AF50-6FEDD2E4A382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E274E95-5FE5-4FC2-8888-6CDE856C81FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

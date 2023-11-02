@@ -808,8 +808,11 @@ namespace Modbus_DLL {
 
       // See if the User Pattern exists
       public bool UPExists(ccUP attribute, int loc, out int regBit, out int regMask) {
+         //int patReg = GetDecAttribute(ccUP.User_Pattern_Free_Registration, loc);
+         //int mask = 1 << 15;
          regBit = 15 - (loc % 16);
-         regMask = 0; // GetDecAttribute(attribute, loc / 16);
+         regMask = GetDecAttribute(attribute, loc);
+         //return (patReg & mask) > 0;
          return (regMask & (1 << regBit)) > 0;
       }
 

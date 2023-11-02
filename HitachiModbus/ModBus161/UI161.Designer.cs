@@ -75,7 +75,6 @@
          this.cmdErrorRefresh = new System.Windows.Forms.Button();
          this.cmdErrorClear = new System.Windows.Forms.Button();
          this.lbErrors = new System.Windows.Forms.ListBox();
-         this.tabLogo = new System.Windows.Forms.TabPage();
          this.tabLog = new System.Windows.Forms.TabPage();
          this.tabLogAsXML = new System.Windows.Forms.TabPage();
          this.tvLogAsXML = new System.Windows.Forms.TreeView();
@@ -83,6 +82,10 @@
          this.grpMain = new System.Windows.Forms.GroupBox();
          this.tabDataSub = new System.Windows.Forms.TabPage();
          this.grpDataSub = new System.Windows.Forms.GroupBox();
+         this.txtMsgName = new System.Windows.Forms.TextBox();
+         this.txtMsgNumber = new System.Windows.Forms.TextBox();
+         this.lblMsgName = new System.Windows.Forms.Label();
+         this.lblMsgNumber = new System.Windows.Forms.Label();
          this.cmdSendSubstitutedMsg = new System.Windows.Forms.Button();
          this.cmdDoTemplateSubstitution = new System.Windows.Forms.Button();
          this.lblSubData = new System.Windows.Forms.Label();
@@ -128,10 +131,7 @@
          this.txtNaks = new System.Windows.Forms.TextBox();
          this.lblNaks = new System.Windows.Forms.Label();
          this.chkLogAsXML = new System.Windows.Forms.CheckBox();
-         this.lblMsgNumber = new System.Windows.Forms.Label();
-         this.lblMsgName = new System.Windows.Forms.Label();
-         this.txtMsgNumber = new System.Windows.Forms.TextBox();
-         this.txtMsgName = new System.Windows.Forms.TextBox();
+         this.tabLogo = new System.Windows.Forms.TabPage();
          this.cmLog.SuspendLayout();
          this.tclViews.SuspendLayout();
          this.tabMessages.SuspendLayout();
@@ -686,16 +686,6 @@
          this.lbErrors.Size = new System.Drawing.Size(585, 251);
          this.lbErrors.TabIndex = 13;
          // 
-         // tabLogo
-         // 
-         this.tabLogo.Location = new System.Drawing.Point(4, 22);
-         this.tabLogo.Margin = new System.Windows.Forms.Padding(2);
-         this.tabLogo.Name = "tabLogo";
-         this.tabLogo.Size = new System.Drawing.Size(624, 317);
-         this.tabLogo.TabIndex = 8;
-         this.tabLogo.Text = "Logo";
-         this.tabLogo.UseVisualStyleBackColor = true;
-         // 
          // tabLog
          // 
          this.tabLog.Controls.Add(this.lstMessages);
@@ -779,6 +769,39 @@
          this.grpDataSub.Size = new System.Drawing.Size(594, 288);
          this.grpDataSub.TabIndex = 1;
          this.grpDataSub.TabStop = false;
+         // 
+         // txtMsgName
+         // 
+         this.txtMsgName.Location = new System.Drawing.Point(110, 164);
+         this.txtMsgName.Name = "txtMsgName";
+         this.txtMsgName.Size = new System.Drawing.Size(101, 20);
+         this.txtMsgName.TabIndex = 14;
+         // 
+         // txtMsgNumber
+         // 
+         this.txtMsgNumber.Location = new System.Drawing.Point(19, 164);
+         this.txtMsgNumber.Name = "txtMsgNumber";
+         this.txtMsgNumber.Size = new System.Drawing.Size(77, 20);
+         this.txtMsgNumber.TabIndex = 13;
+         this.txtMsgNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+         // 
+         // lblMsgName
+         // 
+         this.lblMsgName.Location = new System.Drawing.Point(107, 132);
+         this.lblMsgName.Name = "lblMsgName";
+         this.lblMsgName.Size = new System.Drawing.Size(112, 19);
+         this.lblMsgName.TabIndex = 12;
+         this.lblMsgName.Text = "Name";
+         this.lblMsgName.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+         // 
+         // lblMsgNumber
+         // 
+         this.lblMsgNumber.Location = new System.Drawing.Point(28, 132);
+         this.lblMsgNumber.Name = "lblMsgNumber";
+         this.lblMsgNumber.Size = new System.Drawing.Size(83, 29);
+         this.lblMsgNumber.TabIndex = 11;
+         this.lblMsgNumber.Text = "Msg#";
+         this.lblMsgNumber.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
          // 
          // cmdSendSubstitutedMsg
          // 
@@ -1257,38 +1280,15 @@
          this.chkLogAsXML.UseVisualStyleBackColor = true;
          this.chkLogAsXML.CheckedChanged += new System.EventHandler(this.chkLogAsXML_CheckedChanged);
          // 
-         // lblMsgNumber
+         // tabLogo
          // 
-         this.lblMsgNumber.Location = new System.Drawing.Point(28, 132);
-         this.lblMsgNumber.Name = "lblMsgNumber";
-         this.lblMsgNumber.Size = new System.Drawing.Size(83, 29);
-         this.lblMsgNumber.TabIndex = 11;
-         this.lblMsgNumber.Text = "Msg#";
-         this.lblMsgNumber.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // lblMsgName
-         // 
-         this.lblMsgName.Location = new System.Drawing.Point(107, 132);
-         this.lblMsgName.Name = "lblMsgName";
-         this.lblMsgName.Size = new System.Drawing.Size(112, 19);
-         this.lblMsgName.TabIndex = 12;
-         this.lblMsgName.Text = "Name";
-         this.lblMsgName.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-         // 
-         // txtMsgNumber
-         // 
-         this.txtMsgNumber.Location = new System.Drawing.Point(19, 164);
-         this.txtMsgNumber.Name = "txtMsgNumber";
-         this.txtMsgNumber.Size = new System.Drawing.Size(77, 20);
-         this.txtMsgNumber.TabIndex = 13;
-         this.txtMsgNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-         // 
-         // txtMsgName
-         // 
-         this.txtMsgName.Location = new System.Drawing.Point(110, 164);
-         this.txtMsgName.Name = "txtMsgName";
-         this.txtMsgName.Size = new System.Drawing.Size(101, 20);
-         this.txtMsgName.TabIndex = 14;
+         this.tabLogo.Location = new System.Drawing.Point(4, 22);
+         this.tabLogo.Margin = new System.Windows.Forms.Padding(2);
+         this.tabLogo.Name = "tabLogo";
+         this.tabLogo.Size = new System.Drawing.Size(624, 317);
+         this.tabLogo.TabIndex = 8;
+         this.tabLogo.Text = "Logo";
+         this.tabLogo.UseVisualStyleBackColor = true;
          // 
          // UI161
          // 
@@ -1457,7 +1457,6 @@
       public System.Windows.Forms.CheckBox chkStopOnAllErrors;
       private System.Windows.Forms.Label lblPrinterStatus;
       public System.Windows.Forms.TextBox txtPrinterStatus;
-      private System.Windows.Forms.TabPage tabLogo;
       public System.Windows.Forms.TextBox txtAnalysis;
       private System.Windows.Forms.Label lblAnalysis;
       private System.Windows.Forms.ComboBox cbMessageNumber;
@@ -1490,6 +1489,7 @@
       private System.Windows.Forms.TextBox txtMsgNumber;
       private System.Windows.Forms.Label lblMsgName;
       private System.Windows.Forms.Label lblMsgNumber;
+      private System.Windows.Forms.TabPage tabLogo;
    }
 }
 
