@@ -577,9 +577,9 @@ namespace Modbus_DLL {
          new AttrData((int)ccPS.Character_Orientation, true, 1, 0, Noz.Current, // Character Orientation 0x19A4
             new Prop(1, DataFormats.Decimal, 0, 3, fmtDD.Orientation)),         //   Data
          new AttrData((int)ccPS.Print_Start_Delay_Forward, true, 1, 0, Noz.Current, // Print Start Delay Forward 0x19A5
-            new Prop(1, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
          new AttrData((int)ccPS.Print_Start_Delay_Reverse, true, 1, 0, Noz.Current, // Print Start Delay Reverse 0x19A6
-            new Prop(1, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
+            new Prop(2, DataFormats.Decimal, 0, 9999, fmtDD.None)),             //   Data
          new AttrData((int)ccPS.Product_Speed_Matching, true, 1, 0, Noz.Current, // Product Speed Matching 0x19A7
             new Prop(1, DataFormats.Decimal, 0, 2, fmtDD.ProductSpeedMatching)), //   Data
          new AttrData((int)ccPS.Pulse_Rate_Division_Factor, true, 1, 0, Noz.Current, // Pulse Rate Division Factor 0x19A8
@@ -1044,8 +1044,8 @@ namespace Modbus_DLL {
          DumpTable(RFS, ccPC_Addrs, ClassCode.Print_Contents, typeof(ccPC));
          DumpTable(RFS, ccAPP_Addrs, ClassCode.Adjust_Print_Parameters, typeof(ccAPP));
          DumpTable(RFS, ccAH_Addrs, ClassCode.Alarm_History, typeof(ccAH));
-         DumpTable(RFS, ccMM_Addrs, ClassCode.Alarm_History, typeof(ccMM));
-         DumpTable(RFS, ccMG_Addrs, ClassCode.Alarm_History, typeof(ccMG));
+         DumpTable(RFS, ccMM_Addrs, ClassCode.Manage_Messages, typeof(ccMM));
+         DumpTable(RFS, ccMG_Addrs, ClassCode.Manage_Groups, typeof(ccMG));
 
       }
 

@@ -49,6 +49,9 @@ namespace Modbus_DLL {
          TimedDelay,
          Retrieve,
          WriteSelectedItems,
+         WriteDateOffset,
+         WritePrintDelay,
+         WriteAllItems,
          Idle,
          Exit,
       }
@@ -165,6 +168,15 @@ namespace Modbus_DLL {
                   case TaskType.WriteSelectedItems:
                      WriteSelectedItems(pkt);
                      break;
+                  case TaskType.WriteDateOffset:
+                     WriteDateOffset(pkt);
+                     break;
+                  case TaskType.WritePrintDelay:
+                     WritePrintDelay(pkt);
+                     break;
+                  case TaskType.WriteAllItems:
+                     WriteAllItems(pkt);
+                     break;
                   case TaskType.Exit:
                      done = true;
                      break;
@@ -178,12 +190,54 @@ namespace Modbus_DLL {
          }
       }
 
+      private void WriteAllItems(ModbusPkt pkt) {
+         bool success = false;
+         SendRetrieveXML send = new SendRetrieveXML(MB);
+         send.Log += Modbus_Log;
+         try {
+            success = send.WriteAllItems(pkt.Data2);
+         } finally {
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
+            send.Log -= Modbus_Log;
+            send = null;
+         }
+      }
+
       private void WriteSelectedItems(ModbusPkt pkt) {
          bool success = false;
          SendRetrieveXML send = new SendRetrieveXML(MB);
          send.Log += Modbus_Log;
          try {
             success = send.WriteSelectedItems(pkt.Item, pkt.Data);
+         } finally {
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
+            send.Log -= Modbus_Log;
+            send = null;
+         }
+      }
+
+      private void WriteDateOffset(ModbusPkt pkt) {
+         bool success = false;
+         SendRetrieveXML send = new SendRetrieveXML(MB);
+         send.Log += Modbus_Log;
+         try {
+            success = send.WriteDateOffset(pkt.Data2);
+         } finally {
+            AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
+            parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
+            send.Log -= Modbus_Log;
+            send = null;
+         }
+      }
+
+      private void WritePrintDelay(ModbusPkt pkt) {
+         bool success = false;
+         SendRetrieveXML send = new SendRetrieveXML(MB);
+         send.Log += Modbus_Log;
+         try {
+            success = send.WritePrintDelay(pkt.Data);
          } finally {
             AsyncComplete ac = new AsyncComplete(MB, pkt) { Success = success };
             parent.BeginInvoke(new EventHandler(delegate { Complete(this, ac); }));
@@ -319,26 +373,30 @@ namespace Modbus_DLL {
       }
 
       private void GetMessages(ModbusPkt pkt) {
-         StringBuilder sb = new StringBuilder();
          List<string> msgs = new List<string>();
          string[] s = new string[3];
-         // For now, look at the first 48 only.  Need to implement block read
-         AttrData attrCount = MB.GetAttrData(ccMM.Registration);
-         for (int i = 0; i < Math.Min(3, attrCount.Count); i++) {
-            int reg = MB.GetDecAttribute(ccMM.Registration, i);
-            if (reg == 0) {
-               continue;
-            }
-            for (int j = 15; j >= 0; j--) {
-               if ((reg & (1 << j)) > 0) {
-                  int n = i * 16 - j + 15; // 1-origin
-                  MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
-                  MB.SetAttribute(ccIDX.Message_Number, n + 1);         // Load the message into input registers
-                  MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
-                  s[0] = MB.GetHRAttribute(ccMM.Group_Number);
-                  s[1] = MB.GetHRAttribute(ccMM.Message_Number);
-                  s[2] = MB.GetHRAttribute(ccMM.Message_Name);
-                  msgs.Add(string.Join(",", s));
+
+         // Get maximum number of messages allowed and read them ad a block (16 registrations per word)
+         int msgCount = MB.GetDecAttribute(ccUI.Maximum_Registered_Message_Count);
+         Section<ccMM> mm = new Section<ccMM>(MB, ccMM.Registration, 0, (msgCount + 15) / 16, true);
+         int[] regs = mm.GetWords(0);
+
+
+         for (int i = 0; i < regs.Length; i++) {
+            if (regs[i] != 0) {                                                     // Any on this block?
+               for (int j = 0; j < 16; j++) {
+                  int n = 15 - j;
+                  if ((regs[i] & (1 << n)) > 0) {
+                     n = i * 16 + j;                                                // 1-origin
+                     MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 1);
+                     MB.SetAttribute(ccIDX.Message_Number, n + 1);         // Load the message into input registers
+                     MB.SetAttribute(ccIDX.Start_Stop_Management_Flag, 2);
+                     Section<ccMM> msg = new Section<ccMM>(MB, ccMM.Message_Number, 0, 14, true);
+                     s[0] = msg.Get(ccMM.Group_Number, 2);
+                     s[1] = msg.Get(ccMM.Message_Number, 4);
+                     s[2] = msg.Get(ccMM.Message_Name, 12);
+                     msgs.Add(string.Join(",", s));
+                  }
                }
             }
          }
@@ -429,6 +487,7 @@ namespace Modbus_DLL {
       public AsyncIO.TaskType Type { get; set; }
       public int DotMatrix { get; set; }
       public string Data { get; set; } = string.Empty;
+      public string[] Data2 { get; set; } = null;
       public byte[] DataA { get; set; }
       public DateTime When { get; set; } = DateTime.Now;
       public bool View { get; set; } = false;
